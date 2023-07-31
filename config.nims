@@ -1,6 +1,7 @@
 switch("styleCheck", "hint")
 
 --gc:arc
+--define:windyNoHttp
 
 if not defined(emscripten):
   --threads:on
