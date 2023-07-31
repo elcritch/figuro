@@ -63,7 +63,7 @@
     "chroma": {
       "dir": "vendor/chroma",
       "url": "https://github.com/treeform/chroma",
-      "commit": "7c9d96b6e42d4d5fe79f5efac52e798c03b3e7d3"
+      "commit": "c06598cc08cbfd67f57feac0ecbfefc85edefe18"
     },
     "windy": {
       "dir": "vendor/windy",
