@@ -73,7 +73,7 @@ proc setupFidget(
   base.drawFrame = proc() =
     # echo "\ndrawFrame"
     clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-    ctx.beginFrame(windowFrame)
+    ctx.beginFrame(windowSize)
     ctx.saveTransform()
     ctx.scale(ctx.pixelScale)
 
@@ -199,7 +199,7 @@ proc startFidget*(
           eventTimePost = epochTime()
         await sleepAsync(16)
     waitFor: running()
-    exit()
+    # exit()
 
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser
@@ -220,8 +220,8 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh()
 
-proc setWindowBounds*(min, max: Vec2) =
-  base.setWindowBounds(min, max)
+# proc setWindowBounds*(min, max: Vec2) =
+#   base.setWindowBounds(min, max)
 
 proc getUrl*(): string =
   windowUrl

@@ -1,6 +1,6 @@
-import windy
+import windy/common
 
-export windy
+export common
 
 type
   ModKey* = enum
@@ -9,17 +9,15 @@ type
     ALT = 0x0004
     SUPER = 0x0008
 
+  Buttons* = object
+    down*: ButtonView
+    release*: ButtonView
+    toggle*: ButtonView
+    press*: ButtonView
+
 var
-  buttonDown* = newSeq[bool](348)
-  buttonRelease* = newSeq[bool](348)
-  buttonToggle* = newSeq[bool](348)
-  buttonPress* = newSeq[bool](348)
+  buttons*: Buttons
 
-proc `[]`*(buttons: seq[bool], button: Button): bool =
-  return buttons[cast[int](button)]
-
-proc `[]=`*(buttons: var seq[bool], button: Button, value: bool) =
-  buttons[cast[int](button)] = value
 
 when defined(js):
   import tables

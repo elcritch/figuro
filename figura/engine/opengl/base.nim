@@ -14,8 +14,6 @@ when defined(glDebugMessageCallback):
   import strformat, strutils
 
 type
-  MSAA* = enum
-    msaaDisabled, msaa2x = 2, msaa4x = 4, msaa8x = 8
 
   MainLoopMode* = enum
     ## Only repaints on event
@@ -40,7 +38,7 @@ const
   deltaTick: int64 = 1_000_000_000 div 240
 
 var
-  window: windy.Window
+  window*: windy.Window
   loopMode*: MainLoopMode
   dpi*: float32
   drawFrame*: proc()

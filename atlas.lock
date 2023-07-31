@@ -95,11 +95,6 @@
       "url": "https://github.com/treeform/typography",
       "commit": "a2a5165c36e0098dea526712890fb7e988ba27f2"
     },
-    "staticglfw": {
-      "dir": "vendor/staticglfw",
-      "url": "https://github.com/treeform/staticglfw",
-      "commit": "f6a40acf98466c3a11ab3f074a70d570c297f82b"
-    },
     "supersnappy": {
       "dir": "vendor/supersnappy",
       "url": "https://github.com/guzba/supersnappy",

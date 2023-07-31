@@ -253,7 +253,7 @@ proc mouseRatio*(node: Node, pad: Position|UICoord, clamped = false): Position =
 template onClick*(inner: untyped, button = MOUSE_LEFT) =
   ## On click event handler.
   current.listens.mouse.incl(evClick)
-  if evClick in current.events.mouse and buttonPress[button]:
+  if evClick in current.events.mouse and buttons.press[button]:
     inner
 
 template onClickOutside*(inner: untyped, button = MOUSE_LEFT) =
@@ -267,13 +267,13 @@ template onClickOutside*(inner: untyped, button = MOUSE_LEFT) =
 template onRightClick*(inner: untyped) =
   ## On right click event handler.
   current.listens.mouse.incl(evPress)
-  if evPress in current.events.mouse and buttonDown[MOUSE_RIGHT]:
+  if evPress in current.events.mouse and window.buttonDown[MOUSE_RIGHT]:
     inner
 
 template onMouseDown*(inner: untyped, button = MOUSE_LEFT) =
   ## On when mouse is down and overlapping the element.
   current.listens.mouse.incl(evDown)
-  if evDown in current.events.mouse and buttonDown[button]:
+  if evDown in current.events.mouse and window.buttonDown[button]:
     inner
 
 template onHover*(inner: untyped) =
@@ -1210,8 +1210,8 @@ proc scrollpane*(ispane: bool, scrollBars = true, hAlign = hRight, width = 0.68'
 
   if pip.drag:
     ## Calculate drag of scroll bar
-    pip.hPos = mouse.pos.descaled.y 
-    pip.drag = buttonDown[MOUSE_LEFT]
+    pip.hPos = mouse.pos.descaled.y
+    pip.drag = buttons.down[MOUSE_LEFT]
 
     let
       delta = (pip.hPos - pip.hPosLast)
