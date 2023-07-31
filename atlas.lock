@@ -1,10 +1,5 @@
 {
   "items": {
-    "nimsimd": {
-      "dir": "vendor/nimsimd",
-      "url": "https://github.com/guzba/nimsimd",
-      "commit": "548e57c43a11e4d270d37f360d46069b77cd26f3"
-    },
     "print": {
       "dir": "vendor/print",
       "url": "https://github.com/treeform/print",
@@ -33,22 +28,27 @@
     "vmath": {
       "dir": "vendor/vmath",
       "url": "https://github.com/treeform/vmath",
-      "commit": "f4c668874e48e9153d52c4d098f8202e5abec8a9"
+      "commit": "7282ae1247f2f384ebeaec3826d7fa38fd0e1df1"
     },
     "crunchy": {
       "dir": "vendor/crunchy",
       "url": "https://github.com/guzba/crunchy",
-      "commit": "79e7b5bb58cded3479b06275977977284e1dca21"
+      "commit": "d0c9ad33ae72aece49093d7688fc78a7101aa4b0"
+    },
+    "nimsimd": {
+      "dir": "vendor/nimsimd",
+      "url": "https://github.com/guzba/nimsimd",
+      "commit": "854eeba4d7fc67a609b72b7d57b765da80ad79ec"
     },
     "flatty": {
       "dir": "vendor/flatty",
       "url": "https://github.com/treeform/flatty",
-      "commit": "07f6ba8ab96238e5bd1264cf0cea1d1746abb00c"
+      "commit": "78825b9f64f8ed6160ee7ab9cc9720bc9c976b19"
     },
     "zippy": {
       "dir": "vendor/zippy",
       "url": "https://github.com/guzba/zippy",
-      "commit": "8e472c468c1c67b3221a71ad7224cd058492b752"
+      "commit": "a3fd6f0458ffdd7cbbd416be99f2ca80a7852d82"
     },
     "chroma": {
       "dir": "vendor/chroma",
