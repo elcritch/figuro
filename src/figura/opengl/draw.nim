@@ -155,19 +155,28 @@ proc drawText(node: Node) =
   
 import macros
 
+var postDrawsImpl {.compileTime.}: seq[NimNode]
+
 macro ifdraw(check, code: untyped, post: untyped = nil) =
   ## check if code should be drawn
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
   result.add quote do:
     let `checkval` = node.zlevel == currLevel and `check`
-    if `checkval`: `code`
+    if `checkval`:
+      `code`
+  
   if post != nil:
     post.expectKind(nnkFinally)
     let postBlock = post[0]
-    result.add quote do:
-      defer:
-        if `checkval`: `postBlock`
+    postDrawsImpl.add quote do:
+      if `checkval`:
+        `postBlock`
+
+macro postDraws() =
+  result = newStmtList()
+  while postDrawsImpl.len() > 0:
+    result.add postDrawsImpl.pop()
 
 proc drawMasks*(node: Node) =
   if node.cornerRadius[0] != 0'ui:
@@ -292,6 +301,7 @@ proc draw*(node, parent: Node) =
     node.nodes[^j].draw(node)
 
   # finally blocks will be run here, in reverse order
+  postDraws()
 
 proc drawRoot*(root: Node) =
   for zidx in ZLevel:
