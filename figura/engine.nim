@@ -11,7 +11,7 @@ export commonutils
 export cssgrid
 export theming
 
-import print
+import pretty
 
 when defined(js):
   import figura/htmlbackend
