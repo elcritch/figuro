@@ -1,10 +1,12 @@
-import chroma, common, hashes, input, internal, opengl/base,
-    opengl/context, os, strformat, strutils, tables, times, typography,
-    unicode,
-    typography/svgfont, pixie
+import std/[os, hashes, strformat, strutils, tables, times, unicode]
 
+import pkg/chroma
+import pkg/[typography, typography/svgfont]
+import pkg/pixie
+
+import opengl/[base, context, draw]
+import common, input, internal
 import patches/textboxes 
-import opengl/draw
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json

@@ -1,9 +1,6 @@
 switch("styleCheck", "hint")
 
-# --gc:arc
-# --define:release
-when not defined(figuraNonArcGc):
-  --gc:arc
+--gc:arc
 
 if not defined(emscripten):
   --threads:on
