@@ -1,10 +1,6 @@
-import sequtils, tables, json, hashes
-import strformat
-import unicode
-import typetraits
-import variant, chroma
-import options
-import cssgrid
+import std/[sequtils, tables, json, hashes]
+import std/[typetraits, options, unicode, strformat]
+import pkg/[variant, chroma, cssgrid, windy]
 
 import commonutils
 import cdecl/atoms
@@ -16,7 +12,7 @@ export commonutils
 export cssgrid
 export atoms
 
-import print
+import pretty
 
 when defined(js):
   import dom2, html/ajax
@@ -387,6 +383,10 @@ var
   scrollBarFill* = rgba(187, 187, 187, 162).color 
   scrollBarHighlight* = rgba(137, 137, 137, 162).color
 
+  buttonPress: windy.ButtonView
+  buttonDown: windy.ButtonView
+  buttonRelease: windy.ButtonView
+
 proc defaultLineHeight*(fontSize: UICoord): UICoord =
   result = fontSize * defaultlineHeightRatio
 proc defaultLineHeight*(ts: TextStyle): UICoord =
@@ -546,23 +546,19 @@ proc clearInputs*() =
   mouse.consumed = false
   mouse.clickedOutside = false
 
-  # Reset key and mouse press to default state
-  for i in 0 ..< buttonPress.len:
-    buttonPress[i] = false
-    buttonRelease[i] = false
-
-  if any(buttonDown, proc(b: bool): bool = b):
-    keyboard.state = KeyState.Down
-  else:
-    keyboard.state = KeyState.Empty
+  # # Reset key and mouse press to default state
+  # if any(buttonDown, proc(b: bool): bool = b):
+  #   keyboard.state = KeyState.Down
+  # else:
+  #   keyboard.state = KeyState.Empty
 
 const
   MouseButtons = [
-    MOUSE_LEFT,
-    MOUSE_RIGHT,
-    MOUSE_MIDDLE,
-    MOUSE_BACK,
-    MOUSE_FORWARD
+    MouseLeft,
+    MouseRight,
+    MouseMiddle,
+    MouseButton4,
+    MouseButton5
   ]
 
 proc click*(mouse: Mouse): bool =
@@ -593,7 +589,8 @@ proc consume*(keyboard: Keyboard) =
 
 proc consume*(mouse: Mouse) =
   ## Reset the mouse state consuming any event information.
-  buttonPress[MOUSE_LEFT] = false
+  # buttonPress[MouseLeft] = false
+  discard
 
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)

@@ -420,17 +420,17 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
 
   window.onButtonPress = proc (button: windy.Button) =
     requestedFrame.inc
-    let
-      setKey = action != 0
-      button = button + 1 # Fidget mouse buttons are +1 from windy
-    if button < buttonDown.len:
-      if buttonDown[button] == false and setKey == true:
-        buttonPress[button] = true
-      buttonDown[button] = setKey
+    # let
+    #   setKey = action != 0
+    #   button = button + 1 # Fidget mouse buttons are +1 from windy
+    # if button < window.buttonDown.len:
+    #   if buttonDown[button] == false and setKey == true:
+    #     buttonPress[button] = true
+    #   buttonDown[button] = setKey
 
   window.onButtonRelease = proc (button: Button) =
-    if buttonDown[button] == false and setKey == false:
-      buttonRelease[button] = true
+    # if buttonDown[button] == false and setKey == false:
+    #   buttonRelease[button] = true
     uiEvent.trigger()
 
 
@@ -446,33 +446,33 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
   lastDraw = getTicks()
   lastTick = lastDraw
 
-  onFocus(window, FOCUSED)
+  # onFocus(window, FOCUSED)
   focused = true
   updateWindowSize()
 
-proc captureMouse*() =
-  setInputMode(window, CURSOR, CURSOR_DISABLED)
+# proc captureMouse*() =
+#   setInputMode(window, CURSOR, CURSOR_DISABLED)
 
-proc releaseMouse*() =
-  setInputMode(window, CURSOR, CURSOR_NORMAL)
+# proc releaseMouse*() =
+#   setInputMode(window, CURSOR, CURSOR_NORMAL)
 
-proc hideMouse*() =
-  setInputMode(window, CURSOR, CURSOR_HIDDEN)
+# proc hideMouse*() =
+#   setInputMode(window, CURSOR, CURSOR_HIDDEN)
 
-proc setWindowBounds*(min, max: Vec2) =
-  window.setWindowSizeLimits(min.x.cint, min.y.cint, max.x.cint, max.y.cint)
+# proc setWindowBounds*(min, max: Vec2) =
+#   window.setWindowSizeLimits(min.x.cint, min.y.cint, max.x.cint, max.y.cint)
 
-proc takeScreenshot*(
-  frame = rect(0, 0, windowFrame.x, windowFrame.y)
-): pixie.Image =
-  result = newImage(frame.w.int, frame.h.int)
-  glReadPixels(
-    frame.x.GLint,
-    frame.y.GLint,
-    frame.w.GLint,
-    frame.h.GLint,
-    GL_RGBA,
-    GL_UNSIGNED_BYTE,
-    result.data[0].addr
-  )
-  result.flipVertical()
+# proc takeScreenshot*(
+#   frame = rect(0, 0, windowFrame.x, windowFrame.y)
+# ): pixie.Image =
+#   result = newImage(frame.w.int, frame.h.int)
+#   glReadPixels(
+#     frame.x.GLint,
+#     frame.y.GLint,
+#     frame.w.GLint,
+#     frame.h.GLint,
+#     GL_RGBA,
+#     GL_UNSIGNED_BYTE,
+#     result.data[0].addr
+#   )
+#   result.flipVertical()
