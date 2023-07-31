@@ -55,10 +55,10 @@ var
   lastDraw, lastTick: int64
 
 var
-  cursorDefault*: CursorHandle
-  cursorPointer*: CursorHandle
-  cursorGrab*: CursorHandle
-  cursorNSResize*: CursorHandle
+  cursorDefault*: Cursor
+  cursorPointer*: Cursor
+  cursorGrab*: Cursor
+  cursorNSResize*: Cursor
 
 var
   uiEvent*: AsyncEvent
@@ -68,40 +68,39 @@ var
   eventTimePost* = epochTime()
   isEvent* = false
 
-proc setCursor*(cursor: CursorHandle) =
+proc setCursor*(cursor: Cursor) =
   echo "set cursor"
-  window.setCursor(cursor)
+  window.cursor = cursor
 
-proc getScaleInfo*(monitor: Monitor): ScaleInfo =
-  var xs, ys: cfloat
-  getMonitorContentScale(monitor, addr xs, addr ys)
-  result.x = xs
-  result.y = ys
+proc getScaleInfo*(window: Window): ScaleInfo =
+  let scale = window.contentScale()
+  result.x = scale
+  result.y = scale
 
 proc updateWindowSize() =
   requestedFrame.inc
 
   var cwidth, cheight: cint
-  window.getWindowSize(addr cwidth, addr cheight)
-  windowSize.x = float32(cwidth)
-  windowSize.y = float32(cheight)
+  let size = window.size()
+  windowSize.x = size.x.toFloat
+  windowSize.y = size.y.toFloat
 
-  window.getFramebufferSize(addr cwidth, addr cheight)
-  windowFrame.x = float32(cwidth)
-  windowFrame.y = float32(cheight)
+  # window.getFramebufferSize(addr cwidth, addr cheight)
+  # windowFrame.x = float32(cwidth)
+  # windowFrame.y = float32(cheight)
 
-  minimized = windowSize == vec2(0, 0)
-  pixelRatio = if windowSize.x > 0: windowFrame.x / windowSize.x else: 0
+  minimized = window.minimized()
+  pixelRatio = window.contentScale()
 
   glViewport(0, 0, cwidth, cheight)
 
-  let
-    monitor = getPrimaryMonitor()
-    mode = monitor.getVideoMode()
-  monitor.getMonitorPhysicalSize(addr cwidth, addr cheight)
-  dpi = mode.width.float32 / (cwidth.float32 / 25.4)
+  # let
+  #   monitor = window.getPrimaryMonitor()
+  #   mode = monitor.getVideoMode()
+  # monitor.getMonitorPhysicalSize(addr cwidth, addr cheight)
+  # dpi = mode.width.float32 / (cwidth.float32 / 25.4)
 
-  let scale = monitor.getScaleInfo()
+  let scale = window.getScaleInfo()
   if common.autoUiScale:
     common.uiScale = min(scale.x, scale.y)
 
@@ -109,12 +108,13 @@ proc updateWindowSize() =
 
 proc setWindowTitle*(title: string) =
   if window != nil:
-    window.setWindowTitle(title)
+    window.title = title
 
 proc preInput() =
-  var x, y: float64
-  window.getCursorPos(addr x, addr y)
-  mouse.setMousePos(x, y)
+  # var x, y: float64
+  # window.getCursorPos(addr x, addr y)
+  # mouse.setMousePos(x, y)
+  discard
 
 proc postInput() =
   clearInputs()
