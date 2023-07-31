@@ -1,9 +1,14 @@
+import std/[os, strformat, unicode, times]
+import std/asyncdispatch
+
+import pkg/[chroma, pixie]
+import pkg/opengl
+import pkg/staticglfw
+
+import ./perf
 import ../commonutils
 import ../common, ../input, ../internal
 import ../patches/textboxes 
-import chroma, pixie, opengl, os, perf,
-    staticglfw, times, unicode, strformat
-import std/asyncdispatch
 
 when defined(glDebugMessageCallback):
   import strformat, strutils

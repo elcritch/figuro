@@ -1,4 +1,4 @@
-import std/[os, hashes, strformat, strutils, tables, times, unicode]
+import std/[os, hashes, strformat, strutils, tables, times]
 
 import pkg/chroma
 import pkg/[typography, typography/svgfont]
