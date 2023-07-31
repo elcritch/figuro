@@ -154,7 +154,7 @@ proc drawAndSwap() =
   window.swapBuffers()
 
 proc updateLoop*(poll = true) =
-  if window.windowShouldClose() != 0:
+  if window.closeRequested:
     running = false
     return
 
