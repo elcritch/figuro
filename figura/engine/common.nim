@@ -2,7 +2,7 @@ import sequtils, tables, json, hashes
 import strformat
 import unicode
 import typetraits
-import variant, chroma, input
+import variant, chroma
 import options
 import cssgrid
 

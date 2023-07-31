@@ -340,8 +340,8 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     # assert dpiScale == yScale
 
     window.size = ivec2(
-      (windowSize.x * common.pixelScale * common.uiScale).int,
-      (windowSize.y * common.pixelScale * common.uiScale).int,
+      (windowSize.x * common.pixelScale * common.uiScale).int32,
+      (windowSize.y * common.pixelScale * common.uiScale).int32,
     )
 
   if window.isNil:
@@ -352,42 +352,41 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
 
   window.makeContextCurrent()
 
-  cursorDefault = createStandardCursor(ARROW_CURSOR)
-  cursorPointer = createStandardCursor(HAND_CURSOR)
-  cursorGrab = createStandardCursor(HAND_CURSOR)
-  cursorNSResize = createStandardCursor(HRESIZE_CURSOR)
+  # cursorDefault = createStandardCursor(ARROW_CURSOR)
+  # cursorPointer = createStandardCursor(HAND_CURSOR)
+  # cursorGrab = createStandardCursor(HAND_CURSOR)
+  # cursorNSResize = createStandardCursor(HRESIZE_CURSOR)
 
-  when not defined(emscripten):
-    swapInterval(1)
-    # Load OpenGL
-    loadExtensions()
+  # when not defined(emscripten):
+  #   swapInterval(1)
+  #   # Load OpenGL
+  #   loadExtensions()
 
-  when defined(glDebugMessageCallback):
-    let flags = glGetInteger(GL_CONTEXT_FLAGS)
-    if (flags and GL_CONTEXT_FLAG_DEBUG_BIT.GLint) != 0:
-      # Set up error logging
-      proc printGlDebug(
-        source, typ: GLenum,
-        id: GLuint,
-        severity: GLenum,
-        length: GLsizei,
-        message: ptr GLchar,
-        userParam: pointer
-      ) {.stdcall.} =
-        echo &"source={toHex(source.uint32)} type={toHex(typ.uint32)} " &
-          &"id={id} severity={toHex(severity.uint32)}: {$message}"
-        if severity != GL_DEBUG_SEVERITY_NOTIFICATION:
-          running = false
+  # when defined(glDebugMessageCallback):
+  #   let flags = glGetInteger(GL_CONTEXT_FLAGS)
+  #   if (flags and GL_CONTEXT_FLAG_DEBUG_BIT.GLint) != 0:
+  #     # Set up error logging
+  #     proc printGlDebug(
+  #       source, typ: GLenum,
+  #       id: GLuint,
+  #       severity: GLenum,
+  #       length: GLsizei,
+  #       message: ptr GLchar,
+  #       userParam: pointer
+  #     ) {.stdcall.} =
+  #       echo &"source={toHex(source.uint32)} type={toHex(typ.uint32)} " &
+  #         &"id={id} severity={toHex(severity.uint32)}: {$message}"
+  #       if severity != GL_DEBUG_SEVERITY_NOTIFICATION:
+  #         running = false
+  #     glDebugMessageCallback(printGlDebug, nil)
+  #     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)
+  #     glEnable(GL_DEBUG_OUTPUT)
 
-      glDebugMessageCallback(printGlDebug, nil)
-      glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)
-      glEnable(GL_DEBUG_OUTPUT)
-
-  when defined(printGLVersion):
-    echo getVersionString()
-    echo "GL_VERSION:", cast[cstring](glGetString(GL_VERSION))
-    echo "GL_SHADING_LANGUAGE_VERSION:",
-      cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
+  # when defined(printGLVersion):
+  #   echo getVersionString()
+  #   echo "GL_VERSION:", cast[cstring](glGetString(GL_VERSION))
+  #   echo "GL_SHADING_LANGUAGE_VERSION:",
+  #     cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
 
   window.onResize = proc () =
     updateWindowSize()
@@ -396,30 +395,30 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     loopMode = prevloopMode
   
   window.onFocusChange = proc () =
-    focused = state == 1
+    focused = window.focused
     uiEvent.trigger()
 
   window.onScroll = proc () =
     requestedFrame.inc
-    let yoffset = yoffset
-    mouse.wheelDelta += 6 * yoffset * common.uiScale
+    # mouse.wheelDelta += 6 * yoffset * common.uiScale
+    mouse.wheelDelta += window.scrollDelta().x
     uiEvent.trigger()
 
   window.onRune = proc (rune: Rune) =
     requestedFrame.inc
     if keyboard.focusNode != nil:
       keyboard.state = KeyState.Press
-      currTextBox.typeCharacter(Rune(character))
+      currTextBox.typeCharacter(rune)
     else:
       keyboard.state = KeyState.Press
-      keyboard.keyString = Rune(character).toUTF8()
+      keyboard.keyString = rune.toUTF8()
     uiEvent.trigger()
 
   window.onMouseMove = proc () =
     requestedFrame.inc
     uiEvent.trigger()
 
-  window.onButtonPress = proc (button: Button) =
+  window.onButtonPress = proc (button: windy.Button) =
     requestedFrame.inc
     let
       setKey = action != 0

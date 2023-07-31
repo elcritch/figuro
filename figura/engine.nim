@@ -4,9 +4,9 @@ import math, strformat
 import unicode
 import cssgrid
 
-import engine/[common, input, commonutils, theming]
+import engine/[common, commonutils, theming]
 
-export chroma, common, input
+export chroma, common
 export commonutils
 export cssgrid
 export theming
