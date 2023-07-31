@@ -355,10 +355,10 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
   # cursorGrab = createStandardCursor(HAND_CURSOR)
   # cursorNSResize = createStandardCursor(HRESIZE_CURSOR)
 
-  # when not defined(emscripten):
-  #   swapInterval(1)
-  #   # Load OpenGL
-  #   loadExtensions()
+  when not defined(emscripten):
+    # swapInterval(1)
+    # Load OpenGL
+    loadExtensions()
 
   # when defined(glDebugMessageCallback):
   #   let flags = glGetInteger(GL_CONTEXT_FLAGS)
@@ -433,7 +433,7 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
 
 
   glEnable(GL_BLEND)
-  #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
   glBlendFuncSeparate(
     GL_SRC_ALPHA,
     GL_ONE_MINUS_SRC_ALPHA,
