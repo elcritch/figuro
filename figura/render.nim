@@ -1,11 +1,10 @@
-import algorithm, chroma, figura/common, figura/input, json, macros, strutils,
-    sequtils, tables, bumpy
+import algorithm, chroma, bumpy
+import std/[json, macros, strutils, sequtils, tables]
 import math, strformat
 import unicode
 import cssgrid
 
-import figura/commonutils
-import figura/theming
+import engine/[common, input, commonutils, theming]
 
 export chroma, common, input
 export commonutils
@@ -21,7 +20,7 @@ elif defined(nullbackend):
   import figura/nullbackend
   export nullbackend
 else:
-  import figura/openglbackend
+  import engine/openglbackend
   export openglbackend
 
 proc preNode(kind: NodeKind, id: Atom) =
