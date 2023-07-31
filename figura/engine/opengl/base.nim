@@ -215,24 +215,6 @@ proc useDepthBuffer*(on: bool) =
     glDepthMask(GL_FALSE)
     glDisable(GL_DEPTH_TEST)
 
-proc exit*() =
-  ## Cleanup GLFW.
-  terminate()
-
-proc glGetInteger*(what: GLenum): int =
-  var val: GLint
-  glGetIntegerv(what, val.addr)
-  return val.int
-
-proc onResize(handle: staticglfw.Window, w, h: int32) {.cdecl.} =
-  updateWindowSize()
-  let prevloopMode = loopMode
-  updateLoop(poll = false)
-  loopMode = prevloopMode
-
-proc onFocus(window: staticglfw.Window, state: cint) {.cdecl.} =
-  focused = state == 1
-  uiEvent.trigger()
 
 proc nextFocus*(parent, node: Node, foundFocus: var bool): bool =
   ## find the next node to focus on
@@ -253,154 +235,113 @@ proc nextFocus() =
   var foundFocus = false
   discard nextFocus(nil, root, foundFocus)
 
-proc onSetKey(
-  window: staticglfw.Window, key, scancode, action, modifiers: cint
-) {.cdecl.} =
-  requestedFrame.inc
-  let setKey = action != RELEASE
+# proc onSetKey(
+#   window: windy.Window, key, scancode, action, modifiers: cint
+# ) {.cdecl.} =
+#   requestedFrame.inc
+#   let setKey = action != RELEASE
+#
+#   keyboard.altKey = setKey and ((modifiers and MOD_ALT) != 0)
+#   keyboard.ctrlKey = setKey and
+#     ((modifiers and MOD_CONTROL) != 0 or (modifiers and MOD_SUPER) != 0)
+#   keyboard.shiftKey = setKey and ((modifiers and MOD_SHIFT) != 0)
+#
+#   # Do the text box commands.
+#   if keyboard.focusNode != nil and setKey:
+#     keyboard.state = KeyState.Press
+#     let
+#       ctrl = keyboard.ctrlKey
+#       shift = keyboard.shiftKey
+#     case cast[Button](key):
+#       of TAB:
+#         nextFocus()
+#       of ARROW_LEFT:
+#         if ctrl:
+#           currTextBox.leftWord(shift)
+#         else:
+#           currTextBox.left(shift)
+#       of ARROW_RIGHT:
+#         if ctrl:
+#           currTextBox.rightWord(shift)
+#         else:
+#           currTextBox.right(shift)
+#       of ARROW_UP:
+#         currTextBox.up(shift)
+#       of ARROW_DOWN:
+#         currTextBox.down(shift)
+#       of Button.HOME:
+#         currTextBox.startOfLine(shift)
+#       of Button.END:
+#         currTextBox.endOfLine(shift)
+#       of Button.PAGE_UP:
+#         currTextBox.pageUp(shift)
+#       of Button.PAGE_DOWN:
+#         currTextBox.pageDown(shift)
+#       of ENTER:
+#         #TODO: keyboard.multiline:
+#         currTextBox.typeCharacter(Rune(10))
+#       of BACKSPACE:
+#         currTextBox.backspace(shift)
+#       of DELETE:
+#         currTextBox.delete(shift)
+#       of LETTER_C: # copy
+#         if ctrl:
+#           base.window.setClipboardString(currTextBox.copy())
+#       of LETTER_V: # paste
+#         if ctrl:
+#           currTextBox.paste($base.window.getClipboardString())
+#       of LETTER_X: # cut
+#         if ctrl:
+#           base.window.setClipboardString(currTextBox.cut())
+#       of LETTER_A: # select all
+#         if ctrl:
+#           currTextBox.selectAll()
+#       else:
+#         discard
+#
+#   # Now do the buttons.
+#   if key < buttonDown.len and key >= 0:
+#     if buttonDown[key] == false and setKey:
+#       buttonToggle[key] = not buttonToggle[key]
+#       buttonPress[key] = true
+#     if buttonDown[key] == true and setKey == false:
+#       buttonRelease[key] = true
+#     buttonDown[key] = setKey
+#   # ui event
+#   isEvent = true
+#   eventTimePre = epochTime()
+#   uiEvent.trigger()
 
-  keyboard.altKey = setKey and ((modifiers and MOD_ALT) != 0)
-  keyboard.ctrlKey = setKey and
-    ((modifiers and MOD_CONTROL) != 0 or (modifiers and MOD_SUPER) != 0)
-  keyboard.shiftKey = setKey and ((modifiers and MOD_SHIFT) != 0)
-
-  # Do the text box commands.
-  if keyboard.focusNode != nil and setKey:
-    keyboard.state = KeyState.Press
-    let
-      ctrl = keyboard.ctrlKey
-      shift = keyboard.shiftKey
-    case cast[Button](key):
-      of TAB:
-        nextFocus()
-      of ARROW_LEFT:
-        if ctrl:
-          currTextBox.leftWord(shift)
-        else:
-          currTextBox.left(shift)
-      of ARROW_RIGHT:
-        if ctrl:
-          currTextBox.rightWord(shift)
-        else:
-          currTextBox.right(shift)
-      of ARROW_UP:
-        currTextBox.up(shift)
-      of ARROW_DOWN:
-        currTextBox.down(shift)
-      of Button.HOME:
-        currTextBox.startOfLine(shift)
-      of Button.END:
-        currTextBox.endOfLine(shift)
-      of Button.PAGE_UP:
-        currTextBox.pageUp(shift)
-      of Button.PAGE_DOWN:
-        currTextBox.pageDown(shift)
-      of ENTER:
-        #TODO: keyboard.multiline:
-        currTextBox.typeCharacter(Rune(10))
-      of BACKSPACE:
-        currTextBox.backspace(shift)
-      of DELETE:
-        currTextBox.delete(shift)
-      of LETTER_C: # copy
-        if ctrl:
-          base.window.setClipboardString(currTextBox.copy())
-      of LETTER_V: # paste
-        if ctrl:
-          currTextBox.paste($base.window.getClipboardString())
-      of LETTER_X: # cut
-        if ctrl:
-          base.window.setClipboardString(currTextBox.cut())
-      of LETTER_A: # select all
-        if ctrl:
-          currTextBox.selectAll()
-      else:
-        discard
-
-  # Now do the buttons.
-  if key < buttonDown.len and key >= 0:
-    if buttonDown[key] == false and setKey:
-      buttonToggle[key] = not buttonToggle[key]
-      buttonPress[key] = true
-    if buttonDown[key] == true and setKey == false:
-      buttonRelease[key] = true
-    buttonDown[key] = setKey
-  # ui event
-  isEvent = true
-  eventTimePre = epochTime()
-  uiEvent.trigger()
-
-proc onScroll(window: staticglfw.Window, xoffset, yoffset: float64) {.cdecl.} =
-  requestedFrame.inc
-  let yoffset = yoffset
-  mouse.wheelDelta += 6 * yoffset * common.uiScale
-  uiEvent.trigger()
-
-proc onMouseButton(
-  window: staticglfw.Window, button, action, modifiers: cint
-) {.cdecl.} =
-  requestedFrame.inc
-  let
-    setKey = action != 0
-    button = button + 1 # Fidget mouse buttons are +1 from staticglfw
-  if button < buttonDown.len:
-    if buttonDown[button] == false and setKey == true:
-      buttonPress[button] = true
-    buttonDown[button] = setKey
-  if buttonDown[button] == false and setKey == false:
-    buttonRelease[button] = true
-  uiEvent.trigger()
-
-proc onMouseMove(window: staticglfw.Window, x, y: cdouble) {.cdecl.} =
-  requestedFrame.inc
-  uiEvent.trigger()
-
-proc onSetCharCallback(window: staticglfw.Window, character: cuint) {.cdecl.} =
-  requestedFrame.inc
-  if keyboard.focusNode != nil:
-    keyboard.state = KeyState.Press
-    currTextBox.typeCharacter(Rune(character))
-  else:
-    keyboard.state = KeyState.Press
-    keyboard.keyString = Rune(character).toUTF8()
-  uiEvent.trigger()
 
 proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
-  if init() == 0:
-    quit("Failed to intialize GLFW.")
+  window = newWindow("Windy Basic", ivec2(1280, 800))
 
   running = true
   loopMode = mainLoopMode
 
-  if msaa != msaaDisabled:
-    windowHint(SAMPLES, msaa.cint)
-
-  windowHint(OPENGL_FORWARD_COMPAT, GL_TRUE.cint)
-  windowHint(OPENGL_PROFILE, OPENGL_CORE_PROFILE)
-  windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
-  windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)
+  # if msaa != msaaDisabled:
+  #   windowHint(SAMPLES, msaa.cint)
+  # windowHint(OPENGL_FORWARD_COMPAT, GL_TRUE.cint)
+  # windowHint(OPENGL_PROFILE, OPENGL_CORE_PROFILE)
+  # windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
+  # windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)
 
   let
-    monitor = getPrimaryMonitor()
-    scale = monitor.getScaleInfo()
+    scale = window.getScaleInfo()
   
   if common.autoUiScale:
     common.uiScale = min(scale.x, scale.y)
 
-  if fullscreen:
-    let mode = getVideoMode(monitor)
-    window = createWindow(mode.width, mode.height, "", monitor, nil)
+  if common.fullscreen:
+    window.fullscreen = common.fullscreen
   else:
-    var dpiScale, yScale: cfloat
-    monitor.getMonitorContentScale(addr dpiScale, addr yScale)
-    assert dpiScale == yScale
+    # var dpiScale, yScale: cfloat
+    # monitor.getMonitorContentScale(addr dpiScale, addr yScale)
+    # assert dpiScale == yScale
 
-    window = createWindow(
-      (windowSize.x / dpiScale * common.pixelScale * common.uiScale).cint,
-      (windowSize.y / dpiScale * common.pixelScale * common.uiScale).cint,
-      "",
-      nil,
-      nil
+    window.size = ivec2(
+      (windowSize.x * common.pixelScale * common.uiScale).int,
+      (windowSize.y * common.pixelScale * common.uiScale).int,
     )
 
   if window.isNil:
@@ -448,13 +389,51 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     echo "GL_SHADING_LANGUAGE_VERSION:",
       cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
 
-  discard window.setFramebufferSizeCallback(onResize)
-  discard window.setWindowFocusCallback(onFocus)
-  discard window.setKeyCallback(onSetKey)
-  discard window.setScrollCallback(onScroll)
-  discard window.setMouseButtonCallback(onMouseButton)
-  discard window.setCursorPosCallback(onMouseMove)
-  discard window.setCharCallback(onSetCharCallback)
+  window.onResize = proc () =
+    updateWindowSize()
+    let prevloopMode = loopMode
+    updateLoop(poll = false)
+    loopMode = prevloopMode
+  
+  window.onFocusChange = proc () =
+    focused = state == 1
+    uiEvent.trigger()
+
+  window.onScroll = proc () =
+    requestedFrame.inc
+    let yoffset = yoffset
+    mouse.wheelDelta += 6 * yoffset * common.uiScale
+    uiEvent.trigger()
+
+  window.onRune = proc (rune: Rune) =
+    requestedFrame.inc
+    if keyboard.focusNode != nil:
+      keyboard.state = KeyState.Press
+      currTextBox.typeCharacter(Rune(character))
+    else:
+      keyboard.state = KeyState.Press
+      keyboard.keyString = Rune(character).toUTF8()
+    uiEvent.trigger()
+
+  window.onMouseMove = proc () =
+    requestedFrame.inc
+    uiEvent.trigger()
+
+  window.onButtonPress = proc (button: Button) =
+    requestedFrame.inc
+    let
+      setKey = action != 0
+      button = button + 1 # Fidget mouse buttons are +1 from windy
+    if button < buttonDown.len:
+      if buttonDown[button] == false and setKey == true:
+        buttonPress[button] = true
+      buttonDown[button] = setKey
+
+  window.onButtonRelease = proc (button: Button) =
+    if buttonDown[button] == false and setKey == false:
+      buttonRelease[button] = true
+    uiEvent.trigger()
+
 
   glEnable(GL_BLEND)
   #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
