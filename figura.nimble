@@ -24,3 +24,5 @@ requires "cdecl >= 0.7.5"
 requires "asynctools >= 0.1.1"
 requires "nimsimd >= 1.2.5"
 
+
+requires "windy"

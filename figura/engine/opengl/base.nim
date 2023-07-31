@@ -3,7 +3,7 @@ import std/asyncdispatch
 
 import pkg/[chroma, pixie]
 import pkg/opengl
-import pkg/staticglfw
+import pkg/windy
 
 import ./perf
 import ../commonutils
@@ -40,7 +40,7 @@ const
   deltaTick: int64 = 1_000_000_000 div 240
 
 var
-  window: staticglfw.Window
+  window: windy.Window
   loopMode*: MainLoopMode
   dpi*: float32
   drawFrame*: proc()
