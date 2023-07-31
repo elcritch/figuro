@@ -1,11 +1,11 @@
-import algorithm, chroma, fidget_dev/common, fidget_dev/input, json, macros, strutils,
+import algorithm, chroma, figura/common, figura/input, json, macros, strutils,
     sequtils, tables, bumpy
 import math, strformat
 import unicode
 import cssgrid
 
-import fidget_dev/commonutils
-import fidget_dev/theming
+import figura/commonutils
+import figura/theming
 
 export chroma, common, input
 export commonutils
@@ -15,13 +15,13 @@ export theming
 import print
 
 when defined(js):
-  import fidget_dev/htmlbackend
+  import figura/htmlbackend
   export htmlbackend
 elif defined(nullbackend):
-  import fidget_dev/nullbackend
+  import figura/nullbackend
   export nullbackend
 else:
-  import fidget_dev/openglbackend
+  import figura/openglbackend
   export openglbackend
 
 proc preNode(kind: NodeKind, id: Atom) =
