@@ -159,7 +159,7 @@ proc updateLoop*(poll = true) =
   case loopMode:
     of RepaintOnEvent:
       if poll:
-        pollEvents()
+        windy.pollEvents()
       if requestedFrame <= 0 or minimized:
         # Only repaint when necessary
         # when not defined(emscripten):
