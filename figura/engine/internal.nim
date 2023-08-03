@@ -1,4 +1,8 @@
+
+type
+  MainCallback* = proc() {.nimcall.}
+
 var
-  drawMain*: proc()
-  tickMain*: proc()
-  loadMain*: proc()
+  drawMain*: MainCallback
+  tickMain*: MainCallback
+  loadMain*: MainCallback

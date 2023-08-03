@@ -40,7 +40,7 @@ proc drawFrameImpl() =
   scrollBox.h = windowLogicalSize.y.descaled()
   root.box = scrollBox
 
-  # drawMain()
+  drawMain()
 
   computeScreenBox(nil, root)
 
@@ -96,10 +96,13 @@ proc setupFidget(
   if loadMain != nil:
     loadMain()
 
+proc runWidgets*(drawMain: proc () {.nimcall.}) =
+  drawMain()
+
 proc startFidget*(
-    draw: proc() = nil,
-    tick: proc() = nil,
-    load: proc() = nil,
+    draw: proc() {.nimcall.} = nil,
+    tick: proc() {.nimcall.} = nil,
+    load: proc() {.nimcall.} = nil,
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -139,6 +142,9 @@ proc startFidget*(
 
   setupRoot()
   drawMain()
+
+  var widgetThread: Thread[MainCallback]
+  createThread(widgetThread, runWidgets, drawMain)
 
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.
