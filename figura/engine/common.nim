@@ -306,7 +306,7 @@ const
 var
   parent*: Node
   root*: Node
-  prevRoot*: Node
+
   nodeStack*: seq[Node]
   gridStack*: seq[GridTemplate]
   current*: Node

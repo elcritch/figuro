@@ -33,19 +33,9 @@ proc drawFrameImpl() =
 
   mouse.cursorStyle = Default
 
-  # setupRoot()
-  # scrollBox.x = 0'ui
-  # scrollBox.y = 0'ui
-  # scrollBox.w = windowLogicalSize.x.descaled()
-  # scrollBox.h = windowLogicalSize.y.descaled()
-  # root.box = scrollBox
-
-  drawMain()
-
   computeScreenBox(nil, root)
-
   # Only draw the root after everything was done:
-  root.drawRoot()
+  drawRoot(root)
 
   ctx.restoreTransform()
   ctx.endFrame()
