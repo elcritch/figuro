@@ -70,15 +70,15 @@ proc drawFrameImpl() =
 
   if currTextBox != nil:
     keyboard.input = currTextBox.text
-  computeEvents(root)
+  # computeEvents(root)
 
   drawMain()
 
-  root.removeExtraChildren()
+  # root.removeExtraChildren()
 
-  computeLayout(nil, root)
+  # computeLayout(nil, root)
   computeScreenBox(nil, root)
-  processHooks(nil, root)
+  # processHooks(nil, root)
 
   # Only draw the root after everything was done:
   root.drawRoot()

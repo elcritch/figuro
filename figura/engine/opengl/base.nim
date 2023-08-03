@@ -8,7 +8,7 @@ import pkg/windy
 import ./perf
 import ../commonutils
 import ../common, ../input, ../internal
-import ../patches/textboxes 
+# import ../patches/textboxes 
 
 when defined(glDebugMessageCallback):
   import strformat, strutils
@@ -227,11 +227,11 @@ proc nextFocus*(parent, node: Node, foundFocus: var bool): bool =
       if nextFocus(node, child, foundFocus):
         return
 
-proc nextFocus() =
-  echo "focusNode:tab: ", keyboard.focusNode.id
-  echo "focusNode:tab: ", common.root.id
-  var foundFocus = false
-  discard nextFocus(nil, root, foundFocus)
+# proc nextFocus() =
+#   echo "focusNode:tab: ", keyboard.focusNode.id
+#   echo "focusNode:tab: ", common.root.id
+#   var foundFocus = false
+#   discard nextFocus(nil, root, foundFocus)
 
 # proc onSetKey(
 #   window: windy.Window, key, scancode, action, modifiers: cint
@@ -406,7 +406,7 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     requestedFrame.inc
     if keyboard.focusNode != nil:
       keyboard.state = KeyState.Press
-      currTextBox.typeCharacter(rune)
+      # currTextBox.typeCharacter(rune)
     else:
       keyboard.state = KeyState.Press
       keyboard.keyString = rune.toUTF8()
