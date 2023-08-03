@@ -573,4 +573,3 @@ proc `~=`*(rect: Vec2, val: float32): bool =
 
 template dispatchEvent*(evt: typed) =
   result.add(evt)
-
