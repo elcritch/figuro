@@ -211,7 +211,6 @@ proc draw*(node, parent: Node) =
     return
   
   # setup the opengl context to match the current node size and position
-  node.hasRendered = true
 
   ctx.saveTransform()
   ctx.translate(node.screenBox.scaled.xy)

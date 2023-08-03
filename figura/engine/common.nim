@@ -33,7 +33,6 @@ type
   Events*[T] = object
     data*: TableRef[TypeId, Variant]
 
-
 type
   FidgetConstraint* = enum
     cMin
@@ -135,18 +134,13 @@ type
     uid*: NodeUID
     kind*: NodeKind
     nodes*: seq[Node]
+
     box*: Box
     orgBox*: Box
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
-    hasRendered*: bool
-    editableText*: bool
-    selectable*: bool
-    setFocus*: bool
-    multiline*: bool
-    bindingSet*: bool
-    drawable*: bool
+
     clipContent*: bool
     disableRender*: bool
     resizeDone*: bool
@@ -469,10 +463,6 @@ proc resetToDefault*(node: Node)=
   node.textStyle = TextStyle()
   node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
-  node.editableText = false
-  node.multiline = false
-  node.bindingSet = false
-  node.drawable = false
   node.cursorColor = clearColor
   node.highlightColor = clearColor
   node.shadow = Shadow.none()
@@ -489,9 +479,7 @@ proc resetToDefault*(node: Node)=
   node.clipContent = false
   node.diffIndex = 0
   node.zlevel = ZLevelDefault
-  node.selectable = false
   node.scrollpane = false
-  node.hasRendered = false
   node.userStates = initTable[int, Variant]()
 
 proc setupRoot*() =
