@@ -432,22 +432,12 @@ iterator reverseIndex*[T](a: openArray[T]): (int, T) {.inline.} =
 
 proc resetToDefault*(node: Node)=
   ## Resets the node to default state.
-  # node.id = ""
-  # node.uid = ""
-  # node.idPath = ""
-  # node.kind = nkRoot
-  # node.text = "".toRunes()
-  # node.code = ""
-  # node.nodes = @[]
   node.box = initBox(0,0,0,0)
   node.orgBox = initBox(0,0,0,0)
   node.rotation = 0
-  # node.screenBox = rect(0,0,0,0)
-  # node.offset = vec2(0, 0)
   node.fill = clearColor
   node.transparency = 0
   node.stroke = Stroke(weight: 0, color: clearColor)
-  # node.textStyle = TextStyle()
   node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
   node.shadow = Shadow.none()
@@ -466,17 +456,10 @@ proc emptyFuture*(): Future[void] =
   result.complete()
 
 proc clearInputs*() =
-
   resetNodes = 0
   mouse.wheelDelta = 0
   mouse.consumed = false
   mouse.clickedOutside = false
-
-  # # Reset key and mouse press to default state
-  # if any(buttonDown, proc(b: bool): bool = b):
-  #   keyboard.state = KeyState.Down
-  # else:
-  #   keyboard.state = KeyState.Empty
 
 const
   MouseButtons = [
