@@ -40,7 +40,7 @@ proc drawFrameImpl() =
   scrollBox.h = windowLogicalSize.y.descaled()
   root.box = scrollBox
 
-  drawMain()
+  # drawMain()
 
   computeScreenBox(nil, root)
 
@@ -138,6 +138,7 @@ proc startFidget*(
     setup()
 
   setupRoot()
+  drawMain()
 
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.
