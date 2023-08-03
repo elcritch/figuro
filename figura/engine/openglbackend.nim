@@ -34,11 +34,11 @@ proc drawFrameImpl() =
   mouse.cursorStyle = Default
 
   # setupRoot()
-  scrollBox.x = 0'ui
-  scrollBox.y = 0'ui
-  scrollBox.w = windowLogicalSize.x.descaled()
-  scrollBox.h = windowLogicalSize.y.descaled()
-  root.box = scrollBox
+  # scrollBox.x = 0'ui
+  # scrollBox.y = 0'ui
+  # scrollBox.w = windowLogicalSize.x.descaled()
+  # scrollBox.h = windowLogicalSize.y.descaled()
+  # root.box = scrollBox
 
   drawMain()
 
