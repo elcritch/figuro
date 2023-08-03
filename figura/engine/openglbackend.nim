@@ -6,7 +6,6 @@ import pkg/pixie
 
 import opengl/[base, context, draw]
 import common, input, internal
-import patches/textboxes 
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json
@@ -16,33 +15,6 @@ export input, draw
 var
   windowTitle, windowUrl: string
 
-computeTextLayout = proc(node: Node) =
-  var font = fonts[node.textStyle.fontFamily]
-  font.size = node.textStyle.fontSize.scaled.float32
-  font.lineHeight = node.textStyle.lineHeight.scaled.float32
-  if font.lineHeight == 0:
-    font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
-  var
-    boundsMin: Vec2
-    boundsMax: Vec2
-    size: Vec2 = node.box.scaled.wh
-  if node.textStyle.autoResize == tsWidthAndHeight:
-    size.x = 0
-  node.textLayout = font.typeset(
-    node.text,
-    pos = vec2(0, 0),
-    size = size,
-    hAlignMode(node.textStyle.textAlignHorizontal),
-    vAlignMode(node.textStyle.textAlignVertical),
-    clip = false,
-    boundsMin = boundsMin,
-    boundsMax = boundsMax
-  )
-  let bMin = boundsMin.descaled
-  let bMax = boundsMin.descaled
-  node.textLayoutWidth = bMax.x - bMin.x
-  node.textLayoutHeight = bMax.y - bMin.y
-  # echo fmt"{boundsMin=} {boundsMax=}"
 
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
@@ -51,6 +23,53 @@ proc removeExtraChildren*(node: Node) =
 proc processHooks(parent, node: Node) =
   for child in node.nodes:
     processHooks(node, child)
+
+proc drawFrameImpl() =
+  # echo "\ndrawFrame"
+  clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+  ctx.beginFrame(windowSize)
+  ctx.saveTransform()
+  ctx.scale(ctx.pixelScale)
+
+  mouse.cursorStyle = Default
+
+  setupRoot()
+  scrollBox.x = 0'ui
+  scrollBox.y = 0'ui
+  scrollBox.w = windowLogicalSize.x.descaled()
+  scrollBox.h = windowLogicalSize.y.descaled()
+  root.box = scrollBox
+
+  drawMain()
+
+  computeScreenBox(nil, root)
+
+  # Only draw the root after everything was done:
+  root.drawRoot()
+
+  ctx.restoreTransform()
+  ctx.endFrame()
+
+  # Only set mouse style when it changes.
+  if mouse.prevCursorStyle != mouse.cursorStyle:
+    mouse.prevCursorStyle = mouse.cursorStyle
+    echo mouse.cursorStyle
+    case mouse.cursorStyle:
+      of Default:
+        setCursor(cursorDefault)
+      of Pointer:
+        setCursor(cursorPointer)
+      of Grab:
+        setCursor(cursorGrab)
+      of NSResize:
+        setCursor(cursorNSResize)
+
+  when defined(testOneFrame):
+    ## This is used for test only
+    ## Take a screen shot of the first frame and exit.
+    var img = takeScreenshot()
+    img.writeFile("screenshot.png")
+    quit()
 
 proc setupFidget(
     openglVersion: (int, int),
@@ -70,76 +89,12 @@ proc setupFidget(
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
 
-  base.drawFrame = proc() =
-    # echo "\ndrawFrame"
-    clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-    ctx.beginFrame(windowSize)
-    ctx.saveTransform()
-    ctx.scale(ctx.pixelScale)
-
-    mouse.cursorStyle = Default
-
-    setupRoot()
-    scrollBox.x = 0'ui
-    scrollBox.y = 0'ui
-    scrollBox.w = windowLogicalSize.x.descaled()
-    scrollBox.h = windowLogicalSize.y.descaled()
-    root.box = scrollBox
-
-    if currTextBox != nil:
-      keyboard.input = currTextBox.text
-    computeEvents(root)
-
-    drawMain()
-
-    root.removeExtraChildren()
-
-    computeLayout(nil, root)
-    computeScreenBox(nil, root)
-    processHooks(nil, root)
-
-    # Only draw the root after everything was done:
-    root.drawRoot()
-
-    ctx.restoreTransform()
-    ctx.endFrame()
-
-    # Only set mouse style when it changes.
-    if mouse.prevCursorStyle != mouse.cursorStyle:
-      mouse.prevCursorStyle = mouse.cursorStyle
-      echo mouse.cursorStyle
-      case mouse.cursorStyle:
-        of Default:
-          setCursor(cursorDefault)
-        of Pointer:
-          setCursor(cursorPointer)
-        of Grab:
-          setCursor(cursorGrab)
-        of NSResize:
-          setCursor(cursorNSResize)
-
-    when defined(testOneFrame):
-      ## This is used for test only
-      ## Take a screen shot of the first frame and exit.
-      var img = takeScreenshot()
-      img.writeFile("screenshot.png")
-      quit()
+  base.drawFrame = drawFrameImpl
 
   useDepthBuffer(false)
 
   if loadMain != nil:
     loadMain()
-
-proc asyncPoll() =
-  when not defined(emscripten) and
-        not defined(fidgetNoAsync):
-    poll(16)
-    if isEvent:
-      isEvent = false
-      eventTimePost = epochTime()
-# 
-type
-  MainProc* = proc () 
 
 proc startFidget*(
     draw: proc() = nil,

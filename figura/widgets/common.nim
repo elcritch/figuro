@@ -18,6 +18,7 @@ when defined(js):
   import dom2, html/ajax
 else:
   import typography, asyncfutures
+  import patches/textboxes 
 
 const
   clearColor* = color(0, 0, 0, 0)
@@ -32,6 +33,7 @@ type
   # Events* = GenericEvents[void]
   Events*[T] = object
     data*: TableRef[TypeId, Variant]
+
 
 type
   FidgetConstraint* = enum
@@ -121,58 +123,84 @@ type
     ## Different types of nodes.
     nkRoot
     nkFrame
+    nkGroup
+    nkImage
     nkText
     nkRectangle
+    nkComponent
+    nkInstance
     nkDrawable
     nkScrollBar
-    nkImage
-
-  Attributes* = enum
-    clipContent
-    disableRender
-    scrollpane
 
   ImageStyle* = object
     name*: string
     color*: Color
 
   Node* = ref object
+    id*: Atom
     uid*: NodeUID
+    idPath*: seq[Atom]
+    kind*: NodeKind
+    text*: seq[Rune]
+    code*: string
+    cxSize*: array[GridDir, Constraint]
+    cxOffset*: array[GridDir, Constraint]
     nodes*: seq[Node]
-    nIndex*: int
-    diffIndex*: int
-
     box*: Box
     orgBox*: Box
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
-    attrs*: set[Attributes]
-
-    zlevel*: ZLevel
+    hasRendered*: bool
+    editableText*: bool
+    selectable*: bool
+    setFocus*: bool
+    multiline*: bool
+    bindingSet*: bool
+    drawable*: bool
+    clipContent*: bool
+    disableRender*: bool
+    resizeDone*: bool
+    htmlDone*: bool
+    scrollpane*: bool
     rotation*: float32
     fill*: Color
-    highlight*: Color
     transparency*: float32
     stroke*: Stroke
+    textStyle*: TextStyle
+    image*: ImageStyle
     cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
+    cursorColor*: Color
+    highlightColor*: Color
+    disabledColor*: Color
     shadow*: Option[Shadow]
-
-    case kind*: NodeKind
-    of nkImage:
-      image*: ImageStyle
-    of nkText:
-      textStyle*: TextStyle
-      when not defined(js):
-        textLayout*: seq[GlyphPosition]
-      else:
-        element*: Element
-        textElement*: Element
-        cache*: Node
-    of nkDrawable:
-      points*: seq[Position]
+    constraintsHorizontal*: FidgetConstraint
+    constraintsVertical*: FidgetConstraint
+    layoutAlign*: LayoutAlign
+    layoutMode*: LayoutMode
+    counterAxisSizingMode*: CounterAxisSizingMode
+    gridTemplate*: GridTemplate
+    gridItem*: GridItem
+    horizontalPadding*: UICoord
+    verticalPadding*: UICoord
+    itemSpacing*: UICoord
+    nIndex*: int
+    diffIndex*: int
+    events*: InputEvents
+    listens*: ListenEvents
+    zlevel*: ZLevel
+    when not defined(js):
+      textLayout*: seq[GlyphPosition]
     else:
-      discard
+      element*: Element
+      textElement*: Element
+      cache*: Node
+    textLayoutHeight*: UICoord
+    textLayoutWidth*: UICoord
+    ## Can the text be selected.
+    userStates*: Table[int, Variant]
+    userEvents*: Events[All]
+    points*: seq[Position]
 
   
   KeyState* = enum
@@ -388,7 +416,7 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
 
 when not defined(js):
   var
-    # currTextBox*: TextBox[Node]
+    currTextBox*: TextBox[Node]
     fonts*: Table[string, Font]
 
   func hAlignMode*(align: HAlign): HAlignMode =
@@ -411,6 +439,22 @@ mouse.pos = vec2(0, 0)
 
 proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
+
+proc setNodePath*(node: Node) =
+  node.idPath.setLen(nodeStack.len())
+  # node.idPath.setLen(nodeStack.len() + 1)
+  # node.idPath[^1] = node.id
+  for i, g in nodeStack:
+    if g.id == Atom(0):
+      node.idPath[i] = Atom(g.diffIndex)
+    else:
+      node.idPath[i] = g.id
+
+proc dumpTree*(node: Node, indent = "") =
+
+  echo indent, "`", node.id, "`", " sb: ", $node.screenBox
+  for n in node.nodes:
+    dumpTree(n, "  " & indent)
 
 iterator reverse*[T](a: openArray[T]): T {.inline.} =
   var i = a.len - 1
@@ -436,8 +480,8 @@ proc resetToDefault*(node: Node)=
   # node.uid = ""
   # node.idPath = ""
   # node.kind = nkRoot
-  # node.text = "".toRunes()
-  # node.code = ""
+  node.text = "".toRunes()
+  node.code = ""
   # node.nodes = @[]
   node.box = initBox(0,0,0,0)
   node.orgBox = initBox(0,0,0,0)
@@ -447,16 +491,44 @@ proc resetToDefault*(node: Node)=
   node.fill = clearColor
   node.transparency = 0
   node.stroke = Stroke(weight: 0, color: clearColor)
-  # node.textStyle = TextStyle()
+  node.resizeDone = false
+  node.htmlDone = false
+  node.textStyle = TextStyle()
   node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
+  node.editableText = false
+  node.multiline = false
+  node.bindingSet = false
+  node.drawable = false
+  node.cursorColor = clearColor
+  node.highlightColor = clearColor
   node.shadow = Shadow.none()
+  node.gridTemplate = nil
+  node.gridItem = nil
+  node.constraintsHorizontal = cMin
+  node.constraintsVertical = cMin
+  node.layoutAlign = laMin
+  node.layoutMode = lmNone
+  node.counterAxisSizingMode = csAuto
+  node.horizontalPadding = 0'ui
+  node.verticalPadding = 0'ui
+  node.itemSpacing = 0'ui
+  node.clipContent = false
+  node.diffIndex = 0
+  node.zlevel = ZLevelDefault
+  node.selectable = false
+  node.scrollpane = false
+  node.hasRendered = false
+  node.userStates = initTable[int, Variant]()
 
 proc setupRoot*() =
   if root == nil:
     root = Node()
+    root.kind = nkRoot
+    root.id = atom"root"
     root.uid = newUId()
     root.zlevel = ZLevelDefault
+    root.cursorColor = rgba(0, 0, 0, 255).color
   nodeStack = @[root]
   current = root
   root.diffIndex = 0
@@ -540,6 +612,80 @@ proc mouseOverlapsNode*(node: Node): bool =
 const
   MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
 
+proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
+  if b.zlvl >= a.zlvl and b.flags != {}: b else: a
+
+template checkEvent[ET](evt: ET, predicate: typed) =
+  when ET is MouseEventType:
+    if evt in node.listens.mouse and predicate: result.incl(evt)
+  elif ET is GestureEventType:
+    if evt in node.listens.gesture and predicate: result.incl(evt)
+
+proc checkMouseEvents*(node: Node): MouseEventFlags =
+  ## Compute mouse events
+  if node.mouseOverlapsNode():
+    checkEvent(evClick, mouse.click())
+    checkEvent(evPress, mouse.down())
+    checkEvent(evRelease, mouse.release())
+    checkEvent(evHover, true)
+    checkEvent(evOverlapped, true)
+  else:
+    checkEvent(evClickOut, mouse.click())
+    checkEvent(evHoverOut, true)
+
+proc checkGestureEvents*(node: Node): GestureEventFlags =
+  ## Compute gesture events
+  if node.mouseOverlapsNode():
+    checkEvent(evScroll, mouse.scrolled())
+
+proc computeNodeEvents*(node: Node): CapturedEvents =
+  ## Compute mouse events
+  for n in node.nodes.reverse:
+    let child = computeNodeEvents(n)
+    result.mouse = max(result.mouse, child.mouse)
+    result.gesture = max(result.gesture, child.gesture)
+
+  let
+    allMouseEvts = node.checkMouseEvents()
+    mouseOutEvts = allMouseEvts * MouseOnOutEvents
+    mouseEvts = allMouseEvts - MouseOnOutEvents
+    gestureEvts = node.checkGestureEvents()
+
+  # set on-out events 
+  node.events.mouse.incl(mouseOutEvts)
+
+  let
+    captured = CapturedEvents(
+      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, target: node),
+      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
+    )
+
+  if node.clipContent and not node.mouseOverlapsNode():
+    # this node clips events, so it must overlap child events, 
+    # e.g. ignore child captures if this node isn't also overlapping 
+    result = captured
+  else:
+    result.mouse = max(captured.mouse, result.mouse)
+    result.gesture = max(captured.gesture, result.gesture)
+  
+
+proc computeEvents*(node: Node) =
+  let res = computeNodeEvents(node)
+  template handleCapture(name, field, ignore: untyped) =
+    ## process event capture
+    if not res.`field`.target.isNil:
+      let evts = res.`field`
+      let target = evts.target
+      target.events.`field` = evts.flags
+      if target.kind != nkRoot and evts.flags - ignore != {}:
+        # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.id
+        requestedFrame = 2
+  ## mouse and gesture are handled separately as they can have separate
+  ## node targets
+  handleCapture("mouse", mouse, {evHover})
+  handleCapture("gesture", gesture, {})
+
+var gridChildren: seq[Node]
 
 template calcBasicConstraintImpl(
     parent, node: Node,
@@ -589,6 +735,149 @@ template calcBasicConstraintImpl(
     _:
       discard
 
+proc calcBasicConstraint(parent, node: Node, dir: static GridDir, isXY: static bool) =
+  when isXY == true and dir == dcol: 
+    calcBasicConstraintImpl(parent, node, dir, x)
+  elif isXY == true and dir == drow: 
+    calcBasicConstraintImpl(parent, node, dir, y)
+  elif isXY == false and dir == dcol: 
+    calcBasicConstraintImpl(parent, node, dir, w)
+  elif isXY == false and dir == drow: 
+    calcBasicConstraintImpl(parent, node, dir, h)
+
+proc computeLayout*(parent, node: Node) =
+  ## Computes constraints and auto-layout.
+  
+  # simple constraints
+  if node.gridItem.isNil:
+    calcBasicConstraint(parent, node, dcol, true)
+    calcBasicConstraint(parent, node, drow, true)
+    calcBasicConstraint(parent, node, dcol, false)
+    calcBasicConstraint(parent, node, drow, false)
+
+  # css grid impl
+  if not node.gridTemplate.isNil:
+    
+    gridChildren.setLen(0)
+    for n in node.nodes:
+      if n.layoutAlign != laIgnore:
+        gridChildren.add(n)
+    node.gridTemplate.computeNodeLayout(node, gridChildren)
+
+    for n in node.nodes:
+      computeLayout(node, n)
+    
+    return
+
+  for n in node.nodes:
+    computeLayout(node, n)
+
+  if node.layoutAlign == laIgnore:
+    return
+
+  # Constraints code.
+  case node.constraintsVertical:
+    of cMin: discard
+    of cMax:
+      let rightSpace = parent.orgBox.w - node.box.x
+      # echo "rightSpace : ", rightSpace  
+      node.box.x = parent.box.w - rightSpace
+    of cScale:
+      let xScale = parent.box.w / parent.orgBox.w
+      # echo "xScale: ", xScale 
+      node.box.x *= xScale
+      node.box.w *= xScale
+    of cStretch:
+      let xDiff = parent.box.w - parent.orgBox.w
+      # echo "xDiff: ", xDiff   
+      node.box.w += xDiff
+    of cCenter:
+      let offset = floor((node.orgBox.w - parent.orgBox.w) / 2.0'ui + node.orgBox.x)
+      # echo "offset: ", offset   
+      node.box.x = floor((parent.box.w - node.box.w) / 2.0'ui) + offset
+
+  case node.constraintsHorizontal:
+    of cMin: discard
+    of cMax:
+      let bottomSpace = parent.orgBox.h - node.box.y
+      # echo "bottomSpace  : ", bottomSpace   
+      node.box.y = parent.box.h - bottomSpace
+    of cScale:
+      let yScale = parent.box.h / parent.orgBox.h
+      # echo "yScale: ", yScale
+      node.box.y *= yScale
+      node.box.h *= yScale
+    of cStretch:
+      let yDiff = parent.box.h - parent.orgBox.h
+      # echo "yDiff: ", yDiff 
+      node.box.h += yDiff
+    of cCenter:
+      let offset = floor((node.orgBox.h - parent.orgBox.h) / 2.0'ui + node.orgBox.y)
+      node.box.y = floor((parent.box.h - node.box.h) / 2.0'ui) + offset
+
+  # Typeset text
+  if node.kind == nkText:
+    computeTextLayout(node)
+    case node.textStyle.autoResize:
+      of tsNone:
+        # Fixed sized text node.
+        discard
+      of tsHeight:
+        # Text will grow down.
+        node.box.h = node.textLayoutHeight
+      of tsWidthAndHeight:
+        # Text will grow down and wide.
+        node.box.w = node.textLayoutWidth
+        node.box.h = node.textLayoutHeight
+    # print "layout:nkText: ", node.id, node.box
+
+  template compAutoLayoutNorm(field, fieldSz, padding: untyped;
+                              orth, orthSz, orthPadding: untyped) =
+    # echo "layoutMode : ", node.layoutMode 
+    if node.counterAxisSizingMode == csAuto:
+      # Resize to fit elements tightly.
+      var maxOrth = 0.0'ui
+      for n in node.nodes:
+        if n.layoutAlign != laStretch:
+          maxOrth = max(maxOrth, n.box.`orthSz`)
+      node.box.`orthSz` = maxOrth  + node.`orthPadding` * 2'ui
+
+    var at = 0.0'ui
+    at += node.`padding`
+    for i, n in node.nodes.pairs:
+      if n.layoutAlign == laIgnore:
+        continue
+      if i > 0:
+        at += node.itemSpacing
+
+      n.box.`field` = at
+
+      case n.layoutAlign:
+        of laMin:
+          n.box.`orth` = node.`orthPadding`
+        of laCenter:
+          n.box.`orth` = node.box.`orthSz`/2'ui - n.box.`orthSz`/2'ui
+        of laMax:
+          n.box.`orth` = node.box.`orthSz` - n.box.`orthSz` - node.`orthPadding`
+        of laStretch:
+          n.box.`orth` = node.`orthPadding`
+          n.box.`orthSz` = node.box.`orthSz` - node.`orthPadding` * 2'ui
+          # Redo the layout for child node.
+          computeLayout(node, n)
+        of laIgnore:
+          continue
+      at += n.box.`fieldSz`
+    at += node.`padding`
+    node.box.`fieldSz` = at
+
+  # Auto-layout code.
+  if node.layoutMode == lmVertical:
+    compAutoLayoutNorm(y, h, verticalPadding, x, w, horizontalPadding)
+
+  if node.layoutMode == lmHorizontal:
+    # echo "layoutMode : ", node.layoutMode 
+    compAutoLayoutNorm(x, w, horizontalPadding, y, h, verticalPadding)
+
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
@@ -604,7 +893,6 @@ proc atXY*[T: Box](rect: T, x, y: int | float32 | UICoord): T =
   result = rect
   result.x = UICoord(x)
   result.y = UICoord(y)
-
 proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
   result = rect
   result.x = x
