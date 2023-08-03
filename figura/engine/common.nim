@@ -462,44 +462,13 @@ proc clearInputs*() =
   mouse.clickedOutside = false
 
 const
-  MouseButtons = [
+  MouseButtons* = [
     MouseLeft,
     MouseRight,
     MouseMiddle,
     MouseButton4,
     MouseButton5
   ]
-
-proc click*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if buttonPress[mbtn]:
-      return true
-
-proc down*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if buttonDown[mbtn]: return true
-
-proc scrolled*(mouse: Mouse): bool =
-  mouse.wheelDelta != 0.0
-
-proc release*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if buttonRelease[mbtn]: return true
-
-proc consume*(keyboard: Keyboard) =
-  ## Reset the keyboard state consuming any event information.
-  keyboard.state = Empty
-  keyboard.keyString = ""
-  keyboard.altKey = false
-  keyboard.ctrlKey = false
-  keyboard.shiftKey = false
-  keyboard.superKey = false
-  keyboard.consumed = true
-
-proc consume*(mouse: Mouse) =
-  ## Reset the mouse state consuming any event information.
-  # buttonPress[MouseLeft] = false
-  discard
 
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)
