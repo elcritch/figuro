@@ -177,7 +177,7 @@ proc updateLoop*(poll = true) =
 
     of RepaintOnFrame:
       if poll:
-        pollEvents()
+        windy.pollEvents()
       preInput()
       if tickMain != nil:
         preTick()
@@ -188,7 +188,7 @@ proc updateLoop*(poll = true) =
 
     of RepaintSplitUpdate:
       if poll:
-        pollEvents()
+        windy.pollEvents()
       preInput()
       while lastTick < getTicks():
         preTick()
