@@ -41,7 +41,7 @@ var
   window*: windy.Window
   loopMode*: MainLoopMode
   dpi*: float32
-  drawFrame*: proc()
+  drawFrame*: MainCallback
   running*, focused*, minimized*: bool
   programStartTime* = epochTime()
   fpsTimeSeries = newTimeSeries()
@@ -138,7 +138,6 @@ proc drawAndSwap() =
 
   prevFrameTime = cpuTime()
 
-  assert drawFrame != nil
   drawFrame()
 
   frameTime = cpuTime()
