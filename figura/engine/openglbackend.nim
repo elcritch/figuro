@@ -97,7 +97,14 @@ proc setupFidget(
     loadMain()
 
 proc runWidgets*(drawMain: proc () {.nimcall.}) =
-  drawMain()
+  while base.running:
+    proc running() {.async.} =
+      drawMain()
+      if isEvent:
+        isEvent = false
+        eventTimePost = epochTime()
+      await sleepAsync(16)
+    waitFor running()
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
@@ -141,7 +148,7 @@ proc startFidget*(
     setup()
 
   setupRoot()
-  drawMain()
+  # drawMain()
 
   var widgetThread: Thread[MainCallback]
   createThread(widgetThread, runWidgets, drawMain)
