@@ -9,6 +9,6 @@ proc drawMain() =
     for i in 0 .. 4:
       rectangle "block":
         box 20 + i * 120, 20, 100, 100
-        fill "#2B9FEA"
+        current.fill = parseHtmlColor "#2B9FEA"
 
 startFidget(drawMain, w = 620, h = 140)
