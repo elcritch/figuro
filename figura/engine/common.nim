@@ -122,12 +122,8 @@ type
     ## Different types of nodes.
     nkRoot
     nkFrame
-    nkGroup
-    nkImage
     nkText
     nkRectangle
-    nkComponent
-    nkInstance
     nkDrawable
     nkScrollBar
 
@@ -137,6 +133,7 @@ type
 
   Node* = ref object
     uid*: NodeUID
+    kind*: NodeKind
     nodes*: seq[Node]
     box*: Box
     orgBox*: Box
