@@ -25,10 +25,8 @@ const
   whiteColor* = color(1, 1, 1, 1)
   blackColor* = color(0, 0, 0, 1)
 
-when defined(js) or defined(StringUID):
-  type NodeUID* = string
-else:
-  type NodeUID* = int64
+type
+  NodeUID* = int64
 
 type
   All* = distinct object

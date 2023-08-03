@@ -52,6 +52,61 @@ proc processHooks(parent, node: Node) =
   for child in node.nodes:
     processHooks(node, child)
 
+proc drawFrameImpl() =
+  # echo "\ndrawFrame"
+  clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+  ctx.beginFrame(windowSize)
+  ctx.saveTransform()
+  ctx.scale(ctx.pixelScale)
+
+  mouse.cursorStyle = Default
+
+  setupRoot()
+  scrollBox.x = 0'ui
+  scrollBox.y = 0'ui
+  scrollBox.w = windowLogicalSize.x.descaled()
+  scrollBox.h = windowLogicalSize.y.descaled()
+  root.box = scrollBox
+
+  if currTextBox != nil:
+    keyboard.input = currTextBox.text
+  computeEvents(root)
+
+  drawMain()
+
+  root.removeExtraChildren()
+
+  computeLayout(nil, root)
+  computeScreenBox(nil, root)
+  processHooks(nil, root)
+
+  # Only draw the root after everything was done:
+  root.drawRoot()
+
+  ctx.restoreTransform()
+  ctx.endFrame()
+
+  # Only set mouse style when it changes.
+  if mouse.prevCursorStyle != mouse.cursorStyle:
+    mouse.prevCursorStyle = mouse.cursorStyle
+    echo mouse.cursorStyle
+    case mouse.cursorStyle:
+      of Default:
+        setCursor(cursorDefault)
+      of Pointer:
+        setCursor(cursorPointer)
+      of Grab:
+        setCursor(cursorGrab)
+      of NSResize:
+        setCursor(cursorNSResize)
+
+  when defined(testOneFrame):
+    ## This is used for test only
+    ## Take a screen shot of the first frame and exit.
+    var img = takeScreenshot()
+    img.writeFile("screenshot.png")
+    quit()
+
 proc setupFidget(
     openglVersion: (int, int),
     msaa: MSAA,
@@ -70,60 +125,7 @@ proc setupFidget(
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
 
-  base.drawFrame = proc() =
-    # echo "\ndrawFrame"
-    clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-    ctx.beginFrame(windowSize)
-    ctx.saveTransform()
-    ctx.scale(ctx.pixelScale)
-
-    mouse.cursorStyle = Default
-
-    setupRoot()
-    scrollBox.x = 0'ui
-    scrollBox.y = 0'ui
-    scrollBox.w = windowLogicalSize.x.descaled()
-    scrollBox.h = windowLogicalSize.y.descaled()
-    root.box = scrollBox
-
-    if currTextBox != nil:
-      keyboard.input = currTextBox.text
-    computeEvents(root)
-
-    drawMain()
-
-    root.removeExtraChildren()
-
-    computeLayout(nil, root)
-    computeScreenBox(nil, root)
-    processHooks(nil, root)
-
-    # Only draw the root after everything was done:
-    root.drawRoot()
-
-    ctx.restoreTransform()
-    ctx.endFrame()
-
-    # Only set mouse style when it changes.
-    if mouse.prevCursorStyle != mouse.cursorStyle:
-      mouse.prevCursorStyle = mouse.cursorStyle
-      echo mouse.cursorStyle
-      case mouse.cursorStyle:
-        of Default:
-          setCursor(cursorDefault)
-        of Pointer:
-          setCursor(cursorPointer)
-        of Grab:
-          setCursor(cursorGrab)
-        of NSResize:
-          setCursor(cursorNSResize)
-
-    when defined(testOneFrame):
-      ## This is used for test only
-      ## Take a screen shot of the first frame and exit.
-      var img = takeScreenshot()
-      img.writeFile("screenshot.png")
-      quit()
+  base.drawFrame = drawFrameImpl
 
   useDepthBuffer(false)
 
