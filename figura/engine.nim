@@ -1,7 +1,5 @@
 import algorithm, chroma, bumpy
-import std/[json, macros, strutils, sequtils, tables]
-import math, strformat
-import unicode
+import std/[json, macros, tables]
 import cssgrid
 
 import engine/[common, commonutils]
