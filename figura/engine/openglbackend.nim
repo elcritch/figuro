@@ -147,12 +147,10 @@ proc startFidget*(
   else:
     while base.running:
       updateLoop()
-      # asyncPoll()
       if isEvent:
         isEvent = false
         eventTimePost = epochTime()
       sleep(16)
-    # exit()
 
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser

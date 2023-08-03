@@ -16,8 +16,6 @@ var
   glyphOffsets: Table[Hash, Vec2]
 
   # Used for double-clicking
-  multiClick: int
-  lastClickTime: float
   currLevel: ZLevel
 
 proc hashFontFill(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
