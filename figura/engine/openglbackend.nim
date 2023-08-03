@@ -6,7 +6,6 @@ import pkg/pixie
 
 import opengl/[base, context, draw]
 import common, input, internal
-import patches/textboxes 
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json
@@ -16,33 +15,6 @@ export input, draw
 var
   windowTitle, windowUrl: string
 
-computeTextLayout = proc(node: Node) =
-  var font = fonts[node.textStyle.fontFamily]
-  font.size = node.textStyle.fontSize.scaled.float32
-  font.lineHeight = node.textStyle.lineHeight.scaled.float32
-  if font.lineHeight == 0:
-    font.lineHeight = defaultLineHeight(node.textStyle).scaled.float32
-  var
-    boundsMin: Vec2
-    boundsMax: Vec2
-    size: Vec2 = node.box.scaled.wh
-  if node.textStyle.autoResize == tsWidthAndHeight:
-    size.x = 0
-  node.textLayout = font.typeset(
-    node.text,
-    pos = vec2(0, 0),
-    size = size,
-    hAlignMode(node.textStyle.textAlignHorizontal),
-    vAlignMode(node.textStyle.textAlignVertical),
-    clip = false,
-    boundsMin = boundsMin,
-    boundsMax = boundsMax
-  )
-  let bMin = boundsMin.descaled
-  let bMax = boundsMin.descaled
-  node.textLayoutWidth = bMax.x - bMin.x
-  node.textLayoutHeight = bMax.y - bMin.y
-  # echo fmt"{boundsMin=} {boundsMax=}"
 
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
@@ -68,8 +40,8 @@ proc drawFrameImpl() =
   scrollBox.h = windowLogicalSize.y.descaled()
   root.box = scrollBox
 
-  if currTextBox != nil:
-    keyboard.input = currTextBox.text
+  # if currTextBox != nil:
+  #   keyboard.input = currTextBox.text
   # computeEvents(root)
 
   drawMain()

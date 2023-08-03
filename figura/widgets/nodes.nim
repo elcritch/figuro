@@ -4,11 +4,12 @@ import math, strformat
 import unicode
 import cssgrid
 
-import engine/[common, commonutils]
+import engine/[common, commonutils, theming]
 
 export chroma, common
 export commonutils
 export cssgrid
+export theming
 
 import pretty
 
@@ -59,6 +60,10 @@ proc preNode(kind: NodeKind, id: Atom) =
   inc parent.diffIndex
 
   current.diffIndex = 0
+  # when defined(fidgetNodePath):
+  # current.setNodePath()
+
+  useTheme()
 
 proc postNode() =
   current.removeExtraChildren()
@@ -105,8 +110,39 @@ template frame*(id: static string, inner: untyped): untyped =
   ## Starts a new frame.
   node(nkFrame, id, inner):
     # boxSizeOf parent
-    discard
-    # current.cxSize = [csAuto(), csAuto()]
+    current.cxSize = [csAuto(), csAuto()]
+
+template group*(id: static string, inner: untyped): untyped =
+  ## Starts a new node.
+  node(nkGroup, id, inner):
+    # boxSizeOf parent
+    current.cxSize = [csAuto(), csAuto()]
+
+template component*(id: static string, inner: untyped): untyped =
+  ## Starts a new component.
+  node(nkComponent, id, inner):
+    # boxSizeOf parent
+    current.cxSize = [csAuto(), csAuto()]
+
+template rectangle*(id: static string, inner: untyped): untyped =
+  ## Starts a new text element.
+  node(nkRectangle, id, inner)
+
+template element*(id: static string, inner: untyped): untyped =
+  ## Starts a new rectangle.
+  node(nkRectangle, id, inner):
+    # boxSizeOf parent
+    current.cxSize = [csAuto(), csAuto()]
+
+template text*(id: static string, inner: untyped): untyped =
+  ## Starts a new text element.
+  node(nkText, id, inner):
+    # boxSizeOf parent
+    current.cxSize = [csAuto(), csAuto()]
+
+template instance*(id: static string, inner: untyped): untyped =
+  ## Starts a new instance of a component.
+  node(nkInstance, id, inner)
 
 template drawable*(id: static string, inner: untyped): untyped =
   ## Starts a drawable node. These don't draw a normal rectangle.
@@ -117,9 +153,9 @@ template drawable*(id: static string, inner: untyped): untyped =
   ## Note: Experimental!
   node(nkDrawable, id, inner)
 
-template rectangle*(id, inner: untyped): untyped =
+template blank*(id, inner: untyped): untyped =
   ## Starts a new rectangle.
-  node(nkRectangle, id, inner)
+  node(nkComponent, id, inner)
 
 ## Overloaded Nodes 
 ## ^^^^^^^^^^^^^^^^
@@ -358,20 +394,49 @@ proc csFixed*(coord: UICoord): Constraint =
 ## These are the primary API for drawing UI objects. 
 ## 
 
+proc id*(id: static string) =
+  ## Sets ID.
+  current.id = atom(id)
+
+proc id*(): string =
+  ## Get current node ID.
+  return $current.id
+
+proc getId*(): string =
+  ## Get current node ID.
+  return $current.id
+
+proc orgBox*(x, y, w, h: int|float32|float64|UICoord) =
+  ## Sets the box dimensions of the original element for constraints.
+  current.box = initBox(float32 x, float32 y, float32 w, float32 h)
+
+proc orgBox*(rect: Box) =
+  ## Sets the box dimensions with integers
+  orgBox(rect.x, rect.y, rect.w, rect.h)
+
+proc autoOrg*(x, y, w, h: int|float32|float64|UICoord) =
+  if current.hasRendered == false:
+    let b = Box(x: float32 x, y: float32 y, w: float32 w, h: float32 h)
+    orgBox b
+
+proc autoOrg*() =
+  if current.hasRendered == false:
+    orgBox current.box
+
 proc boxFrom(x, y, w, h: float32) =
   ## Sets the box dimensions.
   current.box = initBox(x, y, w, h)
+
+proc csOrFixed(x: int|float32|float64|UICoord|Constraint): Constraint =
+  when x is Constraint:
+    x
+  else: csFixed(x.UiScalar)
 
 proc fltOrZero(x: int|float32|float64|UICoord|Constraint): float32 =
   when x is Constraint:
     0.0
   else:
     x.float32
-
-proc csOrFixed(x: int|float32|float64|UICoord|Constraint): Constraint =
-  when x is Constraint:
-    x
-  else: csFixed(x.UiScalar)
 
 proc box*(
   x: int|float32|float64|UICoord|Constraint,
@@ -382,8 +447,8 @@ proc box*(
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
   boxFrom(fltOrZero x, fltOrZero y, fltOrZero w, fltOrZero h)
-  # current.cxOffset = [csOrFixed(x), csOrFixed(y)]
-  # current.cxSize = [csOrFixed(w), csOrFixed(h)]
+  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
+  current.cxSize = [csOrFixed(w), csOrFixed(h)]
   # orgBox(float32 x, float32 y, float32 w, float32 h)
 
 proc box*(rect: Box) =
@@ -671,6 +736,44 @@ proc textAutoResize*(textAutoResize: TextAutoResize) =
   ## Set the text auto resize mode.
   current.textStyle.autoResize = textAutoResize
 
+proc characters*(text: string) =
+  ## Sets text.
+  let rtext = text.toRunes()
+  if current.text != rtext:
+    current.text = rtext
+
+proc selectable*(v: bool) =
+  ## Set text selectable flag.
+  current.selectable = v
+
+template binding*(stringVariable, textBox, handler: untyped) =
+  ## Makes the current object text-editable and binds it to the stringVariable.
+  # echo "binding impl"
+  current.bindingSet = true
+  selectable true
+  editableText true
+  if not current.hasKeyboardFocus():
+    characters stringVariable
+  when not defined(js):
+    onClick:
+      # echo "binding impl: onclick"
+      keyboard.focus(current, textBox)
+    onClickOutside:
+      # echo "binding impl: onclick outside"
+      keyboard.unFocus(current)
+  onInput:
+    # echo "binding impl: oninput"
+    handler
+  # echo "binding impl: done\n"
+
+template binding*(stringVariable, textBox, handler: untyped) =
+  binding(stringVariable, nil, handler)
+
+template binding*(stringVariable: untyped) =
+  binding(stringVariable, nil) do:
+    let input = $keyboard.input
+    if stringVariable != input:
+      stringVariable = input
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Styling and Content
@@ -1037,6 +1140,29 @@ proc itemSpacing*(v: UICoord) =
 proc zlevel*(zidx: ZLevel) =
   ## Sets zLevel.
   current.zlevel = zidx
+
+proc gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
+  ## helper that draws css grid lines. great for debugging layouts.
+  if draw:
+    # draw debug lines
+    if not current.gridTemplate.isNil:
+      # computeLayout(nil, current)
+      # echo "grid template post: ", repr current.gridTemplate
+      let cg = current.gridTemplate.gaps[dcol]
+      let wd = max(0.1'em, cg.UICoord)
+      let w = current.gridTemplate.columns[^1].start
+      let h = current.gridTemplate.rows[^1].start
+      # echo "size: ", (w, h)
+      for col in current.gridTemplate.columns[1..^2]:
+        rectangle "column":
+          layoutAlign laIgnore
+          fill color
+          box col.start.UICoord - wd, 0.UICoord, wd, h.UICoord
+      for row in current.gridTemplate.rows[1..^2]:
+        rectangle "row":
+          layoutAlign laIgnore
+          fill color
+          box 0, row.start.UICoord - wd, w.UICoord, wd
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Scrolling support
