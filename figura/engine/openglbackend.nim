@@ -96,15 +96,13 @@ proc setupFidget(
   if loadMain != nil:
     loadMain()
 
-proc runWidgets*(drawMain: proc () {.nimcall.}) =
-  while base.running:
-    proc running() {.async.} =
-      drawMain()
-      if isEvent:
-        isEvent = false
-        eventTimePost = epochTime()
-      await sleepAsync(16)
-    waitFor running()
+proc runWidgets*(drawMain: MainCallback) =
+  {.gcsafe.}:
+    while base.running:
+      proc running() {.async.} =
+        drawMain()
+        await sleepAsync(16)
+      waitFor running()
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
