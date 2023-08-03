@@ -571,69 +571,6 @@ proc `+`*(rect: Rect, xy: Vec2): Rect =
 proc `~=`*(rect: Vec2, val: float32): bool =
   result = rect.x ~= val and rect.y ~= val
 
-template to*[V, T](events: Events[T], v: typedesc[V]): Events[V] =
-  Events[V](events)
-
-proc add*[T, V](events: var Events[V], evt: T) =
-  if events.data.isNil:
-    events.data = newTable[TypeId, Variant]()
-  let key = T.getTypeId()
-  let res = events.data.mgetOrPut(key, newVariant(new seq[T])).get(ref seq[T])
-  res[].add(evt)
-
-proc `[]`*[T](events: Events[void], tp: typedesc[T]): seq[T] =
-  if events.data.isNil:
-    return @[]
-  let key = T.getTypeId()
-  result = events.data.pop(key)
-
-import std/monotimes, std/times
-
-proc popEvents*[T, V](events: Events[V], vals: var seq[T]): bool =
-  # let a = getMonoTime()
-  if events.data.isNil:
-    return false
-  var res: Variant
-  result = events.data.pop(T.getTypeId(), res)
-  if result:
-    vals = res.get(ref seq[T])[]
-  # let b = getMonoTime()
-  # echo "popEvents: ", $inNanoseconds(b-a), "ns"
-
-
 template dispatchEvent*(evt: typed) =
   result.add(evt)
 
-import std/macrocache
-const mcStateCounter = CacheCounter"stateCounter"
-
-template useStateImpl[T: ref](node: Node, vname: untyped) =
-  ## creates and caches a new state ref object
-  const id = static:
-    hash(astToStr(vname))
-  if not node.userStates.hasKey(id):
-    node.userStates[id] = newVariant(T.new())
-  var `vname` {.inject.} = node.userStates[id].get(typeof T)
-
-template useState*[T: ref](vname: untyped) =
-  ## creates and caches a new state ref object
-  useStateImpl[T](common.current, vname)
-
-template useStateParent*[T: ref](vname: untyped) =
-  ## creates and caches a new state ref object
-  useStateImpl[T](common.parent, vname)
-
-template withState*[T: ref](tp: typedesc[T]): untyped =
-  ## creates and caches a new state ref object
-  block:
-    const id = 
-      static:
-        mcStateCounter.inc(1)
-        value(mcStateCounter)
-
-    if not current.userStates.hasKey(id):
-      current.userStates[id] = newVariant(tp.new())
-    current.userStates[id].get(tp)
-
-template toRunes*(item: Node): seq[Rune] =
-  item.text
