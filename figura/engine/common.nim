@@ -476,58 +476,6 @@ proc setMousePos*(item: var Mouse, x, y: float64) =
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
 
-const
-  MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
-
-
-template calcBasicConstraintImpl(
-    parent, node: Node,
-    dir: static GridDir,
-    f: untyped
-) =
-  ## computes basic constraints for box'es when set
-  ## this let's the use do things like set 90'pp (90 percent)
-  ## of the box width post css grid or auto constraints layout
-  template calcBasic(val: untyped): untyped =
-    block:
-      var res: UICoord
-      match val:
-        UiFixed(coord):
-          res = coord.UICoord
-        UiFrac(frac):
-          res = frac.UICoord * parent.box.f
-        UiPerc(perc):
-          let ppval = when astToStr(f) == "x": parent.box.w
-                      elif astToStr(f) == "y": parent.box.h
-                      else: parent.box.f
-          res = perc.UICoord / 100.0.UICoord * ppval
-      res
-  
-  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
-                else: node.cxOffset[dir]
-  match csValue:
-    UiAuto():
-      when astToStr(f) in ["w", "h"]:
-        node.box.f = parent.box.f
-      else:
-        discard
-    UiSum(ls, rs):
-      let lv = ls.calcBasic()
-      let rv = rs.calcBasic()
-      node.box.f = lv + rv
-    UiMin(ls, rs):
-      let lv = ls.calcBasic()
-      let rv = rs.calcBasic()
-      node.box.f = min(lv, rv)
-    UiMax(ls, rs):
-      let lv = ls.calcBasic()
-      let rv = rs.calcBasic()
-      node.box.f = max(lv, rv)
-    UiValue(value):
-      node.box.f = calcBasic(value)
-    _:
-      discard
-
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:

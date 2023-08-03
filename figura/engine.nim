@@ -167,7 +167,7 @@ proc fltOrZero(x: int|float32|float64|UICoord|Constraint): float32 =
   else:
     x.float32
 
-proc csOrFixed(x: int|float32|float64|UICoord|Constraint): Constraint =
+proc csOrFixed*(x: int|float32|float64|UICoord|Constraint): Constraint =
   when x is Constraint:
     x
   else: csFixed(x.UiScalar)
