@@ -147,12 +147,12 @@ type
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
-
-    attributes: set[Attributes]
+    attrs*: set[Attributes]
 
     zlevel*: ZLevel
     rotation*: float32
     fill*: Color
+    highlight*: Color
     transparency*: float32
     stroke*: Stroke
     cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
@@ -447,7 +447,7 @@ proc resetToDefault*(node: Node)=
   node.fill = clearColor
   node.transparency = 0
   node.stroke = Stroke(weight: 0, color: clearColor)
-  node.textStyle = TextStyle()
+  # node.textStyle = TextStyle()
   node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
   node.shadow = Shadow.none()

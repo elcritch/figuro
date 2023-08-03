@@ -44,17 +44,15 @@ proc preNode(kind: NodeKind, id: Atom) =
     else:
       # Big change.
       current.nIndex = parent.diffIndex
-      current.resetToDefault()
+      # current.resetToDefault()
       refresh()
 
   current.kind = kind
-  current.textStyle = parent.textStyle
-  current.cursorColor = parent.cursorColor
-  current.highlightColor = parent.highlightColor
+  # current.textStyle = parent.textStyle
+  # current.cursorColor = parent.cursorColor
+  current.highlight = parent.highlight
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
-  current.listens.mouse = {}
-  current.listens.gesture = {}
   nodeStack.add(current)
   inc parent.diffIndex
 
@@ -62,8 +60,6 @@ proc preNode(kind: NodeKind, id: Atom) =
 
 proc postNode() =
   current.removeExtraChildren()
-  current.events.mouse = {}
-  current.events.gesture = {}
 
   # Pop the stack.
   discard nodeStack.pop()

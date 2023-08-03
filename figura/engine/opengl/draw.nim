@@ -174,15 +174,15 @@ proc drawBoxes*(node: Node) =
     else:
       ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.fill)
 
-  if node.highlightColor.a > 0'f32:
+  if node.highlight.a > 0'f32:
     if node.cornerRadius.sum() > 0'ui:
       ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
-                          color = node.highlightColor,
+                          color = node.highlight,
                           radius = node.cornerRadius[0].scaled)
     else:
-      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.highlightColor)
+      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.highlight)
 
-  if node.image.name != "":
+  if node.kind == nkImage and node.image.name != "":
     let path = dataDir / node.image.name
     let size = vec2(node.screenBox.scaled.w, node.screenBox.scaled.h)
     ctx.drawImage(path,
@@ -207,7 +207,7 @@ proc draw*(node, parent: Node) =
   ##
   ## Note that visiable draw calls need to check they're on the current
   ## active ZLevel (z-index).
-  if node.disableRender:
+  if disableRender in node.attrs:
     return
   
   # setup the opengl context to match the current node size and position
@@ -229,7 +229,7 @@ proc draw*(node, parent: Node) =
     ctx.translate(-node.screenBox.scaled.wh/2)
 
   # handle clipping children content based on this node
-  ifdraw node.clipContent:
+  ifdraw clipContent in node.attrs:
     ctx.beginMask()
     node.drawMasks()
     ctx.endMask()
@@ -251,7 +251,7 @@ proc draw*(node, parent: Node) =
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifdraw node.scrollpane:
+  ifdraw scrollpane in node.attrs:
     # handles scrolling panel
     ctx.saveTransform()
     ctx.translate(-node.offset.scaled)
