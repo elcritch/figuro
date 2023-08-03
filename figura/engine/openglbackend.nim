@@ -40,17 +40,9 @@ proc drawFrameImpl() =
   scrollBox.h = windowLogicalSize.y.descaled()
   root.box = scrollBox
 
-  # if currTextBox != nil:
-  #   keyboard.input = currTextBox.text
-  # computeEvents(root)
-
   drawMain()
 
-  # root.removeExtraChildren()
-
-  # computeLayout(nil, root)
   computeScreenBox(nil, root)
-  # processHooks(nil, root)
 
   # Only draw the root after everything was done:
   root.drawRoot()
@@ -103,17 +95,6 @@ proc setupFidget(
 
   if loadMain != nil:
     loadMain()
-
-proc asyncPoll() =
-  when not defined(emscripten) and
-        not defined(fidgetNoAsync):
-    poll(16)
-    if isEvent:
-      isEvent = false
-      eventTimePost = epochTime()
-# 
-type
-  MainProc* = proc () 
 
 proc startFidget*(
     draw: proc() = nil,
