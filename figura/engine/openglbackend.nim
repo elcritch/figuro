@@ -145,15 +145,13 @@ proc startFidget*(
       updateLoop()
     emscripten_set_main_loop(main_loop, 0, true)
   else:
-    proc running() {.async.} =
-      while base.running:
-        updateLoop()
-        # asyncPoll()
-        if isEvent:
-          isEvent = false
-          eventTimePost = epochTime()
-        await sleepAsync(16)
-    waitFor: running()
+    while base.running:
+      updateLoop()
+      # asyncPoll()
+      if isEvent:
+        isEvent = false
+        eventTimePost = epochTime()
+      sleep(16)
     # exit()
 
 proc openBrowser*(url: string) =
