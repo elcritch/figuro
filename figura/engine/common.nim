@@ -125,6 +125,12 @@ type
     nkRectangle
     nkDrawable
     nkScrollBar
+    nkImage
+
+  Attributes* = enum
+    clipContent
+    disableRender
+    scrollpane
 
   ImageStyle* = object
     name*: string
@@ -132,8 +138,8 @@ type
 
   Node* = ref object
     uid*: NodeUID
-    kind*: NodeKind
     nodes*: seq[Node]
+    nIndex*: int
 
     box*: Box
     orgBox*: Box
@@ -141,49 +147,31 @@ type
     offset*: Position
     totalOffset*: Position
 
-    clipContent*: bool
-    disableRender*: bool
-    resizeDone*: bool
-    htmlDone*: bool
-    scrollpane*: bool
+    attributes: set[Attributes]
+
+    zlevel*: ZLevel
     rotation*: float32
     fill*: Color
     transparency*: float32
     stroke*: Stroke
-    textStyle*: TextStyle
-    image*: ImageStyle
     cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
-    cursorColor*: Color
-    highlightColor*: Color
-    disabledColor*: Color
     shadow*: Option[Shadow]
-    constraintsHorizontal*: FidgetConstraint
-    constraintsVertical*: FidgetConstraint
-    layoutAlign*: LayoutAlign
-    layoutMode*: LayoutMode
-    counterAxisSizingMode*: CounterAxisSizingMode
-    gridTemplate*: GridTemplate
-    gridItem*: GridItem
-    horizontalPadding*: UICoord
-    verticalPadding*: UICoord
-    itemSpacing*: UICoord
-    nIndex*: int
-    diffIndex*: int
-    events*: InputEvents
-    listens*: ListenEvents
-    zlevel*: ZLevel
-    when not defined(js):
-      textLayout*: seq[GlyphPosition]
+
+    case kind*: NodeKind
+    of nkImage:
+      image*: ImageStyle
+    of nkText:
+      textStyle*: TextStyle
+      when not defined(js):
+        textLayout*: seq[GlyphPosition]
+      else:
+        element*: Element
+        textElement*: Element
+        cache*: Node
+    of nkText:
+      points*: seq[Position]
     else:
-      element*: Element
-      textElement*: Element
-      cache*: Node
-    textLayoutHeight*: UICoord
-    textLayoutWidth*: UICoord
-    ## Can the text be selected.
-    userStates*: Table[int, Variant]
-    userEvents*: Events[All]
-    points*: seq[Position]
+      discard
 
   
   KeyState* = enum
