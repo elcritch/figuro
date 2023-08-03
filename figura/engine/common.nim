@@ -140,6 +140,7 @@ type
     uid*: NodeUID
     nodes*: seq[Node]
     nIndex*: int
+    diffIndex*: int
 
     box*: Box
     orgBox*: Box
@@ -168,7 +169,7 @@ type
         element*: Element
         textElement*: Element
         cache*: Node
-    of nkText:
+    of nkDrawable:
       points*: seq[Position]
     else:
       discard
@@ -446,36 +447,16 @@ proc resetToDefault*(node: Node)=
   node.fill = clearColor
   node.transparency = 0
   node.stroke = Stroke(weight: 0, color: clearColor)
-  node.resizeDone = false
-  node.htmlDone = false
   node.textStyle = TextStyle()
   node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
-  node.cursorColor = clearColor
-  node.highlightColor = clearColor
   node.shadow = Shadow.none()
-  node.gridTemplate = nil
-  node.gridItem = nil
-  node.constraintsHorizontal = cMin
-  node.constraintsVertical = cMin
-  node.layoutAlign = laMin
-  node.layoutMode = lmNone
-  node.counterAxisSizingMode = csAuto
-  node.horizontalPadding = 0'ui
-  node.verticalPadding = 0'ui
-  node.itemSpacing = 0'ui
-  node.clipContent = false
-  node.diffIndex = 0
-  node.zlevel = ZLevelDefault
-  node.scrollpane = false
-  node.userStates = initTable[int, Variant]()
 
 proc setupRoot*() =
   if root == nil:
     root = Node()
     root.uid = newUId()
     root.zlevel = ZLevelDefault
-    root.cursorColor = rgba(0, 0, 0, 255).color
   nodeStack = @[root]
   current = root
   root.diffIndex = 0
@@ -559,64 +540,6 @@ proc mouseOverlapsNode*(node: Node): bool =
 const
   MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
 
-proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
-  if b.zlvl >= a.zlvl and b.flags != {}: b else: a
-
-template checkEvent[ET](evt: ET, predicate: typed) =
-  when ET is MouseEventType:
-    if evt in node.listens.mouse and predicate: result.incl(evt)
-  elif ET is GestureEventType:
-    if evt in node.listens.gesture and predicate: result.incl(evt)
-
-proc checkMouseEvents*(node: Node): MouseEventFlags =
-  ## Compute mouse events
-  if node.mouseOverlapsNode():
-    checkEvent(evClick, mouse.click())
-    checkEvent(evPress, mouse.down())
-    checkEvent(evRelease, mouse.release())
-    checkEvent(evHover, true)
-    checkEvent(evOverlapped, true)
-  else:
-    checkEvent(evClickOut, mouse.click())
-    checkEvent(evHoverOut, true)
-
-proc checkGestureEvents*(node: Node): GestureEventFlags =
-  ## Compute gesture events
-  if node.mouseOverlapsNode():
-    checkEvent(evScroll, mouse.scrolled())
-
-proc computeNodeEvents*(node: Node): CapturedEvents =
-  ## Compute mouse events
-  for n in node.nodes.reverse:
-    let child = computeNodeEvents(n)
-    result.mouse = max(result.mouse, child.mouse)
-    result.gesture = max(result.gesture, child.gesture)
-
-  let
-    allMouseEvts = node.checkMouseEvents()
-    mouseOutEvts = allMouseEvts * MouseOnOutEvents
-    mouseEvts = allMouseEvts - MouseOnOutEvents
-    gestureEvts = node.checkGestureEvents()
-
-  # set on-out events 
-  node.events.mouse.incl(mouseOutEvts)
-
-  let
-    captured = CapturedEvents(
-      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, target: node),
-      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
-    )
-
-  if node.clipContent and not node.mouseOverlapsNode():
-    # this node clips events, so it must overlap child events, 
-    # e.g. ignore child captures if this node isn't also overlapping 
-    result = captured
-  else:
-    result.mouse = max(captured.mouse, result.mouse)
-    result.gesture = max(captured.gesture, result.gesture)
-  
-
-var gridChildren: seq[Node]
 
 template calcBasicConstraintImpl(
     parent, node: Node,
@@ -666,17 +589,6 @@ template calcBasicConstraintImpl(
     _:
       discard
 
-proc calcBasicConstraint(parent, node: Node, dir: static GridDir, isXY: static bool) =
-  when isXY == true and dir == dcol: 
-    calcBasicConstraintImpl(parent, node, dir, x)
-  elif isXY == true and dir == drow: 
-    calcBasicConstraintImpl(parent, node, dir, y)
-  elif isXY == false and dir == dcol: 
-    calcBasicConstraintImpl(parent, node, dir, w)
-  elif isXY == false and dir == drow: 
-    calcBasicConstraintImpl(parent, node, dir, h)
-
-
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
@@ -692,6 +604,7 @@ proc atXY*[T: Box](rect: T, x, y: int | float32 | UICoord): T =
   result = rect
   result.x = UICoord(x)
   result.y = UICoord(y)
+
 proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
   result = rect
   result.x = x
