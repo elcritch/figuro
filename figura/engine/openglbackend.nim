@@ -33,7 +33,7 @@ proc drawFrameImpl() =
 
   mouse.cursorStyle = Default
 
-  setupRoot()
+  # setupRoot()
   scrollBox.x = 0'ui
   scrollBox.y = 0'ui
   scrollBox.w = windowLogicalSize.x.descaled()
@@ -136,6 +136,8 @@ proc startFidget*(
 
   if not setup.isNil:
     setup()
+
+  setupRoot()
 
   when defined(emscripten):
     # Emscripten can't block so it will call this callback instead.

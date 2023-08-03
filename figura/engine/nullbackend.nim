@@ -35,7 +35,7 @@ proc startFidget*(
     setupRoot()
     drawMain()
     echo "drawMain walk took: ", epochTime() - startTime, "ms"
-  dumpTree(root)
+  # dumpTree(root)
 
 proc getTitle*(): string =
   ## Gets window title
