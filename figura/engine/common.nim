@@ -476,19 +476,6 @@ proc setMousePos*(item: var Mouse, x, y: float64) =
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
 
-proc mouseOverlapsNode*(node: Node): bool =
-  ## Returns true if mouse overlaps the node node.
-  let mpos = mouse.pos.descaled + node.totalOffset 
-  let act = 
-    (not popupActive or inPopup) and
-    node.screenBox.w > 0'ui and
-    node.screenBox.h > 0'ui 
-
-  result =
-    act and
-    mpos.overlaps(node.screenBox) and
-    (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
-
 const
   MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
 

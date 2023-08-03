@@ -157,46 +157,6 @@ template blank*(): untyped =
 ## interacting with user interactions. 
 ## 
 
-proc mouseOverlapLogic*(): bool =
-  result = mouseOverlapsNode(current)
-
-proc isCovered*(screenBox: Box): bool =
-  ## Returns true if mouse overlaps the current node.
-  let off = current.totalOffset * -1'ui
-  let sb = screenBox
-  let cb = current.screenBox
-  result = sb.overlaps(cb + off)
-
-proc mouseRelativeStart*(node: Node): Position =
-  ## computes relative position of the mouse to the node position
-  let sb = mouse.pos.descaled
-  result = initPosition(sb.x.float32, sb.y.float32)
-proc mouseRelativeDiff*(initial: Position): Position =
-  ## computes relative position of the mouse to the node position
-  let x = mouse.pos.descaled.x - initial.x
-  let y = mouse.pos.descaled.y - initial.y
-  result = initPosition(x.float32, y.float32)
-
-proc mouseRelative*(node: Node): Position =
-  ## computes relative position of the mouse to the node position
-  let x = mouse.pos.descaled.x - node.screenBox.x
-  let y = mouse.pos.descaled.y - node.screenBox.y
-  result = initPosition(x.float32, y.float32)
-proc mouseRelative*(): Position =
-  ## computes relative position of the mouse to the current node position
-  mouseRelative(current)
-
-proc mouseRatio*(node: Node, pad: Position|UICoord, clamped = false): Position =
-  ## computes relative fraction of the mouse's position to the node's area
-  let pad =
-    when pad is Position: pad
-    else: initPosition(pad.float32, pad.float32)
-  let track = node.box.wh - pad
-  result = (node.mouseRelative() - pad/2)/track 
-  if clamped:
-    result.x = result.x.clamp(0'ui, 1'ui)
-    result.y = result.y.clamp(0'ui, 1'ui)
-
 proc boxFrom(x, y, w, h: float32) =
   ## Sets the box dimensions.
   current.box = initBox(x, y, w, h)
