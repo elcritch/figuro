@@ -7,12 +7,11 @@ import std/[typetraits, options, unicode, strformat]
 import pkg/[variant, chroma, cssgrid, windy]
 import pkg/[typography, typography/svgfont]
 
-import ../commonutils
+import ../[common, commonutils]
+
 import cdecl/atoms
 
 from windy/common import Button, ButtonView
-
-import ../[common, commonutils]
 
 export chroma, common
 export commonutils
@@ -55,9 +54,9 @@ var
   scrollBarFill* = rgba(187, 187, 187, 162).color 
   scrollBarHighlight* = rgba(137, 137, 137, 162).color
 
-  buttonPress: ButtonView
-  buttonDown: ButtonView
-  buttonRelease: ButtonView
+  buttonPress*: ButtonView
+  buttonDown*: ButtonView
+  buttonRelease*: ButtonView
 
 
 inputs.keyboardInput = proc (rune: Rune) =
