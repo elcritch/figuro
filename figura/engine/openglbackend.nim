@@ -15,15 +15,6 @@ export input, draw
 var
   windowTitle, windowUrl: string
 
-
-proc removeExtraChildren*(node: Node) =
-  ## Deal with removed nodes.
-  node.nodes.setLen(node.diffIndex)
-
-proc processHooks(parent, node: Node) =
-  for child in node.nodes:
-    processHooks(node, child)
-
 proc drawFrameImpl() =
   # echo "\ndrawFrame"
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))

@@ -407,8 +407,10 @@ when not defined(js):
 mouse = Mouse()
 mouse.pos = vec2(0, 0)
 
-# proc `$`*(a: Rect): string =
-  # fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
+
+proc removeExtraChildren*(node: Node) =
+  ## Deal with removed nodes.
+  node.nodes.setLen(node.diffIndex)
 
 proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
