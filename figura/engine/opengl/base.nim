@@ -303,15 +303,7 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     mouse.wheelDelta += window.scrollDelta().x
     uiEvent.trigger()
 
-  window.onRune = proc (rune: Rune) =
-    requestedFrame.inc
-    if keyboard.focusNode != nil:
-      keyboard.state = KeyState.Press
-      # currTextBox.typeCharacter(rune)
-    else:
-      keyboard.state = KeyState.Press
-      keyboard.keyString = rune.toUTF8()
-    uiEvent.trigger()
+  window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
     requestedFrame.inc

@@ -13,6 +13,7 @@ export commonutils
 export cssgrid
 export atoms
 export inputs
+export trigger, AsyncEvent
 
 import pretty
 
@@ -25,6 +26,9 @@ const
   clearColor* = color(0, 0, 0, 0)
   whiteColor* = color(1, 1, 1, 1)
   blackColor* = color(0, 0, 0, 1)
+
+const
+  DataDirPath* {.strdefine.} = "data"
 
 var
   # UI Scale
@@ -47,6 +51,8 @@ var
   keyboard* = Keyboard()
 
   uiEvent*: AsyncEvent
+  dataDir*: string = DataDirPath
+
 
 type
   NodeUID* = int64
@@ -213,9 +219,6 @@ type
       httpRequest*: XMLHttpRequest
     else:
       future*: Future[string]
-
-const
-  DataDirPath* {.strdefine.} = "data"
 
 
 proc refresh*() =

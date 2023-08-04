@@ -5,8 +5,8 @@ import typography
 import pixie, chroma
 
 import context, formatflippy
-import ../input, ../common
-import ../commonutils
+import ../input
+import ../../[common, commonutils]
 
 type
   Context = context.Context
