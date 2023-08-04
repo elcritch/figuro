@@ -3,8 +3,8 @@ import algorithm, chroma, bumpy
 import std/[json, macros, tables]
 import cssgrid
 
-import figura/[common, commonutils]
-import figura/widgets/apis
+import figuro/[common, commonutils]
+import figuro/widgets/apis
 
 export chroma, cssgrid, cssgrid
 export common, commonutils, apis
@@ -12,12 +12,12 @@ export common, commonutils, apis
 import pretty
 
 when defined(js):
-  import figura/htmlbackend
+  import figuro/htmlbackend
   export htmlbackend
 elif defined(nullbackend):
-  import figura/nullbackend
+  import figuro/nullbackend
   export nullbackend
 else:
-  import figura/engine/openglbackend
+  import figuro/engine/openglbackend
   export openglbackend
 

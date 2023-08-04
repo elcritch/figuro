@@ -1,7 +1,7 @@
 
 ## This minimal example shows 5 blue squares.
 
-import figura/engine
+import figuro/engine
 
 proc drawMain() =
   frame "main":
