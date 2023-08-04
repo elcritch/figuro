@@ -31,19 +31,12 @@ var
   scrollBox*: Box
   scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
-  mouse* = Mouse()
   keyboard* = Keyboard()
   numNodes*: int
   popupActive*: bool
   inPopup*: bool
   resetNodes*: int
   popupBox*: Box
-  fullscreen* = false
-  windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
-  windowSize*: Vec2    ## Screen coordinates
-  # windowFrame*: Vec2   ## Pixel coordinates
-  pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
-  pixelScale*: float32 ## Pixel multiplier user wants on the UI
 
   # Used to check for duplicate ID paths.
   pathChecker*: Table[string, bool]

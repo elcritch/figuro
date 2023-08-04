@@ -6,8 +6,9 @@ import pkg/opengl
 import pkg/windy
 
 import ./perf
-import ../commonutils
-import ../common, ../input, ../internal
+import ../../[commonutils, common]
+import ../[input, internal]
+
 # import ../patches/textboxes 
 
 when defined(glDebugMessageCallback):
@@ -115,7 +116,8 @@ proc preInput() =
   discard
 
 proc postInput() =
-  clearInputs()
+  # clearInputs()
+  discard
 
 proc preTick() =
   discard
