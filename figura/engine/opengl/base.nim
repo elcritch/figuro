@@ -1,13 +1,13 @@
 import std/[os, strformat, unicode, times]
-import std/asyncdispatch
 
 import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windy
 
 import ./perf
-import ../commonutils
-import ../common, ../input, ../internal
+import ../../[commonutils, common, internal]
+import ../[input]
+
 # import ../patches/textboxes 
 
 when defined(glDebugMessageCallback):
@@ -57,9 +57,6 @@ var
   cursorPointer*: Cursor
   cursorGrab*: Cursor
   cursorNSResize*: Cursor
-
-var
-  uiEvent*: AsyncEvent
 
 var
   eventTimePre* = epochTime()
@@ -115,7 +112,8 @@ proc preInput() =
   discard
 
 proc postInput() =
-  clearInputs()
+  # clearInputs()
+  discard
 
 proc preTick() =
   discard
@@ -305,15 +303,7 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
     mouse.wheelDelta += window.scrollDelta().x
     uiEvent.trigger()
 
-  window.onRune = proc (rune: Rune) =
-    requestedFrame.inc
-    if keyboard.focusNode != nil:
-      keyboard.state = KeyState.Press
-      # currTextBox.typeCharacter(rune)
-    else:
-      keyboard.state = KeyState.Press
-      keyboard.keyString = rune.toUTF8()
-    uiEvent.trigger()
+  window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
     requestedFrame.inc

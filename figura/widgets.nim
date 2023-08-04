@@ -1,86 +1,14 @@
-import chroma, bumpy
-import std/[algorithm, json, macros, tables, os]
+import algorithm, chroma, bumpy
+import std/[json, macros, tables]
 import cssgrid
 
-import std/[sequtils, tables, json, hashes]
-import std/[typetraits, options, unicode, strformat]
-import pkg/[variant, chroma, cssgrid, windy]
-import pkg/[typography, typography/svgfont]
-
-import ../commonutils
-import cdecl/atoms
-
-from windy/common import Button, ButtonView
-
-import ../[common, commonutils]
+import common, commonutils
 
 export chroma, common
 export commonutils
 export cssgrid
 
 import pretty
-
-var
-  parent*: Node
-  root*: Node
-
-  nodeStack*: seq[Node]
-  gridStack*: seq[GridTemplate]
-  current*: Node
-  scrollBox*: Box
-  scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
-  scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
-  numNodes*: int
-  popupActive*: bool
-  inPopup*: bool
-  resetNodes*: int
-  popupBox*: Box
-
-  # Used to check for duplicate ID paths.
-  pathChecker*: Table[string, bool]
-
-  computeTextLayout*: proc(node: Node)
-
-  lastUId: int
-  nodeLookup*: Table[string, Node]
-
-  ## Used for HttpCalls
-  httpCalls*: Table[string, HttpCall]
-
-  defaultlineHeightRatio* = 1.618.UICoord ##\
-    ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
-  adjustTopTextFactor* = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
-
-  # global scroll bar settings
-  scrollBarFill* = rgba(187, 187, 187, 162).color 
-  scrollBarHighlight* = rgba(137, 137, 137, 162).color
-
-  buttonPress: ButtonView
-  buttonDown: ButtonView
-  buttonRelease: ButtonView
-
-
-inputs.keyboardInput = proc (rune: Rune) =
-    requestedFrame.inc
-    # if keyboard.focusNode != nil:
-    #   keyboard.state = KeyState.Press
-    #   # currTextBox.typeCharacter(rune)
-    # else:
-    #   keyboard.state = KeyState.Press
-    #   keyboard.keyString = rune.toUTF8()
-    uiEvent.trigger()
-
-proc newUId*(): NodeUID =
-  # Returns next numerical unique id.
-  inc lastUId
-  when defined(js) or defined(StringUID):
-    $lastUId
-  else:
-    NodeUID(lastUId)
-
-proc refresh*() =
-  ## Request the screen be redrawn
-  requestedFrame = max(1, requestedFrame)
 
 proc preNode(kind: NodeKind, id: Atom) =
   ## Process the start of the node.
@@ -145,49 +73,9 @@ template node(kind: NodeKind, id: static string, inner: untyped): untyped =
   inner
   postNode()
 
-
 template withDefaultName(name: untyped): untyped =
   template `name`*(inner: untyped): untyped =
     `name`("", inner)
-
-
-proc defaultLineHeight*(fontSize: UICoord): UICoord =
-  result = fontSize * defaultlineHeightRatio
-proc defaultLineHeight*(ts: TextStyle): UICoord =
-  result = defaultLineHeight(ts.fontSize)
-
-proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
-  ## Sets stroke/border color.
-  result.color = parseHtmlColor(color)
-  result.color.a = alpha
-  result.weight = weight.float32
-
-proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: Color, alpha = 1.0): Stroke =
-  ## Sets stroke/border color.
-  result.color = color
-  result.color.a = alpha
-  result.weight = weight.float32
-
-proc imageStyle*(name: string, color: Color): ImageStyle =
-  # Image style
-  result = ImageStyle(name: name, color: color)
-
-
-when not defined(js):
-  func hAlignMode*(align: HAlign): HAlignMode =
-    case align:
-      of hLeft: HAlignMode.Left
-      of hCenter: Center
-      of hRight: HAlignMode.Right
-
-  func vAlignMode*(align: VAlign): VAlignMode =
-    case align:
-      of vTop: Top
-      of vCenter: Middle
-      of vBottom: Bottom
-
-mouse = Mouse()
-mouse.pos = vec2(0, 0)
 
 ## ---------------------------------------------
 ##             Basic Node Creation
@@ -248,12 +136,6 @@ template blank*(): untyped =
 ## 
 ## These APIs provide the APIs for Fidget nodes.
 ## 
-
-proc clearInputs*() =
-  resetNodes = 0
-  mouse.wheelDelta = 0
-  mouse.consumed = false
-  mouse.clickedOutside = false
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node User Interactions
@@ -316,8 +198,26 @@ proc openBrowser*(url: string) =
   ## Opens a URL in a browser
   discard
 
+proc getTitle*(): string =
+  ## Gets window title
+  windowTitle
+
+proc setTitle*(title: string) =
+  ## Sets window title
+  if (windowTitle != title):
+    windowTitle = title
+    setWindowTitle(title)
+    refresh()
+
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)
+
+proc getUrl*(): string =
+  windowUrl
+
+proc setUrl*(url: string) =
+  windowUrl = url
+  refresh()
 
 proc loadFontAbsolute*(name: string, pathOrUrl: string) =
   ## Loads fonts anywhere in the system.
@@ -343,9 +243,29 @@ proc getItem*(key: string): string =
   ## Gets a value into local storage or file.
   readFile(&"{key}.data")
 
-proc getUrl*(): string =
-  windowUrl
+when not defined(emscripten) and not defined(fidgetNoAsync):
+  proc httpGetCb(future: Future[string]) =
+    refresh()
 
-proc setUrl*(url: string) =
-  windowUrl = url
-  refresh()
+  proc httpGet*(url: string): HttpCall =
+    if url notin httpCalls:
+      result = HttpCall()
+      var client = newAsyncHttpClient()
+      echo "new call"
+      result.future = client.getContent(url)
+      result.future.addCallback(httpGetCb)
+      httpCalls[url] = result
+      result.status = Loading
+    else:
+      result = httpCalls[url]
+
+    if result.status == Loading and result.future.finished:
+      result.status = Ready
+      try:
+        result.data = result.future.read()
+        result.json = parseJson(result.data)
+      except HttpRequestError:
+        echo getCurrentExceptionMsg()
+        result.status = Error
+
+    return

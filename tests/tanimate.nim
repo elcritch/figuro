@@ -1,7 +1,7 @@
 ## This minimal example shows 5 blue squares.
 
 import figura/timers
-import figura/engine
+import figura
 
 type
   Item = ref object

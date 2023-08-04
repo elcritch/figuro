@@ -328,8 +328,6 @@ proc toEvent*(kind: KeyboardEventType): KeyboardEvent =
 proc toEvent*(kind: GestureEventType): GestureEvent =
   GestureEvent(kind: kind)
 
-const
-  DataDirPath* {.strdefine.} = "data"
 
 var
   parent*: Node

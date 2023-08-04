@@ -4,8 +4,9 @@ import pkg/chroma
 import pkg/[typography, typography/svgfont]
 import pkg/pixie
 
-import opengl/[base, context, draw]
-import common, input, internal
+import ./opengl/[base, context, draw]
+import ./[input]
+import ../[common, internal]
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json
@@ -24,7 +25,7 @@ proc drawFrame() =
 
   mouse.cursorStyle = Default
 
-  computeScreenBox(nil, root)
+  computeScreenBox(nil, renderRoot)
   # Only draw the root after everything was done:
   drawRoot(renderRoot)
 
@@ -149,83 +150,3 @@ proc startFidget*(
   runRenderer()
   widgetThread.joinThread()
 
-
-proc openBrowser*(url: string) =
-  ## Opens a URL in a browser
-  discard
-
-proc refresh*() =
-  ## Request the screen be redrawn
-  requestedFrame = max(1, requestedFrame)
-
-proc getTitle*(): string =
-  ## Gets window title
-  windowTitle
-
-proc setTitle*(title: string) =
-  ## Sets window title
-  if (windowTitle != title):
-    windowTitle = title
-    setWindowTitle(title)
-    refresh()
-
-# proc setWindowBounds*(min, max: Vec2) =
-#   base.setWindowBounds(min, max)
-
-proc getUrl*(): string =
-  windowUrl
-
-proc setUrl*(url: string) =
-  windowUrl = url
-  refresh()
-
-proc loadFontAbsolute*(name: string, pathOrUrl: string) =
-  ## Loads fonts anywhere in the system.
-  ## Not supported on js, emscripten, ios or android.
-  if pathOrUrl.endsWith(".svg"):
-    fonts[name] = readFontSvg(pathOrUrl)
-  elif pathOrUrl.endsWith(".ttf"):
-    fonts[name] = readFontTtf(pathOrUrl)
-  elif pathOrUrl.endsWith(".otf"):
-    fonts[name] = readFontOtf(pathOrUrl)
-  else:
-    raise newException(Exception, "Unsupported font format")
-
-proc loadFont*(name: string, pathOrUrl: string) =
-  ## Loads the font from the dataDir.
-  loadFontAbsolute(name, dataDir / pathOrUrl)
-
-proc setItem*(key, value: string) =
-  ## Saves value into local storage or file.
-  writeFile(&"{key}.data", value)
-
-proc getItem*(key: string): string =
-  ## Gets a value into local storage or file.
-  readFile(&"{key}.data")
-
-when not defined(emscripten) and not defined(fidgetNoAsync):
-  proc httpGetCb(future: Future[string]) =
-    refresh()
-
-  proc httpGet*(url: string): HttpCall =
-    if url notin httpCalls:
-      result = HttpCall()
-      var client = newAsyncHttpClient()
-      echo "new call"
-      result.future = client.getContent(url)
-      result.future.addCallback(httpGetCb)
-      httpCalls[url] = result
-      result.status = Loading
-    else:
-      result = httpCalls[url]
-
-    if result.status == Loading and result.future.finished:
-      result.status = Ready
-      try:
-        result.data = result.future.read()
-        result.json = parseJson(result.data)
-      except HttpRequestError:
-        echo getCurrentExceptionMsg()
-        result.status = Error
-
-    return
