@@ -7,7 +7,7 @@ import figura/[common, commonutils]
 import figura/widgets/apis
 
 export chroma, cssgrid, cssgrid
-export common, commonutils
+export common, commonutils, apis
 
 import pretty
 
