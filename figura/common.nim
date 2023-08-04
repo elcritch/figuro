@@ -24,6 +24,15 @@ const
   whiteColor* = color(1, 1, 1, 1)
   blackColor* = color(0, 0, 0, 1)
 
+
+var
+  # UI Scale
+  uiScale*: float32 = 1.0
+  autoUiScale*: bool = true
+  requestedFrame*: int
+
+  windowTitle*, windowUrl*: string
+
 type
   NodeUID* = int64
 
@@ -303,109 +312,10 @@ proc toEvent*(kind: GestureEventType): GestureEvent =
 const
   DataDirPath* {.strdefine.} = "data"
 
-var
-  parent*: Node
-  root*: Node
-  renderRoot*: Node
 
-  nodeStack*: seq[Node]
-  gridStack*: seq[GridTemplate]
-  current*: Node
-  scrollBox*: Box
-  scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
-  scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
-  mouse* = Mouse()
-  keyboard* = Keyboard()
-  requestedFrame*: int
-  numNodes*: int
-  popupActive*: bool
-  inPopup*: bool
-  resetNodes*: int
-  popupBox*: Box
-  fullscreen* = false
-  windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
-  windowSize*: Vec2    ## Screen coordinates
-  # windowFrame*: Vec2   ## Pixel coordinates
-  pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
-  pixelScale*: float32 ## Pixel multiplier user wants on the UI
-
-  # Used to check for duplicate ID paths.
-  pathChecker*: Table[string, bool]
-
-  computeTextLayout*: proc(node: Node)
-
-  lastUId: int
-  nodeLookup*: Table[string, Node]
-
-  dataDir*: string = DataDirPath
-
-  ## Used for HttpCalls
-  httpCalls*: Table[string, HttpCall]
-
-  # UI Scale
-  uiScale*: float32 = 1.0
-  autoUiScale*: bool = true
-
-  defaultlineHeightRatio* = 1.618.UICoord ##\
-    ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
-  adjustTopTextFactor* = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
-
-  # global scroll bar settings
-  scrollBarFill* = rgba(187, 187, 187, 162).color 
-  scrollBarHighlight* = rgba(137, 137, 137, 162).color
-
-  buttonPress: windy.ButtonView
-  buttonDown: windy.ButtonView
-  buttonRelease: windy.ButtonView
-
-proc defaultLineHeight*(fontSize: UICoord): UICoord =
-  result = fontSize * defaultlineHeightRatio
-proc defaultLineHeight*(ts: TextStyle): UICoord =
-  result = defaultLineHeight(ts.fontSize)
-
-proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
-  ## Sets stroke/border color.
-  result.color = parseHtmlColor(color)
-  result.color.a = alpha
-  result.weight = weight.float32
-
-proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: Color, alpha = 1.0): Stroke =
-  ## Sets stroke/border color.
-  result.color = color
-  result.color.a = alpha
-  result.weight = weight.float32
-
-proc newUId*(): NodeUID =
-  # Returns next numerical unique id.
-  inc lastUId
-  when defined(js) or defined(StringUID):
-    $lastUId
-  else:
-    NodeUID(lastUId)
-
-proc imageStyle*(name: string, color: Color): ImageStyle =
-  # Image style
-  result = ImageStyle(name: name, color: color)
-
-when not defined(js):
-  var
-    # currTextBox*: TextBox[Node]
-    fonts*: Table[string, Font]
-
-  func hAlignMode*(align: HAlign): HAlignMode =
-    case align:
-      of hLeft: HAlignMode.Left
-      of hCenter: Center
-      of hRight: HAlignMode.Right
-
-  func vAlignMode*(align: VAlign): VAlignMode =
-    case align:
-      of vTop: Top
-      of vCenter: Middle
-      of vBottom: Bottom
-
-mouse = Mouse()
-mouse.pos = vec2(0, 0)
+proc refresh*() =
+  ## Request the screen be redrawn
+  requestedFrame = max(1, requestedFrame)
 
 
 proc removeExtraChildren*(node: Node) =
@@ -445,24 +355,16 @@ proc resetToDefault*(node: Node)=
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
   node.shadow = Shadow.none()
 
-proc setupRoot*() =
-  if root == nil:
-    root = Node()
-    root.uid = newUId()
-    root.zlevel = ZLevelDefault
-  nodeStack = @[root]
-  current = root
-  root.diffIndex = 0
+proc getUrl*(): string =
+  windowUrl
+
+proc setUrl*(url: string) =
+  windowUrl = url
+  refresh()
 
 proc emptyFuture*(): Future[void] =
   result = newFuture[void]()
   result.complete()
-
-proc clearInputs*() =
-  resetNodes = 0
-  mouse.wheelDelta = 0
-  mouse.consumed = false
-  mouse.clickedOutside = false
 
 const
   MouseButtons* = [
