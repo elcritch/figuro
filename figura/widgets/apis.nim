@@ -1,5 +1,6 @@
-import algorithm, chroma, bumpy
-import std/[json, macros, tables, os]
+import chroma, bumpy
+import std/[algorithm, json, macros, tables, os]
+import std/asyncdispatch
 import cssgrid
 
 import std/[sequtils, tables, json, hashes]
