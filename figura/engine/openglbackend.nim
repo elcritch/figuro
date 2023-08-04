@@ -90,6 +90,7 @@ proc runWidgets*(drawMain: MainCallback) =
   {.gcsafe.}:
     while base.running:
       proc running() {.async.} =
+        setupRoot()
         drawMain()
         await sleepAsync(16)
       waitFor running()
@@ -135,7 +136,7 @@ proc startFidget*(
   if not setup.isNil:
     setup()
 
-  setupRoot()
+  # setupRoot()
   # drawMain()
 
   var widgetThread: Thread[MainCallback]
