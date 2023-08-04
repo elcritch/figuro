@@ -2,23 +2,23 @@ import chroma, bumpy
 import std/[algorithm, json, macros, tables, os]
 import cssgrid
 
-import std/[sequtils, tables, json, hashes]
-import std/[typetraits, options, unicode, strformat]
-import pkg/[variant, chroma, cssgrid, windy]
+import std/[hashes]
+import std/[strformat]
+import pkg/[windy]
 import pkg/[typography, typography/svgfont]
 
 import ../commonutils
-import cdecl/atoms
 
 from windy/common import Button, ButtonView
 
-import ../[common, commonutils]
+import ../[common]
 import ./nodes
 
 export chroma, cssgrid
 export commonutils, common, nodes
 
 import pretty
+export pretty
 
 proc defaultLineHeight*(fontSize: UICoord): UICoord =
   result = fontSize * defaultlineHeightRatio
