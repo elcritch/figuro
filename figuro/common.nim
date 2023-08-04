@@ -293,10 +293,15 @@ proc computeScreenBox*(parent, node: Node) =
   for n in node.nodes:
     computeScreenBox(node, n)
 
-proc atXY*[T: Box](rect: T, x, y: int | float32 | UICoord): T =
+proc atXY*[T: Box](rect: T, x, y: int | float32): T =
   result = rect
   result.x = UICoord(x)
   result.y = UICoord(y)
+
+proc atXY*[T: Box](rect: T, x, y: UICoord): T =
+  result = rect
+  result.x = x
+  result.y = y
 
 proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
   result = rect
