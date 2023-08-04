@@ -15,7 +15,7 @@ export input, draw
 var
   windowTitle, windowUrl: string
 
-proc drawFrameImpl() =
+proc drawFrame() =
   # echo "\ndrawFrame"
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(windowSize)
@@ -70,7 +70,7 @@ proc setupFidget(
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
 
-  base.drawFrame = drawFrameImpl
+  base.drawFrame = drawFrame
 
   useDepthBuffer(false)
 
