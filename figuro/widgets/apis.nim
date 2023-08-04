@@ -20,7 +20,6 @@ export commonutils, common, nodes
 
 import pretty
 
-
 proc defaultLineHeight*(fontSize: UICoord): UICoord =
   result = fontSize * defaultlineHeightRatio
 proc defaultLineHeight*(ts: TextStyle): UICoord =
