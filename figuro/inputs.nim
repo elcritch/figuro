@@ -78,7 +78,7 @@ type
   MouseCapture* = EventsCapture[MouseEventFlags] 
   GestureCapture* = EventsCapture[GestureEventFlags] 
 
-  CapturedEvents = object
+  CapturedEvents* = object
     mouse*: MouseCapture
     gesture*: GestureCapture
 
