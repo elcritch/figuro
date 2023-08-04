@@ -5,8 +5,8 @@ import pkg/opengl
 import pkg/windy
 
 import ./perf
-import ../../[commonutils, common]
-import ../[input, internal]
+import ../../[commonutils, common, internal]
+import ../[input]
 
 # import ../patches/textboxes 
 

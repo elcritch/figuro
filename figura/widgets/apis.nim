@@ -78,14 +78,9 @@ proc newUId*(): NodeUID =
   else:
     NodeUID(lastUId)
 
-proc setupRootImpl*() =
-  if root == nil:
-    root = Node()
-    root.uid = newUId()
-    root.zlevel = ZLevelDefault
-  nodeStack = @[root]
-  current = root
-  root.diffIndex = 0
+proc refresh*() =
+  ## Request the screen be redrawn
+  requestedFrame = max(1, requestedFrame)
 
 proc preNode(kind: NodeKind, id: Atom) =
   ## Process the start of the node.
@@ -149,6 +144,7 @@ template node(kind: NodeKind, id: static string, inner: untyped): untyped =
   preNode(kind, atom(id))
   inner
   postNode()
+
 
 template withDefaultName(name: untyped): untyped =
   template `name`*(inner: untyped): untyped =
@@ -320,10 +316,6 @@ proc openBrowser*(url: string) =
   ## Opens a URL in a browser
   discard
 
-proc refresh*() =
-  ## Request the screen be redrawn
-  requestedFrame = max(1, requestedFrame)
-
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)
 
@@ -350,3 +342,10 @@ proc setItem*(key, value: string) =
 proc getItem*(key: string): string =
   ## Gets a value into local storage or file.
   readFile(&"{key}.data")
+
+proc getUrl*(): string =
+  windowUrl
+
+proc setUrl*(url: string) =
+  windowUrl = url
+  refresh()

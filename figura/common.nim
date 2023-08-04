@@ -226,11 +226,6 @@ when not defined(js):
     # currTextBox*: TextBox[Node]
     fonts*: Table[string, Font]
 
-proc refresh*() =
-  ## Request the screen be redrawn
-  requestedFrame = max(1, requestedFrame)
-
-
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
   node.nodes.setLen(node.diffIndex)
@@ -267,13 +262,6 @@ proc resetToDefault*(node: Node)=
   node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
   node.shadow = Shadow.none()
-
-proc getUrl*(): string =
-  windowUrl
-
-proc setUrl*(url: string) =
-  windowUrl = url
-  refresh()
 
 proc emptyFuture*(): Future[void] =
   result = newFuture[void]()
