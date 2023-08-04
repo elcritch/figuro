@@ -3,11 +3,11 @@ import algorithm, chroma, bumpy
 import std/[json, macros, tables]
 import cssgrid
 
-import figura/engine/[common, commonutils]
+import figura/[common, commonutils]
+import figura/widgets/apis
 
-export chroma, common
-export commonutils
-export cssgrid
+export chroma, cssgrid, cssgrid
+export common, commonutils
 
 import pretty
 
