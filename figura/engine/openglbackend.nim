@@ -86,15 +86,32 @@ proc setupFidget(
   if loadMain != nil:
     loadMain()
 
-proc runWidgets*(drawMain: MainCallback) =
+proc runApplication*(drawMain: MainCallback) {.thread.} =
   {.gcsafe.}:
     while base.running:
       proc running() {.async.} =
         setupRoot()
         drawMain()
-        renderRoot = root.deepCopy
-        await sleepAsync(8)
+        var rootCopy = root.deepCopy
+        renderRoot = rootCopy.move()
+        await sleepAsync(16)
       waitFor running()
+
+proc runRenderer*() =
+  when defined(emscripten):
+    # Emscripten can't block so it will call this callback instead.
+    proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
+    proc mainLoop() {.cdecl.} =
+      asyncPoll()
+      renderLoop()
+    emscripten_set_main_loop(main_loop, 0, true)
+  else:
+    while base.running:
+      renderLoop()
+      if isEvent:
+        isEvent = false
+        eventTimePost = epochTime()
+      sleep(8)
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
@@ -137,26 +154,12 @@ proc startFidget*(
   if not setup.isNil:
     setup()
 
-  # setupRoot()
-  # drawMain()
-
   var widgetThread: Thread[MainCallback]
-  createThread(widgetThread, runWidgets, drawMain)
+  createThread(widgetThread, runApplication, drawMain)
 
-  when defined(emscripten):
-    # Emscripten can't block so it will call this callback instead.
-    proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
-    proc mainLoop() {.cdecl.} =
-      asyncPoll()
-      renderLoop()
-    emscripten_set_main_loop(main_loop, 0, true)
-  else:
-    while base.running:
-      renderLoop()
-      if isEvent:
-        isEvent = false
-        eventTimePost = epochTime()
-      sleep(16)
+  runRenderer()
+  widgetThread.joinThread()
+
 
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser
