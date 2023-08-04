@@ -148,11 +148,11 @@ proc startFidget*(
     proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
     proc mainLoop() {.cdecl.} =
       asyncPoll()
-      updateLoop()
+      renderLoop()
     emscripten_set_main_loop(main_loop, 0, true)
   else:
     while base.running:
-      updateLoop()
+      renderLoop()
       if isEvent:
         isEvent = false
         eventTimePost = epochTime()

@@ -150,7 +150,7 @@ proc drawAndSwap() =
 
   window.swapBuffers()
 
-proc updateLoop*(poll = true) =
+proc renderLoop*(poll = true) =
   if window.closeRequested:
     running = false
     return
@@ -291,8 +291,9 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
   window.onResize = proc () =
     updateWindowSize()
     let prevloopMode = loopMode
-    updateLoop(poll = false)
+    renderLoop(poll = false)
     loopMode = prevloopMode
+    uiEvent.trigger()
   
   window.onFocusChange = proc () =
     focused = window.focused
