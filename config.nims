@@ -1,6 +1,7 @@
 switch("styleCheck", "hint")
 
---gc:arc
+--gc:orc
+--deepcopy:on
 --define:windyNoHttp
 
 if not defined(emscripten):

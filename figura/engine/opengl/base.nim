@@ -41,7 +41,7 @@ var
   window*: windy.Window
   loopMode*: MainLoopMode
   dpi*: float32
-  drawFrame*: proc()
+  drawFrame*: MainCallback
   running*, focused*, minimized*: bool
   programStartTime* = epochTime()
   fpsTimeSeries = newTimeSeries()
@@ -138,7 +138,6 @@ proc drawAndSwap() =
 
   prevFrameTime = cpuTime()
 
-  assert drawFrame != nil
   drawFrame()
 
   frameTime = cpuTime()
@@ -151,7 +150,7 @@ proc drawAndSwap() =
 
   window.swapBuffers()
 
-proc updateLoop*(poll = true) =
+proc renderLoop*(poll = true) =
   if window.closeRequested:
     running = false
     return
@@ -177,7 +176,7 @@ proc updateLoop*(poll = true) =
 
     of RepaintOnFrame:
       if poll:
-        pollEvents()
+        windy.pollEvents()
       preInput()
       if tickMain != nil:
         preTick()
@@ -188,7 +187,7 @@ proc updateLoop*(poll = true) =
 
     of RepaintSplitUpdate:
       if poll:
-        pollEvents()
+        windy.pollEvents()
       preInput()
       while lastTick < getTicks():
         preTick()
@@ -292,8 +291,9 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
   window.onResize = proc () =
     updateWindowSize()
     let prevloopMode = loopMode
-    updateLoop(poll = false)
+    renderLoop(poll = false)
     loopMode = prevloopMode
+    uiEvent.trigger()
   
   window.onFocusChange = proc () =
     focused = window.focused

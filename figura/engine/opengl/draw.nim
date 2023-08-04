@@ -16,8 +16,6 @@ var
   glyphOffsets: Table[Hash, Vec2]
 
   # Used for double-clicking
-  multiClick: int
-  lastClickTime: float
   currLevel: ZLevel
 
 proc hashFontFill(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
@@ -265,6 +263,8 @@ proc draw*(node, parent: Node) =
   postDraws()
 
 proc drawRoot*(root: Node) =
+  if root.isNil:
+    return
   for zidx in ZLevel:
     # draw root for each level
     currLevel = zidx

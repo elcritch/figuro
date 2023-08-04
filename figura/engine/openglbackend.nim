@@ -15,16 +15,7 @@ export input, draw
 var
   windowTitle, windowUrl: string
 
-
-proc removeExtraChildren*(node: Node) =
-  ## Deal with removed nodes.
-  node.nodes.setLen(node.diffIndex)
-
-proc processHooks(parent, node: Node) =
-  for child in node.nodes:
-    processHooks(node, child)
-
-proc drawFrameImpl() =
+proc drawFrame() =
   # echo "\ndrawFrame"
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(windowSize)
@@ -33,19 +24,9 @@ proc drawFrameImpl() =
 
   mouse.cursorStyle = Default
 
-  setupRoot()
-  scrollBox.x = 0'ui
-  scrollBox.y = 0'ui
-  scrollBox.w = windowLogicalSize.x.descaled()
-  scrollBox.h = windowLogicalSize.y.descaled()
-  root.box = scrollBox
-
-  drawMain()
-
   computeScreenBox(nil, root)
-
   # Only draw the root after everything was done:
-  root.drawRoot()
+  drawRoot(renderRoot)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -82,24 +63,49 @@ proc setupFidget(
   pixelScale = forcePixelScale
 
   base.start(openglVersion, msaa, mainLoopMode)
-  # var thr: Thread[void]
-  # createThread(thr, timerFunc)
 
   setWindowTitle(windowTitle)
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
 
-  base.drawFrame = drawFrameImpl
+  base.drawFrame = drawFrame
 
   useDepthBuffer(false)
 
   if loadMain != nil:
     loadMain()
 
+proc runApplication*(drawMain: MainCallback) {.thread.} =
+  {.gcsafe.}:
+    while base.running:
+      proc running() {.async.} =
+        setupRoot()
+        drawMain()
+        var rootCopy = root.deepCopy
+        renderRoot = rootCopy.move()
+        await sleepAsync(16)
+      waitFor running()
+
+proc runRenderer*() =
+  when defined(emscripten):
+    # Emscripten can't block so it will call this callback instead.
+    proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
+    proc mainLoop() {.cdecl.} =
+      asyncPoll()
+      renderLoop()
+    emscripten_set_main_loop(main_loop, 0, true)
+  else:
+    while base.running:
+      renderLoop()
+      if isEvent:
+        isEvent = false
+        eventTimePost = epochTime()
+      sleep(8)
+
 proc startFidget*(
-    draw: proc() = nil,
-    tick: proc() = nil,
-    load: proc() = nil,
+    draw: proc() {.nimcall.} = nil,
+    tick: proc() {.nimcall.} = nil,
+    load: proc() {.nimcall.} = nil,
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -137,24 +143,12 @@ proc startFidget*(
   if not setup.isNil:
     setup()
 
-  when defined(emscripten):
-    # Emscripten can't block so it will call this callback instead.
-    proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
-    proc mainLoop() {.cdecl.} =
-      asyncPoll()
-      updateLoop()
-    emscripten_set_main_loop(main_loop, 0, true)
-  else:
-    proc running() {.async.} =
-      while base.running:
-        updateLoop()
-        # asyncPoll()
-        if isEvent:
-          isEvent = false
-          eventTimePost = epochTime()
-        await sleepAsync(16)
-    waitFor: running()
-    # exit()
+  var widgetThread: Thread[MainCallback]
+  createThread(widgetThread, runApplication, drawMain)
+
+  runRenderer()
+  widgetThread.joinThread()
+
 
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser

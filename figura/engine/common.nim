@@ -306,7 +306,8 @@ const
 var
   parent*: Node
   root*: Node
-  prevRoot*: Node
+  renderRoot*: Node
+
   nodeStack*: seq[Node]
   gridStack*: seq[GridTemplate]
   current*: Node
@@ -406,8 +407,10 @@ when not defined(js):
 mouse = Mouse()
 mouse.pos = vec2(0, 0)
 
-# proc `$`*(a: Rect): string =
-  # fmt"({a.x:6.2f}, {a.y:6.2f}; {a.w:6.2f}x{a.h:6.2f})"
+
+proc removeExtraChildren*(node: Node) =
+  ## Deal with removed nodes.
+  node.nodes.setLen(node.diffIndex)
 
 proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
@@ -432,22 +435,12 @@ iterator reverseIndex*[T](a: openArray[T]): (int, T) {.inline.} =
 
 proc resetToDefault*(node: Node)=
   ## Resets the node to default state.
-  # node.id = ""
-  # node.uid = ""
-  # node.idPath = ""
-  # node.kind = nkRoot
-  # node.text = "".toRunes()
-  # node.code = ""
-  # node.nodes = @[]
   node.box = initBox(0,0,0,0)
   node.orgBox = initBox(0,0,0,0)
   node.rotation = 0
-  # node.screenBox = rect(0,0,0,0)
-  # node.offset = vec2(0, 0)
   node.fill = clearColor
   node.transparency = 0
   node.stroke = Stroke(weight: 0, color: clearColor)
-  # node.textStyle = TextStyle()
   node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
   node.shadow = Shadow.none()
@@ -466,20 +459,13 @@ proc emptyFuture*(): Future[void] =
   result.complete()
 
 proc clearInputs*() =
-
   resetNodes = 0
   mouse.wheelDelta = 0
   mouse.consumed = false
   mouse.clickedOutside = false
 
-  # # Reset key and mouse press to default state
-  # if any(buttonDown, proc(b: bool): bool = b):
-  #   keyboard.state = KeyState.Down
-  # else:
-  #   keyboard.state = KeyState.Empty
-
 const
-  MouseButtons = [
+  MouseButtons* = [
     MouseLeft,
     MouseRight,
     MouseMiddle,
@@ -487,107 +473,11 @@ const
     MouseButton5
   ]
 
-proc click*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if buttonPress[mbtn]:
-      return true
-
-proc down*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if buttonDown[mbtn]: return true
-
-proc scrolled*(mouse: Mouse): bool =
-  mouse.wheelDelta != 0.0
-
-proc release*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if buttonRelease[mbtn]: return true
-
-proc consume*(keyboard: Keyboard) =
-  ## Reset the keyboard state consuming any event information.
-  keyboard.state = Empty
-  keyboard.keyString = ""
-  keyboard.altKey = false
-  keyboard.ctrlKey = false
-  keyboard.shiftKey = false
-  keyboard.superKey = false
-  keyboard.consumed = true
-
-proc consume*(mouse: Mouse) =
-  ## Reset the mouse state consuming any event information.
-  # buttonPress[MouseLeft] = false
-  discard
-
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)
   item.pos *= pixelRatio / item.pixelScale
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
-
-proc mouseOverlapsNode*(node: Node): bool =
-  ## Returns true if mouse overlaps the node node.
-  let mpos = mouse.pos.descaled + node.totalOffset 
-  let act = 
-    (not popupActive or inPopup) and
-    node.screenBox.w > 0'ui and
-    node.screenBox.h > 0'ui 
-
-  result =
-    act and
-    mpos.overlaps(node.screenBox) and
-    (if inPopup: mouse.pos.descaled.overlaps(popupBox) else: true)
-
-const
-  MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
-
-
-template calcBasicConstraintImpl(
-    parent, node: Node,
-    dir: static GridDir,
-    f: untyped
-) =
-  ## computes basic constraints for box'es when set
-  ## this let's the use do things like set 90'pp (90 percent)
-  ## of the box width post css grid or auto constraints layout
-  template calcBasic(val: untyped): untyped =
-    block:
-      var res: UICoord
-      match val:
-        UiFixed(coord):
-          res = coord.UICoord
-        UiFrac(frac):
-          res = frac.UICoord * parent.box.f
-        UiPerc(perc):
-          let ppval = when astToStr(f) == "x": parent.box.w
-                      elif astToStr(f) == "y": parent.box.h
-                      else: parent.box.f
-          res = perc.UICoord / 100.0.UICoord * ppval
-      res
-  
-  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
-                else: node.cxOffset[dir]
-  match csValue:
-    UiAuto():
-      when astToStr(f) in ["w", "h"]:
-        node.box.f = parent.box.f
-      else:
-        discard
-    UiSum(ls, rs):
-      let lv = ls.calcBasic()
-      let rv = rs.calcBasic()
-      node.box.f = lv + rv
-    UiMin(ls, rs):
-      let lv = ls.calcBasic()
-      let rv = rs.calcBasic()
-      node.box.f = min(lv, rv)
-    UiMax(ls, rs):
-      let lv = ls.calcBasic()
-      let rv = rs.calcBasic()
-      node.box.f = max(lv, rv)
-    UiValue(value):
-      node.box.f = calcBasic(value)
-    _:
-      discard
 
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
@@ -619,69 +509,5 @@ proc `+`*(rect: Rect, xy: Vec2): Rect =
 proc `~=`*(rect: Vec2, val: float32): bool =
   result = rect.x ~= val and rect.y ~= val
 
-template to*[V, T](events: Events[T], v: typedesc[V]): Events[V] =
-  Events[V](events)
-
-proc add*[T, V](events: var Events[V], evt: T) =
-  if events.data.isNil:
-    events.data = newTable[TypeId, Variant]()
-  let key = T.getTypeId()
-  let res = events.data.mgetOrPut(key, newVariant(new seq[T])).get(ref seq[T])
-  res[].add(evt)
-
-proc `[]`*[T](events: Events[void], tp: typedesc[T]): seq[T] =
-  if events.data.isNil:
-    return @[]
-  let key = T.getTypeId()
-  result = events.data.pop(key)
-
-import std/monotimes, std/times
-
-proc popEvents*[T, V](events: Events[V], vals: var seq[T]): bool =
-  # let a = getMonoTime()
-  if events.data.isNil:
-    return false
-  var res: Variant
-  result = events.data.pop(T.getTypeId(), res)
-  if result:
-    vals = res.get(ref seq[T])[]
-  # let b = getMonoTime()
-  # echo "popEvents: ", $inNanoseconds(b-a), "ns"
-
-
 template dispatchEvent*(evt: typed) =
   result.add(evt)
-
-import std/macrocache
-const mcStateCounter = CacheCounter"stateCounter"
-
-template useStateImpl[T: ref](node: Node, vname: untyped) =
-  ## creates and caches a new state ref object
-  const id = static:
-    hash(astToStr(vname))
-  if not node.userStates.hasKey(id):
-    node.userStates[id] = newVariant(T.new())
-  var `vname` {.inject.} = node.userStates[id].get(typeof T)
-
-template useState*[T: ref](vname: untyped) =
-  ## creates and caches a new state ref object
-  useStateImpl[T](common.current, vname)
-
-template useStateParent*[T: ref](vname: untyped) =
-  ## creates and caches a new state ref object
-  useStateImpl[T](common.parent, vname)
-
-template withState*[T: ref](tp: typedesc[T]): untyped =
-  ## creates and caches a new state ref object
-  block:
-    const id = 
-      static:
-        mcStateCounter.inc(1)
-        value(mcStateCounter)
-
-    if not current.userStates.hasKey(id):
-      current.userStates[id] = newVariant(tp.new())
-    current.userStates[id].get(tp)
-
-template toRunes*(item: Node): seq[Rune] =
-  item.text
