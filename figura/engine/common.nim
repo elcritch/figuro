@@ -306,6 +306,7 @@ const
 var
   parent*: Node
   root*: Node
+  renderRoot*: Node
 
   nodeStack*: seq[Node]
   gridStack*: seq[GridTemplate]

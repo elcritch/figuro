@@ -35,7 +35,7 @@ proc drawFrameImpl() =
 
   computeScreenBox(nil, root)
   # Only draw the root after everything was done:
-  drawRoot(root)
+  drawRoot(renderRoot)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -92,7 +92,8 @@ proc runWidgets*(drawMain: MainCallback) =
       proc running() {.async.} =
         setupRoot()
         drawMain()
-        await sleepAsync(16)
+        renderRoot = root.deepCopy
+        await sleepAsync(8)
       waitFor running()
 
 proc startFidget*(
