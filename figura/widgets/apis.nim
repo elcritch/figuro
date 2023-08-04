@@ -31,7 +31,6 @@ var
   scrollBox*: Box
   scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
-  keyboard* = Keyboard()
   numNodes*: int
   popupActive*: bool
   inPopup*: bool
@@ -62,6 +61,17 @@ var
   buttonPress: ButtonView
   buttonDown: ButtonView
   buttonRelease: ButtonView
+
+
+inputs.keyboardInput = proc (rune: Rune) =
+    requestedFrame.inc
+    # if keyboard.focusNode != nil:
+    #   keyboard.state = KeyState.Press
+    #   # currTextBox.typeCharacter(rune)
+    # else:
+    #   keyboard.state = KeyState.Press
+    #   keyboard.keyString = rune.toUTF8()
+    uiEvent.trigger()
 
 proc newUId*(): NodeUID =
   # Returns next numerical unique id.

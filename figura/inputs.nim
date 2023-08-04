@@ -112,3 +112,5 @@ proc toEvent*(kind: KeyboardEventType): KeyboardEvent =
 proc toEvent*(kind: GestureEventType): GestureEvent =
   GestureEvent(kind: kind)
 
+var
+  keyboardInput*: proc (rune: Rune)

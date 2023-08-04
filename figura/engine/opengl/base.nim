@@ -1,5 +1,4 @@
 import std/[os, strformat, unicode, times]
-import std/asyncdispatch
 
 import pkg/[chroma, pixie]
 import pkg/opengl
@@ -58,9 +57,6 @@ var
   cursorPointer*: Cursor
   cursorGrab*: Cursor
   cursorNSResize*: Cursor
-
-var
-  uiEvent*: AsyncEvent
 
 var
   eventTimePre* = epochTime()

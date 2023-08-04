@@ -1,6 +1,7 @@
 import std/[sequtils, tables, json, hashes]
 import std/[typetraits, options, unicode, strformat]
 import pkg/[variant, chroma, cssgrid, windy]
+import std/asyncdispatch
 
 import cdecl/atoms
 import ./[commonutils, inputs]
@@ -43,6 +44,9 @@ var
   pixelScale*: float32 ## Pixel multiplier user wants on the UI
 
   mouse* = Mouse()
+  keyboard* = Keyboard()
+
+  uiEvent*: AsyncEvent
 
 type
   NodeUID* = int64
