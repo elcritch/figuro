@@ -87,8 +87,6 @@ proc setupRootImpl*() =
   current = root
   root.diffIndex = 0
 
-setupRoot = setupRootImpl
-
 proc preNode(kind: NodeKind, id: Atom) =
   ## Process the start of the node.
 

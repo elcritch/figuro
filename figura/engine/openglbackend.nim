@@ -5,8 +5,8 @@ import pkg/[typography, typography/svgfont]
 import pkg/pixie
 
 import ./opengl/[base, context, draw]
-import ./[internal, input]
-import ../common
+import ./[input]
+import ../[common, internal]
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json
