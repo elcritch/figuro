@@ -14,10 +14,10 @@ export theming
 import pretty
 
 when defined(js):
-  import figura/htmlbackend
+  import figuro/htmlbackend
   export htmlbackend
 elif defined(nullbackend):
-  import figura/nullbackend
+  import figuro/nullbackend
   export nullbackend
 else:
   import engine/openglbackend
