@@ -220,6 +220,16 @@ type
     else:
       future*: Future[string]
 
+type
+  MainCallback* = proc() {.nimcall.}
+
+var
+  renderRoot*: Node
+  setupRoot*: MainCallback
+  drawMain*: MainCallback
+  tickMain*: MainCallback
+  loadMain*: MainCallback
+
 when not defined(js):
   var
     # currTextBox*: TextBox[Node]

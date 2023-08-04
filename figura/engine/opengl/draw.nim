@@ -56,8 +56,8 @@ proc drawText(node: Node) =
   var font = fonts[node.textStyle.fontFamily]
   font.size = node.textStyle.fontSize.scaled
   font.lineHeight = node.textStyle.lineHeight.scaled
-  if font.lineHeight == 0:
-    font.lineHeight = defaultLineHeight(node.textStyle).scaled
+  # if font.lineHeight == 0:
+  #   font.lineHeight = defaultLineHeight(node.textStyle).scaled
 
   # draw characters
   for glyphIdx, pos in node.textLayout:

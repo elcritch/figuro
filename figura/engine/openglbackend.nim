@@ -25,7 +25,7 @@ proc drawFrame() =
 
   mouse.cursorStyle = Default
 
-  computeScreenBox(nil, root)
+  computeScreenBox(nil, renderRoot)
   # Only draw the root after everything was done:
   drawRoot(renderRoot)
 

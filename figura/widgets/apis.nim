@@ -23,7 +23,6 @@ import pretty
 var
   parent*: Node
   root*: Node
-  renderRoot*: Node
 
   nodeStack*: seq[Node]
   gridStack*: seq[GridTemplate]
@@ -79,7 +78,7 @@ proc newUId*(): NodeUID =
   else:
     NodeUID(lastUId)
 
-proc setupRoot*() =
+proc setupRootImpl*() =
   if root == nil:
     root = Node()
     root.uid = newUId()
@@ -87,6 +86,8 @@ proc setupRoot*() =
   nodeStack = @[root]
   current = root
   root.diffIndex = 0
+
+setupRoot = setupRootImpl
 
 proc preNode(kind: NodeKind, id: Atom) =
   ## Process the start of the node.
