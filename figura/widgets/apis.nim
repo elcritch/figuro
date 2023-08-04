@@ -177,11 +177,8 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style
   result = ImageStyle(name: name, color: color)
 
-when not defined(js):
-  var
-    # currTextBox*: TextBox[Node]
-    fonts*: Table[string, Font]
 
+when not defined(js):
   func hAlignMode*(align: HAlign): HAlignMode =
     case align:
       of hLeft: HAlignMode.Left

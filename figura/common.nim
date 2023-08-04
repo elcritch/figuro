@@ -220,6 +220,10 @@ type
     else:
       future*: Future[string]
 
+when not defined(js):
+  var
+    # currTextBox*: TextBox[Node]
+    fonts*: Table[string, Font]
 
 proc refresh*() =
   ## Request the screen be redrawn
