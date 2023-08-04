@@ -63,8 +63,6 @@ proc setupFidget(
   pixelScale = forcePixelScale
 
   base.start(openglVersion, msaa, mainLoopMode)
-  # var thr: Thread[void]
-  # createThread(thr, timerFunc)
 
   setWindowTitle(windowTitle)
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
