@@ -1,11 +1,7 @@
-import chroma, bumpy
-import std/[algorithm, json, macros, tables, os]
+import std/[tables, unicode]
+import chroma
 import cssgrid
 
-import std/[sequtils, tables, json, hashes]
-import std/[typetraits, options, unicode, strformat]
-import pkg/[variant, chroma, cssgrid, windy]
-import pkg/[typography, typography/svgfont]
 
 import ../[common, commonutils]
 
@@ -16,8 +12,6 @@ from windy/common import Button, ButtonView
 export chroma, common
 export commonutils
 export cssgrid
-
-import pretty
 
 var
   parent*: Node
