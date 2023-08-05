@@ -14,7 +14,7 @@ var
   glyphOffsets: Table[Hash, Vec2]
 
   # Used for double-clicking
-  currLevel: ZLevel
+  # currLevel: ZLevel
 
 proc hashFontFill(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
   result = hash((
@@ -120,16 +120,16 @@ macro ifdraw(check, code: untyped, post: untyped = nil) =
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
   result.add quote do:
-    let `checkval` = node.zlevel == currLevel and `check`
-    if `checkval`:
-      `code`
+    # let `checkval` = node.zlevel == currLevel and `check`
+    # if `checkval`:
+    `code`
   
   if post != nil:
     post.expectKind(nnkFinally)
     let postBlock = post[0]
     postDrawsImpl.add quote do:
-      if `checkval`:
-        `postBlock`
+      # if `checkval`:
+      `postBlock`
 
 macro postDraws() =
   result = newStmtList()
@@ -260,10 +260,8 @@ proc draw*(node, parent: Node) =
   # finally blocks will be run here, in reverse order
   postDraws()
 
-proc drawRoot*(root: Node) =
-  if root.isNil:
-    return
-  for zidx in ZLevel:
-    # draw root for each level
-    currLevel = zidx
-    root.draw(root)
+proc drawRoot*(nodes: seq[Node]) =
+  # draw root for each level
+  currLevel = zidx
+  root.draw(nodes, 0)
+

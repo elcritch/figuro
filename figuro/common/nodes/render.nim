@@ -4,6 +4,8 @@ export basics
 
 type
 
+  NodeIdx* = int
+
   Node* = object
     uid*: NodeID
 
@@ -37,3 +39,13 @@ type
       points*: seq[Position]
     else:
       discard
+
+iterator nodes*(nodes: var seq[Node], current: NodeIdx): int =
+  let id = nodes[current].uid
+  let cnt = nodes[current].childCount
+
+  var idx = current
+  while idx - current < cnt:
+    if nodes[idx].parent == id:
+      yield idx
+    idx.inc()
