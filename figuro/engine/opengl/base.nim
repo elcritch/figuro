@@ -241,8 +241,7 @@ proc start*(openglVersion: (int, int)) =
 
   window.onResize = proc () =
     updateWindowSize()
-    # renderLoop(poll = false)
-    requestedFrame.inc
+    renderLoop(poll = false)
     uiEvent.trigger()
   
   window.onFocusChange = proc () =

@@ -81,24 +81,41 @@ proc runApplication*(drawMain: MainCallback) {.thread.} =
         drawMain()
         var rootCopy = root.deepCopy
         renderRoot = rootCopy.move()
-        await sleepAsync(16)
+        await sleepAsync(8)
       waitFor running()
 
-proc runRenderer*() =
-  when defined(emscripten):
+when defined(emscripten):
+  proc runRenderer*() =
     # Emscripten can't block so it will call this callback instead.
     proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
     proc mainLoop() {.cdecl.} =
       asyncPoll()
       renderLoop()
     emscripten_set_main_loop(main_loop, 0, true)
-  else:
+else:
+  import locks
+
+  var frameLock: Lock
+  var frameTick: Cond
+  var frameTickThread: Thread[void]
+
+  proc tickerRenderer*() {.thread.} =
+    while true:
+      frameTick.signal()
+      sleep(8)
+
+  proc runRenderer*() =
+
+    frameLock.initLock()
+    frameTick.initCond()
+    createThread(frameTickThread, tickerRenderer)
+
     while base.running:
+      wait(frameTick, frameLock)
       renderLoop()
       if isEvent:
         isEvent = false
         eventTimePost = epochTime()
-      sleep(8)
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
