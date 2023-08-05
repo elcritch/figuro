@@ -15,6 +15,7 @@ import shared, internal, widgets/core
 import common/nodes/transfer
 import common/nodes/ui as ui
 import common/nodes/render as render
+import timers
 
 when defined(emscripten):
   proc runRenderer() =
@@ -25,7 +26,6 @@ when defined(emscripten):
       renderLoop()
     emscripten_set_main_loop(main_loop, 0, true)
 else:
-  import locks
 
   const renderPeriodMs {.intdefine.} = 8
   const appPeriodMs {.intdefine.} = 16
@@ -36,22 +36,23 @@ else:
   proc renderTicker() {.thread.} =
     while true:
       renderEvent.trigger()
-      os.sleep(appPeriodMs )
+      os.sleep(appPeriodMs - 2)
 
   proc appTicker() {.thread.} =
     while app.running:
       appEvent.trigger()
-      os.sleep(renderPeriodMs)
+      os.sleep(renderPeriodMs - 2)
 
   proc runApplication(appMain: MainCallback) {.thread.} =
     {.gcsafe.}:
       var appNodes: ui.Node
       while app.running:
         wait(appEvent)
-        appNodes.setupRoot()
-        appMain()
-        computeScreenBox(nil, appNodes)
-        sendRoot(appNodes.copyInto())
+        timeIt(appAvgTime):
+          appNodes.setupRoot()
+          appMain()
+          computeScreenBox(nil, appNodes)
+          sendRoot(appNodes.copyInto())
 
   proc run(renderer: Renderer) =
 
@@ -72,8 +73,9 @@ else:
 
     while app.running:
       wait(renderEvent)
-      renderLoop(renderer, true)
-      frameCount.inc()
+      timeIt(renderAvgTime):
+        renderLoop(renderer, true)
+        frameCount.inc()
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
