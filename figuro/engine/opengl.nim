@@ -41,7 +41,7 @@ const
   openglMajor {.intdefine.} = 3
   openglMinor {.intdefine.} = 3
 
-proc renderLoop*(window: Window, poll = true) =
+proc renderLoop(window: Window, poll = true) =
   if window.closeRequested:
     app.running = false
     return

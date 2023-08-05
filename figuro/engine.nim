@@ -44,7 +44,7 @@ else:
         var rootCopy = root.deepCopy
         # renderRoot = rootCopy.move()
 
-  proc runRenderer(window: Window) =
+  proc run(renderer: Renderer) =
 
     frameLock.initLock()
     frameTick.initCond()
@@ -54,8 +54,7 @@ else:
     withLock(frameLock):
       while app.running:
         wait(frameTick, frameLock)
-        renderLoop(window, true)
-
+        renderLoop(renderer, true)
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
@@ -81,8 +80,8 @@ proc startFidget*(
   let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
 
-  let context = setupRenderer(pixelate, pixelScale, atlasStartSz)
+  let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
 
   if not setup.isNil: setup()
-  runRenderer()
+  renderer.run()
