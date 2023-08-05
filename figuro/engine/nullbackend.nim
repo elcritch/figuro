@@ -13,10 +13,6 @@ proc draw*(node: Node) =
 proc postDrawChildren*(node: Node) =
   ## Turns off clip masks and such
 
-proc refresh*() =
-  ## Request the screen be redrawn
-  requestedFrame.inc
-
 proc openBrowser*(url: string) =
   ## Opens a URL in a browser
   discard
@@ -37,30 +33,3 @@ proc startFidget*(
     echo "drawMain walk took: ", epochTime() - startTime, "ms"
   # dumpTree(root)
 
-proc getTitle*(): string =
-  ## Gets window title
-  windowTitle
-
-proc setTitle*(title: string) =
-  ## Sets window title
-  windowTitle = title
-
-proc getUrl*(): string =
-  ## Gets window url
-  windowUrl
-
-proc setUrl*(url: string) =
-  ## Sets window url
-  windowUrl = url
-
-proc loadFont*(name: string, pathOrUrl: string) =
-  ## Loads a font.
-  discard
-
-proc setItem*(key, value: string) =
-  ## Saves value in memory only.
-  values[key] = value
-
-proc getItem*(key: string): string =
-  ## Gets a value in memory only.
-  values[key]

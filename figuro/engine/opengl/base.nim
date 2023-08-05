@@ -13,33 +13,11 @@ import ../[input]
 when defined(glDebugMessageCallback):
   import strformat, strutils
 
-type
-
-  MainLoopMode* = enum
-    ## Only repaints on event
-    ## Used for normal for desktop UI apps.
-    RepaintOnEvent
-
-    ## Repaints every frame (60hz or more based on display)
-    ## Updates are done every matching frame time.
-    ## Used for simple multimedia apps and games.
-    RepaintOnFrame
-
-    ## Repaints every frame (60hz or more based on display)
-    ## But calls the tick function for keyboard and mouse updates at 240hz
-    ## Used for low latency games.
-    RepaintSplitUpdate
-  
-  ScaleInfo* = object
-    x*: float32
-    y*: float32
-
 const
   deltaTick: int64 = 1_000_000_000 div 240
 
 var
   window*: windy.Window
-  loopMode*: MainLoopMode
   dpi*: float32
   drawFrame*: MainCallback
   running*, focused*, minimized*: bool
@@ -340,30 +318,3 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
   # onFocus(window, FOCUSED)
   focused = true
   updateWindowSize()
-
-# proc captureMouse*() =
-#   setInputMode(window, CURSOR, CURSOR_DISABLED)
-
-# proc releaseMouse*() =
-#   setInputMode(window, CURSOR, CURSOR_NORMAL)
-
-# proc hideMouse*() =
-#   setInputMode(window, CURSOR, CURSOR_HIDDEN)
-
-# proc setWindowBounds*(min, max: Vec2) =
-#   window.setWindowSizeLimits(min.x.cint, min.y.cint, max.x.cint, max.y.cint)
-
-# proc takeScreenshot*(
-#   frame = rect(0, 0, windowFrame.x, windowFrame.y)
-# ): pixie.Image =
-#   result = newImage(frame.w.int, frame.h.int)
-#   glReadPixels(
-#     frame.x.GLint,
-#     frame.y.GLint,
-#     frame.w.GLint,
-#     frame.h.GLint,
-#     GL_RGBA,
-#     GL_UNSIGNED_BYTE,
-#     result.data[0].addr
-#   )
-#   result.flipVertical()

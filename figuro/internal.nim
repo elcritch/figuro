@@ -4,6 +4,11 @@ import widgets/apis
 type
   MainCallback* = proc() {.nimcall.}
 
+type
+  ScaleInfo* = object
+    x*: float32
+    y*: float32
+
 var
   root*: Node
   renderRoot*: Node

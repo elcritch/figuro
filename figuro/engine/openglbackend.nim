@@ -56,7 +56,6 @@ proc drawFrame() =
 proc setupFidget(
     openglVersion: (int, int),
     msaa: MSAA,
-    mainLoopMode: MainLoopMode,
     pixelate: bool,
     forcePixelScale: float32,
     atlasSize: int = 1024
