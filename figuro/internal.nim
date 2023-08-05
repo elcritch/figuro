@@ -1,6 +1,6 @@
 
 import std/locks
-import common/nodes/render
+import common/nodes/render as render
 
 type
   MainCallback* = proc() {.nimcall.}
@@ -16,7 +16,7 @@ var
   appMain*: MainCallback
   tickMain*: MainCallback
   loadMain*: MainCallback
-  sendRoot*: proc (nodes: sink seq[Node]) {.closure.}
+  sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
 
   setWindowTitle*: proc (title: string)
   getWindowTitle*: proc (): string
