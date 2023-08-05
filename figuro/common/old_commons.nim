@@ -26,7 +26,7 @@ const
   blackColor* = color(0, 0, 0, 1)
 
 type
-  NodeUID* = int64
+  NodeID* = int64
 
 type
   All* = distinct object
@@ -138,7 +138,7 @@ type
 
   Node* = ref object
     id*: Atom
-    uid*: NodeUID
+    uid*: NodeID
     idPath*: seq[Atom]
     kind*: NodeKind
     text*: seq[Rune]
@@ -400,13 +400,13 @@ proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: Color, alpha = 
   result.color.a = alpha
   result.weight = weight.float32
 
-proc newUId*(): NodeUID =
+proc newUId*(): NodeID =
   # Returns next numerical unique id.
   inc lastUId
   when defined(js) or defined(StringUID):
     $lastUId
   else:
-    NodeUID(lastUId)
+    NodeID(lastUId)
 
 proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style

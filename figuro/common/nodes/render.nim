@@ -4,9 +4,9 @@ export basics
 
 type
 
-  Node* = ref object
-    uid*: NodeUID
-    nodes*: seq[Node]
+  Node* = object
+    uid*: NodeID
+    parent*: NodeID
     nIndex*: int
     diffIndex*: int
 

@@ -7,7 +7,7 @@ var lastUId: int
 type
 
   Node* = ref object
-    uid*: NodeUID
+    uid*: NodeID
     nodes*: seq[Node]
     nIndex*: int
     diffIndex*: int
@@ -40,11 +40,11 @@ type
     else:
       discard
 
-proc newUId*(): NodeUID =
+proc newUId*(): NodeID =
   # Returns next numerical unique id.
   inc lastUId
   when defined(js) or defined(StringUID):
     $lastUId
   else:
-    NodeUID(lastUId)
+    NodeID(lastUId)
 

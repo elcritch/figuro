@@ -8,7 +8,7 @@ export uimaths, options
 export chroma, typography
 
 type
-  NodeUID* = int64
+  NodeID* = int64
 
 type
   NodeKind* = enum
