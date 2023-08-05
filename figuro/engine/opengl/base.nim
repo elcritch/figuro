@@ -51,7 +51,7 @@ proc updateWindowSize(window: Window) =
   windowSize.x = size.x.toFloat
   windowSize.y = size.y.toFloat
 
-  minimized = window.minimized()
+  app.minimized = window.minimized()
   pixelRatio = window.contentScale()
 
   glViewport(0, 0, cwidth, cheight)
@@ -62,9 +62,6 @@ proc updateWindowSize(window: Window) =
 
   windowLogicalSize = windowSize / common.pixelScale * common.pixelRatio
 
-proc setWindowTitle*(title: string) =
-  if window != nil:
-    window.title = title
 
 proc preInput() =
   # var x, y: float64
@@ -86,7 +83,7 @@ proc postTick() =
   inc tickCount
   lastTick += deltaTick
 
-proc drawAndSwap() =
+proc drawAndSwap(window: Window) =
   ## Does drawing operations.
   inc frameCount
   fpsTimeSeries.addTime()
@@ -107,15 +104,15 @@ proc drawAndSwap() =
 
   window.swapBuffers()
 
-proc renderLoop*(poll = true) =
+proc renderLoop*(window: Window, poll = true) =
   if window.closeRequested:
-    running = false
+    app.running = false
     return
 
   if poll:
     windy.pollEvents()
   
-  if requestedFrame <= 0 or minimized:
+  if requestedFrame <= 0 or app.minimized:
     return
   requestedFrame.dec
   preInput()
@@ -123,7 +120,7 @@ proc renderLoop*(poll = true) =
     preTick()
     tickMain()
     postTick()
-  drawAndSwap()
+  drawAndSwap(window)
   postInput()
 
 proc clearDepthBuffer*() =
@@ -146,11 +143,11 @@ proc configureWindowEvents(window: Window) =
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(poll = false)
+    renderLoop(window, poll = false)
     renderEvent.trigger()
   
   window.onFocusChange = proc () =
-    focused = window.focused
+    app.focused = window.focused
     uiEvent.trigger()
 
   window.onScroll = proc () =
@@ -178,14 +175,13 @@ proc start*(openglVersion: (int, int)) =
 
   window = newWindow("Windy Basic", ivec2(1280, 800))
 
-  running = true
+  internal.getWindowTitle = proc (): string =
+    window.title
+  internal.setWindowTitle = proc (title: string) =
+    if window != nil:
+      window.title = title
 
-  # if msaa != msaaDisabled:
-  #   windowHint(SAMPLES, msaa.cint)
-  # windowHint(OPENGL_FORWARD_COMPAT, GL_TRUE.cint)
-  # windowHint(OPENGL_PROFILE, OPENGL_CORE_PROFILE)
-  # windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
-  # windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)
+  app.running = true
 
   let
     scale = window.getScaleInfo()
@@ -196,9 +192,6 @@ proc start*(openglVersion: (int, int)) =
   if common.fullscreen:
     window.fullscreen = common.fullscreen
   else:
-    # var dpiScale, yScale: cfloat
-    # monitor.getMonitorContentScale(addr dpiScale, addr yScale)
-    # assert dpiScale == yScale
 
     window.size = ivec2(
       (windowSize.x * common.pixelScale * common.uiScale).int32,
@@ -229,7 +222,7 @@ proc start*(openglVersion: (int, int)) =
 
   lastDraw = getTicks()
   lastTick = lastDraw
-  focused = true
+  app.focused = true
 
   configureWindowEvents(window)
   updateWindowSize(window)

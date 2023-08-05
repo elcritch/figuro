@@ -25,6 +25,10 @@ const
 const
   DataDirPath* {.strdefine.} = "data"
 
+type
+  AppState* = object
+    running*, focused*, minimized*: bool
+
 var
   # UI Scale
   uiScale*: float32 = 1.0
@@ -47,11 +51,7 @@ var
 
   dataDir*: string = DataDirPath
 
-  running*, focused*, minimized*: bool
-
-type
-  NodeUID* = int64
-
+  app*: AppState
 
 
 type

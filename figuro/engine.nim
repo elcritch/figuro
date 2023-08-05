@@ -10,7 +10,7 @@ else:
   import engine/opengl
   export opengl
 
-import common, internal
+import common, internal, widgets/core
 
 when defined(emscripten):
   proc runRenderer() =

@@ -20,6 +20,9 @@ var
   tickMain*: MainCallback
   loadMain*: MainCallback
 
+  setWindowTitle*: proc (title: string)
+  getWindowTitle*: proc (): string
+
   uiEvent*, renderEvent*: UiEvent
 
 proc initUiEvent*(): UiEvent =
@@ -29,12 +32,3 @@ proc initUiEvent*(): UiEvent =
 proc trigger*(evt: var UiEvent) =
   withLock(evt.lock):
     signal(evt.cond)
-
-proc setupRoot*() =
-  if root == nil:
-    root = Node()
-    root.uid = newUId()
-    root.zlevel = ZLevelDefault
-  nodeStack = @[root]
-  current = root
-  root.diffIndex = 0

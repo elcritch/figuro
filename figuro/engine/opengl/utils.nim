@@ -30,6 +30,7 @@ proc openglDebug*() =
       cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
 
 proc eventActions*() =
+  # these need reworked
   when defined(inputDownEventExample):
     let
       setKey = action != 0
@@ -42,3 +43,13 @@ proc eventActions*() =
   when defined(inputReleaseEventExample):
     if buttonDown[button] == false and setKey == false:
       buttonRelease[button] = true
+
+proc setOpenGlHints*() =
+  # these don't work in windy?
+  when defined(setOpenGlHintsEnabled):
+    if msaa != msaaDisabled:
+      windowHint(SAMPLES, msaa.cint)
+    windowHint(OPENGL_FORWARD_COMPAT, GL_TRUE.cint)
+    windowHint(OPENGL_PROFILE, OPENGL_CORE_PROFILE)
+    windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
+    windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)

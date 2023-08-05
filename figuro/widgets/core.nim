@@ -55,6 +55,14 @@ inputs.keyboardInput = proc (rune: Rune) =
     #   keyboard.keyString = rune.toUTF8()
     uiEvent.trigger()
 
+proc setupRoot*() =
+  if root == nil:
+    root = Node()
+    root.uid = newUId()
+    root.zlevel = ZLevelDefault
+  nodeStack = @[root]
+  current = root
+  root.diffIndex = 0
 
 proc removeExtraChildren*(node: Node) =
   ## Deal with removed nodes.
@@ -63,6 +71,16 @@ proc removeExtraChildren*(node: Node) =
 proc refresh*() =
   ## Request the screen be redrawn
   requestedFrame = max(1, requestedFrame)
+
+proc getTitle*(): string =
+  ## Gets window title
+  getWindowTitle()
+
+proc setTitle*(title: string) =
+  ## Sets window title
+  if (getWindowTitle() != title):
+    setWindowTitle(title)
+    refresh()
 
 proc preNode(kind: NodeKind, id: Atom) =
   ## Process the start of the node.
