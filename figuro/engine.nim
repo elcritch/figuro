@@ -39,7 +39,7 @@ else:
       os.sleep(appPeriodMs )
 
   proc appTicker() {.thread.} =
-    while true:
+    while app.running:
       appEvent.trigger()
       os.sleep(renderPeriodMs)
 
@@ -64,6 +64,11 @@ else:
     createThread(frameTickThread, renderTicker)
     createThread(appTickThread, appTicker)
     createThread(appThread, runApplication, appMain)
+
+    proc ctrlc() {.noconv.} =
+      echo "Got Ctrl+C exiting!"
+      app.running = false
+    setControlCHook(ctrlc)
 
     while app.running:
       wait(renderEvent)
