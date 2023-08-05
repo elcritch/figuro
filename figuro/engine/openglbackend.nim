@@ -4,14 +4,13 @@ import pkg/chroma
 import pkg/[typography, typography/svgfont]
 import pkg/pixie
 
-import ./opengl/[base, context, draw]
-import ./[input]
+import opengl/[base, context, draw]
 import ../[common, internal]
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json
 
-export input, draw
+export draw
 
 var
   windowTitle, windowUrl: string
@@ -53,9 +52,8 @@ proc drawFrame() =
     img.writeFile("screenshot.png")
     quit()
 
-proc setupFidget(
+proc setupOpenGL(
     openglVersion: (int, int),
-    msaa: MSAA,
     pixelate: bool,
     forcePixelScale: float32,
     atlasSize: int = 1024
@@ -111,8 +109,6 @@ proc startFidget*(
     w: Positive = 1280,
     h: Positive = 800,
     openglVersion = (3, 3),
-    msaa = msaaDisabled,
-    mainLoopMode: MainLoopMode = RepaintOnEvent,
     pixelate = false,
     pixelScale = 1.0
 ) =
@@ -137,7 +133,7 @@ proc startFidget*(
   addEvent(uiEvent, uiEventCb)
   echo "setup new UI Event ", repr uiEvent
 
-  setupFidget(openglVersion, msaa, mainLoopMode, pixelate, pixelScale, atlasStartSz)
+  setupOpenGL(openglVersion, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
 
   if not setup.isNil:
