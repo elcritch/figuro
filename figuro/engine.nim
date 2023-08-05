@@ -27,36 +27,46 @@ when defined(emscripten):
 else:
   import locks
 
-  var frameEvent: UiEvent
-  var frameTickThread: Thread[void]
-  var appThread: Thread[MainCallback]
+  const renderPeriodMs {.intdefine.} = 8
+  const appPeriodMs {.intdefine.} = 16
 
-  proc tickerRenderer() {.thread.} =
+  var frameTickThread, appTickThread: Thread[void]
+  var appThread, : Thread[MainCallback]
+
+  proc renderTicker() {.thread.} =
     while true:
-      frameEvent.trigger()
-      os.sleep(8)
+      renderEvent.trigger()
+      os.sleep(appPeriodMs )
+
+  proc appTicker() {.thread.} =
+    while true:
+      appEvent.trigger()
+      os.sleep(renderPeriodMs)
 
   proc runApplication(appMain: MainCallback) {.thread.} =
     {.gcsafe.}:
       var appNodes: ui.Node
       while app.running:
+        wait(appEvent)
         appNodes.setupRoot()
         appMain()
         computeScreenBox(nil, appNodes)
         sendRoot(appNodes.copyInto())
-        os.sleep(16)
 
   proc run(renderer: Renderer) =
 
     sendRoot = proc (nodes: sink seq[render.Node]) =
         renderer.nodes = nodes
 
-    frameEvent = initUiEvent()
-    createThread(frameTickThread, tickerRenderer)
+    renderEvent = initUiEvent()
+    appEvent = initUiEvent()
+
+    createThread(frameTickThread, renderTicker)
+    createThread(appTickThread, appTicker)
     createThread(appThread, runApplication, appMain)
 
     while app.running:
-      wait(frameEvent)
+      wait(renderEvent)
       renderLoop(renderer, true)
       frameCount.inc()
 
