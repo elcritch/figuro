@@ -58,6 +58,7 @@ else:
     while app.running:
       wait(frameEvent)
       renderLoop(renderer, true)
+      frameCount.inc()
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,

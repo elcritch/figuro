@@ -23,7 +23,6 @@ var
   prevFrameTime* = programStartTime
   frameTime* = prevFrameTime
   dt*, dtAvg*, fps*, tps*, avgFrameTime*: float64
-  frameCount*, tickCount*: int
   lastDraw, lastTick: int64
 
 var
@@ -144,7 +143,7 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
   updateWindowSize(window)
 
-proc drawFrame*(nodes: sink seq[Node]) =
+proc drawFrame*(nodes: var seq[Node]) =
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(windowSize)
   ctx.saveTransform()
@@ -165,7 +164,7 @@ proc drawFrame*(nodes: sink seq[Node]) =
     img.writeFile("screenshot.png")
     quit()
 
-proc drawAndSwap*(window: Window, nodes: sink seq[Node]) =
+proc drawAndSwap*(window: Window, nodes: var seq[Node]) =
   ## Does drawing operations.
   inc frameCount
   fpsTimeSeries.addTime()

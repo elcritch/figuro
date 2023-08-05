@@ -33,7 +33,9 @@ var
   # UI Scale
   uiScale*: float32 = 1.0
   autoUiScale*: bool = true
+
   requestedFrame*: int
+  frameCount*, tickCount*: int
 
   windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
   windowSize*: Vec2    ## Screen coordinates

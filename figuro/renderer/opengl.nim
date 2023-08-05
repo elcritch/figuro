@@ -17,7 +17,7 @@ const
   openglMajor {.intdefine.} = 3
   openglMinor {.intdefine.} = 3
 
-proc renderLoop(window: Window, nodes: sink seq[Node], poll = true) =
+proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
   if window.closeRequested:
     app.running = false
     return
@@ -33,7 +33,7 @@ proc renderLoop(window: Window, nodes: sink seq[Node], poll = true) =
     preTick()
     tickMain()
     postTick()
-  drawAndSwap(window, move nodes)
+  drawAndSwap(window, nodes)
   postInput()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
@@ -45,7 +45,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(window, move renderer.nodes, poll = false)
+    renderLoop(window, renderer.nodes, poll = false)
     renderEvent.trigger()
   
   window.onFocusChange = proc () =

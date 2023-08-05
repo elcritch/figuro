@@ -200,10 +200,10 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   template node(): auto = nodes[nodeIdx]
   template parent(): auto = nodes[parentIdx]
 
-  echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
-  print node.uid
-  print node.box
-  print node.screenBox
+  # echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
+  # print node.uid
+  # print node.box
+  # print node.screenBox
 
   ## Draws the node.
   ##
@@ -266,17 +266,17 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
     ctx.restoreTransform()
 
   let childIdxs = childIndex(nodes, nodeIdx)
-  echo "draw:children: ", repr childIdxs 
+  # echo "draw:children: ", repr childIdxs 
   for childIdx in childIdxs:
     draw(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postDraws()
 
-proc drawRoot*(nodes: sink seq[Node]) =
+proc drawRoot*(nodes: var seq[Node]) =
   # draw root for each level
   # currLevel = zidx
-  echo "drawRoot:nodes:count: ", nodes.len()
+  # echo "drawRoot:nodes:count: ", nodes.len()
   if nodes.len() > 0:
     draw(nodes, 0.NodeIdx, -1.NodeIdx)
 
