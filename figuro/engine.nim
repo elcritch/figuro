@@ -43,7 +43,6 @@ else:
         appNodes.setupRoot()
         appMain()
         computeScreenBox(nil, appNodes)
-        echo "run App"
         sendRoot(appNodes.copyInto())
         os.sleep(16)
 
