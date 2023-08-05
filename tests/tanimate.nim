@@ -9,7 +9,7 @@ type
 
 proc ticker(self: Item) =
   refresh()
-  self.value += 0.00002 * (1+frameCount).toFloat
+  self.value = 0.008 * (1+frameCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 var
@@ -24,5 +24,7 @@ proc drawMain() =
       rectangle "block":
         box 20 + (i.toFloat + item.value) * 120, 20, 100, 100
         current.fill = parseHtmlColor "#2B9FEA"
+        if i == 0:
+          current.fill.a = item.value * 1.0
 
 startFidget(drawMain, w = 620, h = 140)
