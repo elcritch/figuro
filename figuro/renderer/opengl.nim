@@ -8,40 +8,16 @@ import pkg/windy
 import opengl/[base, context, draw]
 import opengl/commons
 
-when not defined(emscripten) and not defined(fidgetNoAsync):
-  import httpClient, asyncdispatch, asyncfutures, json
-
 type
   Renderer* = ref object
     window: Window
-
-proc drawFrame*() =
-  # echo "\ndrawFrame"
-  clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(windowSize)
-  ctx.saveTransform()
-  ctx.scale(ctx.pixelScale)
-
-  mouse.cursorStyle = Default
-
-  # Only draw the root after everything was done:
-  drawRoot(renderRoot)
-
-  ctx.restoreTransform()
-  ctx.endFrame()
-
-  when defined(testOneFrame):
-    ## This is used for test only
-    ## Take a screen shot of the first frame and exit.
-    var img = takeScreenshot()
-    img.writeFile("screenshot.png")
-    quit()
+    root: Node
 
 const
   openglMajor {.intdefine.} = 3
   openglMinor {.intdefine.} = 3
 
-proc renderLoop(window: Window, poll = true) =
+proc renderLoop(window: Window, root: Node, poll = true) =
   if window.closeRequested:
     app.running = false
     return
@@ -57,17 +33,20 @@ proc renderLoop(window: Window, poll = true) =
     preTick()
     tickMain()
     postTick()
-  drawAndSwap(window)
+  drawAndSwap(window, root)
   postInput()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
-  renderLoop(renderer.window)
+  renderLoop(renderer.window, renderer.root)
 
-proc configureEvents(window: Window) =
+proc configureEvents(renderer: Renderer) =
+
+  let window = renderer.window
+  let root = renderer.root
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(window, poll = false)
+    renderLoop(window, root, poll = false)
     renderEvent.trigger()
   
   window.onFocusChange = proc () =
@@ -113,12 +92,10 @@ proc setupRenderer*(
     Renderer(window: newWindow("", ivec2(1280, 800)))
 
   renderer.window.startOpenGL(openglVersion)
-  renderer.window.configureEvents()
+  renderer.configureEvents()
 
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
-
-  base.drawFrame = drawFrame
 
   useDepthBuffer(false)
 

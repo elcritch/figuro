@@ -4,7 +4,7 @@ import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windy
 
-import perf, utils
+import perf, utils, context, draw
 import commons
 
 # import ../patches/textboxes 
@@ -17,7 +17,6 @@ const
 
 var
   dpi*: float32
-  drawFrame*: MainCallback
   programStartTime* = epochTime()
   fpsTimeSeries = newTimeSeries()
   tpsTimeSeries = newTimeSeries()
@@ -81,26 +80,6 @@ proc postTick*() =
   inc tickCount
   lastTick += deltaTick
 
-proc drawAndSwap*(window: Window) =
-  ## Does drawing operations.
-  inc frameCount
-  fpsTimeSeries.addTime()
-  fps = float64(fpsTimeSeries.num())
-  avgFrameTime = fpsTimeSeries.avg()
-
-  prevFrameTime = cpuTime()
-
-  drawFrame()
-
-  frameTime = cpuTime()
-  dt = frameTime - prevFrameTime
-  dtAvg = dtAvg * (1.0-1.0/100.0) + dt / 100.0
-
-  var error: GLenum
-  while (error = glGetError(); error != GL_NO_ERROR):
-    echo "gl error: " & $error.uint32
-
-  window.swapBuffers()
 
 
 proc clearDepthBuffer*() =
@@ -164,3 +143,46 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
   app.focused = true
 
   updateWindowSize(window)
+
+proc drawFrame*(root: Node) =
+  # echo "\ndrawFrame"
+  clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+  ctx.beginFrame(windowSize)
+  ctx.saveTransform()
+  ctx.scale(ctx.pixelScale)
+
+  mouse.cursorStyle = Default
+
+  # Only draw the root after everything was done:
+  drawRoot(root)
+
+  ctx.restoreTransform()
+  ctx.endFrame()
+
+  when defined(testOneFrame):
+    ## This is used for test only
+    ## Take a screen shot of the first frame and exit.
+    var img = takeScreenshot()
+    img.writeFile("screenshot.png")
+    quit()
+
+proc drawAndSwap*(window: Window, root: Node) =
+  ## Does drawing operations.
+  inc frameCount
+  fpsTimeSeries.addTime()
+  fps = float64(fpsTimeSeries.num())
+  avgFrameTime = fpsTimeSeries.avg()
+
+  prevFrameTime = cpuTime()
+
+  drawFrame(root)
+
+  frameTime = cpuTime()
+  dt = frameTime - prevFrameTime
+  dtAvg = dtAvg * (1.0-1.0/100.0) + dt / 100.0
+
+  var error: GLenum
+  while (error = glGetError(); error != GL_NO_ERROR):
+    echo "gl error: " & $error.uint32
+
+  window.swapBuffers()
