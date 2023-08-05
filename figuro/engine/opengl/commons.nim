@@ -1,6 +1,6 @@
 
-import ../../common
+import ../../shared
 import ../../internal
 import ../../common/nodes/render
 
-export common, render, internal
+export shared, render, internal

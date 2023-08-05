@@ -3,17 +3,14 @@ import std/[os, hashes, strformat, strutils, tables, times]
 import pkg/chroma
 import pkg/[typography, typography/svgfont]
 import pkg/pixie
+import pkg/windy
 
 import opengl/[base, context, draw]
-import ../[common, internal]
+import opengl/commons
 
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json
 
-export draw
-
-var
-  windowTitle, windowUrl: string
 
 proc drawFrame*() =
   # echo "\ndrawFrame"
@@ -30,20 +27,6 @@ proc drawFrame*() =
   ctx.restoreTransform()
   ctx.endFrame()
 
-  # Only set mouse style when it changes.
-  if mouse.prevCursorStyle != mouse.cursorStyle:
-    mouse.prevCursorStyle = mouse.cursorStyle
-    echo mouse.cursorStyle
-    case mouse.cursorStyle:
-      of Default:
-        setCursor(cursorDefault)
-      of Pointer:
-        setCursor(cursorPointer)
-      of Grab:
-        setCursor(cursorGrab)
-      of NSResize:
-        setCursor(cursorNSResize)
-
   when defined(testOneFrame):
     ## This is used for test only
     ## Take a screen shot of the first frame and exit.
@@ -55,7 +38,64 @@ const
   openglMajor {.intdefine.} = 3
   openglMinor {.intdefine.} = 3
 
-proc setupWindow*(
+
+proc renderLoop*(window: Window, poll = true) =
+  if window.closeRequested:
+    app.running = false
+    return
+
+  if poll:
+    windy.pollEvents()
+  
+  if requestedFrame <= 0 or app.minimized:
+    return
+  requestedFrame.dec
+  preInput()
+  if tickMain != nil:
+    preTick()
+    tickMain()
+    postTick()
+  drawAndSwap(window)
+  postInput()
+
+proc configureWindowEvents(window: Window) =
+
+  window.onResize = proc () =
+    updateWindowSize(window)
+    renderLoop(window, poll = false)
+    renderEvent.trigger()
+  
+  window.onFocusChange = proc () =
+    app.focused = window.focused
+    uiEvent.trigger()
+
+  window.onScroll = proc () =
+    requestedFrame.inc
+    mouse.wheelDelta += window.scrollDelta().x
+    renderEvent.trigger()
+
+  window.onRune = keyboardInput
+
+  window.onMouseMove = proc () =
+    requestedFrame.inc
+    uiEvent.trigger()
+
+  window.onButtonPress = proc (button: windy.Button) =
+    requestedFrame.inc
+    uiEvent.trigger()
+
+  window.onButtonRelease = proc (button: Button) =
+    uiEvent.trigger()
+
+  internal.getWindowTitle = proc (): string =
+    window.title
+  internal.setWindowTitle = proc (title: string) =
+    if window != nil:
+      window.title = title
+
+  app.running = true
+
+proc setupRenderer*(
     pixelate: bool,
     forcePixelScale: float32,
     atlasSize: int = 1024
@@ -64,9 +104,11 @@ proc setupWindow*(
   let openglVersion = (openglMajor, openglMinor)
   pixelScale = forcePixelScale
 
-  base.start(openglVersion)
+  var window = newWindow("", ivec2(1280, 800))
 
-  setWindowTitle(windowTitle)
+  window.configureWindowEvents()
+  window.startOpenGL(openglVersion)
+
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
 

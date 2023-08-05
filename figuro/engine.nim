@@ -10,7 +10,8 @@ else:
   import engine/opengl
   export opengl
 
-import common, internal, widgets/core
+import std/os
+import shared, internal, widgets/core
 
 when defined(emscripten):
   proc runRenderer() =
@@ -32,21 +33,18 @@ else:
     withLock(frameLock):
       while true:
         frameTick.signal()
-        sleep(8)
+        os.sleep(8)
 
   proc runApplication(drawMain: MainCallback) {.thread.} =
     {.gcsafe.}:
-      while base.running:
-          proc running() {.async.} =
-            setupRoot()
-            drawMain()
-            computeScreenBox(nil, root)
-            var rootCopy = root.deepCopy
-            renderRoot = rootCopy.move()
-            await sleepAsync(8)
-          waitFor running()
+      while app.running:
+        setupRoot()
+        drawMain()
+        # computeScreenBox(nil, root)
+        var rootCopy = root.deepCopy
+        # renderRoot = rootCopy.move()
 
-  proc runRenderer() =
+  proc runRenderer(window: Window) =
 
     frameLock.initLock()
     frameTick.initCond()
@@ -54,12 +52,9 @@ else:
     createThread(appThread, runApplication, drawMain)
 
     withLock(frameLock):
-      while base.running:
+      while app.running:
         wait(frameTick, frameLock)
-        renderLoop()
-        if isEvent:
-          isEvent = false
-          eventTimePost = epochTime()
+        renderLoop(window, true)
 
 
 proc startFidget*(
@@ -75,7 +70,7 @@ proc startFidget*(
 ) =
   ## Starts Fidget UI library
   ## 
-  common.fullscreen = fullscreen
+  app.fullscreen = fullscreen
   
   if not fullscreen:
     windowSize = vec2(uiScale * w.float32, uiScale * h.float32)
@@ -86,7 +81,7 @@ proc startFidget*(
   let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
 
-  setupWindow(pixelate, pixelScale, atlasStartSz)
+  setupRenderer(pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
 
   if not setup.isNil: setup()

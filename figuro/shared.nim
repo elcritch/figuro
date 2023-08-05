@@ -27,7 +27,7 @@ const
 
 type
   AppState* = object
-    running*, focused*, minimized*: bool
+    running*, focused*, minimized*, fullscreen*: bool
 
 var
   # UI Scale
@@ -35,11 +35,6 @@ var
   autoUiScale*: bool = true
   requestedFrame*: int
 
-  windowTitle*, windowUrl*: string
-
-  setWindowTitle*: proc (title: string)
-
-  fullscreen* = false
   windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
   windowSize*: Vec2    ## Screen coordinates
   # windowFrame*: Vec2   ## Pixel coordinates

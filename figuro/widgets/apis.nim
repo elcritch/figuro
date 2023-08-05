@@ -202,9 +202,3 @@ proc getItem*(key: string): string =
   ## Gets a value into local storage or file.
   readFile(&"{key}.data")
 
-proc getUrl*(): string =
-  windowUrl
-
-proc setUrl*(url: string) =
-  windowUrl = url
-  refresh()

@@ -1,6 +1,6 @@
 
-import ../common
+import ../shared
 import ../internal
 import ../common/nodes/ui
 
-export common, ui, internal
+export shared, ui, internal

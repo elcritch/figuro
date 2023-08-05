@@ -1,6 +1,6 @@
 
 import std/locks
-import common/nodes/ui
+import common/nodes/render
 
 type
   MainCallback* = proc() {.nimcall.}
@@ -13,7 +13,6 @@ type
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
 var
-  root*: Node
   renderRoot*: Node
 
   drawMain*: MainCallback

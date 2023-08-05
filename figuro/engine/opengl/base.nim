@@ -5,7 +5,7 @@ import pkg/opengl
 import pkg/windy
 
 import perf, utils
-import ../../[common, internal]
+import commons
 
 # import ../patches/textboxes 
 
@@ -36,14 +36,13 @@ var
 var
   eventTimePre* = epochTime()
   eventTimePost* = epochTime()
-  isEvent* = false
 
 proc getScaleInfo*(window: Window): ScaleInfo =
   let scale = window.contentScale()
   result.x = scale
   result.y = scale
 
-proc updateWindowSize(window: Window) =
+proc updateWindowSize*(window: Window) =
   requestedFrame.inc
 
   var cwidth, cheight: cint
@@ -57,33 +56,32 @@ proc updateWindowSize(window: Window) =
   glViewport(0, 0, cwidth, cheight)
 
   let scale = window.getScaleInfo()
-  if common.autoUiScale:
-    common.uiScale = min(scale.x, scale.y)
+  if shared.autoUiScale:
+    shared.uiScale = min(scale.x, scale.y)
 
-  windowLogicalSize = windowSize / common.pixelScale * common.pixelRatio
+  windowLogicalSize = windowSize / shared.pixelScale * shared.pixelRatio
 
-
-proc preInput() =
+proc preInput*() =
   # var x, y: float64
   # window.getCursorPos(addr x, addr y)
   # mouse.setMousePos(x, y)
   discard
 
-proc postInput() =
+proc postInput*() =
   # clearInputs()
   discard
 
-proc preTick() =
+proc preTick*() =
   discard
 
-proc postTick() =
+proc postTick*() =
   tpsTimeSeries.addTime()
   tps = float64(tpsTimeSeries.num())
 
   inc tickCount
   lastTick += deltaTick
 
-proc drawAndSwap(window: Window) =
+proc drawAndSwap*(window: Window) =
   ## Does drawing operations.
   inc frameCount
   fpsTimeSeries.addTime()
@@ -104,24 +102,6 @@ proc drawAndSwap(window: Window) =
 
   window.swapBuffers()
 
-proc renderLoop*(window: Window, poll = true) =
-  if window.closeRequested:
-    app.running = false
-    return
-
-  if poll:
-    windy.pollEvents()
-  
-  if requestedFrame <= 0 or app.minimized:
-    return
-  requestedFrame.dec
-  preInput()
-  if tickMain != nil:
-    preTick()
-    tickMain()
-    postTick()
-  drawAndSwap(window)
-  postInput()
 
 proc clearDepthBuffer*() =
   glClear(GL_DEPTH_BUFFER_BIT)
@@ -139,63 +119,22 @@ proc useDepthBuffer*(on: bool) =
     glDepthMask(GL_FALSE)
     glDisable(GL_DEPTH_TEST)
 
-proc configureWindowEvents(window: Window) =
 
-  window.onResize = proc () =
-    updateWindowSize(window)
-    renderLoop(window, poll = false)
-    renderEvent.trigger()
+
+proc startOpenGL*(window: Window, openglVersion: (int, int)) =
+
+  let scale = window.getScaleInfo()
   
-  window.onFocusChange = proc () =
-    app.focused = window.focused
-    uiEvent.trigger()
+  if shared.autoUiScale:
+    shared.uiScale = min(scale.x, scale.y)
 
-  window.onScroll = proc () =
-    requestedFrame.inc
-    mouse.wheelDelta += window.scrollDelta().x
-    renderEvent.trigger()
-
-  window.onRune = keyboardInput
-
-  window.onMouseMove = proc () =
-    requestedFrame.inc
-    uiEvent.trigger()
-
-  window.onButtonPress = proc (button: windy.Button) =
-    requestedFrame.inc
-    uiEvent.trigger()
-
-  window.onButtonRelease = proc (button: Button) =
-    uiEvent.trigger()
-
-
-proc start*(openglVersion: (int, int)) =
-
-  var window: windy.Window
-
-  window = newWindow("Windy Basic", ivec2(1280, 800))
-
-  internal.getWindowTitle = proc (): string =
-    window.title
-  internal.setWindowTitle = proc (title: string) =
-    if window != nil:
-      window.title = title
-
-  app.running = true
-
-  let
-    scale = window.getScaleInfo()
-  
-  if common.autoUiScale:
-    common.uiScale = min(scale.x, scale.y)
-
-  if common.fullscreen:
-    window.fullscreen = common.fullscreen
+  if app.fullscreen:
+    window.fullscreen = app.fullscreen
   else:
 
     window.size = ivec2(
-      (windowSize.x * common.pixelScale * common.uiScale).int32,
-      (windowSize.y * common.pixelScale * common.uiScale).int32,
+      (windowSize.x * shared.pixelScale * shared.uiScale).int32,
+      (windowSize.y * shared.pixelScale * shared.uiScale).int32,
     )
 
   if window.isNil:
@@ -224,5 +163,4 @@ proc start*(openglVersion: (int, int)) =
   lastTick = lastDraw
   app.focused = true
 
-  configureWindowEvents(window)
   updateWindowSize(window)
