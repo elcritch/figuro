@@ -25,14 +25,20 @@ type
     highlight*: Color
     transparency*: float32
     stroke*: Stroke
-    cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
-    shadow*: Option[Shadow]
 
-    image*: ImageStyle
-    textStyle*: TextStyle
-
-    textLayout*: seq[GlyphPosition]
-    points*: seq[Position]
+    case kind*: NodeKind
+    of nkRectangle:
+      shadow*: Option[Shadow]
+      cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
+    of nkImage:
+      image*: ImageStyle
+    of nkText:
+      textStyle*: TextStyle
+      textLayout*: seq[GlyphPosition]
+    of nkDrawable:
+      points*: seq[Position]
+    else:
+      discard
 
 proc newUId*(): NodeUID =
   # Returns next numerical unique id.
