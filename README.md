@@ -20,6 +20,10 @@ Once the UI Application has finished drawing, it will "serialize" the UI Nodes i
 
 This will enable the render enginer to run on in a shared library while the widget / application layer runs in a NimScript.
 
+## Docs
+
+Well you can write some! Or not, but eventually I'll try to add some. First we need to actually have a widget and event system.
+
 ## Goal
 
 Massive profits and world domination of course. ;) Failing that the ability to write cool UI apps easily, in pure Nim.
