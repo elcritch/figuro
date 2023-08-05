@@ -12,6 +12,56 @@ else:
 
 import common, internal
 
+when defined(emscripten):
+  proc runRenderer() =
+    # Emscripten can't block so it will call this callback instead.
+    proc emscripten_set_main_loop(f: proc() {.cdecl.}, a: cint, b: bool) {.importc.}
+    proc mainLoop() {.cdecl.} =
+      asyncPoll()
+      renderLoop()
+    emscripten_set_main_loop(main_loop, 0, true)
+else:
+  import locks
+
+  var frameLock: Lock
+  var frameTick: Cond
+  var frameTickThread: Thread[void]
+  var appThread: Thread[MainCallback]
+
+  proc tickerRenderer() {.thread.} =
+    withLock(frameLock):
+      while true:
+        frameTick.signal()
+        sleep(8)
+
+  proc runApplication(drawMain: MainCallback) {.thread.} =
+    {.gcsafe.}:
+      while base.running:
+          proc running() {.async.} =
+            setupRoot()
+            drawMain()
+            computeScreenBox(nil, root)
+            var rootCopy = root.deepCopy
+            renderRoot = rootCopy.move()
+            await sleepAsync(8)
+          waitFor running()
+
+  proc runRenderer() =
+
+    frameLock.initLock()
+    frameTick.initCond()
+    createThread(frameTickThread, tickerRenderer)
+    createThread(appThread, runApplication, drawMain)
+
+    withLock(frameLock):
+      while base.running:
+        wait(frameTick, frameLock)
+        renderLoop()
+        if isEvent:
+          isEvent = false
+          eventTimePost = epochTime()
+
+
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
     tick: proc() {.nimcall.} = nil,

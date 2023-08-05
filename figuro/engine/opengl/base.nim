@@ -5,7 +5,7 @@ import pkg/opengl
 import pkg/windy
 
 import perf, utils
-import ../../[commonutils, common, internal]
+import ../../[common, internal]
 
 # import ../patches/textboxes 
 
@@ -18,7 +18,6 @@ const
 var
   dpi*: float32
   drawFrame*: MainCallback
-  running*, focused*, minimized*: bool
   programStartTime* = epochTime()
   fpsTimeSeries = newTimeSeries()
   tpsTimeSeries = newTimeSeries()
@@ -39,16 +38,12 @@ var
   eventTimePost* = epochTime()
   isEvent* = false
 
-proc setCursor*(cursor: Cursor) =
-  echo "set cursor"
-  window.cursor = cursor
-
 proc getScaleInfo*(window: Window): ScaleInfo =
   let scale = window.contentScale()
   result.x = scale
   result.y = scale
 
-proc updateWindowSize() =
+proc updateWindowSize(window: Window) =
   requestedFrame.inc
 
   var cwidth, cheight: cint
@@ -150,7 +145,7 @@ proc useDepthBuffer*(on: bool) =
 proc configureWindowEvents(window: Window) =
 
   window.onResize = proc () =
-    updateWindowSize()
+    updateWindowSize(window)
     renderLoop(poll = false)
     renderEvent.trigger()
   
@@ -237,4 +232,4 @@ proc start*(openglVersion: (int, int)) =
   focused = true
 
   configureWindowEvents(window)
-  updateWindowSize()
+  updateWindowSize(window)

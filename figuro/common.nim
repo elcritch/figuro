@@ -47,6 +47,7 @@ var
 
   dataDir*: string = DataDirPath
 
+  running*, focused*, minimized*: bool
 
 type
   NodeUID* = int64
