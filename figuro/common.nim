@@ -65,10 +65,19 @@ when not defined(js):
     # currTextBox*: TextBox[Node]
     fonts*: Table[string, Font]
 
+template scaled*(a: Box): Rect = Rect(a * common.uiScale.UICoord)
+template descaled*(a: Rect): Box = Box(a / common.uiScale)
+
+template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale.UICoord)
+template descaled*(a: Vec2): Position = Position(a / common.uiScale)
+
+template scaled*(a: UICoord): float32 =
+  a.float32 * common.uiScale
+template descaled*(a: float32): UICoord =
+  UICoord(a / common.uiScale)
+
 proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
-
-
 
 proc emptyFuture*(): Future[void] =
   result = newFuture[void]()

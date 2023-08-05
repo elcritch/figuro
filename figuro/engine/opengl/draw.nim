@@ -1,7 +1,6 @@
 import std/hashes, unicode, os, strformat, tables, times
 
 import typography
-# import ../patches/textboxes
 import pixie, chroma
 
 import context, formatflippy

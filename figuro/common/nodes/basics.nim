@@ -1,10 +1,10 @@
-
+import std/options
 import pkg/chroma
 import pkg/typography
 
 import ../uimaths
 
-export uimaths
+export uimaths, options
 export chroma, typography
 
 type

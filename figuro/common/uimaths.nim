@@ -1,14 +1,7 @@
 import std/[strformat, strutils, math, hashes, macros, typetraits]
+import macroutils, vmath, bumpy
 
-import macroutils
-import vmath, bumpy
-import cssgrid
-import cdecl/atoms
-import options
-
-export options, atoms
 export math, vmath, bumpy
-
 
 template borrowMaths*(typ, base: typedesc) =
   proc `+` *(x, y: typ): typ = typ(`+`(base(x), base(y)))
@@ -109,10 +102,6 @@ proc `'ui`*(n: string): UICoord =
   ## numeric literal UI Coordinate unit
   result = UICoord(parseFloat(n))
 
-template scaled*(a: UICoord): float32 =
-  a.float32 * common.uiScale
-template descaled*(a: float32): UICoord =
-  UICoord(a / common.uiScale)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct vec types
@@ -198,12 +187,6 @@ proc `~=`*(rect: Vec2, val: float32): bool =
 
 # proc `$`*(a: Position): string {.borrow.}
 # proc `$`*(a: Box): string {.borrow.}
-
-template scaled*(a: Box): Rect = Rect(a * common.uiScale.UICoord)
-template descaled*(a: Rect): Box = Box(a / common.uiScale)
-
-template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale.UICoord)
-template descaled*(a: Vec2): Position = Position(a / common.uiScale)
 
 proc overlaps*(a, b: Position): bool = overlaps(Vec2(a), Vec2(b))
 proc overlaps*(a: Position, b: Box): bool = overlaps(Vec2(a), Rect(b))
