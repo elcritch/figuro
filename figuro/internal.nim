@@ -1,6 +1,6 @@
 
 import std/locks
-import widgets/apis
+import common/nodes/ui
 
 type
   MainCallback* = proc() {.nimcall.}

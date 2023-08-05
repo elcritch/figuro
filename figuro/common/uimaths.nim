@@ -172,6 +172,30 @@ proc `-`*(rect: Box, xy: Position): Box =
   result.x -= xy.x
   result.y -= xy.y
 
+proc atXY*[T: Box](rect: T, x, y: int | float32): T =
+  result = rect
+  result.x = UICoord(x)
+  result.y = UICoord(y)
+
+proc atXY*[T: Box](rect: T, x, y: UICoord): T =
+  result = rect
+  result.x = x
+  result.y = y
+
+proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
+  result = rect
+  result.x = x
+  result.y = y
+
+proc `+`*(rect: Rect, xy: Vec2): Rect =
+  ## offset rect with xy vec2 
+  result = rect
+  result.x += xy.x
+  result.y += xy.y
+
+proc `~=`*(rect: Vec2, val: float32): bool =
+  result = rect.x ~= val and rect.y ~= val
+
 # proc `$`*(a: Position): string {.borrow.}
 # proc `$`*(a: Box): string {.borrow.}
 

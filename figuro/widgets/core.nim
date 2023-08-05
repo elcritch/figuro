@@ -2,15 +2,11 @@ import std/[tables, unicode]
 import chroma
 import cssgrid
 
-
-import ../[common, commonutils, internal]
-
-import cdecl/atoms
+import commons
 
 from windy/common import Button, ButtonView
 
 export chroma, common
-export commonutils
 export cssgrid
 
 var
@@ -34,11 +30,7 @@ var
 
   computeTextLayout*: proc(node: Node)
 
-  lastUId: int
   nodeLookup*: Table[string, Node]
-
-  ## Used for HttpCalls
-  httpCalls*: Table[string, HttpCall]
 
   defaultlineHeightRatio* = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
@@ -63,13 +55,10 @@ inputs.keyboardInput = proc (rune: Rune) =
     #   keyboard.keyString = rune.toUTF8()
     uiEvent.trigger()
 
-proc newUId*(): NodeUID =
-  # Returns next numerical unique id.
-  inc lastUId
-  when defined(js) or defined(StringUID):
-    $lastUId
-  else:
-    NodeUID(lastUId)
+
+proc removeExtraChildren*(node: Node) =
+  ## Deal with removed nodes.
+  node.nodes.setLen(node.diffIndex)
 
 proc refresh*() =
   ## Request the screen be redrawn
