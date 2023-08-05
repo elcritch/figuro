@@ -6,21 +6,6 @@ var lastUId: int
 
 type
 
-  NodeKind* = enum
-    ## Different types of nodes.
-    nkRoot
-    nkFrame
-    nkText
-    nkRectangle
-    nkDrawable
-    nkScrollBar
-    nkImage
-
-  Attributes* = enum
-    clipContent
-    disableRender
-    scrollpane
-
   Node* = ref object
     uid*: NodeUID
     nodes*: seq[Node]
@@ -43,21 +28,16 @@ type
     cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
     shadow*: Option[Shadow]
 
-    case kind*: NodeKind
-    of nkImage:
-      image*: ImageStyle
-    of nkText:
-      textStyle*: TextStyle
-      when not defined(js):
-        textLayout*: seq[GlyphPosition]
-      else:
-        element*: Element
-        textElement*: Element
-        cache*: Node
-    of nkDrawable:
-      points*: seq[Position]
+    image*: ImageStyle
+    textStyle*: TextStyle
+
+    when not defined(js):
+      textLayout*: seq[GlyphPosition]
     else:
-      discard
+      element*: Element
+      textElement*: Element
+      cache*: Node
+    points*: seq[Position]
 
 proc newUId*(): NodeUID =
   # Returns next numerical unique id.

@@ -11,6 +11,20 @@ type
   NodeUID* = int64
 
 type
+  NodeKind* = enum
+    ## Different types of nodes.
+    nkFrame
+    nkText
+    nkRectangle
+    nkDrawable
+    nkScrollBar
+    nkImage
+
+  Attributes* = enum
+    clipContent
+    disableRender
+    scrollpane
+
   FidgetConstraint* = enum
     cMin
     cMax
