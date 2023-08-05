@@ -24,7 +24,6 @@ proc drawFrame*() =
 
   mouse.cursorStyle = Default
 
-  computeScreenBox(nil, renderRoot)
   # Only draw the root after everything was done:
   drawRoot(renderRoot)
 
@@ -106,6 +105,7 @@ else:
           proc running() {.async.} =
             setupRoot()
             drawMain()
+            computeScreenBox(nil, root)
             var rootCopy = root.deepCopy
             renderRoot = rootCopy.move()
             await sleepAsync(8)

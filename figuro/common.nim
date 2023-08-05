@@ -1,18 +1,13 @@
 import std/[sequtils, tables, json, hashes]
 import std/[options, unicode, strformat]
-import std/locks
-# import std/asyncdispatch
 import pkg/[variant, chroma, cssgrid, windy]
 
-import cdecl/atoms
-import ./[commonutils, inputs]
+import common/[extras, uimaths]
+import inputs
 
 export sequtils, strformat, tables, hashes
 export variant
-# export unicode
-export commonutils
-export cssgrid
-export atoms
+export extras, uimaths
 export inputs
 
 import pretty
@@ -69,25 +64,10 @@ when not defined(js):
     # currTextBox*: TextBox[Node]
     fonts*: Table[string, Font]
 
-proc removeExtraChildren*(node: Node) =
-  ## Deal with removed nodes.
-  node.nodes.setLen(node.diffIndex)
-
 proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 
 
-proc resetToDefault*(node: Node)=
-  ## Resets the node to default state.
-  node.box = initBox(0,0,0,0)
-  node.orgBox = initBox(0,0,0,0)
-  node.rotation = 0
-  node.fill = clearColor
-  node.transparency = 0
-  node.stroke = Stroke(weight: 0, color: clearColor)
-  node.image = ImageStyle(name: "", color: whiteColor)
-  node.cornerRadius = (0'ui, 0'ui, 0'ui, 0'ui)
-  node.shadow = Shadow.none()
 
 proc emptyFuture*(): Future[void] =
   result = newFuture[void]()
@@ -107,17 +87,6 @@ proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos *= pixelRatio / item.pixelScale
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
-
-proc computeScreenBox*(parent, node: Node) =
-  ## Setups screenBoxes for the whole tree.
-  if parent == nil:
-    node.screenBox = node.box
-    node.totalOffset = node.offset
-  else:
-    node.screenBox = node.box + parent.screenBox
-    node.totalOffset = node.offset + parent.totalOffset
-  for n in node.nodes:
-    computeScreenBox(node, n)
 
 proc atXY*[T: Box](rect: T, x, y: int | float32): T =
   result = rect
