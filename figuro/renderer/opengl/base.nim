@@ -144,7 +144,7 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
   updateWindowSize(window)
 
-proc drawFrame*(root: Node) =
+proc drawFrame*(nodes: sink seq[Node]) =
   # echo "\ndrawFrame"
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(windowSize)
@@ -154,7 +154,7 @@ proc drawFrame*(root: Node) =
   mouse.cursorStyle = Default
 
   # Only draw the root after everything was done:
-  drawRoot(root)
+  drawRoot(nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -166,7 +166,7 @@ proc drawFrame*(root: Node) =
     img.writeFile("screenshot.png")
     quit()
 
-proc drawAndSwap*(window: Window, root: Node) =
+proc drawAndSwap*(window: Window, nodes: seq[Node]) =
   ## Does drawing operations.
   inc frameCount
   fpsTimeSeries.addTime()
@@ -175,7 +175,7 @@ proc drawAndSwap*(window: Window, root: Node) =
 
   prevFrameTime = cpuTime()
 
-  drawFrame(root)
+  drawFrame(nodes)
 
   frameTime = cpuTime()
   dt = frameTime - prevFrameTime

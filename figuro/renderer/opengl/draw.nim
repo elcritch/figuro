@@ -194,7 +194,11 @@ proc drawBoxes*(node: Node) =
 
 import print
 
-proc draw*(node, parent: Node) =
+proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
+
+  template node(): auto = nodes[nodeIdx]
+  template parent(): auto = nodes[parentIdx]
+
   ## Draws the node.
   ##
   ## This is the primary routine that handles setting up the OpenGL
@@ -254,14 +258,14 @@ proc draw*(node, parent: Node) =
   finally:
     ctx.restoreTransform()
 
-  for j in 1 .. node.nodes.len:
-    node.nodes[^j].draw(node)
+  for childIdx in childNodes(nodes, nodeIdx):
+    draw(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postDraws()
 
-proc drawRoot*(nodes: seq[Node]) =
+proc drawRoot*(nodes: var seq[Node]) =
   # draw root for each level
-  currLevel = zidx
-  root.draw(nodes, 0)
+  # currLevel = zidx
+  draw(nodes, 0.NodeIdx, -1.NodeIdx)
 

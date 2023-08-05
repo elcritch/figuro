@@ -40,7 +40,7 @@ type
     else:
       discard
 
-iterator nodes*(nodes: var seq[Node], current: NodeIdx): int =
+iterator childNodes*(nodes: var seq[Node], current: NodeIdx): NodeIdx =
   let id = nodes[current].uid
   let cnt = nodes[current].childCount
 
