@@ -1,13 +1,13 @@
 {
   "packages": {
     "nimsimd": {
-      "version": "1.2.2",
-      "vcsRevision": "548e57c43a11e4d270d37f360d46069b77cd26f3",
+      "version": "1.2.5",
+      "vcsRevision": "854eeba4d7fc67a609b72b7d57b765da80ad79ec",
       "url": "https://github.com/guzba/nimsimd",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "8f057fbecc20612e3743f605f27a122d8367f3c6"
+        "sha1": "80d57d87699351b5711a66bf1fd9db922fea52d3"
       }
     },
     "ws": {
@@ -118,13 +118,13 @@
       }
     },
     "chroma": {
-      "version": "0.2.6",
-      "vcsRevision": "7c9d96b6e42d4d5fe79f5efac52e798c03b3e7d3",
+      "version": "0.2.7",
+      "vcsRevision": "c06598cc08cbfd67f57feac0ecbfefc85edefe18",
       "url": "https://github.com/treeform/chroma",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "04a5fddb0dba009a1589509833a294001657ef23"
+        "sha1": "47b96a34e53d6c051154cc37493a0ae681bf75d4"
       }
     },
     "windy": {

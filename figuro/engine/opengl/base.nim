@@ -6,7 +6,6 @@ import pkg/windy
 
 import ./perf
 import ../../[commonutils, common, internal]
-import ../[input]
 
 # import ../patches/textboxes 
 
@@ -131,46 +130,23 @@ proc renderLoop*(poll = true) =
     running = false
     return
 
-  case loopMode:
-    of RepaintOnEvent:
-      if poll:
-        windy.pollEvents()
-      if requestedFrame <= 0 or minimized:
-        # Only repaint when necessary
-        # when not defined(emscripten):
-          # echo "update loop: ", loopMode.repr
-          # sleep(16)
-        return
-      requestedFrame.dec
-      preInput()
-      if tickMain != nil:
-        preTick()
-        tickMain()
-        postTick()
-      drawAndSwap()
-      postInput()
-
-    of RepaintOnFrame:
-      if poll:
-        windy.pollEvents()
-      preInput()
-      if tickMain != nil:
-        preTick()
-        tickMain()
-        postTick()
-      drawAndSwap()
-      postInput()
-
-    of RepaintSplitUpdate:
-      if poll:
-        windy.pollEvents()
-      preInput()
-      while lastTick < getTicks():
-        preTick()
-        tickMain()
-        postTick()
-      drawAndSwap()
-      postInput()
+  if poll:
+    windy.pollEvents()
+  
+  if requestedFrame <= 0 or minimized:
+    # Only repaint when necessary
+    # when not defined(emscripten):
+      # echo "update loop: ", loopMode.repr
+      # sleep(16)
+    return
+  requestedFrame.dec
+  preInput()
+  if tickMain != nil:
+    preTick()
+    tickMain()
+    postTick()
+  drawAndSwap()
+  postInput()
 
 proc clearDepthBuffer*() =
   glClear(GL_DEPTH_BUFFER_BIT)
