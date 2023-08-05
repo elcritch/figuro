@@ -43,7 +43,7 @@ else:
         appNodes.setupRoot()
         appMain()
         # computeScreenBox(nil, root)
-        sendRoot(appNodes.convert())
+        sendRoot(appNodes.copyInto())
         # renderRoot = rootCopy.move()
         os.sleep(16)
 

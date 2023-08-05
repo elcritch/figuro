@@ -13,7 +13,7 @@ type
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
 var
-  renderNodes*: Node
+  renderNodes*: seq[Node]
   appMain*: MainCallback
   tickMain*: MainCallback
   loadMain*: MainCallback
@@ -23,7 +23,7 @@ var
 
   appEvent*, renderEvent*: UiEvent
 
-proc sendRoot*(nodes: sink Node) =
+proc sendRoot*(nodes: sink seq[Node]) =
   renderNodes = nodes
 
 proc initUiEvent*(): UiEvent =

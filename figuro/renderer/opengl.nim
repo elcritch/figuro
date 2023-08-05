@@ -11,13 +11,13 @@ import opengl/commons
 type
   Renderer* = ref object
     window: Window
-    root: Node
+    nodes: seq[Node]
 
 const
   openglMajor {.intdefine.} = 3
   openglMinor {.intdefine.} = 3
 
-proc renderLoop(window: Window, root: Node, poll = true) =
+proc renderLoop(window: Window, nodes: sink seq[Node], poll = true) =
   if window.closeRequested:
     app.running = false
     return
@@ -33,20 +33,19 @@ proc renderLoop(window: Window, root: Node, poll = true) =
     preTick()
     tickMain()
     postTick()
-  drawAndSwap(window, root)
+  drawAndSwap(window, nodes)
   postInput()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
-  renderLoop(renderer.window, renderer.root)
+  renderLoop(renderer.window, renderer.nodes)
 
 proc configureEvents(renderer: Renderer) =
 
   let window = renderer.window
-  let root = renderer.root
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(window, root, poll = false)
+    renderLoop(window, renderer.nodes, poll = false)
     renderEvent.trigger()
   
   window.onFocusChange = proc () =

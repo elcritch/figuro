@@ -44,6 +44,6 @@ proc convert*(renders: var seq[render.Node], current: ui.Node, parent: NodeID) =
   for child in current.nodes:
     renders.convert(child, current.uid)
 
-proc convert*(uiNodes: ui.Node): seq[render.Node] =
+proc copyInto*(uiNodes: ui.Node): seq[render.Node] =
   result = newSeq[render.Node]()
   convert(result, uiNodes, -1.NodeID)
