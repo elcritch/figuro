@@ -3,7 +3,7 @@ import chroma
 import cssgrid
 
 
-import ../[common, commonutils]
+import ../[common, commonutils, internal]
 
 import cdecl/atoms
 

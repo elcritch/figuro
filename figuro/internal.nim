@@ -10,6 +10,8 @@ type
     x*: float32
     y*: float32
 
+  UiEvent* = tuple[cond: Cond, lock: Lock]
+
 var
   root*: Node
   renderRoot*: Node
@@ -18,8 +20,7 @@ var
   tickMain*: MainCallback
   loadMain*: MainCallback
 
-type
-  UiEvent* = tuple[cond: Cond, lock: Lock]
+  uiEvent*, renderEvent*: UiEvent
 
 proc initUiEvent*(): UiEvent =
   result.lock.initLock()
@@ -28,10 +29,6 @@ proc initUiEvent*(): UiEvent =
 proc trigger*(evt: var UiEvent) =
   withLock(evt.lock):
     signal(evt.cond)
-
-var
-  renderEvent*: UiEvent
-  uiEvent*: UiEvent
 
 proc setupRoot*() =
   if root == nil:

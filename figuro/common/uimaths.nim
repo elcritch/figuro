@@ -1,36 +1,14 @@
-import strformat, strutils, hashes
+import std/[strformat, strutils, math, hashes, macros, typetraits]
 
-import patty
-export patty
-
-import vmath, bumpy, math
-export math, vmath, bumpy
-
-import macros, macroutils
-import typetraits
-
-import typography/font
+import macroutils
+import vmath, bumpy
 import cssgrid
 import cdecl/atoms
 import options
 
-export options
-export atoms
+export options, atoms
+export math, vmath, bumpy
 
-proc repr*(font: Font): string =
-  if font.isNil:
-    result = "Font(nil)"
-  else:
-    result = fmt"Font({font.typeface.name=}, {font.size=}, {font.weight=})"
-
-macro variants*(name, code: untyped) =
-  ## convenience wrapper for Patty variant macros
-  result = quote do:
-    {.push hint[Name]: off.}
-    variantp `name`:
-      ## test
-    {.pop.}
-  result[1][2] = code
 
 template borrowMaths*(typ, base: typedesc) =
   proc `+` *(x, y: typ): typ = typ(`+`(base(x), base(y)))
