@@ -3,7 +3,7 @@
     "nimsimd": {
       "dir": "vendor/nimsimd",
       "url": "https://github.com/guzba/nimsimd",
-      "commit": "b2828aa1da11d311d7c247ec07dca958ffa93713"
+      "commit": "548e57c43a11e4d270d37f360d46069b77cd26f3"
     },
     "ws": {
       "dir": "vendor/ws",
@@ -58,7 +58,7 @@
     "chroma": {
       "dir": "vendor/chroma",
       "url": "https://github.com/treeform/chroma",
-      "commit": "c06598cc08cbfd67f57feac0ecbfefc85edefe18"
+      "commit": "7c9d96b6e42d4d5fe79f5efac52e798c03b3e7d3"
     },
     "windy": {
       "dir": "vendor/windy",

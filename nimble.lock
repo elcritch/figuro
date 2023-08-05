@@ -1,0 +1,245 @@
+{
+  "packages": {
+    "nimsimd": {
+      "version": "1.2.2",
+      "vcsRevision": "548e57c43a11e4d270d37f360d46069b77cd26f3",
+      "url": "https://github.com/guzba/nimsimd",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "8f057fbecc20612e3743f605f27a122d8367f3c6"
+      }
+    },
+    "ws": {
+      "version": "0.5.0",
+      "vcsRevision": "5ac521b72d7d4860fb394e5e1f9f08cf480e9822",
+      "url": "https://github.com/treeform/ws",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "fc2387f52ce71066276df07c72cd21b510bcdb30"
+      }
+    },
+    "urlly": {
+      "version": "1.1.1",
+      "vcsRevision": "99784779f05649df25fd9c33003d8ef6de027345",
+      "url": "https://github.com/treeform/urlly",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "d5ef2f90c515e597a470d14b80177a434e2fb9d2"
+      }
+    },
+    "pixie": {
+      "version": "5.0.6",
+      "vcsRevision": "523b364fcaa288d23ecb3f34c795da97d3637117",
+      "url": "https://github.com/treeform/pixie",
+      "downloadMethod": "git",
+      "dependencies": [
+        "zippy",
+        "flatty",
+        "crunchy",
+        "chroma"
+      ],
+      "checksums": {
+        "sha1": "3c479da133f14626f5703d3a6d8949f84aef5087"
+      }
+    },
+    "print": {
+      "version": "1.0.2",
+      "vcsRevision": "159e540f0686efdd1c8f30ad7b4225a6aa2a5ab9",
+      "url": "https://github.com/treeform/print",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "98bf8a86fb9613e107b97929ab041d146060f96d"
+      }
+    },
+    "macroutils": {
+      "version": "1.1.0",
+      "vcsRevision": "4f178a21e57cb842f112a965d25cda93ac4d68e5",
+      "url": "https://github.com/PMunch/macroutils",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "46f7aefbe2381668a8cf270b8c858fa99a3cd8e5"
+      }
+    },
+    "bumpy": {
+      "version": "1.1.2",
+      "vcsRevision": "e6237d8a307fe27a4c9ceb74ba2ab8b80949b026",
+      "url": "https://github.com/treeform/bumpy",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "bd501817c8f06fd376b4b14215a3edf3165d00af"
+      }
+    },
+    "vmath": {
+      "version": "2.0.0",
+      "vcsRevision": "7282ae1247f2f384ebeaec3826d7fa38fd0e1df1",
+      "url": "https://github.com/treeform/vmath",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "c90a664f3425d26219e1262ed9a888b859b3127c"
+      }
+    },
+    "crunchy": {
+      "version": "0.1.0",
+      "vcsRevision": "79e7b5bb58cded3479b06275977977284e1dca21",
+      "url": "https://github.com/guzba/crunchy",
+      "downloadMethod": "git",
+      "dependencies": [
+        "nimsimd"
+      ],
+      "checksums": {
+        "sha1": "415fb848c774188c73db3a3e65f032a626b26ae1"
+      }
+    },
+    "flatty": {
+      "version": "0.3.4",
+      "vcsRevision": "07f6ba8ab96238e5bd1264cf0cea1d1746abb00c",
+      "url": "https://github.com/treeform/flatty",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "5775e6ea6ca339efc5bd37b082b8294342d49dc5"
+      }
+    },
+    "zippy": {
+      "version": "0.10.3",
+      "vcsRevision": "8e472c468c1c67b3221a71ad7224cd058492b752",
+      "url": "https://github.com/guzba/zippy",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "a21f0c260097afa6ccc8fdc7ae25a53ed0bc3ba9"
+      }
+    },
+    "chroma": {
+      "version": "0.2.6",
+      "vcsRevision": "7c9d96b6e42d4d5fe79f5efac52e798c03b3e7d3",
+      "url": "https://github.com/treeform/chroma",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "04a5fddb0dba009a1589509833a294001657ef23"
+      }
+    },
+    "windy": {
+      "version": "0.0.0",
+      "vcsRevision": "9bfbebf98e226cf2aba7b9c74243eea77e20ca58",
+      "url": "https://github.com/treeform/windy",
+      "downloadMethod": "git",
+      "dependencies": [
+        "urlly",
+        "pixie",
+        "opengl",
+        "ws"
+      ],
+      "checksums": {
+        "sha1": "fc03eb8dc25f20682d34467e93a0b059ee35e810"
+      }
+    },
+    "asynctools": {
+      "version": "0.1.1",
+      "vcsRevision": "a1a17d06713727d97810cad291e29dd7c672738f",
+      "url": "https://github.com/cheatfate/asynctools",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "3f7096335282f45ebab49b939b20a1ed52cdec31"
+      }
+    },
+    "cdecl": {
+      "version": "0.7.5",
+      "vcsRevision": "45e5fb28a5d6c03c2e9892b1d024b1c3689ae56a",
+      "url": "https://github.com/elcritch/cdecl",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "2459be326109a5402e0ca7f3dcef378bba521b31"
+      }
+    },
+    "patty": {
+      "version": "0.3.5",
+      "vcsRevision": "31bb61b990b8b3bae1cba2f353fb978448942318",
+      "url": "https://github.com/andreaferretti/patty",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "6bc181924709c8a2d06b1459a31e73eb42cf1283"
+      }
+    },
+    "opengl": {
+      "version": "1.2.6",
+      "vcsRevision": "a6fb649e5bd94d8420d4a11287092a4dc3e922b4",
+      "url": "https://github.com/nim-lang/opengl",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "c937a8877b92a45bd3db6d8dea1af40f248c9e4e"
+      }
+    },
+    "variant": {
+      "version": "0.2.13",
+      "vcsRevision": "4934aa62d135eeda49fdb3967ffe8116811ef904",
+      "url": "https://github.com/yglukhov/variant",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "c3cd26970a754280634b6b5f7bfddae17eb22395"
+      }
+    },
+    "typography": {
+      "version": "0.7.14",
+      "vcsRevision": "a2a5165c36e0098dea526712890fb7e988ba27f2",
+      "url": "https://github.com/treeform/typography",
+      "downloadMethod": "git",
+      "dependencies": [
+        "print"
+      ],
+      "checksums": {
+        "sha1": "d6f6e69141b1f62fef42ea2f90eefb894399d4f8"
+      }
+    },
+    "supersnappy": {
+      "version": "2.1.3",
+      "vcsRevision": "9d019a184b59dcb7aaa479cb0603f4f3464a0bc3",
+      "url": "https://github.com/guzba/supersnappy",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "fd35edf1c05173806107f176cc955d2f27318d54"
+      }
+    },
+    "pretty": {
+      "version": "0.1.0",
+      "vcsRevision": "a792f139dbb756288a87e77a5043725390665931",
+      "url": "https://github.com/treeform/pretty",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "b4435d1de46a86cea5dad7c1307bfa6f045c7381"
+      }
+    },
+    "cssgrid": {
+      "version": "0.2.10",
+      "vcsRevision": "ecb4be9bcff2d73ff613f078df700268696dbcb3",
+      "url": "https://github.com/elcritch/cssgrid",
+      "downloadMethod": "git",
+      "dependencies": [
+        "vmath",
+        "bumpy",
+        "patty",
+        "macroutils",
+        "cdecl"
+      ],
+      "checksums": {
+        "sha1": "1da628688259ddeea15df956c61c7f91a22755f7"
+      }
+    }
+  },
+  "version": 1
+}
