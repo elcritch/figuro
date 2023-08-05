@@ -4,21 +4,6 @@ export basics
 
 type
 
-  NodeKind* = enum
-    ## Different types of nodes.
-    nkRoot
-    nkFrame
-    nkText
-    nkRectangle
-    nkDrawable
-    nkScrollBar
-    nkImage
-
-  Attributes* = enum
-    clipContent
-    disableRender
-    scrollpane
-
   Node* = ref object
     uid*: NodeUID
     nodes*: seq[Node]
@@ -38,20 +23,16 @@ type
     highlight*: Color
     transparency*: float32
     stroke*: Stroke
-    cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
-    shadow*: Option[Shadow]
 
     case kind*: NodeKind
+    of nkRectangle:
+      shadow*: Option[Shadow]
+      cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
     of nkImage:
       image*: ImageStyle
     of nkText:
       textStyle*: TextStyle
-      when not defined(js):
-        textLayout*: seq[GlyphPosition]
-      else:
-        element*: Element
-        textElement*: Element
-        cache*: Node
+      textLayout*: seq[GlyphPosition]
     of nkDrawable:
       points*: seq[Position]
     else:

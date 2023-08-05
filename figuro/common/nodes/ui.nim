@@ -31,12 +31,7 @@ type
     image*: ImageStyle
     textStyle*: TextStyle
 
-    when not defined(js):
-      textLayout*: seq[GlyphPosition]
-    else:
-      element*: Element
-      textElement*: Element
-      cache*: Node
+    textLayout*: seq[GlyphPosition]
     points*: seq[Position]
 
 proc newUId*(): NodeUID =
