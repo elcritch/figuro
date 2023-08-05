@@ -36,6 +36,7 @@ proc convert*(current: ui.Node): render.Node =
     discard
 
 proc convert*(renders: var seq[render.Node], current: ui.Node, parent: NodeID) =
+  # echo "convert:node: ", current.uid, " parent: ", parent
   var render = current.convert()
   render.parent = parent
   render.childCount = current.nodes.len()
@@ -47,3 +48,4 @@ proc convert*(renders: var seq[render.Node], current: ui.Node, parent: NodeID) =
 proc copyInto*(uiNodes: ui.Node): seq[render.Node] =
   result = newSeq[render.Node]()
   convert(result, uiNodes, -1.NodeID)
+  # echo "nodes:len: ", result.len()

@@ -13,18 +13,15 @@ type
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
 var
-  renderNodes*: seq[Node]
   appMain*: MainCallback
   tickMain*: MainCallback
   loadMain*: MainCallback
+  sendRoot*: proc (nodes: sink seq[Node]) {.closure.}
 
   setWindowTitle*: proc (title: string)
   getWindowTitle*: proc (): string
 
   appEvent*, renderEvent*: UiEvent
-
-proc sendRoot*(nodes: sink seq[Node]) =
-  renderNodes = nodes
 
 proc initUiEvent*(): UiEvent =
   result.lock.initLock()

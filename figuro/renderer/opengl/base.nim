@@ -145,7 +145,6 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
   updateWindowSize(window)
 
 proc drawFrame*(nodes: sink seq[Node]) =
-  # echo "\ndrawFrame"
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(windowSize)
   ctx.saveTransform()
@@ -166,7 +165,7 @@ proc drawFrame*(nodes: sink seq[Node]) =
     img.writeFile("screenshot.png")
     quit()
 
-proc drawAndSwap*(window: Window, nodes: seq[Node]) =
+proc drawAndSwap*(window: Window, nodes: sink seq[Node]) =
   ## Does drawing operations.
   inc frameCount
   fpsTimeSeries.addTime()

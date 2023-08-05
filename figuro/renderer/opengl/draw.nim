@@ -120,16 +120,17 @@ macro ifdraw(check, code: untyped, post: untyped = nil) =
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
   result.add quote do:
-    # let `checkval` = node.zlevel == currLevel and `check`
-    # if `checkval`:
-    `code`
+    # currLevel and `check`
+    let `checkval` = `check`
+    if `checkval`:
+      `code`
   
   if post != nil:
     post.expectKind(nnkFinally)
     let postBlock = post[0]
     postDrawsImpl.add quote do:
-      # if `checkval`:
-      `postBlock`
+      if `checkval`:
+        `postBlock`
 
 macro postDraws() =
   result = newStmtList()
@@ -192,14 +193,17 @@ proc drawBoxes*(node: Node) =
                           weight = node.stroke.weight,
                           radius = node.cornerRadius[0].scaled)
 
-import print
+import pretty
 
 proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
 
   template node(): auto = nodes[nodeIdx]
   template parent(): auto = nodes[parentIdx]
 
-  echo "draw: ", nodeIdx, " parent: ", parentIdx
+  echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
+  print node.uid
+  print node.box
+  print node.screenBox
 
   ## Draws the node.
   ##
@@ -220,7 +224,8 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   # handles setting up scrollbar region
   ifdraw node.kind == nkScrollBar:
     ctx.saveTransform()
-    ctx.translate(parent.offset.scaled)
+    let offset = parent.offset
+    ctx.translate(offset.scaled)
   finally:
     ctx.restoreTransform()
 
@@ -239,7 +244,7 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
     ctx.popMask()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
-  ifdraw node.shadow.isSome():
+  ifdraw node.kind == nkRectangle and node.shadow.isSome():
     node.drawShadows()
 
   ifdraw true:
@@ -260,15 +265,18 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   finally:
     ctx.restoreTransform()
 
-  for childIdx in childNodes(nodes, nodeIdx):
+  let childIdxs = childIndex(nodes, nodeIdx)
+  echo "draw:children: ", repr childIdxs 
+  for childIdx in childIdxs:
     draw(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postDraws()
 
-proc drawRoot*(nodes: var seq[Node]) =
+proc drawRoot*(nodes: sink seq[Node]) =
   # draw root for each level
   # currLevel = zidx
+  echo "drawRoot:nodes:count: ", nodes.len()
   if nodes.len() > 0:
     draw(nodes, 0.NodeIdx, -1.NodeIdx)
 

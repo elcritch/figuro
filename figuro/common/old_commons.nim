@@ -876,16 +876,6 @@ proc computeLayout*(parent, node: Node) =
     # echo "layoutMode : ", node.layoutMode 
     compAutoLayoutNorm(x, w, horizontalPadding, y, h, verticalPadding)
 
-proc computeScreenBox*(parent, node: Node) =
-  ## Setups screenBoxes for the whole tree.
-  if parent == nil:
-    node.screenBox = node.box
-    node.totalOffset = node.offset
-  else:
-    node.screenBox = node.box + parent.screenBox
-    node.totalOffset = node.offset + parent.totalOffset
-  for n in node.nodes:
-    computeScreenBox(node, n)
 
 proc atXY*[T: Box](rect: T, x, y: int | float32 | UICoord): T =
   result = rect

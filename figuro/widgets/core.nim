@@ -148,3 +148,14 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
 
 mouse = Mouse()
 mouse.pos = vec2(0, 0)
+
+proc computeScreenBox*(parent, node: Node) =
+  ## Setups screenBoxes for the whole tree.
+  if parent == nil:
+    node.screenBox = node.box
+    node.totalOffset = node.offset
+  else:
+    node.screenBox = node.box + parent.screenBox
+    node.totalOffset = node.offset + parent.totalOffset
+  for n in node.nodes:
+    computeScreenBox(node, n)

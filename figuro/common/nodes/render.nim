@@ -40,12 +40,16 @@ type
     else:
       discard
 
-iterator childNodes*(nodes: var seq[Node], current: NodeIdx): NodeIdx =
+proc childIndex*(nodes: var seq[Node], current: NodeIdx): seq[NodeIdx] =
   let id = nodes[current].uid
   let cnt = nodes[current].childCount
 
-  var idx = current
-  while idx - current < cnt:
+  var
+    idx = current + 1
+  while result.len() < cnt:
+    # echo "childNodes: ", idx, " parent: ", id
     if nodes[idx].parent == id:
-      yield idx
+      result.add idx
     idx.inc()
+
+

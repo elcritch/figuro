@@ -42,12 +42,15 @@ else:
       while app.running:
         appNodes.setupRoot()
         appMain()
-        # computeScreenBox(nil, root)
+        computeScreenBox(nil, appNodes)
+        echo "run App"
         sendRoot(appNodes.copyInto())
-        # renderRoot = rootCopy.move()
         os.sleep(16)
 
   proc run(renderer: Renderer) =
+
+    sendRoot = proc (nodes: sink seq[render.Node]) =
+        renderer.nodes = nodes
 
     frameEvent = initUiEvent()
     createThread(frameTickThread, tickerRenderer)

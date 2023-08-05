@@ -11,7 +11,7 @@ import opengl/commons
 type
   Renderer* = ref object
     window: Window
-    nodes: seq[Node]
+    nodes*: seq[Node]
 
 const
   openglMajor {.intdefine.} = 3
@@ -33,7 +33,7 @@ proc renderLoop(window: Window, nodes: sink seq[Node], poll = true) =
     preTick()
     tickMain()
     postTick()
-  drawAndSwap(window, nodes)
+  drawAndSwap(window, move nodes)
   postInput()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
@@ -45,7 +45,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(window, renderer.nodes, poll = false)
+    renderLoop(window, move renderer.nodes, poll = false)
     renderEvent.trigger()
   
   window.onFocusChange = proc () =
