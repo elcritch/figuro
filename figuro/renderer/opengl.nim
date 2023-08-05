@@ -72,7 +72,7 @@ proc configureEvents(window: Window) =
   
   window.onFocusChange = proc () =
     app.focused = window.focused
-    uiEvent.trigger()
+    appEvent.trigger()
 
   window.onScroll = proc () =
     requestedFrame.inc
@@ -83,14 +83,14 @@ proc configureEvents(window: Window) =
 
   window.onMouseMove = proc () =
     requestedFrame.inc
-    uiEvent.trigger()
+    appEvent.trigger()
 
   window.onButtonPress = proc (button: windy.Button) =
     requestedFrame.inc
-    uiEvent.trigger()
+    appEvent.trigger()
 
   window.onButtonRelease = proc (button: Button) =
-    uiEvent.trigger()
+    appEvent.trigger()
 
   internal.getWindowTitle = proc (): string =
     window.title

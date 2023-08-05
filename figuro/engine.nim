@@ -7,7 +7,7 @@ elif defined(blank):
   import engine/blank
   export blank
 else:
-  import engine/opengl
+  import renderer/opengl
   export opengl
 
 import std/os
@@ -24,16 +24,14 @@ when defined(emscripten):
 else:
   import locks
 
-  var frameLock: Lock
-  var frameTick: Cond
+  var frameEvent: UiEvent
   var frameTickThread: Thread[void]
   var appThread: Thread[MainCallback]
 
   proc tickerRenderer() {.thread.} =
-    withLock(frameLock):
-      while true:
-        frameTick.signal()
-        os.sleep(8)
+    while true:
+      frameEvent.trigger()
+      os.sleep(8)
 
   proc runApplication(drawMain: MainCallback) {.thread.} =
     {.gcsafe.}:
@@ -43,18 +41,17 @@ else:
         # computeScreenBox(nil, root)
         var rootCopy = root.deepCopy
         # renderRoot = rootCopy.move()
+        os.sleep(16)
 
   proc run(renderer: Renderer) =
 
-    frameLock.initLock()
-    frameTick.initCond()
+    frameEvent = initUiEvent()
     createThread(frameTickThread, tickerRenderer)
     createThread(appThread, runApplication, drawMain)
 
-    withLock(frameLock):
-      while app.running:
-        wait(frameTick, frameLock)
-        renderLoop(renderer, true)
+    while app.running:
+      wait(frameEvent)
+      renderLoop(renderer, true)
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,

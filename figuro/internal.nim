@@ -22,7 +22,7 @@ var
   setWindowTitle*: proc (title: string)
   getWindowTitle*: proc (): string
 
-  uiEvent*, renderEvent*: UiEvent
+  appEvent*, renderEvent*: UiEvent
 
 proc initUiEvent*(): UiEvent =
   result.lock.initLock()
@@ -31,3 +31,7 @@ proc initUiEvent*(): UiEvent =
 proc trigger*(evt: var UiEvent) =
   withLock(evt.lock):
     signal(evt.cond)
+
+proc wait*(evt: var UiEvent) =
+  withLock(evt.lock):
+    wait(evt.cond, evt.lock)

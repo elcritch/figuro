@@ -53,7 +53,7 @@ inputs.keyboardInput = proc (rune: Rune) =
     # else:
     #   keyboard.state = KeyState.Press
     #   keyboard.keyString = rune.toUTF8()
-    uiEvent.trigger()
+    appEvent.trigger()
 
 proc setupRoot*() =
   if root == nil:
