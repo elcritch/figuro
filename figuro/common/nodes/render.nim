@@ -7,8 +7,6 @@ type
   Node* = object
     uid*: NodeID
     parent*: NodeID
-    nIndex*: int
-    diffIndex*: int
 
     box*: Box
     orgBox*: Box
