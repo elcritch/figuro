@@ -1,11 +1,10 @@
 import std/hashes, unicode, os, strformat, tables, times
 
 import typography
-# import ../patches/textboxes
 import pixie, chroma
 
 import context, formatflippy
-import ../../[common, commonutils]
+import commons
 
 type
   Context = context.Context
@@ -15,7 +14,7 @@ var
   glyphOffsets: Table[Hash, Vec2]
 
   # Used for double-clicking
-  currLevel: ZLevel
+  # currLevel: ZLevel
 
 proc hashFontFill(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
   result = hash((
@@ -121,7 +120,8 @@ macro ifdraw(check, code: untyped, post: untyped = nil) =
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
   result.add quote do:
-    let `checkval` = node.zlevel == currLevel and `check`
+    # currLevel and `check`
+    let `checkval` = `check`
     if `checkval`:
       `code`
   
@@ -193,9 +193,18 @@ proc drawBoxes*(node: Node) =
                           weight = node.stroke.weight,
                           radius = node.cornerRadius[0].scaled)
 
-import print
+import pretty
 
-proc draw*(node, parent: Node) =
+proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
+
+  template node(): auto = nodes[nodeIdx]
+  template parent(): auto = nodes[parentIdx]
+
+  # echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
+  # print node.uid
+  # print node.box
+  # print node.screenBox
+
   ## Draws the node.
   ##
   ## This is the primary routine that handles setting up the OpenGL
@@ -215,7 +224,8 @@ proc draw*(node, parent: Node) =
   # handles setting up scrollbar region
   ifdraw node.kind == nkScrollBar:
     ctx.saveTransform()
-    ctx.translate(parent.offset.scaled)
+    let offset = parent.offset
+    ctx.translate(offset.scaled)
   finally:
     ctx.restoreTransform()
 
@@ -234,7 +244,7 @@ proc draw*(node, parent: Node) =
     ctx.popMask()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
-  ifdraw node.shadow.isSome():
+  ifdraw node.kind == nkRectangle and node.shadow.isSome():
     node.drawShadows()
 
   ifdraw true:
@@ -255,16 +265,18 @@ proc draw*(node, parent: Node) =
   finally:
     ctx.restoreTransform()
 
-  for j in 1 .. node.nodes.len:
-    node.nodes[^j].draw(node)
+  let childIdxs = childIndex(nodes, nodeIdx)
+  # echo "draw:children: ", repr childIdxs 
+  for childIdx in childIdxs:
+    draw(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postDraws()
 
-proc drawRoot*(root: Node) =
-  if root.isNil:
-    return
-  for zidx in ZLevel:
-    # draw root for each level
-    currLevel = zidx
-    root.draw(root)
+proc drawRoot*(nodes: var seq[Node]) =
+  # draw root for each level
+  # currLevel = zidx
+  # echo "drawRoot:nodes:count: ", nodes.len()
+  if nodes.len() > 0:
+    draw(nodes, 0.NodeIdx, -1.NodeIdx)
+

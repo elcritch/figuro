@@ -1,0 +1,55 @@
+import basics
+
+export basics
+
+type
+
+  NodeIdx* = int
+
+  Node* = object
+    uid*: NodeID
+
+    childCount*: int
+    parent*: NodeID
+
+    box*: Box
+    orgBox*: Box
+    screenBox*: Box
+    offset*: Position
+    totalOffset*: Position
+    attrs*: set[Attributes]
+
+    zlevel*: ZLevel
+    rotation*: float32
+    fill*: Color
+    highlight*: Color
+    transparency*: float32
+    stroke*: Stroke
+
+    case kind*: NodeKind
+    of nkRectangle:
+      shadow*: Option[Shadow]
+      cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
+    of nkImage:
+      image*: ImageStyle
+    of nkText:
+      textStyle*: TextStyle
+      textLayout*: seq[GlyphPosition]
+    of nkDrawable:
+      points*: seq[Position]
+    else:
+      discard
+
+proc childIndex*(nodes: var seq[Node], current: NodeIdx): seq[NodeIdx] =
+  let id = nodes[current].uid
+  let cnt = nodes[current].childCount
+
+  var
+    idx = current + 1
+  while result.len() < cnt:
+    # echo "childNodes: ", idx, " parent: ", id
+    if nodes[idx].parent == id:
+      result.add idx
+    idx.inc()
+
+

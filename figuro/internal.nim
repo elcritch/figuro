@@ -1,5 +1,6 @@
 
-import widgets/apis
+import std/locks
+import common/nodes/render
 
 type
   MainCallback* = proc() {.nimcall.}
@@ -9,19 +10,27 @@ type
     x*: float32
     y*: float32
 
-var
-  root*: Node
-  renderRoot*: Node
+  UiEvent* = tuple[cond: Cond, lock: Lock]
 
-  drawMain*: MainCallback
+var
+  appMain*: MainCallback
   tickMain*: MainCallback
   loadMain*: MainCallback
+  sendRoot*: proc (nodes: sink seq[Node]) {.closure.}
 
-proc setupRoot*() =
-  if root == nil:
-    root = Node()
-    root.uid = newUId()
-    root.zlevel = ZLevelDefault
-  nodeStack = @[root]
-  current = root
-  root.diffIndex = 0
+  setWindowTitle*: proc (title: string)
+  getWindowTitle*: proc (): string
+
+  appEvent*, renderEvent*: UiEvent
+
+proc initUiEvent*(): UiEvent =
+  result.lock.initLock()
+  result.cond.initCond()
+
+proc trigger*(evt: var UiEvent) =
+  withLock(evt.lock):
+    signal(evt.cond)
+
+proc wait*(evt: var UiEvent) =
+  withLock(evt.lock):
+    wait(evt.cond, evt.lock)

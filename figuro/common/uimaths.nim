@@ -1,36 +1,7 @@
-import strformat, strutils, hashes
+import std/[strformat, strutils, math, hashes, macros, typetraits]
+import macroutils, vmath, bumpy
 
-import patty
-export patty
-
-import vmath, bumpy, math
 export math, vmath, bumpy
-
-import macros, macroutils
-import typetraits
-
-import typography/font
-import cssgrid
-import cdecl/atoms
-import options
-
-export options
-export atoms
-
-proc repr*(font: Font): string =
-  if font.isNil:
-    result = "Font(nil)"
-  else:
-    result = fmt"Font({font.typeface.name=}, {font.size=}, {font.weight=})"
-
-macro variants*(name, code: untyped) =
-  ## convenience wrapper for Patty variant macros
-  result = quote do:
-    {.push hint[Name]: off.}
-    variantp `name`:
-      ## test
-    {.pop.}
-  result[1][2] = code
 
 template borrowMaths*(typ, base: typedesc) =
   proc `+` *(x, y: typ): typ = typ(`+`(base(x), base(y)))
@@ -131,10 +102,6 @@ proc `'ui`*(n: string): UICoord =
   ## numeric literal UI Coordinate unit
   result = UICoord(parseFloat(n))
 
-template scaled*(a: UICoord): float32 =
-  a.float32 * common.uiScale
-template descaled*(a: float32): UICoord =
-  UICoord(a / common.uiScale)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct vec types
@@ -194,14 +161,32 @@ proc `-`*(rect: Box, xy: Position): Box =
   result.x -= xy.x
   result.y -= xy.y
 
+proc atXY*[T: Box](rect: T, x, y: int | float32): T =
+  result = rect
+  result.x = UICoord(x)
+  result.y = UICoord(y)
+
+proc atXY*[T: Box](rect: T, x, y: UICoord): T =
+  result = rect
+  result.x = x
+  result.y = y
+
+proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
+  result = rect
+  result.x = x
+  result.y = y
+
+proc `+`*(rect: Rect, xy: Vec2): Rect =
+  ## offset rect with xy vec2 
+  result = rect
+  result.x += xy.x
+  result.y += xy.y
+
+proc `~=`*(rect: Vec2, val: float32): bool =
+  result = rect.x ~= val and rect.y ~= val
+
 # proc `$`*(a: Position): string {.borrow.}
 # proc `$`*(a: Box): string {.borrow.}
-
-template scaled*(a: Box): Rect = Rect(a * common.uiScale.UICoord)
-template descaled*(a: Rect): Box = Box(a / common.uiScale)
-
-template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale.UICoord)
-template descaled*(a: Vec2): Position = Position(a / common.uiScale)
 
 proc overlaps*(a, b: Position): bool = overlaps(Vec2(a), Vec2(b))
 proc overlaps*(a: Position, b: Box): bool = overlaps(Vec2(a), Rect(b))

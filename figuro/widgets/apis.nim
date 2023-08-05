@@ -7,18 +7,9 @@ import std/[strformat]
 import pkg/[windy]
 import pkg/[typography, typography/svgfont]
 
-import ../commonutils
+import commons, core
 
-from windy/common import Button, ButtonView
-
-import ../[common]
-import ./nodes
-
-export chroma, cssgrid
-export commonutils, common, nodes
-
-import pretty
-export pretty
+export core
 
 proc defaultLineHeight*(fontSize: UICoord): UICoord =
   result = fontSize * defaultlineHeightRatio
@@ -212,9 +203,3 @@ proc getItem*(key: string): string =
   ## Gets a value into local storage or file.
   readFile(&"{key}.data")
 
-proc getUrl*(): string =
-  windowUrl
-
-proc setUrl*(url: string) =
-  windowUrl = url
-  refresh()

@@ -2,27 +2,23 @@ import std/[tables, unicode]
 import chroma
 import cssgrid
 
-
-import ../[common, commonutils]
-
-import cdecl/atoms
+import commons
 
 from windy/common import Button, ButtonView
 
 export chroma, common
-export commonutils
 export cssgrid
 
 var
-  parent*: Node
-  root*: Node
+  parent, current*: Node
 
   nodeStack*: seq[Node]
   gridStack*: seq[GridTemplate]
-  current*: Node
+
   scrollBox*: Box
   scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
+
   numNodes*: int
   popupActive*: bool
   inPopup*: bool
@@ -34,11 +30,7 @@ var
 
   computeTextLayout*: proc(node: Node)
 
-  lastUId: int
   nodeLookup*: Table[string, Node]
-
-  ## Used for HttpCalls
-  httpCalls*: Table[string, HttpCall]
 
   defaultlineHeightRatio* = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
@@ -61,19 +53,34 @@ inputs.keyboardInput = proc (rune: Rune) =
     # else:
     #   keyboard.state = KeyState.Press
     #   keyboard.keyString = rune.toUTF8()
-    uiEvent.trigger()
+    appEvent.trigger()
 
-proc newUId*(): NodeUID =
-  # Returns next numerical unique id.
-  inc lastUId
-  when defined(js) or defined(StringUID):
-    $lastUId
-  else:
-    NodeUID(lastUId)
+proc setupRoot*(root: var Node) =
+  if root == nil:
+    root = Node()
+    root.uid = newUId()
+    root.zlevel = ZLevelDefault
+  nodeStack = @[root]
+  current = root
+  root.diffIndex = 0
+
+proc removeExtraChildren*(node: Node) =
+  ## Deal with removed nodes.
+  node.nodes.setLen(node.diffIndex)
 
 proc refresh*() =
   ## Request the screen be redrawn
   requestedFrame = max(1, requestedFrame)
+
+proc getTitle*(): string =
+  ## Gets window title
+  getWindowTitle()
+
+proc setTitle*(title: string) =
+  ## Sets window title
+  if (getWindowTitle() != title):
+    setWindowTitle(title)
+    refresh()
 
 proc preNode(kind: NodeKind, id: Atom) =
   ## Process the start of the node.
@@ -141,3 +148,14 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
 
 mouse = Mouse()
 mouse.pos = vec2(0, 0)
+
+proc computeScreenBox*(parent, node: Node) =
+  ## Setups screenBoxes for the whole tree.
+  if parent == nil:
+    node.screenBox = node.box
+    node.totalOffset = node.offset
+  else:
+    node.screenBox = node.box + parent.screenBox
+    node.totalOffset = node.offset + parent.totalOffset
+  for n in node.nodes:
+    computeScreenBox(node, n)
