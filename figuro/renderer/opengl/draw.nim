@@ -269,5 +269,6 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
 proc drawRoot*(nodes: var seq[Node]) =
   # draw root for each level
   # currLevel = zidx
-  draw(nodes, 0.NodeIdx, -1.NodeIdx)
+  if nodes.len() > 0:
+    draw(nodes, 0.NodeIdx, -1.NodeIdx)
 
