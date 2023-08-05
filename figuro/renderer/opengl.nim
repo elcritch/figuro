@@ -112,8 +112,8 @@ proc setupRenderer*(
   let renderer =
     Renderer(window: newWindow("", ivec2(1280, 800)))
 
-  renderer.window.configureEvents()
   renderer.window.startOpenGL(openglVersion)
+  renderer.window.configureEvents()
 
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
