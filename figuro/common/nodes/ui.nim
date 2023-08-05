@@ -2,7 +2,7 @@ import basics
 
 export basics
 
-var lastUId: int
+var lastUId: int = 0
 
 type
 

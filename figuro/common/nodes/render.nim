@@ -6,6 +6,8 @@ type
 
   Node* = object
     uid*: NodeID
+
+    childCount*: int
     parent*: NodeID
 
     box*: Box
@@ -35,5 +37,3 @@ type
       points*: seq[Position]
     else:
       discard
-
-
