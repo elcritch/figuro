@@ -1,7 +1,8 @@
 import std/[sequtils, tables, json, hashes]
 import std/[options, unicode, strformat]
+import std/locks
+# import std/asyncdispatch
 import pkg/[variant, chroma, cssgrid, windy]
-import std/asyncdispatch
 
 import cdecl/atoms
 import ./[commonutils, inputs]
@@ -13,7 +14,6 @@ export commonutils
 export cssgrid
 export atoms
 export inputs
-export trigger, AsyncEvent
 
 import pretty
 
@@ -50,12 +50,13 @@ var
   mouse* = Mouse()
   keyboard* = Keyboard()
 
-  uiEvent*: AsyncEvent
   dataDir*: string = DataDirPath
 
 
 type
   NodeUID* = int64
+
+
 
 type
   All* = distinct object

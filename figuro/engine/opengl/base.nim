@@ -4,7 +4,7 @@ import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windy
 
-import ./perf
+import perf, utils
 import ../../[commonutils, common, internal]
 
 # import ../patches/textboxes 
@@ -57,20 +57,10 @@ proc updateWindowSize() =
   windowSize.x = size.x.toFloat
   windowSize.y = size.y.toFloat
 
-  # window.getFramebufferSize(addr cwidth, addr cheight)
-  # windowFrame.x = float32(cwidth)
-  # windowFrame.y = float32(cheight)
-
   minimized = window.minimized()
   pixelRatio = window.contentScale()
 
   glViewport(0, 0, cwidth, cheight)
-
-  # let
-  #   monitor = window.getPrimaryMonitor()
-  #   mode = monitor.getVideoMode()
-  # monitor.getMonitorPhysicalSize(addr cwidth, addr cheight)
-  # dpi = mode.width.float32 / (cwidth.float32 / 25.4)
 
   let scale = window.getScaleInfo()
   if common.autoUiScale:
@@ -134,10 +124,6 @@ proc renderLoop*(poll = true) =
     windy.pollEvents()
   
   if requestedFrame <= 0 or minimized:
-    # Only repaint when necessary
-    # when not defined(emscripten):
-      # echo "update loop: ", loopMode.repr
-      # sleep(16)
     return
   requestedFrame.dec
   preInput()
@@ -203,46 +189,15 @@ proc start*(openglVersion: (int, int)) =
 
   window.makeContextCurrent()
 
-  # cursorDefault = createStandardCursor(ARROW_CURSOR)
-  # cursorPointer = createStandardCursor(HAND_CURSOR)
-  # cursorGrab = createStandardCursor(HAND_CURSOR)
-  # cursorNSResize = createStandardCursor(HRESIZE_CURSOR)
-
   when not defined(emscripten):
-    # swapInterval(1)
-    # Load OpenGL
     loadExtensions()
 
-  # when defined(glDebugMessageCallback):
-  #   let flags = glGetInteger(GL_CONTEXT_FLAGS)
-  #   if (flags and GL_CONTEXT_FLAG_DEBUG_BIT.GLint) != 0:
-  #     # Set up error logging
-  #     proc printGlDebug(
-  #       source, typ: GLenum,
-  #       id: GLuint,
-  #       severity: GLenum,
-  #       length: GLsizei,
-  #       message: ptr GLchar,
-  #       userParam: pointer
-  #     ) {.stdcall.} =
-  #       echo &"source={toHex(source.uint32)} type={toHex(typ.uint32)} " &
-  #         &"id={id} severity={toHex(severity.uint32)}: {$message}"
-  #       if severity != GL_DEBUG_SEVERITY_NOTIFICATION:
-  #         running = false
-  #     glDebugMessageCallback(printGlDebug, nil)
-  #     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)
-  #     glEnable(GL_DEBUG_OUTPUT)
-
-  # when defined(printGLVersion):
-  #   echo getVersionString()
-  #   echo "GL_VERSION:", cast[cstring](glGetString(GL_VERSION))
-  #   echo "GL_SHADING_LANGUAGE_VERSION:",
-  #     cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
+  openglDebug()
 
   window.onResize = proc () =
     updateWindowSize()
     renderLoop(poll = false)
-    uiEvent.trigger()
+    renderEvent.trigger()
   
   window.onFocusChange = proc () =
     focused = window.focused
@@ -250,9 +205,8 @@ proc start*(openglVersion: (int, int)) =
 
   window.onScroll = proc () =
     requestedFrame.inc
-    # mouse.wheelDelta += 6 * yoffset * common.uiScale
     mouse.wheelDelta += window.scrollDelta().x
-    uiEvent.trigger()
+    renderEvent.trigger()
 
   window.onRune = keyboardInput
 
@@ -262,17 +216,9 @@ proc start*(openglVersion: (int, int)) =
 
   window.onButtonPress = proc (button: windy.Button) =
     requestedFrame.inc
-    # let
-    #   setKey = action != 0
-    #   button = button + 1 # Fidget mouse buttons are +1 from windy
-    # if button < window.buttonDown.len:
-    #   if buttonDown[button] == false and setKey == true:
-    #     buttonPress[button] = true
-    #   buttonDown[button] = setKey
+    uiEvent.trigger()
 
   window.onButtonRelease = proc (button: Button) =
-    # if buttonDown[button] == false and setKey == false:
-    #   buttonRelease[button] = true
     uiEvent.trigger()
 
 

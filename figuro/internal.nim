@@ -1,4 +1,5 @@
 
+import std/locks
 import widgets/apis
 
 type
@@ -16,6 +17,21 @@ var
   drawMain*: MainCallback
   tickMain*: MainCallback
   loadMain*: MainCallback
+
+type
+  UiEvent* = tuple[cond: Cond, lock: Lock]
+
+proc initUiEvent*(): UiEvent =
+  result.lock.initLock()
+  result.cond.initCond()
+
+proc trigger*(evt: var UiEvent) =
+  withLock(evt.lock):
+    signal(evt.cond)
+
+var
+  renderEvent*: UiEvent
+  uiEvent*: UiEvent
 
 proc setupRoot*() =
   if root == nil:

@@ -73,17 +73,6 @@ proc setupOpenGL(
   if loadMain != nil:
     loadMain()
 
-proc runApplication*(drawMain: MainCallback) {.thread.} =
-  {.gcsafe.}:
-    while base.running:
-      proc running() {.async.} =
-        setupRoot()
-        drawMain()
-        var rootCopy = root.deepCopy
-        renderRoot = rootCopy.move()
-        await sleepAsync(8)
-      waitFor running()
-
 when defined(emscripten):
   proc runRenderer*() =
     # Emscripten can't block so it will call this callback instead.
@@ -98,24 +87,39 @@ else:
   var frameLock: Lock
   var frameTick: Cond
   var frameTickThread: Thread[void]
+  var appThread: Thread[MainCallback]
 
   proc tickerRenderer*() {.thread.} =
-    while true:
-      frameTick.signal()
-      sleep(8)
+    withLock(frameLock):
+      while true:
+        frameTick.signal()
+        sleep(8)
+
+  proc runApplication*(drawMain: MainCallback) {.thread.} =
+    {.gcsafe.}:
+      while base.running:
+          proc running() {.async.} =
+            setupRoot()
+            drawMain()
+            var rootCopy = root.deepCopy
+            renderRoot = rootCopy.move()
+            await sleepAsync(8)
+          waitFor running()
 
   proc runRenderer*() =
 
     frameLock.initLock()
     frameTick.initCond()
     createThread(frameTickThread, tickerRenderer)
+    createThread(appThread, runApplication, drawMain)
 
-    while base.running:
-      wait(frameTick, frameLock)
-      renderLoop()
-      if isEvent:
-        isEvent = false
-        eventTimePost = epochTime()
+    withLock(frameLock):
+      while base.running:
+        wait(frameTick, frameLock)
+        renderLoop()
+        if isEvent:
+          isEvent = false
+          eventTimePost = epochTime()
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
@@ -141,14 +145,14 @@ proc startFidget*(
   let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
   
-  echo "setting up new UI Event "
-  uiEvent = newAsyncEvent()
-  let uiEventCb =
-    proc (fd: AsyncFD): bool =
-      echo "UI event!"
-      return true
-  addEvent(uiEvent, uiEventCb)
-  echo "setup new UI Event ", repr uiEvent
+  # echo "setting up new UI Event "
+  # uiEvent = newAsyncEvent()
+  # let uiEventCb =
+  #   proc (fd: AsyncFD): bool =
+  #     echo "UI event!"
+  #     return true
+  # # addEvent(uiEvent, uiEventCb)
+  # # echo "setup new UI Event ", repr uiEvent
 
   setupOpenGL(openglVersion, pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
@@ -156,9 +160,5 @@ proc startFidget*(
   if not setup.isNil:
     setup()
 
-  var widgetThread: Thread[MainCallback]
-  createThread(widgetThread, runApplication, drawMain)
-
   runRenderer()
-  widgetThread.joinThread()
 
