@@ -9,6 +9,7 @@ import pkg/[typography, typography/svgfont]
 
 import commons, core
 
+export core
 
 proc defaultLineHeight*(fontSize: UICoord): UICoord =
   result = fontSize * defaultlineHeightRatio
