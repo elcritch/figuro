@@ -199,6 +199,8 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   template node(): auto = nodes[nodeIdx]
   template parent(): auto = nodes[parentIdx]
 
+  echo "draw: ", nodeIdx, " parent: ", parentIdx
+
   ## Draws the node.
   ##
   ## This is the primary routine that handles setting up the OpenGL
