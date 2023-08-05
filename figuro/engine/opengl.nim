@@ -15,7 +15,7 @@ export draw
 var
   windowTitle, windowUrl: string
 
-proc drawFrame() =
+proc drawFrame*() =
   # echo "\ndrawFrame"
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(windowSize)
@@ -52,12 +52,17 @@ proc drawFrame() =
     img.writeFile("screenshot.png")
     quit()
 
-proc setupOpenGL(
-    openglVersion: (int, int),
+const
+  openglMajor {.intdefine.} = 3
+  openglMinor {.intdefine.} = 3
+
+proc setupWindow*(
     pixelate: bool,
     forcePixelScale: float32,
     atlasSize: int = 1024
 ) =
+
+  let openglVersion = (openglMajor, openglMinor)
   pixelScale = forcePixelScale
 
   base.start(openglVersion)
@@ -121,44 +126,4 @@ else:
           isEvent = false
           eventTimePost = epochTime()
 
-proc startFidget*(
-    draw: proc() {.nimcall.} = nil,
-    tick: proc() {.nimcall.} = nil,
-    load: proc() {.nimcall.} = nil,
-    setup: proc() = nil,
-    fullscreen = false,
-    w: Positive = 1280,
-    h: Positive = 800,
-    openglVersion = (3, 3),
-    pixelate = false,
-    pixelScale = 1.0
-) =
-  ## Starts Fidget UI library
-  ## 
-  common.fullscreen = fullscreen
-  
-  if not fullscreen:
-    windowSize = vec2(uiScale * w.float32, uiScale * h.float32)
-  drawMain = draw
-  tickMain = tick
-  loadMain = load
-  let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
-  echo fmt"{atlasStartSz=}"
-  
-  # echo "setting up new UI Event "
-  # uiEvent = newAsyncEvent()
-  # let uiEventCb =
-  #   proc (fd: AsyncFD): bool =
-  #     echo "UI event!"
-  #     return true
-  # # addEvent(uiEvent, uiEventCb)
-  # # echo "setup new UI Event ", repr uiEvent
-
-  setupOpenGL(openglVersion, pixelate, pixelScale, atlasStartSz)
-  mouse.pixelScale = pixelScale
-
-  if not setup.isNil:
-    setup()
-
-  runRenderer()
 

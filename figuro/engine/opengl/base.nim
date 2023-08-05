@@ -16,7 +16,6 @@ const
   deltaTick: int64 = 1_000_000_000 div 240
 
 var
-  window*: windy.Window
   dpi*: float32
   drawFrame*: MainCallback
   running*, focused*, minimized*: bool
@@ -92,8 +91,6 @@ proc postTick() =
   inc tickCount
   lastTick += deltaTick
 
-import std/times
-
 proc drawAndSwap() =
   ## Does drawing operations.
   inc frameCount
@@ -150,8 +147,40 @@ proc useDepthBuffer*(on: bool) =
     glDepthMask(GL_FALSE)
     glDisable(GL_DEPTH_TEST)
 
+proc configureWindowEvents(window: Window) =
+
+  window.onResize = proc () =
+    updateWindowSize()
+    renderLoop(poll = false)
+    renderEvent.trigger()
+  
+  window.onFocusChange = proc () =
+    focused = window.focused
+    uiEvent.trigger()
+
+  window.onScroll = proc () =
+    requestedFrame.inc
+    mouse.wheelDelta += window.scrollDelta().x
+    renderEvent.trigger()
+
+  window.onRune = keyboardInput
+
+  window.onMouseMove = proc () =
+    requestedFrame.inc
+    uiEvent.trigger()
+
+  window.onButtonPress = proc (button: windy.Button) =
+    requestedFrame.inc
+    uiEvent.trigger()
+
+  window.onButtonRelease = proc (button: Button) =
+    uiEvent.trigger()
+
 
 proc start*(openglVersion: (int, int)) =
+
+  var window: windy.Window
+
   window = newWindow("Windy Basic", ivec2(1280, 800))
 
   running = true
@@ -194,34 +223,6 @@ proc start*(openglVersion: (int, int)) =
 
   openglDebug()
 
-  window.onResize = proc () =
-    updateWindowSize()
-    renderLoop(poll = false)
-    renderEvent.trigger()
-  
-  window.onFocusChange = proc () =
-    focused = window.focused
-    uiEvent.trigger()
-
-  window.onScroll = proc () =
-    requestedFrame.inc
-    mouse.wheelDelta += window.scrollDelta().x
-    renderEvent.trigger()
-
-  window.onRune = keyboardInput
-
-  window.onMouseMove = proc () =
-    requestedFrame.inc
-    uiEvent.trigger()
-
-  window.onButtonPress = proc (button: windy.Button) =
-    requestedFrame.inc
-    uiEvent.trigger()
-
-  window.onButtonRelease = proc (button: Button) =
-    uiEvent.trigger()
-
-
   glEnable(GL_BLEND)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
   glBlendFuncSeparate(
@@ -233,7 +234,7 @@ proc start*(openglVersion: (int, int)) =
 
   lastDraw = getTicks()
   lastTick = lastDraw
-
-  # onFocus(window, FOCUSED)
   focused = true
+
+  configureWindowEvents(window)
   updateWindowSize()
