@@ -63,7 +63,7 @@
     "windy": {
       "dir": "vendor/windy",
       "url": "https://github.com/treeform/windy",
-      "commit": "9bfbebf98e226cf2aba7b9c74243eea77e20ca58"
+      "commit": "f7cedbaccb5d73922350f409b1ce3fee6a310a76"
     },
     "asynctools": {
       "dir": "vendor/asynctools",
