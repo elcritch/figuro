@@ -81,7 +81,7 @@ proc startFidget*(
   let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
 
-  setupRenderer(pixelate, pixelScale, atlasStartSz)
+  let context = setupRenderer(pixelate, pixelScale, atlasStartSz)
   mouse.pixelScale = pixelScale
 
   if not setup.isNil: setup()

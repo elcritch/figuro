@@ -11,6 +11,9 @@ import opengl/commons
 when not defined(emscripten) and not defined(fidgetNoAsync):
   import httpClient, asyncdispatch, asyncfutures, json
 
+type
+  Renderer* = ref object
+    window: Window
 
 proc drawFrame*() =
   # echo "\ndrawFrame"
@@ -38,7 +41,6 @@ const
   openglMajor {.intdefine.} = 3
   openglMinor {.intdefine.} = 3
 
-
 proc renderLoop*(window: Window, poll = true) =
   if window.closeRequested:
     app.running = false
@@ -58,7 +60,10 @@ proc renderLoop*(window: Window, poll = true) =
   drawAndSwap(window)
   postInput()
 
-proc configureWindowEvents(window: Window) =
+proc renderLoop*(renderer: Renderer, poll = true) =
+  renderLoop(renderer.window)
+
+proc configureEvents(window: Window) =
 
   window.onResize = proc () =
     updateWindowSize(window)
@@ -99,15 +104,16 @@ proc setupRenderer*(
     pixelate: bool,
     forcePixelScale: float32,
     atlasSize: int = 1024
-) =
+): Renderer =
 
   let openglVersion = (openglMajor, openglMinor)
   pixelScale = forcePixelScale
 
-  var window = newWindow("", ivec2(1280, 800))
+  let renderer =
+    Renderer(window: newWindow("", ivec2(1280, 800)))
 
-  window.configureWindowEvents()
-  window.startOpenGL(openglVersion)
+  renderer.window.configureEvents()
+  renderer.window.startOpenGL(openglVersion)
 
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
   requestedFrame.inc
@@ -118,4 +124,7 @@ proc setupRenderer*(
 
   if loadMain != nil:
     loadMain()
+  
+  return renderer
+  
 
