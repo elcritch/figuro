@@ -10,15 +10,15 @@ export chroma, common
 export cssgrid
 
 var
-  parent*: Node
-  root*: Node
+  parent, current*: Node
 
   nodeStack*: seq[Node]
   gridStack*: seq[GridTemplate]
-  current*: Node
+
   scrollBox*: Box
   scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
   scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
+
   numNodes*: int
   popupActive*: bool
   inPopup*: bool
@@ -55,7 +55,7 @@ inputs.keyboardInput = proc (rune: Rune) =
     #   keyboard.keyString = rune.toUTF8()
     appEvent.trigger()
 
-proc setupRoot*() =
+proc setupRoot*(root: var Node) =
   if root == nil:
     root = Node()
     root.uid = newUId()

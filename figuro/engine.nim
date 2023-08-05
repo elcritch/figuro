@@ -12,6 +12,9 @@ else:
 
 import std/os
 import shared, internal, widgets/core
+import common/nodes/transfer
+import common/nodes/ui as ui
+import common/nodes/render as render
 
 when defined(emscripten):
   proc runRenderer() =
@@ -33,13 +36,14 @@ else:
       frameEvent.trigger()
       os.sleep(8)
 
-  proc runApplication(drawMain: MainCallback) {.thread.} =
+  proc runApplication(appMain: MainCallback) {.thread.} =
     {.gcsafe.}:
+      var appNodes: ui.Node
       while app.running:
-        setupRoot()
-        drawMain()
+        appNodes.setupRoot()
+        appMain()
         # computeScreenBox(nil, root)
-        var rootCopy = root.deepCopy
+        sendRoot(appNodes.convert())
         # renderRoot = rootCopy.move()
         os.sleep(16)
 
@@ -47,7 +51,7 @@ else:
 
     frameEvent = initUiEvent()
     createThread(frameTickThread, tickerRenderer)
-    createThread(appThread, runApplication, drawMain)
+    createThread(appThread, runApplication, appMain)
 
     while app.running:
       wait(frameEvent)
@@ -70,7 +74,7 @@ proc startFidget*(
   
   if not fullscreen:
     windowSize = vec2(uiScale * w.float32, uiScale * h.float32)
-  drawMain = draw
+  appMain = draw
   tickMain = tick
   loadMain = load
 

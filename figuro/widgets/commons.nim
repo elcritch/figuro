@@ -1,6 +1,6 @@
 
 import ../shared
-import ../internal
+import ../internal except send
 import ../common/nodes/ui
 
 export shared, ui, internal
