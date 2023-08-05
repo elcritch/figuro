@@ -5,7 +5,6 @@ import typography
 import pixie, chroma
 
 import context, formatflippy
-import ../input
 import ../../[common, commonutils]
 
 type

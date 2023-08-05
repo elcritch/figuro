@@ -60,7 +60,7 @@ proc setupOpenGL(
 ) =
   pixelScale = forcePixelScale
 
-  base.start(openglVersion, msaa, mainLoopMode)
+  base.start(openglVersion)
 
   setWindowTitle(windowTitle)
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)

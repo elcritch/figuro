@@ -165,11 +165,10 @@ proc useDepthBuffer*(on: bool) =
     glDisable(GL_DEPTH_TEST)
 
 
-proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
+proc start*(openglVersion: (int, int)) =
   window = newWindow("Windy Basic", ivec2(1280, 800))
 
   running = true
-  loopMode = mainLoopMode
 
   # if msaa != msaaDisabled:
   #   windowHint(SAMPLES, msaa.cint)
@@ -242,9 +241,8 @@ proc start*(openglVersion: (int, int), msaa: MSAA, mainLoopMode: MainLoopMode) =
 
   window.onResize = proc () =
     updateWindowSize()
-    let prevloopMode = loopMode
-    renderLoop(poll = false)
-    loopMode = prevloopMode
+    # renderLoop(poll = false)
+    requestedFrame.inc
     uiEvent.trigger()
   
   window.onFocusChange = proc () =
