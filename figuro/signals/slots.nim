@@ -1,16 +1,7 @@
 import tables, strutils, macros
-import options
-import threading/channels
 
-import mcu_utils/basictypes
-import mcu_utils/inettypes
-import mcu_utils/inetqueues
-import mcu_utils/msgbuffer
-include mcu_utils/threads
-export inettypes, inetqueues
-
-export options
 import datatypes
+
 export datatypes
 # import router
 # export router
@@ -152,7 +143,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     # Create the rpc wrapper procs
     result.add quote do:
-      proc `rpcMethod`(params: RpcParams, context: `ContextType`): RpcParams {.gcsafe, nimcall.} =
+      proc `rpcMethod`(params: FastRpcParamsBuffer, context: `ContextType`): FastRpcParamsBuffer {.gcsafe, nimcall.} =
         var obj: `paramTypeName`
         obj.rpcUnpack(params)
 
@@ -174,7 +165,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       closureScope: # 
         `rpcMethod` =
 
-          proc(): RpcParams =
+          proc(): FastRpcParamsBuffer =
             let res = `procName`()
             result = rpcPack(res)
 
@@ -283,7 +274,7 @@ macro registerDatastream*[T,O,R](
               name: string,
               serializer: RpcStreamSerializer[T],
               reducer: RpcStreamTask[T, TaskOption[O]],
-              queue: EventQueue[T],
+              queue: InetEventQueue[T],
               option: O,
               optionRpcs: R) =
   echo "registerDatastream: T: ", repr(T)
@@ -308,7 +299,7 @@ proc getRpcOption*[T](chan: TaskOption[T]): T =
 #   ## TODO: FIXME
 #   ## this turned out kind of ugly... 
 #   ## but it works, think it'll work for subscriptions too 
-#   var packed: RpcParams = rpcPack(value)
+#   var packed: FastRpcParamsBuffer = rpcPack(value)
 #   let res: FastRpcResponse = wrapResponse(context.id, packed, kind)
 #   var so = MsgBuffer.init(res.result.buf.data.len() + sizeof(res))
 #   so.pack(res)
