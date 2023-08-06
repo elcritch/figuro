@@ -1,9 +1,6 @@
 import tables
-import mcu_utils/msgbuffer
-import mcu_utils/inettypes
-import mcu_utils/inetqueues
 
-export tables, inettypes, inetqueues, msgbuffer
+export tables
 
 type
   FastErrorCodes* = enum
@@ -17,7 +14,7 @@ type
 
   FastRpcParamsBuffer* = object
     ## implementation specific -- handles data buffer
-    buf*: MsgBuffer 
+    buf*: seq[byte] 
 
 
 type
@@ -53,13 +50,3 @@ type
     msg*: string
     trace*: seq[(string, string, int)]
 
-
-## MsgPack serde implementations ##
-
-proc pack_type*[ByteStream](s: ByteStream, x: FastRpcParamsBuffer) =
-  s.write(x.buf.data, x.buf.pos)
-
-proc unpack_type*[ByteStream](s: ByteStream, x: var FastRpcParamsBuffer) =
-  var params = s.readStrRemaining()
-  x.buf = MsgBuffer.init()
-  shallowCopy(x.buf.data, params)

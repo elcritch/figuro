@@ -46,7 +46,7 @@ proc register*(router: var FastRpcRouter;
                evt: SelectEvent,
                serializer: RpcStreamSerializerClosure) =
   router.subNames[path] = evt
-  let subs = newTable[InetClientHandle, RpcSubId]()
+  let subs = newTable[ClientId, RpcSubId]()
   router.subEventProcs[evt] = RpcSubClients(eventProc: serializer, subs: subs)
   echo "registering:sub: ", path
 
@@ -67,7 +67,7 @@ proc hasMethod*(router: FastRpcRouter, methodName: string): bool =
 proc callMethod*(
         router: FastRpcRouter,
         req: FastRpcRequest,
-        clientId: InetClientHandle,
+        clientId: ClientId,
       ): FastRpcResponse {.gcsafe.} =
     ## Route's an rpc request. 
     # dumpAllocstats:
@@ -140,7 +140,7 @@ template packResponse*(res: FastRpcResponse, size: int): QMsgBuffer =
 
 proc callMethod*(router: FastRpcRouter,
                  buffer: MsgBuffer,
-                 clientId: InetClientHandle,
+                 clientId: ClientId,
                  ): QMsgBuffer =
   logDebug("msgpack processing")
   var req: FastRpcRequest

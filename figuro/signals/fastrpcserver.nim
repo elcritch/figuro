@@ -31,7 +31,7 @@ type
 
 proc findMatchingUdpSockets(
     srv: ServerInfo[FastRpcOpts],
-    cid: InetClientHandle,
+    cid: ClientId,
 ): seq[SocketHandle] =
   ## find matching sockets for a generic UDP subscription
   ## like multicast subs. A bit ugly, but works for now. 
@@ -137,7 +137,7 @@ proc fastRpcReadHandler*(
     port: Port
 
   logDebug("server:fastRpcReadHandler:")
-  var clientId: InetClientHandle
+  var clientId: ClientId
 
   # Get network data
   let fdkind = srv.selector.getData(sock.getFd())
@@ -201,7 +201,7 @@ proc postServerProcessor(srv: ServerInfo[FastRpcOpts], results: seq[ReadyKey]) =
   
   # Cleanup (garbage collect) the receivers and Client ID's 
   for evt, subcli in router.subEventProcs.pairs():
-    var removes = newSeq[InetClientHandle]()
+    var removes = newSeq[ClientId]()
     for cid, subid in subcli.subs:
       block cidCheck:
         case cid[].kind:

@@ -5,20 +5,10 @@ import std/sugar, std/options
 export sugar
 
 import std/selectors
+import std/times
 
 import threading/channels
 export sets, selectors, channels
-
-include mcu_utils/threads
-import mcu_utils/logging
-import mcu_utils/inettypes
-import mcu_utils/inetqueues
-import mcu_utils/basictypes
-
-import msgpack4nim
-import msgpack4nim/msgpack2json
-
-export logging, msgpack4nim, msgpack2json
 
 import protocol
 export protocol
@@ -26,6 +16,8 @@ export options
 
 
 type
+  ClientId* = int64
+
   FastRpcErrorStackTrace* = object
     code*: int
     msg*: string
@@ -34,7 +26,7 @@ type
   # Context for servicing an RPC call 
   RpcContext* = object
     id*: FastrpcId
-    clientId*: InetClientHandle
+    clientId*: ClientId
 
   # Procedure signature accepted as an RPC call by server
   FastRpcProc* = proc(params: FastRpcParamsBuffer,
@@ -48,14 +40,14 @@ type
   RpcSubOpts* = object
     subid*: RpcSubId
     evt*: SelectEvent
-    timeout*: Millis
+    timeout*: Duration
     source*: string
 
   RpcStreamSerializerClosure* = proc(): FastRpcParamsBuffer {.closure.}
 
   RpcSubClients* = object
     eventProc*: RpcStreamSerializerClosure
-    subs*: TableRef[InetClientHandle, RpcSubId]
+    subs*: TableRef[ClientId, RpcSubId]
 
   FastRpcRouter* = ref object
     procs*: Table[string, FastRpcProc]
@@ -118,7 +110,7 @@ proc newFastRpcRouter*(
 proc subscribe*(
     router: FastRpcRouter,
     procName: string,
-    clientId: InetClientHandle,
+    clientId: ClientId,
     timeout = -1.Millis,
     source = "",
 ): Option[RpcSubId] =
