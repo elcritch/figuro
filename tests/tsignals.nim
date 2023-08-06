@@ -50,7 +50,7 @@ when isMainModule:
 
     test "slot bad call":
       req.params.buf = newVariant((val: 5))
-      let res = router.callMethod(req, ClientId(10))
+      let res = router.callMethod(counter, req, ClientId(10))
 
       variantMatch case res.result.buf as u
       of AgentError:
@@ -62,7 +62,7 @@ when isMainModule:
 
     test "slot good call":
       req.params.buf = newVariant((counter: counter, val: 42))
-      let res = router.callMethod(req, ClientId(10))
+      let res = router.callMethod(counter, req, ClientId(10))
       variantMatch case res.result.buf as u
       of AgentError:
         print u

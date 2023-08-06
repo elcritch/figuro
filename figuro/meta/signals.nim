@@ -59,6 +59,7 @@ proc hasMethod*(router: AgentRouter, methodName: string): bool =
 
 proc callMethod*(
         router: AgentRouter,
+        ctx: RpcContext,
         req: AgentRequest,
         clientId: ClientId,
       ): AgentResponse {.gcsafe.} =
@@ -132,11 +133,12 @@ template packResponse*(res: AgentResponse): Variant =
   so
 
 proc callMethod*(router: AgentRouter,
+                 ctx: RpcContext,
                  buffer: Variant,
                  clientId: ClientId,
                  ): Variant =
   # logDebug("msgpack processing")
   var req: AgentRequest
   buffer.unpack(req)
-  var res: AgentResponse = router.callMethod(req, clientId)
+  var res: AgentResponse = router.callMethod(ctx, req, clientId)
   return newVariant(res)
