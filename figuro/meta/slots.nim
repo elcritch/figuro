@@ -166,7 +166,13 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     result.add quote do:
       proc `rpcMethod`(): AgentRequest {.nimcall.} =
-        discard
+        let req = AgentRequest(
+          kind: Request,
+          id: AgentId(0),
+          procName: `signalName`,
+          params: RpcParams(buf: newVariant(0))
+        )
+        return req
         
     if isPublic: result[0].makePublic()
     result[0][3] = parameters
