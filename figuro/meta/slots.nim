@@ -111,7 +111,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     ctxName = ident("context")
 
     # parameter type name
-    paramsIdent = genSym(nskParam, "args")
+    # paramsIdent = genSym(nskParam, "args")
+    paramsIdent = ident("args")
     paramTypeName = ident("RpcType_" & procNameStr)
 
     firstArg = params.firstArgument()
@@ -147,9 +148,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       proc `procName`(params: RpcParams,
                         context: `ContextType`
                       ) {.gcsafe, nimcall.} =
-        var obj: `paramTypeName`
-        obj.rpcUnpack(params)
-        `rpcMethod`(obj, context)
+        var `paramsIdent`: `paramTypeName`
+        rpcUnpack(`paramsIdent`, params)
+        # `paramSetups`
+        `rpcMethod`(`paramsIdent`, context)
 
     if isPublic: result[1].makePublic()
 
