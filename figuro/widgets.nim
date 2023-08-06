@@ -31,7 +31,6 @@ proc setValue*(self: Counter, value: int) {.slot.} =
 
 proc valueChanged(val: int) {.signal.}
 
-
 proc add(a: int, b: int): int {.rpc.} =
   result = 1 + a + b
 
