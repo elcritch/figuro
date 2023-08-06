@@ -43,15 +43,6 @@ proc createRpcRouter*(): AgentRouter =
   result = new(AgentRouter)
   result.procs = initTable[string, AgentProc]()
 
-proc register*(router: var AgentRouter;
-               path: string,
-               evt: Event,
-               serializer: RpcStreamSerializerClosure) =
-  router.subNames[path] = evt
-  let subs = newTable[ClientId, RpcSubId]()
-  router.subEventProcs[evt] = RpcSubClients(eventProc: serializer, subs: subs)
-  echo "registering:sub: ", path
-
 proc register*(router: var AgentRouter, path: string, call: AgentProc) =
   router.procs[path] = call
   echo "registering: ", path
@@ -114,9 +105,9 @@ proc callMethod*(
       try:
         # Handle rpc request the `context` variable is different
         # based on whether the rpc request is a system/regular/subscription
-        var ctx: RpcContext
+        var ctx: RootObj
         # var ctx = RpcContext(callId: req.id, clientId: clientId)
-        rpcProc(req.params, ctx)
+        rpcProc(ctx, req.params)
         let res = RpcParams(buf: newVariant(true)) 
 
         result = AgentResponse(kind: Response, id: req.id, result: res)

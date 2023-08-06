@@ -30,9 +30,9 @@ type
     clientId*: ClientId
 
   # Procedure signature accepted as an RPC call by server
-  AgentProc* = proc(params: RpcParams,
-                      context: RpcContext
-                      ) {.gcsafe, nimcall.}
+  AgentProc* = proc(context: RootObj,
+                    params: RpcParams,
+                    ) {.gcsafe, nimcall.}
 
   AgentBindError* = object of ValueError
   AgentAddressUnresolvableError* = object of ValueError

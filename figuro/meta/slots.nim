@@ -16,14 +16,14 @@ proc hasReturnType(params: NimNode): bool =
      params[0].kind != nnkEmpty:
     result = true
 
-proc firstArgument(params: NimNode): (string, string) =
+proc firstArgument(params: NimNode): (NimNode, NimNode) =
   if params != nil and
       params.len > 0 and
       params[1] != nil and
       params[1].kind == nnkIdentDefs:
-    result = (params[1][0].strVal, params[1][1].repr)
+    result = (ident params[1][0].strVal, params[1][1])
   else:
-    result = ("", "")
+    result = (ident "", newNimNode(nnkEmpty))
 
 iterator paramsIter(params: NimNode): tuple[name, ntype: NimNode] =
   for i in 1 ..< params.len:
@@ -91,7 +91,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   result = newStmtList()
   var
+    (firstName, firstType) = params.firstArgument()
     parameters = params
+
+  parameters.del(0, 1)
 
   let
     # determine if this is a "system" rpc method
@@ -115,7 +118,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     paramsIdent = ident("args")
     paramTypeName = ident("RpcType_" & procNameStr)
 
-    firstArg = params.firstArgument()
 
   var
     # process the argument types
@@ -125,11 +127,11 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
                 elif body.kind == nnkEmpty: body
                 else: body.body
 
-  let ContextType = ident "RpcContext"
-
   proc makePublic(procDef: NimNode) =
       let name = procDef[0]
       procDef[0] = nnkPostfix.newTree(newIdentNode("*"), name)
+
+  let ContextType = firstType
 
   # Create the proc's that hold the users code 
   if not isSignal:
@@ -138,17 +140,25 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       `paramTypes`
 
       proc `rpcMethod`(
-          `ctxName`: `ContextType`,
+          `firstName`: `ContextType`,
           `paramsIdent`: `paramTypeName`,
       ) =
         `paramSetups`
         `procBody`
 
     # Create the rpc wrapper procs
+    let call = quote do:
+        `rpcMethod`(context)
+    echo "call: "
+    echo call.repr
+    echo call.treeRepr
+    echo ""
+
     result.add quote do:
-      proc `procName`(params: RpcParams,
-                      context: `ContextType`
-                      ) {.nimcall.} =
+      proc `procName`(
+          context: `ContextType`,
+          params: RpcParams,
+      ) {.nimcall.} =
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
         # `paramSetups`
