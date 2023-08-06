@@ -95,13 +95,14 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   let
     # determine if this is a "system" rpc method
-    pubthread = publish.kind == nnkStrLit and publish.strVal == "thread"
-    serializer = publish.kind == nnkStrLit and publish.strVal == "serializer"
+    isSignal = publish.kind == nnkStrLit and publish.strVal == "signal"
     syspragma = not pragmas.findChild(it.repr == "system").isNil
 
     # rpc method names
     pathStr = $path
+    signalName = pathStr.strip(false, true, {'*'})
     procNameStr = pathStr.makeProcName()
+    isPublic = pathStr.endsWith("*")
 
     # public rpc proc
     procName = ident(procNameStr & "Func")
@@ -117,12 +118,17 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # process the argument types
     paramSetups = mkParamsVars(paramsIdent, paramTypeName, parameters)
     paramTypes = mkParamsType(paramsIdent, paramTypeName, parameters)
-    procBody = if body.kind == nnkStmtList: body else: body.body
+    procBody =  if body.kind == nnkStmtList: body
+                elif body.kind == nnkEmpty: body
+                else: body.body
 
   let ContextType = ident "RpcContext"
 
+  proc makePublic(procDef: NimNode) =
+      procDef[0] = nnkPostfix.newTree(newIdentNode("*"), rpcMethod)
+
   # Create the proc's that hold the users code 
-  if not pubthread and not serializer:
+  if not isSignal:
     result.add quote do:
       `paramTypes`
 
@@ -142,29 +148,30 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
         `procName`(obj, context)
 
+    if isPublic: echo "PUB: ", result[1].repr
+
     if syspragma:
       result.add quote do:
-        sysRegister(router, `path`, `rpcMethod`)
+        sysRegister(router, `signalName`, `rpcMethod`)
     else:
       result.add quote do:
-        register(router, `path`, `rpcMethod`)
+        register(router, `signalName`, `rpcMethod`)
+    echo "slots: "
+    echo result.repr
 
-  elif pubthread:
+  elif isSignal:
     result.add quote do:
-      var `rpcMethod`: AgentEventProc
-      template `procName`() =
-        `procBody`
-      closureScope: # 
-        `rpcMethod` =
+      proc `rpcMethod`() {.gcsafe, nimcall.} =
+        discard
+    if isPublic: result[0].makePublic()
+    result[0][3] = parameters
+    echo "signal: "
+    echo "public: ", isPublic 
+    echo result.treeRepr
+    echo ""
+    echo result.repr
+    echo "\nparameters: ", treeRepr parameters 
 
-          proc(): RpcParams =
-            let res = `procName`()
-            result = rpcPack(res)
-
-      register(router, `path`, `qarg`.evt, `rpcMethod`)
-  
-  # echo "slots: "
-  # echo result.repr
 
 macro rpcOption*(p: untyped): untyped =
   result = p
@@ -183,10 +190,10 @@ template slot*(p: untyped): untyped =
 template rpcThread*(p: untyped): untyped =
   `p`
 
-template rpcSerializer*(p: untyped): untyped =
+template signal*(p: untyped): untyped =
   # rpcImpl(p, "thread", qarg)
   # static: echo "RPCSERIALIZER:\n", treeRepr p
-  rpcImpl(p, "serializer", nil)
+  rpcImpl(p, "signal", nil)
 
 macro DefineRpcs*(name: untyped, args: varargs[untyped]) =
   ## annotates that a proc is an `rpcRegistrationProc` and

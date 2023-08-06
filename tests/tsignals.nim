@@ -18,16 +18,12 @@ var router = newAgentRouter()
 template emit*(call: typed) =
   discard
 
-macro signal(p) =
-  echo "## slot: "
-  echo p.treeRepr
-
 proc value*(self: Counter): int =
   self.value
 
-proc valueChanged(val: int) {.signal.}
+proc valueChanged*(val: int) {.signal.}
 
-proc setValue(self: Counter, value: int) {.slot.} =
+proc setValue*(self: Counter, value: int) {.slot.} =
   self.value = value
   # emit valueChanged(val)
 
