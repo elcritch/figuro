@@ -114,6 +114,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     paramsIdent = genSym(nskParam, "args")
     paramTypeName = ident("RpcType_" & procNameStr)
 
+    firstArg = params.firstArgument()
+
   var
     # process the argument types
     paramSetups = mkParamsVars(paramsIdent, paramTypeName, parameters)
@@ -129,6 +131,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # Create the proc's that hold the users code 
   if not isSignal:
+
     result.add quote do:
       `paramTypes`
 
@@ -160,9 +163,11 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     echo result.repr
 
   elif isSignal:
+
     result.add quote do:
-      proc `rpcMethod`() {.gcsafe, nimcall.} =
+      proc `rpcMethod`(): AgentRequest {.nimcall.} =
         discard
+        
     if isPublic: result[0].makePublic()
     result[0][3] = parameters
     echo "signal: "

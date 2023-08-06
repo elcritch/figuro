@@ -43,7 +43,7 @@ when isMainModule:
     test "slot bad call":
       let req = AgentRequest(
         kind: Request,
-        id: AgentId(1),
+        id: AgentId(0),
         procName: "setValue",
         params: RpcParams(buf: newVariant((val: 5)))
       )
@@ -60,7 +60,7 @@ when isMainModule:
     test "slot good call":
       let req = AgentRequest(
         kind: Request,
-        id: AgentId(1),
+        id: AgentId(0),
         procName: "setValue",
         params: RpcParams(buf: newVariant((counter: counter, val: 5)))
       )
