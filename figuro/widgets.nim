@@ -41,20 +41,42 @@ echo "router: ", router.listMethods()
 
 var counter = Counter()
 
-let req = AgentRequest(
-  kind: Request,
-  id: AgentId(1),
-  procName: "setValue",
-  # params: RpcParams(buf: newVariant((counter: counter, val: 5)))
-  params: RpcParams(buf: newVariant((val: 5)))
-)
 
-let res = router.callMethod(req, ClientId(10))
+when isMainModule:
+  import unittest
 
-variantMatch case res.result.buf as u
-of AgentError:
-  echo "u is AgentError"
-  print u
-else:
-  echo "unknown type"
+  suite "agent slots":
+
+    test "slot bad call":
+      let req = AgentRequest(
+        kind: Request,
+        id: AgentId(1),
+        procName: "setValue",
+        params: RpcParams(buf: newVariant((val: 5)))
+      )
+
+      let res = router.callMethod(req, ClientId(10))
+
+      variantMatch case res.result.buf as u
+      of AgentError:
+        echo "u is AgentError"
+        print u
+      else:
+        check false
+
+    test "slot good call":
+      let req = AgentRequest(
+        kind: Request,
+        id: AgentId(1),
+        procName: "setValue",
+        params: RpcParams(buf: newVariant((counter: counter, val: 5)))
+      )
+
+      let res = router.callMethod(req, ClientId(10))
+
+      variantMatch case res.result.buf as u
+      of AgentError:
+        check false
+      else:
+        echo "unknown type"
 
