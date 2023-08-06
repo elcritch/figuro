@@ -148,7 +148,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
         `procName`(obj, context)
 
-    if isPublic: echo "PUB: ", result[1].repr
+    if isPublic: result[1].makePublic()
 
     if syspragma:
       result.add quote do:
@@ -166,7 +166,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     if isPublic: result[0].makePublic()
     result[0][3] = parameters
     echo "signal: "
-    echo "public: ", isPublic 
     echo result.treeRepr
     echo ""
     echo result.repr

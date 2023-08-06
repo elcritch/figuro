@@ -27,8 +27,6 @@ proc setValue*(self: Counter, value: int) {.slot.} =
   self.value = value
   # emit valueChanged(val)
 
-proc add(a: int, b: int): int {.slot.} =
-  echo "add: ", 1 + a + b
 
 import pretty
 # print router
