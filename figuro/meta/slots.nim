@@ -123,11 +123,11 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     procBody = if body.kind == nnkStmtList: body else: body.body
 
   let ContextType = ident "RpcContext"
-  let ReturnType = if parameters.hasReturnType:
-                      parameters[0]
-                   else:
-                      error("must provide return type")
-                      ident "void"
+  # let ReturnType = if parameters.hasReturnType:
+  #                     parameters[0]
+  #                  else:
+  #                     error("must provide return type")
+  #                     ident "void"
 
   # Create the proc's that hold the users code 
   if not pubthread and not serializer:
@@ -136,7 +136,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
       proc `procName`(`paramsIdent`: `paramTypeName`,
                       `ctxName`: `ContextType`
-                      ): `ReturnType` =
+                      ) =
         {.cast(gcsafe).}:
           `paramSetups`
           `procBody`
@@ -145,12 +145,11 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     result.add quote do:
       proc `rpcMethod`(params: RpcParams,
                         context: `ContextType`
-                      ): RpcParams {.gcsafe, nimcall.} =
+                      ) {.gcsafe, nimcall.} =
         var obj: `paramTypeName`
         obj.rpcUnpack(params)
 
-        let res = `procName`(obj, context)
-        result = res.rpcPack()
+        `procName`(obj, context)
 
     if syspragma:
       result.add quote do:
@@ -162,7 +161,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   elif pubthread:
     result.add quote do:
       var `rpcMethod`: FastRpcEventProc
-      template `procName`(): `ReturnType` =
+      template `procName`() =
         `procBody`
       closureScope: # 
         `rpcMethod` =
@@ -174,7 +173,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       register(router, `path`, `qarg`.evt, `rpcMethod`)
   elif serializer:
     var rpcFunc = quote do:
-      proc `procName`(): `ReturnType` =
+      proc `procName`() =
         `procBody`
     rpcFunc[3] = params
     let qarg = params[1]
@@ -185,6 +184,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       rpcQueuePacker(`rpcMethod`, `procName`, `qt`)
     # rpcMethod[3] = params
     result.add newStmtList(rpcFunc, rpcMethod)
+  
+  echo "slots: "
+  echo result.repr
 
 macro rpcOption*(p: untyped): untyped =
   result = p
@@ -194,7 +196,7 @@ macro rpcSetter*(p: untyped): untyped =
 macro rpcGetter*(p: untyped): untyped =
   result = p
 
-template rpc*(p: untyped): untyped =
+template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
 
 # template rpcPublisher*(args: static[Duration], p: untyped): untyped =

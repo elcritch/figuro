@@ -31,7 +31,7 @@ type
   # Procedure signature accepted as an RPC call by server
   FastRpcProc* = proc(params: RpcParams,
                       context: RpcContext
-                      ): RpcParams {.gcsafe, nimcall.}
+                      ) {.gcsafe, nimcall.}
 
   FastRpcBindError* = object of ValueError
   FastRpcAddressUnresolvableError* = object of ValueError

@@ -15,9 +15,9 @@ type
 
 var router = newFastRpcRouter()
 
-macro slot(p) =
-  echo "## slot: "
-  echo p.treeRepr
+# macro slot(p) =
+#   echo "## slot: "
+#   echo p.treeRepr
 
 macro signal(p) =
   echo "## slot: "
@@ -31,6 +31,6 @@ proc setValue*(self: Counter, value: int) {.slot.} =
 
 proc valueChanged(val: int) {.signal.}
 
-proc add(a: int, b: int): int {.rpc.} =
-  result = 1 + a + b
+proc add(a: int, b: int): int {.slot.} =
+  echo "add: ", 1 + a + b
 

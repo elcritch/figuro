@@ -110,8 +110,8 @@ proc callMethod*(
         # based on whether the rpc request is a system/regular/subscription
         var ctx: RpcContext
         # var ctx = RpcContext(callId: req.id, clientId: clientId)
-        let res: RpcParams =
-          rpcProc(req.params, ctx)
+        rpcProc(req.params, ctx)
+        let res = RpcParams(buf: newVariant(true)) 
 
         result = FastRpcResponse(kind: Response, id: req.id, result: res)
       except ObjectConversionDefect as err:
