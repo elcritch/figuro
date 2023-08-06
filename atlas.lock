@@ -3,7 +3,7 @@
     "nimsimd": {
       "dir": "vendor/nimsimd",
       "url": "https://github.com/guzba/nimsimd",
-      "commit": "854eeba4d7fc67a609b72b7d57b765da80ad79ec"
+      "commit": "548e57c43a11e4d270d37f360d46069b77cd26f3"
     },
     "ws": {
       "dir": "vendor/ws",
@@ -58,7 +58,12 @@
     "chroma": {
       "dir": "vendor/chroma",
       "url": "https://github.com/treeform/chroma",
-      "commit": "c06598cc08cbfd67f57feac0ecbfefc85edefe18"
+      "commit": "7c9d96b6e42d4d5fe79f5efac52e798c03b3e7d3"
+    },
+    "threading": {
+      "dir": "vendor/threading",
+      "url": "https://github.com/nim-lang/threading",
+      "commit": "ba2aef9cc333774680b95a999d04ebb4709fc17a"
     },
     "windy": {
       "dir": "vendor/windy",
@@ -111,10 +116,10 @@
       "commit": "ecb4be9bcff2d73ff613f078df700268696dbcb3"
     }
   },
-  "nimcfg": "############# begin Atlas config section ##########\n--noNimblePath\n--path:\"vendor/pixie/src\"\n--path:\"vendor/cssgrid/src\"\n--path:\"vendor/chroma/src\"\n--path:\"vendor/bumpy/src\"\n--path:\"vendor/pretty/src\"\n--path:\"vendor/supersnappy/src\"\n--path:\"vendor/typography/src\"\n--path:\"vendor/variant\"\n--path:\"vendor/opengl/src\"\n--path:\"vendor/zippy/src\"\n--path:\"vendor/patty\"\n--path:\"vendor/macroutils/src\"\n--path:\"vendor/cdecl/src\"\n--path:\"vendor/asynctools\"\n--path:\"vendor/nimsimd/src\"\n--path:\"vendor/windy/src\"\n--path:\"vendor/vmath/src\"\n--path:\"vendor/flatty/src\"\n--path:\"vendor/crunchy/src\"\n--path:\"vendor/print/src\"\n--path:\"vendor/urlly/src\"\n--path:\"vendor/ws/src\"\n############# end Atlas config section   ##########\n",
+  "nimcfg": "############# begin Atlas config section ##########\n--noNimblePath\n--path:\"vendor/pixie/src\"\n--path:\"vendor/cssgrid/src\"\n--path:\"vendor/chroma/src\"\n--path:\"vendor/bumpy/src\"\n--path:\"vendor/pretty/src\"\n--path:\"vendor/supersnappy/src\"\n--path:\"vendor/typography/src\"\n--path:\"vendor/variant\"\n--path:\"vendor/opengl/src\"\n--path:\"vendor/zippy/src\"\n--path:\"vendor/patty\"\n--path:\"vendor/macroutils/src\"\n--path:\"vendor/cdecl/src\"\n--path:\"vendor/asynctools\"\n--path:\"vendor/nimsimd/src\"\n--path:\"vendor/windy/src\"\n--path:\"vendor/threading\"\n--path:\"vendor/vmath/src\"\n--path:\"vendor/flatty/src\"\n--path:\"vendor/crunchy/src\"\n--path:\"vendor/print/src\"\n--path:\"vendor/urlly/src\"\n--path:\"vendor/ws/src\"\n############# end Atlas config section   ##########\n",
   "nimbleFile": {
     "filename": "figuro.nimble",
-    "content": "version       = \"0.5.0\"\nauthor        = \"Jaremy Creechley\"\ndescription   = \"UI Engine for Nim\"\nlicense       = \"MIT\"\nsrcDir        = \".\"\n\n# Dependencies\n\nrequires \"nim >= 1.6.5\"\nrequires \"pixie >= 5.0.1\"\nrequires \"cssgrid >= 0.2.10\"\nrequires \"chroma >= 0.2.7\"\nrequires \"bumpy\"\nrequires \"pretty\"\nrequires \"supersnappy >= 2.1.3\"\nrequires \"typography >= 0.7.14\"\nrequires \"variant >= 0.2.12\"\nrequires \"opengl >= 1.2.6\"\nrequires \"zippy >= 0.10.4\"\nrequires \"patty >= 0.3.4\"\nrequires \"macroutils >= 1.2.0\"\nrequires \"cdecl >= 0.7.5\"\nrequires \"asynctools >= 0.1.1\"\nrequires \"nimsimd >= 1.2.5\"\nrequires \"https://github.com/elcritch/windy#http-cleanup\"\n"
+    "content": "version       = \"0.5.0\"\nauthor        = \"Jaremy Creechley\"\ndescription   = \"UI Engine for Nim\"\nlicense       = \"MIT\"\nsrcDir        = \".\"\n\n# Dependencies\n\nrequires \"nim >= 1.6.5\"\nrequires \"pixie >= 5.0.1\"\nrequires \"cssgrid >= 0.2.10\"\nrequires \"chroma >= 0.2.7\"\nrequires \"bumpy\"\nrequires \"pretty\"\nrequires \"supersnappy >= 2.1.3\"\nrequires \"typography >= 0.7.14\"\nrequires \"variant >= 0.2.12\"\nrequires \"opengl >= 1.2.6\"\nrequires \"zippy >= 0.10.4\"\nrequires \"patty >= 0.3.4\"\nrequires \"macroutils >= 1.2.0\"\nrequires \"cdecl >= 0.7.5\"\nrequires \"asynctools >= 0.1.1\"\nrequires \"nimsimd >= 1.2.5\"\nrequires \"https://github.com/elcritch/windy#http-cleanup\"\nrequires \"threading\"\n\n"
   },
   "hostOS": "macosx",
   "hostCPU": "arm64",

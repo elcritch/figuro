@@ -24,3 +24,4 @@ requires "asynctools >= 0.1.1"
 requires "nimsimd >= 1.2.5"
 requires "https://github.com/elcritch/windy#http-cleanup"
 requires "threading"
+
