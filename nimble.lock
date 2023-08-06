@@ -127,9 +127,19 @@
         "sha1": "47b96a34e53d6c051154cc37493a0ae681bf75d4"
       }
     },
+    "threading": {
+      "version": "0.1.0",
+      "vcsRevision": "ba2aef9cc333774680b95a999d04ebb4709fc17a",
+      "url": "https://github.com/nim-lang/threading",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "26326c9485f4ec81278fbce1603f9ac2a4d623fd"
+      }
+    },
     "windy": {
       "version": "0.0.0",
-      "vcsRevision": "9bfbebf98e226cf2aba7b9c74243eea77e20ca58",
+      "vcsRevision": "f7cedbaccb5d73922350f409b1ce3fee6a310a76",
       "url": "https://github.com/treeform/windy",
       "downloadMethod": "git",
       "dependencies": [
@@ -139,7 +149,7 @@
         "ws"
       ],
       "checksums": {
-        "sha1": "fc03eb8dc25f20682d34467e93a0b059ee35e810"
+        "sha1": "ad80bfce0ef735c39d69d7059bb956a09ea00759"
       }
     },
     "asynctools": {
