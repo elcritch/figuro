@@ -219,43 +219,11 @@ macro DefineRpcs*(name: untyped, args: varargs[untyped]) =
     pArgs.add parg
   echo "PARGS: ", pArgs.treeRepr
 
-macro DefineRpcTaskOptions*[T](name: untyped, args: varargs[untyped]) =
-  ## annotates that a proc is an `rpcRegistrationProc` and
-  ## that it takes the correct arguments. In particular 
-  ## the first parameter must be `router: var AgentRouter`. 
-  ## 
-  let
-    params = if args.len() >= 1: args[0..^2]
-             else: newSeq[NimNode]()
-    pbody = args[^1]
-
-  let rname = ident("router")
-  result = quote do:
-    proc `name`*(`rname`: var AgentRouter) =
-      `pbody`
-  
-  var pArgs = result[3]
-  for param in params:
-    let parg = newIdentDefs(param[0], param[1])
-    pArgs.add parg
-  echo "TASK:OPTS:\n", result.repr
-
 macro registerRpcs*(router: var AgentRouter,
                     registerClosure: untyped,
                     args: varargs[untyped]) =
   result = quote do:
     `registerClosure`(`router`, `args`) # 
-
-# template startDataStream*(
-#         streamProc: untyped,
-#         streamThread: untyped,
-#         queue: untyped,
-#         ): RpcStreamThread[T,U] =
-#   var tchan: Chan[TaskOption[U]] = newChan[TaskOption[U]](1)
-#   var arg = ThreadArg[T,U](queue: iqueue, chan: tchan)
-#   var result: RpcStreamThread[T, U]
-#   createThread[ThreadArg[T, U]](result, streamThread, move arg)
-#   result
 
 macro registerDatastream*[T,O,R](
               router: var AgentRouter,
@@ -282,16 +250,6 @@ proc getUpdatedOption*[T](chan: TaskOption[T]): Option[T] =
 proc getRpcOption*[T](chan: TaskOption[T]): T =
   # chan.tryRecv()
   return T()
-
-# proc rpcReply*[T](context: RpcContext, value: T, kind: AgentType): bool =
-#   ## TODO: FIXME
-#   ## this turned out kind of ugly... 
-#   ## but it works, think it'll work for subscriptions too 
-#   var packed: RpcParams = rpcPack(value)
-#   let res: AgentResponse = wrapResponse(context.id, packed, kind)
-#   var so = MsgBuffer.init(res.result.buf.data.len() + sizeof(res))
-#   so.pack(res)
-#   # return context.send(so.data)
 
 template rpcReply*(value: untyped): untyped =
   rpcReply(context, value, Publish)
