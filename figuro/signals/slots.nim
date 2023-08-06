@@ -274,7 +274,7 @@ macro registerDatastream*[T,O,R](
               name: string,
               serializer: RpcStreamSerializer[T],
               reducer: RpcStreamTask[T, TaskOption[O]],
-              queue: InetEventQueue[T],
+              queue: EventQueue[T],
               option: O,
               optionRpcs: R) =
   echo "registerDatastream: T: ", repr(T)
