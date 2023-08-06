@@ -114,7 +114,7 @@ proc callMethod*(
         let res = RpcParams(buf: newVariant(true)) 
 
         result = AgentResponse(kind: Response, id: req.id, result: res)
-      except ObjectConversionDefect as err:
+      except ConversionError as err:
         result = wrapResponseError(
                     req.id,
                     INVALID_PARAMS,

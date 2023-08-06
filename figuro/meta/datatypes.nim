@@ -17,6 +17,8 @@ export variant
 
 type
 
+  ConversionError* = object of CatchableError
+
   AgentErrorStackTrace* = object
     code*: int
     msg*: string
@@ -82,7 +84,10 @@ proc pack*[T](ss: var Variant, val: T) =
   ss = newVariant(val)
 
 proc unpack*[T](ss: Variant, obj: var T) =
-  obj = ss.get(T)
+  if ss.ofType(T):
+    obj = ss.get(T)
+  else:
+    raise newException(ConversionError, "couldn't convert to: " & $(T))
 
 proc randBinString*(): RpcSubId =
   var idarr: array[sizeof(RpcSubId), byte]
@@ -155,8 +160,11 @@ proc rpcPack*[T](res: T): RpcParams =
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:
     ss.buf.unpack(obj)
+  except ConversionError as err:
+    raise newException(ConversionError,
+                       "unable to parse parameters: " & err.msg)
   except AssertionDefect as err:
-    raise newException(ObjectConversionDefect,
+    raise newException(ConversionError,
                        "unable to parse parameters: " & err.msg)
 
 template rpcQueuePacker*(procName: untyped,

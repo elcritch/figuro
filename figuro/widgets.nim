@@ -39,10 +39,13 @@ import pretty
 
 echo "router: ", router.listMethods()
 
+var counter = Counter()
+
 let req = AgentRequest(
   kind: Request,
   id: AgentId(1),
   procName: "setValue",
+  # params: RpcParams(buf: newVariant((counter: counter, val: 5)))
   params: RpcParams(buf: newVariant((val: 5)))
 )
 
