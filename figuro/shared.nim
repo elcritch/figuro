@@ -29,22 +29,23 @@ type
   AppState* = object
     running*, focused*, minimized*, fullscreen*: bool
 
+    # UI Scale
+    uiScale*: float32
+    autoUiScale*: bool
+
+    requestedFrame*: int
+    frameCount*, tickCount*: int
+
+    windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
+    windowSize*: Vec2    ## Screen coordinates
+    # windowFrame*: Vec2   ## Pixel coordinates
+    pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
+    pixelScale*: float32 ## Pixel multiplier user wants on the UI
+
+    mouse*: Mouse
+    keyboard*: Keyboard
+
 var
-  # UI Scale
-  uiScale*: float32 = 1.0
-  autoUiScale*: bool = true
-
-  requestedFrame*: int
-  frameCount*, tickCount*: int
-
-  windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
-  windowSize*: Vec2    ## Screen coordinates
-  # windowFrame*: Vec2   ## Pixel coordinates
-  pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
-  pixelScale*: float32 ## Pixel multiplier user wants on the UI
-
-  mouse* = Mouse()
-  keyboard* = Keyboard()
 
   dataDir*: string = DataDirPath
 
@@ -62,16 +63,16 @@ when not defined(js):
     # currTextBox*: TextBox[Node]
     fonts*: Table[string, Font]
 
-template scaled*(a: Box): Rect = Rect(a * common.uiScale.UICoord)
-template descaled*(a: Rect): Box = Box(a / common.uiScale)
+template scaled*(a: Box): Rect = Rect(a * app.uiScale.UICoord)
+template descaled*(a: Rect): Box = Box(a / app.uiScale)
 
-template scaled*(a: Position): Vec2 = Vec2(a * common.uiScale.UICoord)
-template descaled*(a: Vec2): Position = Position(a / common.uiScale)
+template scaled*(a: Position): Vec2 = Vec2(a * app.uiScale.UICoord)
+template descaled*(a: Vec2): Position = Position(a / app.uiScale)
 
 template scaled*(a: UICoord): float32 =
-  a.float32 * common.uiScale
+  a.float32 * app.uiScale
 template descaled*(a: float32): UICoord =
-  UICoord(a / common.uiScale)
+  UICoord(a / app.uiScale)
 
 proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
