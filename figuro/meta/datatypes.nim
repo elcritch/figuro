@@ -78,6 +78,7 @@ type
   RpcStreamThread*[T, U] = Thread[ThreadArg[T, U]]
 
 proc pack*[T](ss: var Variant, val: T) =
+  echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
   ss = newVariant(val)
 
 proc unpack*[T](ss: Variant, obj: var T) =

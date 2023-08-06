@@ -48,5 +48,10 @@ let req = AgentRequest(
 
 let res = router.callMethod(req, ClientId(10))
 
-print res
+variantMatch case res.result.buf as u
+of AgentError:
+  echo "u is AgentError"
+  print u
+else:
+  echo "unknown type"
 
