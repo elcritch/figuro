@@ -94,12 +94,14 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     (firstName, firstType) = params.firstArgument()
     parameters = params
 
-  parameters.del(0, 1)
+  let
+    # determine if this is a "signal" rpc method
+    isSignal = publish.kind == nnkStrLit and publish.strVal == "signal"
+  
+  if not isSignal:
+    parameters.del(0, 1)
 
   let
-    # determine if this is a "system" rpc method
-    isSignal = publish.kind == nnkStrLit and publish.strVal == "signal"
-    syspragma = not pragmas.findChild(it.repr == "system").isNil
 
     # rpc method names
     pathStr = $path
