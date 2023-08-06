@@ -21,7 +21,7 @@ template emit*(call: typed) =
 proc value*(self: Counter): int =
   self.value
 
-proc valueChanged*(val: int) {.signal.}
+proc valueChanged*(tp: typedesc[Counter], val: int) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
   self.value = value
@@ -71,7 +71,7 @@ when isMainModule:
         check counter.value == 42
 
     test "signal":
-      var val = valueChanged(137)
+      var val = Counter.valueChanged(137)
       print val
       val.procName = "setValue"
 

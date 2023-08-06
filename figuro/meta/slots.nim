@@ -98,8 +98,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # determine if this is a "signal" rpc method
     isSignal = publish.kind == nnkStrLit and publish.strVal == "signal"
   
-  if not isSignal:
-    parameters.del(0, 1)
+  parameters.del(0, 1)
 
   let
 
@@ -194,6 +193,11 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         )
 
     if isPublic: result[0].makePublic()
+    result[0][3].add nnkIdentDefs.newTree(
+      ident "tp",
+      nnkBracketExpr.newTree(ident "typedesc", firstType,),
+      nnkEmpty.newNimNode()
+    )
     for param in parameters[1..^1]:
       result[0][3].add param
     echo "signal: "
