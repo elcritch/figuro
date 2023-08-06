@@ -18,7 +18,6 @@ type
     ## implementation specific -- handles data buffer
     buf*: Variant
 
-
 type
   FastRpcType* {.size: sizeof(uint8).} = enum
     # Fast RPC Types

@@ -150,8 +150,7 @@ proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
 #   RpcParams(buf: ss)
 
 proc rpcPack*[T](res: T): RpcParams =
-  ss.pack(res)
-  result = RpcParams(buf: ss)
+  result = RpcParams(buf: newVariant(res))
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams, resetStream = true) =
   try:
