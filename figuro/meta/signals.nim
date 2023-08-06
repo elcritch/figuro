@@ -143,9 +143,14 @@ proc callMethod*(router: AgentRouter,
   return newVariant(res)
 
 template connect*[T: RootRef](
-    target: T,
-    signal: typed
+    a: T,
+    signal: typed,
+    b: T,
+    slot: typed
 ) =
-  echo "connect! ", repr typeof target
-  echo "connect! ", repr typeof signal
-  let res = router.callMethod(target, val, ClientId(10))
+  echo "connect!a: ", repr typeof a
+  echo "connect!a: ", repr typeof signal
+  echo "connect!b: ", repr typeof b
+  echo "connect!b: ", repr typeof slot
+
+  # let res = router.callMethod(a, val, ClientId(10))

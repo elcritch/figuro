@@ -90,6 +90,7 @@ when isMainModule:
         a = Counter()
         b = Counter()
       
+      # TODO: how to do this?
       connect(
         a, valueChanged,
         b, setValue,
