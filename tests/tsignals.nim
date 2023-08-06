@@ -63,7 +63,6 @@ when isMainModule:
     test "slot good call":
       req.params.buf = newVariant((counter: counter, val: 42))
       let res = router.callMethod(req, ClientId(10))
-
       variantMatch case res.result.buf as u
       of AgentError:
         check false
@@ -71,19 +70,12 @@ when isMainModule:
         check counter.value == 42
 
     # test "slot good call":
-    #   let req = AgentRequest(
-    #     kind: Request,
-    #     id: AgentId(0),
-    #     procName: "setValue",
-    #     params: RpcParams(buf: newVariant((counter: counter, val: 5)))
-    #   )
-
+    #   req.params.buf = newVariant((counter: counter, val: 42))
     #   let res = router.callMethod(req, ClientId(10))
-
     #   variantMatch case res.result.buf as u
     #   of AgentError:
     #     check false
     #   else:
-    #     echo "unknown type"
+    #     check counter.value == 42
 
 
