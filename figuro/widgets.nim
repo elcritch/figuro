@@ -13,6 +13,8 @@ type
   Counter* = ref object of Widget
     value: int
 
+var router = newFastRpcRouter()
+
 macro slot(p) =
   echo "## slot: "
   echo p.treeRepr
