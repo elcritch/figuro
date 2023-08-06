@@ -158,10 +158,14 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     result.add quote do:
       proc `procName`(
-          context: RootObj,
+          context: ref RootObj,
           params: RpcParams,
       ) {.nimcall.} =
+        if context == nil:
+          raise newException(ValueError, "bad value")
         let obj = cast[`ContextType`](context)
+        if obj == nil:
+          raise newException(ValueError, "bad cast")
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
         # `paramSetups`
@@ -169,12 +173,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     if isPublic: result[1].makePublic()
 
-    if syspragma:
-      result.add quote do:
-        sysRegister(router, `signalName`, `procName`)
-    else:
-      result.add quote do:
-        register(router, `signalName`, `procName`)
+    result.add quote do:
+      register(router, `signalName`, `procName`)
     echo "slots: "
     echo result.repr
 

@@ -25,12 +25,10 @@ type
     stacktrace*: seq[string]
 
   # Context for servicing an RPC call 
-  RpcContext* = object
-    id*: AgentId
-    clientId*: ClientId
+  RpcContext* = RootRef
 
   # Procedure signature accepted as an RPC call by server
-  AgentProc* = proc(context: RootObj,
+  AgentProc* = proc(context: RpcContext,
                     params: RpcParams,
                     ) {.gcsafe, nimcall.}
 
