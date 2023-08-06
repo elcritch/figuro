@@ -78,7 +78,7 @@ type
 
   RpcStreamThread*[T, U] = Thread[ThreadArg[T, U]]
 
-proc pack*[T](ss: Variant, val: T) =
+proc pack*[T](ss: var Variant, val: T) =
   ss = newVariant(val)
 
 proc unpack*[T](ss: Variant, obj: var T) =
