@@ -18,8 +18,14 @@ proc wrapResponseError*(id: AgentId, err: AgentError): AgentResponse =
   ss.pack(err)
   result.result = RpcParams(buf: ss)
 
-proc wrapResponseError*(id: AgentId, code: FastErrorCodes, msg: string, err: ref Exception, stacktraces: bool): AgentResponse = 
-  let errobj = AgentError(code: SERVER_ERROR, msg: msg)
+proc wrapResponseError*(
+    id: AgentId,
+    code: FastErrorCodes,
+    msg: string,
+    err: ref Exception,
+    stacktraces: bool
+): AgentResponse = 
+  let errobj = AgentError(code: code, msg: msg)
   if stacktraces and not err.isNil():
     errobj.trace = @[]
     for se in err.getStackTraceEntries():
