@@ -10,10 +10,10 @@ include mcu_utils/threads
 export inettypes, inetqueues
 
 export options
-import rpcdatatypes
-export rpcdatatypes
-import router
-export router
+import datatypes
+export datatypes
+# import router
+# export router
 
 proc makeProcName(s: string): string =
   result = ""
@@ -304,16 +304,15 @@ proc getRpcOption*[T](chan: TaskOption[T]): T =
   # chan.tryRecv()
   return T()
 
-
-proc rpcReply*[T](context: RpcContext, value: T, kind: FastRpcType): bool =
-  ## TODO: FIXME
-  ## this turned out kind of ugly... 
-  ## but it works, think it'll work for subscriptions too 
-  var packed: FastRpcParamsBuffer = rpcPack(value)
-  let res: FastRpcResponse = wrapResponse(context.id, packed, kind)
-  var so = MsgBuffer.init(res.result.buf.data.len() + sizeof(res))
-  so.pack(res)
-  # return context.send(so.data)
+# proc rpcReply*[T](context: RpcContext, value: T, kind: FastRpcType): bool =
+#   ## TODO: FIXME
+#   ## this turned out kind of ugly... 
+#   ## but it works, think it'll work for subscriptions too 
+#   var packed: FastRpcParamsBuffer = rpcPack(value)
+#   let res: FastRpcResponse = wrapResponse(context.id, packed, kind)
+#   var so = MsgBuffer.init(res.result.buf.data.len() + sizeof(res))
+#   so.pack(res)
+#   # return context.send(so.data)
 
 template rpcReply*(value: untyped): untyped =
   rpcReply(context, value, Publish)

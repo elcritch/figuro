@@ -5,11 +5,9 @@ import mcu_utils/msgbuffer
 import mcu_utils/logging
 include mcu_utils/threads
 
-import msgpack4nim
-export msgpack4nim
 
-import rpcdatatypes
-export rpcdatatypes
+import datatypes
+export datatypes
 export Millis
 
 proc wrapResponse*(id: FastRpcId, resp: FastRpcParamsBuffer, kind = Response): FastRpcResponse = 
