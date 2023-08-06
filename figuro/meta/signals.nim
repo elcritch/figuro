@@ -106,7 +106,6 @@ proc callMethod*(
       try:
         # Handle rpc request the `context` variable is different
         # based on whether the rpc request is a system/regular/subscription
-        var ctx: RpcContext
         # var ctx = RpcContext(callId: req.id, clientId: clientId)
         rpcProc(ctx, req.params)
         let res = RpcParams(buf: newVariant(true)) 
