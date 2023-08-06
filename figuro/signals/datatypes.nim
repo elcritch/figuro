@@ -13,10 +13,10 @@ import protocol
 export protocol, equeues
 export sets, selectors, channels
 export sugar, options
+export variant
 
 
 type
-  ClientId* = int64
 
   FastRpcErrorStackTrace* = object
     code*: int
@@ -25,7 +25,7 @@ type
 
   # Context for servicing an RPC call 
   RpcContext* = object
-    id*: FastrpcId
+    id*: FastRpcId
     clientId*: ClientId
 
   # Procedure signature accepted as an RPC call by server
@@ -77,6 +77,12 @@ type
     opt*: TaskOption[U]
 
   RpcStreamThread*[T, U] = Thread[ThreadArg[T, U]]
+
+proc pack*[T](ss: Variant, val: T) =
+  ss = newVariant(val)
+
+proc unpack*[T](ss: Variant, obj: var T) =
+  obj = ss.get(T)
 
 proc randBinString*(): RpcSubId =
   var idarr: array[sizeof(RpcSubId), byte]

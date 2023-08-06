@@ -9,8 +9,10 @@ import datatypes
 export isolation
 export channels, smartptrs
 export selectors
+export datatypes
 
 type
+  ClientId* = int64
 
   InetQueueItem*[T] = ref object
     ## Queue item to allow passing data and an network address

@@ -14,7 +14,7 @@ proc wrapResponse*(id: FastRpcId, resp: RpcParams, kind = Response): FastRpcResp
 proc wrapResponseError*(id: FastRpcId, err: FastRpcError): FastRpcResponse = 
   result.kind = Error
   result.id = id
-  var ss = MsgBuffer.init()
+  var ss: Variant
   ss.pack(err)
   result.result = RpcParams(buf: ss)
 
@@ -27,10 +27,10 @@ proc wrapResponseError*(id: FastRpcId, code: FastErrorCodes, msg: string, err: r
       errobj.trace.add( ($se.procname, file, se.line, ) )
   result = wrapResponseError(id, errobj)
 
-proc parseError*(ss: MsgBuffer): FastRpcError = 
+proc parseError*(ss: Variant): FastRpcError = 
   ss.unpack(result)
 
-proc parseParams*[T](ss: MsgBuffer, val: var T) = 
+proc parseParams*[T](ss: Variant, val: var T) = 
   ss.unpack(val)
 
 proc createRpcRouter*(): FastRpcRouter =
@@ -76,22 +76,22 @@ proc callMethod*(
     of Subscribe:
       # rpcProc = router.procs.getOrDefault(req.procName)
       echo "CALL:METHOD: SUBSCRIBE"
-      let hasSubProc = req.procname in router.subNames
+      let hasSubProc = req.procName in router.subNames
       if not hasSubProc:
         let methodNotFound = req.procName & " is not a registered RPC method."
         return wrapResponseError(req.id, METHOD_NOT_FOUND,
                                  methodNotFound, nil,
                                  router.stacktraces)
-      let subId = router.subscribe(req.procName, clientId)
-      if subId.isSome():
-        let resp = %* {"subscription": subid.get()}
-        return FastRpcResponse(
-                  kind: Response, id: req.id,
-                  result: resp.rpcPack())
-      else:
-        return wrapResponseError(
-                  req.id, INTERNAL_ERROR,
-                  "", nil, router.stacktraces)
+      # let subId = router.subscribe(req.procName, clientId)
+      # if subId.isSome():
+      #   let resp = %* {"subscription": subid.get()}
+      #   return FastRpcResponse(
+      #             kind: Response, id: req.id,
+      #             result: resp.rpcPack())
+      # else:
+      #   return wrapResponseError(
+      #             req.id, INTERNAL_ERROR,
+      #             "", nil, router.stacktraces)
     else:
       return wrapResponseError(
                   req.id,
@@ -129,18 +129,18 @@ proc callMethod*(
                     err, 
                     router.stacktraces)
  
-template packResponse*(res: FastRpcResponse, size: int): QMsgBuffer =
-  var so = newUniquePtr(MsgBuffer.init(size))
-  so[].pack(res)
+template packResponse*(res: FastRpcResponse): Variant =
+  var so = newVariant()
+  so.pack(res)
   so
 
 proc callMethod*(router: FastRpcRouter,
-                 buffer: MsgBuffer,
+                 buffer: Variant,
                  clientId: ClientId,
-                 ): QMsgBuffer =
-  logDebug("msgpack processing")
+                 ): Variant =
+  # logDebug("msgpack processing")
   var req: FastRpcRequest
   buffer.unpack(req)
   var res: FastRpcResponse = router.callMethod(req, clientId)
-  return res.packResponse(res.result.buf.data.len() + sizeof(res))
+  return newVariant(res)
   
