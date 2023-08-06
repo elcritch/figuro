@@ -122,7 +122,7 @@ proc callMethod*(
         result = wrapResponseError(
                     req.id,
                     INTERNAL_ERROR,
-                    req.procName & " raised an exception",
+                    req.procName & " raised an exception: " & err.msg,
                     err, 
                     router.stacktraces)
  

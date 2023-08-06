@@ -165,7 +165,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           raise newException(ValueError, "bad value")
         let obj = cast[`ContextType`](context)
         if obj == nil:
-          raise newException(ValueError, "bad cast")
+          raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
         # `paramSetups`

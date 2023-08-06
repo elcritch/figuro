@@ -65,6 +65,7 @@ when isMainModule:
       let res = router.callMethod(req, ClientId(10))
       variantMatch case res.result.buf as u
       of AgentError:
+        print u
         check false
       else:
         check counter.value == 42

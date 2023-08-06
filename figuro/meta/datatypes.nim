@@ -103,7 +103,8 @@ proc newAgentRouter*(
   result.procs = initTable[string, AgentProc]()
   result.sysprocs = initTable[string, AgentProc]()
   result.subEventProcs = initTable[Event, RpcSubClients]()
-  result.stacktraces = defined(debug)
+  # result.stacktraces = defined(debug)
+  result.stacktraces = true
 
   let
     inQueue = EventQueue[Variant].init(size=inQueueSize)
