@@ -21,12 +21,12 @@ var router = newAgentRouter()
 
 macro signal(p) =
   echo "## slot: "
-  echo p.treeRepr
+  # echo p.treeRepr
 
 proc value*(self: Counter): int =
   self.value
 
-proc setValue*(self: Counter, value: int) {.slot.} =
+proc setValue(self: Counter, value: int) {.slot.} =
   self.value = value
 
 proc valueChanged(val: int) {.signal.}
@@ -42,7 +42,7 @@ echo "router: ", router.listMethods()
 let req = AgentRequest(
   kind: Request,
   id: AgentId(1),
-  procName: "valueChanged",
+  procName: "setValue",
   params: RpcParams(buf: newVariant((val: 5)))
 )
 

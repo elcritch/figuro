@@ -61,15 +61,27 @@ proc mkParamsType*(paramsIdent, paramsType, params: NimNode): NimNode =
   ## 
   if params.isNil: return
 
-  var typObj = quote do:
-    type
-      `paramsType` = object
-  var recList = newNimNode(nnkRecList)
+  # var typObj = quote do:
+  #   type
+  #     `paramsType` = object
+  # var recList = newNimNode(nnkRecList)
+  # for paramIdent, paramType in paramsIter(params):
+  #   # processing multiple variables of one type
+  #   recList.add newIdentDefs(postfix(paramIdent, "*"), paramType)
+  # typObj[0][2][2] = recList
+  # result = typObj
+  # echo "TYP_OBJ: "
+  # echo typObj.treeRepr
+
+  echo "\nTUPLE_OBJ: "
+  var tup = quote do:
+    type `paramsType` = tuple[]
   for paramIdent, paramType in paramsIter(params):
     # processing multiple variables of one type
-    recList.add newIdentDefs(postfix(paramIdent, "*"), paramType)
-  typObj[0][2][2] = recList
-  result = typObj
+    tup[0][2].add newIdentDefs(paramIdent, paramType)
+  echo tup.repr
+  echo tup.treeRepr
+  result = tup
 
 macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   ## Define a remote procedure call.
@@ -185,8 +197,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # rpcMethod[3] = params
     result.add newStmtList(rpcFunc, rpcMethod)
   
-  echo "slots: "
-  echo result.repr
+  # echo "slots: "
+  # echo result.repr
 
 macro rpcOption*(p: untyped): untyped =
   result = p
