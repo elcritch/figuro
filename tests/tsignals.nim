@@ -4,8 +4,8 @@ import std/[macros, typetraits]
 
 #include <QObject>
 
-import meta/signals
-import meta/slots
+import figuro/meta/signals
+import figuro/meta/slots
 
 type
   Widget* = ref object of RootObj
