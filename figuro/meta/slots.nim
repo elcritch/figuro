@@ -147,7 +147,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     result.add quote do:
       proc `procName`(params: RpcParams,
                         context: `ContextType`
-                      ) {.gcsafe, nimcall.} =
+                      ) {.nimcall.} =
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
         # `paramSetups`
