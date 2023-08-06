@@ -1,7 +1,8 @@
 
 ## This minimal example shows 5 blue squares.
 
-import figuro/engine
+import figuro/timers
+import figuro
 
 proc drawMain() =
   frame "main":
