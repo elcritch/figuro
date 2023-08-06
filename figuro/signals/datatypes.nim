@@ -158,10 +158,8 @@ proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
 proc rpcPack*[T](res: T): RpcParams =
   result = RpcParams(buf: newVariant(res))
 
-proc rpcUnpack*[T](obj: var T, ss: RpcParams, resetStream = true) =
+proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:
-    if resetStream:
-      ss.buf.setPosition(0)
     ss.buf.unpack(obj)
   except AssertionDefect as err:
     raise newException(ObjectConversionDefect,
