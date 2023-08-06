@@ -127,7 +127,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   let ContextType = ident "RpcContext"
 
   proc makePublic(procDef: NimNode) =
-      procDef[0] = nnkPostfix.newTree(newIdentNode("*"), rpcMethod)
+      let name = procDef[0]
+      procDef[0] = nnkPostfix.newTree(newIdentNode("*"), name)
 
   # Create the proc's that hold the users code 
   if not isSignal:
@@ -135,7 +136,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     result.add quote do:
       `paramTypes`
 
-      proc `procName`(`paramsIdent`: `paramTypeName`,
+      proc `rpcMethod`(`paramsIdent`: `paramTypeName`,
                       `ctxName`: `ContextType`
                       ) =
           `paramSetups`
@@ -143,22 +144,21 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     # Create the rpc wrapper procs
     result.add quote do:
-      proc `rpcMethod`(params: RpcParams,
+      proc `procName`(params: RpcParams,
                         context: `ContextType`
                       ) {.gcsafe, nimcall.} =
         var obj: `paramTypeName`
         obj.rpcUnpack(params)
-
-        `procName`(obj, context)
+        `rpcMethod`(obj, context)
 
     if isPublic: result[1].makePublic()
 
     if syspragma:
       result.add quote do:
-        sysRegister(router, `signalName`, `rpcMethod`)
+        sysRegister(router, `signalName`, `procName`)
     else:
       result.add quote do:
-        register(router, `signalName`, `rpcMethod`)
+        register(router, `signalName`, `procName`)
     echo "slots: "
     echo result.repr
 
@@ -177,8 +177,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters[1..^1]:
       result[0][3].add param
     echo "signal: "
-    echo result.treeRepr
-    echo ""
     echo result.repr
     echo "\nparameters: ", treeRepr parameters 
 

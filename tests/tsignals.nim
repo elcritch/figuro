@@ -69,13 +69,8 @@ when isMainModule:
       else:
         check counter.value == 42
 
-    # test "slot good call":
-    #   req.params.buf = newVariant((counter: counter, val: 42))
-    #   let res = router.callMethod(req, ClientId(10))
-    #   variantMatch case res.result.buf as u
-    #   of AgentError:
-    #     check false
-    #   else:
-    #     check counter.value == 42
-
+    test "signal":
+      let val = valueChanged(137)
+      # let res = router.callMethod(req, ClientId(10))
+      print val
 
