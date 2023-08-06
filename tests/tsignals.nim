@@ -85,3 +85,17 @@ when isMainModule:
       else:
         check counter.value == 137
 
+    test "signal connect":
+      var
+        a = Counter()
+        b = Counter()
+      
+      connect(
+        a, valueChanged,
+        b, setValue,
+      )
+      
+      let params = (value: 23)
+      a.setValue(params)
+
+

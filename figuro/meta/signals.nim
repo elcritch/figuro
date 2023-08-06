@@ -142,5 +142,10 @@ proc callMethod*(router: AgentRouter,
   var res: AgentResponse = router.callMethod(ctx, req, clientId)
   return newVariant(res)
 
-proc connect*(target: RpcContext) =
-  echo "connect"
+template connect*[T: RootRef](
+    target: T,
+    signal: typed
+) =
+  echo "connect! ", repr typeof target
+  echo "connect! ", repr typeof signal
+  let res = router.callMethod(target, val, ClientId(10))
