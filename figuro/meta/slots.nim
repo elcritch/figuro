@@ -179,16 +179,18 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     echo result.repr
 
   elif isSignal:
-    var construct = nnkTupleConstr.newTree(parameters[1..^1])
-    echo "const: ", construct.repr
+    var construct = nnkTupleConstr.newTree()
+    for param in parameters[1..^1]:
+      construct.add nnkExprColonExpr.newTree(param[0], param[0])
 
     result.add quote do:
       proc `rpcMethod`(): AgentRequest =
+        let args = `construct`
         result = AgentRequest(
           kind: Request,
           id: AgentId(0),
           procName: `signalName`,
-          params: RpcParams(buf: newVariant(0))
+          params: RpcParams(buf: newVariant(args))
         )
 
     if isPublic: result[0].makePublic()
