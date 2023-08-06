@@ -6,20 +6,20 @@ import datatypes
 export datatypes
 export times
 
-proc wrapResponse*(id: FastRpcId, resp: RpcParams, kind = Response): FastRpcResponse = 
+proc wrapResponse*(id: AgentId, resp: RpcParams, kind = Response): AgentResponse = 
   result.kind = kind
   result.id = id
   result.result = resp
 
-proc wrapResponseError*(id: FastRpcId, err: FastRpcError): FastRpcResponse = 
+proc wrapResponseError*(id: AgentId, err: AgentError): AgentResponse = 
   result.kind = Error
   result.id = id
   var ss: Variant
   ss.pack(err)
   result.result = RpcParams(buf: ss)
 
-proc wrapResponseError*(id: FastRpcId, code: FastErrorCodes, msg: string, err: ref Exception, stacktraces: bool): FastRpcResponse = 
-  let errobj = FastRpcError(code: SERVER_ERROR, msg: msg)
+proc wrapResponseError*(id: AgentId, code: FastErrorCodes, msg: string, err: ref Exception, stacktraces: bool): AgentResponse = 
+  let errobj = AgentError(code: SERVER_ERROR, msg: msg)
   if stacktraces and not err.isNil():
     errobj.trace = @[]
     for se in err.getStackTraceEntries():
@@ -27,17 +27,17 @@ proc wrapResponseError*(id: FastRpcId, code: FastErrorCodes, msg: string, err: r
       errobj.trace.add( ($se.procname, file, se.line, ) )
   result = wrapResponseError(id, errobj)
 
-proc parseError*(ss: Variant): FastRpcError = 
+proc parseError*(ss: Variant): AgentError = 
   ss.unpack(result)
 
 proc parseParams*[T](ss: Variant, val: var T) = 
   ss.unpack(val)
 
-proc createRpcRouter*(): FastRpcRouter =
-  result = new(FastRpcRouter)
-  result.procs = initTable[string, FastRpcProc]()
+proc createRpcRouter*(): AgentRouter =
+  result = new(AgentRouter)
+  result.procs = initTable[string, AgentProc]()
 
-proc register*(router: var FastRpcRouter;
+proc register*(router: var AgentRouter;
                path: string,
                evt: Event,
                serializer: RpcStreamSerializerClosure) =
@@ -46,28 +46,28 @@ proc register*(router: var FastRpcRouter;
   router.subEventProcs[evt] = RpcSubClients(eventProc: serializer, subs: subs)
   echo "registering:sub: ", path
 
-proc register*(router: var FastRpcRouter, path: string, call: FastRpcProc) =
+proc register*(router: var AgentRouter, path: string, call: AgentProc) =
   router.procs[path] = call
   echo "registering: ", path
 
-proc sysRegister*(router: var FastRpcRouter, path: string, call: FastRpcProc) =
+proc sysRegister*(router: var AgentRouter, path: string, call: AgentProc) =
   router.sysprocs[path] = call
   echo "registering: sys: ", path
 
-proc clear*(router: var FastRpcRouter) =
+proc clear*(router: var AgentRouter) =
   router.procs.clear
 
-proc hasMethod*(router: FastRpcRouter, methodName: string): bool =
+proc hasMethod*(router: AgentRouter, methodName: string): bool =
   router.procs.hasKey(methodName)
 
 proc callMethod*(
-        router: FastRpcRouter,
-        req: FastRpcRequest,
+        router: AgentRouter,
+        req: AgentRequest,
         clientId: ClientId,
-      ): FastRpcResponse {.gcsafe.} =
+      ): AgentResponse {.gcsafe.} =
     ## Route's an rpc request. 
     # dumpAllocstats:
-    var rpcProc: FastRpcProc 
+    var rpcProc: AgentProc 
     case req.kind:
     of Request:
       rpcProc = router.procs.getOrDefault(req.procName)
@@ -85,7 +85,7 @@ proc callMethod*(
       # let subId = router.subscribe(req.procName, clientId)
       # if subId.isSome():
       #   let resp = %* {"subscription": subid.get()}
-      #   return FastRpcResponse(
+      #   return AgentResponse(
       #             kind: Response, id: req.id,
       #             result: resp.rpcPack())
       # else:
@@ -102,7 +102,7 @@ proc callMethod*(
 
     if rpcProc.isNil:
       let msg = req.procName & " is not a registered RPC method."
-      let err = FastRpcError(code: METHOD_NOT_FOUND, msg: msg)
+      let err = AgentError(code: METHOD_NOT_FOUND, msg: msg)
       result = wrapResponseError(req.id, err)
     else:
       try:
@@ -113,7 +113,7 @@ proc callMethod*(
         rpcProc(req.params, ctx)
         let res = RpcParams(buf: newVariant(true)) 
 
-        result = FastRpcResponse(kind: Response, id: req.id, result: res)
+        result = AgentResponse(kind: Response, id: req.id, result: res)
       except ObjectConversionDefect as err:
         result = wrapResponseError(
                     req.id,
@@ -129,18 +129,18 @@ proc callMethod*(
                     err, 
                     router.stacktraces)
  
-template packResponse*(res: FastRpcResponse): Variant =
+template packResponse*(res: AgentResponse): Variant =
   var so = newVariant()
   so.pack(res)
   so
 
-proc callMethod*(router: FastRpcRouter,
+proc callMethod*(router: AgentRouter,
                  buffer: Variant,
                  clientId: ClientId,
                  ): Variant =
   # logDebug("msgpack processing")
-  var req: FastRpcRequest
+  var req: AgentRequest
   buffer.unpack(req)
-  var res: FastRpcResponse = router.callMethod(req, clientId)
+  var res: AgentResponse = router.callMethod(req, clientId)
   return newVariant(res)
   

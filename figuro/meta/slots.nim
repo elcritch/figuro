@@ -160,7 +160,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   elif pubthread:
     result.add quote do:
-      var `rpcMethod`: FastRpcEventProc
+      var `rpcMethod`: AgentEventProc
       template `procName`() =
         `procBody`
       closureScope: # 
@@ -213,20 +213,20 @@ template rpcSerializer*(p: untyped): untyped =
 macro DefineRpcs*(name: untyped, args: varargs[untyped]) =
   ## annotates that a proc is an `rpcRegistrationProc` and
   ## that it takes the correct arguments. In particular 
-  ## the first parameter must be `router: var FastRpcRouter`. 
+  ## the first parameter must be `router: var AgentRouter`. 
   ## 
   let
     params = if args.len() >= 2: args[0..^2]
              else: newSeq[NimNode]()
     pbody = args[^1]
 
-  # if router.repr != "var FastRpcRouter":
+  # if router.repr != "var AgentRouter":
   #   error("Incorrect definition for a `rpcNamespace`." &
-  #   "The first parameter to an rpc registration namespace must be named `router` and be of type `var FastRpcRouter`." &
+  #   "The first parameter to an rpc registration namespace must be named `router` and be of type `var AgentRouter`." &
   #   " Instead got: `" & treeRepr(router) & "`")
   let rname = ident("router")
   result = quote do:
-    proc `name`*(`rname`: var FastRpcRouter) =
+    proc `name`*(`rname`: var AgentRouter) =
       `pbody`
   
   var pArgs = result[3]
@@ -238,7 +238,7 @@ macro DefineRpcs*(name: untyped, args: varargs[untyped]) =
 macro DefineRpcTaskOptions*[T](name: untyped, args: varargs[untyped]) =
   ## annotates that a proc is an `rpcRegistrationProc` and
   ## that it takes the correct arguments. In particular 
-  ## the first parameter must be `router: var FastRpcRouter`. 
+  ## the first parameter must be `router: var AgentRouter`. 
   ## 
   let
     params = if args.len() >= 1: args[0..^2]
@@ -247,7 +247,7 @@ macro DefineRpcTaskOptions*[T](name: untyped, args: varargs[untyped]) =
 
   let rname = ident("router")
   result = quote do:
-    proc `name`*(`rname`: var FastRpcRouter) =
+    proc `name`*(`rname`: var AgentRouter) =
       `pbody`
   
   var pArgs = result[3]
@@ -256,7 +256,7 @@ macro DefineRpcTaskOptions*[T](name: untyped, args: varargs[untyped]) =
     pArgs.add parg
   echo "TASK:OPTS:\n", result.repr
 
-macro registerRpcs*(router: var FastRpcRouter,
+macro registerRpcs*(router: var AgentRouter,
                     registerClosure: untyped,
                     args: varargs[untyped]) =
   result = quote do:
@@ -274,7 +274,7 @@ macro registerRpcs*(router: var FastRpcRouter,
 #   result
 
 macro registerDatastream*[T,O,R](
-              router: var FastRpcRouter,
+              router: var AgentRouter,
               name: string,
               serializer: RpcStreamSerializer[T],
               reducer: RpcStreamTask[T, TaskOption[O]],
@@ -299,12 +299,12 @@ proc getRpcOption*[T](chan: TaskOption[T]): T =
   # chan.tryRecv()
   return T()
 
-# proc rpcReply*[T](context: RpcContext, value: T, kind: FastRpcType): bool =
+# proc rpcReply*[T](context: RpcContext, value: T, kind: AgentType): bool =
 #   ## TODO: FIXME
 #   ## this turned out kind of ugly... 
 #   ## but it works, think it'll work for subscriptions too 
 #   var packed: RpcParams = rpcPack(value)
-#   let res: FastRpcResponse = wrapResponse(context.id, packed, kind)
+#   let res: AgentResponse = wrapResponse(context.id, packed, kind)
 #   var so = MsgBuffer.init(res.result.buf.data.len() + sizeof(res))
 #   so.pack(res)
 #   # return context.send(so.data)

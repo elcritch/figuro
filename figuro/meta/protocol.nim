@@ -19,7 +19,7 @@ type
     buf*: Variant
 
 type
-  FastRpcType* {.size: sizeof(uint8).} = enum
+  AgentType* {.size: sizeof(uint8).} = enum
     # Fast RPC Types
     Request       = 5
     Response      = 6
@@ -33,20 +33,20 @@ type
     Unsupported   = 23
     # rtpMax = 23 # numbers less than this store in single mpack/cbor byte
 
-  FastRpcId* = int
+  AgentId* = int
 
-  FastRpcRequest* = object
-    kind*: FastRpcType
-    id*: FastRpcId
+  AgentRequest* = object
+    kind*: AgentType
+    id*: AgentId
     procName*: string
     params*: RpcParams # - we handle params below
 
-  FastRpcResponse* = object
-    kind*: FastRpcType
+  AgentResponse* = object
+    kind*: AgentType
     id*: int
     result*: RpcParams # - we handle params below
 
-  FastRpcError* = ref object
+  AgentError* = ref object
     code*: FastErrorCodes
     msg*: string
     trace*: seq[(string, string, int)]

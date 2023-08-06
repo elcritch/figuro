@@ -17,23 +17,23 @@ export variant
 
 type
 
-  FastRpcErrorStackTrace* = object
+  AgentErrorStackTrace* = object
     code*: int
     msg*: string
     stacktrace*: seq[string]
 
   # Context for servicing an RPC call 
   RpcContext* = object
-    id*: FastRpcId
+    id*: AgentId
     clientId*: ClientId
 
   # Procedure signature accepted as an RPC call by server
-  FastRpcProc* = proc(params: RpcParams,
+  AgentProc* = proc(params: RpcParams,
                       context: RpcContext
                       ) {.gcsafe, nimcall.}
 
-  FastRpcBindError* = object of ValueError
-  FastRpcAddressUnresolvableError* = object of ValueError
+  AgentBindError* = object of ValueError
+  AgentAddressUnresolvableError* = object of ValueError
 
   RpcSubId* = int32
   RpcSubOpts* = object
@@ -48,9 +48,9 @@ type
     eventProc*: RpcStreamSerializerClosure
     subs*: TableRef[ClientId, RpcSubId]
 
-  FastRpcRouter* = ref object
-    procs*: Table[string, FastRpcProc]
-    sysprocs*: Table[string, FastRpcProc]
+  AgentRouter* = ref object
+    procs*: Table[string, AgentProc]
+    sysprocs*: Table[string, AgentProc]
     subEventProcs*: Table[Event, RpcSubClients]
     subNames*: Table[string, Event]
     stacktraces*: bool
@@ -90,14 +90,14 @@ proc randBinString*(): RpcSubId =
   else:
     result = RpcSubId(0)
 
-proc newFastRpcRouter*(
+proc newAgentRouter*(
     inQueueSize = 2,
     outQueueSize = 2,
     registerQueueSize = 2,
-): FastRpcRouter =
+): AgentRouter =
   new(result)
-  result.procs = initTable[string, FastRpcProc]()
-  result.sysprocs = initTable[string, FastRpcProc]()
+  result.procs = initTable[string, AgentProc]()
+  result.sysprocs = initTable[string, AgentProc]()
   result.subEventProcs = initTable[Event, RpcSubClients]()
   result.stacktraces = defined(debug)
 
@@ -112,13 +112,13 @@ proc newFastRpcRouter*(
   result.registerQueue = registerQueue
 
 proc subscribe*(
-    router: FastRpcRouter,
+    router: AgentRouter,
     procName: string,
     clientId: ClientId,
     timeout = initDuration(milliseconds= -1),
     source = "",
 ): Option[RpcSubId] =
-  # send a request to fastrpcserver to subscribe a client to a subscription
+  # send a request to Agentserver to subscribe a client to a subscription
   let 
     to =
       if timeout != initDuration(milliseconds= -1): timeout
@@ -133,13 +133,13 @@ proc subscribe*(
   if router.registerQueue.trySend(item):
     result = some(subid)
 
-proc listMethods*(rt: FastRpcRouter): seq[string] =
+proc listMethods*(rt: AgentRouter): seq[string] =
   ## list the methods in the given router. 
   result = newSeqOfCap[string](rt.procs.len())
   for name in rt.procs.keys():
     result.add name
 
-proc listSysMethods*(rt: FastRpcRouter): seq[string] =
+proc listSysMethods*(rt: AgentRouter): seq[string] =
   ## list the methods in the given router. 
   result = newSeqOfCap[string](rt.sysprocs.len())
   for name in rt.sysprocs.keys():
@@ -147,12 +147,6 @@ proc listSysMethods*(rt: FastRpcRouter): seq[string] =
 
 proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
   result = res
-
-# template rpcPack*(res: JsonNode): RpcParams =
-#   var jpack = res.fromJsonNode()
-#   var ss = MsgBuffer.init(jpack)
-#   ss.setPosition(jpack.len())
-#   RpcParams(buf: ss)
 
 proc rpcPack*[T](res: T): RpcParams =
   result = RpcParams(buf: newVariant(res))
