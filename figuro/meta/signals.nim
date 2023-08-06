@@ -149,4 +149,3 @@ proc callMethod*(router: AgentRouter,
   buffer.unpack(req)
   var res: AgentResponse = router.callMethod(req, clientId)
   return newVariant(res)
-  

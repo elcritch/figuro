@@ -61,26 +61,11 @@ proc mkParamsType*(paramsIdent, paramsType, params: NimNode): NimNode =
   ## 
   if params.isNil: return
 
-  # var typObj = quote do:
-  #   type
-  #     `paramsType` = object
-  # var recList = newNimNode(nnkRecList)
-  # for paramIdent, paramType in paramsIter(params):
-  #   # processing multiple variables of one type
-  #   recList.add newIdentDefs(postfix(paramIdent, "*"), paramType)
-  # typObj[0][2][2] = recList
-  # result = typObj
-  # echo "TYP_OBJ: "
-  # echo typObj.treeRepr
-
-  echo "\nTUPLE_OBJ: "
   var tup = quote do:
     type `paramsType` = tuple[]
   for paramIdent, paramType in paramsIter(params):
     # processing multiple variables of one type
     tup[0][2].add newIdentDefs(paramIdent, paramType)
-  echo tup.repr
-  echo tup.treeRepr
   result = tup
 
 macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
@@ -135,11 +120,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     procBody = if body.kind == nnkStmtList: body else: body.body
 
   let ContextType = ident "RpcContext"
-  # let ReturnType = if parameters.hasReturnType:
-  #                     parameters[0]
-  #                  else:
-  #                     error("must provide return type")
-  #                     ident "void"
 
   # Create the proc's that hold the users code 
   if not pubthread and not serializer:
@@ -149,7 +129,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       proc `procName`(`paramsIdent`: `paramTypeName`,
                       `ctxName`: `ContextType`
                       ) =
-        {.cast(gcsafe).}:
           `paramSetups`
           `procBody`
 
@@ -183,19 +162,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
             result = rpcPack(res)
 
       register(router, `path`, `qarg`.evt, `rpcMethod`)
-  elif serializer:
-    var rpcFunc = quote do:
-      proc `procName`() =
-        `procBody`
-    rpcFunc[3] = params
-    let qarg = params[1]
-    assert qarg.kind == nnkIdentDefs and qarg[0].repr == "queue"
-    let qt = qarg[1] # first param...
-    echo "PARAMS:\n", params.treeRepr
-    var rpcMethod = quote do:
-      rpcQueuePacker(`rpcMethod`, `procName`, `qt`)
-    # rpcMethod[3] = params
-    result.add newStmtList(rpcFunc, rpcMethod)
   
   # echo "slots: "
   # echo result.repr

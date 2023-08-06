@@ -15,21 +15,21 @@ type
 
 var router = newAgentRouter()
 
-# macro slot(p) =
-#   echo "## slot: "
-#   echo p.treeRepr
+template emit*(call: typed) =
+  discard
 
 macro signal(p) =
   echo "## slot: "
-  # echo p.treeRepr
+  echo p.treeRepr
 
 proc value*(self: Counter): int =
   self.value
 
+proc valueChanged(val: int) {.signal.}
+
 proc setValue(self: Counter, value: int) {.slot.} =
   self.value = value
-
-proc valueChanged(val: int) {.signal.}
+  # emit valueChanged(val)
 
 proc add(a: int, b: int): int {.slot.} =
   echo "add: ", 1 + a + b
@@ -40,7 +40,6 @@ import pretty
 echo "router: ", router.listMethods()
 
 var counter = Counter()
-
 
 when isMainModule:
   import unittest
