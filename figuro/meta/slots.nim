@@ -137,11 +137,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     result.add quote do:
       `paramTypes`
 
-      proc `rpcMethod`(`paramsIdent`: `paramTypeName`,
-                      `ctxName`: `ContextType`
-                      ) =
-          `paramSetups`
-          `procBody`
+      proc `rpcMethod`(
+          `ctxName`: `ContextType`,
+          `paramsIdent`: `paramTypeName`,
+      ) =
+        `paramSetups`
+        `procBody`
 
     # Create the rpc wrapper procs
     result.add quote do:
@@ -151,7 +152,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
         # `paramSetups`
-        `rpcMethod`(`paramsIdent`, context)
+        `rpcMethod`(context, `paramsIdent`)
 
     if isPublic: result[1].makePublic()
 
