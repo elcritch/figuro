@@ -145,10 +145,6 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   inner
   postNode()
 
-
-mouse = Mouse()
-mouse.pos = vec2(0, 0)
-
 proc computeScreenBox*(parent, node: Node) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:

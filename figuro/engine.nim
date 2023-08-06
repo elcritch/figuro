@@ -1,5 +1,4 @@
 
-
 when defined(js):
   import figuro/htmlbackend
   export htmlbackend
@@ -54,6 +53,13 @@ else:
           computeScreenBox(nil, appNodes)
           sendRoot(appNodes.copyInto())
 
+  proc runRenderer(renderer: Renderer) =
+    while app.running:
+      wait(renderEvent)
+      timeIt(renderAvgTime):
+        renderLoop(renderer, true)
+        app.frameCount.inc()
+
   proc run(renderer: Renderer) =
 
     sendRoot = proc (nodes: sink seq[render.Node]) =
@@ -71,11 +77,7 @@ else:
       app.running = false
     setControlCHook(ctrlc)
 
-    while app.running:
-      wait(renderEvent)
-      timeIt(renderAvgTime):
-        renderLoop(renderer, true)
-        frameCount.inc()
+    runRenderer(renderer)
 
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
@@ -91,18 +93,21 @@ proc startFidget*(
   ## Starts Fidget UI library
   ## 
   app.fullscreen = fullscreen
+  uiinputs.mouse = Mouse()
+  uiinputs.mouse.pos = vec2(0, 0)
+
   
   if not fullscreen:
-    windowSize = vec2(uiScale * w.float32, uiScale * h.float32)
+    app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
   appMain = draw
   tickMain = tick
   loadMain = load
 
-  let atlasStartSz = 1024 shl (uiScale.round().toInt() + 1)
+  let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
 
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
-  mouse.pixelScale = pixelScale
+  uiinputs.mouse.pixelScale = pixelScale
 
   if not setup.isNil: setup()
   renderer.run()

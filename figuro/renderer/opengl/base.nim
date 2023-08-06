@@ -23,7 +23,6 @@ var
   prevFrameTime* = programStartTime
   frameTime* = prevFrameTime
   dt*, dtAvg*, fps*, tps*, avgFrameTime*: float64
-  lastDraw, lastTick: int64
 
 var
   cursorDefault*: Cursor
@@ -45,19 +44,19 @@ proc updateWindowSize*(window: Window) =
 
   var cwidth, cheight: cint
   let size = window.size()
-  windowSize.x = size.x.toFloat
-  windowSize.y = size.y.toFloat
+  app.windowSize.x = size.x.toFloat
+  app.windowSize.y = size.y.toFloat
 
   app.minimized = window.minimized()
-  pixelRatio = window.contentScale()
+  app.pixelRatio = window.contentScale()
 
   glViewport(0, 0, cwidth, cheight)
 
   let scale = window.getScaleInfo()
-  if shared.autoUiScale:
-    shared.uiScale = min(scale.x, scale.y)
+  if app.autoUiScale:
+    app.uiScale = min(scale.x, scale.y)
 
-  windowLogicalSize = windowSize / shared.pixelScale * shared.pixelRatio
+  app.windowLogicalSize = app.windowSize / app.pixelScale * app.pixelRatio
 
 proc preInput*() =
   # var x, y: float64
@@ -76,8 +75,8 @@ proc postTick*() =
   # tpsTimeSeries.addTime()
   # tps = float64(tpsTimeSeries.num())
 
-  inc tickCount
-  lastTick += deltaTick
+  app.tickCount.inc()
+  app.lastTick += deltaTick
 
 
 
@@ -103,16 +102,16 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
   let scale = window.getScaleInfo()
   
-  if shared.autoUiScale:
-    shared.uiScale = min(scale.x, scale.y)
+  if app.autoUiScale:
+    app.uiScale = min(scale.x, scale.y)
 
   if app.fullscreen:
     window.fullscreen = app.fullscreen
   else:
 
     window.size = ivec2(
-      (windowSize.x * shared.pixelScale * shared.uiScale).int32,
-      (windowSize.y * shared.pixelScale * shared.uiScale).int32,
+      (app.windowSize.x * app.pixelScale * app.uiScale).int32,
+      (app.windowSize.y * app.pixelScale * app.uiScale).int32,
     )
 
   if window.isNil:
@@ -137,19 +136,19 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
     GL_ONE_MINUS_SRC_ALPHA
   )
 
-  # lastDraw = getTicks()
-  # lastTick = lastDraw
+  # app.lastDraw = getTicks()
+  # app.lastTick = app.lastDraw
   app.focused = true
 
   updateWindowSize(window)
 
 proc drawFrame*(nodes: var seq[Node]) =
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(windowSize)
+  ctx.beginFrame(app.windowSize)
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
-  mouse.cursorStyle = Default
+  uiinputs.mouse.cursorStyle = Default
 
   # Only draw the root after everything was done:
   drawRoot(nodes)
@@ -166,12 +165,7 @@ proc drawFrame*(nodes: var seq[Node]) =
 
 proc drawAndSwap*(window: Window, nodes: var seq[Node]) =
   ## Does drawing operations.
-  inc frameCount
-  # fpsTimeSeries.addTime()
-  # fps = float64(fpsTimeSeries.num())
-  # avgFrameTime = fpsTimeSeries.avg()
-
-  # prevFrameTime = cpuTime()
+  app.frameCount.inc
 
   timeIt(drawFrame):
     drawFrame(nodes)

@@ -46,9 +46,6 @@ when not defined(js):
       of vCenter: Middle
       of vBottom: Bottom
 
-mouse = Mouse()
-mouse.pos = vec2(0, 0)
-
 ## ---------------------------------------------
 ##             Basic Node Creation
 ## ---------------------------------------------
@@ -115,9 +112,9 @@ template blank*(): untyped =
 
 proc clearInputs*() =
   resetNodes = 0
-  mouse.wheelDelta = 0
-  mouse.consumed = false
-  mouse.clickedOutside = false
+  uiinputs.mouse.wheelDelta = 0
+  uiinputs.mouse.consumed = false
+  uiinputs.mouse.clickedOutside = false
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node User Interactions

@@ -33,7 +33,7 @@ type
     uiScale*: float32
     autoUiScale*: bool
 
-    app.requestedFrame*: int
+    requestedFrame*: int
     frameCount*, tickCount*: int
 
     windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
@@ -42,14 +42,19 @@ type
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
     pixelScale*: float32 ## Pixel multiplier user wants on the UI
 
+    lastDraw*, lastTick*: int64
+
+  AppInputs* = object
     mouse*: Mouse
     keyboard*: Keyboard
 
 var
-
   dataDir*: string = DataDirPath
-
-  app*: AppState
+  app* = AppState(
+    uiScale: 1.0,
+    autoUiScale: true
+  )
+  uiinputs* = AppInputs(mouse: Mouse(), keyboard: Keyboard())
 
 
 type

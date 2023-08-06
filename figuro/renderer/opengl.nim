@@ -55,7 +55,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onScroll = proc () =
     app.requestedFrame.inc
-    mouse.wheelDelta += window.scrollDelta().x
+    uiinputs.mouse.wheelDelta += window.scrollDelta().x
     renderEvent.trigger()
 
   window.onRune = keyboardInput
@@ -86,7 +86,7 @@ proc setupRenderer*(
 ): Renderer =
 
   let openglVersion = (openglMajor, openglMinor)
-  pixelScale = forcePixelScale
+  app.pixelScale = forcePixelScale
 
   let renderer =
     Renderer(window: newWindow("", ivec2(1280, 800)))
@@ -94,7 +94,7 @@ proc setupRenderer*(
   renderer.window.startOpenGL(openglVersion)
   renderer.configureEvents()
 
-  ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
+  ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = app.pixelScale)
   app.requestedFrame.inc
 
   useDepthBuffer(false)

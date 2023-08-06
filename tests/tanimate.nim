@@ -9,7 +9,7 @@ type
 
 proc ticker(self: Item) =
   refresh()
-  self.value = 0.008 * (1+frameCount).toFloat
+  self.value = 0.008 * (1+app.frameCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 var
