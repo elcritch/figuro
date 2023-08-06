@@ -39,7 +39,7 @@ proc createRpcRouter*(): FastRpcRouter =
 
 proc register*(router: var FastRpcRouter;
                path: string,
-               evt: SelectEvent,
+               evt: Event,
                serializer: RpcStreamSerializerClosure) =
   router.subNames[path] = evt
   let subs = newTable[ClientId, RpcSubId]()

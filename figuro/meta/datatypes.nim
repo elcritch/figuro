@@ -1,7 +1,6 @@
 
 import std/tables, std/sets, std/macros, std/sysrand
 import std/sugar, std/options
-import std/selectors
 import std/times
 
 import pkg/threading/channels
@@ -11,7 +10,7 @@ import equeues
 import protocol
 
 export protocol, equeues
-export sets, selectors, channels
+export sets, channels
 export sugar, options
 export variant
 
@@ -39,7 +38,7 @@ type
   RpcSubId* = int32
   RpcSubOpts* = object
     subid*: RpcSubId
-    evt*: SelectEvent
+    evt*: Event
     timeout*: Duration
     source*: string
 
@@ -52,8 +51,8 @@ type
   FastRpcRouter* = ref object
     procs*: Table[string, FastRpcProc]
     sysprocs*: Table[string, FastRpcProc]
-    subEventProcs*: Table[SelectEvent, RpcSubClients]
-    subNames*: Table[string, SelectEvent]
+    subEventProcs*: Table[Event, RpcSubClients]
+    subNames*: Table[string, Event]
     stacktraces*: bool
     subscriptionTimeout*: Duration
     inQueue*: EventQueue[Variant]
@@ -99,7 +98,7 @@ proc newFastRpcRouter*(
   new(result)
   result.procs = initTable[string, FastRpcProc]()
   result.sysprocs = initTable[string, FastRpcProc]()
-  result.subEventProcs = initTable[SelectEvent, RpcSubClients]()
+  result.subEventProcs = initTable[Event, RpcSubClients]()
   result.stacktraces = defined(debug)
 
   let

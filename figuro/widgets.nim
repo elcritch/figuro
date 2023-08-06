@@ -34,3 +34,5 @@ proc valueChanged(val: int) {.signal.}
 proc add(a: int, b: int): int {.slot.} =
   echo "add: ", 1 + a + b
 
+import pretty
+print router
