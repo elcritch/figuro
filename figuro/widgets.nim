@@ -35,4 +35,18 @@ proc add(a: int, b: int): int {.slot.} =
   echo "add: ", 1 + a + b
 
 import pretty
-print router
+# print router
+
+echo "router: ", router.listMethods()
+
+let req = AgentRequest(
+  kind: Request,
+  id: AgentId(1),
+  procName: "valueChanged",
+  params: RpcParams(buf: newVariant((val: 5)))
+)
+
+let res = router.callMethod(req, ClientId(10))
+
+print res
+
