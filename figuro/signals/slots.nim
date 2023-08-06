@@ -204,8 +204,8 @@ macro rpcGetter*(p: untyped): untyped =
 template rpc*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
 
-template rpcPublisher*(args: static[Millis], p: untyped): untyped =
-  rpcImpl(p, args, nil)
+# template rpcPublisher*(args: static[Duration], p: untyped): untyped =
+#   rpcImpl(p, args, nil)
 
 template rpcThread*(p: untyped): untyped =
   `p`
@@ -283,7 +283,7 @@ macro registerDatastream*[T,O,R](
               name: string,
               serializer: RpcStreamSerializer[T],
               reducer: RpcStreamTask[T, TaskOption[O]],
-              queue: InetEventQueue[T],
+              queue: EventQueue[T],
               option: O,
               optionRpcs: R) =
   echo "registerDatastream: T: ", repr(T)

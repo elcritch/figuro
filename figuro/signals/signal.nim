@@ -1,14 +1,10 @@
 import tables, strutils, macros
-
-import mcu_utils/basictypes
-import mcu_utils/msgbuffer
-import mcu_utils/logging
-include mcu_utils/threads
+import std/times
 
 
 import datatypes
 export datatypes
-export Millis
+export times
 
 proc wrapResponse*(id: FastRpcId, resp: FastRpcParamsBuffer, kind = Response): FastRpcResponse = 
   result.kind = kind

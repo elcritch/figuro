@@ -55,26 +55,26 @@ type
     subEventProcs*: Table[SelectEvent, RpcSubClients]
     subNames*: Table[string, SelectEvent]
     stacktraces*: bool
-    subscriptionTimeout*: Millis
+    subscriptionTimeout*: Duration
     inQueue*: InetMsgQueue
     outQueue*: InetMsgQueue
-    registerQueue*: InetEventQueue[InetQueueItem[RpcSubOpts]]
+    registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
 
 type
   ## Rpc Streamer Task types
   RpcStreamSerializer*[T] =
-    proc(queue: InetEventQueue[T]): RpcStreamSerializerClosure {.nimcall.}
+    proc(queue: EventQueue[T]): RpcStreamSerializerClosure {.nimcall.}
 
   TaskOption*[T] = object
     data*: T
     ch*: Chan[T]
 
-  RpcStreamTask*[T, O] = proc(queue: InetEventQueue[T], options: TaskOption[O])
+  RpcStreamTask*[T, O] = proc(queue: EventQueue[T], options: TaskOption[O])
 
 
   ThreadArg*[T, U] = object
-    queue*: InetEventQueue[T]
+    queue*: EventQueue[T]
     opt*: TaskOption[U]
 
   RpcStreamThread*[T, U] = Thread[ThreadArg[T, U]]
@@ -101,7 +101,7 @@ proc newFastRpcRouter*(
     inQueue = InetMsgQueue.init(size=inQueueSize)
     outQueue = InetMsgQueue.init(size=outQueueSize)
     registerQueue =
-      InetEventQueue[InetQueueItem[RpcSubOpts]].init(size=registerQueueSize)
+      EventQueue[InetQueueItem[RpcSubOpts]].init(size=registerQueueSize)
   
   result.inQueue = inQueue
   result.outQueue = outQueue
