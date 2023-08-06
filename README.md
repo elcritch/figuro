@@ -8,6 +8,13 @@ The core idea is to split it into two main pieces:
 1. Widget / UI Application
 2. Rendering Engine
 
+## Demo
+
+```sh
+atlas replay
+nim c -r "tests/tanimate.nim" 
+```
+
 ## Widget and Application Layer
 
 The UI Application side will draw UI Nodes using widgets. Widgets will comprise of objects with common set of methods. Each widget will then use a Fidget-like API to draw themselves.
