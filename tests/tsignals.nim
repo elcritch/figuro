@@ -71,8 +71,9 @@ when isMainModule:
         check counter.value == 42
 
     test "signal":
-      let val = valueChanged(137)
+      var val = valueChanged(137)
       print val
+      val.procName = "setValue"
       let res = router.callMethod(counter, val, ClientId(10))
       variantMatch case res.result.buf as u
       of AgentError:
