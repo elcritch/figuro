@@ -2,7 +2,9 @@ switch("styleCheck", "hint")
 
 --gc:orc
 --deepcopy:on
---define:windyNoHttp
+
+--d:windyNoHttp
+--d:printDebugTimings
 
 if not defined(emscripten):
   --threads:on

@@ -22,8 +22,9 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
     app.running = false
     return
 
-  if poll:
-    windy.pollEvents()
+  timeIt(eventPolling):
+    if poll:
+      windy.pollEvents()
   
   if requestedFrame <= 0 or app.minimized:
     return

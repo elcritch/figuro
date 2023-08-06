@@ -4,7 +4,7 @@ import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windy
 
-import perf, utils, context, draw
+import utils, context, draw
 import commons
 
 # import ../patches/textboxes 
@@ -18,8 +18,8 @@ const
 var
   dpi*: float32
   programStartTime* = epochTime()
-  fpsTimeSeries = newTimeSeries()
-  tpsTimeSeries = newTimeSeries()
+  # fpsTimeSeries = newTimeSeries()
+  # tpsTimeSeries = newTimeSeries()
   prevFrameTime* = programStartTime
   frameTime* = prevFrameTime
   dt*, dtAvg*, fps*, tps*, avgFrameTime*: float64
@@ -73,8 +73,8 @@ proc preTick*() =
   discard
 
 proc postTick*() =
-  tpsTimeSeries.addTime()
-  tps = float64(tpsTimeSeries.num())
+  # tpsTimeSeries.addTime()
+  # tps = float64(tpsTimeSeries.num())
 
   inc tickCount
   lastTick += deltaTick
@@ -137,8 +137,8 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
     GL_ONE_MINUS_SRC_ALPHA
   )
 
-  lastDraw = getTicks()
-  lastTick = lastDraw
+  # lastDraw = getTicks()
+  # lastTick = lastDraw
   app.focused = true
 
   updateWindowSize(window)
@@ -167,13 +167,14 @@ proc drawFrame*(nodes: var seq[Node]) =
 proc drawAndSwap*(window: Window, nodes: var seq[Node]) =
   ## Does drawing operations.
   inc frameCount
-  fpsTimeSeries.addTime()
-  fps = float64(fpsTimeSeries.num())
-  avgFrameTime = fpsTimeSeries.avg()
+  # fpsTimeSeries.addTime()
+  # fps = float64(fpsTimeSeries.num())
+  # avgFrameTime = fpsTimeSeries.avg()
 
-  prevFrameTime = cpuTime()
+  # prevFrameTime = cpuTime()
 
-  drawFrame(nodes)
+  timeIt(drawFrame):
+    drawFrame(nodes)
 
   frameTime = cpuTime()
   dt = frameTime - prevFrameTime
@@ -183,4 +184,5 @@ proc drawAndSwap*(window: Window, nodes: var seq[Node]) =
   while (error = glGetError(); error != GL_NO_ERROR):
     echo "gl error: " & $error.uint32
 
-  window.swapBuffers()
+  timeIt(drawFrameSwap):
+    window.swapBuffers()

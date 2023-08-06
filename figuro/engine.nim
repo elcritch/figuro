@@ -27,7 +27,7 @@ when defined(emscripten):
     emscripten_set_main_loop(main_loop, 0, true)
 else:
 
-  const renderPeriodMs {.intdefine.} = 8
+  const renderPeriodMs {.intdefine.} = 16
   const appPeriodMs {.intdefine.} = 16
 
   var frameTickThread, appTickThread: Thread[void]

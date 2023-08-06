@@ -7,18 +7,22 @@ type
 
 macro timeIt*(timer, blk: untyped) =
   let name = newStrLitNode timer.repr()
-  quote do:
-    var `timer` {.global, threadvar.}: TimeIt
-    let a = getMonoTime()
-    `blk`
-    let b = getMonoTime()
-    let res = b - a
-    let micros = res.inMicroseconds
-    `timer`.micros = (`timer`.micros + micros.toBiggestFloat) / 2.0
-    `timer`.count.inc
-    if `timer`.count mod 100 == 0:
-      let num = `timer`.micros / 1_000.0
-      echo "timing:", `name`, ": ", num.formatBiggestFloat(ffDecimal, 4)
+  if defined(printDebugTimings):
+    quote do:
+      var timer {.global, threadvar.}: TimeIt
+      let a = getMonoTime()
+      `blk`
+      let b = getMonoTime()
+      let res = b - a
+      let micros = res.inMicroseconds
+      timer.micros = 0.99*timer.micros + 0.01*micros.toBiggestFloat
+      timer.count.inc
+      if timer.count mod 1_000 == 0:
+        let num = timer.micros / 1_000.0
+        echo "timing:", `name`, ": ", num.formatBiggestFloat(ffDecimal, 3), " ms"
+  else:
+    quote do:
+      `blk`
 
 proc runEveryMillis*(ms: int, repeat: int, code: proc (idx: FrameIdx): bool) =
   when false:
