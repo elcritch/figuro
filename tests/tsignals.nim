@@ -74,6 +74,9 @@ when isMainModule:
       var val = valueChanged(137)
       print val
       val.procName = "setValue"
+
+      # connect(counter, valueChanged)
+
       let res = router.callMethod(counter, val, ClientId(10))
       variantMatch case res.result.buf as u
       of AgentError:

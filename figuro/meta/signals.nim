@@ -141,3 +141,6 @@ proc callMethod*(router: AgentRouter,
   buffer.unpack(req)
   var res: AgentResponse = router.callMethod(ctx, req, clientId)
   return newVariant(res)
+
+proc connect*(target: RpcContext) =
+  echo "connect"
