@@ -38,7 +38,7 @@ proc focus*(keyboard: Keyboard, node: Node, textBox: TextBox) =
     currTextBox = textBox
     currTextBox.editable = node.editableText
     currTextBox.scrollable = true
-    requestedFrame.inc
+    app.requestedFrame.inc
 
 proc focus*(keyboard: Keyboard, node: Node) =
   var font = fonts[node.textStyle.fontFamily]

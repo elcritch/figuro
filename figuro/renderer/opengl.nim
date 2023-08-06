@@ -26,9 +26,9 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
     if poll:
       windy.pollEvents()
   
-  if requestedFrame <= 0 or app.minimized:
+  if app.requestedFrame <= 0 or app.minimized:
     return
-  requestedFrame.dec
+  app.requestedFrame.dec
   preInput()
   if tickMain != nil:
     preTick()
@@ -54,18 +54,18 @@ proc configureEvents(renderer: Renderer) =
     appEvent.trigger()
 
   window.onScroll = proc () =
-    requestedFrame.inc
+    app.requestedFrame.inc
     mouse.wheelDelta += window.scrollDelta().x
     renderEvent.trigger()
 
   window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
-    requestedFrame.inc
+    app.requestedFrame.inc
     appEvent.trigger()
 
   window.onButtonPress = proc (button: windy.Button) =
-    requestedFrame.inc
+    app.requestedFrame.inc
     appEvent.trigger()
 
   window.onButtonRelease = proc (button: Button) =
@@ -95,7 +95,7 @@ proc setupRenderer*(
   renderer.configureEvents()
 
   ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = pixelScale)
-  requestedFrame.inc
+  app.requestedFrame.inc
 
   useDepthBuffer(false)
 

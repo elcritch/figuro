@@ -33,7 +33,7 @@ type
     uiScale*: float32
     autoUiScale*: bool
 
-    requestedFrame*: int
+    app.requestedFrame*: int
     frameCount*, tickCount*: int
 
     windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
@@ -92,7 +92,7 @@ const
 
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)
-  item.pos *= pixelRatio / item.pixelScale
+  item.pos *= app.pixelRatio / item.pixelScale
   item.delta = item.pos - item.prevPos
   item.prevPos = item.pos
 

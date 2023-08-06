@@ -46,7 +46,7 @@ var
 
 
 inputs.keyboardInput = proc (rune: Rune) =
-    requestedFrame.inc
+    app.requestedFrame.inc
     # if keyboard.focusNode != nil:
     #   keyboard.state = KeyState.Press
     #   # currTextBox.typeCharacter(rune)
@@ -70,7 +70,7 @@ proc removeExtraChildren*(node: Node) =
 
 proc refresh*() =
   ## Request the screen be redrawn
-  requestedFrame = max(1, requestedFrame)
+  app.requestedFrame = max(1, app.requestedFrame)
 
 proc getTitle*(): string =
   ## Gets window title

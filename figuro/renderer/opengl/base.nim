@@ -41,7 +41,7 @@ proc getScaleInfo*(window: Window): ScaleInfo =
   result.y = scale
 
 proc updateWindowSize*(window: Window) =
-  requestedFrame.inc
+  app.requestedFrame.inc
 
   var cwidth, cheight: cint
   let size = window.size()
