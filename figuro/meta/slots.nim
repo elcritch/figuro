@@ -163,6 +163,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         rpcUnpack(`paramsIdent`, params)
         # `paramSetups`
         `rpcMethod`(context, `paramsIdent`)
+      proc `procName`(
+          context: RootObj,
+          params: RpcParams,
+      ) {.nimcall.} =
+        let context: `ContextType` = context
+        `procName`(context, params)
 
     if isPublic: result[1].makePublic()
 
