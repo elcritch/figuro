@@ -2,10 +2,28 @@
 import std/[macros, typetraits]
 
 
-void Counter::setValue(int value)
-{
-    if (value != m_value) {
-        m_value = value;
-        emit valueChanged(value);
-    }
-}
+#include <QObject>
+
+
+type
+  Widget* = ref object of RootObj
+
+  Counter* = ref object of Widget
+    value: int
+
+macro slot(p) =
+  echo "## slot: "
+  echo p.treeRepr
+
+macro signal(p) =
+  echo "## slot: "
+  echo p.treeRepr
+
+proc value*(self: Counter): int =
+  self.value
+
+proc setValue*(self: Counter, value: int) {.slot.} =
+  self.value = value
+
+proc valueChanged(val: int) {.signal.}
+
