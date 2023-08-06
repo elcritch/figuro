@@ -6,7 +6,7 @@ import datatypes
 export datatypes
 export times
 
-proc wrapResponse*(id: FastRpcId, resp: FastRpcParamsBuffer, kind = Response): FastRpcResponse = 
+proc wrapResponse*(id: FastRpcId, resp: RpcParams, kind = Response): FastRpcResponse = 
   result.kind = kind
   result.id = id
   result.result = resp
@@ -16,7 +16,7 @@ proc wrapResponseError*(id: FastRpcId, err: FastRpcError): FastRpcResponse =
   result.id = id
   var ss = MsgBuffer.init()
   ss.pack(err)
-  result.result = FastRpcParamsBuffer(buf: ss)
+  result.result = RpcParams(buf: ss)
 
 proc wrapResponseError*(id: FastRpcId, code: FastErrorCodes, msg: string, err: ref Exception, stacktraces: bool): FastRpcResponse = 
   let errobj = FastRpcError(code: SERVER_ERROR, msg: msg)
@@ -110,7 +110,7 @@ proc callMethod*(
         # based on whether the rpc request is a system/regular/subscription
         var ctx: RpcContext
         # var ctx = RpcContext(callId: req.id, clientId: clientId)
-        let res: FastRpcParamsBuffer =
+        let res: RpcParams =
           rpcProc(req.params, ctx)
 
         result = FastRpcResponse(kind: Response, id: req.id, result: res)

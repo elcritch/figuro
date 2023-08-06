@@ -1,6 +1,8 @@
 import tables
+import variant
 
 export tables
+export variant
 
 type
   FastErrorCodes* = enum
@@ -12,9 +14,9 @@ type
     INTERNAL_ERROR = -23
     SERVER_ERROR = -22
 
-  FastRpcParamsBuffer* = object
+  RpcParams* = object
     ## implementation specific -- handles data buffer
-    buf*: seq[byte] 
+    buf*: Variant
 
 
 type
@@ -38,12 +40,12 @@ type
     kind*: FastRpcType
     id*: FastRpcId
     procName*: string
-    params*: FastRpcParamsBuffer # - we handle params below
+    params*: RpcParams # - we handle params below
 
   FastRpcResponse* = object
     kind*: FastRpcType
     id*: int
-    result*: FastRpcParamsBuffer # - we handle params below
+    result*: RpcParams # - we handle params below
 
   FastRpcError* = ref object
     code*: FastErrorCodes

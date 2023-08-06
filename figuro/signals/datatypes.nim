@@ -1,18 +1,18 @@
 
 import std/tables, std/sets, std/macros, std/sysrand
 import std/sugar, std/options
-
-export sugar
-
 import std/selectors
 import std/times
 
-import threading/channels
-export sets, selectors, channels
+import pkg/threading/channels
+import pkg/variant
 
+import equeues
 import protocol
-export protocol
-export options
+
+export protocol, equeues
+export sets, selectors, channels
+export sugar, options
 
 
 type
@@ -29,9 +29,9 @@ type
     clientId*: ClientId
 
   # Procedure signature accepted as an RPC call by server
-  FastRpcProc* = proc(params: FastRpcParamsBuffer,
+  FastRpcProc* = proc(params: RpcParams,
                       context: RpcContext
-                      ): FastRpcParamsBuffer {.gcsafe, nimcall.}
+                      ): RpcParams {.gcsafe, nimcall.}
 
   FastRpcBindError* = object of ValueError
   FastRpcAddressUnresolvableError* = object of ValueError
@@ -43,7 +43,7 @@ type
     timeout*: Duration
     source*: string
 
-  RpcStreamSerializerClosure* = proc(): FastRpcParamsBuffer {.closure.}
+  RpcStreamSerializerClosure* = proc(): RpcParams {.closure.}
 
   RpcSubClients* = object
     eventProc*: RpcStreamSerializerClosure
@@ -56,8 +56,8 @@ type
     subNames*: Table[string, SelectEvent]
     stacktraces*: bool
     subscriptionTimeout*: Duration
-    inQueue*: InetMsgQueue
-    outQueue*: InetMsgQueue
+    inQueue*: EventQueue[Variant]
+    outQueue*: EventQueue[Variant]
     registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
 
@@ -71,7 +71,6 @@ type
     ch*: Chan[T]
 
   RpcStreamTask*[T, O] = proc(queue: EventQueue[T], options: TaskOption[O])
-
 
   ThreadArg*[T, U] = object
     queue*: EventQueue[T]
@@ -98,8 +97,8 @@ proc newFastRpcRouter*(
   result.stacktraces = defined(debug)
 
   let
-    inQueue = InetMsgQueue.init(size=inQueueSize)
-    outQueue = InetMsgQueue.init(size=outQueueSize)
+    inQueue = EventQueue[Variant].init(size=inQueueSize)
+    outQueue = EventQueue[Variant].init(size=outQueueSize)
     registerQueue =
       EventQueue[InetQueueItem[RpcSubOpts]].init(size=registerQueueSize)
   
@@ -111,16 +110,16 @@ proc subscribe*(
     router: FastRpcRouter,
     procName: string,
     clientId: ClientId,
-    timeout = -1.Millis,
+    timeout = initDuration(milliseconds= -1),
     source = "",
 ): Option[RpcSubId] =
   # send a request to fastrpcserver to subscribe a client to a subscription
   let 
     to =
-      if timeout != -1.Millis: timeout
+      if timeout != initDuration(milliseconds= -1): timeout
       else: router.subscriptionTimeout
   let subid: RpcSubId = randBinString()
-  logDebug "fastrouter:subscribing::", procName, "subid:", subid
+  # logDebug "fastrouter:subscribing::", procName, "subid:", subid
   let val = RpcSubOpts(subid: subid,
                        evt: router.subNames[procName],
                        timeout: to,
@@ -141,21 +140,20 @@ proc listSysMethods*(rt: FastRpcRouter): seq[string] =
   for name in rt.sysprocs.keys():
     result.add name
 
-proc rpcPack*(res: FastRpcParamsBuffer): FastRpcParamsBuffer {.inline.} =
+proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
   result = res
 
-template rpcPack*(res: JsonNode): FastRpcParamsBuffer =
-  var jpack = res.fromJsonNode()
-  var ss = MsgBuffer.init(jpack)
-  ss.setPosition(jpack.len())
-  FastRpcParamsBuffer(buf: ss)
+# template rpcPack*(res: JsonNode): RpcParams =
+#   var jpack = res.fromJsonNode()
+#   var ss = MsgBuffer.init(jpack)
+#   ss.setPosition(jpack.len())
+#   RpcParams(buf: ss)
 
-proc rpcPack*[T](res: T): FastRpcParamsBuffer =
-  var ss = MsgBuffer.init()
+proc rpcPack*[T](res: T): RpcParams =
   ss.pack(res)
-  result = FastRpcParamsBuffer(buf: ss)
+  result = RpcParams(buf: ss)
 
-proc rpcUnpack*[T](obj: var T, ss: FastRpcParamsBuffer, resetStream = true) =
+proc rpcUnpack*[T](obj: var T, ss: RpcParams, resetStream = true) =
   try:
     if resetStream:
       ss.buf.setPosition(0)
@@ -169,7 +167,7 @@ template rpcQueuePacker*(procName: untyped,
                          qt: untyped,
                             ): untyped =
   proc `procName`*(queue: `qt`): RpcStreamSerializerClosure  =
-      result = proc (): FastRpcParamsBuffer =
+      result = proc (): RpcParams =
         let res = `rpcProc`(queue)
         result = rpcPack(res)
 

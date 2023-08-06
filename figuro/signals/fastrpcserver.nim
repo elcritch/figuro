@@ -116,7 +116,7 @@ proc fastRpcEventHandler*(
     logDebug("fastRpcEventHandler:subEventProcs: ", repr(evt))
     # get event serializer and run it to get back the ParamsBuffer 
     let subClient = router.subEventProcs[evt]
-    let msg: FastRpcParamsBuffer = subClient.eventProc()
+    let msg: RpcParams = subClient.eventProc()
     # now wrap response msg for each subscriber client 
     for cid, subid in subClient.subs:
       let resp: FastRpcResponse =

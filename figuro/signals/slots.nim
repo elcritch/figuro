@@ -152,7 +152,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     # Create the rpc wrapper procs
     result.add quote do:
-      proc `rpcMethod`(params: FastRpcParamsBuffer, context: `ContextType`): FastRpcParamsBuffer {.gcsafe, nimcall.} =
+      proc `rpcMethod`(params: RpcParams, context: `ContextType`): RpcParams {.gcsafe, nimcall.} =
         var obj: `paramTypeName`
         obj.rpcUnpack(params)
 
@@ -174,7 +174,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       closureScope: # 
         `rpcMethod` =
 
-          proc(): FastRpcParamsBuffer =
+          proc(): RpcParams =
             let res = `procName`()
             result = rpcPack(res)
 
@@ -308,7 +308,7 @@ proc getRpcOption*[T](chan: TaskOption[T]): T =
 #   ## TODO: FIXME
 #   ## this turned out kind of ugly... 
 #   ## but it works, think it'll work for subscriptions too 
-#   var packed: FastRpcParamsBuffer = rpcPack(value)
+#   var packed: RpcParams = rpcPack(value)
 #   let res: FastRpcResponse = wrapResponse(context.id, packed, kind)
 #   var so = MsgBuffer.init(res.result.buf.data.len() + sizeof(res))
 #   so.pack(res)
