@@ -143,7 +143,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     # Create the rpc wrapper procs
     result.add quote do:
-      proc `rpcMethod`(params: FastRpcParamsBuffer, context: `ContextType`): FastRpcParamsBuffer {.gcsafe, nimcall.} =
+      proc `rpcMethod`(params: Variant, context: `ContextType`): Variant {.gcsafe, nimcall.} =
         var obj: `paramTypeName`
         obj.rpcUnpack(params)
 
@@ -165,7 +165,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       closureScope: # 
         `rpcMethod` =
 
-          proc(): FastRpcParamsBuffer =
+          proc(): Variant =
             let res = `procName`()
             result = rpcPack(res)
 

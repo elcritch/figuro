@@ -4,6 +4,7 @@ import std/[macros, typetraits]
 
 #include <QObject>
 
+import signals/slots
 
 type
   Widget* = ref object of RootObj
@@ -26,4 +27,8 @@ proc setValue*(self: Counter, value: int) {.slot.} =
   self.value = value
 
 proc valueChanged(val: int) {.signal.}
+
+
+proc add(a: int, b: int): int {.rpc.} =
+  result = 1 + a + b
 
