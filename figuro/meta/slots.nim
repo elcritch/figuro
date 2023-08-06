@@ -179,7 +179,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     echo result.repr
 
   elif isSignal:
-    var construct = nnkTupleConstr(parameters[1..^1])
+    var construct = nnkTupleConstr.newTree(parameters[1..^1])
     echo "const: ", construct.repr
 
     result.add quote do:
