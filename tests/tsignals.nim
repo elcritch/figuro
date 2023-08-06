@@ -33,43 +33,57 @@ import pretty
 
 echo "router: ", router.listMethods()
 
-var counter = Counter()
 
 when isMainModule:
   import unittest
 
   suite "agent slots":
 
-    test "slot bad call":
-      let req = AgentRequest(
+    setup:
+      var counter = Counter()
+      var req = AgentRequest(
         kind: Request,
         id: AgentId(0),
         procName: "setValue",
-        params: RpcParams(buf: newVariant((val: 5)))
+        params: RpcParams(buf: newVariant(0))
       )
 
+    test "slot bad call":
+      req.params.buf = newVariant((val: 5))
       let res = router.callMethod(req, ClientId(10))
 
       variantMatch case res.result.buf as u
       of AgentError:
         echo "u is AgentError"
         print u
+        check counter.value == 0
       else:
         check false
 
     test "slot good call":
-      let req = AgentRequest(
-        kind: Request,
-        id: AgentId(0),
-        procName: "setValue",
-        params: RpcParams(buf: newVariant((counter: counter, val: 5)))
-      )
-
+      req.params.buf = newVariant((counter: counter, val: 42))
       let res = router.callMethod(req, ClientId(10))
 
       variantMatch case res.result.buf as u
       of AgentError:
         check false
       else:
-        echo "unknown type"
+        check counter.value == 42
+
+    # test "slot good call":
+    #   let req = AgentRequest(
+    #     kind: Request,
+    #     id: AgentId(0),
+    #     procName: "setValue",
+    #     params: RpcParams(buf: newVariant((counter: counter, val: 5)))
+    #   )
+
+    #   let res = router.callMethod(req, ClientId(10))
+
+    #   variantMatch case res.result.buf as u
+    #   of AgentError:
+    #     check false
+    #   else:
+    #     echo "unknown type"
+
 

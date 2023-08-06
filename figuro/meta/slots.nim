@@ -165,17 +165,17 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   elif isSignal:
 
     result.add quote do:
-      proc `rpcMethod`(): AgentRequest {.nimcall.} =
-        let req = AgentRequest(
+      proc `rpcMethod`(): AgentRequest =
+        result = AgentRequest(
           kind: Request,
           id: AgentId(0),
           procName: `signalName`,
           params: RpcParams(buf: newVariant(0))
         )
-        return req
-        
+
     if isPublic: result[0].makePublic()
-    result[0][3] = parameters
+    for param in parameters[1..^1]:
+      result[0][3].add param
     echo "signal: "
     echo result.treeRepr
     echo ""
