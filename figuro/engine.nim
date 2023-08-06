@@ -79,6 +79,12 @@ else:
 
     runRenderer(renderer)
 
+when not compileOption("threads"):
+  {.error: "This module requires --threads:on compilation flag".}
+
+when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
+  {.error: "This channel implementation requires --gc:arc or --gc:orc".}
+
 proc startFidget*(
     draw: proc() {.nimcall.} = nil,
     tick: proc() {.nimcall.} = nil,
