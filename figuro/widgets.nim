@@ -4,6 +4,7 @@ import std/[macros, typetraits]
 
 #include <QObject>
 
+import signals/signals
 import signals/slots
 
 type
