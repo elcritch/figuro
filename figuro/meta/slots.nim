@@ -146,7 +146,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # Create the rpc wrapper procs
     result.add quote do:
       proc `procName`(params: RpcParams,
-                        context: `ContextType`
+                      context: `ContextType`
                       ) {.nimcall.} =
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
