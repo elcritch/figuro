@@ -8,30 +8,28 @@ import figuro/meta/signals
 import figuro/meta/slots
 
 type
-  Widget* = ref object of RootObj
 
-  Counter* = ref object of Widget
+  Counter* = ref object of Agent
     value: int
 
-var router = newAgentRouter()
+# var router = newAgentRouter()
 
-template emit*(call: typed) =
-  discard
-
-proc value*(self: Counter): int =
-  self.value
+template emit*(call: untyped) =
+  call
 
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
   self.value = value
-  # emit valueChanged(val)
+  emit self.valueChanged(value)
 
+proc value*(self: Counter): int =
+  self.value
 
 import pretty
 # print router
 
-echo "router: ", router.listMethods()
+# echo "router: ", router.listMethods()
 
 
 when isMainModule:
@@ -50,19 +48,9 @@ when isMainModule:
 
     test "signal":
 
-      var val = counter.valueChanged(137)
-      print val
-      val.procName = "setValue"
+      counter.valueChanged(137)
 
       # connect(counter, valueChanged)
-
-      let res = router.callMethod(counter, val, ClientId(10))
-      variantMatch case res.result.buf as u
-      of AgentError:
-        print u
-        check false
-      else:
-        check counter.value == 137
 
     test "signal connect":
       var

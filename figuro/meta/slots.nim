@@ -173,7 +173,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     if isPublic: result[1].makePublic()
 
     result.add quote do:
-      register(router, `signalName`, `procName`)
+      register(currentSourcePath(), `signalName`, `procName`)
+    echo "firstType: ", firstType
     echo "slots: "
     echo result.repr
 
@@ -183,18 +184,19 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       construct.add nnkExprColonExpr.newTree(param[0], param[0])
 
     result.add quote do:
-      proc `rpcMethod`(): AgentRequest =
+      proc `rpcMethod`() =
         let args = `construct`
-        result = AgentRequest(
+        let sig = AgentRequest(
           kind: Request,
           id: AgentId(0),
           procName: `signalName`,
           params: RpcParams(buf: newVariant(args))
         )
+        callSlots(obj, sig)
 
     if isPublic: result[0].makePublic()
     result[0][3].add nnkIdentDefs.newTree(
-      ident "tp",
+      ident "obj",
       firstType,
       nnkEmpty.newNimNode()
     )

@@ -43,13 +43,19 @@ proc createRpcRouter*(): AgentRouter =
   result = new(AgentRouter)
   result.procs = initTable[string, AgentProc]()
 
-proc register*(router: var AgentRouter, path: string, call: AgentProc) =
+proc register*(router: var AgentRouter, path, name: string, call: AgentProc) =
   router.procs[path] = call
   echo "registering: ", path
 
-proc sysRegister*(router: var AgentRouter, path: string, call: AgentProc) =
+proc sysRegister*(router: var AgentRouter, path, name: string, call: AgentProc) =
   router.sysprocs[path] = call
   echo "registering: sys: ", path
+
+var globalRouter {.global.} = AgentRouter()
+
+proc register*(path, name: string, call: AgentProc) =
+  globalRouter.procs[path] = call
+  echo "registering: ", name, " @ ", path
 
 proc clear*(router: var AgentRouter) =
   router.procs.clear
@@ -64,7 +70,6 @@ proc callMethod*(
         clientId: ClientId,
       ): AgentResponse {.gcsafe.} =
     ## Route's an rpc request. 
-    # dumpAllocstats:
     var rpcProc: AgentProc 
     case req.kind:
     of Request:
@@ -72,7 +77,6 @@ proc callMethod*(
     of SystemRequest:
       rpcProc = router.sysprocs.getOrDefault(req.procName)
     of Subscribe:
-      # rpcProc = router.procs.getOrDefault(req.procName)
       echo "CALL:METHOD: SUBSCRIBE"
       let hasSubProc = req.procName in router.subNames
       if not hasSubProc:
@@ -80,16 +84,6 @@ proc callMethod*(
         return wrapResponseError(req.id, METHOD_NOT_FOUND,
                                  methodNotFound, nil,
                                  router.stacktraces)
-      # let subId = router.subscribe(req.procName, clientId)
-      # if subId.isSome():
-      #   let resp = %* {"subscription": subid.get()}
-      #   return AgentResponse(
-      #             kind: Response, id: req.id,
-      #             result: resp.rpcPack())
-      # else:
-      #   return wrapResponseError(
-      #             req.id, INTERNAL_ERROR,
-      #             "", nil, router.stacktraces)
     else:
       return wrapResponseError(
                   req.id,
@@ -106,7 +100,6 @@ proc callMethod*(
       try:
         # Handle rpc request the `context` variable is different
         # based on whether the rpc request is a system/regular/subscription
-        # var ctx = RpcContext(callId: req.id, clientId: clientId)
         rpcProc(ctx, req.params)
         let res = RpcParams(buf: newVariant(true)) 
 
@@ -153,4 +146,13 @@ template connect*[T: RootRef](
   echo "connect!b: ", repr typeof b
   echo "connect!b: ", repr typeof slot
 
-  # let res = router.callMethod(a, val, ClientId(10))
+proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
+  {.cast(gcsafe).}:
+    let res = globalRouter.callMethod(obj, req, ClientId(0))
+
+    # variantMatch case res.result.buf as u
+    # of AgentError:
+    # else:
+
+var
+  router {.global.}: AgentRouter

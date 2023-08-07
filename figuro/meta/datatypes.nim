@@ -59,7 +59,6 @@ type
     outQueue*: EventQueue[Variant]
     registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
-
 type
   ## Rpc Streamer Task types
   RpcStreamSerializer*[T] =
@@ -166,12 +165,5 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
     raise newException(ConversionError,
                        "unable to parse parameters: " & err.msg)
 
-template rpcQueuePacker*(procName: untyped,
-                         rpcProc: untyped,
-                         qt: untyped,
-                            ): untyped =
-  proc `procName`*(queue: `qt`): RpcStreamSerializerClosure  =
-      result = proc (): RpcParams =
-        let res = `rpcProc`(queue)
-        result = rpcPack(res)
-
+type
+  Agent* = ref object of RootObj
