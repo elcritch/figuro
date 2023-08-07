@@ -29,7 +29,7 @@ proc value*(self: Counter): int =
 import pretty
 # print router
 
-# echo "router: ", router.listMethods()
+echo "ROUTER: ", listMethods()
 
 
 when isMainModule:

@@ -54,8 +54,11 @@ proc sysRegister*(router: var AgentRouter, path, name: string, call: AgentProc) 
 var globalRouter {.global.} = AgentRouter()
 
 proc register*(path, name: string, call: AgentProc) =
-  globalRouter.procs[path] = call
+  globalRouter.procs[name] = call
   echo "registering: ", name, " @ ", path
+
+proc listMethods*(): seq[string] =
+  globalRouter.listMethods()
 
 proc clear*(router: var AgentRouter) =
   router.procs.clear
@@ -146,13 +149,15 @@ template connect*[T: RootRef](
   echo "connect!b: ", repr typeof b
   echo "connect!b: ", repr typeof slot
 
+import pretty
+
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let res = globalRouter.callMethod(obj, req, ClientId(0))
 
-    # variantMatch case res.result.buf as u
-    # of AgentError:
-    # else:
-
-var
-  router {.global.}: AgentRouter
+    variantMatch case res.result.buf as u
+    of AgentError:
+      print u
+      raise newException(AgentSlotError, u.msg)
+    else:
+      discard

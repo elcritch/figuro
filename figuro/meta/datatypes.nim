@@ -18,6 +18,7 @@ export variant
 type
 
   ConversionError* = object of CatchableError
+  AgentSlotError* = object of CatchableError
 
   AgentErrorStackTrace* = object
     code*: int
