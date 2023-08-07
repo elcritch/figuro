@@ -15,7 +15,7 @@ type
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
-  echo "setValue!"
+  echo "setValue! ", value
   self.value = value
   emit self.valueChanged(value)
 
