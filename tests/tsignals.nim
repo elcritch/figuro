@@ -71,7 +71,8 @@ when isMainModule:
         check counter.value == 42
 
     test "signal":
-      var val = Counter.valueChanged(137)
+
+      var val = counter.valueChanged(137)
       print val
       val.procName = "setValue"
 

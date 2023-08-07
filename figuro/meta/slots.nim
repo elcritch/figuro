@@ -195,7 +195,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     if isPublic: result[0].makePublic()
     result[0][3].add nnkIdentDefs.newTree(
       ident "tp",
-      nnkBracketExpr.newTree(ident "typedesc", firstType,),
+      firstType,
       nnkEmpty.newNimNode()
     )
     for param in parameters[1..^1]:
