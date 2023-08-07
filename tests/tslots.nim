@@ -38,15 +38,6 @@ when isMainModule:
 
   suite "agent slots":
 
-    setup:
-      var counter = Counter()
-      var req = AgentRequest(
-        kind: Request,
-        id: AgentId(0),
-        procName: "setValue",
-        params: RpcParams(buf: newVariant(0))
-      )
-
     test "signal connect":
       var
         a = Counter()
