@@ -111,10 +111,35 @@ macro getSignalName(signal: typed): auto =
 
 import typetraits
 
-macro signalKind*(p: typed): auto =
+macro signalObj*(p: typed): auto =
   let p = p.getTypeInst
   let obj = p[0][1]
   result = obj[1].getTypeInst
+proc signalKind*(p: NimNode): seq[NimNode] =
+  let p = p.getTypeInst
+  # echo "SIGNAL KIND:"
+  # echo p.treeRepr
+  let obj = p[0]
+  for arg in obj[2..^1]:
+    # echo "ARG: ", arg.treeRepr
+    result.add arg[1]
+macro signalCheck*(signal, slot: typed) =
+  let ksig = signalKind(signal)
+  let kslot = signalKind(slot)
+  # echo ""
+  # echo "KSIG: ", ksig.treeRepr
+  # echo "KSLOT: ", kslot.treeRepr
+  var res = false
+  if ksig.len == kslot.len:
+    for i in 0..<ksig.len():
+      echo "ksig: ", ksig[i].treeRepr
+      echo "kslot: ", kslot[i].treeRepr
+      res = ksig[i] == kslot[i]
+      echo "kk: ", res
+  if not res:
+    error("signal and slot types don't match", signal)
+  else:
+    result = nnkEmpty.newNimNode()
 
 template connect*(
     a: Agent,
@@ -122,13 +147,14 @@ template connect*(
     b: Agent,
     slot: typed
 ) =
-  echo "signal: ", repr typeof signal
-  echo "slot: ", repr typeof slot
+  # echo "signal: ", repr typeof signal
+  # echo "slot: ", repr typeof slot
+  when signalObj(signal) isnot Agent:
+    {.error: "signal is wrong type".}
+  when signalObj(slot) isnot Agent:
+    {.error: "slot is wrong type".}
+  signalCheck(signal, slot)
 
-  when signalKind(signal) is signalKind(slot):
-    echo "MATCH!"
-  else:
-    echo "NOT!"
   let name = getSignalName(signal)
   a.addAgentListeners(name, b, `slot AgentSlot`)
 

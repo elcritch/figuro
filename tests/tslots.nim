@@ -11,8 +11,10 @@ type
 
   Counter* = ref object of Agent
     value: int
+    avg: int
 
 proc valueChanged*(tp: Counter, val: int) {.signal.}
+proc avgChanged*(tp: Counter, val: float) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
   echo "setValue! ", value
@@ -56,6 +58,8 @@ when isMainModule:
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
+              c, setValue)
+      connect(a, avgChanged,
               c, setValue)
 
       check a.value == 0
