@@ -176,7 +176,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         `paramSetups`
         `mcall`
 
-    if isPublic: result[1].makePublic()
+    if isPublic:
+      result[1].makePublic()
 
     result.add quote do:
       register(currentSourcePath(), `signalName`, `procName`)
@@ -209,7 +210,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       result[0][3].add param
     echo "signal: "
     echo result.repr
-    echo "\nparameters: ", treeRepr parameters 
+    # echo "\nparameters: ", treeRepr parameters 
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
