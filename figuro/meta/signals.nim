@@ -91,14 +91,14 @@ proc callMethod*(
                     req.id,
                     INVALID_PARAMS,
                     req.procName & " raised an exception",
-                    err, 
+                    err,
                     true)
       except CatchableError as err:
         result = wrapResponseError(
                     req.id,
                     INTERNAL_ERROR,
                     req.procName & " raised an exception: " & err.msg,
-                    err, 
+                    err,
                     true)
  
 template packResponse*(res: AgentResponse): Variant =
