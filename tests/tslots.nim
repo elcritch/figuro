@@ -42,16 +42,24 @@ when isMainModule:
       var
         a = Counter()
         b = Counter()
+        c = Counter()
+        d = Counter()
       
       # TODO: how to do this?
-      connect(
-        a, valueChanged,
-        b, setValue,
-      )
+      connect(a, valueChanged,
+              b, setValue)
+      connect(a, valueChanged,
+              c, setValue)
       
       check b.value == 0
+      check c.value == 0
+      check d.value == 0
+
       a.valueChanged(137)
+
+      check a.value == 0
       check b.value == 137
-      print b
+      check c.value == 137
+      check d.value == 0
 
 
