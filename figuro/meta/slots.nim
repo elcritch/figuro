@@ -204,63 +204,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     echo result.repr
     echo "\nparameters: ", treeRepr parameters 
 
-
-macro rpcOption*(p: untyped): untyped =
-  result = p
-
-macro rpcSetter*(p: untyped): untyped =
-  result = p
-macro rpcGetter*(p: untyped): untyped =
-  result = p
-
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
 
-# template rpcPublisher*(args: static[Duration], p: untyped): untyped =
-#   rpcImpl(p, args, nil)
-
-template rpcThread*(p: untyped): untyped =
-  `p`
-
 template signal*(p: untyped): untyped =
-  # rpcImpl(p, "thread", qarg)
-  # static: echo "RPCSERIALIZER:\n", treeRepr p
   rpcImpl(p, "signal", nil)
-
-macro registerRpcs*(router: var AgentRouter,
-                    registerClosure: untyped,
-                    args: varargs[untyped]) =
-  result = quote do:
-    `registerClosure`(`router`, `args`) # 
-
-macro registerDatastream*[T,O,R](
-              router: var AgentRouter,
-              name: string,
-              serializer: RpcStreamSerializer[T],
-              reducer: RpcStreamTask[T, TaskOption[O]],
-              queue: EventQueue[T],
-              option: O,
-              optionRpcs: R) =
-  echo "registerDatastream: T: ", repr(T)
-  result = quote do:
-    let serClosure: RpcStreamSerializerClosure =
-            `serializer`(`queue`)
-    `optionRpcs`(`router`)
-    router.register(`name`, `queue`.evt, serClosure)
-
-  echo "REG:DATASTREAM:\n", result.repr
-  echo ""
-
-                      
-proc getUpdatedOption*[T](chan: TaskOption[T]): Option[T] =
-  # chan.tryRecv()
-  return some(T())
-proc getRpcOption*[T](chan: TaskOption[T]): T =
-  # chan.tryRecv()
-  return T()
-
-template rpcReply*(value: untyped): untyped =
-  rpcReply(context, value, Publish)
-
-template rpcPublish*(arg: untyped): untyped =
-  rpcReply(context, arg, Publish)

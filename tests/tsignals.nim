@@ -21,7 +21,7 @@ template emit*(call: typed) =
 proc value*(self: Counter): int =
   self.value
 
-proc valueChanged*(tp: typedesc[Counter], val: int) {.signal.}
+proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
   self.value = value
