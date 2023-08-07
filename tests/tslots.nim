@@ -51,7 +51,6 @@ when isMainModule:
       check c.value == 137
       check d.value == 0
 
-
     test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
