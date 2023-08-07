@@ -59,8 +59,9 @@ when isMainModule:
               b, setValue)
       connect(a, valueChanged,
               c, setValue)
-      connect(a, avgChanged,
-              c, setValue)
+      check not compiles(
+        connect(a, avgChanged,
+                c, setValue))
 
       check a.value == 0
       check b.value == 0
