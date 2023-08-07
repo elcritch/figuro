@@ -64,7 +64,7 @@ when isMainModule:
       check d.value == 0
       a.setValue(137)
 
-      check a.value == 0
+      check a.value == 137
       check b.value == 137
       check c.value == 137
       check d.value == 0
