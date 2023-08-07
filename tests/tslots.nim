@@ -58,16 +58,15 @@ when isMainModule:
       connect(a, valueChanged,
               c, setValue)
 
+      check a.value == 0
       check b.value == 0
       check c.value == 0
-      check d.value == 0
 
-      emit a.setValue(137)
+      emit a.setValue(42)
 
-      check a.value == 137
-      check b.value == 137
-      check c.value == 137
-      check d.value == 0
+      check a.value == 42
+      check b.value == 42
+      check c.value == 42
 
 
 
