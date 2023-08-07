@@ -20,6 +20,7 @@ template emit*(call: untyped) =
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
+  echo "setValue!"
   self.value = value
   emit self.valueChanged(value)
 
@@ -46,12 +47,6 @@ when isMainModule:
         params: RpcParams(buf: newVariant(0))
       )
 
-    test "signal":
-
-      counter.valueChanged(137)
-
-      # connect(counter, valueChanged)
-
     test "signal connect":
       var
         a = Counter()
@@ -63,7 +58,9 @@ when isMainModule:
         b, setValue,
       )
       
-      let params = (value: 23)
-      a.setValue(params)
+      check b.value == 0
+      a.valueChanged(137)
+      check b.value == 137
+      print b
 
 

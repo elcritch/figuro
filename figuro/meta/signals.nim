@@ -106,24 +106,28 @@ template packResponse*(res: AgentResponse): Variant =
   so.pack(res)
   so
 
-template connect*[T: RootRef](
-    a: T,
+macro getSignalName(signal: typed): auto =
+  result = newStrLitNode signal.strVal
+
+template connect*(
+    a: Agent,
     signal: typed,
-    b: T,
+    b: Agent,
     slot: typed
 ) =
-  echo "connect!a: ", repr typeof a
-  echo "connect!a: ", repr typeof signal
-  echo "connect!b: ", repr typeof b
-  echo "connect!b: ", repr typeof slot
+  let name = getSignalName(signal)
+  a.addAgentListeners(name, b, `slot Func`)
 
 import pretty
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
+    # echo "call slot: ", req.procName
     let listeners = obj.getAgentListeners(req.procName)
 
+    # echo "call slots: ", $obj.listeners
     for (tgt, slot) in listeners:
+      # echo "call listener: ", repr tgt
       let res = slot.callMethod(tgt, req, ClientId(0))
       variantMatch case res.result.buf as u
       of AgentError:

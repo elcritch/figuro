@@ -173,5 +173,16 @@ type
 proc getAgentListeners*(obj: Agent,
                         sig: string
                         ): seq[(Agent, AgentProc)] =
+  # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
+
+proc addAgentListeners*(obj: Agent,
+                        sig: string,
+                        tgt: Agent,
+                        slot: AgentProc
+                        ) =
+  obj.listeners.
+    mgetOrPut(sig, newSeq[(Agent, AgentProc)]()).
+    add((tgt, slot))
+  # echo "LISTENERS: ", obj.listeners
