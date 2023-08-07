@@ -168,3 +168,10 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
 
 type
   Agent* = ref object of RootObj
+    listeners: Table[string, seq[(Agent, AgentProc)]]
+
+proc getAgentListeners*(obj: Agent,
+                        sig: string
+                        ): seq[(Agent, AgentProc)] =
+  if obj.listeners.hasKey(sig):
+    result = obj.listeners[sig]

@@ -67,35 +67,14 @@ proc hasMethod*(router: AgentRouter, methodName: string): bool =
   router.procs.hasKey(methodName)
 
 proc callMethod*(
-        router: AgentRouter,
+        slot: AgentProc,
         ctx: RpcContext,
         req: AgentRequest,
         clientId: ClientId,
       ): AgentResponse {.gcsafe.} =
     ## Route's an rpc request. 
-    var rpcProc: AgentProc 
-    case req.kind:
-    of Request:
-      rpcProc = router.procs.getOrDefault(req.procName)
-    of SystemRequest:
-      rpcProc = router.sysprocs.getOrDefault(req.procName)
-    of Subscribe:
-      echo "CALL:METHOD: SUBSCRIBE"
-      let hasSubProc = req.procName in router.subNames
-      if not hasSubProc:
-        let methodNotFound = req.procName & " is not a registered RPC method."
-        return wrapResponseError(req.id, METHOD_NOT_FOUND,
-                                 methodNotFound, nil,
-                                 router.stacktraces)
-    else:
-      return wrapResponseError(
-                  req.id,
-                  SERVER_ERROR,
-                  "unimplemented request typed",
-                  nil, 
-                  router.stacktraces)
 
-    if rpcProc.isNil:
+    if slot.isNil:
       let msg = req.procName & " is not a registered RPC method."
       let err = AgentError(code: METHOD_NOT_FOUND, msg: msg)
       result = wrapResponseError(req.id, err)
@@ -103,7 +82,7 @@ proc callMethod*(
       try:
         # Handle rpc request the `context` variable is different
         # based on whether the rpc request is a system/regular/subscription
-        rpcProc(ctx, req.params)
+        slot(ctx, req.params)
         let res = RpcParams(buf: newVariant(true)) 
 
         result = AgentResponse(kind: Response, id: req.id, result: res)
@@ -113,30 +92,19 @@ proc callMethod*(
                     INVALID_PARAMS,
                     req.procName & " raised an exception",
                     err, 
-                    router.stacktraces)
+                    true)
       except CatchableError as err:
         result = wrapResponseError(
                     req.id,
                     INTERNAL_ERROR,
                     req.procName & " raised an exception: " & err.msg,
                     err, 
-                    router.stacktraces)
+                    true)
  
 template packResponse*(res: AgentResponse): Variant =
   var so = newVariant()
   so.pack(res)
   so
-
-proc callMethod*(router: AgentRouter,
-                 ctx: RpcContext,
-                 buffer: Variant,
-                 clientId: ClientId,
-                 ): Variant =
-  # logDebug("msgpack processing")
-  var req: AgentRequest
-  buffer.unpack(req)
-  var res: AgentResponse = router.callMethod(ctx, req, clientId)
-  return newVariant(res)
 
 template connect*[T: RootRef](
     a: T,
@@ -153,11 +121,13 @@ import pretty
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
-    let res = globalRouter.callMethod(obj, req, ClientId(0))
+    let listeners = obj.getAgentListeners(req.procName)
 
-    variantMatch case res.result.buf as u
-    of AgentError:
-      print u
-      raise newException(AgentSlotError, u.msg)
-    else:
-      discard
+    for (tgt, slot) in listeners:
+      let res = slot.callMethod(tgt, req, ClientId(0))
+      variantMatch case res.result.buf as u
+      of AgentError:
+        print u
+        raise newException(AgentSlotError, u.msg)
+      else:
+        discard
