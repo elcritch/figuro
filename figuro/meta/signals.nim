@@ -109,12 +109,26 @@ template packResponse*(res: AgentResponse): Variant =
 macro getSignalName(signal: typed): auto =
   result = newStrLitNode signal.strVal
 
+import typetraits
+
+macro signalKind*(p: typed): auto =
+  let p = p.getTypeInst
+  let obj = p[0][1]
+  result = obj[1].getTypeInst
+
 template connect*(
     a: Agent,
     signal: typed,
     b: Agent,
     slot: typed
 ) =
+  echo "signal: ", repr typeof signal
+  echo "slot: ", repr typeof slot
+
+  when signalKind(signal) is signalKind(slot):
+    echo "MATCH!"
+  else:
+    echo "NOT!"
   let name = getSignalName(signal)
   a.addAgentListeners(name, b, `slot AgentSlot`)
 
