@@ -12,11 +12,6 @@ type
   Counter* = ref object of Agent
     value: int
 
-# var router = newAgentRouter()
-
-template emit*(call: untyped) =
-  call
-
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
@@ -26,12 +21,6 @@ proc setValue*(self: Counter, value: int) {.slot.} =
 
 proc value*(self: Counter): int =
   self.value
-
-import pretty
-# print router
-
-echo "ROUTER: ", listMethods()
-
 
 when isMainModule:
   import unittest

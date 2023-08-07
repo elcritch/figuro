@@ -109,7 +109,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     isPublic = pathStr.endsWith("*")
 
     # public rpc proc
-    procName = ident(procNameStr & "Func")
+    procName = ident(procNameStr & "AgentSlot")
     rpcMethod = ident(procNameStr)
 
     ctxName = ident("context")

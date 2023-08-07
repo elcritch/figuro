@@ -116,7 +116,7 @@ template connect*(
     slot: typed
 ) =
   let name = getSignalName(signal)
-  a.addAgentListeners(name, b, `slot Func`)
+  a.addAgentListeners(name, b, `slot AgentSlot`)
 
 import pretty
 
@@ -135,3 +135,6 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
         raise newException(AgentSlotError, u.msg)
       else:
         discard
+
+template emit*(call: untyped) =
+  call
