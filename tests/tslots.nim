@@ -26,14 +26,14 @@ when isMainModule:
   import unittest
 
   suite "agent slots":
-
-    test "signal connect":
+    setup:
       var
         a = Counter()
         b = Counter()
         c = Counter()
         d = Counter()
-      
+
+    test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
               b, setValue)
@@ -50,5 +50,26 @@ when isMainModule:
       check b.value == 137
       check c.value == 137
       check d.value == 0
+
+
+    test "signal connect":
+      # TODO: how to do this?
+      connect(a, valueChanged,
+              b, setValue)
+      connect(a, valueChanged,
+              c, setValue)
+
+      check b.value == 0
+      check c.value == 0
+      check d.value == 0
+
+      when false:
+        a.setValue(137)
+
+      check a.value == 0
+      check b.value == 137
+      check c.value == 137
+      check d.value == 0
+
 
 
