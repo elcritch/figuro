@@ -140,12 +140,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     result.add quote do:
       `paramTypes`
 
-      proc `rpcMethod`(
-          `firstName`: `ContextType`,
-          `paramsIdent`: `paramTypeName`,
-      ) =
-        `paramSetups`
+    let rm = quote do:
+      proc `rpcMethod`() =
         `procBody`
+    
+    for param in parameters: rm[3].add param
+    result.add rm
 
     # Create the rpc wrapper procs
     let call = quote do:
@@ -154,6 +154,11 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     echo call.repr
     echo call.treeRepr
     echo ""
+    let objId = ident("obj")
+    let mcall = nnkCall.newTree(rpcMethod)
+    mcall.add(ident("obj"))
+    for param in parameters[1..^1]:
+      mcall.add param[0]
 
     result.add quote do:
       proc `procName`(
@@ -167,14 +172,14 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
-        # `paramSetups`
-        `rpcMethod`(obj, `paramsIdent`)
+        let `objId` = cast[`firstType`](context)
+        `paramSetups`
+        `mcall`
 
     if isPublic: result[1].makePublic()
 
     result.add quote do:
       register(currentSourcePath(), `signalName`, `procName`)
-    echo "firstType: ", firstType
     echo "slots: "
     echo result.repr
 
