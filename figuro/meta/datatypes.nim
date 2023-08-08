@@ -14,6 +14,17 @@ export sets, channels
 export sugar, options
 export variant
 
+type
+  Agent* = ref object of RootObj
+    listeners: Table[string, seq[(Agent, AgentProc)]]
+
+  # Context for servicing an RPC call 
+  RpcContext* = Agent
+
+  # Procedure signature accepted as an RPC call by server
+  AgentProc* = proc(context: RpcContext,
+                    params: RpcParams,
+                    ) {.gcsafe, nimcall.}
 
 type
 
@@ -24,14 +35,6 @@ type
     code*: int
     msg*: string
     stacktrace*: seq[string]
-
-  # Context for servicing an RPC call 
-  RpcContext* = RootRef
-
-  # Procedure signature accepted as an RPC call by server
-  AgentProc* = proc(context: RpcContext,
-                    params: RpcParams,
-                    ) {.gcsafe, nimcall.}
 
   AgentBindError* = object of ValueError
   AgentAddressUnresolvableError* = object of ValueError
@@ -165,10 +168,6 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   except AssertionDefect as err:
     raise newException(ConversionError,
                        "unable to parse parameters: " & err.msg)
-
-type
-  Agent* = ref object of RootObj
-    listeners: Table[string, seq[(Agent, AgentProc)]]
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
