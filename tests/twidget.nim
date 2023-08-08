@@ -8,7 +8,6 @@ type
   Main* = ref object of Figuro
 
 method render(app: Main) =
-
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 4:
