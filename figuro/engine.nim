@@ -14,6 +14,7 @@ import shared, internal, ui/core
 import common/nodes/transfer
 import common/nodes/ui as ui
 import common/nodes/render as render
+import widgets
 import timers
 
 when defined(emscripten):
@@ -117,3 +118,30 @@ proc startFidget*(
 
   if not setup.isNil: setup()
   renderer.run()
+
+var
+  appWidget: Figuro
+
+proc appRender() =
+  appWidget.render()
+
+proc startFidget*(
+    app: Figuro = nil,
+    setup: proc() = nil,
+    fullscreen = false,
+    w: Positive = 1280,
+    h: Positive = 800,
+    pixelate = false,
+    pixelScale = 1.0
+) =
+  appWidget = app
+  startFidget(
+    appRender,
+    nil,
+    nil,
+    setup = setup,
+    fullscreen,
+    w, h,
+    pixelate,
+    pixelScale
+  )
