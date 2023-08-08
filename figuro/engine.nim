@@ -124,6 +124,10 @@ var
 
 proc appRender() =
   appWidget.render()
+proc appTick() =
+  appWidget.tick()
+proc appLoad() =
+  appWidget.load()
 
 proc startFidget*(
     app: Figuro = nil,
@@ -136,9 +140,7 @@ proc startFidget*(
 ) =
   appWidget = app
   startFidget(
-    appRender,
-    nil,
-    nil,
+    appRender, appTick, appLoad,
     setup = setup,
     fullscreen,
     w, h,

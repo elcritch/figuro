@@ -10,3 +10,8 @@ type
 method render*(widget: Figuro) {.base.} =
   discard
 
+method tick*(widget: Figuro) {.base.} =
+  discard
+
+method load*(widget: Figuro) {.base.} =
+  discard
