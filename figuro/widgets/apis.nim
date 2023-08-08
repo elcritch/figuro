@@ -169,10 +169,6 @@ proc size*(
     current.cxSize[drow] = csFixed(h.UiScalar)
     current.box.h = h.UICoord
 
-proc openBrowser*(url: string) =
-  ## Opens a URL in a browser
-  discard
-
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)
 
