@@ -10,7 +10,7 @@ else:
   export opengl
 
 import std/os
-import shared, internal, widget/core
+import shared, internal, ui/core
 import common/nodes/transfer
 import common/nodes/ui as ui
 import common/nodes/render as render
