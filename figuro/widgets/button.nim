@@ -23,14 +23,11 @@ method render*(self: Button) =
   #     characters props.label
 
   if self.disabled:
-    current.fill = "#FF0000".parseHtmlColor
-    # useTheme atom"disabled"
+    fill "#FF0000"
   else:
-    current.fill = "#00FF00".parseHtmlColor
-    # if self.isActive:
-    #   useTheme atom"active"
-    # onHover:
-    #   useTheme atom"hover"
-    # onClick:
-    #   useTheme atom"active"
-    # dispatchMouseEvents()
+    if self.isActive:
+      fill "#00CC00"
+    onHover:
+      fill "#00FF00"
+    onClick:
+      fill "#00FFFF"

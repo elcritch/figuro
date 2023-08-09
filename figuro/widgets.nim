@@ -1,8 +1,10 @@
 
 import meta/signals
 import meta/slots
+import ui/apis
 
 export signals, slots
+export apis
 
 type
   Figuro* = ref object of Agent
