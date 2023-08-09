@@ -7,6 +7,9 @@ type
     isActive: bool
     disabled: bool
 
+template button*(blk: untyped) =
+  children.add Button()
+
 method render*(self: Button) =
   # button widget!
   # onTheme 
