@@ -7,10 +7,10 @@ type
     isActive: bool
     disabled: bool
 
-template button*(blk: untyped) =
-  let widget = Button()
-  current.nodes.add widget
-  current = widget
+template button*(id, blk: untyped) =
+  preNode(nkRectangle, Button, atom(id))
+  `blk`
+  postNode()
 
 method render*(self: Button) =
   # button widget!
@@ -31,5 +31,5 @@ method render*(self: Button) =
       fill "#00CC00"
     onHover:
       fill "#00FF00"
-    onClick:
-      fill "#00FFFF"
+    # onClick:
+    #   fill "#00FFFF"

@@ -223,7 +223,7 @@ template onHover*(inner: untyped) =
 
 template onClick*(inner: untyped, button = MOUSE_LEFT) =
   ## On click event handler.
-  discard
+  inner
   # current.listens.mouse.incl(evClick)
   # if evClick in current.events.mouse and buttonPress[button]:
   #   inner

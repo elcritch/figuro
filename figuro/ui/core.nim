@@ -82,7 +82,7 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh()
 
-proc preNode[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
+proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   ## Process the start of the node.
 
   parent = nodeStack[^1]
@@ -118,7 +118,7 @@ proc preNode[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
 
   current.diffIndex = 0
 
-proc postNode() =
+proc postNode*() =
   current.removeExtraChildren()
 
   # Pop the stack.
