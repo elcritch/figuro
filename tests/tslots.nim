@@ -4,8 +4,7 @@ import std/[macros, typetraits]
 
 #include <QObject>
 
-import figuro/meta/signals
-import figuro/meta/slots
+import figuro/meta
 
 type
 
