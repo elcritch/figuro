@@ -14,7 +14,7 @@ import shared, internal, ui/core
 import common/nodes/transfer
 import common/nodes/ui as ui
 import common/nodes/render as render
-import widgets
+import widget
 import timers
 
 when defined(emscripten):

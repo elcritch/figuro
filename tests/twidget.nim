@@ -1,7 +1,7 @@
 
 ## This minimal example shows 5 blue squares.
 
-import figuro/[timers, widgets]
+import figuro/[timers, widget]
 import figuro/widgets/button
 import figuro
 

@@ -1,12 +1,17 @@
 import basics
+import ../../meta
 
-export basics
+export basics, meta
 
 var lastUId: int = 0
 
 type
 
-  Node* = ref object
+  UiStatus* = enum
+    onHover
+    onClick
+
+  Node* = ref object of Agent
     uid*: NodeID
     nodes*: seq[Node]
     nIndex*: int
@@ -18,6 +23,7 @@ type
     offset*: Position
     totalOffset*: Position
     attrs*: set[Attributes]
+    status*: set[UiStatus]
 
     zlevel*: ZLevel
     rotation*: float32

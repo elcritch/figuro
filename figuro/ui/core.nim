@@ -82,7 +82,7 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh()
 
-proc preNode(kind: NodeKind, id: Atom) =
+proc preNode[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   ## Process the start of the node.
 
   parent = nodeStack[^1]
@@ -90,7 +90,7 @@ proc preNode(kind: NodeKind, id: Atom) =
   # TODO: maybe a better node differ?
   if parent.nodes.len <= parent.diffIndex:
     # Create Node.
-    current = Node()
+    current = T()
     current.uid = newUId()
     parent.nodes.add(current)
     refresh()
@@ -134,14 +134,14 @@ proc postNode() =
 
 template node*(kind: NodeKind, id: static string, inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, atom(id))
+  preNode(kind, Node, atom(id))
   setup
   inner
   postNode()
 
 template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, atom(id))
+  preNode(kind, Node, atom(id))
   inner
   postNode()
 

@@ -1,6 +1,6 @@
 
 import ../../figuro
-import ../widgets
+import ../widget
 
 export figuro
-export widgets
+export widget
