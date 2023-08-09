@@ -31,10 +31,10 @@ when isMainModule:
   suite "agent slots":
     setup:
       var
-        a = Counter()
-        b = Counter()
-        c = Counter()
-        d = Counter()
+        a {.used.} = Counter()
+        b {.used.} = Counter()
+        c {.used.} = Counter()
+        d {.used.} = Counter()
 
     test "signal connect":
       # TODO: how to do this?
