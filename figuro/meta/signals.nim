@@ -112,32 +112,46 @@ macro getSignalName(signal: typed): auto =
 import typetraits
 
 macro signalObj*(p: typed): auto =
+  ## gets the type of the signal's object arg 
+  ## 
   let p = p.getTypeInst
   let obj = p[0][1]
   result = obj[1].getTypeInst
-proc signalKind*(p: NimNode): seq[NimNode] =
+macro signalType*(p: typed): auto =
+  ## gets the type of the signal without 
+  ## the Agent proc type
+  ## 
   let p = p.getTypeInst
-  # echo "SIGNAL KIND:"
-  # echo p.treeRepr
+  let obj = p[0]
+  result = nnkTupleConstr.newNimNode()
+  for arg in obj[2..^1]:
+    result.add arg[1]
+proc signalKind(p: NimNode): seq[NimNode] =
+  ## gets the type of the signal without 
+  ## the Agent proc type
+  ## 
+  let p = p.getTypeInst
   let obj = p[0]
   for arg in obj[2..^1]:
-    # echo "ARG: ", arg.treeRepr
     result.add arg[1]
-macro signalCheck*(signal, slot: typed) =
+macro signalCheck(signal, slot: typed) =
   let ksig = signalKind(signal)
   let kslot = signalKind(slot)
-  # echo ""
-  # echo "KSIG: ", ksig.treeRepr
-  # echo "KSLOT: ", kslot.treeRepr
   var res = false
+  if ksig.len != kslot.len:
+    error("signal and slot types have different number of args", signal)
+  var errors = ""
   if ksig.len == kslot.len:
     for i in 0..<ksig.len():
-      echo "ksig: ", ksig[i].treeRepr
-      echo "kslot: ", kslot[i].treeRepr
       res = ksig[i] == kslot[i]
-      echo "kk: ", res
+      if not res:
+        errors &= " signal: " & ksig.repr &
+                    " != slot: " & kslot.repr
+        errors &= "; first mismatch: " & ksig[i].repr &
+                    " != " & kslot[i].repr
+        break
   if not res:
-    error("signal and slot types don't match", signal)
+    error("signal and slot types don't match;" & errors, signal)
   else:
     result = nnkEmpty.newNimNode()
 

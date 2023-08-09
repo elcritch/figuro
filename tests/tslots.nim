@@ -53,15 +53,18 @@ when isMainModule:
       check c.value == 137
       check d.value == 0
 
+    test "signal / slot types":
+      check avgChanged.signalType() is (float, )
+      check valueChanged.signalType() is (int, )
+      check setValue.signalType() is (int, )
+
     test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
               c, setValue)
-      check not compiles(
-        connect(a, avgChanged,
-                c, setValue))
+    
 
       check a.value == 0
       check b.value == 0
@@ -73,5 +76,8 @@ when isMainModule:
       check b.value == 42
       check c.value == 42
 
-
+    test "connect type errors":
+      check not compiles(
+        connect(a, avgChanged,
+                c, setValue))
 
