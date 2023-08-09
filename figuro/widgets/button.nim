@@ -8,7 +8,8 @@ type
     disabled: bool
 
 template button*(blk: untyped) =
-  children.add Button()
+  # nodes.add Button()
+  discard
 
 method render*(self: Button) =
   # button widget!
