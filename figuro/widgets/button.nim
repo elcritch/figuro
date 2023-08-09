@@ -10,7 +10,7 @@ type
 method render*(self: Button) =
   # button widget!
   # onTheme 
-  # clipContent true
+  clipContent true
 
   # if self.label.len() > 0:
   #   text "text":

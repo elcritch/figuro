@@ -196,3 +196,10 @@ proc getItem*(key: string): string =
   ## Gets a value into local storage or file.
   readFile(&"{key}.data")
 
+proc clipContent*(clip: bool) =
+  ## Causes the parent to clip the children.
+  if clip:
+    current.attrs.incl clipContent
+  else:
+    current.attrs.excl clipContent
+
