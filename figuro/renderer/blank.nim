@@ -17,7 +17,7 @@ proc openBrowser*(url: string) =
   ## Opens a URL in a browser
   discard
 
-proc startFidget*(
+proc startFiguro*(
     draw: proc(),
     tick: proc() = nil,
     fullscreen = false,

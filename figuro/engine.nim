@@ -86,7 +86,7 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "This channel implementation requires --gc:arc or --gc:orc".}
 
-proc startFidget*(
+proc startFiguro*(
     draw: proc() {.nimcall.} = nil,
     tick: proc() {.nimcall.} = nil,
     load: proc() {.nimcall.} = nil,
@@ -129,7 +129,7 @@ proc appTick() =
 proc appLoad() =
   appWidget.load()
 
-proc startFidget*(
+proc startFiguro*(
     app: Figuro = nil,
     setup: proc() = nil,
     fullscreen = false,
@@ -139,7 +139,7 @@ proc startFidget*(
     pixelScale = 1.0
 ) =
   appWidget = app
-  startFidget(
+  startFiguro(
     appRender, appTick, appLoad,
     setup = setup,
     fullscreen,

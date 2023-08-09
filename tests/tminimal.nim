@@ -12,4 +12,4 @@ proc drawMain() =
         box 20 + i * 120, 20, 100, 100
         current.fill = parseHtmlColor "#2B9FEA"
 
-startFidget(drawMain, w = 620, h = 140)
+startFiguro(drawMain, w = 620, h = 140)

@@ -23,4 +23,4 @@ method render(app: Main) =
         if i == 0:
           current.fill.a = app.value * 1.0
 
-startFidget(Main(), w = 620, h = 140)
+startFiguro(Main(), w = 620, h = 140)

@@ -27,4 +27,4 @@ proc drawMain() =
         if i == 0:
           current.fill.a = item.value * 1.0
 
-startFidget(drawMain, w = 620, h = 140)
+startFiguro(drawMain, w = 620, h = 140)
