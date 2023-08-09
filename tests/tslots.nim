@@ -18,7 +18,8 @@ proc avgChanged*(tp: Counter, val: float) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
   echo "setValue! ", value
-  self.value = value
+  if self.value != value:
+    self.value = value
   emit self.valueChanged(value)
 
 proc value*(self: Counter): int =
