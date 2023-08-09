@@ -190,5 +190,6 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
       else:
         discard
 
-template emit*(call: untyped) =
-  call
+proc emit*(call: (Agent, AgentRequest)) =
+  let (obj, req) = call
+  callSlots(obj, req)

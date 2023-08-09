@@ -190,7 +190,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       construct.add nnkExprColonExpr.newTree(param[0], param[0])
 
     result.add quote do:
-      proc `rpcMethod`() =
+      proc `rpcMethod`(): (Agent, AgentRequest) =
         let args = `construct`
         let sig = AgentRequest(
           kind: Request,
@@ -198,7 +198,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           procName: `signalName`,
           params: RpcParams(buf: newVariant(args))
         )
-        callSlots(obj, sig)
+        result = (obj, sig)
+        # callSlots(obj, sig)
 
     if isPublic: result[0].makePublic()
     result[0][3].add nnkIdentDefs.newTree(

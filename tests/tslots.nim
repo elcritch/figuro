@@ -14,6 +14,7 @@ type
     avg: int
 
 proc valueChanged*(tp: Counter, val: int) {.signal.}
+
 proc avgChanged*(tp: Counter, val: float) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
@@ -47,7 +48,7 @@ when isMainModule:
       check c.value == 0
       check d.value == 0
 
-      a.valueChanged(137)
+      emit a.valueChanged(137)
 
       check a.value == 0
       check b.value == 137
@@ -71,7 +72,7 @@ when isMainModule:
       check b.value == 0
       check c.value == 0
 
-      emit a.setValue(42)
+      a.setValue(42)
 
       check a.value == 42
       check b.value == 42
