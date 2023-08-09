@@ -162,7 +162,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     result.add quote do:
       proc `procName`(
-          context: ref RootObj,
+          context: Agent,
           params: RpcParams,
       ) {.nimcall.} =
         if context == nil:
