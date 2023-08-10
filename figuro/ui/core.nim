@@ -97,6 +97,12 @@ proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   else:
     # Reuse Node.
     current = parent.nodes[parent.diffIndex]
+
+    if not (current of T):
+      # mismatch types, replace node
+      current = T()
+      parent.nodes[parent.diffIndex] = current
+
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex:
       # Same node.
