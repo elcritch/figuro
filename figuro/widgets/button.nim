@@ -9,7 +9,7 @@ type
   
 
 template button*(id: string, blk: untyped) =
-  mixin render
+  # mixin render
   preNode(nkRectangle, Button, atom(id))
   `blk`
   postNode()

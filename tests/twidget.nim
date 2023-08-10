@@ -20,6 +20,7 @@ proc render*(app: Main) =
     box 0, 0, 620, 140
     for i in 0 .. 4:
       button "btn":
+        echo "btn"
         box 20 + (i.toFloat + app.value) * 120, 20, 100, 100
         # current.fill = parseHtmlColor "#2B9FEA"
         if i == 0:
