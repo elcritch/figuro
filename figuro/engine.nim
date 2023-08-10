@@ -88,10 +88,18 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 
 proc emptyProc() = discard
 
+var
+  appWidget: Figuro
+
+proc appRender() =
+  appWidget.render()
+proc appTick() =
+  appWidget.tick()
+proc appLoad() =
+  appWidget.load()
+
 proc startFiguro*(
-    draw: proc() {.nimcall.} = nil,
-    tick: proc() {.nimcall.} = nil,
-    load: proc() {.nimcall.} = nil,
+    main: Figuro = nil,
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -101,6 +109,7 @@ proc startFiguro*(
 ) =
   ## Starts Fidget UI library
   ## 
+  appWidget = main
   app.fullscreen = fullscreen
   uiinputs.mouse = Mouse()
   uiinputs.mouse.pos = vec2(0, 0)
@@ -109,9 +118,9 @@ proc startFiguro*(
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
 
-  appMain = draw
-  tickMain = tick
-  loadMain = load
+  appMain = appRender
+  tickMain = appTick
+  loadMain = appLoad
 
   if appMain.isNil:
     raise newException(AssertionDefect, "appMain cannot be nil")
@@ -128,32 +137,3 @@ proc startFiguro*(
 
   if not setup.isNil: setup()
   renderer.run()
-
-var
-  appWidget: Figuro
-
-proc appRender() =
-  appWidget.render()
-proc appTick() =
-  appWidget.tick()
-proc appLoad() =
-  appWidget.load()
-
-proc startFiguro*(
-    app: Figuro = nil,
-    setup: proc() = nil,
-    fullscreen = false,
-    w: Positive = 1280,
-    h: Positive = 800,
-    pixelate = false,
-    pixelScale = 1.0
-) =
-  appWidget = app
-  startFiguro(
-    appRender, appTick, appLoad,
-    setup = setup,
-    fullscreen,
-    w, h,
-    pixelate,
-    pixelScale
-  )
