@@ -92,14 +92,17 @@ var
   appWidget: Figuro
 
 proc appRender() =
+  mixin render
   appWidget.render()
+
 proc appTick() =
   appWidget.tick()
+
 proc appLoad() =
   appWidget.load()
 
 proc startFiguro*(
-    main: Figuro = nil,
+    main: MainCallback,
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -109,7 +112,8 @@ proc startFiguro*(
 ) =
   ## Starts Fidget UI library
   ## 
-  appWidget = main
+
+  # app = main
   app.fullscreen = fullscreen
   uiinputs.mouse = Mouse()
   uiinputs.mouse.pos = vec2(0, 0)
@@ -118,7 +122,7 @@ proc startFiguro*(
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
 
-  appMain = appRender
+  appMain = main
   tickMain = appTick
   loadMain = appLoad
 

@@ -25,4 +25,4 @@ proc render*(app: Main) =
         if i == 0:
           current.fill.a = app.value * 1.0
 
-startFiguro(Main(), w = 620, h = 140)
+startFiguro(proc () = render(Main()), w = 620, h = 140)
