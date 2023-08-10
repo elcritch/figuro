@@ -210,7 +210,7 @@ proc fill*(color: string, alpha: float32 = 1.0) =
   current.fill = parseHtmlColor(color)
   current.fill.a = alpha
 
-proc fill*(node: Node) =
+proc fill*(node: Figuro) =
   ## Sets background color.
   current.fill = node.fill
 

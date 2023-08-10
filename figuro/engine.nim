@@ -45,7 +45,7 @@ else:
 
   proc runApplication(appMain: MainCallback) {.thread.} =
     {.gcsafe.}:
-      var appNodes: ui.Node
+      var appNodes: Figuro
       while app.running:
         wait(appEvent)
         timeIt(appAvgTime):

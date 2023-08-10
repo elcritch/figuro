@@ -7,18 +7,3 @@ import ui/apis
 
 export signals, slots
 export apis, core, ui
-
-type
-  Figuro* = ref object of Node
-
-method render*(fig: Figuro) {.base.} =
-  discard
-
-method tick*(fig: Figuro) {.base.} =
-  discard
-
-method load*(fig: Figuro) {.base.} =
-  discard
-
-proc onHover*(fig: Figuro) {.slot.} =
-  fig.status.incl onHover

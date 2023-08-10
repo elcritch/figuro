@@ -11,9 +11,9 @@ type
     onHover
     onClick
 
-  Node* = ref object of Agent
+  Figuro* = ref object of Agent
     uid*: NodeID
-    nodes*: seq[Node]
+    children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
 
@@ -54,3 +54,15 @@ proc newUId*(): NodeID =
   else:
     NodeID(lastUId)
 
+method tick*(fig: Figuro) {.base.} =
+  for node in fig.children:
+    node.tick()
+
+method render*(fig: Figuro) {.base.} =
+  discard
+
+method load*(fig: Figuro) {.base.} =
+  discard
+
+proc onHover*(fig: Figuro) {.slot.} =
+  fig.status.incl onHover
