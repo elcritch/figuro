@@ -9,12 +9,12 @@ type
   Main* = ref object of Figuro
     value: float
 
-proc tick*(self: Main) =
+proc tick*(self: Main) {.slot.} =
   refresh()
   self.value = 0.008 * (1+app.frameCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
-proc render*(app: Main) =
+proc render*(app: Main) {.slot.} =
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 4:
