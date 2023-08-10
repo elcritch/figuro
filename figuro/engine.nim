@@ -86,9 +86,6 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "This channel implementation requires --gc:arc or --gc:orc".}
 
-proc emptyProc() = discard
-
-
 proc startFiguro*[T: Figuro](
     widget: T,
     setup: proc() = nil,
