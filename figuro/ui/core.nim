@@ -126,7 +126,7 @@ proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
 
   current.diffIndex = 0
   let t: T = cast[T](current)
-  render(t)
+  render(T())
 
 proc postNode*() =
   current.removeExtraChildren()
