@@ -30,6 +30,7 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
     return
   else:
     app.requestedFrame.dec
+
   preInput()
   tickMain()
   drawAndSwap(window, nodes)
