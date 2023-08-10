@@ -24,7 +24,7 @@ type
   # Procedure signature accepted as an RPC call by server
   AgentProc* = proc(context: RpcContext,
                     params: RpcParams,
-                    ) {.gcsafe, nimcall.}
+                    ) {.nimcall.}
 
 type
 
