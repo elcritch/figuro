@@ -54,13 +54,13 @@ proc newUId*(): NodeID =
   else:
     NodeID(lastUId)
 
-method tick*(fig: Figuro) {.base.} =
+proc tick*(fig: Figuro) {.slot.} =
   discard
 
-method render*(fig: Figuro) {.base.} =
+proc render*(fig: Figuro) {.slot.} =
   discard
 
-method load*(fig: Figuro) {.base.} =
+proc load*(fig: Figuro) {.slot.} =
   discard
 
 proc onHover*(fig: Figuro) {.slot.} =

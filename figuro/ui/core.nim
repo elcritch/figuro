@@ -84,6 +84,7 @@ proc setTitle*(title: string) =
 
 proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   ## Process the start of the node.
+  mixin render
 
   parent = nodeStack[^1]
 

@@ -2,20 +2,19 @@
 import commons
 
 type
-  ButtonGen*[T] = ref object of Figuro
+  Button*[T] = ref object of Figuro
     label: string
     isActive: bool
     disabled: bool
     data: T
   
-  Button* = ButtonGen[string]
 
-template button*(id, blk: untyped) =
-  preNode(nkRectangle, Button, atom(id))
+template button*[T](id: string, blk: untyped) =
+  preNode(nkRectangle, Button[T], atom(id))
   `blk`
   postNode()
 
-method render*[T](self: Button) =
+proc render*[T](self: Button) =
   # button widget!
   # onTheme 
   clipContent true
