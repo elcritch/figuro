@@ -57,8 +57,9 @@ proc newUId*(): NodeID =
 proc tick*(fig: Figuro) {.slot.} =
   discard
 
-proc render*(fig: Figuro) {.slot.} =
+proc render*(fig: Figuro) =
   discard
+  echo "render: ", typeof fig
 
 proc load*(fig: Figuro) {.slot.} =
   discard
