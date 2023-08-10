@@ -1,7 +1,5 @@
 
 ## This minimal example shows 5 blue squares.
-
-import figuro/[timers, widget]
 import figuro
 
 type
