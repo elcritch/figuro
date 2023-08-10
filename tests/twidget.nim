@@ -9,10 +9,10 @@ type
   Main* = ref object of Figuro
     value: float
 
-# proc tick*(self: Main) =
-#   refresh()
-#   self.value = 0.008 * (1+app.frameCount).toFloat
-#   self.value = clamp(self.value mod 1.0, 0, 1.0)
+proc tick*(self: Main) =
+  refresh()
+  self.value = 0.008 * (1+app.frameCount).toFloat
+  self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc render*(app: Main) =
   frame "main":

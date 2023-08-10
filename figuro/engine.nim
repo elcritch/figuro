@@ -100,6 +100,9 @@ proc startFiguro*[T: Figuro](
 ) =
   ## Starts Fidget UI library
   ## 
+  mixin render
+  mixin tick
+  mixin load
 
   # appWidget = widget
   app.fullscreen = fullscreen
@@ -129,9 +132,9 @@ proc startFiguro*[T: Figuro](
   if appMain.isNil:
     raise newException(AssertionDefect, "appMain cannot be nil")
   if tickMain.isNil:
-    tickMain = emptyProc
+    tickMain = proc () = discard
   if loadMain.isNil:
-    loadMain = emptyProc
+    loadMain = proc () = discard
 
   let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
