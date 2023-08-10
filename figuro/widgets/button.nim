@@ -9,16 +9,14 @@ type
   
 
 template button*(id: string, blk: untyped) =
-  # mixin render
   preNode(nkRectangle, Button, atom(id))
   `blk`
   postNode()
 
 proc render*(self: Button) =
-  # button widget!
-  # onTheme 
+  ## button widget!
+  
   clipContent true
-  echo "button!"
 
   # if self.label.len() > 0:
   #   text "text":

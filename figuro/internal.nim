@@ -3,7 +3,7 @@ import std/locks
 import common/nodes/render as render
 
 type
-  MainCallback* = proc() {.nimcall.}
+  MainCallback* = proc() {.closure.}
 
 type
   ScaleInfo* = object
