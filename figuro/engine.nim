@@ -86,6 +86,8 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "This channel implementation requires --gc:arc or --gc:orc".}
 
+proc emptyProc() = discard
+
 proc startFiguro*(
     draw: proc() {.nimcall.} = nil,
     tick: proc() {.nimcall.} = nil,
@@ -106,9 +108,17 @@ proc startFiguro*(
   
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
+
   appMain = draw
   tickMain = tick
   loadMain = load
+
+  if appMain.isNil:
+    raise newException(AssertionDefect, "appMain cannot be nil")
+  if tickMain.isNil:
+    tickMain = emptyProc
+  if loadMain.isNil:
+    loadMain = emptyProc
 
   let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
