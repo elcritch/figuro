@@ -124,6 +124,7 @@ proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   inc parent.diffIndex
 
   current.diffIndex = 0
+  current.render()
 
 proc postNode*() =
   current.removeExtraChildren()

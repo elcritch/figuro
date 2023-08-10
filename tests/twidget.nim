@@ -20,7 +20,7 @@ method render(app: Main) =
     for i in 0 .. 4:
       button "btn":
         box 20 + (i.toFloat + app.value) * 120, 20, 100, 100
-        current.fill = parseHtmlColor "#2B9FEA"
+        # current.fill = parseHtmlColor "#2B9FEA"
         if i == 0:
           current.fill.a = app.value * 1.0
 

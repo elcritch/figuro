@@ -55,8 +55,7 @@ proc newUId*(): NodeID =
     NodeID(lastUId)
 
 method tick*(fig: Figuro) {.base.} =
-  for node in fig.children:
-    node.tick()
+  discard
 
 method render*(fig: Figuro) {.base.} =
   discard

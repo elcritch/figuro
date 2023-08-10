@@ -6,7 +6,7 @@ type
   Main* = ref object of Figuro
     value: float
 
-method render(app: Main) =
+method render*(app: Main) =
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 4:

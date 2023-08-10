@@ -2,17 +2,20 @@
 import commons
 
 type
-  Button* = ref object of Figuro
+  ButtonGen*[T] = ref object of Figuro
     label: string
     isActive: bool
     disabled: bool
+    data: T
+  
+  Button* = ButtonGen[string]
 
 template button*(id, blk: untyped) =
   preNode(nkRectangle, Button, atom(id))
   `blk`
   postNode()
 
-method render*(self: Button) =
+method render*[T](self: Button) =
   # button widget!
   # onTheme 
   clipContent true
@@ -27,8 +30,7 @@ method render*(self: Button) =
   if self.disabled:
     fill "#FF0000"
   else:
-    if self.isActive:
-      fill "#00CC00"
+    fill "#2B9FEA"
     onHover:
       fill "#00FF00"
     # onClick:
