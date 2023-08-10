@@ -28,7 +28,8 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
   
   if app.requestedFrame <= 0 or app.minimized:
     return
-  app.requestedFrame.dec
+  else:
+    app.requestedFrame.dec
   preInput()
   tickMain()
   drawAndSwap(window, nodes)
