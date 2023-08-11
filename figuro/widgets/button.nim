@@ -6,11 +6,17 @@ type
     label: string
     isActive: bool
     disabled: bool
+  
 
-method render*(self: Button) =
-  # button widget!
-  # onTheme 
-  # clipContent true
+template button*(id: string, blk: untyped) =
+  preNode(nkRectangle, Button, atom(id))
+  `blk`
+  postNode()
+
+proc render*(self: Button) {.slot.} =
+  ## button widget!
+  
+  clipContent true
 
   # if self.label.len() > 0:
   #   text "text":
@@ -20,14 +26,10 @@ method render*(self: Button) =
   #     characters props.label
 
   if self.disabled:
-    current.fill = "#FF0000".parseHtmlColor
-    # useTheme atom"disabled"
+    fill "#FF0000"
   else:
-    current.fill = "#00FF00".parseHtmlColor
-    # if self.isActive:
-    #   useTheme atom"active"
-    # onHover:
-    #   useTheme atom"hover"
+    fill "#2B9FEA"
+    onHover:
+      fill "#00FF00"
     # onClick:
-    #   useTheme atom"active"
-    # dispatchMouseEvents()
+    #   fill "#00FFFF"

@@ -188,11 +188,42 @@ proc loadFont*(name: string, pathOrUrl: string) =
   ## Loads the font from the dataDir.
   loadFontAbsolute(name, dataDir / pathOrUrl)
 
-proc setItem*(key, value: string) =
-  ## Saves value into local storage or file.
-  writeFile(&"{key}.data", value)
+proc clipContent*(clip: bool) =
+  ## Causes the parent to clip the children.
+  if clip:
+    current.attrs.incl clipContent
+  else:
+    current.attrs.excl clipContent
 
-proc getItem*(key: string): string =
-  ## Gets a value into local storage or file.
-  readFile(&"{key}.data")
 
+proc fill*(color: Color) =
+  ## Sets background color.
+  current.fill = color
+
+proc fill*(color: Color, alpha: float32) =
+  ## Sets background color.
+  current.fill = color
+  current.fill.a = alpha
+
+proc fill*(color: string, alpha: float32 = 1.0) =
+  ## Sets background color.
+  current.fill = parseHtmlColor(color)
+  current.fill.a = alpha
+
+proc fill*(node: Figuro) =
+  ## Sets background color.
+  current.fill = node.fill
+
+template onHover*(inner: untyped) =
+  ## Code in the block will run when this box is hovered.
+  discard
+  # current.listens.mouse.incl(evHover)
+  # if evHover in current.events.mouse:
+  #   inner
+
+template onClick*(inner: untyped, button = MOUSE_LEFT) =
+  ## On click event handler.
+  inner
+  # current.listens.mouse.incl(evClick)
+  # if evClick in current.events.mouse and buttonPress[button]:
+  #   inner

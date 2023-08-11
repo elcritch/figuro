@@ -1,7 +1,6 @@
 switch("styleCheck", "hint")
 
 --gc:orc
---deepcopy:on
 
 --d:windyNoHttp
 --d:printDebugTimings

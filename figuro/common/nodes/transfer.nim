@@ -2,8 +2,8 @@
 import ui as ui
 import render as render
 
-proc convert*(current: ui.Node): render.Node =
-  result = render.Node(kind: current.kind)
+proc convert*(current: Figuro): render.Node =
+  result = Node(kind: current.kind)
 
   result.uid = current.uid
 
@@ -35,17 +35,17 @@ proc convert*(current: ui.Node): render.Node =
   else:
     discard
 
-proc convert*(renders: var seq[render.Node], current: ui.Node, parent: NodeID) =
+proc convert*(renders: var seq[render.Node], current: Figuro, parent: NodeID) =
   # echo "convert:node: ", current.uid, " parent: ", parent
   var render = current.convert()
   render.parent = parent
-  render.childCount = current.nodes.len()
+  render.childCount = current.children.len()
 
   renders.add(move render)
-  for child in current.nodes:
+  for child in current.children:
     renders.convert(child, current.uid)
 
-proc copyInto*(uiNodes: ui.Node): seq[render.Node] =
+proc copyInto*(uiNodes: Figuro): seq[render.Node] =
   result = newSeq[render.Node]()
   convert(result, uiNodes, -1.NodeID)
   # echo "nodes:len: ", result.len()
