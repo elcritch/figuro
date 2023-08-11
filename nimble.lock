@@ -1,13 +1,13 @@
 {
   "packages": {
-    "nimsimd": {
-      "version": "1.2.5",
-      "vcsRevision": "854eeba4d7fc67a609b72b7d57b765da80ad79ec",
-      "url": "https://github.com/guzba/nimsimd",
+    "assume": {
+      "version": "0.7.2",
+      "vcsRevision": "ebed5f2b726134400a4aca489d39e54a2e6dcd95",
+      "url": "https://github.com/disruptek/assume",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "80d57d87699351b5711a66bf1fd9db922fea52d3"
+        "sha1": "2123f41ed45a26473a62bd522dc4fa851a824389"
       }
     },
     "ws": {
@@ -38,6 +38,7 @@
       "dependencies": [
         "zippy",
         "flatty",
+        "nimsimd",
         "crunchy",
         "chroma"
       ],
@@ -86,15 +87,25 @@
       }
     },
     "crunchy": {
-      "version": "0.1.0",
-      "vcsRevision": "79e7b5bb58cded3479b06275977977284e1dca21",
+      "version": "0.1.9",
+      "vcsRevision": "d0c9ad33ae72aece49093d7688fc78a7101aa4b0",
       "url": "https://github.com/guzba/crunchy",
       "downloadMethod": "git",
       "dependencies": [
         "nimsimd"
       ],
       "checksums": {
-        "sha1": "415fb848c774188c73db3a3e65f032a626b26ae1"
+        "sha1": "3afda170fbe40158cd78e00375e34690f1fae263"
+      }
+    },
+    "nimsimd": {
+      "version": "1.2.5",
+      "vcsRevision": "1d75f15c8bb8df9c1d4779072bbfc8a7e3e84c98",
+      "url": "https://github.com/guzba/nimsimd",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "9f919415ad69edb599c3362b0cc0fe0b044097c9"
       }
     },
     "flatty": {
@@ -108,23 +119,35 @@
       }
     },
     "zippy": {
-      "version": "0.10.3",
-      "vcsRevision": "8e472c468c1c67b3221a71ad7224cd058492b752",
+      "version": "0.10.10",
+      "vcsRevision": "a3fd6f0458ffdd7cbbd416be99f2ca80a7852d82",
       "url": "https://github.com/guzba/zippy",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "a21f0c260097afa6ccc8fdc7ae25a53ed0bc3ba9"
+        "sha1": "f32aa1f7795b1ff0d890ad165cd56091bf6f32d0"
       }
     },
     "chroma": {
       "version": "0.2.7",
-      "vcsRevision": "c06598cc08cbfd67f57feac0ecbfefc85edefe18",
+      "vcsRevision": "b2e71179174e040884ebf6a16cbac711c84620b9",
       "url": "https://github.com/treeform/chroma",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "47b96a34e53d6c051154cc37493a0ae681bf75d4"
+        "sha1": "f873f4b97e87a82e27e0b85bf9130fe3e320a2b8"
+      }
+    },
+    "nimscripter": {
+      "version": "1.1.1",
+      "vcsRevision": "acf23466f4026256d2acda2e3c4cfd806109964d",
+      "url": "https://github.com/beef331/nimscripter",
+      "downloadMethod": "git",
+      "dependencies": [
+        "assume"
+      ],
+      "checksums": {
+        "sha1": "eb4b7cb2f4cbec5a720accb3d8424b8b94298a55"
       }
     },
     "threading": {
