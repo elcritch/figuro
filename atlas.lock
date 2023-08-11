@@ -1,10 +1,5 @@
 {
   "items": {
-    "nimsimd": {
-      "dir": "vendor/nimsimd",
-      "url": "https://github.com/guzba/nimsimd",
-      "commit": "854eeba4d7fc67a609b72b7d57b765da80ad79ec"
-    },
     "ws": {
       "dir": "vendor/ws",
       "url": "https://github.com/treeform/ws",
@@ -43,7 +38,12 @@
     "crunchy": {
       "dir": "vendor/crunchy",
       "url": "https://github.com/guzba/crunchy",
-      "commit": "79e7b5bb58cded3479b06275977977284e1dca21"
+      "commit": "d0c9ad33ae72aece49093d7688fc78a7101aa4b0"
+    },
+    "nimsimd": {
+      "dir": "vendor/nimsimd",
+      "url": "https://github.com/guzba/nimsimd",
+      "commit": "1d75f15c8bb8df9c1d4779072bbfc8a7e3e84c98"
     },
     "flatty": {
       "dir": "vendor/flatty",
@@ -53,12 +53,12 @@
     "zippy": {
       "dir": "vendor/zippy",
       "url": "https://github.com/guzba/zippy",
-      "commit": "8e472c468c1c67b3221a71ad7224cd058492b752"
+      "commit": "a3fd6f0458ffdd7cbbd416be99f2ca80a7852d82"
     },
     "chroma": {
       "dir": "vendor/chroma",
       "url": "https://github.com/treeform/chroma",
-      "commit": "c06598cc08cbfd67f57feac0ecbfefc85edefe18"
+      "commit": "b2e71179174e040884ebf6a16cbac711c84620b9"
     },
     "threading": {
       "dir": "vendor/threading",
