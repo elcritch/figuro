@@ -12,7 +12,7 @@ The core idea is to split it into two main pieces:
 
 ```sh
 atlas replay
-nim c -r "tests/tanimate.nim" 
+nim c -r "tests/twidget.nim" 
 ```
 
 ## Widget and Application Layer
