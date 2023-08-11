@@ -14,7 +14,7 @@ import shared, internal, ui/core
 import common/nodes/transfer
 import common/nodes/ui as ui
 import common/nodes/render as render
-import widgets
+import widget
 import timers
 
 when defined(emscripten):
@@ -45,7 +45,7 @@ else:
 
   proc runApplication(appMain: MainCallback) {.thread.} =
     {.gcsafe.}:
-      var appNodes: ui.Node
+      var appNodes: Figuro
       while app.running:
         wait(appEvent)
         timeIt(appAvgTime):
@@ -86,10 +86,8 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "This channel implementation requires --gc:arc or --gc:orc".}
 
-proc startFiguro*(
-    draw: proc() {.nimcall.} = nil,
-    tick: proc() {.nimcall.} = nil,
-    load: proc() {.nimcall.} = nil,
+proc startFiguro*[T: Figuro](
+    widget: T,
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -99,6 +97,11 @@ proc startFiguro*(
 ) =
   ## Starts Fidget UI library
   ## 
+  mixin render
+  mixin tick
+  mixin load
+
+  # appWidget = widget
   app.fullscreen = fullscreen
   uiinputs.mouse = Mouse()
   uiinputs.mouse.pos = vec2(0, 0)
@@ -106,9 +109,29 @@ proc startFiguro*(
   
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
-  appMain = draw
-  tickMain = tick
-  loadMain = load
+
+  let appWidget = widget
+
+  proc appRender() =
+    mixin render
+    appWidget.render()
+
+  proc appTick() =
+    appWidget.tick()
+
+  proc appLoad() =
+    appWidget.load()
+  
+  appMain = appRender
+  tickMain = appTick
+  loadMain = appLoad
+
+  if appMain.isNil:
+    raise newException(AssertionDefect, "appMain cannot be nil")
+  if tickMain.isNil:
+    tickMain = proc () = discard
+  if loadMain.isNil:
+    loadMain = proc () = discard
 
   let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
@@ -118,32 +141,3 @@ proc startFiguro*(
 
   if not setup.isNil: setup()
   renderer.run()
-
-var
-  appWidget: Figuro
-
-proc appRender() =
-  appWidget.render()
-proc appTick() =
-  appWidget.tick()
-proc appLoad() =
-  appWidget.load()
-
-proc startFiguro*(
-    app: Figuro = nil,
-    setup: proc() = nil,
-    fullscreen = false,
-    w: Positive = 1280,
-    h: Positive = 800,
-    pixelate = false,
-    pixelScale = 1.0
-) =
-  appWidget = app
-  startFiguro(
-    appRender, appTick, appLoad,
-    setup = setup,
-    fullscreen,
-    w, h,
-    pixelate,
-    pixelScale
-  )

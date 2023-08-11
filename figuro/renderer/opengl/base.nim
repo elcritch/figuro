@@ -68,18 +68,6 @@ proc postInput*() =
   # clearInputs()
   discard
 
-proc preTick*() =
-  discard
-
-proc postTick*() =
-  # tpsTimeSeries.addTime()
-  # tps = float64(tpsTimeSeries.num())
-
-  app.tickCount.inc()
-  app.lastTick += deltaTick
-
-
-
 proc clearDepthBuffer*() =
   glClear(GL_DEPTH_BUFFER_BIT)
 

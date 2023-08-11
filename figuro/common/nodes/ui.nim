@@ -1,14 +1,19 @@
 import basics
+import ../../meta
 
-export basics
+export basics, meta
 
 var lastUId: int = 0
 
 type
 
-  Node* = ref object
+  UiStatus* = enum
+    onHover
+    onClick
+
+  Figuro* = ref object of Agent
     uid*: NodeID
-    nodes*: seq[Node]
+    children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
 
@@ -18,6 +23,7 @@ type
     offset*: Position
     totalOffset*: Position
     attrs*: set[Attributes]
+    status*: set[UiStatus]
 
     zlevel*: ZLevel
     rotation*: float32
@@ -48,3 +54,14 @@ proc newUId*(): NodeID =
   else:
     NodeID(lastUId)
 
+proc tick*(fig: Figuro) {.slot.} =
+  discard
+
+proc render*(fig: Figuro) {.slot.} =
+  discard
+
+proc load*(fig: Figuro) {.slot.} =
+  discard
+
+proc onHover*(fig: Figuro) {.slot.} =
+  fig.status.incl onHover

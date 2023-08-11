@@ -10,9 +10,9 @@ export chroma, common
 export cssgrid
 
 var
-  parent, current*: Node
+  parent, current*: Figuro
 
-  nodeStack*: seq[Node]
+  nodeStack*: seq[Figuro]
   gridStack*: seq[GridTemplate]
 
   scrollBox*: Box
@@ -28,9 +28,9 @@ var
   # Used to check for duplicate ID paths.
   pathChecker*: Table[string, bool]
 
-  computeTextLayout*: proc(node: Node)
+  computeTextLayout*: proc(node: Figuro)
 
-  nodeLookup*: Table[string, Node]
+  nodeLookup*: Table[string, Figuro]
 
   defaultlineHeightRatio* = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
@@ -55,18 +55,18 @@ inputs.keyboardInput = proc (rune: Rune) =
     #   keyboard.keyString = rune.toUTF8()
     appEvent.trigger()
 
-proc setupRoot*(root: var Node) =
+proc setupRoot*(root: var Figuro) =
   if root == nil:
-    root = Node()
+    root = Figuro()
     root.uid = newUId()
     root.zlevel = ZLevelDefault
   nodeStack = @[root]
   current = root
   root.diffIndex = 0
 
-proc removeExtraChildren*(node: Node) =
+proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
-  node.nodes.setLen(node.diffIndex)
+  node.children.setLen(node.diffIndex)
 
 proc refresh*() =
   ## Request the screen be redrawn
@@ -82,21 +82,29 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh()
 
-proc preNode(kind: NodeKind, id: Atom) =
+proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   ## Process the start of the node.
+  mixin render
 
   parent = nodeStack[^1]
 
   # TODO: maybe a better node differ?
-  if parent.nodes.len <= parent.diffIndex:
+  if parent.children.len <= parent.diffIndex:
     # Create Node.
-    current = Node()
+    current = T()
     current.uid = newUId()
-    parent.nodes.add(current)
+    parent.children.add(current)
     refresh()
   else:
     # Reuse Node.
-    current = parent.nodes[parent.diffIndex]
+    current = parent.children[parent.diffIndex]
+
+    if not (current of T):
+      # mismatch types, replace node
+      echo "new type"
+      current = T()
+      parent.children[parent.diffIndex] = current
+
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex:
       # Same node.
@@ -117,8 +125,9 @@ proc preNode(kind: NodeKind, id: Atom) =
   inc parent.diffIndex
 
   current.diffIndex = 0
+  render(T(current))
 
-proc postNode() =
+proc postNode*() =
   current.removeExtraChildren()
 
   # Pop the stack.
@@ -134,18 +143,18 @@ proc postNode() =
 
 template node*(kind: NodeKind, id: static string, inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, atom(id))
+  preNode(kind, Figuro, atom(id))
   setup
   inner
   postNode()
 
 template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, atom(id))
+  preNode(kind, Figuro, atom(id))
   inner
   postNode()
 
-proc computeScreenBox*(parent, node: Node) =
+proc computeScreenBox*(parent, node: Figuro) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
     node.screenBox = node.box
@@ -153,5 +162,5 @@ proc computeScreenBox*(parent, node: Node) =
   else:
     node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
-  for n in node.nodes:
+  for n in node.children:
     computeScreenBox(node, n)
