@@ -6,7 +6,6 @@ type
     label: string
     isActive: bool
     disabled: bool
-  
 
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, atom(id))

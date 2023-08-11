@@ -86,12 +86,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   let
     path = $p[0]
     params = p[3]
-    pragmas = p[4]
+    # pragmas = p[4]
     body = p[6]
 
   result = newStmtList()
   var
-    (firstName, firstType) = params.firstArgument()
+    (_, firstType) = params.firstArgument()
     parameters = params
 
   let
@@ -112,7 +112,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     procName = ident(procNameStr & "AgentSlot")
     rpcMethod = ident(procNameStr)
 
-    ctxName = ident("context")
+    # ctxName = ident("context")
 
     # parameter type name
     # paramsIdent = genSym(nskParam, "args")
@@ -132,7 +132,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       let name = procDef[0]
       procDef[0] = nnkPostfix.newTree(newIdentNode("*"), name)
 
-  let ContextType = firstType
+  let contextType = firstType
 
   # Create the proc's that hold the users code 
   if not isSignal:
@@ -167,7 +167,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       ) {.nimcall.} =
         if context == nil:
           raise newException(ValueError, "bad value")
-        let obj = cast[`ContextType`](context)
+        let obj = `contextType`(context)
         if obj == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `paramTypeName`
