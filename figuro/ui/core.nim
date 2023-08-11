@@ -99,11 +99,11 @@ proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
     # Reuse Node.
     current = parent.children[parent.diffIndex]
 
-    when T isnot Figuro:
-      if not (current of T):
-        # mismatch types, replace node
-        current = T()
-        parent.children[parent.diffIndex] = current
+    if not (current of T):
+      # mismatch types, replace node
+      echo "new type"
+      current = T()
+      parent.children[parent.diffIndex] = current
 
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex:
@@ -125,8 +125,7 @@ proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   inc parent.diffIndex
 
   current.diffIndex = 0
-  let t: T = cast[T](current)
-  render(t)
+  render(T(current))
 
 proc postNode*() =
   current.removeExtraChildren()
