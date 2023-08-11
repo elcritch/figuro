@@ -57,7 +57,7 @@ proc newUId*(): NodeID =
 proc tick*(fig: Figuro) {.slot.} =
   discard
 
-proc render*(fig: Figuro) {.slot.} =
+proc draw*(fig: Figuro) {.slot.} =
   discard
 
 proc load*(fig: Figuro) {.slot.} =

@@ -97,7 +97,7 @@ proc startFiguro*[T: Figuro](
 ) =
   ## Starts Fidget UI library
   ## 
-  mixin render
+  mixin draw
   mixin tick
   mixin load
 
@@ -113,8 +113,8 @@ proc startFiguro*[T: Figuro](
   let appWidget = widget
 
   proc appRender() =
-    mixin render
-    appWidget.render()
+    mixin draw
+    draw(appWidget)
 
   proc appTick() =
     appWidget.tick()

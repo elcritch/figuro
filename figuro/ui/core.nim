@@ -84,7 +84,7 @@ proc setTitle*(title: string) =
 
 proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   ## Process the start of the node.
-  mixin render
+  mixin draw
 
   parent = nodeStack[^1]
 
@@ -125,7 +125,7 @@ proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
   inc parent.diffIndex
 
   current.diffIndex = 0
-  render(T(current))
+  draw(T(current))
 
 proc postNode*() =
   current.removeExtraChildren()

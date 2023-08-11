@@ -13,7 +13,7 @@ template button*(id: string, blk: untyped) =
   `blk`
   postNode()
 
-proc render*(self: Button) {.slot.} =
+proc draw*(self: Button) {.slot.} =
   ## button widget!
   
   clipContent true
