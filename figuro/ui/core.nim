@@ -82,7 +82,7 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh()
 
-proc preNode*[T](kind: NodeKind, tp: typedesc[T], id: Atom) =
+proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: Atom) =
   ## Process the start of the node.
   mixin draw
 

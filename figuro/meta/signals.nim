@@ -100,7 +100,7 @@ proc callMethod*(
                     req.procName & " raised an exception: " & err.msg,
                     err,
                     true)
- 
+
 template packResponse*(res: AgentResponse): Variant =
   var so = newVariant()
   so.pack(res)
