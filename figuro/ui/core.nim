@@ -138,7 +138,7 @@ proc postNode*() =
 
 template node*(kind: NodeKind, id: static string, inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, Figuro, atom(id))
+  preNode(kind, Figuro, id)
   setup
   inner
   postNode()
