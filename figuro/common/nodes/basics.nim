@@ -6,7 +6,7 @@ import ../uimaths
 export uimaths, options
 export chroma
 
-when defined(figuroscript):
+when defined(compilervm):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}

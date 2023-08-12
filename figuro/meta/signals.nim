@@ -25,7 +25,7 @@ proc wrapResponseError*(
     stacktraces: bool
 ): AgentResponse = 
   let errobj = AgentError(code: code, msg: msg)
-  when defined(figurovm):
+  when defined(nimscript):
     discard
   else:
     if stacktraces and not err.isNil():

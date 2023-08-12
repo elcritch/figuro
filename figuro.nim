@@ -6,7 +6,7 @@ import figuro/meta
 
 export shared, apis, widget, meta
 
-when defined(figuroscript) or defined(figurovm):
+when defined(compilervm) or defined(nimscript):
   proc startFiguro*[T: Figuro](
     widget: T,
     setup: proc() = nil,

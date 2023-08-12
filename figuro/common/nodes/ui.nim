@@ -3,7 +3,7 @@ import ../../meta
 
 export basics, meta
 
-when defined(figuroscript):
+when defined(compilervm):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}

@@ -1,7 +1,7 @@
 import std/[unicode]
 import pkg/vmath
 
-when defined(figuroscript):
+when defined(compilervm):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}

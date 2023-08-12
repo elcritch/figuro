@@ -2,7 +2,7 @@
 import std/locks
 import common/nodes/render as render
 
-when defined(figuroscript):
+when defined(compilervm):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}
