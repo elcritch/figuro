@@ -3,7 +3,10 @@ import ../../meta
 
 export basics, meta
 
-var lastUId: int = 0
+when defined(figurovm):
+  var lastUId {.compileTime.}: int = 0
+else:
+  var lastUId: int = 0
 
 type
 
