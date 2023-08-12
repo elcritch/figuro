@@ -1,11 +1,11 @@
 import std/options
-import pkg/chroma
-import pkg/typography
+import pkg/chroma/colortypes
+# import pkg/typography
 
 import ../uimaths
 
 export uimaths, options
-export chroma, typography
+export colortypes
 
 type
   NodeID* = int64
@@ -61,7 +61,7 @@ type
 
   BorderStyle* = object
     ## What kind of border.
-    color*: Color
+    # color*: Color
     width*: float32
 
   LayoutAlign* = enum

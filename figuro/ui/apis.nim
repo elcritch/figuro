@@ -1,5 +1,5 @@
 import chroma, bumpy
-import std/[algorithm, json, macros, tables, os]
+import std/[algorithm, macros, tables, os]
 import cssgrid
 
 import std/[hashes]

@@ -1,7 +1,7 @@
 
 import std/isolation
-import threading/smartptrs
-import threading/channels
+# import threading/smartptrs
+# import threading/channels
 
 export isolation
 export channels, smartptrs

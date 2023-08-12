@@ -40,7 +40,7 @@ type
       image*: ImageStyle
     of nkText:
       textStyle*: TextStyle
-      textLayout*: seq[GlyphPosition]
+      # textLayout*: seq[GlyphPosition]
     of nkDrawable:
       points*: seq[Position]
     else:
@@ -62,6 +62,3 @@ proc draw*(fig: Figuro) {.slot.} =
 
 proc load*(fig: Figuro) {.slot.} =
   discard
-
-proc onHover*(fig: Figuro) {.slot.} =
-  fig.status.incl onHover

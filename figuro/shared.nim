@@ -1,4 +1,4 @@
-import std/[sequtils, tables, json, hashes]
+import std/[sequtils, tables, hashes]
 import std/[options, unicode, strformat]
 import pkg/[variant, chroma, cssgrid, windy]
 
