@@ -2,7 +2,18 @@
 import common/nodes/render
 import common/nodes/transfer
 import widget
-import runtime/msgpack_lite
+# import runtime/msgpack_lite
+import json, unicode
+
+proc `%`*(x: Box): JsonNode {.borrow.}
+proc `%`*(x: Position): JsonNode {.borrow.}
+proc `%`*(x: UICoord): JsonNode {.borrow.}
+proc `%`*(x: Rune): JsonNode =
+  %($x)
+proc `%`*(x: (UICoord,UICoord,UICoord,UICoord)): JsonNode =
+  %([x[0], x[1], x[2], x[3]])
+proc `%`*(x: set[Attributes]): JsonNode =
+  %(x.toSeq())
 
 var appMain {.compileTime.}: proc ()
 
@@ -16,13 +27,13 @@ proc appDraw*() =
   echo "app draw!"
   appMain()
 
-proc pack_type*[S](s: S, v: Position) =
-  s.pack(Vec2(v))
+# proc pack_type*[S](s: S, v: Position) =
+#   s.pack(Vec2(v))
 
 proc test*() = discard
 proc getRoot*(): string =
   let nodes = root.copyInto()
-  result = pack(nodes)
+  result = pretty(%*(nodes))
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},

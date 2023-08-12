@@ -98,12 +98,13 @@ proc invokeVmGetRoot*() =
     let nodes = intr.invoke(getRoot, [])
     var str: cstring
     let res = getString(nodes, str)
-    let cnt = str.len()
-    var ss = newStringStream()
-    ss.data = $str
-    var xx: seq[Node]
-    ss.unpack(xx) #and here too
-    print "root: ", xx
+    echo "root: ", str
+    # let cnt = str.len()
+    # var ss = newStringStream()
+    # ss.data = $str
+    # var xx: seq[Node]
+    # ss.unpack(xx) #and here too
+    # print "root: ", xx
 
 when isMainModule:
   echo "main"
