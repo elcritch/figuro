@@ -3,7 +3,7 @@ import ../../meta
 
 export basics, meta
 
-when defined(compilervm):
+when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}

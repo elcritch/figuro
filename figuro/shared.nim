@@ -10,10 +10,12 @@ export variant
 export extras, uimaths
 export inputs
 
-when defined(js):
-  import dom2, html/ajax
+import chroma
+
+when defined(nimscript):
+  {.pragma: runtimeVar, compileTime.}
 else:
-  import chroma
+  {.pragma: runtimeVar, global.}
 
 const
   clearColor* = color(0, 0, 0, 0)
@@ -47,12 +49,12 @@ type
     keyboard*: Keyboard
 
 var
-  dataDir*: string = DataDirPath
-  app* = AppState(
+  dataDir* {.runtimeVar.}: string = DataDirPath
+  app* {.runtimeVar.} = AppState(
     uiScale: 1.0,
     autoUiScale: true
   )
-  uiinputs* = AppInputs(mouse: Mouse(), keyboard: Keyboard())
+  uiinputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
 
 
 type
