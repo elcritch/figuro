@@ -5,7 +5,8 @@ import nimscripter/nimscr
 
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
 import std/[strformat, os, times, json, osproc, sequtils]
-import std/streams
+import std/times
+import std/monotimes
 
 when isMainModule:
   const orgName = "script"
@@ -93,20 +94,16 @@ proc invokeVmGetRoot*() =
     # print nodes
     let res = fromVm(seq[Node], nodes)
     print res[0]
-  
-    # let nodes = intr.invoke(getRoot, [])
-    # var sz: string
-    # let res = fromVm(typeof sz, nodes)
-    # echo "res: ", res.len
-    # var ss = newStringStream()
-    # ss.data = res
-    # var xx: seq[Node]
-    # ss.unpack(xx) #and here too
-    # print "root: ", xx
 
 when isMainModule:
-  echo "main"
   intr = loadTheScript(addins)
   invokeVmInit()
-  invokeVmDraw()
-  invokeVmGetRoot()
+
+  while true:
+    echo "main"
+    let start = getMonoTime()
+    invokeVmDraw()
+    invokeVmGetRoot()
+    let stop = getMonoTime()
+    echo "duration: ", (stop-start)
+    os.sleep(1000)
