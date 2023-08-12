@@ -4,9 +4,9 @@ import chroma
 
 import commons
 
-from windy/common import Button, ButtonView
+# from windy/common import Button, ButtonView
 
-export chroma, common
+export chroma, commons
 # export cssgrid
 
 var
@@ -40,9 +40,9 @@ var
   scrollBarFill* = rgba(187, 187, 187, 162).color 
   scrollBarHighlight* = rgba(137, 137, 137, 162).color
 
-  buttonPress*: ButtonView
-  buttonDown*: ButtonView
-  buttonRelease*: ButtonView
+  # buttonPress*: ButtonView
+  # buttonDown*: ButtonView
+  # buttonRelease*: ButtonView
 
 
 inputs.keyboardInput = proc (rune: Rune) =
@@ -82,7 +82,7 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh()
 
-proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: Atom) =
+proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   ## Process the start of the node.
   mixin draw
 
