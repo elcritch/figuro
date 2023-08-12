@@ -71,9 +71,9 @@ proc invokeVmInit*() =
   if intr != nil and draw != nil:
     discard intr.invoke(draw, [])
 
-proc invokeVmUpdate*(dt: float32) =
+proc invokeVmTick*(frameCount: uint) =
   if intr != nil and draw != nil:
-    discard intr.invoke(update, [newNode dt])
+    discard intr.invoke(tick, [newNode frameCount])
 
 proc invokeVmDraw*() =
   if intr != nil and draw != nil:

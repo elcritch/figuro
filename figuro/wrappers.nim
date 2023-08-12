@@ -3,21 +3,23 @@ import widget
 
 var appWidget: Figuro
 
-
 proc appInit() =
   discard
 
-proc appRender*() =
+proc appTick*(frameCount: uint) =
+  discard
+
+proc appDraw*() =
   mixin draw
   draw(appWidget)
 
-proc run*(init: proc(){.nimcall.},
-          update: proc(_: float32){.nimcall.},
-          draw: proc(){.nimcall.}
+proc run*(init: proc() {.nimcall.},
+          tick: proc(tick: uint) {.nimcall.},
+          draw: proc() {.nimcall.}
           ) = discard
 
 proc startFiguro*[T: Figuro](
-  widget: T,
+  widget: typedesc[T],
   setup: proc() = nil,
   fullscreen = false,
   w: Positive = 1280,
@@ -33,4 +35,6 @@ proc startFiguro*[T: Figuro](
 
   run(
     appInit,
+    appTick,
+    appDraw,
   )

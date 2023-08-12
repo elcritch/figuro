@@ -32,7 +32,7 @@ type
     autoUiScale*: bool
 
     requestedFrame*: int
-    frameCount*, tickCount*: int
+    frameCount*, tickCount*: uint
 
     windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
     windowSize*: Vec2    ## Screen coordinates
