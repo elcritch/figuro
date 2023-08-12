@@ -77,7 +77,7 @@ proc callMethod*(
         ctx: RpcContext,
         req: AgentRequest,
         # clientId: ClientId,
-      ): AgentResponse {.gcsafe.} =
+      ): AgentResponse {.gcsafe, effectsOf: slot.} =
     ## Route's an rpc request. 
 
     if slot.isNil:

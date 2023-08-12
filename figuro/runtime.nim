@@ -1,5 +1,6 @@
 
-import nico
+import figuro
+
 import nimscripter/nimscr
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
 import std/[strformat, os, times]

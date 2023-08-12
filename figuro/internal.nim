@@ -24,7 +24,8 @@ var
   sendRoot* {.runtimeVar.}: proc (nodes: sink seq[render.Node]) {.closure.}
   setWindowTitle* {.runtimeVar.}: proc (title: string)
   getWindowTitle* {.runtimeVar.}: proc (): string
-  appEvent* {.runtimeVar.}, renderEvent* {.compileTime.}: UiEvent
+  appEvent* {.runtimeVar.}: UiEvent
+  renderEvent* {.runtimeVar.}: UiEvent
 
 
 proc initUiEvent*(): UiEvent =
