@@ -1,7 +1,9 @@
 
-# import ../figuro
+import common/nodes/render
 
 import nimscripter/nimscr
+import nimscripter/vmconversion
+
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
 import std/[strformat, os, times, json, osproc, sequtils]
 
@@ -11,7 +13,7 @@ when isMainModule:
 
   var 
     intr: WrappedInterpreter
-    init, tick, draw: WrappedPnode
+    init, tick, draw, getRoot: WrappedPnode
     lastModification = fromUnix(0)
     addins: VmAddins
 
@@ -35,6 +37,7 @@ proc runImpl(args: VmArgs) {.cdecl.} =
     init = args.getNode(0)
     tick = args.getNode(1)
     draw = args.getNode(2)
+    getRoot = args.getNode(3)
 
 # proc createWindowImpl(args: VmArgs) {.cdecl.} =
 #   {.cast(gcSafe).}:
@@ -68,11 +71,11 @@ proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   setCurrentDir oldDir
 
 proc invokeVmInit*() =
-  if intr != nil and draw != nil:
+  if intr != nil and init != nil:
     discard intr.invoke(init, [])
 
 proc invokeVmTick*(frameCount: int) =
-  if intr != nil and draw != nil:
+  if intr != nil and tick != nil:
     discard intr.invoke(tick, [newNode frameCount])
 
 proc invokeVmDraw*() =
@@ -80,8 +83,18 @@ proc invokeVmDraw*() =
     echo "invoke draw"
     discard intr.invoke(draw, [])
 
+import pretty
+
+proc invokeVmGetRoot*() =
+  if intr != nil and getRoot != nil:
+    echo "invoke root"
+    let res = intr.invoke(getRoot, []).toPNode()
+    let nodes = fromVm(Node, res[0])
+    print "root: ", nodes
+
 when isMainModule:
   echo "main"
   intr = loadTheScript(addins)
   invokeVmInit()
   invokeVmDraw()
+  invokeVmGetRoot()

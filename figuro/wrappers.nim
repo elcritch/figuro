@@ -1,4 +1,6 @@
 
+import common/nodes/render
+import common/nodes/transfer
 import widget
 
 var appMain {.compileTime.}: proc ()
@@ -14,10 +16,14 @@ proc appDraw*() =
   appMain()
 
 proc test*() = discard
+proc getRoot*(): string =
+  let nodes = root.copyInto()
+
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},
-          draw: proc() {.nimcall.}
+          draw: proc() {.nimcall.},
+          getRoot: proc(): string {.nimcall.}
           ) = discard
 
 proc startFiguro*[T: Figuro](
@@ -46,4 +52,5 @@ proc startFiguro*[T: Figuro](
     appInit,
     appTick,
     appDraw,
+    getRoot
   )
