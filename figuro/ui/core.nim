@@ -10,6 +10,7 @@ else:
   {.pragma: runtimeVar, global.}
 
 var
+  root* {.runtimeVar.}: Figuro
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
@@ -56,11 +57,12 @@ var
 #     #   keyboard.keyString = rune.toUTF8()
 #     appEvent.trigger()
 
-proc setupRoot*(root: var Figuro) =
+proc setupRoot*(widget: Figuro) =
   if root == nil:
     root = Figuro()
     root.uid = newUId()
     root.zlevel = ZLevelDefault
+  # root = widget
   nodeStack = @[root]
   current = root
   root.diffIndex = 0
@@ -107,8 +109,8 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       parent.children[parent.diffIndex] = current
 
     if resetNodes == 0 and
-        current.nIndex == parent.diffIndex and
-        kind == current.kind:
+        current.nIndex == parent.diffIndex:
+          # and kind == current.kind:
       # Same node.
       discard
     else:

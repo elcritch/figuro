@@ -51,15 +51,14 @@ else:
 
   proc runApplication(appMain: MainCallback) {.thread.} =
     {.gcsafe.}:
-      var appNodes: Figuro
       while app.running:
         wait(appEvent)
         timeIt(appAvgTime):
-          appNodes.setupRoot()
+          root.diffIndex = 0
           tickMain()
           appMain()
-          computeScreenBox(nil, appNodes)
-          sendRoot(appNodes.copyInto())
+          computeScreenBox(nil, root)
+          sendRoot(root.copyInto())
 
   proc runRenderer(renderer: Renderer) =
     while app.running:
@@ -129,6 +128,8 @@ proc startFiguro*[T: Figuro](
   proc appLoad() =
     appWidget.load()
   
+  setupRoot(appWidget)
+
   appMain = appRender
   tickMain = appTick
   loadMain = appLoad

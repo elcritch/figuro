@@ -35,10 +35,12 @@ proc startFiguro*[T: Figuro](
   mixin tick
   mixin load
 
-  let appWidget = T()
+  var appWidget = T()
 
   appMain = proc() =
     draw(appWidget)
+
+  setupRoot(appWidget)
 
   run(
     appInit,
