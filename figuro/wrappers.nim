@@ -1,7 +1,7 @@
 
 import widget
 
-var appWidget: Figuro
+var appMain {.compileTime.}: proc ()
 
 proc appInit() =
   discard
@@ -10,8 +10,10 @@ proc appTick*(frameCount: int) =
   discard
 
 proc appDraw*() =
-  mixin draw
-  draw(appWidget)
+  echo "app draw!"
+  appMain()
+
+proc test*() = discard
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},
@@ -32,6 +34,11 @@ proc startFiguro*[T: Figuro](
   mixin draw
   mixin tick
   mixin load
+
+  let appWidget = T()
+
+  appMain = proc() =
+    draw(appWidget)
 
   run(
     appInit,

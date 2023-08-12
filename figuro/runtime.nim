@@ -31,6 +31,7 @@ proc testImpl(args: VmArgs) {.cdecl.} =
 
 proc runImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
+    echo "runImpl"
     init = args.getNode(0)
     tick = args.getNode(1)
     draw = args.getNode(2)
@@ -41,9 +42,9 @@ proc runImpl(args: VmArgs) {.cdecl.} =
 
 const 
   vmProcs* = [
-    VmProcSignature(package: "script", name: "test", module: "figuroscript", vmProc: testImpl),
+    VmProcSignature(package: "figuro", name: "test", module: "wrappers", vmProc: testImpl),
+    VmProcSignature(package: "figuro", name: "run", module: "wrappers", vmProc: runImpl),
   ]
-
 
 when isMainModule:
   let theProcs = vmProcs
@@ -76,9 +77,11 @@ proc invokeVmTick*(frameCount: int) =
 
 proc invokeVmDraw*() =
   if intr != nil and draw != nil:
+    echo "invoke draw"
     discard intr.invoke(draw, [])
 
 when isMainModule:
+  echo "main"
   intr = loadTheScript(addins)
   invokeVmInit()
   invokeVmDraw()

@@ -4,36 +4,42 @@ import std/[tables, unicode]
 import commons
 export commons
 
-var
-  parent, current*: Figuro
+when defined(nimscript):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
 
-  nodeStack*: seq[Figuro]
+var
+  parent* {.runtimeVar.}: Figuro
+  current* {.runtimeVar.}: Figuro
+
+  nodeStack* {.runtimeVar.}: seq[Figuro]
   # gridStack*: seq[GridTemplate]
 
-  scrollBox*: Box
-  scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
-  scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
+  scrollBox* {.runtimeVar.}: Box
+  scrollBoxMega* {.runtimeVar.}: Box ## Scroll box is 500px bigger in y direction
+  scrollBoxMini* {.runtimeVar.}: Box ## Scroll box is smaller by 100px useful for debugging
 
-  numNodes*: int
-  popupActive*: bool
-  inPopup*: bool
-  resetNodes*: int
-  popupBox*: Box
+  numNodes* {.runtimeVar.}: int
+  popupActive* {.runtimeVar.}: bool
+  inPopup* {.runtimeVar.}: bool
+  resetNodes* {.runtimeVar.}: int
+  popupBox* {.runtimeVar.}: Box
 
   # Used to check for duplicate ID paths.
-  pathChecker*: Table[string, bool]
+  pathChecker* {.runtimeVar.}: Table[string, bool]
 
-  computeTextLayout*: proc(node: Figuro)
+  computeTextLayout* {.runtimeVar.}: proc(node: Figuro)
 
-  nodeLookup*: Table[string, Figuro]
+  nodeLookup* {.runtimeVar.}: Table[string, Figuro]
 
-  defaultlineHeightRatio* = 1.618.UICoord ##\
+  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
-  adjustTopTextFactor* = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
+  adjustTopTextFactor* {.runtimeVar.} = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
 
   # global scroll bar settings
-  scrollBarFill* = rgba(187, 187, 187, 162).color 
-  scrollBarHighlight* = rgba(137, 137, 137, 162).color
+  scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color 
+  scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
   # buttonPress*: ButtonView
   # buttonDown*: ButtonView
