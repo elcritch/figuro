@@ -110,7 +110,8 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       # current.resetToDefault()
       refresh()
 
-  current.kind = kind
+  {.cast(uncheckedAssign).}:
+    current.kind = kind
   # current.textStyle = parent.textStyle
   # current.cursorColor = parent.cursorColor
   current.highlight = parent.highlight
