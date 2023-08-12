@@ -31,15 +31,17 @@ proc appDraw*() =
   appMain()
 
 proc test*() = discard
-proc getRoot*(): string =
-  let nodes = root.copyInto()
-  # result = pretty(%*(nodes))
-  result = pack(nodes)
+# proc getRoot*(): string =
+#   let nodes = root.copyInto()
+#   # result = pretty(%*(nodes))
+#   result = pack(nodes)
+proc getRoot*(): seq[Node] =
+  result = root.copyInto()
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},
           draw: proc() {.nimcall.},
-          getRoot: proc(): string {.nimcall.}
+          getRoot: proc(): seq[Node] {.nimcall.}
           ) = discard
 
 proc startFiguro*[T: Figuro](

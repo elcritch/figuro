@@ -90,17 +90,19 @@ proc invokeVmGetRoot*() =
   if intr != nil and getRoot != nil:
     echo "invoke root"
     let nodes = intr.invoke(getRoot, [])
-    var sz: string
-    # discard nodes[0].getInt(sz)
-    # discard nodes[0].getInt(sz)
+    # print nodes
+    let res = fromVm(seq[Node], nodes)
+    print res[0]
   
-    let res = fromVm(typeof sz, nodes)
-    echo "res: ", res.len
-    var ss = newStringStream()
-    ss.data = res
-    var xx: seq[Node]
-    ss.unpack(xx) #and here too
-    print "root: ", xx
+    # let nodes = intr.invoke(getRoot, [])
+    # var sz: string
+    # let res = fromVm(typeof sz, nodes)
+    # echo "res: ", res.len
+    # var ss = newStringStream()
+    # ss.data = res
+    # var xx: seq[Node]
+    # ss.unpack(xx) #and here too
+    # print "root: ", xx
 
 when isMainModule:
   echo "main"
