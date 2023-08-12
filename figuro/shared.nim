@@ -1,6 +1,6 @@
 import std/[sequtils, tables, hashes]
 import std/[options, unicode, strformat]
-import pkg/[variant, chroma, cssgrid, windy]
+import pkg/[variant, chroma, windy]
 
 import common/[extras, uimaths]
 import inputs

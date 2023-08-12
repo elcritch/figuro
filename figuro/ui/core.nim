@@ -1,19 +1,19 @@
 import std/[tables, unicode]
 import chroma
-import cssgrid
+# import cssgrid
 
 import commons
 
 from windy/common import Button, ButtonView
 
 export chroma, common
-export cssgrid
+# export cssgrid
 
 var
   parent, current*: Figuro
 
   nodeStack*: seq[Figuro]
-  gridStack*: seq[GridTemplate]
+  # gridStack*: seq[GridTemplate]
 
   scrollBox*: Box
   scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction

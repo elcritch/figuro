@@ -1,6 +1,6 @@
 import chroma, bumpy
 import std/[algorithm, macros, tables, os]
-import cssgrid
+# import cssgrid
 
 import std/[hashes]
 import pkg/[windy]
