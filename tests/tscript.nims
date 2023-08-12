@@ -3,7 +3,8 @@
 
 import figuro/common/nodes/ui
 
-# import figuro/ui/core
+# import figuro/ui/commons
+import figuro/shared
 
 type
   Main* = ref object of Figuro
