@@ -17,10 +17,8 @@ type
 
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
+
 var
-  appMain* {.runtimeVar.}: MainCallback
-  tickMain* {.runtimeVar.}: MainCallback
-  loadMain* {.runtimeVar.}: MainCallback
   sendRoot* {.runtimeVar.}: proc (nodes: sink seq[render.Node]) {.closure.}
   setWindowTitle* {.runtimeVar.}: proc (title: string)
   getWindowTitle* {.runtimeVar.}: proc (): string

@@ -32,7 +32,6 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
     app.requestedFrame.dec
 
   preInput()
-  tickMain()
   drawAndSwap(window, nodes)
   postInput()
 
@@ -98,9 +97,6 @@ proc setupRenderer*(
 
   useDepthBuffer(false)
 
-  if loadMain != nil:
-    loadMain()
-  
   return renderer
   
 

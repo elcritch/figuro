@@ -27,6 +27,11 @@ when defined(emscripten):
     emscripten_set_main_loop(main_loop, 0, true)
 else:
 
+  var
+    appMain* : MainCallback
+    tickMain*: MainCallback
+    loadMain*: MainCallback
+
   const renderPeriodMs {.intdefine.} = 16
   const appPeriodMs {.intdefine.} = 16
 
@@ -50,6 +55,7 @@ else:
         wait(appEvent)
         timeIt(appAvgTime):
           appNodes.setupRoot()
+          tickMain()
           appMain()
           computeScreenBox(nil, appNodes)
           sendRoot(appNodes.copyInto())
