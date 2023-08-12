@@ -101,7 +101,8 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       parent.children[parent.diffIndex] = current
 
     if resetNodes == 0 and
-        current.nIndex == parent.diffIndex:
+        current.nIndex == parent.diffIndex and
+        kind == current.kind:
       # Same node.
       discard
     else:
