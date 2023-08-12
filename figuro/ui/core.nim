@@ -1,13 +1,8 @@
 import std/[tables, unicode]
-import chroma
 # import cssgrid
 
 import commons
-
-# from windy/common import Button, ButtonView
-
-export chroma, commons
-# export cssgrid
+export commons
 
 var
   parent, current*: Figuro

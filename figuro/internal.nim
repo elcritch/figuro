@@ -2,6 +2,11 @@
 import std/locks
 import common/nodes/render as render
 
+when defined(figuroscript):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
+
 type
   MainCallback* = proc() {.closure.}
 
@@ -12,27 +17,15 @@ type
 
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
-when defined(figuroscript):
-  var
-    appMain* {.compileTime.}: MainCallback
-    tickMain* {.compileTime.}: MainCallback
-    loadMain* {.compileTime.}: MainCallback
-    sendRoot* {.compileTime.}: proc (nodes: sink seq[render.Node]) {.closure.}
-    setWindowTitle* {.compileTime.}: proc (title: string)
-    getWindowTitle* {.compileTime.}: proc (): string
-    appEvent* {.compileTime.}, renderEvent* {.compileTime.}: UiEvent
+var
+  appMain* {.runtimeVar.}: MainCallback
+  tickMain* {.runtimeVar.}: MainCallback
+  loadMain* {.runtimeVar.}: MainCallback
+  sendRoot* {.runtimeVar.}: proc (nodes: sink seq[render.Node]) {.closure.}
+  setWindowTitle* {.runtimeVar.}: proc (title: string)
+  getWindowTitle* {.runtimeVar.}: proc (): string
+  appEvent* {.runtimeVar.}, renderEvent* {.compileTime.}: UiEvent
 
-else:
-  var
-    appMain*: MainCallback
-    tickMain*: MainCallback
-    loadMain*: MainCallback
-    sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
-
-    setWindowTitle*: proc (title: string)
-    getWindowTitle*: proc (): string
-
-    appEvent*, renderEvent*: UiEvent
 
 proc initUiEvent*(): UiEvent =
   result.lock.initLock()

@@ -4,9 +4,12 @@ import ../../meta
 export basics, meta
 
 when defined(figuroscript):
-  var lastUId {.compileTime.}: int = 0
+  {.pragma: runtimeVar, compileTime.}
 else:
-  var lastUId: int = 0
+  {.pragma: runtimeVar, global.}
+
+
+var lastUId {.runtimeVar.}: int = 0
 
 type
 

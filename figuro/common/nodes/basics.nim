@@ -1,10 +1,15 @@
 import std/[options, unicode]
-import pkg/chroma/colortypes
+import pkg/chroma
 
 import ../uimaths
 
 export uimaths, options
-export colortypes
+export chroma
+
+when defined(figuroscript):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
 
 type
   NodeID* = int64
