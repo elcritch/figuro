@@ -1,5 +1,5 @@
 import std/[options, unicode]
-import pkg/chroma
+import chroma
 
 import ../uimaths
 

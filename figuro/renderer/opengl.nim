@@ -1,9 +1,9 @@
 import std/[os, hashes, strformat, strutils, tables, times]
 
-import pkg/chroma
-import pkg/[typography, typography/svgfont]
-import pkg/pixie
-import pkg/windy
+import chroma
+import typography, typography/svgfont
+import pixie
+import windy
 
 import opengl/[base, context, draw]
 import opengl/commons

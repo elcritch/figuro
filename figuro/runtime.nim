@@ -3,7 +3,7 @@
 
 import nimscripter/nimscr
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
-import std/[strformat, os, times]
+import std/[strformat, os, times, json, osproc]
 
 when isMainModule:
   const orgName = "script"
@@ -54,9 +54,15 @@ let
   scriptPath = scriptDir / "script.nim"
 
 proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
+  let (res, _) = execCmdEx("nim dump --verbosity:0 --dump.format:json dump.json")
+  let jsPaths = parseJson(res)["lib_paths"]
   let oldDir = getCurrentDir()
   setCurrentDir scriptDir
-  result = loadScript(cstring scriptPath, addins, [cstring scriptDir], cstring findNimStdLibCompileTime(), defaultDefines)
+  var paths = @[cstring scriptDir]
+  for pth in jsPaths:
+    paths.add cstring(pth.getStr)
+  echo "paths: ", paths
+  result = loadScript(cstring scriptPath, addins, paths, cstring findNimStdLibCompileTime(), defaultDefines)
   setCurrentDir oldDir
 
 proc invokeVmInit*() =
