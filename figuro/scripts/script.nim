@@ -1,0 +1,4 @@
+
+import figuroscript
+
+test()

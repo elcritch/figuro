@@ -1,5 +1,5 @@
 
-import ../figuro
+# import ../figuro
 
 import nimscripter/nimscr
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
@@ -15,12 +15,15 @@ when isMainModule:
     lastModification = fromUnix(0)
     addins: VmAddins
 
+proc test() =
+  echo "hi"
+
 errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.cdecl.} =
   echo fmt"{line}:col; {msg}"
 
-proc clsImpl(args: VmArgs) {.cdecl.} =
+proc testImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
-    cls()
+    test()
 
 # proc btnImpl(args: VmArgs) {.cdecl.} =
 #   {.cast(gcSafe).}:
@@ -32,22 +35,22 @@ proc runImpl(args: VmArgs) {.cdecl.} =
     update = args.getNode(1)
     draw = args.getNode(2)
 
-proc createWindowImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    setWindowTitle($args.getString(0))
-
+# proc createWindowImpl(args: VmArgs) {.cdecl.} =
+#   {.cast(gcSafe).}:
+#     setWindowTitle($args.getString(0))
 
 const 
   vmProcs* = [
-    VmProcSignature(package: "script", name: "cls", module: "nicoscript", vmProc: clsImpl),
+    VmProcSignature(package: "script", name: "test", module: "figuroscript", vmProc: testImpl),
   ]
+
 
 when isMainModule:
   let theProcs = vmProcs
   addins = VmAddins(procs: cast[ptr UncheckedArray[typeof theProcs[0]]](theProcs.addr), procLen: vmProcs.len)
 
 let
-  scriptDir = getAppDir() / "script"
+  scriptDir = getAppDir() / "scripts/"
   scriptPath = scriptDir / "script.nim"
 
 proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
@@ -69,26 +72,5 @@ proc invokeVmDraw*() =
     discard intr.invoke(draw, [])
 
 when isMainModule:
-  proc gameInit() =
-    loadFont(0, "font.png")
-    intr = loadTheScript(addins)
-    invokeVmInit()
-
-  proc gameUpdate(dt: float32) =
-    if (let lastMod = getLastModificationTime(scriptPath); lastMod) > lastModification:
-      if intr.isNil:
-        intr = loadTheScript(addins)
-      else:
-        let saveState = intr.saveState()
-        intr.reload()
-        intr.loadState(saveState)
-      if intr != nil:
-        lastModification = lastMod
-    invokeVmUpdate(dt)
-
-  proc gameDraw() =
-    invokeVmDraw()
-
-  nico.init(orgName, appName)
-  nico.createWindow(appName, 128, 128, 4, false)
-  nico.run(gameInit, gameUpdate, gameDraw)
+  intr = loadTheScript(addins)
+  invokeVmInit()
