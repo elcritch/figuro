@@ -3,7 +3,7 @@ import ../../meta
 
 export basics, meta
 
-when defined(figurovm):
+when defined(figuroscript):
   var lastUId {.compileTime.}: int = 0
 else:
   var lastUId: int = 0
