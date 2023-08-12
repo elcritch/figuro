@@ -3,7 +3,7 @@ import common/nodes/render
 import common/nodes/transfer
 import widget
 import runtime/msgpack_lite
-import unicode
+# import unicode
 # import json, unicode
 
 # proc `%`*(x: Box): JsonNode {.borrow.}

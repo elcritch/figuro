@@ -2,7 +2,6 @@
 import common/nodes/render
 
 import nimscripter/nimscr
-import nimscripter/vmconversion
 
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
 import std/[strformat, os, times, json, osproc, sequtils]
@@ -87,18 +86,16 @@ proc invokeVmDraw*() =
 import pretty
 import msgpack4nim
 
-proc unpack_type*[S](s: S, v: var Position) =
-  var x: Vec2
-  s.unpack(x)
-  v = Position(x)
-
 proc invokeVmGetRoot*() =
   if intr != nil and getRoot != nil:
     echo "invoke root"
     let nodes = intr.invoke(getRoot, [])
-    var str: cstring
-    let res = getString(nodes, str)
-    echo "root: ", str.len()
+    var sz: string
+    # discard nodes[0].getInt(sz)
+    # discard nodes[0].getInt(sz)
+    let res = fromVm(typeof sz, nodes)
+    echo "res: ", res.len
+    # echo "root: ", str.len
     # let cnt = str.len()
     # var ss = newStringStream()
     # ss.data = $str

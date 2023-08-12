@@ -63,7 +63,7 @@ when not declared SomeFloat:
 const pack_value_nil* = chr(0xc0)
 
 type
-  StringStream = ref object
+  StringStream* = ref object
     data*: string
 
 type
