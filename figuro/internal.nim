@@ -2,7 +2,7 @@
 import std/locks
 import common/nodes/render as render
 
-when defined(compilervm):
+when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}
@@ -17,10 +17,15 @@ type
 
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
+when not defined(nimscript):
+  var
+    setWindowTitle* {.runtimeVar.}: proc (title: string)
+    getWindowTitle* {.runtimeVar.}: proc (): string
+else:
+    proc setWindowTitle*(title: string) = discard
+    proc getWindowTitle*(): string = discard
 
 var
-  setWindowTitle* {.runtimeVar.}: proc (title: string)
-  getWindowTitle* {.runtimeVar.}: proc (): string
   appEvent* {.runtimeVar.}: UiEvent
   renderEvent* {.runtimeVar.}: UiEvent
 

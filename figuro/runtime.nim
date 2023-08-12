@@ -50,8 +50,8 @@ when isMainModule:
   addins = VmAddins(procs: cast[ptr UncheckedArray[typeof theProcs[0]]](theProcs.addr), procLen: vmProcs.len)
 
 let
-  scriptDir = getAppDir() / "scripts/"
-  scriptPath = scriptDir / "script.nim"
+  scriptDir = getAppDir() / "../tests/"
+  scriptPath = scriptDir / "twidget.nim"
 
 proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   let (res, _) = execCmdEx("nim dump --verbosity:0 --dump.format:json dump.json")
@@ -60,6 +60,7 @@ proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   setCurrentDir scriptDir
   var paths = @[scriptDir]
   paths.add jsPaths.mapIt(it.getStr)
+  paths.add "../" # figuro
   let cpaths = paths.mapIt(it.cstring())
 
   result = loadScript(cstring scriptPath, addins, cpaths, cstring findNimStdLibCompileTime(), defaultDefines)
