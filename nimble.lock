@@ -139,15 +139,15 @@
       }
     },
     "nimscripter": {
-      "version": "1.1.1",
-      "vcsRevision": "acf23466f4026256d2acda2e3c4cfd806109964d",
+      "version": "1.1.0",
+      "vcsRevision": "f46636293866fe640a4c882cba5d3ddefa510116",
       "url": "https://github.com/beef331/nimscripter",
       "downloadMethod": "git",
       "dependencies": [
         "assume"
       ],
       "checksums": {
-        "sha1": "eb4b7cb2f4cbec5a720accb3d8424b8b94298a55"
+        "sha1": "9c73d9f390f9fc711e065f15b1a54dbeee9b0919"
       }
     },
     "threading": {

@@ -24,6 +24,6 @@ requires "asynctools >= 0.1.1"
 requires "nimsimd >= 1.2.5"
 requires "windy"
 requires "threading"
-requires "nimscripter"
+requires "nimscripter#dll"
 
 
