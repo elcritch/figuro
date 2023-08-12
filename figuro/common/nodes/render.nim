@@ -12,11 +12,11 @@ type
     childCount*: int
     parent*: NodeID
 
-    box*: Box
-    orgBox*: Box
-    screenBox*: Box
-    offset*: Position
-    totalOffset*: Position
+    box*: Rect
+    orgBox*: Rect
+    screenBox*: Rect
+    offset*: Vec2
+    totalOffset*: Vec2
     attrs*: set[Attributes]
 
     zlevel*: ZLevel
@@ -36,7 +36,7 @@ type
       textStyle*: TextStyle
       textLayout*: seq[GlyphPosition]
     of nkDrawable:
-      points*: seq[Position]
+      points*: seq[Vec2]
     else:
       discard
 

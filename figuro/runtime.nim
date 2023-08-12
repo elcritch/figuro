@@ -98,7 +98,7 @@ proc invokeVmGetRoot*() =
     let nodes = intr.invoke(getRoot, [])
     var str: cstring
     let res = getString(nodes, str)
-    echo "root: ", str
+    echo "root: ", str.len()
     # let cnt = str.len()
     # var ss = newStringStream()
     # ss.data = $str
