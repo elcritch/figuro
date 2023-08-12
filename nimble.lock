@@ -138,6 +138,16 @@
         "sha1": "f873f4b97e87a82e27e0b85bf9130fe3e320a2b8"
       }
     },
+    "msgpack4nim": {
+      "version": "0.3.1",
+      "vcsRevision": "472152dd56a8b282535647caeba4643f3c4992f8",
+      "url": "https://github.com/jangko/msgpack4nim",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "920c09058ca1db8a59eaf13ac1ea9c6504495a04"
+      }
+    },
     "nimscripter": {
       "version": "1.1.0",
       "vcsRevision": "f46636293866fe640a4c882cba5d3ddefa510116",

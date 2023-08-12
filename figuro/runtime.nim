@@ -89,10 +89,13 @@ import msgpack4nim
 proc invokeVmGetRoot*() =
   if intr != nil and getRoot != nil:
     echo "invoke root"
-    let res = intr.invoke(getRoot, []).getString()
-    # let nodes = fromVm(Node, res[0])
-    let mpack = res.getString()
-    print "root: ", nodes
+    let nodes = intr.invoke(getRoot, [])
+    var str: cstring
+    let res = getString(nodes, str)
+    var ss = MsgStream.init($str)
+    var xx: seq[Node]
+    ss.unpack(xx) #and here too
+    print "root: ", xx
 
 when isMainModule:
   echo "main"
