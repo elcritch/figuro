@@ -5,7 +5,7 @@ import figuro/common/nodes/ui
 
 import figuro/ui/commons
 import figuro/ui/core
-import figuro
+import figuro/ui/apis
 
 type
   Main* = ref object of Figuro
