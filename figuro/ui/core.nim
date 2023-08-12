@@ -40,15 +40,15 @@ var
   # buttonRelease*: ButtonView
 
 
-inputs.keyboardInput = proc (rune: Rune) =
-    app.requestedFrame.inc
-    # if keyboard.focusNode != nil:
-    #   keyboard.state = KeyState.Press
-    #   # currTextBox.typeCharacter(rune)
-    # else:
-    #   keyboard.state = KeyState.Press
-    #   keyboard.keyString = rune.toUTF8()
-    appEvent.trigger()
+# inputs.keyboardInput = proc (rune: Rune) =
+#     app.requestedFrame.inc
+#     # if keyboard.focusNode != nil:
+#     #   keyboard.state = KeyState.Press
+#     #   # currTextBox.typeCharacter(rune)
+#     # else:
+#     #   keyboard.state = KeyState.Press
+#     #   keyboard.keyString = rune.toUTF8()
+#     appEvent.trigger()
 
 proc setupRoot*(root: var Figuro) =
   if root == nil:

@@ -28,9 +28,10 @@ when defined(emscripten):
 else:
 
   var
-    appMain* : MainCallback
+    appMain*: MainCallback
     tickMain*: MainCallback
     loadMain*: MainCallback
+    sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
 
   const renderPeriodMs {.intdefine.} = 16
   const appPeriodMs {.intdefine.} = 16

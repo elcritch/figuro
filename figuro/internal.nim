@@ -19,7 +19,6 @@ type
 
 
 var
-  sendRoot* {.runtimeVar.}: proc (nodes: sink seq[render.Node]) {.closure.}
   setWindowTitle* {.runtimeVar.}: proc (title: string)
   getWindowTitle* {.runtimeVar.}: proc (): string
   appEvent* {.runtimeVar.}: UiEvent
