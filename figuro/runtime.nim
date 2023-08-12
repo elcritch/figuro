@@ -84,12 +84,14 @@ proc invokeVmDraw*() =
     discard intr.invoke(draw, [])
 
 import pretty
+import msgpack4nim
 
 proc invokeVmGetRoot*() =
   if intr != nil and getRoot != nil:
     echo "invoke root"
-    let res = intr.invoke(getRoot, []).toPNode()
-    let nodes = fromVm(Node, res[0])
+    let res = intr.invoke(getRoot, []).getString()
+    # let nodes = fromVm(Node, res[0])
+    let mpack = res.getString()
     print "root: ", nodes
 
 when isMainModule:

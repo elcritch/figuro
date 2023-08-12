@@ -2,6 +2,7 @@
 import common/nodes/render
 import common/nodes/transfer
 import widget
+import runtime/msgpack_lite
 
 var appMain {.compileTime.}: proc ()
 
@@ -18,7 +19,7 @@ proc appDraw*() =
 proc test*() = discard
 proc getRoot*(): string =
   let nodes = root.copyInto()
-
+  result = pack(nodes)
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},
