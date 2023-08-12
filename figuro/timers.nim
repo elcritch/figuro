@@ -3,7 +3,7 @@ import std/[times, monotimes, strutils, macros] # This is to provide the timing 
 
 type
   FrameIdx* = tuple[count: int, skipped: int]
-  TimeIt* = tuple[micros: float, count: uint]
+  TimeIt* = tuple[micros: float, count: int]
 
 macro timeIt*(timer, blk: untyped) =
   let name = newStrLitNode timer.repr()

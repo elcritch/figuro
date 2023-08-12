@@ -35,7 +35,6 @@ proc runImpl(args: VmArgs) {.cdecl.} =
     tick = args.getNode(1)
     draw = args.getNode(2)
 
-
 # proc createWindowImpl(args: VmArgs) {.cdecl.} =
 #   {.cast(gcSafe).}:
 #     setWindowTitle($args.getString(0))
@@ -69,9 +68,9 @@ proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
 
 proc invokeVmInit*() =
   if intr != nil and draw != nil:
-    discard intr.invoke(draw, [])
+    discard intr.invoke(init, [])
 
-proc invokeVmTick*(frameCount: uint) =
+proc invokeVmTick*(frameCount: int) =
   if intr != nil and draw != nil:
     discard intr.invoke(tick, [newNode frameCount])
 
@@ -82,3 +81,4 @@ proc invokeVmDraw*() =
 when isMainModule:
   intr = loadTheScript(addins)
   invokeVmInit()
+  invokeVmDraw()

@@ -6,7 +6,7 @@ var appWidget: Figuro
 proc appInit() =
   discard
 
-proc appTick*(frameCount: uint) =
+proc appTick*(frameCount: int) =
   discard
 
 proc appDraw*() =
@@ -14,7 +14,7 @@ proc appDraw*() =
   draw(appWidget)
 
 proc run*(init: proc() {.nimcall.},
-          tick: proc(tick: uint) {.nimcall.},
+          tick: proc(tick: int) {.nimcall.},
           draw: proc() {.nimcall.}
           ) = discard
 
