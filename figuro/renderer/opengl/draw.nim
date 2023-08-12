@@ -43,8 +43,8 @@ proc drawDrawable*(node: Node) =
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
     let
-      pos = point.scaled
-      bx = node.box.scaled.atXY(pos.x, pos.y)
+      pos = point
+      bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
 # proc drawText(node: Node) =
@@ -138,60 +138,60 @@ macro postDraws() =
     result.add postDrawsImpl.pop()
 
 proc drawMasks*(node: Node) =
-  if node.cornerRadius[0] != 0'ui:
+  if node.cornerRadius != 0:
     ctx.fillRoundedRect(rect(
       0, 0,
-      node.screenBox.w.scaled, node.screenBox.h.scaled
-    ), rgba(255, 0, 0, 255).color, node.cornerRadius[0].scaled)
+      node.screenBox.w, node.screenBox.h
+    ), rgba(255, 0, 0, 255).color, node.cornerRadius)
   else:
     ctx.fillRect(rect(
       0, 0,
-      node.screenBox.w.scaled, node.screenBox.h.scaled
+      node.screenBox.w, node.screenBox.h
     ), rgba(255, 0, 0, 255).color)
 
 proc drawShadows*(node: Node) =
   ## drawing shadows
   let shadow = node.shadow.get()
-  let blurAmt = shadow.blur / 7.0'ui
+  let blurAmt = shadow.blur / 7.0
   for i in 0..6:
-    let blurs = i.toFloat().UICoord * blurAmt
+    let blurs: float32 = i.toFloat() * blurAmt
     let box = node.screenBox.atXY(x = shadow.x + blurs,
                                   y = shadow.y + blurs)
-    ctx.fillRoundedRect(rect = box.scaled,
+    ctx.fillRoundedRect(rect = box,
                         color = shadow.color,
-                        radius = node.cornerRadius[0].scaled)
+                        radius = node.cornerRadius)
 
 proc drawBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
-    if node.cornerRadius.sum() > 0'ui:
-      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
+    if node.cornerRadius > 0:
+      ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.fill,
-                          radius = node.cornerRadius[0].scaled)
+                          radius = node.cornerRadius)
     else:
-      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.fill)
+      ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
 
   if node.highlight.a > 0'f32:
-    if node.cornerRadius.sum() > 0'ui:
-      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
+    if node.cornerRadius > 0:
+      ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.highlight,
-                          radius = node.cornerRadius[0].scaled)
+                          radius = node.cornerRadius)
     else:
-      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.highlight)
+      ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
   if node.kind == nkImage and node.image.name != "":
     let path = dataDir / node.image.name
-    let size = vec2(node.screenBox.scaled.w, node.screenBox.scaled.h)
+    let size = vec2(node.screenBox.w, node.screenBox.h)
     ctx.drawImage(path,
                   pos = vec2(0, 0),
                   color = node.image.color,
                   size = size)
   
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
+    ctx.strokeRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.stroke.color,
                           weight = node.stroke.weight,
-                          radius = node.cornerRadius[0].scaled)
+                          radius = node.cornerRadius)
 
 import pretty
 
@@ -219,21 +219,21 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   # setup the opengl context to match the current node size and position
 
   ctx.saveTransform()
-  ctx.translate(node.screenBox.scaled.xy)
+  ctx.translate(node.screenBox.xy)
 
   # handles setting up scrollbar region
   ifdraw node.kind == nkScrollBar:
     ctx.saveTransform()
     let offset = parent.offset
-    ctx.translate(offset.scaled)
+    ctx.translate(offset)
   finally:
     ctx.restoreTransform()
 
   # handle node rotation
   ifdraw node.rotation != 0:
-    ctx.translate(node.screenBox.scaled.wh/2)
+    ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
-    ctx.translate(-node.screenBox.scaled.wh/2)
+    ctx.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
   ifdraw clipContent in node.attrs:
@@ -262,7 +262,7 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   ifdraw scrollpane in node.attrs:
     # handles scrolling panel
     ctx.saveTransform()
-    ctx.translate(-node.offset.scaled)
+    ctx.translate(-node.offset)
   finally:
     ctx.restoreTransform()
 

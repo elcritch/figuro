@@ -28,8 +28,8 @@ type
 
     case kind*: NodeKind
     of nkRectangle:
-      shadow*: Option[Shadow]
-      cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
+      shadow*: Option[RenderShadow]
+      cornerRadius*: float32
     of nkImage:
       image*: ImageStyle
     of nkText:

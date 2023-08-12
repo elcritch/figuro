@@ -117,6 +117,13 @@ type
     y*: UICoord
     color*: Color
 
+  RenderShadow* = object
+    kind*: ShadowStyle
+    blur*: float32
+    x*: float32
+    y*: float32
+    color*: Color
+
   Stroke* = object
     weight*: float32 # not uicoord?
     color*: Color
