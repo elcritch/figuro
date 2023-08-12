@@ -43,7 +43,7 @@ type
       image*: ImageStyle
     of nkText:
       textStyle*: TextStyle
-      # textLayout*: seq[GlyphPosition]
+      textLayout*: seq[GlyphPosition]
     of nkDrawable:
       points*: seq[Position]
     else:

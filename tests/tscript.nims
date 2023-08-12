@@ -3,6 +3,19 @@
 
 import figuro/common/nodes/ui
 
+# import figuro/ui/core
+
 type
   Main* = ref object of Figuro
     value: float
+
+import std/locks
+
+when nimvm:
+  discard
+else:
+  var l: Lock
+  l.initLock()
+
+  withLock(l):
+    echo "true"

@@ -1,6 +1,5 @@
-import std/options
+import std/[options, unicode]
 import pkg/chroma/colortypes
-# import pkg/typography
 
 import ../uimaths
 
@@ -9,6 +8,15 @@ export colortypes
 
 type
   NodeID* = int64
+
+type
+  GlyphPosition* = object
+    ## Represents a glyph position after typesetting.
+    fontSize*: float32
+    subPixelShift*: float32
+    rect*: Rect       # Where to draw the image character.
+    selectRect*: Rect # Were to draw or hit selection.
+    rune*: Rune
 
 type
   NodeKind* = enum

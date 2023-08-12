@@ -53,10 +53,11 @@ proc sysRegister*(router: var AgentRouter, path, name: string, call: AgentProc) 
   router.sysprocs[path] = call
   echo "registering: sys: ", path
 
-when defined(figuroscript):
+when nimvm:
   var globalRouter {.compileTime.} = AgentRouter()
 else:
-  var globalRouter {.global.} = AgentRouter()
+  when not compiles(globalRouter):
+    var globalRouter {.global.} = AgentRouter()
 
 proc register*(path, name: string, call: AgentProc) =
   globalRouter.procs[name] = call
