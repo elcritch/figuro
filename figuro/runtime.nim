@@ -11,7 +11,7 @@ when isMainModule:
 
   var 
     intr: WrappedInterpreter
-    init, update, draw: WrappedPnode
+    init, tick, draw: WrappedPnode
     lastModification = fromUnix(0)
     addins: VmAddins
 
@@ -32,8 +32,9 @@ proc testImpl(args: VmArgs) {.cdecl.} =
 proc runImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
     init = args.getNode(0)
-    update = args.getNode(1)
+    tick = args.getNode(1)
     draw = args.getNode(2)
+
 
 # proc createWindowImpl(args: VmArgs) {.cdecl.} =
 #   {.cast(gcSafe).}:
