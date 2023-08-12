@@ -3,7 +3,6 @@ import std/[algorithm, macros, tables, os]
 import cssgrid
 
 import std/[hashes]
-import std/[strformat]
 import pkg/[windy]
 import pkg/[typography, typography/svgfont]
 
