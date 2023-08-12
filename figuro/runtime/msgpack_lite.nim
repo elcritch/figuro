@@ -25,6 +25,10 @@
 import macros
 import tables
 
+when defined(nimscript):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
 
 template swapEndian64*(outp, inp: uint64|int64) =
   outp = 0
@@ -69,8 +73,7 @@ type
     MSGPACK_OBJ_TO_MAP
     MSGPACK_OBJ_TO_STREAM
 
-
-var encodingMode* = MSGPACK_OBJ_TO_MAP
+var encodingMode* {.runtimeVar.} = MSGPACK_OBJ_TO_MAP
 
 
 proc write*(s: StringStream, val: char|uint8|int8) =

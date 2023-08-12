@@ -16,6 +16,9 @@ proc appDraw*() =
   echo "app draw!"
   appMain()
 
+proc pack_type*[S](s: S, v: Position) =
+  s.pack(Vec2(v))
+
 proc test*() = discard
 proc getRoot*(): string =
   let nodes = root.copyInto()
