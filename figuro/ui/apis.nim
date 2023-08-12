@@ -33,18 +33,18 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
   result = ImageStyle(name: name, color: color)
 
 
-when not defined(js):
-  func hAlignMode*(align: HAlign): HAlignMode =
-    case align:
-      of hLeft: HAlignMode.Left
-      of hCenter: Center
-      of hRight: HAlignMode.Right
+# when not defined(js):
+#   func hAlignMode*(align: HAlign): HAlignMode =
+#     case align:
+#       of hLeft: HAlignMode.Left
+#       of hCenter: Center
+#       of hRight: HAlignMode.Right
 
-  func vAlignMode*(align: VAlign): VAlignMode =
-    case align:
-      of vTop: Top
-      of vCenter: Middle
-      of vBottom: Bottom
+#   func vAlignMode*(align: VAlign): VAlignMode =
+#     case align:
+#       of vTop: Top
+#       of vCenter: Middle
+#       of vBottom: Bottom
 
 ## ---------------------------------------------
 ##             Basic Node Creation
