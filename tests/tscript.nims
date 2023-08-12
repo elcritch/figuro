@@ -3,7 +3,7 @@
 
 import figuro/common/nodes/ui
 
-# import figuro/ui/commons
+import figuro/ui/commons
 import figuro/shared
 
 type

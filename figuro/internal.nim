@@ -12,16 +12,27 @@ type
 
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
-var
-  appMain*: MainCallback
-  tickMain*: MainCallback
-  loadMain*: MainCallback
-  sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
+when defined(figuroscript):
+  var
+    appMain* {.compileTime.}: MainCallback
+    tickMain* {.compileTime.}: MainCallback
+    loadMain* {.compileTime.}: MainCallback
+    sendRoot* {.compileTime.}: proc (nodes: sink seq[render.Node]) {.closure.}
+    setWindowTitle* {.compileTime.}: proc (title: string)
+    getWindowTitle* {.compileTime.}: proc (): string
+    appEvent* {.compileTime.}, renderEvent* {.compileTime.}: UiEvent
 
-  setWindowTitle*: proc (title: string)
-  getWindowTitle*: proc (): string
+else:
+  var
+    appMain*: MainCallback
+    tickMain*: MainCallback
+    loadMain*: MainCallback
+    sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
 
-  appEvent*, renderEvent*: UiEvent
+    setWindowTitle*: proc (title: string)
+    getWindowTitle*: proc (): string
+
+    appEvent*, renderEvent*: UiEvent
 
 proc initUiEvent*(): UiEvent =
   result.lock.initLock()
