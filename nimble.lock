@@ -162,7 +162,7 @@
     },
     "windy": {
       "version": "0.0.0",
-      "vcsRevision": "f7cedbaccb5d73922350f409b1ce3fee6a310a76",
+      "vcsRevision": "89a9d2d14c0c203bed696097f1ceac02cac6b4c0",
       "url": "https://github.com/treeform/windy",
       "downloadMethod": "git",
       "dependencies": [
@@ -172,7 +172,7 @@
         "ws"
       ],
       "checksums": {
-        "sha1": "ad80bfce0ef735c39d69d7059bb956a09ea00759"
+        "sha1": "8e58900d728a0f2132030ba937b678ccf504e5e5"
       }
     },
     "asynctools": {
