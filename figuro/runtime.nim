@@ -1,5 +1,5 @@
 
-import figuro
+import ../figuro
 
 import nimscripter/nimscr
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
@@ -22,33 +22,9 @@ proc clsImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
     cls()
 
-proc circImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    circ(args.getInt(0), args.getInt(1), args.getInt(2))
-
-proc circFillImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    circFill(args.getInt(0), args.getInt(1), args.getInt(2))
-
-proc rectImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    rect(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3))
-
-proc rectFillImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    rectFill(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3))
-
-proc setColorImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    setColor(args.getInt(0))
-
-proc btnImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    args.setResult(btn(NicoButton args.getInt(0)))
-
-proc btnupImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    args.setResult(btnup(NicoButton args.getInt(0)))
+# proc btnImpl(args: VmArgs) {.cdecl.} =
+#   {.cast(gcSafe).}:
+#     args.setResult(btn(NicoButton args.getInt(0)))
 
 proc runImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
@@ -59,22 +35,11 @@ proc runImpl(args: VmArgs) {.cdecl.} =
 proc createWindowImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
     setWindowTitle($args.getString(0))
-    setTargetSize args.getInt(1), args.getInt(2)
-    setFullscreen(args.getBool(4))
 
 
 const 
   vmProcs* = [
     VmProcSignature(package: "script", name: "cls", module: "nicoscript", vmProc: clsImpl),
-    VmProcSignature(package: "script", name: "circ", module: "nicoscript", vmProc: circImpl),
-    VmProcSignature(package: "script", name: "circFill", module: "nicoscript", vmProc: circFillImpl),
-    VmProcSignature(package: "script", name: "rect", module: "nicoscript",  vmProc: rectImpl),
-    VmProcSignature(package: "script", name: "rectFill", module: "nicoscript", vmProc: rectFillImpl),
-    VmProcSignature(package: "script", name: "setColor", module: "nicoscript", vmProc: setColorImpl),
-    VmProcSignature(package: "script", name: "btn", module: "nicoscript", vmProc: btnImpl),
-    VmProcSignature(package: "script", name: "btnup", module: "nicoscript", vmProc: btnupImpl),
-    VmProcSignature(package: "script", name: "run", module: "nicoscript", vmProc: runImpl),
-    VmProcSignature(package: "script", name: "createWindow", module: "nicoscript", vmProc: createWindowImpl)
   ]
 
 when isMainModule:
