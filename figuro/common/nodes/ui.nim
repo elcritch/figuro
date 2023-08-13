@@ -3,7 +3,13 @@ import ../../meta
 
 export basics, meta
 
-var lastUId: int = 0
+when defined(nimscript):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
+
+
+var lastUId {.runtimeVar.}: int = 0
 
 type
 
@@ -35,7 +41,7 @@ type
     case kind*: NodeKind
     of nkRectangle:
       shadow*: Option[Shadow]
-      cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
+      cornerRadius*: UICoord
     of nkImage:
       image*: ImageStyle
     of nkText:
@@ -62,6 +68,3 @@ proc draw*(fig: Figuro) {.slot.} =
 
 proc load*(fig: Figuro) {.slot.} =
   discard
-
-proc onHover*(fig: Figuro) {.slot.} =
-  fig.status.incl onHover

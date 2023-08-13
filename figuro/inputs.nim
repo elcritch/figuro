@@ -1,6 +1,12 @@
 import std/[unicode]
 import pkg/vmath
 
+when defined(compilervm):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
+
+
 type
   KeyState* = enum
     Empty
@@ -112,5 +118,4 @@ proc toEvent*(kind: KeyboardEventType): KeyboardEvent =
 proc toEvent*(kind: GestureEventType): GestureEvent =
   GestureEvent(kind: kind)
 
-var
-  keyboardInput*: proc (rune: Rune)
+var keyboardInput* {.runtimeVar.}: proc (rune: Rune)

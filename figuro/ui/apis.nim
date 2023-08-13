@@ -1,11 +1,8 @@
 import chroma, bumpy
-import std/[algorithm, json, macros, tables, os]
-import cssgrid
+import std/[algorithm, macros, tables, os]
+# import cssgrid
 
 import std/[hashes]
-import std/[strformat]
-import pkg/[windy]
-import pkg/[typography, typography/svgfont]
 
 import commons, core
 
@@ -33,18 +30,18 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
   result = ImageStyle(name: name, color: color)
 
 
-when not defined(js):
-  func hAlignMode*(align: HAlign): HAlignMode =
-    case align:
-      of hLeft: HAlignMode.Left
-      of hCenter: Center
-      of hRight: HAlignMode.Right
+# when not defined(js):
+#   func hAlignMode*(align: HAlign): HAlignMode =
+#     case align:
+#       of hLeft: HAlignMode.Left
+#       of hCenter: Center
+#       of hRight: HAlignMode.Right
 
-  func vAlignMode*(align: VAlign): VAlignMode =
-    case align:
-      of vTop: Top
-      of vCenter: Middle
-      of vBottom: Bottom
+#   func vAlignMode*(align: VAlign): VAlignMode =
+#     case align:
+#       of vTop: Top
+#       of vCenter: Middle
+#       of vBottom: Bottom
 
 ## ---------------------------------------------
 ##             Basic Node Creation
@@ -124,22 +121,24 @@ proc clearInputs*() =
 ## interacting with user interactions. 
 ## 
 
-proc fltOrZero(x: int|float32|float64|UICoord|Constraint): float32 =
-  when x is Constraint:
+type CSSConstraint = distinct int # move to cssgrid
+
+proc fltOrZero(x: int|float32|float64|UICoord|CSSConstraint): float32 =
+  when x is CSSConstraint:
     0.0
   else:
     x.float32
 
-proc csOrFixed*(x: int|float32|float64|UICoord|Constraint): Constraint =
-  when x is Constraint:
+proc csOrFixed*(x: int|float32|float64|UICoord|CSSConstraint): CSSConstraint =
+  when x is CSSConstraint:
     x
   else: csFixed(x.UiScalar)
 
 proc box*(
-  x: int|float32|float64|UICoord|Constraint,
-  y: int|float32|float64|UICoord|Constraint,
-  w: int|float32|float64|UICoord|Constraint,
-  h: int|float32|float64|UICoord|Constraint
+  x: int|float32|float64|UICoord|CSSConstraint,
+  y: int|float32|float64|UICoord|CSSConstraint,
+  w: int|float32|float64|UICoord|CSSConstraint,
+  h: int|float32|float64|UICoord|CSSConstraint
 ) =
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
@@ -153,17 +152,17 @@ proc box*(rect: Box) =
   box(rect.x, rect.y, rect.w, rect.h)
 
 proc size*(
-  w: int|float32|float64|UICoord|Constraint,
-  h: int|float32|float64|UICoord|Constraint,
+  w: int|float32|float64|UICoord|CSSConstraint,
+  h: int|float32|float64|UICoord|CSSConstraint,
 ) =
   ## Sets the box dimension width and height
-  when w is Constraint:
+  when w is CSSConstraint:
     current.cxSize[dcol] = w
   else:
     current.cxSize[dcol] = csFixed(w.UiScalar)
     current.box.w = w.UICoord
   
-  when h is Constraint:
+  when h is CSSConstraint:
     current.cxSize[drow] = h
   else:
     current.cxSize[drow] = csFixed(h.UiScalar)
@@ -172,21 +171,21 @@ proc size*(
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)
 
-proc loadFontAbsolute*(name: string, pathOrUrl: string) =
-  ## Loads fonts anywhere in the system.
-  ## Not supported on js, emscripten, ios or android.
-  if pathOrUrl.endsWith(".svg"):
-    fonts[name] = readFontSvg(pathOrUrl)
-  elif pathOrUrl.endsWith(".ttf"):
-    fonts[name] = readFontTtf(pathOrUrl)
-  elif pathOrUrl.endsWith(".otf"):
-    fonts[name] = readFontOtf(pathOrUrl)
-  else:
-    raise newException(Exception, "Unsupported font format")
+# proc loadFontAbsolute*(name: string, pathOrUrl: string) =
+#   ## Loads fonts anywhere in the system.
+#   ## Not supported on js, emscripten, ios or android.
+#   if pathOrUrl.endsWith(".svg"):
+#     fonts[name] = readFontSvg(pathOrUrl)
+#   elif pathOrUrl.endsWith(".ttf"):
+#     fonts[name] = readFontTtf(pathOrUrl)
+#   elif pathOrUrl.endsWith(".otf"):
+#     fonts[name] = readFontOtf(pathOrUrl)
+#   else:
+#     raise newException(Exception, "Unsupported font format")
 
-proc loadFont*(name: string, pathOrUrl: string) =
-  ## Loads the font from the dataDir.
-  loadFontAbsolute(name, dataDir / pathOrUrl)
+# proc loadFont*(name: string, pathOrUrl: string) =
+#   ## Loads the font from the dataDir.
+#   loadFontAbsolute(name, dataDir / pathOrUrl)
 
 proc clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
@@ -221,7 +220,7 @@ template onHover*(inner: untyped) =
   # if evHover in current.events.mouse:
   #   inner
 
-template onClick*(inner: untyped, button = MOUSE_LEFT) =
+template onClick*(inner: untyped) =
   ## On click event handler.
   inner
   # current.listens.mouse.incl(evClick)

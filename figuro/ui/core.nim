@@ -1,65 +1,68 @@
 import std/[tables, unicode]
-import chroma
-import cssgrid
+# import cssgrid
 
 import commons
+export commons
 
-from windy/common import Button, ButtonView
-
-export chroma, common
-export cssgrid
+when defined(nimscript):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
 
 var
-  parent, current*: Figuro
+  root* {.runtimeVar.}: Figuro
+  parent* {.runtimeVar.}: Figuro
+  current* {.runtimeVar.}: Figuro
 
-  nodeStack*: seq[Figuro]
-  gridStack*: seq[GridTemplate]
+  nodeStack* {.runtimeVar.}: seq[Figuro]
+  # gridStack*: seq[GridTemplate]
 
-  scrollBox*: Box
-  scrollBoxMega*: Box ## Scroll box is 500px bigger in y direction
-  scrollBoxMini*: Box ## Scroll box is smaller by 100px useful for debugging
+  scrollBox* {.runtimeVar.}: Box
+  scrollBoxMega* {.runtimeVar.}: Box ## Scroll box is 500px bigger in y direction
+  scrollBoxMini* {.runtimeVar.}: Box ## Scroll box is smaller by 100px useful for debugging
 
-  numNodes*: int
-  popupActive*: bool
-  inPopup*: bool
-  resetNodes*: int
-  popupBox*: Box
+  numNodes* {.runtimeVar.}: int
+  popupActive* {.runtimeVar.}: bool
+  inPopup* {.runtimeVar.}: bool
+  resetNodes* {.runtimeVar.}: int
+  popupBox* {.runtimeVar.}: Box
 
   # Used to check for duplicate ID paths.
-  pathChecker*: Table[string, bool]
+  pathChecker* {.runtimeVar.}: Table[string, bool]
 
-  computeTextLayout*: proc(node: Figuro)
+  computeTextLayout* {.runtimeVar.}: proc(node: Figuro)
 
-  nodeLookup*: Table[string, Figuro]
+  nodeLookup* {.runtimeVar.}: Table[string, Figuro]
 
-  defaultlineHeightRatio* = 1.618.UICoord ##\
+  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UICoord ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
-  adjustTopTextFactor* = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
+  adjustTopTextFactor* {.runtimeVar.} = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
 
   # global scroll bar settings
-  scrollBarFill* = rgba(187, 187, 187, 162).color 
-  scrollBarHighlight* = rgba(137, 137, 137, 162).color
+  scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color 
+  scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
-  buttonPress*: ButtonView
-  buttonDown*: ButtonView
-  buttonRelease*: ButtonView
+  # buttonPress*: ButtonView
+  # buttonDown*: ButtonView
+  # buttonRelease*: ButtonView
 
 
-inputs.keyboardInput = proc (rune: Rune) =
-    app.requestedFrame.inc
-    # if keyboard.focusNode != nil:
-    #   keyboard.state = KeyState.Press
-    #   # currTextBox.typeCharacter(rune)
-    # else:
-    #   keyboard.state = KeyState.Press
-    #   keyboard.keyString = rune.toUTF8()
-    appEvent.trigger()
+# inputs.keyboardInput = proc (rune: Rune) =
+#     app.requestedFrame.inc
+#     # if keyboard.focusNode != nil:
+#     #   keyboard.state = KeyState.Press
+#     #   # currTextBox.typeCharacter(rune)
+#     # else:
+#     #   keyboard.state = KeyState.Press
+#     #   keyboard.keyString = rune.toUTF8()
+#     appEvent.trigger()
 
-proc setupRoot*(root: var Figuro) =
+proc setupRoot*(widget: Figuro) =
   if root == nil:
     root = Figuro()
     root.uid = newUId()
     root.zlevel = ZLevelDefault
+  # root = widget
   nodeStack = @[root]
   current = root
   root.diffIndex = 0
@@ -82,7 +85,7 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh()
 
-proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: Atom) =
+proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   ## Process the start of the node.
   mixin draw
 
@@ -107,6 +110,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: Atom) =
 
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex:
+          # and kind == current.kind:
       # Same node.
       discard
     else:
@@ -115,7 +119,8 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: Atom) =
       # current.resetToDefault()
       refresh()
 
-  current.kind = kind
+  {.cast(uncheckedAssign).}:
+    current.kind = kind
   # current.textStyle = parent.textStyle
   # current.cursorColor = parent.cursorColor
   current.highlight = parent.highlight
@@ -143,7 +148,7 @@ proc postNode*() =
 
 template node*(kind: NodeKind, id: static string, inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, Figuro, atom(id))
+  preNode(kind, Figuro, id)
   setup
   inner
   postNode()

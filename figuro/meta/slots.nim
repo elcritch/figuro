@@ -150,10 +150,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # Create the rpc wrapper procs
     let call = quote do:
         `rpcMethod`(context)
-    echo "call: "
-    echo call.repr
-    echo call.treeRepr
-    echo ""
+    # echo "call: "
+    # echo call.repr
+    # echo call.treeRepr
+    # echo ""
     let objId = ident("obj")
     let mcall = nnkCall.newTree(rpcMethod)
     mcall.add(ident("obj"))
@@ -181,8 +181,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     result.add quote do:
       register(currentSourcePath(), `signalName`, `procName`)
-    echo "slots: "
-    echo result.repr
+    # echo "slots: "
+    # echo result.repr
 
   elif isSignal:
     var construct = nnkTupleConstr.newTree()
@@ -209,8 +209,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     )
     for param in parameters[1..^1]:
       result[0][3].add param
-    echo "signal: "
-    echo result.repr
+    # echo "signal: "
+    # echo result.repr
     # echo "\nparameters: ", treeRepr parameters 
 
 template slot*(p: untyped): untyped =

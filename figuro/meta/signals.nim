@@ -1,7 +1,6 @@
 import tables, strutils, macros
 import std/times
 
-
 import datatypes
 export datatypes
 export times
@@ -26,11 +25,14 @@ proc wrapResponseError*(
     stacktraces: bool
 ): AgentResponse = 
   let errobj = AgentError(code: code, msg: msg)
-  if stacktraces and not err.isNil():
-    errobj.trace = @[]
-    for se in err.getStackTraceEntries():
-      let file: string = rsplit($(se.filename), '/', maxsplit=1)[^1]
-      errobj.trace.add( ($se.procname, file, se.line, ) )
+  when defined(nimscript):
+    discard
+  else:
+    if stacktraces and not err.isNil():
+      errobj.trace = @[]
+      for se in err.getStackTraceEntries():
+        let file: string = rsplit($(se.filename), '/', maxsplit=1)[^1]
+        errobj.trace.add( ($se.procname, file, se.line, ) )
   result = wrapResponseError(id, errobj)
 
 proc parseError*(ss: Variant): AgentError = 
@@ -51,7 +53,11 @@ proc sysRegister*(router: var AgentRouter, path, name: string, call: AgentProc) 
   router.sysprocs[path] = call
   echo "registering: sys: ", path
 
-var globalRouter {.global.} = AgentRouter()
+when nimvm:
+  var globalRouter {.compileTime.} = AgentRouter()
+else:
+  when not compiles(globalRouter):
+    var globalRouter {.global.} = AgentRouter()
 
 proc register*(path, name: string, call: AgentProc) =
   globalRouter.procs[name] = call
@@ -70,8 +76,8 @@ proc callMethod*(
         slot: AgentProc,
         ctx: RpcContext,
         req: AgentRequest,
-        clientId: ClientId,
-      ): AgentResponse {.gcsafe.} =
+        # clientId: ClientId,
+      ): AgentResponse {.gcsafe, effectsOf: slot.} =
     ## Route's an rpc request. 
 
     if slot.isNil:
@@ -172,8 +178,6 @@ template connect*(
   let name = getSignalName(signal)
   a.addAgentListeners(name, b, `slot AgentSlot`)
 
-import pretty
-
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     # echo "call slot: ", req.procName
@@ -182,10 +186,9 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
     # echo "call slots: ", $obj.listeners
     for (tgt, slot) in listeners:
       # echo "call listener: ", repr tgt
-      let res = slot.callMethod(tgt, req, ClientId(0))
+      let res = slot.callMethod(tgt, req)
       variantMatch case res.result.buf as u
       of AgentError:
-        print u
         raise newException(AgentSlotError, u.msg)
       else:
         discard

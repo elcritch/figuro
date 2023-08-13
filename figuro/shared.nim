@@ -1,6 +1,6 @@
-import std/[sequtils, tables, json, hashes]
+import std/[sequtils, tables, hashes]
 import std/[options, unicode, strformat]
-import pkg/[variant, chroma, cssgrid, windy]
+import pkg/[variant]
 
 import common/[extras, uimaths]
 import inputs
@@ -10,12 +10,12 @@ export variant
 export extras, uimaths
 export inputs
 
-import pretty
+import chroma
 
-when defined(js):
-  import dom2, html/ajax
+when defined(nimscript):
+  {.pragma: runtimeVar, compileTime.}
 else:
-  import typography, asyncfutures
+  {.pragma: runtimeVar, global.}
 
 const
   clearColor* = color(0, 0, 0, 0)
@@ -26,9 +26,12 @@ const
   DataDirPath* {.strdefine.} = "data"
 
 type
+  AppStatePartial* = tuple[frameCount: int, uiScale: float32]
+
   AppState* = object
     running*, focused*, minimized*, fullscreen*: bool
 
+    width*, height*: int
     # UI Scale
     uiScale*: float32
     autoUiScale*: bool
@@ -39,22 +42,24 @@ type
     windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
     windowSize*: Vec2    ## Screen coordinates
     # windowFrame*: Vec2   ## Pixel coordinates
+
+    pixelate*: bool ## ???
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
     pixelScale*: float32 ## Pixel multiplier user wants on the UI
 
-    lastDraw*, lastTick*: int64
+    lastDraw*, lastTick*: int
 
   AppInputs* = object
     mouse*: Mouse
     keyboard*: Keyboard
 
 var
-  dataDir*: string = DataDirPath
-  app* = AppState(
+  dataDir* {.runtimeVar.}: string = DataDirPath
+  app* {.runtimeVar.} = AppState(
     uiScale: 1.0,
     autoUiScale: true
   )
-  uiinputs* = AppInputs(mouse: Mouse(), keyboard: Keyboard())
+  uiinputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
 
 
 type
@@ -63,10 +68,6 @@ type
   Events*[T] = object
     data*: TableRef[TypeId, Variant]
 
-when not defined(js):
-  var
-    # currTextBox*: TextBox[Node]
-    fonts*: Table[string, Font]
 
 template scaled*(a: Box): Rect = Rect(a * app.uiScale.UICoord)
 template descaled*(a: Rect): Box = Box(a / app.uiScale)
@@ -81,19 +82,6 @@ template descaled*(a: float32): UICoord =
 
 proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
-
-proc emptyFuture*(): Future[void] =
-  result = newFuture[void]()
-  result.complete()
-
-const
-  MouseButtons* = [
-    MouseLeft,
-    MouseRight,
-    MouseMiddle,
-    MouseButton4,
-    MouseButton5
-  ]
 
 proc setMousePos*(item: var Mouse, x, y: float64) =
   item.pos = vec2(x, y)

@@ -1,14 +1,27 @@
-import std/options
-import pkg/chroma
-import pkg/typography
+import std/[options, unicode]
+import chroma
 
 import ../uimaths
 
 export uimaths, options
-export chroma, typography
+export chroma
+
+when defined(compilervm):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
 
 type
   NodeID* = int64
+
+type
+  GlyphPosition* = object
+    ## Represents a glyph position after typesetting.
+    fontSize*: float32
+    subPixelShift*: float32
+    rect*: Rect       # Where to draw the image character.
+    selectRect*: Rect # Were to draw or hit selection.
+    rune*: Rune
 
 type
   NodeKind* = enum
@@ -61,7 +74,7 @@ type
 
   BorderStyle* = object
     ## What kind of border.
-    color*: Color
+    # color*: Color
     width*: float32
 
   LayoutAlign* = enum
@@ -102,6 +115,13 @@ type
     blur*: UICoord
     x*: UICoord
     y*: UICoord
+    color*: Color
+
+  RenderShadow* = object
+    kind*: ShadowStyle
+    blur*: float32
+    x*: float32
+    y*: float32
     color*: Color
 
   Stroke* = object

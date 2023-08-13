@@ -2,6 +2,11 @@
 import std/locks
 import common/nodes/render as render
 
+when defined(nimscript):
+  {.pragma: runtimeVar, compileTime.}
+else:
+  {.pragma: runtimeVar, global.}
+
 type
   MainCallback* = proc() {.closure.}
 
@@ -12,16 +17,18 @@ type
 
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
+when not defined(nimscript):
+  var
+    setWindowTitle* {.runtimeVar.}: proc (title: string)
+    getWindowTitle* {.runtimeVar.}: proc (): string
+else:
+    proc setWindowTitle*(title: string) = discard
+    proc getWindowTitle*(): string = discard
+
 var
-  appMain*: MainCallback
-  tickMain*: MainCallback
-  loadMain*: MainCallback
-  sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
+  appEvent* {.runtimeVar.}: UiEvent
+  renderEvent* {.runtimeVar.}: UiEvent
 
-  setWindowTitle*: proc (title: string)
-  getWindowTitle*: proc (): string
-
-  appEvent*, renderEvent*: UiEvent
 
 proc initUiEvent*(): UiEvent =
   result.lock.initLock()

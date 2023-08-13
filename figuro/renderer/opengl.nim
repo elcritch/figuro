@@ -1,9 +1,9 @@
 import std/[os, hashes, strformat, strutils, tables, times]
 
-import pkg/chroma
-import pkg/[typography, typography/svgfont]
-import pkg/pixie
-import pkg/windy
+import chroma
+import typography, typography/svgfont
+import pixie
+import windy
 
 import opengl/[base, context, draw]
 import opengl/commons
@@ -32,7 +32,6 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
     app.requestedFrame.dec
 
   preInput()
-  tickMain()
   drawAndSwap(window, nodes)
   postInput()
 
@@ -98,9 +97,6 @@ proc setupRenderer*(
 
   useDepthBuffer(false)
 
-  if loadMain != nil:
-    loadMain()
-  
   return renderer
   
 

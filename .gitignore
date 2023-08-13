@@ -6,3 +6,5 @@ vendor/*/
 nimcache
 *.out
 
+.tool-versions
+*.dSYM/

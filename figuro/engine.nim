@@ -27,6 +27,12 @@ when defined(emscripten):
     emscripten_set_main_loop(main_loop, 0, true)
 else:
 
+  var
+    appMain*: MainCallback
+    tickMain*: MainCallback
+    loadMain*: MainCallback
+    sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
+
   const renderPeriodMs {.intdefine.} = 16
   const appPeriodMs {.intdefine.} = 16
 
@@ -45,14 +51,11 @@ else:
 
   proc runApplication(appMain: MainCallback) {.thread.} =
     {.gcsafe.}:
-      var appNodes: Figuro
       while app.running:
         wait(appEvent)
         timeIt(appAvgTime):
-          appNodes.setupRoot()
+          tickMain()
           appMain()
-          computeScreenBox(nil, appNodes)
-          sendRoot(appNodes.copyInto())
 
   proc runRenderer(renderer: Renderer) =
     while app.running:
@@ -61,7 +64,11 @@ else:
         renderLoop(renderer, true)
         app.frameCount.inc()
 
-  proc run(renderer: Renderer) =
+  proc init*(renderer: Renderer) =
+    sendRoot = proc (nodes: sink seq[render.Node]) =
+        renderer.nodes = nodes
+
+  proc run*(renderer: Renderer) =
 
     sendRoot = proc (nodes: sink seq[render.Node]) =
         renderer.nodes = nodes
@@ -87,7 +94,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "This channel implementation requires --gc:arc or --gc:orc".}
 
 proc startFiguro*[T: Figuro](
-    widget: T,
+    widget: typedesc[T],
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -110,11 +117,14 @@ proc startFiguro*[T: Figuro](
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
 
-  let appWidget = widget
+  let appWidget = T()
 
   proc appRender() =
     mixin draw
+    root.diffIndex = 0
     draw(appWidget)
+    computeScreenBox(nil, root)
+    sendRoot(root.copyInto())
 
   proc appTick() =
     appWidget.tick()
@@ -122,6 +132,8 @@ proc startFiguro*[T: Figuro](
   proc appLoad() =
     appWidget.load()
   
+  setupRoot(appWidget)
+
   appMain = appRender
   tickMain = appTick
   loadMain = appLoad

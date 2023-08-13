@@ -1,6 +1,6 @@
 import std/hashes, unicode, os, strformat, tables, times
 
-import typography
+# import typography
 import pixie, chroma
 
 import context, formatflippy
@@ -20,8 +20,8 @@ proc hashFontFill(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash 
   result = hash((
     2344,
     node.textStyle.fontFamily,
-    pos.character,
-    (pos.font.size*100).int,
+    pos.rune,
+    (node.textStyle.fontSize*100).int,
     (subPixelShift*100).int,
     0
   ))
@@ -30,8 +30,8 @@ proc hashFontStroke(node: Node, pos: GlyphPosition, subPixelShift: float32): Has
   result = hash((
     9812,
     node.textStyle.fontFamily,
-    pos.character,
-    (pos.font.size*100).int,
+    pos.rune,
+    (node.textStyle.fontSize*100).int,
     (subPixelShift*100).int,
     node.stroke.weight
   ))
@@ -43,73 +43,73 @@ proc drawDrawable*(node: Node) =
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
     let
-      pos = point.scaled
-      bx = node.box.scaled.atXY(pos.x, pos.y)
+      pos = point
+      bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-proc drawText(node: Node) =
-  if node.textStyle.fontFamily notin fonts:
-    quit &"font not found: {node.textStyle.fontFamily}"
+# proc drawText(node: Node) =
+#   if node.textStyle.fontFamily notin fonts:
+#     quit &"font not found: {node.textStyle.fontFamily}"
 
-  var font = fonts[node.textStyle.fontFamily]
-  font.size = node.textStyle.fontSize.scaled
-  font.lineHeight = node.textStyle.lineHeight.scaled
-  # if font.lineHeight == 0:
-  #   font.lineHeight = defaultLineHeight(node.textStyle).scaled
+#   var font = fonts[node.textStyle.fontFamily]
+#   font.size = node.textStyle.fontSize.scaled
+#   font.lineHeight = node.textStyle.lineHeight.scaled
+#   # if font.lineHeight == 0:
+#   #   font.lineHeight = defaultLineHeight(node.textStyle).scaled
 
-  # draw characters
-  for glyphIdx, pos in node.textLayout:
-    if pos.character notin font.typeface.glyphs:
-      continue
-    if pos.rune == Rune(32):
-      # Don't draw space, even if font has a char for it.
-      # FIXME: use unicode 'is whitespace' ?
-      continue
+#   # draw characters
+#   for glyphIdx, pos in node.textLayout:
+#     if $pos.rune notin font.typeface.glyphs:
+#       continue
+#     if pos.rune == Rune(32):
+#       # Don't draw space, even if font has a char for it.
+#       # FIXME: use unicode 'is whitespace' ?
+#       continue
 
-    let
-      font = pos.font
-      subPixelShift = floor(pos.subPixelShift * 10) / 10
-      hashFill = node.hashFontFill(pos, subPixelShift)
+#     let
+#       font = node.textStyle.font
+#       subPixelShift = floor(pos.subPixelShift * 10) / 10
+#       hashFill = node.hashFontFill(pos, subPixelShift)
 
-    var
-      hashStroke: Hash
+#     var
+#       hashStroke: Hash
 
-    if hashFill notin ctx.entries:
-      var
-        glyph = font.typeface.glyphs[pos.character]
-        glyphOffset: Vec2
-      let
-        glyphFill = font.getGlyphImage(glyph, glyphOffset, subPixelShift=subPixelShift)
+#     if hashFill notin ctx.entries:
+#       var
+#         glyph = font.typeface.glyphs[pos.character]
+#         glyphOffset: Vec2
+#       let
+#         glyphFill = font.getGlyphImage(glyph, glyphOffset, subPixelShift=subPixelShift)
 
-      ctx.putImage(hashFill, glyphFill)
-      glyphOffsets[hashFill] = glyphOffset
+#       ctx.putImage(hashFill, glyphFill)
+#       glyphOffsets[hashFill] = glyphOffset
 
-    if node.stroke.weight > 0:
-      hashStroke = node.hashFontStroke(pos, subPixelShift)
+#     if node.stroke.weight > 0:
+#       hashStroke = node.hashFontStroke(pos, subPixelShift)
 
-      if hashStroke notin ctx.entries:
-        var
-          glyph = font.typeface.glyphs[pos.character]
-          glyphOffset: Vec2
-        let
-          glyphFill = font.getGlyphImage( glyph, glyphOffset, subPixelShift=subPixelShift)
+#       if hashStroke notin ctx.entries:
+#         var
+#           glyph = font.typeface.glyphs[pos.character]
+#           glyphOffset: Vec2
+#         let
+#           glyphFill = font.getGlyphImage( glyph, glyphOffset, subPixelShift=subPixelShift)
 
-        let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
-        ctx.putImage(hashStroke, glyphStroke)
+#         let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
+#         ctx.putImage(hashStroke, glyphStroke)
 
-    let
-      glyphOffset = glyphOffsets[hashFill]
-      charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
+#     let
+#       glyphOffset = glyphOffsets[hashFill]
+#       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
 
-    if node.stroke.weight > 0 and node.stroke.color.a > 0:
-      ctx.drawImage(
-        hashStroke,
-        charPos - vec2(node.stroke.weight,
-                       node.stroke.weight),
-        node.stroke.color
-      )
+#     if node.stroke.weight > 0 and node.stroke.color.a > 0:
+#       ctx.drawImage(
+#         hashStroke,
+#         charPos - vec2(node.stroke.weight,
+#                        node.stroke.weight),
+#         node.stroke.color
+#       )
 
-    ctx.drawImage(hashFill, charPos, node.fill)
+#     ctx.drawImage(hashFill, charPos, node.fill)
   
 import macros
 
@@ -138,60 +138,60 @@ macro postDraws() =
     result.add postDrawsImpl.pop()
 
 proc drawMasks*(node: Node) =
-  if node.cornerRadius[0] != 0'ui:
+  if node.cornerRadius != 0:
     ctx.fillRoundedRect(rect(
       0, 0,
-      node.screenBox.w.scaled, node.screenBox.h.scaled
-    ), rgba(255, 0, 0, 255).color, node.cornerRadius[0].scaled)
+      node.screenBox.w, node.screenBox.h
+    ), rgba(255, 0, 0, 255).color, node.cornerRadius)
   else:
     ctx.fillRect(rect(
       0, 0,
-      node.screenBox.w.scaled, node.screenBox.h.scaled
+      node.screenBox.w, node.screenBox.h
     ), rgba(255, 0, 0, 255).color)
 
 proc drawShadows*(node: Node) =
   ## drawing shadows
   let shadow = node.shadow.get()
-  let blurAmt = shadow.blur / 7.0'ui
+  let blurAmt = shadow.blur / 7.0
   for i in 0..6:
-    let blurs = i.toFloat().UICoord * blurAmt
+    let blurs: float32 = i.toFloat() * blurAmt
     let box = node.screenBox.atXY(x = shadow.x + blurs,
                                   y = shadow.y + blurs)
-    ctx.fillRoundedRect(rect = box.scaled,
+    ctx.fillRoundedRect(rect = box,
                         color = shadow.color,
-                        radius = node.cornerRadius[0].scaled)
+                        radius = node.cornerRadius)
 
 proc drawBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
-    if node.cornerRadius.sum() > 0'ui:
-      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
+    if node.cornerRadius > 0:
+      ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.fill,
-                          radius = node.cornerRadius[0].scaled)
+                          radius = node.cornerRadius)
     else:
-      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.fill)
+      ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
 
   if node.highlight.a > 0'f32:
-    if node.cornerRadius.sum() > 0'ui:
-      ctx.fillRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
+    if node.cornerRadius > 0:
+      ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.highlight,
-                          radius = node.cornerRadius[0].scaled)
+                          radius = node.cornerRadius)
     else:
-      ctx.fillRect(node.screenBox.scaled.atXY(0'f32, 0'f32), node.highlight)
+      ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
   if node.kind == nkImage and node.image.name != "":
     let path = dataDir / node.image.name
-    let size = vec2(node.screenBox.scaled.w, node.screenBox.scaled.h)
+    let size = vec2(node.screenBox.w, node.screenBox.h)
     ctx.drawImage(path,
                   pos = vec2(0, 0),
                   color = node.image.color,
                   size = size)
   
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.strokeRoundedRect(rect = node.screenBox.scaled.atXY(0'f32, 0'f32),
+    ctx.strokeRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.stroke.color,
                           weight = node.stroke.weight,
-                          radius = node.cornerRadius[0].scaled)
+                          radius = node.cornerRadius)
 
 import pretty
 
@@ -219,21 +219,21 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   # setup the opengl context to match the current node size and position
 
   ctx.saveTransform()
-  ctx.translate(node.screenBox.scaled.xy)
+  ctx.translate(node.screenBox.xy)
 
   # handles setting up scrollbar region
   ifdraw node.kind == nkScrollBar:
     ctx.saveTransform()
     let offset = parent.offset
-    ctx.translate(offset.scaled)
+    ctx.translate(offset)
   finally:
     ctx.restoreTransform()
 
   # handle node rotation
   ifdraw node.rotation != 0:
-    ctx.translate(node.screenBox.scaled.wh/2)
+    ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
-    ctx.translate(-node.screenBox.scaled.wh/2)
+    ctx.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
   ifdraw clipContent in node.attrs:
@@ -249,7 +249,8 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
 
   ifdraw true:
     if node.kind == nkText:
-      node.drawText()
+      # node.drawText()
+      discard
     elif node.kind == nkDrawable:
       node.drawDrawable()
     else:
@@ -261,7 +262,7 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   ifdraw scrollpane in node.attrs:
     # handles scrolling panel
     ctx.saveTransform()
-    ctx.translate(-node.offset.scaled)
+    ctx.translate(-node.offset)
   finally:
     ctx.restoreTransform()
 

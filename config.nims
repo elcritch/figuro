@@ -1,5 +1,7 @@
 switch("styleCheck", "hint")
 
+--path:"$nim" ## important for nimscripter
+
 --gc:orc
 
 --d:windyNoHttp

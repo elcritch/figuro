@@ -1,17 +1,18 @@
 
 import ui as ui
 import render as render
+import ../../shared
 
 proc convert*(current: Figuro): render.Node =
   result = Node(kind: current.kind)
 
   result.uid = current.uid
 
-  result.box = current.box
-  result.orgBox = current.orgBox
-  result.screenBox = current.screenBox
-  result.offset = current.offset
-  result.totalOffset = current.totalOffset
+  result.box = current.box.scaled
+  result.orgBox = current.orgBox.scaled
+  result.screenBox = current.screenBox.scaled
+  result.offset = current.offset.scaled
+  result.totalOffset = current.totalOffset.scaled
   result.attrs = current.attrs
 
   result.zlevel = current.zlevel
@@ -23,15 +24,23 @@ proc convert*(current: Figuro): render.Node =
 
   case current.kind:
   of nkRectangle:
-    result.shadow = current.shadow
-    result.cornerRadius = current.cornerRadius 
+    if current.shadow.isSome:
+      let orig = current.shadow.get()
+      var shadow: RenderShadow
+      shadow.kind = orig.kind
+      shadow.blur = orig.blur.scaled
+      shadow.x = orig.x.scaled
+      shadow.y = orig.y.scaled
+      shadow.color = orig.color
+      result.shadow = some shadow
+    result.cornerRadius = current.cornerRadius.scaled
   of nkImage:
     result.image = current.image
   of nkText:
     result.textStyle = current.textStyle
     result.textLayout = current.textLayout
   of nkDrawable:
-    result.points = current.points
+    result.points = current.points.mapIt(it.scaled)
   else:
     discard
 

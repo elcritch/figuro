@@ -8,7 +8,7 @@ type
     disabled: bool
 
 template button*(id: string, blk: untyped) =
-  preNode(nkRectangle, Button, atom(id))
+  preNode(nkRectangle, Button, id)
   `blk`
   postNode()
 
@@ -28,7 +28,7 @@ proc draw*(self: Button) {.slot.} =
     fill "#FF0000"
   else:
     fill "#2B9FEA"
-    onHover:
-      fill "#00FF00"
+    # onHover:
+    #   fill "#00FF00"
     # onClick:
     #   fill "#00FFFF"

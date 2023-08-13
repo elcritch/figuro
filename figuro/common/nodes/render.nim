@@ -12,11 +12,11 @@ type
     childCount*: int
     parent*: NodeID
 
-    box*: Box
-    orgBox*: Box
-    screenBox*: Box
-    offset*: Position
-    totalOffset*: Position
+    box*: Rect
+    orgBox*: Rect
+    screenBox*: Rect
+    offset*: Vec2
+    totalOffset*: Vec2
     attrs*: set[Attributes]
 
     zlevel*: ZLevel
@@ -28,15 +28,15 @@ type
 
     case kind*: NodeKind
     of nkRectangle:
-      shadow*: Option[Shadow]
-      cornerRadius*: (UICoord, UICoord, UICoord, UICoord)
+      shadow*: Option[RenderShadow]
+      cornerRadius*: float32
     of nkImage:
       image*: ImageStyle
     of nkText:
       textStyle*: TextStyle
       textLayout*: seq[GlyphPosition]
     of nkDrawable:
-      points*: seq[Position]
+      points*: seq[Vec2]
     else:
       discard
 
