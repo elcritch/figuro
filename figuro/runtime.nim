@@ -113,16 +113,11 @@ proc startFiguroRuntime() =
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
 
   proc appRender() =
-    let start = getMonoTime()
     invokeVmDraw()
-    let nodes = invokeVmGetRoot()
-    let stop = getMonoTime()
-    echo "duration: ", (stop-start)
-    sendRoot(nodes)
+    sendRoot(invokeVmGetRoot())
 
   proc appTick() =
     invokeVmTick(app.frameCount)
-    echo "tick"
     discard
 
   proc appLoad() =
