@@ -53,15 +53,14 @@ else:
     {.gcsafe.}:
       while app.running:
         wait(appEvent)
+        echo "runApplication"
         timeIt(appAvgTime):
-          root.diffIndex = 0
           tickMain()
           appMain()
-          computeScreenBox(nil, root)
-          sendRoot(root.copyInto())
 
   proc runRenderer(renderer: Renderer) =
     while app.running:
+      echo "runRenderer"
       wait(renderEvent)
       timeIt(renderAvgTime):
         renderLoop(renderer, true)
@@ -124,7 +123,10 @@ proc startFiguro*[T: Figuro](
 
   proc appRender() =
     mixin draw
+    root.diffIndex = 0
     draw(appWidget)
+    computeScreenBox(nil, root)
+    sendRoot(root.copyInto())
 
   proc appTick() =
     appWidget.tick()

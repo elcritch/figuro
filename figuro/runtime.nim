@@ -78,6 +78,7 @@ proc invokeVmInit*() =
     discard intr.invoke(init, [])
 
 proc invokeVmTick*(frameCount: int) =
+  echo "tick"
   if intr != nil and tick != nil:
     discard intr.invoke(tick, [newNode frameCount])
 
@@ -96,15 +97,6 @@ proc invokeVmGetRoot*(): seq[Node] =
     # print nodes
     result = fromVm(seq[Node], nodes)
 
-proc appRenderVm() =
-  echo "main"
-  let start = getMonoTime()
-  invokeVmDraw()
-  let nodes = invokeVmGetRoot()
-  let stop = getMonoTime()
-  echo "duration: ", (stop-start)
-  sendRoot(nodes)
-
 proc startFiguroRuntime() =
   # appWidget = widget
 
@@ -121,13 +113,20 @@ proc startFiguroRuntime() =
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
 
   proc appRender() =
-    appRenderVm()
+    let start = getMonoTime()
+    invokeVmDraw()
+    let nodes = invokeVmGetRoot()
+    let stop = getMonoTime()
+    echo "duration: ", (stop-start)
+    sendRoot(nodes)
+
   proc appTick() =
     invokeVmTick(app.frameCount)
+    echo "tick"
+    discard
+
   proc appLoad() =
     discard
-  
-  # setupRoot(appWidget)
 
   appMain = appRender
   tickMain = appTick
@@ -141,7 +140,8 @@ proc startFiguroRuntime() =
   let
     pixelate = false
     pixelScale = 1.0
-  let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
+    renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
+
   uiinputs.mouse.pixelScale = pixelScale
 
   renderer.run()
