@@ -12,7 +12,7 @@ when isMainModule:
 
   var 
     intr: WrappedInterpreter
-    init, tick, draw, getRoot, getAppState: WrappedPnode
+    init, tick, draw, getRoot, getAppState, setAppState: WrappedPnode
     addins: VmAddins
 
 errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.cdecl.} =
@@ -26,6 +26,7 @@ proc runImpl(args: VmArgs) {.cdecl.} =
     draw = args.getNode(2)
     getRoot = args.getNode(3)
     getAppState = args.getNode(4)
+    setAppState = args.getNode(5)
 
 const 
   vmProcs* = [
@@ -76,6 +77,11 @@ proc invokeVmGetAppState*(): AppState =
     let state = intr.invoke(getAppState, [])
     result = fromVm(AppState, state)
 
+proc invokeVmSetAppState*() =
+  if intr != nil and setAppState != nil:
+    let state = (app.requestedFrame, app.uiScale)
+    discard intr.invoke(setAppState, [newNode state])
+
 proc startFiguroRuntime() =
   intr = loadTheScript(addins)
   invokeVmInit()
@@ -94,6 +100,7 @@ proc startFiguroRuntime() =
 
   proc appTick() =
     invokeVmTick(app.frameCount)
+    invokeVmSetAppState()
     discard
 
   proc appLoad() =

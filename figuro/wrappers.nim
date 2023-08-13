@@ -40,11 +40,16 @@ proc getRoot*(): seq[Node] =
 proc getAppState*(): AppState =
   result = app
 
+proc setAppState*(val: (int, float32)) =
+  # app = val
+  echo "set state: ", val.repr
+
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},
           draw: proc(): int {.nimcall.},
           getRoot: proc(): seq[Node] {.nimcall.},
-          getAppState: proc(): AppState {.nimcall.}
+          getAppState: proc(): AppState {.nimcall.},
+          setAppState: proc(val: (int, float32)) {.nimcall.}
           ) = discard
 
 proc startFiguro*[T: Figuro](
@@ -63,6 +68,7 @@ proc startFiguro*[T: Figuro](
   mixin load
 
   app.fullscreen = fullscreen
+  app.autoUiScale = true
   app.width = w
   app.height = h
   app.pixelRatio = pixelScale
@@ -83,5 +89,6 @@ proc startFiguro*[T: Figuro](
     appTick,
     appDraw,
     getRoot,
-    getAppState
+    getAppState,
+    setAppState
   )
