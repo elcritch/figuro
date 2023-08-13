@@ -53,14 +53,12 @@ else:
     {.gcsafe.}:
       while app.running:
         wait(appEvent)
-        echo "runApplication"
         timeIt(appAvgTime):
           tickMain()
           appMain()
 
   proc runRenderer(renderer: Renderer) =
     while app.running:
-      echo "runRenderer"
       wait(renderEvent)
       timeIt(renderAvgTime):
         renderLoop(renderer, true)

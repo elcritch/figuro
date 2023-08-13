@@ -78,13 +78,11 @@ proc invokeVmInit*() =
     discard intr.invoke(init, [])
 
 proc invokeVmTick*(frameCount: int) =
-  echo "tick"
   if intr != nil and tick != nil:
     discard intr.invoke(tick, [newNode frameCount])
 
 proc invokeVmDraw*() =
   if intr != nil and draw != nil:
-    echo "invoke draw"
     discard intr.invoke(draw, [])
 
 import pretty
@@ -92,7 +90,6 @@ import msgpack4nim
 
 proc invokeVmGetRoot*(): seq[Node] =
   if intr != nil and getRoot != nil:
-    echo "invoke root"
     let nodes = intr.invoke(getRoot, [])
     # print nodes
     result = fromVm(seq[Node], nodes)

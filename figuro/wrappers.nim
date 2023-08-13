@@ -27,7 +27,6 @@ proc appTick*(frameCount: int) =
   discard
 
 proc appDraw*() =
-  echo "app draw!"
   root.diffIndex = 0
   appMain()
   computeScreenBox(nil, root)
