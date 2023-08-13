@@ -3,19 +3,6 @@ import common/nodes/render
 import common/nodes/transfer
 import widget
 import runtime/msgpack_lite
-# import unicode
-# import json, unicode
-
-# proc `%`*(x: Box): JsonNode {.borrow.}
-# proc `%`*(x: Position): JsonNode {.borrow.}
-# proc `%`*(x: UICoord): JsonNode {.borrow.}
-# proc `%`*(x: Rune): JsonNode =
-#   %($x)
-# proc `%`*(x: (UICoord,UICoord,UICoord,UICoord)): JsonNode =
-#   %([x[0], x[1], x[2], x[3]])
-# proc `%`*(x: set[Attributes]): JsonNode =
-#   %(x.toSeq())
-
 
 var
   appMain {.compileTime.}: proc ()
@@ -24,8 +11,9 @@ var
 proc appInit() =
   discard
 
-proc appTick*(frameCount: int) =
-  app.frameCount = frameCount
+proc appTick*(val: AppStatePartial) =
+  app.frameCount = val.frameCount
+  app.uiScale = val.uiScale
   appTicker()
 
 proc appDraw*(): int =
@@ -40,16 +28,11 @@ proc getRoot*(): seq[Node] =
 proc getAppState*(): AppState =
   result = app
 
-proc setAppState*(val: (int, float32)) =
-  # app = val
-  echo "set state: ", val.repr
-
 proc run*(init: proc() {.nimcall.},
-          tick: proc(tick: int) {.nimcall.},
+          tick: proc(state: AppStatePartial) {.nimcall.},
           draw: proc(): int {.nimcall.},
           getRoot: proc(): seq[Node] {.nimcall.},
-          getAppState: proc(): AppState {.nimcall.},
-          setAppState: proc(val: (int, float32)) {.nimcall.}
+          getAppState: proc(): AppState {.nimcall.}
           ) = discard
 
 proc startFiguro*[T: Figuro](
@@ -89,6 +72,5 @@ proc startFiguro*[T: Figuro](
     appTick,
     appDraw,
     getRoot,
-    getAppState,
-    setAppState
+    getAppState
   )

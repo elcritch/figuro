@@ -26,6 +26,8 @@ const
   DataDirPath* {.strdefine.} = "data"
 
 type
+  AppStatePartial* = tuple[frameCount: int, uiScale: float32]
+
   AppState* = object
     running*, focused*, minimized*, fullscreen*: bool
 
@@ -45,7 +47,7 @@ type
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
     pixelScale*: float32 ## Pixel multiplier user wants on the UI
 
-    lastDraw*, lastTick*: int64
+    lastDraw*, lastTick*: int
 
   AppInputs* = object
     mouse*: Mouse

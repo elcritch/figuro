@@ -12,7 +12,7 @@ when isMainModule:
 
   var 
     intr: WrappedInterpreter
-    init, tick, draw, getRoot, getAppState, setAppState: WrappedPnode
+    init, tick, draw, getRoot, getAppState: WrappedPnode
     addins: VmAddins
 
 errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.cdecl.} =
@@ -26,7 +26,6 @@ proc runImpl(args: VmArgs) {.cdecl.} =
     draw = args.getNode(2)
     getRoot = args.getNode(3)
     getAppState = args.getNode(4)
-    setAppState = args.getNode(5)
 
 const 
   vmProcs* = [
@@ -58,9 +57,13 @@ proc invokeVmInit*() =
   if intr != nil and init != nil:
     discard intr.invoke(init, [])
 
-proc invokeVmTick*(frameCount: int) =
+proc invokeVmTick*() =
   if intr != nil and tick != nil:
-    discard intr.invoke(tick, [newNode frameCount])
+    let state: AppStatePartial = (
+      frameCount: app.frameCount,
+      uiScale: app.uiScale
+    )
+    discard intr.invoke(tick, [newNode state])
 
 proc invokeVmDraw*(): int =
   if intr != nil and draw != nil:
@@ -76,11 +79,6 @@ proc invokeVmGetAppState*(): AppState =
   if intr != nil and getAppState != nil:
     let state = intr.invoke(getAppState, [])
     result = fromVm(AppState, state)
-
-proc invokeVmSetAppState*() =
-  if intr != nil and setAppState != nil:
-    let state = (app.requestedFrame, app.uiScale)
-    discard intr.invoke(setAppState, [newNode state])
 
 proc startFiguroRuntime() =
   intr = loadTheScript(addins)
@@ -99,8 +97,7 @@ proc startFiguroRuntime() =
     sendRoot(invokeVmGetRoot())
 
   proc appTick() =
-    invokeVmTick(app.frameCount)
-    invokeVmSetAppState()
+    invokeVmTick()
     discard
 
   proc appLoad() =
