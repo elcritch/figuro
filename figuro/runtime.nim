@@ -71,34 +71,37 @@ proc invokeVmDraw*(): int =
   if intr != nil and draw != nil:
     let res = intr.invoke(draw, [])
     var val: BiggestInt
-    discard res.getInt(val)
-    result = val.int
+    if not res.isNil:
+      discard res.getInt(val)
+      result = val.int
 
 proc invokeVmGetRoot*(): seq[Node] =
   if intr != nil and getRoot != nil:
     let nodes = intr.invoke(getRoot, [])
-    result = fromVm(seq[Node], nodes)
+    if not nodes.isNil:
+      result = fromVm(seq[Node], nodes)
 
 proc invokeVmGetAppState*(): AppState =
   if intr != nil and getAppState != nil:
     let state = intr.invoke(getAppState, [])
-    result = fromVm(AppState, state)
+    if not state.isNil:
+      result = fromVm(AppState, state)
 
 proc scriptUpdate() =
-  if (let lastMod = getLastModificationTime(scriptPath); lastMod) > lastModification:
+  let lastMod = getLastModificationTime(scriptPath);
+  if lastMod > lastModification:
     if intr.isNil:
       intr = loadTheScript(addins)
     else:
       echo "reload"
       let saveState = intr.saveState()
       intr.reload()
-      # intr.loadState(saveState)
+      intr.loadState(saveState)
     if intr != nil:
       # invokeVmInit()
       lastModification = lastMod
 
 proc startFiguroRuntime() =
-  # intr = loadTheScript(addins)
   scriptUpdate()
   invokeVmInit()
   shared.app = invokeVmGetAppState()
@@ -111,7 +114,7 @@ proc startFiguroRuntime() =
                           app.uiScale * app.height.float32)
 
   proc appRender() =
-    # scriptUpdate() # this is broken for now
+    scriptUpdate() # this is broken for now
     app.requestedFrame = invokeVmDraw()
     sendRoot(invokeVmGetRoot())
 
