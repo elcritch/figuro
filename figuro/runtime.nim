@@ -16,23 +16,12 @@ when isMainModule:
 
   var 
     intr: WrappedInterpreter
-    init, tick, draw, getRoot: WrappedPnode
+    init, tick, draw, getRoot, getAppState: WrappedPnode
     lastModification = fromUnix(0)
     addins: VmAddins
 
-proc test() =
-  echo "hi"
-
 errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.cdecl.} =
   echo fmt"{line}:col; {msg}"
-
-proc testImpl(args: VmArgs) {.cdecl.} =
-  {.cast(gcSafe).}:
-    test()
-
-# proc btnImpl(args: VmArgs) {.cdecl.} =
-#   {.cast(gcSafe).}:
-#     args.setResult(btn(NicoButton args.getInt(0)))
 
 proc runImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
@@ -41,10 +30,7 @@ proc runImpl(args: VmArgs) {.cdecl.} =
     tick = args.getNode(1)
     draw = args.getNode(2)
     getRoot = args.getNode(3)
-
-# proc createWindowImpl(args: VmArgs) {.cdecl.} =
-#   {.cast(gcSafe).}:
-#     setWindowTitle($args.getString(0))
+    getAppState = args.getNode(4)
 
 const 
   vmProcs* = [
@@ -90,6 +76,11 @@ proc invokeVmGetRoot*(): seq[Node] =
   if intr != nil and getRoot != nil:
     let nodes = intr.invoke(getRoot, [])
     result = fromVm(seq[Node], nodes)
+
+proc invokeVmGetAppState*(): AppState =
+  if intr != nil and getAppState != nil:
+    let state = intr.invoke(getAppState, [])
+    result = fromVm(AppState, state)
 
 proc startFiguroRuntime() =
   app.fullscreen = false

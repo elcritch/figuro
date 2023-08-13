@@ -37,10 +37,14 @@ proc appDraw*(): int =
 proc getRoot*(): seq[Node] =
   result = root.copyInto()
 
+proc getAppState*(): AppState =
+  result = app
+
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},
           draw: proc(): int {.nimcall.},
-          getRoot: proc(): seq[Node] {.nimcall.}
+          getRoot: proc(): seq[Node] {.nimcall.},
+          getAppState: proc(): AppState {.nimcall.}
           ) = discard
 
 proc startFiguro*[T: Figuro](
@@ -71,5 +75,6 @@ proc startFiguro*[T: Figuro](
     appInit,
     appTick,
     appDraw,
-    getRoot
+    getRoot,
+    getAppState
   )
