@@ -36,13 +36,13 @@ proc run*(init: proc() {.nimcall.},
           ) = discard
 
 proc startFiguro*[T: Figuro](
-  widget: typedesc[T],
-  setup: proc() = nil,
-  fullscreen = false,
-  w: Positive = 1280,
-  h: Positive = 800,
-  pixelate = false,
-  pixelScale = 1.0
+    widget: typedesc[T],
+    setup: proc() = nil,
+    fullscreen = false,
+    w: Positive = 1280,
+    h: Positive = 800,
+    pixelate = false,
+    pixelScale = 1.0
 ) =
   ## Starts Fidget UI library
   ## 

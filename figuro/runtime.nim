@@ -114,11 +114,11 @@ proc startFiguroRuntime() =
                           app.uiScale * app.height.float32)
 
   proc appRender() =
-    scriptUpdate() # this is broken for now
     app.requestedFrame = invokeVmDraw()
     sendRoot(invokeVmGetRoot())
 
   proc appTick() =
+    scriptUpdate() # this is broken for now
     invokeVmTick()
     discard
 
