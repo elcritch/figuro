@@ -1,5 +1,7 @@
 
 import common/nodes/render
+import shared
+import engine
 
 import nimscripter/nimscr
 
@@ -87,23 +89,63 @@ proc invokeVmDraw*() =
 import pretty
 import msgpack4nim
 
-proc invokeVmGetRoot*() =
+proc invokeVmGetRoot*(): seq[Node] =
   if intr != nil and getRoot != nil:
     echo "invoke root"
     let nodes = intr.invoke(getRoot, [])
     # print nodes
-    let res = fromVm(seq[Node], nodes)
-    print res[0]
+    result = fromVm(seq[Node], nodes)
 
-when isMainModule:
+proc appRenderVm() =
+  echo "main"
+  let start = getMonoTime()
+  invokeVmDraw()
+  let nodes = invokeVmGetRoot()
+  let stop = getMonoTime()
+  echo "duration: ", (stop-start)
+  sendRoot(nodes)
+
+proc startFiguroRuntime() =
+  # appWidget = widget
+
+  app.fullscreen = false
+  uiinputs.mouse = Mouse()
+  uiinputs.mouse.pos = vec2(0, 0)
+
+  # todo: setup AppState transfer
+  let
+    w = 620
+    h = 140
+  
+  if not app.fullscreen:
+    app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
+
+  proc appRender() =
+    appRenderVm()
+  proc appTick() =
+    invokeVmTick(app.frameCount)
+  proc appLoad() =
+    discard
+  
+  # setupRoot(appWidget)
+
+  appMain = appRender
+  tickMain = appTick
+  loadMain = appLoad
+
   intr = loadTheScript(addins)
   invokeVmInit()
 
-  while true:
-    echo "main"
-    let start = getMonoTime()
-    invokeVmDraw()
-    invokeVmGetRoot()
-    let stop = getMonoTime()
-    echo "duration: ", (stop-start)
-    os.sleep(1000)
+  let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
+
+  let
+    pixelate = false
+    pixelScale = 1.0
+  let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
+  uiinputs.mouse.pixelScale = pixelScale
+
+  renderer.run()
+
+
+when isMainModule:
+  startFiguroRuntime()

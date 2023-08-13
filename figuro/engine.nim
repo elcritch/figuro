@@ -67,7 +67,11 @@ else:
         renderLoop(renderer, true)
         app.frameCount.inc()
 
-  proc run(renderer: Renderer) =
+  proc init*(renderer: Renderer) =
+    sendRoot = proc (nodes: sink seq[render.Node]) =
+        renderer.nodes = nodes
+
+  proc run*(renderer: Renderer) =
 
     sendRoot = proc (nodes: sink seq[render.Node]) =
         renderer.nodes = nodes
