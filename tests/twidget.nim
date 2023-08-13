@@ -1,8 +1,8 @@
 
 ## This minimal example shows 5 blue squares.
 
-import figuro/[timers, widget]
 import figuro/widgets/button
+import figuro/widget
 import figuro
 
 type
@@ -24,4 +24,11 @@ proc draw*(app: Main) {.slot.} =
         if i == 0:
           current.fill.a = app.value * 1.0
 
-startFiguro(Main, w = 720, h = 140)
+var
+  app = FiguroApp()
+  main = Main()
+
+connect(app, onDraw, main, twidget.draw)
+connect(app, onTick, main, twidget.tick)
+
+startFiguro(app, w = 720, h = 140)
