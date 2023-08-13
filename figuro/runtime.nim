@@ -95,15 +95,17 @@ proc scriptUpdate() =
     else:
       echo "reload"
       let saveState = intr.saveState()
-      intr.reload()
+      intr = loadTheScript(addins)
+      # intr.reload()
       intr.loadState(saveState)
+      discard intr.invoke("mySetup".cstring, [])
     if intr != nil:
-      # invokeVmInit()
+      invokeVmInit()
       lastModification = lastMod
 
 proc startFiguroRuntime() =
   scriptUpdate()
-  invokeVmInit()
+  # invokeVmInit()
   shared.app = invokeVmGetAppState()
 
   uiinputs.mouse = Mouse()
