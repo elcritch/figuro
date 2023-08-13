@@ -14,6 +14,8 @@ when isMainModule:
     intr: WrappedInterpreter
     init, tick, draw, getRoot, getAppState: WrappedPnode
     addins: VmAddins
+    lastModification = fromUnix(0)
+
 
 errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.cdecl.} =
   echo fmt"{line}:col; {msg}"
@@ -47,7 +49,7 @@ proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   setCurrentDir scriptDir
   var paths = @[scriptDir]
   paths.add jsPaths.mapIt(it.getStr)
-  paths.add "../" # figuro
+  paths.add "../".absolutePath # figuro
   let cpaths = paths.mapIt(it.cstring())
 
   result = loadScript(cstring scriptPath, addins, cpaths, cstring findNimStdLibCompileTime(), defaultDefines)
@@ -68,7 +70,9 @@ proc invokeVmTick*() =
 proc invokeVmDraw*(): int =
   if intr != nil and draw != nil:
     let res = intr.invoke(draw, [])
-    result = fromVm(int, res)
+    var val: BiggestInt
+    discard res.getInt(val)
+    result = val.int
 
 proc invokeVmGetRoot*(): seq[Node] =
   if intr != nil and getRoot != nil:
@@ -80,8 +84,22 @@ proc invokeVmGetAppState*(): AppState =
     let state = intr.invoke(getAppState, [])
     result = fromVm(AppState, state)
 
+proc scriptUpdate() =
+  if (let lastMod = getLastModificationTime(scriptPath); lastMod) > lastModification:
+    if intr.isNil:
+      intr = loadTheScript(addins)
+    else:
+      echo "reload"
+      let saveState = intr.saveState()
+      intr.reload()
+      # intr.loadState(saveState)
+    if intr != nil:
+      # invokeVmInit()
+      lastModification = lastMod
+
 proc startFiguroRuntime() =
-  intr = loadTheScript(addins)
+  # intr = loadTheScript(addins)
+  scriptUpdate()
   invokeVmInit()
   shared.app = invokeVmGetAppState()
 
@@ -93,6 +111,7 @@ proc startFiguroRuntime() =
                           app.uiScale * app.height.float32)
 
   proc appRender() =
+    # scriptUpdate() # this is broken for now
     app.requestedFrame = invokeVmDraw()
     sendRoot(invokeVmGetRoot())
 
