@@ -68,12 +68,12 @@
     "msgpack4nim": {
       "dir": "vendor/msgpack4nim",
       "url": "https://github.com/jangko/msgpack4nim",
-      "commit": "472152dd56a8b282535647caeba4643f3c4992f8"
+      "commit": "f4cc097ca9694f17feced9f82994f583ef7911fe"
     },
     "nimscripter": {
       "dir": "vendor/nimscripter",
       "url": "https://github.com/beef331/nimscripter",
-      "commit": "f46636293866fe640a4c882cba5d3ddefa510116"
+      "commit": "70897c85805ac4765e2f8290c01261ff5b8d8118"
     },
     "threading": {
       "dir": "vendor/threading",

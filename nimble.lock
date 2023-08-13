@@ -139,25 +139,25 @@
       }
     },
     "msgpack4nim": {
-      "version": "0.3.1",
-      "vcsRevision": "472152dd56a8b282535647caeba4643f3c4992f8",
+      "version": "0.4.4",
+      "vcsRevision": "f4cc097ca9694f17feced9f82994f583ef7911fe",
       "url": "https://github.com/jangko/msgpack4nim",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "920c09058ca1db8a59eaf13ac1ea9c6504495a04"
+        "sha1": "af47afd90e9523ea360f7c9bc0aa6b5f6bcaf786"
       }
     },
     "nimscripter": {
-      "version": "1.1.0",
-      "vcsRevision": "f46636293866fe640a4c882cba5d3ddefa510116",
+      "version": "1.1.2",
+      "vcsRevision": "70897c85805ac4765e2f8290c01261ff5b8d8118",
       "url": "https://github.com/beef331/nimscripter",
       "downloadMethod": "git",
       "dependencies": [
         "assume"
       ],
       "checksums": {
-        "sha1": "9c73d9f390f9fc711e065f15b1a54dbeee9b0919"
+        "sha1": "ca71466fb5011353751773c8d7b0d1a67818bbe9"
       }
     },
     "threading": {
