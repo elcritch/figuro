@@ -7,17 +7,12 @@ import nimscripter/nimscr
 
 from "$nim"/compiler/nimeval import findNimStdLibCompileTime
 import std/[strformat, os, times, json, osproc, sequtils]
-import std/times
-import std/monotimes
 
 when isMainModule:
-  const orgName = "script"
-  const appName = "scripter"
 
   var 
     intr: WrappedInterpreter
     init, tick, draw, getRoot, getAppState: WrappedPnode
-    lastModification = fromUnix(0)
     addins: VmAddins
 
 errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.cdecl.} =
@@ -34,7 +29,6 @@ proc runImpl(args: VmArgs) {.cdecl.} =
 
 const 
   vmProcs* = [
-    VmProcSignature(package: "figuro", name: "test", module: "wrappers", vmProc: testImpl),
     VmProcSignature(package: "figuro", name: "run", module: "wrappers", vmProc: runImpl),
   ]
 
@@ -83,7 +77,10 @@ proc invokeVmGetAppState*(): AppState =
     result = fromVm(AppState, state)
 
 proc startFiguroRuntime() =
-  app.fullscreen = false
+  intr = loadTheScript(addins)
+  invokeVmInit()
+  # shared.app = invokeVmGetAppState()
+
   uiinputs.mouse = Mouse()
   uiinputs.mouse.pos = vec2(0, 0)
 
@@ -109,9 +106,6 @@ proc startFiguroRuntime() =
   appMain = appRender
   tickMain = appTick
   loadMain = appLoad
-
-  intr = loadTheScript(addins)
-  invokeVmInit()
 
   let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
 
