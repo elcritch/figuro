@@ -17,25 +17,22 @@ import runtime/msgpack_lite
 #   %(x.toSeq())
 
 
-
-var appMain {.compileTime.}: proc ()
+var
+  appMain {.compileTime.}: proc ()
+  appTicker {.compileTime.}: proc ()
 
 proc appInit() =
   discard
 
 proc appTick*(frameCount: int) =
-  discard
+  app.frameCount = frameCount
+  appTicker()
 
 proc appDraw*() =
   root.diffIndex = 0
   appMain()
   computeScreenBox(nil, root)
 
-proc test*() = discard
-# proc getRoot*(): string =
-#   let nodes = root.copyInto()
-#   # result = pretty(%*(nodes))
-#   result = pack(nodes)
 proc getRoot*(): seq[Node] =
   result = root.copyInto()
 
@@ -64,6 +61,8 @@ proc startFiguro*[T: Figuro](
 
   appMain = proc() =
     draw(appWidget)
+  appTicker = proc() =
+    tick(appWidget)
 
   setupRoot(appWidget)
 
