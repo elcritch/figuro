@@ -28,17 +28,18 @@ proc appTick*(frameCount: int) =
   app.frameCount = frameCount
   appTicker()
 
-proc appDraw*() =
+proc appDraw*(): int =
   root.diffIndex = 0
   appMain()
   computeScreenBox(nil, root)
+  result = app.requestedFrame
 
 proc getRoot*(): seq[Node] =
   result = root.copyInto()
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(tick: int) {.nimcall.},
-          draw: proc() {.nimcall.},
+          draw: proc(): int {.nimcall.},
           getRoot: proc(): seq[Node] {.nimcall.}
           ) = discard
 
