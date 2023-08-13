@@ -62,6 +62,13 @@ proc startFiguro*[T: Figuro](
   mixin tick
   mixin load
 
+  app.fullscreen = fullscreen
+  app.width = w
+  app.height = h
+  app.pixelRatio = pixelScale
+  app.pixelate = pixelate
+
+  echo "app: ", app.repr
   var appWidget = T()
 
   appMain = proc() =

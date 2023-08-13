@@ -29,6 +29,7 @@ type
   AppState* = object
     running*, focused*, minimized*, fullscreen*: bool
 
+    width*, height*: int
     # UI Scale
     uiScale*: float32
     autoUiScale*: bool
@@ -39,6 +40,8 @@ type
     windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
     windowSize*: Vec2    ## Screen coordinates
     # windowFrame*: Vec2   ## Pixel coordinates
+
+    pixelate*: bool ## ???
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
     pixelScale*: float32 ## Pixel multiplier user wants on the UI
 

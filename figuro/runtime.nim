@@ -79,18 +79,14 @@ proc invokeVmGetAppState*(): AppState =
 proc startFiguroRuntime() =
   intr = loadTheScript(addins)
   invokeVmInit()
-  # shared.app = invokeVmGetAppState()
+  shared.app = invokeVmGetAppState()
 
   uiinputs.mouse = Mouse()
   uiinputs.mouse.pos = vec2(0, 0)
 
-  # todo: setup AppState transfer
-  let
-    w = 620
-    h = 140
-  
   if not app.fullscreen:
-    app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
+    app.windowSize = vec2(app.uiScale * app.width.float32,
+                          app.uiScale * app.height.float32)
 
   proc appRender() =
     app.requestedFrame = invokeVmDraw()
