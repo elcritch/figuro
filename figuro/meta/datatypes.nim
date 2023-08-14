@@ -62,23 +62,6 @@ type
     # outQueue*: EventQueue[Variant]
     # registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
-type
-  ## Rpc Streamer Task types
-  # RpcStreamSerializer*[T] =
-  #   proc(queue: EventQueue[T]): RpcStreamSerializerClosure {.nimcall.}
-
-  # TaskOption*[T] = object
-  #   data*: T
-  #   ch*: Chan[T]
-
-  # RpcStreamTask*[T, O] = proc(queue: EventQueue[T], options: TaskOption[O])
-
-  # ThreadArg*[T, U] = object
-  #   queue*: EventQueue[T]
-  #   opt*: TaskOption[U]
-
-  # RpcStreamThread*[T, U] = Thread[ThreadArg[T, U]]
-
 proc pack*[T](ss: var Variant, val: T) =
   echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
   ss = newVariant(val)
@@ -89,13 +72,6 @@ proc unpack*[T](ss: Variant, obj: var T) =
   else:
     raise newException(ConversionError, "couldn't convert to: " & $(T))
 
-# proc randBinString*(): RpcSubId =
-#   var idarr: array[sizeof(RpcSubId), byte]
-#   if urandom(idarr):
-#     result = cast[RpcSubId](idarr)
-#   else:
-#     result = RpcSubId(0)
-
 proc newAgentRouter*(
     inQueueSize = 2,
     outQueueSize = 2,
@@ -104,8 +80,6 @@ proc newAgentRouter*(
   new(result)
   result.procs = initTable[string, AgentProc]()
   result.sysprocs = initTable[string, AgentProc]()
-  # result.subEventProcs = initTable[Event, RpcSubClients]()
-  # result.stacktraces = defined(debug)
   result.stacktraces = true
 
   # let
@@ -118,27 +92,6 @@ proc newAgentRouter*(
   # result.outQueue = outQueue
   # result.registerQueue = registerQueue
 
-# proc subscribe*(
-#     router: AgentRouter,
-#     procName: string,
-#     clientId: ClientId,
-#     timeout = initDuration(milliseconds= -1),
-#     source = "",
-# ): Option[RpcSubId] =
-#   # send a request to Agentserver to subscribe a client to a subscription
-#   let 
-#     to =
-#       if timeout != initDuration(milliseconds= -1): timeout
-#       else: router.subscriptionTimeout
-#   let subid: RpcSubId = randBinString()
-#   # logDebug "fastrouter:subscribing::", procName, "subid:", subid
-#   let val = RpcSubOpts(subid: subid,
-#                        evt: router.subNames[procName],
-#                        timeout: to,
-#                        source: source)
-#   var item = isolate InetQueueItem[RpcSubOpts].init(clientId, val)
-#   if router.registerQueue.trySend(item):
-#     result = some(subid)
 
 proc listMethods*(rt: AgentRouter): seq[string] =
   ## list the methods in the given router. 
@@ -158,14 +111,14 @@ proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
 import typetraits, macros
 
 proc rpcPack*[T](res: T): RpcParams =
-  when defined(nimscript):
+  when defined(nimscript) or defined(useJsonSerde):
     result = RpcParams(buf: toJson(res))
   else:
     result = RpcParams(buf: newVariant(res))
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:
-    when defined(nimscript):
+    when defined(nimscript) or defined(useJsonSerde):
       obj.fromJson(ss.buf)
     else:
       ss.buf.unpack(obj)
