@@ -10,7 +10,6 @@ import protocol
 
 when defined(nimscript) or defined(useJsonSerde):
   import std/json
-  # import std/jsonutils
   import ../runtime/jsonutils_lite
   export json
 
