@@ -5,8 +5,9 @@ import widget
 import runtime/msgpack_lite
 
 var
-  appMain {.compileTime.}: proc ()
-  appTicker {.compileTime.}: proc ()
+  appWidget* {.compileTime.}: FiguroApp
+  appMain* {.compileTime.}: proc ()
+  appTicker* {.compileTime.}: proc ()
 
 proc appInit() =
   discard
@@ -35,8 +36,8 @@ proc run*(init: proc() {.nimcall.},
           getAppState: proc(): AppState {.nimcall.}
           ) = discard
 
-proc startFiguro*[T: Figuro](
-    widget: typedesc[T],
+proc startFiguro*(
+    widget: FiguroApp,
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -58,7 +59,7 @@ proc startFiguro*[T: Figuro](
   app.pixelate = pixelate
 
   echo "app: ", app.repr
-  var appWidget = T()
+  appWidget = widget
 
   appMain = proc() =
     draw(appWidget)

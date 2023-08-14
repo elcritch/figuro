@@ -1,9 +1,4 @@
 
-import std/[macros, typetraits]
-
-
-#include <QObject>
-
 import figuro/meta
 type
   Counter* = ref object of Agent

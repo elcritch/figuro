@@ -93,8 +93,8 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "This channel implementation requires --gc:arc or --gc:orc".}
 
-proc startFiguro*[T: Figuro](
-    widget: typedesc[T],
+proc startFiguro*(
+    widget: FiguroApp,
     setup: proc() = nil,
     fullscreen = false,
     w: Positive = 1280,
@@ -113,11 +113,10 @@ proc startFiguro*[T: Figuro](
   uiinputs.mouse = Mouse()
   uiinputs.mouse.pos = vec2(0, 0)
 
-  
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
 
-  let appWidget = T()
+  let appWidget = widget
 
   proc appRender() =
     mixin draw

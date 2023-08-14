@@ -172,7 +172,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
-        let `objId` = cast[`firstType`](context)
+        let `objId` = `firstType`(context)
         `paramSetups`
         `mcall`
 
@@ -196,7 +196,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           kind: Request,
           id: AgentId(0),
           procName: `signalName`,
-          params: RpcParams(buf: newVariant(args))
+          params: rpcPack(args)
         )
         result = (obj, sig)
         # callSlots(obj, sig)

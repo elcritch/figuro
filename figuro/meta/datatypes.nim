@@ -8,6 +8,11 @@ import pkg/variant
 # import equeues
 import protocol
 
+when defined(nimscript) or defined(useJsonSerde):
+  import std/json
+  import ../runtime/jsonutils_lite
+  export json
+
 export protocol
 export sets
 export options
@@ -38,19 +43,6 @@ type
   AgentBindError* = object of ValueError
   AgentAddressUnresolvableError* = object of ValueError
 
-  # RpcSubId* = int32
-  # RpcSubOpts* = object
-  #   subid*: RpcSubId
-  #   evt*: Event
-  #   timeout*: Duration
-  #   source*: string
-
-  # RpcStreamSerializerClosure* = proc(): RpcParams {.closure.}
-
-  # RpcSubClients* = object
-  #   eventProc*: RpcStreamSerializerClosure
-  #   subs*: TableRef[ClientId, RpcSubId]
-
   AgentRouter* = ref object
     procs*: Table[string, AgentProc]
     sysprocs*: Table[string, AgentProc]
@@ -62,23 +54,6 @@ type
     # outQueue*: EventQueue[Variant]
     # registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
-type
-  ## Rpc Streamer Task types
-  # RpcStreamSerializer*[T] =
-  #   proc(queue: EventQueue[T]): RpcStreamSerializerClosure {.nimcall.}
-
-  # TaskOption*[T] = object
-  #   data*: T
-  #   ch*: Chan[T]
-
-  # RpcStreamTask*[T, O] = proc(queue: EventQueue[T], options: TaskOption[O])
-
-  # ThreadArg*[T, U] = object
-  #   queue*: EventQueue[T]
-  #   opt*: TaskOption[U]
-
-  # RpcStreamThread*[T, U] = Thread[ThreadArg[T, U]]
-
 proc pack*[T](ss: var Variant, val: T) =
   echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
   ss = newVariant(val)
@@ -89,13 +64,6 @@ proc unpack*[T](ss: Variant, obj: var T) =
   else:
     raise newException(ConversionError, "couldn't convert to: " & $(T))
 
-# proc randBinString*(): RpcSubId =
-#   var idarr: array[sizeof(RpcSubId), byte]
-#   if urandom(idarr):
-#     result = cast[RpcSubId](idarr)
-#   else:
-#     result = RpcSubId(0)
-
 proc newAgentRouter*(
     inQueueSize = 2,
     outQueueSize = 2,
@@ -104,41 +72,7 @@ proc newAgentRouter*(
   new(result)
   result.procs = initTable[string, AgentProc]()
   result.sysprocs = initTable[string, AgentProc]()
-  # result.subEventProcs = initTable[Event, RpcSubClients]()
-  # result.stacktraces = defined(debug)
   result.stacktraces = true
-
-  # let
-  #   inQueue = EventQueue[Variant].init(size=inQueueSize)
-  #   outQueue = EventQueue[Variant].init(size=outQueueSize)
-  #   registerQueue =
-  #     EventQueue[InetQueueItem[RpcSubOpts]].init(size=registerQueueSize)
-  
-  # result.inQueue = inQueue
-  # result.outQueue = outQueue
-  # result.registerQueue = registerQueue
-
-# proc subscribe*(
-#     router: AgentRouter,
-#     procName: string,
-#     clientId: ClientId,
-#     timeout = initDuration(milliseconds= -1),
-#     source = "",
-# ): Option[RpcSubId] =
-#   # send a request to Agentserver to subscribe a client to a subscription
-#   let 
-#     to =
-#       if timeout != initDuration(milliseconds= -1): timeout
-#       else: router.subscriptionTimeout
-#   let subid: RpcSubId = randBinString()
-#   # logDebug "fastrouter:subscribing::", procName, "subid:", subid
-#   let val = RpcSubOpts(subid: subid,
-#                        evt: router.subNames[procName],
-#                        timeout: to,
-#                        source: source)
-#   var item = isolate InetQueueItem[RpcSubOpts].init(clientId, val)
-#   if router.registerQueue.trySend(item):
-#     result = some(subid)
 
 proc listMethods*(rt: AgentRouter): seq[string] =
   ## list the methods in the given router. 
@@ -156,11 +90,20 @@ proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
   result = res
 
 proc rpcPack*[T](res: T): RpcParams =
-  result = RpcParams(buf: newVariant(res))
+  when defined(nimscript) or defined(useJsonSerde):
+    let jn = toJson(res)
+    result = RpcParams(buf: jn)
+    discard
+  else:
+    result = RpcParams(buf: newVariant(res))
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:
-    ss.buf.unpack(obj)
+    when defined(nimscript) or defined(useJsonSerde):
+      obj.fromJson(ss.buf)
+      discard
+    else:
+      ss.buf.unpack(obj)
   except ConversionError as err:
     raise newException(ConversionError,
                        "unable to parse parameters: " & err.msg)
