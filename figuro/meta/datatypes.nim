@@ -155,14 +155,24 @@ proc listSysMethods*(rt: AgentRouter): seq[string] =
 proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
   result = res
 
+import typetraits, macros
+
 proc rpcPack*[T](res: T): RpcParams =
-  # res.buf = res
-  result = RpcParams(buf: newVariant(res))
-  discard
+  when true: # defined(nimscript):
+    result = RpcParams(buf: toJson(res))
+  else:
+    result = RpcParams(buf: newVariant(res))
+
+macro printType(val: typed) =
+  echo "rpcUnpack: ", repr getTypeImpl val
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:
-    ss.buf.unpack(obj)
+    when true: # defined(nimscript):
+      echo "unpack"
+      obj.fromJson(ss.buf)
+    else:
+      obj = ss.buf.unpack(obj)
   except ConversionError as err:
     raise newException(ConversionError,
                        "unable to parse parameters: " & err.msg)

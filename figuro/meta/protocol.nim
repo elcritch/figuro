@@ -14,9 +14,17 @@ type
     INTERNAL_ERROR = -23
     SERVER_ERROR = -22
 
+when true: # defined(nimscript):
+  import std/[json, jsonutils]
+  export json, jsonutils
+
+type
   RpcParams* = object
     ## implementation specific -- handles data buffer
-    buf*: Variant
+    when true: # defined(nimscript):
+      buf*: JsonNode
+    else:
+      buf*: Variant
 
 type
   AgentType* {.size: sizeof(uint8).} = enum
@@ -49,5 +57,5 @@ type
   AgentError* = ref object
     code*: FastErrorCodes
     msg*: string
-    trace*: seq[(string, string, int)]
+    # trace*: seq[(string, string, int)]
 

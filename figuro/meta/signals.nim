@@ -13,9 +13,7 @@ proc wrapResponse*(id: AgentId, resp: RpcParams, kind = Response): AgentResponse
 proc wrapResponseError*(id: AgentId, err: AgentError): AgentResponse = 
   result.kind = Error
   result.id = id
-  var ss: Variant
-  ss.pack(err)
-  result.result = RpcParams(buf: ss)
+  result.result = rpcPack(err)
 
 proc wrapResponseError*(
     id: AgentId,
@@ -25,14 +23,14 @@ proc wrapResponseError*(
     stacktraces: bool
 ): AgentResponse = 
   let errobj = AgentError(code: code, msg: msg)
-  when defined(nimscript):
-    discard
-  else:
-    if stacktraces and not err.isNil():
-      errobj.trace = @[]
-      for se in err.getStackTraceEntries():
-        let file: string = rsplit($(se.filename), '/', maxsplit=1)[^1]
-        errobj.trace.add( ($se.procname, file, se.line, ) )
+  # when defined(nimscript):
+  #   discard
+  # else:
+  #   if stacktraces and not err.isNil():
+  #     errobj.trace = @[]
+  #     for se in err.getStackTraceEntries():
+  #       let file: string = rsplit($(se.filename), '/', maxsplit=1)[^1]
+  #       errobj.trace.add( ($se.procname, file, se.line, ) )
   result = wrapResponseError(id, errobj)
 
 proc parseError*(ss: Variant): AgentError = 
@@ -89,7 +87,7 @@ proc callMethod*(
         # Handle rpc request the `context` variable is different
         # based on whether the rpc request is a system/regular/subscription
         slot(ctx, req.params)
-        let res = RpcParams(buf: newVariant(true)) 
+        let res = rpcPack(true)
 
         result = AgentResponse(kind: Response, id: req.id, result: res)
       except ConversionError as err:
@@ -188,11 +186,11 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
     for (tgt, slot) in listeners:
       # echo "call listener: ", repr tgt
       let res = slot.callMethod(tgt, req)
-      variantMatch case res.result.buf as u
-      of AgentError:
-        raise newException(AgentSlotError, u.msg)
-      else:
-        discard
+      # variantMatch case res.result.buf as u
+      # of AgentError:
+      #   raise newException(AgentSlotError, u.msg)
+      # else:
+      #   discard
 
 proc emit*(call: (Agent, AgentRequest)) =
   let (obj, req) = call
