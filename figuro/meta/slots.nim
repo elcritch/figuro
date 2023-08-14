@@ -172,7 +172,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `paramTypeName`
         rpcUnpack(`paramsIdent`, params)
-        let `objId` = cast[`firstType`](context)
+        let `objId` = `firstType`(context)
         `paramSetups`
         `mcall`
 

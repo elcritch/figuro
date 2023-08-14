@@ -9,8 +9,10 @@ import pkg/variant
 import protocol
 
 when defined(nimscript) or defined(useJsonSerde):
-  import std/[json, jsonutils]
-  export json, jsonutils
+  import std/json
+  # import std/jsonutils
+  import ../runtime/jsonutils_lite
+  export json
 
 export protocol
 export sets
@@ -90,7 +92,9 @@ proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
 
 proc rpcPack*[T](res: T): RpcParams =
   when defined(nimscript) or defined(useJsonSerde):
-    result = RpcParams(buf: toJson(res))
+    let jn = toJson(res)
+    result = RpcParams(buf: jn)
+    discard
   else:
     result = RpcParams(buf: newVariant(res))
 
@@ -98,6 +102,7 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:
     when defined(nimscript) or defined(useJsonSerde):
       obj.fromJson(ss.buf)
+      discard
     else:
       ss.buf.unpack(obj)
   except ConversionError as err:

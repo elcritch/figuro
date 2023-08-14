@@ -15,8 +15,8 @@ type
     SERVER_ERROR = -22
 
 when defined(nimscript) or defined(useJsonSerde):
-  import std/[json, jsonutils]
-  export json, jsonutils
+  import std/json
+  export json
 
 type
   RpcParams* = object
