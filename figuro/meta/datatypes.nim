@@ -156,7 +156,9 @@ proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
   result = res
 
 proc rpcPack*[T](res: T): RpcParams =
+  # res.buf = res
   result = RpcParams(buf: newVariant(res))
+  discard
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:

@@ -113,7 +113,6 @@ proc startFiguro*(
   uiinputs.mouse = Mouse()
   uiinputs.mouse.pos = vec2(0, 0)
 
-  
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
 

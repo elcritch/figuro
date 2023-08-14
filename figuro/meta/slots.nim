@@ -196,7 +196,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           kind: Request,
           id: AgentId(0),
           procName: `signalName`,
-          params: RpcParams(buf: newVariant(args))
+          params: rpcPack(args)
         )
         result = (obj, sig)
         # callSlots(obj, sig)

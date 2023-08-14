@@ -121,7 +121,7 @@ macro signalObj*(p: typed): auto =
   ## gets the type of the signal's object arg 
   ## 
   let p = p.getTypeInst
-  echo "signalObj: ", p.repr
+  # echo "signalObj: ", p.repr
   let obj = p[0][1]
   result = obj[1].getTypeInst
 macro signalType*(p: typed): auto =
@@ -168,8 +168,8 @@ template connect*(
     b: Agent,
     slot: typed
 ) =
-  echo "signal: ", repr typeof signal
-  echo "slot: ", repr typeof slot
+  # echo "signal: ", repr typeof signal
+  # echo "slot: ", repr typeof slot
   when signalObj(signal) isnot Agent:
     {.error: "signal is wrong type".}
   when signalObj(slot) isnot Agent:
