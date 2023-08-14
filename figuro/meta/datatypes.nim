@@ -8,6 +8,10 @@ import pkg/variant
 # import equeues
 import protocol
 
+when defined(nimscript) or defined(useJsonSerde):
+  import std/[json, jsonutils]
+  export json, jsonutils
+
 export protocol
 export sets
 export options
@@ -37,19 +41,6 @@ type
 
   AgentBindError* = object of ValueError
   AgentAddressUnresolvableError* = object of ValueError
-
-  # RpcSubId* = int32
-  # RpcSubOpts* = object
-  #   subid*: RpcSubId
-  #   evt*: Event
-  #   timeout*: Duration
-  #   source*: string
-
-  # RpcStreamSerializerClosure* = proc(): RpcParams {.closure.}
-
-  # RpcSubClients* = object
-  #   eventProc*: RpcStreamSerializerClosure
-  #   subs*: TableRef[ClientId, RpcSubId]
 
   AgentRouter* = ref object
     procs*: Table[string, AgentProc]
@@ -82,17 +73,6 @@ proc newAgentRouter*(
   result.sysprocs = initTable[string, AgentProc]()
   result.stacktraces = true
 
-  # let
-  #   inQueue = EventQueue[Variant].init(size=inQueueSize)
-  #   outQueue = EventQueue[Variant].init(size=outQueueSize)
-  #   registerQueue =
-  #     EventQueue[InetQueueItem[RpcSubOpts]].init(size=registerQueueSize)
-  
-  # result.inQueue = inQueue
-  # result.outQueue = outQueue
-  # result.registerQueue = registerQueue
-
-
 proc listMethods*(rt: AgentRouter): seq[string] =
   ## list the methods in the given router. 
   result = newSeqOfCap[string](rt.procs.len())
@@ -107,8 +87,6 @@ proc listSysMethods*(rt: AgentRouter): seq[string] =
 
 proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
   result = res
-
-import typetraits, macros
 
 proc rpcPack*[T](res: T): RpcParams =
   when defined(nimscript) or defined(useJsonSerde):
