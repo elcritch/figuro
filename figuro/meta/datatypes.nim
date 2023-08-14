@@ -158,21 +158,17 @@ proc rpcPack*(res: RpcParams): RpcParams {.inline.} =
 import typetraits, macros
 
 proc rpcPack*[T](res: T): RpcParams =
-  when true: # defined(nimscript):
+  when defined(nimscript):
     result = RpcParams(buf: toJson(res))
   else:
     result = RpcParams(buf: newVariant(res))
 
-macro printType(val: typed) =
-  echo "rpcUnpack: ", repr getTypeImpl val
-
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   try:
-    when true: # defined(nimscript):
-      echo "unpack"
+    when defined(nimscript):
       obj.fromJson(ss.buf)
     else:
-      obj = ss.buf.unpack(obj)
+      ss.buf.unpack(obj)
   except ConversionError as err:
     raise newException(ConversionError,
                        "unable to parse parameters: " & err.msg)

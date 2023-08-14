@@ -14,14 +14,14 @@ type
     INTERNAL_ERROR = -23
     SERVER_ERROR = -22
 
-when true: # defined(nimscript):
+when defined(nimscript):
   import std/[json, jsonutils]
   export json, jsonutils
 
 type
   RpcParams* = object
     ## implementation specific -- handles data buffer
-    when true: # defined(nimscript):
+    when defined(nimscript):
       buf*: JsonNode
     else:
       buf*: Variant

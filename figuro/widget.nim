@@ -18,5 +18,5 @@ proc tick*(tp: FiguroApp) {.slot.} =
   emit tp.onTick()
 
 proc draw*(tp: FiguroApp) {.slot.} =
-  echo "draw app"
+  # echo "draw app"
   emit tp.onDraw()
