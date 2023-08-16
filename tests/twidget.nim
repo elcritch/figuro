@@ -22,6 +22,7 @@ proc draw*(app: Main) {.slot.} =
       button "btn":
         fill "#A000A0"
         box 20 + (i.toFloat + app.value) * 120, 20, 100, 100
+        # box 20 + (i.toFloat + app.value) * 120, 20 * sin(app.value + i.toFloat), 100, 100
         if i == 0:
           current.fill.a = app.value * 1.0
 

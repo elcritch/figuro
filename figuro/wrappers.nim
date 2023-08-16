@@ -2,7 +2,6 @@
 import common/nodes/render
 import common/nodes/transfer
 import widget
-import runtime/msgpack_lite
 
 var
   appWidget* {.compileTime.}: FiguroApp
