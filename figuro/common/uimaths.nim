@@ -203,10 +203,10 @@ proc sum*(rect: (UICoord, UICoord, UICoord, UICoord)): UICoord =
   result = rect[0] + rect[1] + rect[2] + rect[3]
 
 proc `$`*(a: Position): string =
-  &"Position<{a.x:2.2f}, {a.y:2.2f}>"
+  &"Position<{a.x:2.2s}, {a.y:2.2s}>"
 proc `$`*(b: Box): string =
   let a = b.Rect
-  &"Box<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
+  &"Box<{a.x:2.2s}, {a.y:2.2s}; {a.x+a.w:2.2s}, {a.y+a.h:2.2s} [{a.w:2.2s} x {a.h:2.2s}]>"
 
 
 # when isMainModule:
