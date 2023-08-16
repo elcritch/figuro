@@ -137,6 +137,5 @@ proc startFiguroRuntime() =
 
   renderer.run()
 
-
 when isMainModule:
   startFiguroRuntime()
