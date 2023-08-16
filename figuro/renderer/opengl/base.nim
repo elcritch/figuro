@@ -44,8 +44,8 @@ proc updateWindowSize*(window: Window) =
 
   var cwidth, cheight: cint
   let size = window.size()
-  app.windowSize.x = size.x.toFloat
-  app.windowSize.y = size.y.toFloat
+  app.windowRawSize.x = size.x.toFloat
+  app.windowRawSize.y = size.y.toFloat
 
   app.minimized = window.minimized()
   app.pixelRatio = window.contentScale()
@@ -56,7 +56,7 @@ proc updateWindowSize*(window: Window) =
   if app.autoUiScale:
     app.uiScale = min(scale.x, scale.y)
 
-  app.windowLogicalSize = app.windowSize / app.pixelScale * app.pixelRatio
+  app.windowSize = app.windowRawSize.descaled()
 
 proc preInput*() =
   # var x, y: float64
@@ -97,10 +97,8 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
     window.fullscreen = app.fullscreen
   else:
 
-    window.size = ivec2(
-      (app.windowSize.x * app.pixelScale * app.uiScale).int32,
-      (app.windowSize.y * app.pixelScale * app.uiScale).int32,
-    )
+    app.windowRawSize = app.windowSize.scaled()
+    window.size = ivec2(app.windowRawSize)
 
   if window.isNil:
     quit(
@@ -132,7 +130,7 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
 proc drawFrame*(nodes: var seq[Node]) =
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(app.windowSize)
+  ctx.beginFrame(app.windowRawSize)
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 

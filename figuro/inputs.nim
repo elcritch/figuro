@@ -26,8 +26,8 @@ type
 
   Mouse* = object
     pos*: Position
+    prev*: Position
     delta*: Position
-    prevPos*: Position
     wheelDelta*: Position
     consumed*: bool ## Consumed - need to prevent default action.
     clickedOutside*: bool ## 

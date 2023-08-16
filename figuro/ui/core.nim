@@ -159,7 +159,7 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   inner
   postNode()
 
-proc computeScreenBox*(parent, node: Figuro) =
+proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
     node.screenBox = node.box
@@ -167,5 +167,11 @@ proc computeScreenBox*(parent, node: Figuro) =
   else:
     node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
+
+  if depth == 0: echo ""
+  var sp = ""
+  for i in 0..depth: sp &= " "
+  echo "node: ", sp, node.uid, " ", node.screenBox
+
   for n in node.children:
-    computeScreenBox(node, n)
+    computeScreenBox(node, n, depth + 1)

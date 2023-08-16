@@ -39,8 +39,8 @@ type
     requestedFrame*: int
     frameCount*, tickCount*: int
 
-    windowLogicalSize*: Vec2 ## Screen size in logical coordinates.
-    windowSize*: Vec2    ## Screen coordinates
+    windowSize*: Position ## Screen size in logical coordinates.
+    windowRawSize*: Vec2    ## Screen coordinates
     # windowFrame*: Vec2   ## Pixel coordinates
 
     pixelate*: bool ## ???
