@@ -28,7 +28,7 @@ type
     pos*: Position
     delta*: Position
     prevPos*: Position
-    wheelDelta*: float32
+    wheelDelta*: Position
     consumed*: bool ## Consumed - need to prevent default action.
     clickedOutside*: bool ## 
 

@@ -109,7 +109,8 @@ template blank*(): untyped =
 
 proc clearInputs*() =
   resetNodes = 0
-  uiinputs.mouse.wheelDelta = 0
+  uiinputs.mouse.pos = Position(vec2(0, 0))
+  uiinputs.mouse.wheelDelta = Position(vec2(0, 0))
   uiinputs.mouse.consumed = false
   uiinputs.mouse.clickedOutside = false
 

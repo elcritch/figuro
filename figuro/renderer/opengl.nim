@@ -53,7 +53,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onScroll = proc () =
     app.requestedFrame.inc
-    uiinputs.mouse.wheelDelta += window.scrollDelta().x
+    uiinputs.mouse.wheelDelta = window.scrollDelta().descaled
     renderEvent.trigger()
 
   window.onRune = keyboardInput
