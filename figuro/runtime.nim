@@ -108,9 +108,6 @@ proc startFiguroRuntime() =
   # invokeVmInit()
   shared.app = invokeVmGetAppState()
 
-  uiinputs.mouse = Mouse()
-  uiinputs.mouse.pos = vec2(0, 0)
-
   if not app.fullscreen:
     app.windowSize = vec2(app.uiScale * app.width.float32,
                           app.uiScale * app.height.float32)
@@ -137,8 +134,6 @@ proc startFiguroRuntime() =
     pixelate = false
     pixelScale = 1.0
     renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
-
-  uiinputs.mouse.pixelScale = pixelScale
 
   renderer.run()
 

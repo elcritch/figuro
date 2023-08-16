@@ -110,8 +110,6 @@ proc startFiguro*(
 
   # appWidget = widget
   app.fullscreen = fullscreen
-  uiinputs.mouse = Mouse()
-  uiinputs.mouse.pos = vec2(0, 0)
 
   if not fullscreen:
     app.windowSize = vec2(app.uiScale * w.float32, app.uiScale * h.float32)
@@ -148,7 +146,6 @@ proc startFiguro*(
   echo fmt"{atlasStartSz=}"
 
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
-  uiinputs.mouse.pixelScale = pixelScale
 
   if not setup.isNil: setup()
   renderer.run()

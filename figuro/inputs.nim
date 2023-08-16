@@ -1,6 +1,9 @@
 import std/[unicode]
 import pkg/vmath
 
+import common/uimaths
+export uimaths
+
 when defined(compilervm):
   {.pragma: runtimeVar, compileTime.}
 else:
@@ -21,18 +24,15 @@ type
     Grab
     NSResize
 
-  Mouse* = ref object
-    pos*: Vec2
-    delta*: Vec2
-    prevPos*: Vec2
-    pixelScale*: float32
+  Mouse* = object
+    pos*: Position
+    delta*: Position
+    prevPos*: Position
     wheelDelta*: float32
-    cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
-    prevCursorStyle*: MouseCursorStyle
     consumed*: bool ## Consumed - need to prevent default action.
     clickedOutside*: bool ## 
 
-  Keyboard* = ref object
+  Keyboard* = object
     state*: KeyState
     consumed*: bool ## Consumed - need to prevent default action.
     keyString*: string

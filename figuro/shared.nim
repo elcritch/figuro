@@ -52,6 +52,8 @@ type
   AppInputs* = object
     mouse*: Mouse
     keyboard*: Keyboard
+    # cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
+    # prevCursorStyle*: MouseCursorStyle
 
 var
   dataDir* {.runtimeVar.}: string = DataDirPath
@@ -80,14 +82,14 @@ template scaled*(a: UICoord): float32 =
 template descaled*(a: float32): UICoord =
   UICoord(a / app.uiScale)
 
-proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
-proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
+# proc x*(mouse: Mouse): UICoord = mouse.pos.descaled.x
+# proc y*(mouse: Mouse): UICoord = mouse.pos.descaled.x
 
-proc setMousePos*(item: var Mouse, x, y: float64) =
-  item.pos = vec2(x, y)
-  item.pos *= app.pixelRatio / item.pixelScale
-  item.delta = item.pos - item.prevPos
-  item.prevPos = item.pos
+# proc setMousePos*(item: var Mouse, x, y: float64) =
+#   item.pos = vec2(x, y)
+#   item.pos *= app.pixelRatio / item.pixelScale
+#   item.delta = item.pos - item.prevPos
+#   item.prevPos = item.pos
 
 
 template dispatchEvent*(evt: typed) =

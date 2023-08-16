@@ -59,6 +59,9 @@ proc configureEvents(renderer: Renderer) =
   window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
+    let mouse = window.mousePos()
+    let pos = vec2(mouse)
+    uiinputs.mouse.pos = pos.descaled()
     app.requestedFrame.inc
     appEvent.trigger()
 
