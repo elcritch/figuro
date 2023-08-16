@@ -116,9 +116,9 @@ proc startFiguro*(
   proc appRender() =
     mixin draw
     root.diffIndex = 0
-    if not uiinputs.mouse.consumed:
-      echo "got mouse: ", uiinputs.mouse.pos
-      uiinputs.mouse.consumed = true
+    if not uxInputs.mouse.consumed:
+      echo "got mouse: ", uxInputs.mouse.pos
+      uxInputs.mouse.consumed = true
     emit appWidget.onDraw()
     computeScreenBox(nil, root)
     sendRoot(root.copyInto())

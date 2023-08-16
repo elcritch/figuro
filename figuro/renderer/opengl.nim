@@ -53,17 +53,17 @@ proc configureEvents(renderer: Renderer) =
 
   window.onScroll = proc () =
     app.requestedFrame.inc
-    uiinputs.mouse.wheelDelta = window.scrollDelta().descaled
+    uxInputs.mouse.wheelDelta = window.scrollDelta().descaled
     renderEvent.trigger()
 
   window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
     let pos = vec2(window.mousePos())
-    uiinputs.mouse.pos = pos.descaled()
+    uxInputs.mouse.pos = pos.descaled()
     let prevPos = vec2(window.mousePrevPos())
-    uiinputs.mouse.prev = prevPos.descaled()
-    uiinputs.mouse.consumed = false
+    uxInputs.mouse.prev = prevPos.descaled()
+    uxInputs.mouse.consumed = false
     app.requestedFrame.inc
     appEvent.trigger()
 

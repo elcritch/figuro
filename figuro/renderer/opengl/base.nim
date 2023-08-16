@@ -134,7 +134,7 @@ proc drawFrame*(nodes: var seq[Node]) =
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
-  # uiinputs.mouse.cursorStyle = Default
+  # uxInputs.mouse.cursorStyle = Default
 
   # Only draw the root after everything was done:
   drawRoot(nodes)

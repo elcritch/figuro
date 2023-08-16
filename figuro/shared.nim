@@ -61,7 +61,7 @@ var
     uiScale: 1.0,
     autoUiScale: true
   )
-  uiinputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
+  uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
 
 
 type
