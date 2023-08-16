@@ -30,7 +30,7 @@ type
     delta*: Position
     wheelDelta*: Position
     consumed*: bool ## Consumed - need to prevent default action.
-    clickedOutside*: bool ## 
+    clickedOutside*: bool ##
 
   Keyboard* = object
     state*: KeyState

@@ -170,10 +170,10 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
     node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
 
-  if depth == 0: echo ""
-  var sp = ""
-  for i in 0..depth: sp &= "  "
-  echo "node: ", sp, node.uid, " ", node.screenBox
+  # if depth == 0: echo ""
+  # var sp = ""
+  # for i in 0..depth: sp &= "  "
+  # echo "node: ", sp, node.uid, " ", node.screenBox
 
   for n in node.children:
     computeScreenBox(node, n, depth + 1)

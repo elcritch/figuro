@@ -13,10 +13,11 @@ type
 
 proc onTick*(tp: FiguroApp) {.signal.}
 proc onDraw*(tp: FiguroApp) {.signal.}
+proc onLoad*(tp: FiguroApp) {.signal.}
 
-proc tick*(tp: FiguroApp) {.slot.} =
-  emit tp.onTick()
+# proc tick*(tp: FiguroApp) {.slot.} =
+#   emit tp.onTick()
 
-proc draw*(tp: FiguroApp) {.slot.} =
-  # echo "draw app"
-  emit tp.onDraw()
+# proc draw*(tp: FiguroApp) {.slot.} =
+#   # echo "draw app"
+#   emit tp.onDraw()

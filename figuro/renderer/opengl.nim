@@ -63,9 +63,9 @@ proc configureEvents(renderer: Renderer) =
     uiinputs.mouse.pos = pos.descaled()
     let prevPos = vec2(window.mousePrevPos())
     uiinputs.mouse.prev = prevPos.descaled()
+    uiinputs.mouse.consumed = false
     app.requestedFrame.inc
     appEvent.trigger()
-    echo "uiinputs: ", $uiinputs.mouse.pos
 
   window.onButtonPress = proc (button: windy.Button) =
     app.requestedFrame.inc
