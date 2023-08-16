@@ -162,8 +162,8 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
-    # node.box.w = app.windowSize.x
-    # node.box.h = app.windowSize.y
+    node.box.w = app.windowSize.x
+    node.box.h = app.windowSize.y
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
