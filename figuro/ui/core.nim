@@ -155,7 +155,7 @@ template node*(kind: NodeKind, id: static string, inner, setup: untyped): untype
 
 template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, Figuro, atom(id))
+  preNode(kind, Figuro, id)
   inner
   postNode()
 
