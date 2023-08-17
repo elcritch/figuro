@@ -39,8 +39,6 @@ proc startFiguro*(
     widget: FiguroApp,
     setup: proc() = nil,
     fullscreen = false,
-    w: Positive = 1280,
-    h: Positive = 800,
     pixelate = false,
     pixelScale = 1.0
 ) =
@@ -52,8 +50,6 @@ proc startFiguro*(
 
   app.fullscreen = fullscreen
   app.autoUiScale = true
-  app.width = w
-  app.height = h
   app.pixelRatio = pixelScale
   app.pixelate = pixelate
 
@@ -61,9 +57,9 @@ proc startFiguro*(
   appWidget = widget
 
   appMain = proc() =
-    draw(appWidget)
+    emit appWidget.onDraw()
   appTicker = proc() =
-    tick(appWidget)
+    emit appWidget.onTick()
 
   setupRoot(appWidget)
 
