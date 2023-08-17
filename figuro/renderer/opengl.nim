@@ -5,7 +5,7 @@ import typography, typography/svgfont
 import pixie
 import windy
 
-import opengl/[base, context, draw]
+import opengl/[base, context, render]
 import opengl/commons
 
 type
