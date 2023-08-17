@@ -54,12 +54,14 @@ proc startFiguro*(
   app.pixelate = pixelate
 
   echo "app: ", app.repr
+  root = widget
   appWidget = widget
 
   appMain = proc() =
     emit appWidget.onDraw()
   appTicker = proc() =
     emit appWidget.onTick()
+    # emit root.eventHover()
 
   setupRoot(appWidget)
 

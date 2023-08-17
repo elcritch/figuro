@@ -124,7 +124,7 @@ proc startFiguro*(
       echo "got mouse: ", uxInputs.mouse.pos
       uxInputs.mouse.consumed = true
       echo root.listeners
-      echo "emit:hover: ", cast[pointer](root).repr
+      # echo "emit:hover: ", cast[pointer](root).repr
       emit root.eventHover()
     emit root.onDraw()
     computeScreenBox(nil, root)

@@ -20,6 +20,7 @@ export variant
 
 type
   Agent* = ref object of RootObj
+    agentId: int = 0
     listeners*: Table[string, OrderedSet[(Agent, AgentProc)]]
 
   # Context for servicing an RPC call 
@@ -30,10 +31,15 @@ type
                     params: RpcParams,
                     ) {.nimcall.}
 
-proc hash*(a: Agent): Hash =
-  var h: Hash = 0
-  h = h !& hash(cast[pointer](a))
-  result = !$h
+proc getAgentId(a: Agent): int = discard
+proc getAgentId(a: AgentProc): int = discard
+# when defined(nimscript):
+#   proc getAgentId(a: Agent): int = discard
+# else:
+#   proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
+
+proc hash*(a: Agent): Hash = hash(getAgentId(a))
+proc hash*(a: AgentProc): Hash = hash(getAgentId(a))
 
 type
 
@@ -130,6 +136,7 @@ proc addAgentListeners*(obj: Agent,
                         ) =
   # if obj.listeners.hasKey(sig):
   #   echo "add listener: ", obj.listeners[sig].len()
+  echo "addAgent: ", hash(obj)
   obj.listeners.
     mgetOrPut(sig, initOrderedSet[(Agent, AgentProc)]()).
     incl((tgt, slot))

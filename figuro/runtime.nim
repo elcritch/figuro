@@ -29,9 +29,24 @@ proc runImpl(args: VmArgs) {.cdecl.} =
     getRoot = args.getNode(3)
     getAppState = args.getNode(4)
 
+proc getAgentId(args: VmArgs) {.cdecl.} =
+  {.cast(gcSafe).}:
+    echo "getAgentId"
+    let res = args.getNode(0)
+    let id = cast[int](cast[pointer](addr(res)))
+    echo "getAgentId: ", id
+    args.setResult id
+
 const 
   vmProcs* = [
-    VmProcSignature(package: "figuro", name: "run", module: "wrappers", vmProc: runImpl),
+    VmProcSignature(package: "figuro",
+                    name: "run",
+                    module: "wrappers",
+                    vmProc: runImpl),
+    VmProcSignature(package: "figuro",
+                    name: "getAgentId",
+                    module: "datatypes",
+                    vmProc: getAgentId),
   ]
 
 when isMainModule:

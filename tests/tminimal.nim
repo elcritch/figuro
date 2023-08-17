@@ -9,7 +9,6 @@ type
     value: float
 
 proc draw*(self: Main) {.slot.} =
-  echo "draw:root: ", cast[pointer](root).repr
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 4:
