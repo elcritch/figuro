@@ -36,7 +36,7 @@ proc hashFontStroke(node: Node, pos: GlyphPosition, subPixelShift: float32): Has
     node.stroke.weight
   ))
 
-proc drawBoxes*(node: Node)
+proc renderBoxes*(node: Node)
 
 proc drawDrawable*(node: Node) =
   # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
@@ -115,7 +115,7 @@ import macros
 
 var postDrawsImpl {.compileTime.}: seq[NimNode]
 
-macro ifdraw(check, code: untyped, post: untyped = nil) =
+macro ifrender(check, code: untyped, post: untyped = nil) =
   ## check if code should be drawn
   result = newStmtList()
   let checkval = genSym(nskLet, "checkval")
@@ -149,7 +149,7 @@ proc drawMasks*(node: Node) =
       node.screenBox.w, node.screenBox.h
     ), rgba(255, 0, 0, 255).color)
 
-proc drawShadows*(node: Node) =
+proc renderShadows*(node: Node) =
   ## drawing shadows
   let shadow = node.shadow.get()
   let blurAmt = shadow.blur / 7.0
@@ -161,7 +161,7 @@ proc drawShadows*(node: Node) =
                         color = shadow.color,
                         radius = node.cornerRadius)
 
-proc drawBoxes*(node: Node) =
+proc renderBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
     if node.cornerRadius > 0:
@@ -193,9 +193,7 @@ proc drawBoxes*(node: Node) =
                           weight = node.stroke.weight,
                           radius = node.cornerRadius)
 
-import pretty
-
-proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
+proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
 
   template node(): auto = nodes[nodeIdx]
   template parent(): auto = nodes[parentIdx]
@@ -222,7 +220,7 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   ctx.translate(node.screenBox.xy)
 
   # handles setting up scrollbar region
-  ifdraw node.kind == nkScrollBar:
+  ifrender node.kind == nkScrollBar:
     ctx.saveTransform()
     let offset = parent.offset
     ctx.translate(offset)
@@ -230,13 +228,13 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
     ctx.restoreTransform()
 
   # handle node rotation
-  ifdraw node.rotation != 0:
+  ifrender node.rotation != 0:
     ctx.translate(node.screenBox.wh/2)
     ctx.rotate(node.rotation/180*PI)
     ctx.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
-  ifdraw clipContent in node.attrs:
+  ifrender clipContent in node.attrs:
     ctx.beginMask()
     node.drawMasks()
     ctx.endMask()
@@ -244,22 +242,22 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
     ctx.popMask()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
-  ifdraw node.kind == nkRectangle and node.shadow.isSome():
-    node.drawShadows()
+  ifrender node.kind == nkRectangle and node.shadow.isSome():
+    node.renderShadows()
 
-  ifdraw true:
+  ifrender true:
     if node.kind == nkText:
       # node.drawText()
       discard
     elif node.kind == nkDrawable:
       node.drawDrawable()
     else:
-      node.drawBoxes()
+      node.renderBoxes()
 
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifdraw scrollpane in node.attrs:
+  ifrender scrollpane in node.attrs:
     # handles scrolling panel
     ctx.saveTransform()
     ctx.translate(-node.offset)
@@ -269,15 +267,15 @@ proc draw*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   let childIdxs = childIndex(nodes, nodeIdx)
   # echo "draw:children: ", repr childIdxs 
   for childIdx in childIdxs:
-    draw(nodes, childIdx, nodeIdx)
+    render(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postDraws()
 
-proc drawRoot*(nodes: var seq[Node]) =
+proc renderRoot*(nodes: var seq[Node]) =
   # draw root for each level
   # currLevel = zidx
   # echo "drawRoot:nodes:count: ", nodes.len()
   if nodes.len() > 0:
-    draw(nodes, 0.NodeIdx, -1.NodeIdx)
+    render(nodes, 0.NodeIdx, -1.NodeIdx)
 

@@ -63,7 +63,7 @@ else:
       wait(renderEvent)
       timeIt(renderAvgTime):
         renderLoop(renderer, true)
-        app.frameCount.inc()
+        app.tickCount.inc()
 
   proc init*(renderer: Renderer) =
     sendRoot = proc (nodes: sink seq[render.Node]) =

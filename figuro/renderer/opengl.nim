@@ -32,7 +32,7 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
     app.requestedFrame.dec
 
   preInput()
-  drawAndSwap(window, nodes)
+  renderAndSwap(window, nodes)
   postInput()
 
 proc renderLoop*(renderer: Renderer, poll = true) =

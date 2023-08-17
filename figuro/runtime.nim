@@ -62,7 +62,7 @@ proc invokeVmInit*() =
 proc invokeVmTick*() =
   if intr != nil and tick != nil:
     let state: AppStatePartial = (
-      frameCount: app.frameCount,
+      tickCount: app.tickCount,
       uiScale: app.uiScale
     )
     discard intr.invoke(tick, [newNode state])

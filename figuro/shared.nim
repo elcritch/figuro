@@ -26,7 +26,7 @@ const
   DataDirPath* {.strdefine.} = "data"
 
 type
-  AppStatePartial* = tuple[frameCount: int, uiScale: float32]
+  AppStatePartial* = tuple[tickCount: int, uiScale: float32]
 
   AppState* = object
     running*, focused*, minimized*, fullscreen*: bool
@@ -37,7 +37,8 @@ type
     autoUiScale*: bool
 
     requestedFrame*: int
-    frameCount*, tickCount*: int
+    frameCount*: uint
+    tickCount*: uint
 
     windowSize*: Position ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
