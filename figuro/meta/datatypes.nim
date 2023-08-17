@@ -31,12 +31,13 @@ type
                     params: RpcParams,
                     ) {.nimcall.}
 
-proc getAgentId(a: Agent): int = discard
-proc getAgentId(a: AgentProc): int = discard
-# when defined(nimscript):
-#   proc getAgentId(a: Agent): int = discard
-# else:
-#   proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
+when defined(nimscript):
+  proc getAgentId(a: Agent): int = discard
+  proc getAgentId(a: AgentProc): int = discard
+else:
+  proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
+  proc getAgentId(a: AgentProc): int = cast[int](cast[pointer](a))
+
 
 proc hash*(a: Agent): Hash = hash(getAgentId(a))
 proc hash*(a: AgentProc): Hash = hash(getAgentId(a))
