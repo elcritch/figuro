@@ -216,6 +216,7 @@ proc fill*(node: Figuro) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
+  
   proc doHover(obj: Figuro) {.slot.} =
     echo "hi"
   current.connect(eventHover, current, doHover)

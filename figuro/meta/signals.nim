@@ -44,12 +44,8 @@ proc createRpcRouter*(): AgentRouter =
   result.procs = initTable[string, AgentProc]()
 
 proc register*(router: var AgentRouter, path, name: string, call: AgentProc) =
-  router.procs[path] = call
-  echo "registering: ", path
-
-proc sysRegister*(router: var AgentRouter, path, name: string, call: AgentProc) =
-  router.sysprocs[path] = call
-  echo "registering: sys: ", path
+  router.procs[name] = call
+  echo "registering: ", name
 
 when nimvm:
   var globalRouter {.compileTime.} = AgentRouter()
@@ -59,7 +55,7 @@ else:
 
 proc register*(path, name: string, call: AgentProc) =
   globalRouter.procs[name] = call
-  echo "registering: ", name, " @ ", path
+  echo "registering: ", name
 
 proc listMethods*(): seq[string] =
   globalRouter.listMethods()

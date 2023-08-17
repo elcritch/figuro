@@ -15,8 +15,8 @@ proc draw*(self: Main) {.slot.} =
       button "btn":
         box 20 + i * 120, 20, 100, 100
         fill "#2B9FEA"
-        # onHover:
-        #   current.fill = parseHtmlColor "#FF0000"
+        onHover:
+          current.fill = parseHtmlColor "#FF0000"
 
 var
   fig = FiguroApp()
