@@ -180,7 +180,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       result[1].makePublic()
 
     result.add quote do:
-      register(currentSourcePath(), `signalName`, `procName`)
+      once:
+        register(currentSourcePath(), `signalName`, `procName`)
     # echo "slots: "
     # echo result.repr
 
