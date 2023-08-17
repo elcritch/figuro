@@ -37,7 +37,7 @@ type
     autoUiScale*: bool
 
     requestedFrame*: int
-    frameCount*: uint
+    frameCount*: int
     tickCount*: uint
 
     windowSize*: Position ## Screen size in logical coordinates.

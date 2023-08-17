@@ -57,6 +57,8 @@ else:
           tickMain()
           if app.requestedFrame > 0:
             appMain()
+            app.frameCount.inc()
+
 
   proc runRenderer(renderer: Renderer) =
     while app.running:

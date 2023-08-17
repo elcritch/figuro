@@ -31,6 +31,7 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
   else:
     app.requestedFrame.dec
 
+  echo "render"
   preInput()
   renderAndSwap(window, nodes)
   postInput()
