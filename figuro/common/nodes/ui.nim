@@ -52,6 +52,8 @@ type
     else:
       discard
 
+  FiguroApp* = ref object of Figuro
+
 proc newUId*(): NodeID =
   # Returns next numerical unique id.
   inc lastUId
@@ -59,6 +61,11 @@ proc newUId*(): NodeID =
     $lastUId
   else:
     NodeID(lastUId)
+
+proc onTick*(tp: FiguroApp) {.signal.}
+proc onDraw*(tp: FiguroApp) {.signal.}
+proc onLoad*(tp: FiguroApp) {.signal.}
+proc eventHover*(tp: FiguroApp) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -68,3 +75,10 @@ proc draw*(fig: Figuro) {.slot.} =
 
 proc load*(fig: Figuro) {.slot.} =
   discard
+
+# proc tick*(tp: FiguroApp) {.slot.} =
+#   emit tp.onTick()
+
+# proc draw*(tp: FiguroApp) {.slot.} =
+#   # echo "draw app"
+#   emit tp.onDraw()

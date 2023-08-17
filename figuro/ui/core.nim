@@ -1,6 +1,5 @@
 import std/[tables, unicode]
 # import cssgrid
-import ../widget
 
 import commons
 export commons
