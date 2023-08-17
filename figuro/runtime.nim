@@ -54,7 +54,8 @@ when isMainModule:
 
 let
   scriptDir = getAppDir() / "../tests/"
-  scriptPath = scriptDir / "twidget.nim"
+  # scriptPath = scriptDir / "twidget.nim"
+  scriptPath = scriptDir / "tminimal.nim"
 
 proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   let (res, _) = execCmdEx("nim dump --verbosity:0 --dump.format:json dump.json")
@@ -122,6 +123,7 @@ proc startFiguroRuntime() =
   scriptUpdate()
   # invokeVmInit()
   shared.app = invokeVmGetAppState()
+  app.requestedFrame = 5
 
   if not app.fullscreen:
     app.windowSize = Position vec2(app.uiScale * app.width.float32,
