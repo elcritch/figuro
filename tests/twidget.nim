@@ -11,12 +11,12 @@ type
 
 proc tick*(self: Main) {.slot.} =
   refresh()
-  echo "tick widget: ", app.requestedFrame, " ", app.tickCount
+  # echo "tick widget: ", app.requestedFrame, " ", app.tickCount
   self.value = 0.008 * (1+app.tickCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
-  echo "draw widget!"
+  # echo "draw widget!"
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 5:

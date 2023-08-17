@@ -130,7 +130,7 @@ proc startFiguroRuntime() =
   proc appRender() =
     let ret = invokeVmDraw()
     app.requestedFrame = ret.requestedFrame
-    echo "appRender: ", app.requestedFrame
+    # echo "appRender: ", app.requestedFrame
     sendRoot(invokeVmGetRoot())
 
   proc appTick() =
