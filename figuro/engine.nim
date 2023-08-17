@@ -44,6 +44,8 @@ else:
       renderEvent.trigger()
       os.sleep(appPeriodMs - 2)
       app.tickCount.inc()
+      if app.tickCount == app.tickCount.typeof.high:
+        app.tickCount = 0
 
   proc appTicker() {.thread.} =
     while app.running:
