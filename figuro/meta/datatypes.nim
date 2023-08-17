@@ -20,7 +20,7 @@ export variant
 
 type
   Agent* = ref object of RootObj
-    listeners: Table[string, HashSet[(Agent, AgentProc)]]
+    listeners: Table[string, OrderedSet[(Agent, AgentProc)]]
 
   # Context for servicing an RPC call 
   RpcContext* = Agent
@@ -118,7 +118,7 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): HashSet[(Agent, AgentProc)] =
+                        ): OrderedSet[(Agent, AgentProc)] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
@@ -131,6 +131,6 @@ proc addAgentListeners*(obj: Agent,
   # if obj.listeners.hasKey(sig):
   #   echo "add listener: ", obj.listeners[sig].len()
   obj.listeners.
-    mgetOrPut(sig, initHashSet[(Agent, AgentProc)]()).
+    mgetOrPut(sig, initOrderedSet[(Agent, AgentProc)]()).
     incl((tgt, slot))
   # echo "LISTENERS: ", obj.listeners
