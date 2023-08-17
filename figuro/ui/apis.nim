@@ -219,7 +219,7 @@ template onHover*(inner: untyped) =
 
   proc doHover(obj: Figuro) {.slot.} =
     echo "hi"
-  current.connect(eventHover, current, doHover)
+  root.connect(eventHover, current, doHover)
 
 template onClick*(inner: untyped) =
   ## On click event handler.

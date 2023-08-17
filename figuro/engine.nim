@@ -6,8 +6,8 @@ elif defined(blank):
   import engine/blank
   export blank
 else:
-  import renderer/opengl
-  export opengl
+  import renderer/window
+  export window
 
 import std/os
 import shared, internal, ui/core
