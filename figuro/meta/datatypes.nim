@@ -128,8 +128,8 @@ proc addAgentListeners*(obj: Agent,
                         tgt: Agent,
                         slot: AgentProc
                         ) =
-  if obj.listeners.hasKey(sig):
-    echo "add listener: ", obj.listeners[sig].len()
+  # if obj.listeners.hasKey(sig):
+  #   echo "add listener: ", obj.listeners[sig].len()
   obj.listeners.
     mgetOrPut(sig, initHashSet[(Agent, AgentProc)]()).
     incl((tgt, slot))
