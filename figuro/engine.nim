@@ -43,6 +43,7 @@ else:
     while true:
       renderEvent.trigger()
       os.sleep(appPeriodMs - 2)
+      app.tickCount.inc()
 
   proc appTicker() {.thread.} =
     while app.running:
@@ -65,7 +66,6 @@ else:
       wait(renderEvent)
       timeIt(renderAvgTime):
         renderLoop(renderer, true)
-        app.tickCount.inc()
 
   proc init*(renderer: Renderer) =
     sendRoot = proc (nodes: sink seq[render.Node]) =

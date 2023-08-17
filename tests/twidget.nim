@@ -11,7 +11,7 @@ type
 
 proc tick*(self: Main) {.slot.} =
   refresh()
-  self.value = 0.008 * (1+app.frameCount).toFloat
+  self.value = 0.008 * (1+app.tickCount.int).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
