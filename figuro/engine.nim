@@ -55,7 +55,8 @@ else:
         wait(appEvent)
         timeIt(appAvgTime):
           tickMain()
-          appMain()
+          if app.requestedFrame > 0:
+            appMain()
 
   proc runRenderer(renderer: Renderer) =
     while app.running:
