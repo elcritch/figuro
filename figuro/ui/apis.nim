@@ -216,10 +216,9 @@ proc fill*(node: Figuro) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  discard
-  # current.listens.mouse.incl(evHover)
-  # if evHover in current.events.mouse:
-  #   inner
+  proc doHover(obj: Figuro) {.slot.} =
+    echo "hi"
+  current.connect(eventHover, current, doHover)
 
 template onClick*(inner: untyped) =
   ## On click event handler.

@@ -109,8 +109,8 @@ proc startFiguroRuntime() =
   shared.app = invokeVmGetAppState()
 
   if not app.fullscreen:
-    app.windowSize = vec2(app.uiScale * app.width.float32,
-                          app.uiScale * app.height.float32)
+    app.windowSize = Position vec2(app.uiScale * app.width.float32,
+                                   app.uiScale * app.height.float32)
 
   proc appRender() =
     app.requestedFrame = invokeVmDraw()

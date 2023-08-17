@@ -14,23 +14,26 @@ proc tick*(self: Main) {.slot.} =
   self.value = 0.008 * (1+app.frameCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
-proc draw*(app: Main) {.slot.} =
+proc draw*(self: Main) {.slot.} =
   # echo "draw widget!"
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 5:
       button "btn":
         # fill "#A000A0"
-        box 20 + (i.toFloat + app.value) * 120, 20, 100, 100
+        box 20 + (i.toFloat + self.value) * 120, 20, 100, 100
         # box 20 + (i.toFloat + app.value) * 120, 20 * sin(app.value + i.toFloat), 100, 100
         if i == 0:
-          current.fill.a = app.value * 1.0
+          current.fill.a = self.value * 1.0
 
 var
-  app = FiguroApp()
+  fig = FiguroApp()
   main = Main()
 
-connect(app, onDraw, main, twidget.draw)
-connect(app, onTick, main, twidget.tick)
+connect(fig, onDraw, main, twidget.draw)
+connect(fig, onTick, main, twidget.tick)
 
-startFiguro(app, w = 720, h = 140)
+app.width = 720
+app.height = 140
+
+startFiguro(fig)

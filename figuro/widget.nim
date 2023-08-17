@@ -15,6 +15,8 @@ proc onTick*(tp: FiguroApp) {.signal.}
 proc onDraw*(tp: FiguroApp) {.signal.}
 proc onLoad*(tp: FiguroApp) {.signal.}
 
+proc eventHover*(tp: FiguroApp) {.signal.}
+
 # proc tick*(tp: FiguroApp) {.slot.} =
 #   emit tp.onTick()
 

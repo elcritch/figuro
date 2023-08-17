@@ -1,5 +1,7 @@
 
 ## This minimal example shows 5 blue squares.
+import figuro/widgets/button
+import figuro/widget
 import figuro
 
 type
@@ -10,9 +12,11 @@ proc draw*(app: Main) {.slot.} =
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 4:
-      rectangle "block":
+      button "btn":
         box 20 + i * 120, 20, 100, 100
-        current.fill = parseHtmlColor "#2B9FEA"
+        fill "#2B9FEA"
+        # onHover:
+        #   current.fill = parseHtmlColor "#FF0000"
 
 var
   app = FiguroApp()

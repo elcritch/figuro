@@ -13,9 +13,9 @@ var lastUId {.runtimeVar.}: int = 0
 
 type
 
-  UiStatus* = enum
-    onHover
-    onClick
+  # UiStatus* = enum
+  #   onHover
+  #   onClick
 
   Figuro* = ref object of Agent
     uid*: NodeID
@@ -29,7 +29,7 @@ type
     offset*: Position
     totalOffset*: Position
     attrs*: set[Attributes]
-    status*: set[UiStatus]
+    # status*: set[UiStatus]
 
     zlevel*: ZLevel
     rotation*: float32

@@ -12,6 +12,9 @@ template button*(id: string, blk: untyped) =
   `blk`
   postNode()
 
+proc hover*(self: Button) {.slot.} =
+  self.fill = parseHtmlColor "#9BDFFA"
+
 proc draw*(self: Button) {.slot.} =
   ## button widget!
   
@@ -25,7 +28,7 @@ proc draw*(self: Button) {.slot.} =
   #     characters props.label
 
   if self.disabled:
-    fill "#FF0000"
+    fill "#F0F0F0"
   else:
     fill "#2B9FEA"
     # onHover:

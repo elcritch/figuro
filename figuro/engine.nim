@@ -109,7 +109,8 @@ proc startFiguro*(
   app.fullscreen = fullscreen
 
   if not fullscreen:
-    app.windowSize = Position vec2(app.uiScale * w.float32, app.uiScale * h.float32)
+    app.windowSize = Position vec2(app.uiScale * app.width.float32,
+                                   app.uiScale * app.height.float32)
 
   let appWidget = widget
 
