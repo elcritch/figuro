@@ -58,6 +58,7 @@ else:
         wait(appEvent)
         timeIt(appAvgTime):
           tickMain()
+          echo "runApplication: ", app.requestedFrame
           if app.requestedFrame > 0:
             appMain()
             app.frameCount.inc()

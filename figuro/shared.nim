@@ -26,7 +26,7 @@ const
   DataDirPath* {.strdefine.} = "data"
 
 type
-  AppStatePartial* = tuple[tickCount: int, uiScale: float32]
+  AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
 
   AppState* = object
     running*, focused*, minimized*, fullscreen*: bool

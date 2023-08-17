@@ -11,16 +11,17 @@ var
 proc appInit() =
   discard
 
-proc appTick*(val: AppStatePartial) =
+proc appTick*(val: AppStatePartial): AppStatePartial =
   app.tickCount = val.tickCount
   app.uiScale = val.uiScale
   appTicker()
+  result.requestedFrame = app.requestedFrame
 
-proc appDraw*(): int =
+proc appDraw*(): AppStatePartial =
   root.diffIndex = 0
   appMain()
   computeScreenBox(nil, root)
-  result = app.requestedFrame
+  result.requestedFrame = app.requestedFrame
 
 proc getRoot*(): seq[Node] =
   result = root.copyInto()
@@ -29,8 +30,8 @@ proc getAppState*(): AppState =
   result = app
 
 proc run*(init: proc() {.nimcall.},
-          tick: proc(state: AppStatePartial) {.nimcall.},
-          draw: proc(): int {.nimcall.},
+          tick: proc(state: AppStatePartial): AppStatePartial {.nimcall.},
+          draw: proc(): AppStatePartial {.nimcall.},
           getRoot: proc(): seq[Node] {.nimcall.},
           getAppState: proc(): AppState {.nimcall.}
           ) = discard
@@ -44,9 +45,6 @@ proc startFiguro*(
 ) =
   ## Starts Fidget UI library
   ## 
-  mixin draw
-  mixin tick
-  mixin load
 
   app.fullscreen = fullscreen
   app.autoUiScale = true
@@ -58,9 +56,10 @@ proc startFiguro*(
   appWidget = widget
 
   appMain = proc() =
+    echo "wrapper: appMain"
     emit appWidget.onDraw()
   appTicker = proc() =
-    echo "do tick: ", app.tickCount
+    echo "wrapper: appTicker"
     emit appWidget.onTick()
     # emit root.eventHover()
 
