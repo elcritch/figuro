@@ -22,7 +22,6 @@ errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.c
 
 proc runImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
-    echo "runImpl"
     init = args.getNode(0)
     tick = args.getNode(1)
     draw = args.getNode(2)

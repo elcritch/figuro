@@ -56,10 +56,8 @@ proc startFiguro*(
   appWidget = widget
 
   appMain = proc() =
-    echo "wrapper: appMain"
     emit appWidget.onDraw()
   appTicker = proc() =
-    echo "wrapper: appTicker"
     emit appWidget.onTick()
     # emit root.eventHover()
 
