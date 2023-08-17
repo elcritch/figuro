@@ -60,6 +60,7 @@ proc startFiguro*(
   appMain = proc() =
     emit appWidget.onDraw()
   appTicker = proc() =
+    echo "do tick: ", app.tickCount
     emit appWidget.onTick()
     # emit root.eventHover()
 
