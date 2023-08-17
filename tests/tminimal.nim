@@ -9,6 +9,7 @@ type
     value: float
 
 proc draw*(self: Main) {.slot.} =
+  echo "draw:root: ", cast[pointer](root).repr
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 4:
@@ -16,6 +17,7 @@ proc draw*(self: Main) {.slot.} =
         box 20 + i * 120, 20, 100, 100
         fill "#2B9FEA"
         onHover:
+          echo "on over"
           current.fill = parseHtmlColor "#FF0000"
 
 var

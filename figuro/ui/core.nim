@@ -1,5 +1,6 @@
 import std/[tables, unicode]
 # import cssgrid
+import ../widget
 
 import commons
 export commons
@@ -10,7 +11,7 @@ else:
   {.pragma: runtimeVar, global.}
 
 var
-  root* {.runtimeVar.}: Figuro
+  root* {.runtimeVar.}: FiguroApp
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
@@ -59,11 +60,12 @@ var
 
 proc setupRoot*(widget: Figuro) =
   if root == nil:
-    root = Figuro()
-    root.uid = newUId()
-    root.zlevel = ZLevelDefault
+    raise newException(NilAccessDefect, "must set root")
+    # root = Figuro()
+    # root.uid = newUId()
+    # root.zlevel = ZLevelDefault
   # root = widget
-  nodeStack = @[root]
+  nodeStack = @[Figuro(root)]
   current = root
   root.diffIndex = 0
 

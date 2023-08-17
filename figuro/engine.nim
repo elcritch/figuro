@@ -115,7 +115,7 @@ proc startFiguro*(
     app.windowSize = Position vec2(app.uiScale * app.width.float32,
                                    app.uiScale * app.height.float32)
 
-  let appWidget = widget
+  root = widget
 
   proc appRender() =
     mixin draw
@@ -123,17 +123,20 @@ proc startFiguro*(
     if not uxInputs.mouse.consumed:
       echo "got mouse: ", uxInputs.mouse.pos
       uxInputs.mouse.consumed = true
-    emit appWidget.onDraw()
+      echo root.listeners
+      echo "emit:hover: ", cast[pointer](root).repr
+      emit root.eventHover()
+    emit root.onDraw()
     computeScreenBox(nil, root)
     sendRoot(root.copyInto())
 
   proc appTick() =
-    emit appWidget.onTick()
+    emit root.onTick()
 
   proc appLoad() =
-    emit appWidget.onLoad()
+    emit root.onLoad()
   
-  setupRoot(appWidget)
+  setupRoot(root)
 
   appMain = appRender
   tickMain = appTick

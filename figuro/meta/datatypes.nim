@@ -20,7 +20,7 @@ export variant
 
 type
   Agent* = ref object of RootObj
-    listeners: Table[string, OrderedSet[(Agent, AgentProc)]]
+    listeners*: Table[string, OrderedSet[(Agent, AgentProc)]]
 
   # Context for servicing an RPC call 
   RpcContext* = Agent

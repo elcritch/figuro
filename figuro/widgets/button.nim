@@ -13,6 +13,7 @@ template button*(id: string, blk: untyped) =
   postNode()
 
 proc hover*(self: Button) {.slot.} =
+  echo "hover"
   self.fill = parseHtmlColor "#9BDFFA"
 
 proc draw*(self: Button) {.slot.} =
