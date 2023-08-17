@@ -8,7 +8,7 @@ type
   Main* = ref object of Figuro
     value: float
 
-proc draw*(app: Main) {.slot.} =
+proc draw*(self: Main) {.slot.} =
   frame "main":
     box 0, 0, 620, 140
     for i in 0 .. 4:
@@ -19,9 +19,12 @@ proc draw*(app: Main) {.slot.} =
         #   current.fill = parseHtmlColor "#FF0000"
 
 var
-  app = FiguroApp()
+  fig = FiguroApp()
   main = Main()
 
-connect(app, onDraw, main, tminimal.draw)
+connect(fig, onDraw, main, tminimal.draw)
 
-startFiguro(app, w = 720, h = 140)
+app.width = 720
+app.height = 140
+
+startFiguro(fig)
