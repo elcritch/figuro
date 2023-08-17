@@ -57,9 +57,10 @@ proc startFiguro*(
 
   appMain = proc() =
     emit appWidget.onDraw()
+    emit appWidget.eventHover()
+
   appTicker = proc() =
     emit appWidget.onTick()
-    # emit root.eventHover()
 
   setupRoot(appWidget)
 
