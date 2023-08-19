@@ -1,5 +1,6 @@
 import basics
 import ../../meta
+import ../../inputs
 
 export basics, meta
 
@@ -13,10 +14,6 @@ var lastUId {.runtimeVar.}: int = 0
 
 type
 
-  # UiStatus* = enum
-  #   onHover
-  #   onClick
-
   Figuro* = ref object of Agent
     uid*: NodeID
     children*: seq[Figuro]
@@ -29,7 +26,9 @@ type
     offset*: Position
     totalOffset*: Position
     attrs*: set[Attributes]
-    # status*: set[UiStatus]
+
+    events*: InputEvents
+    listens*: ListenEvents
 
     zlevel*: ZLevel
     rotation*: float32

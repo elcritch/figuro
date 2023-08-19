@@ -8,6 +8,9 @@ type
   Main* = ref object of Figuro
     value: float
 
+proc hover*(self: Main) {.slot.} =
+  echo "main hover"
+
 proc draw*(self: Main) {.slot.} =
   frame "main":
     box 0, 0, 620, 140
@@ -16,8 +19,7 @@ proc draw*(self: Main) {.slot.} =
         box 20 + i * 120, 20, 100, 100
         fill "#2B9FEA"
         onHover:
-          echo "on over"
-          current.fill = parseHtmlColor "#FF0000"
+          fill "#FF0000"
 
 var
   fig = FiguroApp()
