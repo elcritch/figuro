@@ -1,6 +1,7 @@
 import std/[unicode]
 import pkg/vmath
 
+import common/nodes/basics
 import common/uimaths
 export uimaths
 
@@ -77,7 +78,7 @@ type
     gesture*: GestureEventFlags
 
   EventsCapture*[T] = object
-    # zlvl*: ZLevel
+    zlvl*: ZLevel
     flags*: T
     # target*: Node
 
@@ -204,7 +205,7 @@ type
     NumpadDivide    # /
     NumpadEqual     # =
 
-  UiButtonView* = distinct set[UiButton]
+  UiButtonView* = set[UiButton]
 
 type
     MouseEvent* = object
@@ -228,6 +229,29 @@ type
       of evScroll: discard
       of evDrag: discard
 
+
+const
+  MouseButtons = [
+    MouseLeft,
+    MouseRight,
+    MouseMiddle,
+    MouseButton4,
+    MouseButton5,
+  ]
+
+type
+  AppInputs* = object
+    mouse*: Mouse
+    keyboard*: Keyboard
+    buttonPress*: UiButtonView
+    buttonDown*: UiButtonView
+    buttonRelease*: UiButtonView
+    # cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
+    # prevCursorStyle*: MouseCursorStyle
+
+var
+  uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
+
 proc toEvent*(kind: MouseEventType): MouseEvent =
   MouseEvent(kind: kind)
 proc toEvent*(kind: KeyboardEventType): KeyboardEvent =
@@ -236,3 +260,40 @@ proc toEvent*(kind: GestureEventType): GestureEvent =
   GestureEvent(kind: kind)
 
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
+
+proc click*(mouse: Mouse): bool =
+  for mbtn in MouseButtons:
+    if mbtn in uxInputs.buttonPress:
+      return true
+
+proc down*(mouse: Mouse): bool =
+  for mbtn in MouseButtons:
+    if mbtn in uxInputs.buttonDown:
+      return true
+
+proc scrolled*(mouse: Mouse): bool =
+  mouse.wheelDelta.x != 0.0'ui
+
+proc release*(mouse: Mouse): bool =
+  for mbtn in MouseButtons:
+    if mbtn in uxInputs.buttonRelease: return true
+
+# proc consume*(keyboard: Keyboard) =
+#   ## Reset the keyboard state consuming any event information.
+#   keyboard.state = Empty
+#   keyboard.keyString = ""
+#   keyboard.altKey = false
+#   keyboard.ctrlKey = false
+#   keyboard.shiftKey = false
+#   keyboard.superKey = false
+#   keyboard.consumed = true
+
+proc consume*(mouse: Mouse) =
+  ## Reset the mouse state consuming any event information.
+  uxInputs.buttonPress.excl MouseLeft
+
+# proc setMousePos*(item: var Mouse, x, y: float64) =
+#   item.pos = vec2(x, y)
+#   item.pos *= pixelRatio / item.pixelScale
+#   item.delta = item.pos - item.prevPos
+#   item.prevPos = item.pos

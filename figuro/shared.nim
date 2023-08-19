@@ -50,23 +50,15 @@ type
 
     lastDraw*, lastTick*: int
 
-  AppInputs* = object
-    mouse*: Mouse
-    keyboard*: Keyboard
-    # cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
-    # prevCursorStyle*: MouseCursorStyle
-
 var
   dataDir* {.runtimeVar.}: string = DataDirPath
   app* {.runtimeVar.} = AppState(
     uiScale: 1.0,
     autoUiScale: true
   )
-  uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
 
 
 type
-  All* = distinct object
   # Events* = GenericEvents[void]
   Events*[T] = object
     data*: TableRef[TypeId, Variant]

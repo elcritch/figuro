@@ -2,7 +2,7 @@ import basics
 import ../../meta
 import ../../inputs
 
-export basics, meta
+export basics, meta, inputs
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}

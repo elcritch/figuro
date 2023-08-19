@@ -127,6 +127,10 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   current.highlight = parent.highlight
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
+
+  current.listens.mouse = {}
+  current.listens.gesture = {}
+
   nodeStack.add(current)
   inc parent.diffIndex
 
@@ -178,3 +182,93 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
 
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
+
+const
+  MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
+
+proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
+  if b.zlvl >= a.zlvl and b.flags != {}: b else: a
+
+proc mouseOverlapsNode*(node: Figuro): bool =
+  ## Returns true if mouse overlaps the node node.
+  let mpos = uxInputs.mouse.pos + node.totalOffset 
+  let act = 
+    (not popupActive or inPopup) and
+    node.screenBox.w > 0'ui and
+    node.screenBox.h > 0'ui 
+
+  result =
+    act and
+    mpos.overlaps(node.screenBox) and
+    (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
+
+template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
+  when ET is MouseEventType:
+    if evt in node.listens.mouse and predicate: result.incl(evt)
+  elif ET is GestureEventType:
+    if evt in node.listens.gesture and predicate: result.incl(evt)
+
+proc checkMouseEvents*(node: Figuro): MouseEventFlags =
+  ## Compute mouse events
+  if node.mouseOverlapsNode():
+    node.checkEvent(evClick, uxInputs.mouse.click())
+    node.checkEvent(evPress, uxInputs.mouse.down())
+    node.checkEvent(evRelease, uxInputs.mouse.release())
+    node.checkEvent(evHover, true)
+    node.checkEvent(evOverlapped, true)
+  else:
+    node.checkEvent(evClickOut, uxInputs.mouse.click())
+    node.checkEvent(evHoverOut, true)
+
+proc checkGestureEvents*(node: Figuro): GestureEventFlags =
+  ## Compute gesture events
+  if node.mouseOverlapsNode():
+    node.checkEvent(evScroll, uxInputs.mouse.scrolled())
+
+proc computeNodeEvents*(node: Figuro): CapturedEvents =
+  ## Compute mouse events
+  for n in node.children.reverse:
+    let child = computeNodeEvents(n)
+    result.mouse = max(result.mouse, child.mouse)
+    result.gesture = max(result.gesture, child.gesture)
+
+  let
+    allMouseEvts = node.checkMouseEvents()
+    mouseOutEvts = allMouseEvts * MouseOnOutEvents
+    mouseEvts = allMouseEvts - MouseOnOutEvents
+    gestureEvts = node.checkGestureEvents()
+
+  # set on-out events 
+  node.events.mouse.incl(mouseOutEvts)
+
+  let
+    captured = CapturedEvents(
+      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, ),
+      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, )
+    )
+
+  if clipContent in node.attrs and not node.mouseOverlapsNode():
+    # this node clips events, so it must overlap child events, 
+    # e.g. ignore child captures if this node isn't also overlapping 
+    result = captured
+  else:
+    result.mouse = max(captured.mouse, result.mouse)
+    result.gesture = max(captured.gesture, result.gesture)
+  
+
+proc computeEvents*(node: Figuro) =
+  let res = computeNodeEvents(node)
+  template handleCapture(name, field, ignore: untyped) =
+    ## process event capture
+    # TODO: do we need this? can signals replace it?
+    # if not res.`field`.target.isNil:
+    #   let evts = res.`field`
+    #   let target = evts.target
+    #   target.events.`field` = evts.flags
+    #   if target.kind != nkRoot and evts.flags - ignore != {}:
+    #     # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.id
+    #     requestedFrame = 2
+  ## mouse and gesture are handled separately as they can have separate
+  ## node targets
+  handleCapture("mouse", mouse, {evHover})
+  handleCapture("gesture", gesture, {})
