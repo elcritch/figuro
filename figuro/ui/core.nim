@@ -261,13 +261,15 @@ proc computeEvents*(node: Figuro) =
   template handleCapture(name, field, ignore: untyped) =
     ## process event capture
     # TODO: do we need this? can signals replace it?
-    # if not res.`field`.target.isNil:
-    #   let evts = res.`field`
-    #   let target = evts.target
-    #   target.events.`field` = evts.flags
-    #   if target.kind != nkRoot and evts.flags - ignore != {}:
-    #     # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.id
-    #     requestedFrame = 2
+    if not res.`field`.target.isNil:
+      let evts = res.`field`
+      let target = evts.target
+      target.events.`field` = evts.flags
+      if target.kind != nkFrame and evts.flags - ignore != {}:
+        # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.id
+        # app.requestedFrame = 2
+        discard
+
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
   handleCapture("mouse", mouse, {evHover})

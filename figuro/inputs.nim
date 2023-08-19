@@ -77,18 +77,6 @@ type
     mouse*: MouseEventFlags
     gesture*: GestureEventFlags
 
-  EventsCapture*[T] = object
-    zlvl*: ZLevel
-    flags*: T
-    # target*: Node
-
-  MouseCapture* = EventsCapture[MouseEventFlags] 
-  GestureCapture* = EventsCapture[GestureEventFlags] 
-
-  CapturedEvents* = object
-    mouse*: MouseCapture
-    gesture*: GestureCapture
-
   UiButton* = enum
     ButtonUnknown
     MouseLeft

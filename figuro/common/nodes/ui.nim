@@ -53,6 +53,19 @@ type
 
   FiguroApp* = ref object of Figuro
 
+  EventsCapture*[T] = object
+    zlvl*: ZLevel
+    flags*: T
+    target*: Figuro
+
+  MouseCapture* = EventsCapture[MouseEventFlags] 
+  GestureCapture* = EventsCapture[GestureEventFlags] 
+
+  CapturedEvents* = object
+    mouse*: MouseCapture
+    gesture*: GestureCapture
+
+
 proc newUId*(): NodeID =
   # Returns next numerical unique id.
   inc lastUId

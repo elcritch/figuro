@@ -58,6 +58,7 @@ else:
         wait(appEvent)
         timeIt(appAvgTime):
           tickMain()
+          computeEvents(root)
           if app.requestedFrame > 0:
             appMain()
             app.frameCount.inc()
