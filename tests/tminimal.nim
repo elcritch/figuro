@@ -17,8 +17,8 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn":
         box 20 + i * 120, 20, 100, 100
-        onHover:
-          fill "#FF0000"
+        # onHover:
+        #   fill "#FF0000"
 
 var
   fig = FiguroApp()

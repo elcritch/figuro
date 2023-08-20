@@ -144,6 +144,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
     # Create Node.
     current = T()
     current.uid = newUId()
+    current.agentId = current.uid
     parent.children.add(current)
     refresh()
   else:
@@ -322,8 +323,12 @@ proc computeEvents*(node: Figuro) =
       let evts = res.`field`
       let target = evts.target
       target.events.`field` = evts.flags
-      if target.kind != nkFrame and evts.flags - ignore != {}:
-        # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.id
+      if target.kind != nkFrame and evts.flags != {}:
+        # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.uid
+        when evts.flags.typeof is MouseEventFlags:
+          if evHover in evts.flags:
+            # echo "eventHover: ", target.uid, " ", target.kind
+            emit target.eventHover
         # app.requestedFrame = 2
         discard
 

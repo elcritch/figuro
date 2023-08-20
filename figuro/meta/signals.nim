@@ -185,10 +185,9 @@ template connect*(
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
-    # echo "call slot: ", req.procName
     let listeners = obj.getAgentListeners(req.procName)
 
-    # echo "call slots: ", $obj.listeners
+    # echo "call slots: ", req.procName, " ", obj.agentId, " :: ", $listeners
     for (tgt, slot) in listeners:
       # echo "call listener: ", repr tgt
       let res = slot.callMethod(tgt, req)
