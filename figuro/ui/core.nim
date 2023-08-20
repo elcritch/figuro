@@ -182,9 +182,10 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   inc parent.diffIndex
 
   current.diffIndex = 0
-  draw(T(current))
-  # connect(current, onDraw, current, T.draw)
-  # emit current.onDraw()
+  # TODO: which is better?
+  # draw(T(current))
+  connect(current, onDraw, current, T.draw)
+  emit current.onDraw()
 
 proc postNode*() =
   current.removeExtraChildren()
@@ -294,8 +295,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   # set on-out events 
   node.events.mouse.incl(mouseOutEvts)
 
-  if node.events.mouse != {}:
-    echo "computeNodeEvents: ", node.events.mouse
+  # if node.events.mouse != {}:
+  #   echo "computeNodeEvents: ", node.events.mouse, " ", node.uid
 
   let
     captured = CapturedEvents(

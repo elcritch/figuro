@@ -62,7 +62,7 @@ else:
           if app.requestedFrame > 0:
             appMain()
             app.frameCount.inc()
-          clearInputs()
+          # clearInputs()
 
 
   proc runRenderer(renderer: Renderer) =
@@ -123,11 +123,11 @@ proc startFiguro*(
     # mixin draw
     root.diffIndex = 0
     if not uxInputs.mouse.consumed:
-      echo "got mouse: ", uxInputs.mouse.pos
+      # echo "got mouse: ", uxInputs.mouse.pos
       uxInputs.mouse.consumed = true
-      echo root.listeners
+      # echo root.listeners
       # echo "emit:hover: ", cast[pointer](root).repr
-      emit root.eventHover()
+      # emit root.eventHover()
     emit root.onDraw()
     computeScreenBox(nil, root)
     sendRoot(root.copyInto())
