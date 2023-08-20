@@ -210,12 +210,14 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
-  if node.mouseOverlapsNode():
+  if node.kind != nkFrame and node.mouseOverlapsNode():
     node.checkEvent(evClick, uxInputs.mouse.click())
     node.checkEvent(evPress, uxInputs.mouse.down())
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evHover, true)
     node.checkEvent(evOverlapped, true)
+    if result != {}:
+      echo "mouse hover: ", result, " ", node.uid
   else:
     node.checkEvent(evClickOut, uxInputs.mouse.click())
     node.checkEvent(evHoverOut, true)
@@ -241,10 +243,13 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   # set on-out events 
   node.events.mouse.incl(mouseOutEvts)
 
+  if node.events.mouse != {}:
+    echo "computeNodeEvents: ", node.events.mouse
+
   let
     captured = CapturedEvents(
-      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, ),
-      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, )
+      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, target: node),
+      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
     )
 
   if clipContent in node.attrs and not node.mouseOverlapsNode():

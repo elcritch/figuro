@@ -19,6 +19,7 @@ proc draw*(self: Main) {.slot.} =
         box 20 + i * 120, 20, 100, 100
         fill "#2B9FEA"
         onHover:
+          echo "hovering!"
           fill "#FF0000"
 
 var
