@@ -313,26 +313,23 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     result.mouse = max(captured.mouse, result.mouse)
     result.gesture = max(captured.gesture, result.gesture)
   
+var prevHoverId = 0
 
 proc computeEvents*(node: Figuro) =
-  let res = computeNodeEvents(node)
-  template handleCapture(name, field, ignore: untyped) =
-    ## process event capture
-    # TODO: do we need this? can signals replace it?
-    if not res.`field`.target.isNil:
-      let evts = res.`field`
-      let target = evts.target
-      target.events.`field` = evts.flags
-      if target.kind != nkFrame and evts.flags != {}:
-        # echo "EVT: ", target.kind, " => ", evts.flags, " @ ", target.uid
-        when evts.flags.typeof is MouseEventFlags:
-          if evHover in evts.flags:
-            # echo "eventHover: ", target.uid, " ", target.kind
-            emit target.eventHover
-        # app.requestedFrame = 2
-        discard
+  var res = computeNodeEvents(node)
 
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
-  handleCapture("mouse", mouse, {evHover})
-  handleCapture("gesture", gesture, {})
+  if not res.gesture.target.isNil:
+    let evts = res.gesture
+    let target = evts.target
+    target.events.gesture = evts.flags
+
+  if not res.mouse.target.isNil:
+    let evts = res.mouse
+    let target = evts.target
+    target.events.mouse = evts.flags
+    if target.kind != nkFrame and evts.flags != {}:
+      if evHover in evts.flags:
+        echo "emit hover"
+        emit target.eventHover
