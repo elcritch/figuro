@@ -10,7 +10,7 @@ else:
   {.pragma: runtimeVar, global.}
 
 
-var lastUId {.runtimeVar.}: int = 0
+var lastUId {.runtimeVar.}: int = 1
 
 type
 
@@ -74,6 +74,12 @@ proc newUId*(): NodeID =
   else:
     echo "newUID: ", lastUId
     NodeID(lastUId)
+
+proc getId*(fig: Figuro): NodeID =
+  ## Get's the Figuro Node's ID
+  ## or returns 0 if it's nil
+  if fig.isNil: NodeID 0
+  else: fig.uid
 
 proc onTick*(tp: Figuro) {.signal.}
 proc onDraw*(tp: Figuro) {.signal.}
