@@ -7,14 +7,18 @@ import figuro
 type
   Main* = ref object of Figuro
     value: float
+    hasHovered: bool
 
 proc hover*(self: Main) {.slot.} =
-  echo "main: child hovered!"
+  self.hasHovered = true
+  # echo "main: child hovered!"
   discard
 
 proc draw*(self: Main) {.slot.} =
-  frame "main":
+  rectangle "main":
     box 0, 0, 620, 140
+    if self.hasHovered:
+      fill whiteColor.darken(0.1)
     for i in 0 .. 4:
       button "btn":
         box 20 + i * 120, 20, 100, 100

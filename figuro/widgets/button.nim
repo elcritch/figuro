@@ -35,6 +35,6 @@ proc draw*(self: Button) {.slot.} =
 
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, id)
-  connect(current, eventHover, current, Button.hover)
+  # connect(current, eventHover, current, Button.hover)
   `blk`
   postNode()
