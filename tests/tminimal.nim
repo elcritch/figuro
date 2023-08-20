@@ -17,8 +17,6 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn":
         box 20 + i * 120, 20, 100, 100
-        echo ""
-        # fill "#2B9FEA"
         onHover:
           fill "#FF0000"
 
@@ -26,7 +24,7 @@ var
   fig = FiguroApp()
   main = Main()
 
-connect(fig, onDraw, main, tminimal.draw)
+connect(fig, onDraw, main, Main.draw)
 
 app.width = 720
 app.height = 140

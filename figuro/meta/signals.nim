@@ -111,11 +111,13 @@ macro getSignalName(signal: typed): auto =
 
 import typetraits
 
-macro signalObj*(p: typed): auto =
+macro signalObj*(so: typed): auto =
   ## gets the type of the signal's object arg 
   ## 
-  let p = p.getTypeInst
+  let p = so.getTypeInst
   echo "signalObj: ", p.repr
+  if p.kind == nnkSym and p.strVal == "none":
+    error("cannot determine type of: " & repr(so), so)
   let obj = p[0][1]
   result = obj[1].getTypeInst
 macro signalType*(p: typed): auto =
@@ -155,10 +157,17 @@ macro signalCheck(signal, slot: typed) =
     error("signal and slot types don't match;" & errors, signal)
   else:
     result = nnkEmpty.newNimNode()
+macro toSlot(slot: typed) =
+  let pimpl = slot.getImpl
+
+  echo "TO_SLOT: ", slot.treeRepr
+  echo "TO_SLOT: ", slot.getImpl.treeRepr
+  echo "TO_SLOT: ", slot.getTypeImpl.repr
+  echo "TO_SLOT: done"
 
 template connect*(
     a: Agent,
-    signal: typed,
+    signal: untyped,
     b: Agent,
     slot: typed
 ) =
@@ -171,7 +180,7 @@ template connect*(
   signalCheck(signal, slot)
 
   let name = getSignalName(signal)
-  a.addAgentListeners(name, b, AgentProc(`slot AgentSlot`))
+  a.addAgentListeners(name, b, AgentProc(toSlot(`slot`)))
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
