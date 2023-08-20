@@ -36,7 +36,6 @@ proc draw*(self: Button) {.slot.} =
 
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, id)
-  current.connect(onDraw, current, button.draw)
   `blk`
   echo "button: current.fill: ", current.uid, " :: ", current.fill
   postNode()

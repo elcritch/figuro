@@ -136,8 +136,8 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
   current.diffIndex = 0
   echo "preNode: ", current.uid
-  # draw(T(current))
-  emit current.onDraw()
+  draw(T(current))
+  # emit current.onDraw()
 
 proc postNode*() =
   current.removeExtraChildren()
