@@ -9,6 +9,7 @@ type
     value: float
 
 proc hover*(self: Main) {.slot.} =
+  echo "main: child hovered!"
   discard
 
 proc draw*(self: Main) {.slot.} =
@@ -19,6 +20,7 @@ proc draw*(self: Main) {.slot.} =
         box 20 + i * 120, 20, 100, 100
         # onHover:
         #   fill "#FF0000"
+        connect(current, eventHover, self, Main.hover)
 
 var
   fig = FiguroApp()

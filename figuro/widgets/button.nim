@@ -8,9 +8,9 @@ type
     disabled: bool
 
 proc hover*(self: Button) {.slot.} =
-  self.fill = parseHtmlColor "#9BDFFA"
-  echo "button hover!"
-  self.fill = "#2B9FEA".parseHtmlColor.lighten(0.2)
+  # self.fill = parseHtmlColor "#9BDFFA"
+  # echo "button hover!"
+  discard
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
@@ -29,8 +29,7 @@ proc draw*(self: Button) {.slot.} =
   else:
     fill "#2B9FEA"
     onHover:
-      # fill "#2B9FEA".parseHtmlColor.lighten(0.2)
-      discard
+      fill "#2B9FEA".parseHtmlColor.lighten(0.27)
     # onClick:
     #   fill "#00FFFF"
 
