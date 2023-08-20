@@ -26,8 +26,8 @@ proc draw*(self: Button) {.slot.} =
     fill "#F0F0F0"
   else:
     fill "#2B9FEA"
-    # onHover:
-    #   fill "#00FF00"
+    onHover:
+      fill "#2B9FEA".parseHtmlColor.lighten(0.2)
     # onClick:
     #   fill "#00FFFF"
 
