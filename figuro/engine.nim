@@ -62,6 +62,7 @@ else:
           if app.requestedFrame > 0:
             appMain()
             app.frameCount.inc()
+          clearInputs()
 
 
   proc runRenderer(renderer: Renderer) =

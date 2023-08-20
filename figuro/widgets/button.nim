@@ -8,13 +8,11 @@ type
     disabled: bool
 
 proc hover*(self: Button) {.slot.} =
-  echo "hover"
   self.fill = parseHtmlColor "#9BDFFA"
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
   
-  echo "button! ", current.uid
   clipContent true
 
   # if self.label.len() > 0:
@@ -28,7 +26,6 @@ proc draw*(self: Button) {.slot.} =
     fill "#F0F0F0"
   else:
     fill "#2B9FEA"
-    echo "button: current.fill: ", current.uid, " :: ", current.fill
     # onHover:
     #   fill "#00FF00"
     # onClick:
@@ -37,5 +34,4 @@ proc draw*(self: Button) {.slot.} =
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, id)
   `blk`
-  echo "button: current.fill: ", current.uid, " :: ", current.fill
   postNode()

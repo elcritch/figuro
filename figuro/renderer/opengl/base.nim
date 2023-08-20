@@ -65,7 +65,6 @@ proc preInput*() =
   discard
 
 proc postInput*() =
-  # clearInputs()
   discard
 
 proc clearDepthBuffer*() =

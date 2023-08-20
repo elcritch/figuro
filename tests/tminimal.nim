@@ -9,7 +9,7 @@ type
     value: float
 
 proc hover*(self: Main) {.slot.} =
-  echo "main hover"
+  discard
 
 proc draw*(self: Main) {.slot.} =
   frame "main":
@@ -19,9 +19,7 @@ proc draw*(self: Main) {.slot.} =
         box 20 + i * 120, 20, 100, 100
         echo ""
         # fill "#2B9FEA"
-        echo "fill button: ", current.uid
         onHover:
-          echo "hovering!"
           fill "#FF0000"
 
 var

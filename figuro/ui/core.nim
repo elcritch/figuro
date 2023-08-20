@@ -57,6 +57,53 @@ var
 #     #   keyboard.keyString = rune.toUTF8()
 #     appEvent.trigger()
 
+proc resetToDefault*(node: Figuro, kind: NodeKind) =
+  ## Resets the node to default state.
+
+  node.kind = kind
+  # node.id = ""
+  # node.uid = ""
+  # node.idPath = ""
+  # node.kind = nkRoot
+  # node.text = "".toRunes()
+  # node.code = ""
+  # node.nodes = @[]
+  node.box = initBox(0,0,0,0)
+  node.orgBox = initBox(0,0,0,0)
+  node.rotation = 0
+  # node.screenBox = rect(0,0,0,0)
+  # node.offset = vec2(0, 0)
+  node.fill = clearColor
+  node.transparency = 0
+  node.stroke = Stroke(weight: 0, color: clearColor)
+  # node.textStyle = TextStyle()
+  # node.image = ImageStyle(name: "", color: whiteColor)
+  node.cornerRadius = 0'ui
+  # node.shadow = Shadow.none()
+  node.diffIndex = 0
+  node.zlevel = ZLevelDefault
+  # node.editableText = false
+  # node.multiline = false
+  # node.bindingSet = false
+  # node.drawable = false
+  # node.cursorColor = clearColor
+  # node.highlightColor = clearColor
+  # node.gridTemplate = nil
+  # node.gridItem = nil
+  # node.constraintsHorizontal = cMin
+  # node.constraintsVertical = cMin
+  # node.layoutAlign = laMin
+  # node.layoutMode = lmNone
+  # node.counterAxisSizingMode = csAuto
+  # node.horizontalPadding = 0'ui
+  # node.verticalPadding = 0'ui
+  # node.itemSpacing = 0'ui
+  # node.clipContent = false
+  # node.selectable = false
+  # node.scrollpane = false
+  # node.hasRendered = false
+  # node.userStates = initTable[int, Variant]()
+
 proc setupRoot*(widget: Figuro) =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
@@ -110,14 +157,14 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       parent.children[parent.diffIndex] = current
 
     if resetNodes == 0 and
-        current.nIndex == parent.diffIndex:
-          # and kind == current.kind:
+        current.nIndex == parent.diffIndex and
+        kind == current.kind:
       # Same node.
       discard
     else:
       # Big change.
       current.nIndex = parent.diffIndex
-      # current.resetToDefault()
+      current.resetToDefault(kind)
       refresh()
 
   {.cast(uncheckedAssign).}:
@@ -135,14 +182,13 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   inc parent.diffIndex
 
   current.diffIndex = 0
-  echo "preNode: ", current.uid
   draw(T(current))
   # emit current.onDraw()
 
 proc postNode*() =
   current.removeExtraChildren()
-
-  echo "postNode: ", current.uid, "\n"
+  current.events.mouse = {}
+  current.events.gesture = {}
 
   # Pop the stack.
   discard nodeStack.pop()
@@ -220,8 +266,8 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evHover, true)
     node.checkEvent(evOverlapped, true)
-    if result != {}:
-      echo "mouse hover: ", result, " ", node.uid
+    # if result != {}:
+    #   echo "mouse hover: ", result, " ", node.uid
   else:
     node.checkEvent(evClickOut, uxInputs.mouse.click())
     node.checkEvent(evHoverOut, true)
