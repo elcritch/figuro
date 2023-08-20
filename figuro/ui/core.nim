@@ -316,15 +316,17 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 var prevHoverId = 0
 
 proc computeEvents*(node: Figuro) =
-  var res = computeNodeEvents(node)
-
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
+  var res = computeNodeEvents(node)
+
+  # Gestures
   if not res.gesture.target.isNil:
     let evts = res.gesture
     let target = evts.target
     target.events.gesture = evts.flags
 
+  # Mouse
   if not res.mouse.target.isNil:
     let evts = res.mouse
     let target = evts.target
