@@ -124,8 +124,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # parameter type name
     # paramsIdent = genSym(nskParam, "args")
     paramsIdent = ident("args")
-    paramTypeName = ident("RpcType_" & procNameStr)
+    paramTypeName = ident("RpcType" & procNameStr)
 
+  echo "SLOTS: rpcMethodGen:hash: ", rpcMethodGen.symBodyHash()
+  echo "SLOTS: rpcMethodGen:signatureHash: ", rpcMethodGen.signatureHash()
 
   var
     # process the argument types
@@ -197,7 +199,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
       template `rpcMethod`*(tp: typedesc[`contextType`]): untyped =
         `rpcMethodGen`
-      template `rpcSlot`*(tp: typedesc[`contextType`]): untyped =
+      template `rpcSlot`*(tp: typedesc[`contextType`]): AgentProc =
         `procName`
 
 

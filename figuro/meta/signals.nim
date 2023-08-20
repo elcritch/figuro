@@ -157,13 +157,14 @@ macro signalCheck(signal, slot: typed) =
     error("signal and slot types don't match;" & errors, signal)
   else:
     result = nnkEmpty.newNimNode()
-macro toSlot(slot: typed) =
-  let pimpl = slot.getImpl
-
-  echo "TO_SLOT: ", slot.treeRepr
-  echo "TO_SLOT: ", slot.getImpl.treeRepr
+macro toSlot(slot: typed): untyped =
+  let pimpl = ident("agentSlot" & slot.repr)
+  echo "TO_SLOT: ", slot.repr
+  echo "TO_SLOT: ", slot.lineinfoObj.filename
+  # echo "TO_SLOT: ", slot.getImpl.treeRepr
   echo "TO_SLOT: ", slot.getTypeImpl.repr
   echo "TO_SLOT: done"
+  return pimpl
 
 template connect*(
     a: Agent,

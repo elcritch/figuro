@@ -183,7 +183,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
   current.diffIndex = 0
   # draw(T(current))
-  # connect(current, onDraw, current, T.draw)
+  connect(current, onDraw, current, T.draw)
   emit current.onDraw()
 
 proc postNode*() =
