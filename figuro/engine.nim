@@ -119,7 +119,7 @@ proc startFiguro*(
   root = widget
 
   proc appRender() =
-    mixin draw
+    # mixin draw
     root.diffIndex = 0
     if not uxInputs.mouse.consumed:
       echo "got mouse: ", uxInputs.mouse.pos

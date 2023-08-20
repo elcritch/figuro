@@ -74,10 +74,10 @@ proc newUId*(): NodeID =
   else:
     NodeID(lastUId)
 
-proc onTick*(tp: FiguroApp) {.signal.}
-proc onDraw*(tp: FiguroApp) {.signal.}
-proc onLoad*(tp: FiguroApp) {.signal.}
-proc eventHover*(tp: FiguroApp) {.signal.}
+proc onTick*(tp: Figuro) {.signal.}
+proc onDraw*(tp: Figuro) {.signal.}
+proc onLoad*(tp: Figuro) {.signal.}
+proc eventHover*(tp: Figuro) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard

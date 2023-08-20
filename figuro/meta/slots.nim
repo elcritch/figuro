@@ -32,6 +32,9 @@ iterator paramsIter(params: NimNode): tuple[name, ntype: NimNode] =
     for j in 0 ..< arg.len-2:
       yield (arg[j], argType)
 
+proc identPub*(name: string): NimNode =
+  result = nnkPostfix.newTree(newIdentNode("*"), ident name)
+
 proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
   ## Create local variables for each parameter in the actual RPC call proc
   if params.isNil: return
@@ -161,7 +164,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       mcall.add param[0]
 
     result.add quote do:
-      proc `procName`(
+      proc `procName`*(
           context: Agent,
           params: RpcParams,
       ) {.nimcall.} =
@@ -179,9 +182,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     if isPublic:
       result[1].makePublic()
 
-    result.add quote do:
-      once:
-        register(currentSourcePath(), `signalName`, `procName`)
+    # result.add quote do:
+    #   once:
+    #     register(currentSourcePath(), `signalName`, `procName`)
     # echo "slots: "
     # echo result.repr
 
@@ -210,9 +213,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     )
     for param in parameters[1..^1]:
       result[0][3].add param
-    # echo "signal: "
-    # echo result.repr
-    # echo "\nparameters: ", treeRepr parameters 
+  echo "slot: "
+  echo result.repr
+  echo "\nparameters: ", treeRepr parameters 
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)

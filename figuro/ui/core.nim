@@ -135,10 +135,12 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   inc parent.diffIndex
 
   current.diffIndex = 0
-  draw(T(current))
+  # draw(T(current))
 
 proc postNode*() =
   current.removeExtraChildren()
+
+  emit current.onDraw()
 
   # Pop the stack.
   discard nodeStack.pop()

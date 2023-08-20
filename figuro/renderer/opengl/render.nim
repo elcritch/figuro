@@ -251,7 +251,7 @@ proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
       discard
     elif node.kind == nkDrawable:
       node.drawDrawable()
-    else:
+    elif node.kind == nkRectangle:
       node.renderBoxes()
 
   # restores the opengl context back to the parent node's (see above)

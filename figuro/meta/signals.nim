@@ -171,7 +171,7 @@ template connect*(
   signalCheck(signal, slot)
 
   let name = getSignalName(signal)
-  a.addAgentListeners(name, b, `slot AgentSlot`)
+  a.addAgentListeners(name, b, AgentProc(`slot AgentSlot`))
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:

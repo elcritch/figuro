@@ -17,7 +17,9 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn":
         box 20 + i * 120, 20, 100, 100
-        fill "#2B9FEA"
+        echo ""
+        # fill "#2B9FEA"
+        echo "fill button: ", current.uid
         onHover:
           echo "hovering!"
           fill "#FF0000"
