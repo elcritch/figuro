@@ -11,10 +11,10 @@ proc hover*(self: Button) {.slot.} =
   echo "hover"
   self.fill = parseHtmlColor "#9BDFFA"
 
-proc myDraw*(self: Button) {.slot.} =
+proc draw*(self: Button) {.slot.} =
   ## button widget!
   
-  echo "button!"
+  echo "button! ", current.uid
   clipContent true
 
   # if self.label.len() > 0:
@@ -36,7 +36,7 @@ proc myDraw*(self: Button) {.slot.} =
 
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, id)
+  current.connect(onDraw, current, button.draw)
   `blk`
-  parent.connect(onDraw, current, myDraw)
   echo "button: current.fill: ", current.uid, " :: ", current.fill
   postNode()

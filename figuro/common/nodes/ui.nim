@@ -72,6 +72,7 @@ proc newUId*(): NodeID =
   when defined(js) or defined(StringUID):
     $lastUId
   else:
+    echo "newUID: ", lastUId
     NodeID(lastUId)
 
 proc onTick*(tp: Figuro) {.signal.}
