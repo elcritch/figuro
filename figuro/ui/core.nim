@@ -117,6 +117,12 @@ proc setupRoot*(widget: Figuro) =
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
+  proc disable(fig: Figuro) =
+    fig.attrs.incl inactive
+    for child in fig.children:
+      disable(child)
+  for i in node.diffIndex..<node.children.len:
+    disable(node.children[i])
   node.children.setLen(node.diffIndex)
 
 proc refresh*() =
@@ -335,9 +341,7 @@ proc computeEvents*(node: Figuro) =
     # if target.kind != nkFrame and evts.flags != {}:
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
-        echo "emit hover: ", target.getId
         emit target.onHover(Enter)
-        # refresh()
         if prevHover != nil:
           prevHover.events.mouse.excl evHover
           emit prevHover.onHover(Exit)

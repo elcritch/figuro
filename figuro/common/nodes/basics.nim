@@ -37,6 +37,7 @@ type
     clipContent
     disableRender
     scrollpane
+    inactive
 
   FidgetConstraint* = enum
     cMin

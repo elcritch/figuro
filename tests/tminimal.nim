@@ -11,8 +11,6 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  # echo "main: child hovered!"
-  discard
 
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
