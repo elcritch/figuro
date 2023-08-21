@@ -84,8 +84,7 @@ proc getId*(fig: Figuro): NodeID =
 proc onTick*(tp: Figuro) {.signal.}
 proc onDraw*(tp: Figuro) {.signal.}
 proc onLoad*(tp: Figuro) {.signal.}
-proc eventHover*(tp: Figuro) {.signal.}
-proc eventHoverOut*(tp: Figuro) {.signal.}
+proc eventHover*(tp: Figuro, kind: EventKind) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard

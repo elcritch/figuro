@@ -236,8 +236,8 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
 
-const
-  MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
+# const
+#   MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
 
 proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b else: a
@@ -271,9 +271,9 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evOverlapped, true)
     # if result != {}:
     #   echo "mouse hover: ", result, " ", node.uid
-  else:
-    node.checkEvent(evClickOut, uxInputs.mouse.click())
-    node.checkEvent(evHoverOut, true)
+  # else:
+  #   node.checkEvent(evClickOut, uxInputs.mouse.click())
+  #   node.checkEvent(evHoverOut, true)
 
 proc checkGestureEvents*(node: Figuro): GestureEventFlags =
   ## Compute gesture events
@@ -289,8 +289,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   let
     allMouseEvts = node.checkMouseEvents()
-    mouseOutEvts = allMouseEvts * MouseOnOutEvents
-    mouseEvts = allMouseEvts - MouseOnOutEvents
+    # mouseOutEvts = allMouseEvts * MouseOnOutEvents
+    mouseEvts = allMouseEvts
     gestureEvts = node.checkGestureEvents()
 
   # set on-out events 
@@ -336,14 +336,14 @@ proc computeEvents*(node: Figuro) =
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
         echo "emit hover: ", target.getId
-        emit target.eventHover
+        emit target.eventHover(Enter)
         # refresh()
         if prevHover != nil:
           prevHover.events.mouse.excl evHover
-          emit prevHover.eventHoverOut
+          emit prevHover.eventHover(Exit)
         prevHover = target
     else:
       if prevHover.getId != target.getId:
-        emit target.eventHover
-        emit prevHover.eventHoverOut
+        emit target.eventHover(Enter)
+        emit prevHover.eventHover(Exit)
       prevHover = nil

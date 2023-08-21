@@ -50,12 +50,14 @@ type
   
   MouseEventType* {.size: sizeof(int16).} = enum
     evClick
-    evClickOut
     evHover
-    evHoverOut
     evOverlapped
     evPress
     evRelease
+
+  EventKind* = enum
+    Enter
+    Exit
 
   KeyboardEventType* {.size: sizeof(int16).} = enum
     evKeyboardInput
@@ -199,9 +201,7 @@ type
     MouseEvent* = object
       case kind*: MouseEventType
       of evClick: discard
-      of evClickOut: discard
       of evHover: discard
-      of evHoverOut: discard
       of evOverlapped: discard
       of evPress: discard
       of evRelease: discard
