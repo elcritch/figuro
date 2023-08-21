@@ -109,10 +109,10 @@ template blank*(): untyped =
 
 proc clearInputs*() =
   resetNodes = 0
-  uiinputs.mouse.pos = Position(vec2(0, 0))
-  uiinputs.mouse.wheelDelta = Position(vec2(0, 0))
-  uiinputs.mouse.consumed = false
-  uiinputs.mouse.clickedOutside = false
+  uxInputs.mouse.pos = Position(vec2(0, 0))
+  uxInputs.mouse.wheelDelta = Position(vec2(0, 0))
+  uxInputs.mouse.consumed = false
+  uxInputs.mouse.clickedOutside = false
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node User Interactions
@@ -214,16 +214,22 @@ proc fill*(node: Figuro) =
   ## Sets background color.
   current.fill = node.fill
 
+# template callHover*(inner: untyped) =
+#   ## Code in the block will run when this box is hovered.
+#   proc doHover(obj: Figuro) {.slot.} =
+#     echo "hi"
+#     `inner`
+#   root.connect(eventHover, current, doHover)
+
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  discard
-  # current.listens.mouse.incl(evHover)
-  # if evHover in current.events.mouse:
-  #   inner
+  current.listens.mouse.incl(evHover)
+  if evHover in current.events.mouse:
+    inner
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  inner
-  # current.listens.mouse.incl(evClick)
-  # if evClick in current.events.mouse and buttonPress[button]:
-  #   inner
+  current.listens.mouse.incl(evClick)
+  if evClick in current.events.mouse and
+      MouseLeft in uxInputs.buttonPress:
+    inner

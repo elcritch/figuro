@@ -6,8 +6,8 @@ elif defined(blank):
   import engine/blank
   export blank
 else:
-  import renderer/opengl
-  export opengl
+  import renderer/window
+  export window
 
 import std/os
 import shared, internal, ui/core
@@ -43,6 +43,9 @@ else:
     while true:
       renderEvent.trigger()
       os.sleep(appPeriodMs - 2)
+      app.tickCount.inc()
+      if app.tickCount == app.tickCount.typeof.high:
+        app.tickCount = 0
 
   proc appTicker() {.thread.} =
     while app.running:
@@ -55,14 +58,18 @@ else:
         wait(appEvent)
         timeIt(appAvgTime):
           tickMain()
-          appMain()
+          computeEvents(root)
+          if app.requestedFrame > 0:
+            appMain()
+            app.frameCount.inc()
+          # clearInputs()
+
 
   proc runRenderer(renderer: Renderer) =
     while app.running:
       wait(renderEvent)
       timeIt(renderAvgTime):
         renderLoop(renderer, true)
-        app.frameCount.inc()
 
   proc init*(renderer: Renderer) =
     sendRoot = proc (nodes: sink seq[render.Node]) =
@@ -97,39 +104,41 @@ proc startFiguro*(
     widget: FiguroApp,
     setup: proc() = nil,
     fullscreen = false,
-    w: Positive = 1280,
-    h: Positive = 800,
     pixelate = false,
     pixelScale = 1.0
 ) =
   ## Starts Fidget UI library
   ## 
-  mixin draw
-  mixin tick
-  mixin load
 
   # appWidget = widget
   app.fullscreen = fullscreen
 
   if not fullscreen:
-    app.windowSize = Position vec2(app.uiScale * w.float32, app.uiScale * h.float32)
+    app.windowSize = Position vec2(app.uiScale * app.width.float32,
+                                   app.uiScale * app.height.float32)
 
-  let appWidget = widget
+  root = widget
 
   proc appRender() =
-    mixin draw
+    # mixin draw
     root.diffIndex = 0
-    draw(appWidget)
+    if not uxInputs.mouse.consumed:
+      # echo "got mouse: ", uxInputs.mouse.pos
+      uxInputs.mouse.consumed = true
+      # echo root.listeners
+      # echo "emit:hover: ", cast[pointer](root).repr
+      # emit root.eventHover()
+    emit root.onDraw()
     computeScreenBox(nil, root)
     sendRoot(root.copyInto())
 
   proc appTick() =
-    appWidget.tick()
+    emit root.onTick()
 
   proc appLoad() =
-    appWidget.load()
+    emit root.onLoad()
   
-  setupRoot(appWidget)
+  setupRoot(root)
 
   appMain = appRender
   tickMain = appTick

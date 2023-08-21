@@ -26,7 +26,7 @@ const
   DataDirPath* {.strdefine.} = "data"
 
 type
-  AppStatePartial* = tuple[frameCount: int, uiScale: float32]
+  AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
 
   AppState* = object
     running*, focused*, minimized*, fullscreen*: bool
@@ -37,7 +37,8 @@ type
     autoUiScale*: bool
 
     requestedFrame*: int
-    frameCount*, tickCount*: int
+    frameCount*: int
+    tickCount*: int
 
     windowSize*: Position ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
@@ -49,23 +50,15 @@ type
 
     lastDraw*, lastTick*: int
 
-  AppInputs* = object
-    mouse*: Mouse
-    keyboard*: Keyboard
-    # cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
-    # prevCursorStyle*: MouseCursorStyle
-
 var
   dataDir* {.runtimeVar.}: string = DataDirPath
   app* {.runtimeVar.} = AppState(
     uiScale: 1.0,
     autoUiScale: true
   )
-  uiinputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
 
 
 type
-  All* = distinct object
   # Events* = GenericEvents[void]
   Events*[T] = object
     data*: TableRef[TypeId, Variant]

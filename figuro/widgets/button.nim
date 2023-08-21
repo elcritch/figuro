@@ -7,10 +7,10 @@ type
     isActive: bool
     disabled: bool
 
-template button*(id: string, blk: untyped) =
-  preNode(nkRectangle, Button, id)
-  `blk`
-  postNode()
+proc hover*(self: Button) {.slot.} =
+  # self.fill = parseHtmlColor "#9BDFFA"
+  # echo "button hover!"
+  discard
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
@@ -25,10 +25,19 @@ proc draw*(self: Button) {.slot.} =
   #     characters props.label
 
   if self.disabled:
-    fill "#FF0000"
+    fill "#F0F0F0"
   else:
     fill "#2B9FEA"
-    # onHover:
-    #   fill "#00FF00"
+    onHover:
+      # echo "hover!"
+      fill "#2B9FEA".parseHtmlColor.lighten(0.3)
+    onClick:
+      echo "click! ", self.uid
     # onClick:
     #   fill "#00FFFF"
+
+template button*(id: string, blk: untyped) =
+  preNode(nkRectangle, Button, id)
+  # connect(current, eventHover, current, Button.hover)
+  `blk`
+  postNode()

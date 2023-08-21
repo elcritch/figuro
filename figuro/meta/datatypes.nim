@@ -1,5 +1,5 @@
 
-import std/[options, tables, sets, macros]
+import std/[options, tables, sets, macros, hashes]
 import std/times
 
 # import pkg/threading/channels
@@ -20,7 +20,8 @@ export variant
 
 type
   Agent* = ref object of RootObj
-    listeners: Table[string, seq[(Agent, AgentProc)]]
+    agentId*: int = 0
+    listeners*: Table[string, OrderedSet[(Agent, AgentProc)]]
 
   # Context for servicing an RPC call 
   RpcContext* = Agent
@@ -29,6 +30,17 @@ type
   AgentProc* = proc(context: RpcContext,
                     params: RpcParams,
                     ) {.nimcall.}
+
+when defined(nimscript):
+  proc getAgentId(a: Agent): int = discard
+  proc getAgentId(a: AgentProc): int = discard
+else:
+  proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
+  proc getAgentId(a: AgentProc): int = cast[int](cast[pointer](a))
+
+
+proc hash*(a: Agent): Hash = hash(getAgentId(a))
+proc hash*(a: AgentProc): Hash = hash(getAgentId(a))
 
 type
 
@@ -113,7 +125,7 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): seq[(Agent, AgentProc)] =
+                        ): OrderedSet[(Agent, AgentProc)] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
@@ -123,7 +135,9 @@ proc addAgentListeners*(obj: Agent,
                         tgt: Agent,
                         slot: AgentProc
                         ) =
+  # if obj.listeners.hasKey(sig):
+  #   echo "listener:count: ", obj.listeners[sig].len()
   obj.listeners.
-    mgetOrPut(sig, newSeq[(Agent, AgentProc)]()).
-    add((tgt, slot))
+    mgetOrPut(sig, initOrderedSet[(Agent, AgentProc)]()).
+    incl((tgt, slot))
   # echo "LISTENERS: ", obj.listeners

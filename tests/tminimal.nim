@@ -1,23 +1,42 @@
 
 ## This minimal example shows 5 blue squares.
+import figuro/widgets/button
+import figuro/widget
 import figuro
 
 type
   Main* = ref object of Figuro
     value: float
+    hasHovered: bool
 
-proc draw*(app: Main) {.slot.} =
-  frame "main":
+proc hover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
+  # echo "main: child hovered!"
+  discard
+proc hoverOut*(self: Main) {.slot.} =
+  self.hasHovered = false
+  echo "hover out"
+
+proc draw*(self: Main) {.slot.} =
+  rectangle "main":
     box 0, 0, 620, 140
+    fill whiteColor
+    if self.hasHovered:
+      fill whiteColor.darken(0.1)
     for i in 0 .. 4:
-      rectangle "block":
+      button "btn":
         box 20 + i * 120, 20, 100, 100
-        current.fill = parseHtmlColor "#2B9FEA"
+        # onHover:
+        #   fill "#FF0000"
+        connect(current, eventHover, self, Main.hover)
 
 var
-  app = FiguroApp()
+  fig = FiguroApp()
   main = Main()
 
-connect(app, onDraw, main, tminimal.draw)
+connect(fig, onDraw, main, Main.draw)
 
-startFiguro(app, w = 720, h = 140)
+app.width = 720
+app.height = 140
+
+startFiguro(fig)

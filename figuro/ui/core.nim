@@ -10,7 +10,7 @@ else:
   {.pragma: runtimeVar, global.}
 
 var
-  root* {.runtimeVar.}: Figuro
+  root* {.runtimeVar.}: FiguroApp
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
@@ -57,13 +57,61 @@ var
 #     #   keyboard.keyString = rune.toUTF8()
 #     appEvent.trigger()
 
+proc resetToDefault*(node: Figuro, kind: NodeKind) =
+  ## Resets the node to default state.
+
+  node.kind = kind
+  # node.id = ""
+  # node.uid = ""
+  # node.idPath = ""
+  # node.kind = nkRoot
+  # node.text = "".toRunes()
+  # node.code = ""
+  # node.nodes = @[]
+  node.box = initBox(0,0,0,0)
+  node.orgBox = initBox(0,0,0,0)
+  node.rotation = 0
+  # node.screenBox = rect(0,0,0,0)
+  # node.offset = vec2(0, 0)
+  node.fill = clearColor
+  node.transparency = 0
+  node.stroke = Stroke(weight: 0, color: clearColor)
+  # node.textStyle = TextStyle()
+  # node.image = ImageStyle(name: "", color: whiteColor)
+  node.cornerRadius = 0'ui
+  # node.shadow = Shadow.none()
+  node.diffIndex = 0
+  node.zlevel = ZLevelDefault
+  # node.editableText = false
+  # node.multiline = false
+  # node.bindingSet = false
+  # node.drawable = false
+  # node.cursorColor = clearColor
+  # node.highlightColor = clearColor
+  # node.gridTemplate = nil
+  # node.gridItem = nil
+  # node.constraintsHorizontal = cMin
+  # node.constraintsVertical = cMin
+  # node.layoutAlign = laMin
+  # node.layoutMode = lmNone
+  # node.counterAxisSizingMode = csAuto
+  # node.horizontalPadding = 0'ui
+  # node.verticalPadding = 0'ui
+  # node.itemSpacing = 0'ui
+  # node.clipContent = false
+  # node.selectable = false
+  # node.scrollpane = false
+  # node.hasRendered = false
+  # node.userStates = initTable[int, Variant]()
+
 proc setupRoot*(widget: Figuro) =
   if root == nil:
-    root = Figuro()
-    root.uid = newUId()
-    root.zlevel = ZLevelDefault
+    raise newException(NilAccessDefect, "must set root")
+    # root = Figuro()
+    # root.uid = newUId()
+    # root.zlevel = ZLevelDefault
   # root = widget
-  nodeStack = @[root]
+  nodeStack = @[Figuro(root)]
   current = root
   root.diffIndex = 0
 
@@ -96,6 +144,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
     # Create Node.
     current = T()
     current.uid = newUId()
+    current.agentId = current.uid
     parent.children.add(current)
     refresh()
   else:
@@ -109,14 +158,14 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       parent.children[parent.diffIndex] = current
 
     if resetNodes == 0 and
-        current.nIndex == parent.diffIndex:
-          # and kind == current.kind:
+        current.nIndex == parent.diffIndex and
+        kind == current.kind:
       # Same node.
       discard
     else:
       # Big change.
       current.nIndex = parent.diffIndex
-      # current.resetToDefault()
+      current.resetToDefault(kind)
       refresh()
 
   {.cast(uncheckedAssign).}:
@@ -126,14 +175,23 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   current.highlight = parent.highlight
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
+
+  current.listens.mouse = {}
+  current.listens.gesture = {}
+
   nodeStack.add(current)
   inc parent.diffIndex
 
   current.diffIndex = 0
-  draw(T(current))
+  # TODO: which is better?
+  # draw(T(current))
+  connect(current, onDraw, current, T.draw)
+  emit current.onDraw()
 
 proc postNode*() =
   current.removeExtraChildren()
+  current.events.mouse = {}
+  current.events.gesture = {}
 
   # Pop the stack.
   discard nodeStack.pop()
@@ -162,16 +220,130 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
+    node.box.w = app.windowSize.x
+    node.box.h = app.windowSize.y
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
     node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
 
-  if depth == 0: echo ""
-  var sp = ""
-  for i in 0..depth: sp &= " "
-  echo "node: ", sp, node.uid, " ", node.screenBox
+  # if depth == 0: echo ""
+  # var sp = ""
+  # for i in 0..depth: sp &= "  "
+  # echo "node: ", sp, node.uid, " ", node.screenBox
 
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
+
+# const
+#   MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
+
+proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
+  if b.zlvl >= a.zlvl and b.flags != {}: b else: a
+
+proc mouseOverlapsNode*(node: Figuro): bool =
+  ## Returns true if mouse overlaps the node node.
+  let mpos = uxInputs.mouse.pos + node.totalOffset 
+  let act = 
+    (not popupActive or inPopup) and
+    node.screenBox.w > 0'ui and
+    node.screenBox.h > 0'ui 
+
+  result =
+    act and
+    mpos.overlaps(node.screenBox) and
+    (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
+
+template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
+  when ET is MouseEventType:
+    if evt in node.listens.mouse and predicate: result.incl(evt)
+  elif ET is GestureEventType:
+    if evt in node.listens.gesture and predicate: result.incl(evt)
+
+proc checkMouseEvents*(node: Figuro): MouseEventFlags =
+  ## Compute mouse events
+  if node.kind != nkFrame and node.mouseOverlapsNode():
+    node.checkEvent(evClick, uxInputs.mouse.click())
+    node.checkEvent(evPress, uxInputs.mouse.down())
+    node.checkEvent(evRelease, uxInputs.mouse.release())
+    node.checkEvent(evHover, true)
+    node.checkEvent(evOverlapped, true)
+    # if result != {}:
+    #   echo "mouse hover: ", result, " ", node.uid
+  # else:
+  #   node.checkEvent(evClickOut, uxInputs.mouse.click())
+  #   node.checkEvent(evHoverOut, true)
+
+proc checkGestureEvents*(node: Figuro): GestureEventFlags =
+  ## Compute gesture events
+  if node.mouseOverlapsNode():
+    node.checkEvent(evScroll, uxInputs.mouse.scrolled())
+
+proc computeNodeEvents*(node: Figuro): CapturedEvents =
+  ## Compute mouse events
+  for n in node.children.reverse:
+    let child = computeNodeEvents(n)
+    result.mouse = max(result.mouse, child.mouse)
+    result.gesture = max(result.gesture, child.gesture)
+
+  let
+    allMouseEvts = node.checkMouseEvents()
+    # mouseOutEvts = allMouseEvts * MouseOnOutEvents
+    mouseEvts = allMouseEvts
+    gestureEvts = node.checkGestureEvents()
+
+  # set on-out events 
+  # node.events.mouse.incl(mouseOutEvts)
+
+  # if node.events.mouse != {}:
+  #   echo "computeNodeEvents: ", node.events.mouse, " ", node.uid
+
+  let
+    captured = CapturedEvents(
+      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, target: node),
+      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
+    )
+
+  if clipContent in node.attrs and not node.mouseOverlapsNode():
+    # this node clips events, so it must overlap child events, 
+    # e.g. ignore child captures if this node isn't also overlapping 
+    result = captured
+  else:
+    result.mouse = max(captured.mouse, result.mouse)
+    result.gesture = max(captured.gesture, result.gesture)
+
+var prevHover: Figuro
+
+proc computeEvents*(node: Figuro) =
+  ## mouse and gesture are handled separately as they can have separate
+  ## node targets
+  var res = computeNodeEvents(node)
+
+  # Gestures
+  if not res.gesture.target.isNil:
+    let evts = res.gesture
+    let target = evts.target
+    target.events.gesture = evts.flags
+
+  # Mouse
+  if not res.mouse.target.isNil:
+    let evts = res.mouse
+    let target = evts.target
+    target.events.mouse = evts.flags
+
+    # if target.kind != nkFrame and evts.flags != {}:
+    if evHover in evts.flags:
+      if prevHover.getId != target.getId:
+        echo "emit hover: ", target.getId
+        emit target.eventHover(Enter)
+        # refresh()
+        if prevHover != nil:
+          prevHover.events.mouse.excl evHover
+          emit prevHover.eventHover(Exit)
+        prevHover = target
+    else:
+      if prevHover.getId != target.getId:
+        emit target.eventHover(Enter)
+        emit prevHover.eventHover(Exit)
+      prevHover = nil
