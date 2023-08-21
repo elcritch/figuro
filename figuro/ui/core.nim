@@ -14,6 +14,8 @@ var
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
+  redrawNodes* {.runtimeVar.}: seq[Figuro]
+
   nodeStack* {.runtimeVar.}: seq[Figuro]
   # gridStack*: seq[GridTemplate]
 
@@ -129,6 +131,11 @@ proc refresh*() =
   ## Request the screen be redrawn
   app.requestedFrame = max(1, app.requestedFrame)
 
+proc refresh*(node: Figuro) =
+  ## Request the screen be redrawn
+  # app.requestedFrame = max(1, app.requestedFrame)
+  redrawNodes.add(node)
+
 proc getTitle*(): string =
   ## Gets window title
   getWindowTitle()
@@ -144,14 +151,18 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   mixin draw
 
   parent = nodeStack[^1]
+  # if current.parent != nil:
+  #   parent = current.parent
 
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
+    parent = nodeStack[^1]
     # Create Node.
     current = T()
     current.uid = newUId()
     current.agentId = current.uid
     parent.children.add(current)
+    # current.parent = parent
     refresh()
   else:
     # Reuse Node.
@@ -338,16 +349,31 @@ proc computeEvents*(node: Figuro) =
     let target = evts.target
     target.events.mouse = evts.flags
 
-    # if target.kind != nkFrame and evts.flags != {}:
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
+        # enter hover
         emit target.onHover(Enter)
+        redrawNodes.add(target)
+
         if prevHover != nil:
+          # exit hover
           prevHover.events.mouse.excl evHover
           emit prevHover.onHover(Exit)
+          redrawNodes.add(prevHover)
+
         prevHover = target
     else:
       if prevHover.getId != target.getId:
         emit target.onHover(Enter)
-        emit prevHover.onHover(Exit)
+        if prevHover != nil:
+          # exit hover (frame)
+          emit prevHover.onHover(Exit)
+          redrawNodes.add(prevHover)
+        redrawNodes.add(target)
       prevHover = nil
+
+    if target != nil and
+        target.kind != nkFrame and
+        evts.flags - {evHover} != {}:
+      redrawNodes.add(target)
+
