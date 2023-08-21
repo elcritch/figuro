@@ -7,9 +7,9 @@ type
     isActive: bool
     disabled: bool
 
-proc hover*(self: Button, kind: EventKind) {.slot.} =
+proc hover*(self: Button) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
-  echo "button hovered: ", kind
+  # echo "button hover!"
   discard
 
 proc draw*(self: Button) {.slot.} =
@@ -31,7 +31,7 @@ proc draw*(self: Button) {.slot.} =
     fill "#2B9FEA"
     onHover:
       # echo "hover!"
-      fill "#2B9FEA".parseHtmlColor.lighten(0.2)
+      fill "#2B9FEA".parseHtmlColor.lighten(0.3)
     onClick:
       echo "click! ", self.uid
     # onClick:
@@ -39,6 +39,6 @@ proc draw*(self: Button) {.slot.} =
 
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, id)
-  connect(current, onHover, current, Button.hover)
+  # connect(current, eventHover, current, Button.hover)
   `blk`
   postNode()

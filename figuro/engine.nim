@@ -118,7 +118,6 @@ proc startFiguro*(
                                    app.uiScale * app.height.float32)
 
   root = widget
-  redrawNodes.add(root)
 
   proc appRender() =
     # mixin draw
@@ -129,11 +128,7 @@ proc startFiguro*(
       # echo root.listeners
       # echo "emit:hover: ", cast[pointer](root).repr
       # emit root.eventHover()
-    # emit root.onDraw()
-    for node in redrawNodes:
-      emit node.onDraw()
-    redrawNodes.setLen(0)
-
+    emit root.onDraw()
     computeScreenBox(nil, root)
     sendRoot(root.copyInto())
 

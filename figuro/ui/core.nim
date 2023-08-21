@@ -349,31 +349,18 @@ proc computeEvents*(node: Figuro) =
     let target = evts.target
     target.events.mouse = evts.flags
 
+    # if target.kind != nkFrame and evts.flags != {}:
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
-        # enter hover
-        emit target.onHover(Enter)
-        redrawNodes.add(target)
-
+        echo "emit hover: ", target.getId
+        emit target.eventHover(Enter)
+        # refresh()
         if prevHover != nil:
-          # exit hover
           prevHover.events.mouse.excl evHover
-          emit prevHover.onHover(Exit)
-          redrawNodes.add(prevHover)
-
+          emit prevHover.eventHover(Exit)
         prevHover = target
     else:
       if prevHover.getId != target.getId:
-        emit target.onHover(Enter)
-        if prevHover != nil:
-          # exit hover (frame)
-          emit prevHover.onHover(Exit)
-          redrawNodes.add(prevHover)
-        redrawNodes.add(target)
+        emit target.eventHover(Enter)
+        emit prevHover.eventHover(Exit)
       prevHover = nil
-
-    if target != nil and
-        target.kind != nkFrame and
-        evts.flags - {evHover} != {}:
-      redrawNodes.add(target)
-
