@@ -14,7 +14,7 @@ var
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
-  redrawNodes* {.runtimeVar.}: seq[Figuro]
+  redrawNodes* {.runtimeVar.}: HashSet[Figuro]
 
   nodeStack* {.runtimeVar.}: seq[Figuro]
   # gridStack*: seq[GridTemplate]
@@ -134,7 +134,7 @@ proc refresh*() =
 proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
   # app.requestedFrame = max(1, app.requestedFrame)
-  redrawNodes.add(node)
+  redrawNodes.incl(node)
 
 proc getTitle*(): string =
   ## Gets window title
@@ -354,13 +354,16 @@ proc computeEvents*(node: Figuro) =
       if prevHover.getId != target.getId:
         echo "emit hover: ", target.getId
         emit target.onHover(Enter)
-        # refresh()
+        refresh(target)
         if prevHover != nil:
           prevHover.events.mouse.excl evHover
           emit prevHover.onHover(Exit)
+          refresh(prevHover)
         prevHover = target
     else:
       if prevHover.getId != target.getId:
         emit target.onHover(Enter)
         emit prevHover.onHover(Exit)
+        target.refresh()
+        prevHover.refresh()
       prevHover = nil
