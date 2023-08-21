@@ -353,14 +353,14 @@ proc computeEvents*(node: Figuro) =
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
         echo "emit hover: ", target.getId
-        emit target.eventHover(Enter)
+        emit target.onHover(Enter)
         # refresh()
         if prevHover != nil:
           prevHover.events.mouse.excl evHover
-          emit prevHover.eventHover(Exit)
+          emit prevHover.onHover(Exit)
         prevHover = target
     else:
       if prevHover.getId != target.getId:
-        emit target.eventHover(Enter)
-        emit prevHover.eventHover(Exit)
+        emit target.onHover(Enter)
+        emit prevHover.onHover(Exit)
       prevHover = nil

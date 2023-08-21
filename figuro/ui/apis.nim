@@ -219,7 +219,7 @@ proc fill*(node: Figuro) =
 #   proc doHover(obj: Figuro) {.slot.} =
 #     echo "hi"
 #     `inner`
-#   root.connect(eventHover, current, doHover)
+#   root.connect(onHover, current, doHover)
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
