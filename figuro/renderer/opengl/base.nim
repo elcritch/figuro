@@ -4,7 +4,7 @@ import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windy
 
-import utils, context, draw
+import utils, context, render
 import commons
 
 # import ../patches/textboxes 
@@ -65,7 +65,6 @@ proc preInput*() =
   discard
 
 proc postInput*() =
-  # clearInputs()
   discard
 
 proc clearDepthBuffer*() =
@@ -128,16 +127,16 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
   updateWindowSize(window)
 
-proc drawFrame*(nodes: var seq[Node]) =
+proc renderFrame*(nodes: var seq[Node]) =
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(app.windowRawSize)
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
-  # uiinputs.mouse.cursorStyle = Default
+  # uxInputs.mouse.cursorStyle = Default
 
   # Only draw the root after everything was done:
-  drawRoot(nodes)
+  renderRoot(nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -149,12 +148,12 @@ proc drawFrame*(nodes: var seq[Node]) =
     img.writeFile("screenshot.png")
     quit()
 
-proc drawAndSwap*(window: Window, nodes: var seq[Node]) =
+proc renderAndSwap*(window: Window, nodes: var seq[Node]) =
   ## Does drawing operations.
-  app.frameCount.inc
+  app.tickCount.inc
 
   timeIt(drawFrame):
-    drawFrame(nodes)
+    renderFrame(nodes)
 
   frameTime = cpuTime()
   dt = frameTime - prevFrameTime

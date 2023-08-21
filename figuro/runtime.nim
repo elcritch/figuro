@@ -22,16 +22,30 @@ errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.c
 
 proc runImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
-    echo "runImpl"
     init = args.getNode(0)
     tick = args.getNode(1)
     draw = args.getNode(2)
     getRoot = args.getNode(3)
     getAppState = args.getNode(4)
 
+proc getAgentId(args: VmArgs) {.cdecl.} =
+  {.cast(gcSafe).}:
+    echo "getAgentId"
+    let res = args.getNode(0)
+    let id = cast[int](cast[pointer](addr(res)))
+    echo "getAgentId: ", id
+    args.setResult id
+
 const 
   vmProcs* = [
-    VmProcSignature(package: "figuro", name: "run", module: "wrappers", vmProc: runImpl),
+    VmProcSignature(package: "figuro",
+                    name: "run",
+                    module: "wrappers",
+                    vmProc: runImpl),
+    VmProcSignature(package: "figuro",
+                    name: "getAgentId",
+                    module: "datatypes",
+                    vmProc: getAgentId),
   ]
 
 when isMainModule:
@@ -40,7 +54,8 @@ when isMainModule:
 
 let
   scriptDir = getAppDir() / "../tests/"
-  scriptPath = scriptDir / "twidget.nim"
+  # scriptPath = scriptDir / "twidget.nim"
+  scriptPath = scriptDir / "tminimal.nim"
 
 proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   let (res, _) = execCmdEx("nim dump --verbosity:0 --dump.format:json dump.json")
@@ -62,18 +77,19 @@ proc invokeVmInit*() =
 proc invokeVmTick*() =
   if intr != nil and tick != nil:
     let state: AppStatePartial = (
-      frameCount: app.frameCount,
+      tickCount: app.tickCount,
+      requestedFrame: app.requestedFrame,
       uiScale: app.uiScale
     )
-    discard intr.invoke(tick, [newNode state])
+    let ret = intr.invoke(tick, [newNode state])
+    let appRet = fromVm(AppStatePartial, ret)
+    app.requestedFrame = appRet.requestedFrame
 
-proc invokeVmDraw*(): int =
+proc invokeVmDraw*(): AppStatePartial =
   if intr != nil and draw != nil:
-    let res = intr.invoke(draw, [])
-    var val: BiggestInt
-    if not res.isNil:
-      discard res.getInt(val)
-      result = val.int
+    let ret = intr.invoke(draw, [])
+    let appRet = fromVm(AppStatePartial, ret)
+    result = appRet
 
 proc invokeVmGetRoot*(): seq[Node] =
   if intr != nil and getRoot != nil:
@@ -107,17 +123,23 @@ proc startFiguroRuntime() =
   scriptUpdate()
   # invokeVmInit()
   shared.app = invokeVmGetAppState()
+  app.requestedFrame = 5
 
   if not app.fullscreen:
-    app.windowSize = vec2(app.uiScale * app.width.float32,
-                          app.uiScale * app.height.float32)
+    app.windowSize = Position vec2(app.uiScale * app.width.float32,
+                                   app.uiScale * app.height.float32)
 
   proc appRender() =
-    app.requestedFrame = invokeVmDraw()
+    let ret = invokeVmDraw()
+    app.requestedFrame = ret.requestedFrame
+    # echo "appRender: ", app.requestedFrame
+    if not uxInputs.mouse.consumed:
+      echo "got mouse: ", uxInputs.mouse.pos
+      uxInputs.mouse.consumed = true
     sendRoot(invokeVmGetRoot())
 
   proc appTick() =
-    scriptUpdate() # this is broken for now
+    scriptUpdate()
     invokeVmTick()
     discard
 

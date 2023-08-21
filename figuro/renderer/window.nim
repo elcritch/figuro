@@ -5,7 +5,7 @@ import typography, typography/svgfont
 import pixie
 import windy
 
-import opengl/[base, context, draw]
+import opengl/[base, context, render]
 import opengl/commons
 
 type
@@ -32,7 +32,7 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
     app.requestedFrame.dec
 
   preInput()
-  drawAndSwap(window, nodes)
+  renderAndSwap(window, nodes)
   postInput()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
@@ -53,19 +53,19 @@ proc configureEvents(renderer: Renderer) =
 
   window.onScroll = proc () =
     app.requestedFrame.inc
-    uiinputs.mouse.wheelDelta = window.scrollDelta().descaled
+    uxInputs.mouse.wheelDelta = window.scrollDelta().descaled
     renderEvent.trigger()
 
   window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
     let pos = vec2(window.mousePos())
-    uiinputs.mouse.pos = pos.descaled()
+    uxInputs.mouse.pos = pos.descaled()
     let prevPos = vec2(window.mousePrevPos())
-    uiinputs.mouse.prev = prevPos.descaled()
+    uxInputs.mouse.prev = prevPos.descaled()
+    uxInputs.mouse.consumed = false
     app.requestedFrame.inc
     appEvent.trigger()
-    echo "uiinputs: ", $uiinputs.mouse.pos
 
   window.onButtonPress = proc (button: windy.Button) =
     app.requestedFrame.inc

@@ -44,12 +44,8 @@ proc createRpcRouter*(): AgentRouter =
   result.procs = initTable[string, AgentProc]()
 
 proc register*(router: var AgentRouter, path, name: string, call: AgentProc) =
-  router.procs[path] = call
-  echo "registering: ", path
-
-proc sysRegister*(router: var AgentRouter, path, name: string, call: AgentProc) =
-  router.sysprocs[path] = call
-  echo "registering: sys: ", path
+  router.procs[name] = call
+  echo "registering: ", name
 
 when nimvm:
   var globalRouter {.compileTime.} = AgentRouter()
@@ -59,7 +55,7 @@ else:
 
 proc register*(path, name: string, call: AgentProc) =
   globalRouter.procs[name] = call
-  echo "registering: ", name, " @ ", path
+  echo "registering: ", name
 
 proc listMethods*(): seq[string] =
   globalRouter.listMethods()
@@ -115,11 +111,13 @@ macro getSignalName(signal: typed): auto =
 
 import typetraits
 
-macro signalObj*(p: typed): auto =
+macro signalObj*(so: typed): auto =
   ## gets the type of the signal's object arg 
   ## 
-  let p = p.getTypeInst
-  # echo "signalObj: ", p.repr
+  let p = so.getTypeInst
+  echo "signalObj: ", p.repr
+  if p.kind == nnkSym and p.strVal == "none":
+    error("cannot determine type of: " & repr(so), so)
   let obj = p[0][1]
   result = obj[1].getTypeInst
 macro signalType*(p: typed): auto =
@@ -159,10 +157,18 @@ macro signalCheck(signal, slot: typed) =
     error("signal and slot types don't match;" & errors, signal)
   else:
     result = nnkEmpty.newNimNode()
+macro toSlot(slot: typed): untyped =
+  let pimpl = ident("agentSlot" & slot.repr)
+  echo "TO_SLOT: ", slot.repr
+  echo "TO_SLOT: ", slot.lineinfoObj.filename
+  # echo "TO_SLOT: ", slot.getImpl.treeRepr
+  echo "TO_SLOT: ", slot.getTypeImpl.repr
+  echo "TO_SLOT: done"
+  return pimpl
 
 template connect*(
     a: Agent,
-    signal: typed,
+    signal: untyped,
     b: Agent,
     slot: typed
 ) =
@@ -175,14 +181,13 @@ template connect*(
   signalCheck(signal, slot)
 
   let name = getSignalName(signal)
-  a.addAgentListeners(name, b, `slot AgentSlot`)
+  a.addAgentListeners(name, b, AgentProc(toSlot(`slot`)))
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
-    # echo "call slot: ", req.procName
     let listeners = obj.getAgentListeners(req.procName)
 
-    # echo "call slots: ", $obj.listeners
+    # echo "call slots: ", req.procName, " ", obj.agentId, " :: ", $listeners
     for (tgt, slot) in listeners:
       # echo "call listener: ", repr tgt
       let res = slot.callMethod(tgt, req)
