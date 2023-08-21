@@ -214,12 +214,8 @@ proc fill*(node: Figuro) =
   ## Sets background color.
   current.fill = node.fill
 
-# template callHover*(inner: untyped) =
-#   ## Code in the block will run when this box is hovered.
-#   proc doHover(obj: Figuro) {.slot.} =
-#     echo "hi"
-#     `inner`
-#   root.connect(eventHover, current, doHover)
+template connect*(signal, target, slot: untyped): auto = 
+  connect(current, signal, target, slot)
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
