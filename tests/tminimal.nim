@@ -25,7 +25,7 @@ proc draw*(self: Main) {.slot.} =
         box 20 + i * 120, 20, 100, 100
         # onHover:
         #   fill "#FF0000"
-        connect(current, eventHover, self, Main.hover)
+        connect(current, onHover, self, Main.hover)
 
 var
   fig = FiguroApp()
