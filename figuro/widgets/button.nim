@@ -29,8 +29,8 @@ proc draw*(self: Button) {.slot.} =
   else:
     fill "#2B9FEA"
     onHover:
-      echo "hover!"
-      fill "#2B9FEA".parseHtmlColor.lighten(0.4)
+      # echo "hover!"
+      fill "#2B9FEA".parseHtmlColor.lighten(0.3)
     onClick:
       echo "click! ", self.uid
     # onClick:

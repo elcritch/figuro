@@ -13,10 +13,14 @@ proc hover*(self: Main) {.slot.} =
   self.hasHovered = true
   # echo "main: child hovered!"
   discard
+proc hoverOut*(self: Main) {.slot.} =
+  self.hasHovered = false
+  echo "hover out"
 
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
     box 0, 0, 620, 140
+    fill whiteColor
     if self.hasHovered:
       fill whiteColor.darken(0.1)
     for i in 0 .. 4:
@@ -25,6 +29,7 @@ proc draw*(self: Main) {.slot.} =
         # onHover:
         #   fill "#FF0000"
         connect(current, eventHover, self, Main.hover)
+        connect(current, eventHoverOut, self, Main.hoverOut)
 
 var
   fig = FiguroApp()

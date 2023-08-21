@@ -190,8 +190,8 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
 proc postNode*() =
   current.removeExtraChildren()
-  # current.events.mouse = {}
-  # current.events.gesture = {}
+  current.events.mouse = {}
+  current.events.gesture = {}
 
   # Pop the stack.
   discard nodeStack.pop()
@@ -294,7 +294,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     gestureEvts = node.checkGestureEvents()
 
   # set on-out events 
-  node.events.mouse.incl(mouseOutEvts)
+  # node.events.mouse.incl(mouseOutEvts)
 
   # if node.events.mouse != {}:
   #   echo "computeNodeEvents: ", node.events.mouse, " ", node.uid
@@ -334,15 +334,16 @@ proc computeEvents*(node: Figuro) =
 
     # if target.kind != nkFrame and evts.flags != {}:
     if evHover in evts.flags:
-      echo "hover event: ", target.uid
       if prevHover.getId != target.getId:
-        echo "emit hover"
+        echo "emit hover: ", target.getId
         emit target.eventHover
+        # refresh()
+        if prevHover != nil:
+          prevHover.events.mouse.excl evHover
+          emit prevHover.eventHoverOut
         prevHover = target
-        refresh()
-      else:
-        target.events.mouse.excl evHover
     else:
-      prevHover = nil
       if prevHover.getId != target.getId:
         emit target.eventHover
+        emit prevHover.eventHoverOut
+      prevHover = nil
