@@ -14,7 +14,7 @@ var
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
-  redrawNodes* {.runtimeVar.}: HashSet[Figuro]
+  redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
 
   nodeStack* {.runtimeVar.}: seq[Figuro]
   # gridStack*: seq[GridTemplate]

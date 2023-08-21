@@ -11,7 +11,7 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  # echo "main: child hovered!"
+  echo "main: child hovered! ", self.uid
   discard
   refresh(self)
 

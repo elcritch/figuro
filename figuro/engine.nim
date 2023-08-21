@@ -119,7 +119,7 @@ proc startFiguro*(
                                    app.uiScale * app.height.float32)
 
   root = widget
-  redrawNodes = initHashSet[Figuro]()
+  redrawNodes = initOrderedSet[Figuro]()
   refresh(root)
 
   proc appRender() =
@@ -131,6 +131,7 @@ proc startFiguro*(
       emit root.onDraw()
     elif redrawNodes.len() > 0:
       for node in redrawNodes:
+        echo "redraw: ", node.uid
         emit node.onDraw()
       redrawNodes.clear()
     computeScreenBox(nil, root)
