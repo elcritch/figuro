@@ -10,6 +10,6 @@ when defined(compilervm) or defined(nimscript):
   import figuro/wrappers
   export wrappers
 else:
-  import figuro/engine
-  export engine
+  import figuro/execApps
+  export execApps
 
