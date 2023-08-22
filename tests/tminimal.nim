@@ -10,12 +10,12 @@ type
     hasHovered: bool
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
-  echo "main: child hovered! ", self.uid
-  discard
-  refresh(self)
+  # self.hasHovered = kind == Enter
+  echo "main: child hovered: ", self.hasHovered, " :: ", self.uid
+  # refresh(self)
 
 proc draw*(self: Main) {.slot.} =
+  echo "draw main"
   rectangle "main":
     box 0, 0, 620, 140
     fill whiteColor

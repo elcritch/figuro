@@ -127,14 +127,19 @@ proc removeExtraChildren*(node: Figuro) =
     disable(node.children[i])
   node.children.setLen(node.diffIndex)
 
-proc refresh*() =
-  ## Request the screen be redrawn
-  app.requestedFrame = max(1, app.requestedFrame)
+# proc refresh*() =
+#   ## Request the screen be redrawn
+#   app.requestedFrame = max(1, app.requestedFrame)
 
 proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
   # app.requestedFrame = max(1, app.requestedFrame)
+  app.requestedFrame.inc
   redrawNodes.incl(node)
+  echo "refresh: ", node.uid,
+        " liste: ", node.listens.mouse,
+        " events: ", node.events.mouse
+  assert app.frameCount < 10 or node.uid != 0
 
 proc getTitle*(): string =
   ## Gets window title
@@ -144,7 +149,7 @@ proc setTitle*(title: string) =
   ## Sets window title
   if (getWindowTitle() != title):
     setWindowTitle(title)
-    refresh()
+    refresh(current)
 
 proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   ## Process the start of the node.
@@ -163,7 +168,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
     current.agentId = current.uid
     parent.children.add(current)
     # current.parent = parent
-    refresh()
+    refresh(current)
   else:
     # Reuse Node.
     current = parent.children[parent.diffIndex]
@@ -183,7 +188,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       # Big change.
       current.nIndex = parent.diffIndex
       current.resetToDefault(kind)
-      refresh()
+      refresh(current)
 
   {.cast(uncheckedAssign).}:
     current.kind = kind
@@ -274,9 +279,11 @@ proc mouseOverlapsNode*(node: Figuro): bool =
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   when ET is MouseEventType:
-    if evt in node.listens.mouse and predicate: result.incl(evt)
+    if evt in node.listens.mouse and predicate:
+      result.incl(evt)
   elif ET is GestureEventType:
-    if evt in node.listens.gesture and predicate: result.incl(evt)
+    if evt in node.listens.gesture and predicate:
+      result.incl(evt)
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
@@ -362,8 +369,10 @@ proc computeEvents*(node: Figuro) =
         prevHover = target
     else:
       if prevHover.getId != target.getId:
-        emit target.onHover(Enter)
-        emit prevHover.onHover(Exit)
-        target.refresh()
-        prevHover.refresh()
+        # emit target.onHover(Enter)
+        # target.refresh()
+        if evHover in prevHover.events.mouse:
+          emit prevHover.onHover(Exit)
+          prevHover.refresh()
+          prevHover.events.mouse.excl evHover
       prevHover = nil

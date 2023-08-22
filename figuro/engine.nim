@@ -48,6 +48,12 @@ else:
       if app.tickCount == app.tickCount.typeof.high:
         app.tickCount = 0
 
+  proc runRenderer(renderer: Renderer) =
+    while app.running:
+      wait(renderEvent)
+      timeIt(renderAvgTime):
+        renderLoop(renderer, true)
+
   proc appTicker() {.thread.} =
     while app.running:
       appEvent.trigger()
@@ -60,17 +66,11 @@ else:
         timeIt(appAvgTime):
           tickMain()
           computeEvents(root)
-          if app.requestedFrame > 0 or redrawNodes.len() > 0:
+          if redrawNodes.len() > 0:
             appMain()
             app.frameCount.inc()
           # clearInputs()
 
-
-  proc runRenderer(renderer: Renderer) =
-    while app.running:
-      wait(renderEvent)
-      timeIt(renderAvgTime):
-        renderLoop(renderer, true)
 
   proc init*(renderer: Renderer) =
     sendRoot = proc (nodes: sink seq[render.Node]) =
