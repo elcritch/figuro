@@ -4,11 +4,13 @@ import pkg/[variant]
 
 import common/[extras, uimaths]
 import inputs
+from os import `/`
 
 export sequtils, strformat, tables, hashes
 export variant
 export extras, uimaths
 export inputs
+export `/`
 
 import chroma
 
@@ -23,7 +25,7 @@ const
   blackColor* = color(0, 0, 0, 1)
 
 const
-  DataDirPath* {.strdefine.} = "data"
+  DataDirPath* {.strdefine.} = "./data"
 
 type
   AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
