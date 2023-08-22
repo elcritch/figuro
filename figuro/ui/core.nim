@@ -134,11 +134,10 @@ proc removeExtraChildren*(node: Figuro) =
 proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
   # app.requestedFrame = max(1, app.requestedFrame)
+  if node == nil:
+    return
   app.requestedFrame.inc
   redrawNodes.incl(node)
-  echo "refresh: ", node.uid,
-        " liste: ", node.listens.mouse,
-        " events: ", node.events.mouse
   assert app.frameCount < 10 or node.uid != 0
 
 proc getTitle*(): string =
@@ -359,7 +358,6 @@ proc computeEvents*(node: Figuro) =
     # if target.kind != nkFrame and evts.flags != {}:
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
-        echo "emit hover: ", target.getId
         emit target.onHover(Enter)
         refresh(target)
         if prevHover != nil:
@@ -369,8 +367,6 @@ proc computeEvents*(node: Figuro) =
         prevHover = target
     else:
       if prevHover.getId != target.getId:
-        # emit target.onHover(Enter)
-        # target.refresh()
         if evHover in prevHover.events.mouse:
           emit prevHover.onHover(Exit)
           prevHover.refresh()

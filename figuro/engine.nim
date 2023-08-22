@@ -131,7 +131,6 @@ proc startFiguro*(
       emit root.onDraw()
     elif redrawNodes.len() > 0:
       for node in redrawNodes:
-        echo "redraw: ", node.uid
         emit node.onDraw()
       redrawNodes.clear()
     computeScreenBox(nil, root)

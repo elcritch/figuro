@@ -8,24 +8,23 @@ type
   Main* = ref object of Figuro
     value: float
     hasHovered: bool
+    mainRect: Figuro
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
-  # self.hasHovered = kind == Enter
-  echo "main: child hovered: ", self.hasHovered, " :: ", self.uid
-  # refresh(self)
+  self.hasHovered = kind == Enter
+  refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
-  echo "draw main"
   rectangle "main":
-    box 0, 0, 620, 140
+    self.mainRect = current
+    box 10, 10, 600, 120
+    cornerRadius 10.0
     fill whiteColor
     if self.hasHovered:
-      fill whiteColor.darken(0.1)
+      fill whiteColor.darken(0.12)
     for i in 0 .. 4:
       button "btn":
-        box 20 + i * 120, 20, 100, 100
-        # onHover:
-        #   fill "#FF0000"
+        box 10 + i * 120, 10, 100, 100
         connect(current, onHover, self, Main.hover)
 
 var
