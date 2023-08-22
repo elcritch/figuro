@@ -12,6 +12,7 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
+  echo "main: child hovered: ", kind
   refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
@@ -25,7 +26,12 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn":
         box 10 + i * 120, 10, 100, 100
+        # we need to connect it's onHover event
         connect(current, onHover, self, Main.hover)
+        # unfortunately, we have many hovers
+        # so we need to give hover a type 
+        # perfect, the slot pragma adds all this for
+        # us
 
 var
   fig = FiguroApp()

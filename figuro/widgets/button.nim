@@ -19,26 +19,14 @@ proc draw*(self: Button) {.slot.} =
   
   clipContent true
   cornerRadius 10.0
-  
-
-  # if self.label.len() > 0:
-  #   text "text":
-  #     # boxSizeOf parent
-  #     size csAuto(), csAuto()
-  #     fill theme.text
-  #     characters props.label
 
   if self.disabled:
     fill "#F0F0F0"
   else:
     fill "#2B9FEA"
     onHover:
-      # echo "hover!"
-      fill "#2B9FEA".parseHtmlColor.spin(15)
-    onClick:
-      echo "click! ", self.uid
-    # onClick:
-    #   fill "#00FFFF"
+      fill current.fill.spin(15)
+      # this changes the color on hover!
 
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, id)
