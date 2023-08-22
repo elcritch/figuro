@@ -14,6 +14,8 @@ var
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
+  redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
+
   nodeStack* {.runtimeVar.}: seq[Figuro]
   # gridStack*: seq[GridTemplate]
 
@@ -117,11 +119,26 @@ proc setupRoot*(widget: Figuro) =
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
+  proc disable(fig: Figuro) =
+    fig.attrs.incl inactive
+    for child in fig.children:
+      disable(child)
+  for i in node.diffIndex..<node.children.len:
+    disable(node.children[i])
   node.children.setLen(node.diffIndex)
 
-proc refresh*() =
+# proc refresh*() =
+#   ## Request the screen be redrawn
+#   app.requestedFrame = max(1, app.requestedFrame)
+
+proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
-  app.requestedFrame = max(1, app.requestedFrame)
+  # app.requestedFrame = max(1, app.requestedFrame)
+  if node == nil:
+    return
+  app.requestedFrame.inc
+  redrawNodes.incl(node)
+  assert app.frameCount < 10 or node.uid != 0
 
 proc getTitle*(): string =
   ## Gets window title
@@ -131,22 +148,26 @@ proc setTitle*(title: string) =
   ## Sets window title
   if (getWindowTitle() != title):
     setWindowTitle(title)
-    refresh()
+    refresh(current)
 
 proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   ## Process the start of the node.
   mixin draw
 
   parent = nodeStack[^1]
+  # if current.parent != nil:
+  #   parent = current.parent
 
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
+    parent = nodeStack[^1]
     # Create Node.
     current = T()
     current.uid = newUId()
     current.agentId = current.uid
     parent.children.add(current)
-    refresh()
+    # current.parent = parent
+    refresh(current)
   else:
     # Reuse Node.
     current = parent.children[parent.diffIndex]
@@ -166,7 +187,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       # Big change.
       current.nIndex = parent.diffIndex
       current.resetToDefault(kind)
-      refresh()
+      refresh(current)
 
   {.cast(uncheckedAssign).}:
     current.kind = kind
@@ -257,9 +278,11 @@ proc mouseOverlapsNode*(node: Figuro): bool =
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   when ET is MouseEventType:
-    if evt in node.listens.mouse and predicate: result.incl(evt)
+    if evt in node.listens.mouse and predicate:
+      result.incl(evt)
   elif ET is GestureEventType:
-    if evt in node.listens.gesture and predicate: result.incl(evt)
+    if evt in node.listens.gesture and predicate:
+      result.incl(evt)
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
@@ -335,15 +358,17 @@ proc computeEvents*(node: Figuro) =
     # if target.kind != nkFrame and evts.flags != {}:
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
-        echo "emit hover: ", target.getId
         emit target.onHover(Enter)
-        # refresh()
+        refresh(target)
         if prevHover != nil:
           prevHover.events.mouse.excl evHover
           emit prevHover.onHover(Exit)
+          refresh(prevHover)
         prevHover = target
     else:
       if prevHover.getId != target.getId:
-        emit target.onHover(Enter)
-        emit prevHover.onHover(Exit)
+        if evHover in prevHover.events.mouse:
+          emit prevHover.onHover(Exit)
+          prevHover.refresh()
+          prevHover.events.mouse.excl evHover
       prevHover = nil

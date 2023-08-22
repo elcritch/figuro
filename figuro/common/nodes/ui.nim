@@ -17,6 +17,7 @@ type
   Figuro* = ref object of Agent
     uid*: NodeID
     children*: seq[Figuro]
+    # parent*: Figuro
     nIndex*: int
     diffIndex*: int
 

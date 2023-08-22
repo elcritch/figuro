@@ -10,6 +10,7 @@ else:
   export window
 
 import std/os
+import std/sets
 import shared, internal, ui/core
 import common/nodes/transfer
 import common/nodes/ui as ui
@@ -47,6 +48,12 @@ else:
       if app.tickCount == app.tickCount.typeof.high:
         app.tickCount = 0
 
+  proc runRenderer(renderer: Renderer) =
+    while app.running:
+      wait(renderEvent)
+      timeIt(renderAvgTime):
+        renderLoop(renderer, true)
+
   proc appTicker() {.thread.} =
     while app.running:
       appEvent.trigger()
@@ -59,17 +66,11 @@ else:
         timeIt(appAvgTime):
           tickMain()
           computeEvents(root)
-          if app.requestedFrame > 0:
+          if redrawNodes.len() > 0:
             appMain()
             app.frameCount.inc()
           # clearInputs()
 
-
-  proc runRenderer(renderer: Renderer) =
-    while app.running:
-      wait(renderEvent)
-      timeIt(renderAvgTime):
-        renderLoop(renderer, true)
 
   proc init*(renderer: Renderer) =
     sendRoot = proc (nodes: sink seq[render.Node]) =
@@ -118,17 +119,20 @@ proc startFiguro*(
                                    app.uiScale * app.height.float32)
 
   root = widget
+  redrawNodes = initOrderedSet[Figuro]()
+  refresh(root)
 
   proc appRender() =
     # mixin draw
     root.diffIndex = 0
     if not uxInputs.mouse.consumed:
-      # echo "got mouse: ", uxInputs.mouse.pos
       uxInputs.mouse.consumed = true
-      # echo root.listeners
-      # echo "emit:hover: ", cast[pointer](root).repr
-      # emit root.onHover()
-    emit root.onDraw()
+    if app.requestedFrame > 1:
+      emit root.onDraw()
+    elif redrawNodes.len() > 0:
+      for node in redrawNodes:
+        emit node.onDraw()
+      redrawNodes.clear()
     computeScreenBox(nil, root)
     sendRoot(root.copyInto())
 
