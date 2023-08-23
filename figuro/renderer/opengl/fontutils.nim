@@ -127,37 +127,20 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
       fontId = glyph.fontId
       font = fontTable[fontId]
       wh = glyph.rect.wh
-      w = glyph.rect.w.int
-      h = glyph.rect.h.int
-
-    font.paint = whiteColor
 
     let
       text = $glyph.rune
-      typeface = font.typeface
       arrangement = typeset(@[newSpan(text, font)], bounds=wh)
       snappedBounds = arrangement.computeBounds().snapToPixels()
       lh = font.defaultLineHeight()
-    print snappedBounds, lh
-    let
       bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
                     snappedBounds.w, lh)
-    print bounds
-    let
       image = newImage(bounds.w.int, bounds.h.int)
-      # image = newImage(snappedBounds.w.int, snappedBounds.h.int)
     
     try:
-      # let path = getGlyphPath(font.typeface, glyph.rune)
-      # image.fillPath(path, rgba(255, 255, 255, 255))
-      # var m = rotate(180.0'f32)
-      # var m = translate(-snappedBounds.xy)
-      # var m =  translate(-snappedBounds.xy) * rotate(180.0'f32)
+      font.paint = whiteColor
       var m = translate(-bounds.xy)
       image.fillText(arrangement, m)
-      # image.rotate90()
-      # image.rotate90()
-      # image.flipHorizontal()
       ctx.putImage(hashFill, image)
       image.writeFile("pics/" & text & ".png")
       result = some hashFill
@@ -170,9 +153,8 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     wh = rect.wh
     pf = fontTable[font]
     arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh)
-    snappedBounds = arrangement.computeBounds().snapToPixels()
 
-  echo "getTypeset:"
+  # echo "getTypeset:"
   # echo "snappedBounds: ", snappedBounds
   # echo "arrangement: "
   # print arrangement
@@ -184,8 +166,8 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
-  echo "font: "
-  print arrangement.fonts[0].size
-  print arrangement.fonts[0].lineHeight
-  echo "arrangement: "
-  print result
+  # echo "font: "
+  # print arrangement.fonts[0].size
+  # print arrangement.fonts[0].lineHeight
+  # echo "arrangement: "
+  # print result
