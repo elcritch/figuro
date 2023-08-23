@@ -84,7 +84,7 @@ proc configureEvents(renderer: Renderer) =
   #   if window != nil:
   #     window.title = title
 
-  # app.running = true
+  app.running = true
 
 proc setupRenderer*(
     pixelate: bool,
