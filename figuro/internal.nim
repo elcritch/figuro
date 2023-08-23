@@ -1,6 +1,6 @@
 
 import std/locks
-import common/nodes/render as render
+import common/glyphs
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -17,17 +17,24 @@ type
 
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
-when not defined(nimscript):
-  var
-    setWindowTitle* {.runtimeVar.}: proc (title: string)
-    getWindowTitle* {.runtimeVar.}: proc (): string
-else:
+when defined(nimscript):
     proc setWindowTitle*(title: string) = discard
     proc getWindowTitle*(): string = discard
 
-var
-  appEvent* {.runtimeVar.}: UiEvent
-  renderEvent* {.runtimeVar.}: UiEvent
+    proc getWindowTitle*(): string = discard
+    proc loadFont*(name: string): FontId = discard
+else:
+
+  ## these are set at runtime by the opengl window
+  var
+    setWindowTitle* {.runtimeVar.}: proc (title: string)
+    getWindowTitle* {.runtimeVar.}: proc (): string
+
+    loadFont* {.runtimeVar.}: proc (name: string): FontId
+
+  var
+    appEvent* {.runtimeVar.}: UiEvent
+    renderEvent* {.runtimeVar.}: UiEvent
 
 
 proc initUiEvent*(): UiEvent =
