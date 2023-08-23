@@ -28,10 +28,12 @@ proc hash*(fnt: Font): Hash =
   result = !$h
 
 proc getTypeface*(name: string): FontId =
-    let
-      typeface = readTypeface(DataDirPath / name)
-      id = TypefaceId hash(typeface)
-    typefaceTable[id] = typeface
+  let
+    typeface = readTypeface(DataDirPath / name)
+    id = TypefaceId hash(typeface)
+  typefaceTable[id] = typeface
+  result = id
+  echo "getTypeFace: ", result
 
 proc getFont*(font: GlyphFont): FontId =
   let id = FontId hash(font)
