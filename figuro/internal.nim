@@ -17,7 +17,6 @@ type
 when defined(nimscript):
     proc setWindowTitle*(title: string) = discard
     proc getWindowTitle*(): string = discard
-    proc getWindowTitle*(): string = discard
     proc getTypeface*(name: string): TypefaceId = discard
     proc getFont*(font: GlyphFont): FontId = discard
     proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement = discard
@@ -25,9 +24,11 @@ else:
 
   from renderer/opengl/fontutils import getTypeface, getFont, getTypeset
   ## these are set at runtime by the opengl window
-  var
-    setWindowTitle* {.runtimeVar.}: proc (title: string)
-    getWindowTitle* {.runtimeVar.}: proc (): string
+
+  proc setWindowTitle*(title: string) =
+    discard
+  proc getWindowTitle*(): string =
+    discard
 
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
