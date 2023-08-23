@@ -88,17 +88,7 @@ proc configureEvents(renderer: Renderer) =
     typefaceTable[id] = typeface
   internal.loadFont = proc (font: GlyphFont): Hash =
     ## loads fonts from pixie
-    let id = FontId hash(font)
-    let typeface = typefaceTable[font.typefaceId]
-    var pxfont = newFont(typeface)
-    pxfont.typeface = typeface
-    pxfont.textCase = parseEnum[TextCase]($font.fontCase)
-    for pn, a in fieldPairs(pxfont[]):
-      for fn, b in fieldPairs(font):
-        when pn == fn:
-          a = b
-
-    fontTable[id] = pxfont
+    render.loadFont(font)
 
   app.running = true
 
