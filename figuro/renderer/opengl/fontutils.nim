@@ -1,6 +1,8 @@
 import std/[os, strformat, unicode, times, strutils, hashes]
 
-import pkg/[chroma, pixie]
+import pkg/chroma
+import pkg/pixie
+import pkg/pixie/fonts
 import pkg/opengl
 import pkg/windy
 
@@ -82,29 +84,13 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     except PixieError:
       result = none Hash
 
-  
-    # glyphOffsets[hashFill] = glyphOffset
+proc typeset*(text: string, font: FontId, box: Box): GlyphArrangement =
+  let
+    rect = box.scaled()
+    wh = rect.wh
+    pf = fontTable[font]
+    arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh)
+    snappedBounds = arrangement.computeBounds().snapToPixels()
 
-  # if node.stroke.weight > 0:
-  #   hashStroke = node.hashFontStroke(pos, subPixelShift)
+  echo "snappedBounds: ", snappedBounds
 
-  #   if hashStroke notin ctx.entries:
-  #     var
-  #       glyph = font.typeface.glyphs[pos.character]
-  #       glyphOffset: Vec2
-  #     let
-  #       glyphFill = font.getGlyphImage( glyph, glyphOffset, subPixelShift=subPixelShift)
-
-  #     let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
-  #     ctx.putImage(hashStroke, glyphStroke)
-
-
-# proc hashFontStroke*(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
-#   result = hash((
-#     9812,
-#     node.textStyle.fontFamily,
-#     pos.rune,
-#     (node.textStyle.fontSize*100).int,
-#     (subPixelShift*100).int,
-#     node.stroke.weight
-#   ))

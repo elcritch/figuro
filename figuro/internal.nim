@@ -23,6 +23,7 @@ when defined(nimscript):
     proc getWindowTitle*(): string = discard
     proc getTypeface*(name: string): TypefaceId = discard
     proc getFont*(font: GlyphFont): FontId = discard
+    proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement = discard
 else:
 
   ## these are set at runtime by the opengl window
@@ -31,6 +32,7 @@ else:
     getWindowTitle* {.runtimeVar.}: proc (): string
     getTypeface* {.runtimeVar.}: proc (name: string): TypefaceId
     getFont* {.runtimeVar.}: proc (font: GlyphFont): FontId
+    getTypeset* {.runtimeVar.}: proc (text: string, font: FontId, box: Box): GlyphArrangement
 
   var
     appEvent* {.runtimeVar.}: UiEvent

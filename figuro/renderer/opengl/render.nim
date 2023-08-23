@@ -6,7 +6,7 @@ import fontutils
 import context, formatflippy
 import commons
 export tables
-export loadTypeface, loadFont
+export loadTypeface, loadFont, typeset
 
 type
   Context = context.Context

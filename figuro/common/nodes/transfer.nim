@@ -37,9 +37,7 @@ proc convert*(current: Figuro): render.Node =
   of nkImage:
     result.image = current.image
   of nkText:
-    result.textLayout
-    # result.textStyle = current.textStyle
-    # result.textLayout = current.textLayout
+    # result.textLayout 
     discard
   of nkDrawable:
     result.points = current.points.mapIt(it.scaled)

@@ -86,6 +86,9 @@ proc configureEvents(renderer: Renderer) =
   internal.getFont = proc (font: GlyphFont): Hash =
     ## loads fonts from pixie
     render.loadFont(font)
+  internal.getTypeset = proc (text: string, font: FontId, box: Box): GlyphArrangement =
+    echo "typeset: ", text
+    render.typeset(text, font, box)
 
   app.running = true
 
