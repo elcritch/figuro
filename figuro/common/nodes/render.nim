@@ -33,7 +33,7 @@ type
     of nkImage:
       image*: ImageStyle
     of nkText:
-      textLayout*: seq[GlyphPosition]
+      textLayout*: GlyphArrangement
     of nkDrawable:
       points*: seq[Vec2]
     else:

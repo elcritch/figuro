@@ -9,12 +9,52 @@ import pkg/windy
 import utils, context
 import commons
 
+type
+
+  GlyphPosition* = object
+    ## Represents a glyph position after typesetting.
+    fontId*: FontId
+    fontSize*: float32
+    rune*: Rune
+    pos*: Vec2       # Where to draw the image character.
+    selectionRect*: Rect
+
 var
   typefaceTable*: Table[TypefaceId, Typeface]
+  typefaceLookupTable*: Table[Typeface, TypefaceId]
+
   fontTable*: Table[FontId, Font]
   fontLookupTable*: Table[Font, FontId]
 
   glyphOffsets*: Table[Hash, Vec2]
+
+iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
+  var idx = 0
+  for (span, fontId) in zip(arrangement.spans, arrangement.fonts):
+    block spanners:
+      let
+        span = span[0] .. span[1]
+        font = fontTable[fontId]
+        typefaceId = typefaceLookupTable[font.typeface]
+
+      while idx < arrangement.runes.len():
+        if idx notin span:
+          break
+        else:
+          idx.inc()
+
+        let
+          pos = arrangement.positions[idx]
+          rune = arrangement.runes[idx]
+          selection = arrangement.selectionRects[idx]
+
+        yield GlyphPosition(
+          fontId: fontId,
+          fontSize: font.size,
+          rune: rune,
+          pos: pos,
+          selectionRect: selection,
+        )
 
 proc hash*(tp: Typeface): Hash = 
   var h = Hash(0)
@@ -33,6 +73,7 @@ proc getTypeface*(name: string): FontId =
     typeface = readTypeface(DataDirPath / name)
     id = TypefaceId hash(typeface)
   typefaceTable[id] = typeface
+  typefaceLookupTable[typeface] = id
   result = id
   echo "getTypeFace: ", result
 
@@ -61,7 +102,7 @@ proc hash*(glyph: GlyphPosition): Hash {.inline.} =
     2344,
     glyph.fontId,
     glyph.rune,
-    (glyph.subPixelShift*100).int,
+    # (glyph.subPixelShift*100).int,
     0
   ))
 
@@ -76,8 +117,8 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     let
       fontId = glyph.fontId
       font = fontTable[fontId]
-      w = glyph.selectRect.w.int
-      h = glyph.selectRect.h.int
+      w = glyph.pos.x.int
+      h = glyph.pos.y.int
 
     let
       image = newImage(w, h)
@@ -108,4 +149,3 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
-

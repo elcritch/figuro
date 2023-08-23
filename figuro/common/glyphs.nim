@@ -1,4 +1,4 @@
-import std/[hashes, unicode]
+import std/[hashes, unicode, sequtils]
 import uimaths
 
 export uimaths
@@ -24,15 +24,6 @@ type
     underline*: bool            ## Apply an underline.
     strikethrough*: bool        ## Apply a strikethrough.
     noKerningAdjustments*: bool ## Optionally disable kerning pair adjustments
-
-  GlyphPosition* = object
-    ## Represents a glyph position after typesetting.
-    fontSize*: float32
-    subPixelShift*: float32
-    rect*: Rect       # Where to draw the image character.
-    selectRect*: Rect # Were to draw or hit selection.
-    rune*: Rune
-    fontId*: FontId
 
   GlyphArrangement* = ref object
     lines*: seq[(int, int)]    ## The (start, stop) of the lines of text.

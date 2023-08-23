@@ -26,8 +26,9 @@ proc renderDrawable*(node: Node) =
 
 proc renderText(node: Node) =
   # draw characters
-  echo "renderText: ", node.textLayout.len
-  for glyphIdx, glyph in node.textLayout:
+  echo "renderText: ", node.textLayout.runes.len
+  for glyph in node.textLayout.glyphs():
+
     if glyph.rune == Rune(32):
       # Don't draw space, even if font has a char for it.
       # FIXME: use unicode 'is whitespace' ?
