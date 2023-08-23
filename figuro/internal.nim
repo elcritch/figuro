@@ -23,7 +23,7 @@ when defined(nimscript):
     proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement = discard
 else:
 
-  from renderer/opengl/fontutils import loadTypeface, loadFont, typeset
+  from renderer/opengl/fontutils import getTypeface, getFont, getTypeset
   ## these are set at runtime by the opengl window
   var
     setWindowTitle* {.runtimeVar.}: proc (title: string)
@@ -32,16 +32,16 @@ else:
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
     echo "getTypeFace"
-    loadTypeface(name)
+    fontutils.getTypeface(name)
 
   proc getFont*(font: GlyphFont): FontId =
     ## loads fonts from pixie
     echo "getFont"
-    loadFont(font)
+    fontutils.getFont(font)
 
   proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     echo "typeset: ", text
-    typeset(text, font, box)
+    fontutils.getTypeset(text, font, box)
 
   var
     appEvent* {.runtimeVar.}: UiEvent

@@ -27,13 +27,13 @@ proc hash*(fnt: Font): Hash =
       h = h !& hash(f)
   result = !$h
 
-proc loadTypeface*(name: string): FontId =
+proc getTypeface*(name: string): FontId =
     let
       typeface = readTypeface(DataDirPath / name)
       id = TypefaceId hash(typeface)
     typefaceTable[id] = typeface
 
-proc loadFont*(font: GlyphFont): FontId =
+proc getFont*(font: GlyphFont): FontId =
   let id = FontId hash(font)
   let typeface = typefaceTable[font.typefaceId]
   var pxfont = newFont(typeface)
@@ -84,7 +84,7 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     except PixieError:
       result = none Hash
 
-proc typeset*(text: string, font: FontId, box: Box): GlyphArrangement =
+proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
   let
     rect = box.scaled()
     wh = rect.wh

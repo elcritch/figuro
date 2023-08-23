@@ -5,7 +5,7 @@ import figuro/widget
 import figuro
 
 let
-  typeface = loadTypeFace(DataDirPath / "IBMPlexSans-Regular.ttf")
+  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = loadFont: GlyphFont(
       typefaceId: typeface,
       size: 24
