@@ -21,7 +21,7 @@ type
 
 var
   typefaceTable*: Table[TypefaceId, Typeface]
-  typefaceLookupTable*: Table[Typeface, TypefaceId]
+  # typefaceLookupTable*: Table[Typeface, TypefaceId]
 
   fontTable*: Table[FontId, Font]
   fontLookupTable*: Table[Font, FontId]
@@ -35,7 +35,6 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
       let
         span = span[0] .. span[1]
         font = fontTable[fontId]
-        typefaceId = typefaceLookupTable[font.typeface]
 
       while idx < arrangement.runes.len():
         if idx notin span:
@@ -73,7 +72,6 @@ proc getTypeface*(name: string): FontId =
     typeface = readTypeface(DataDirPath / name)
     id = TypefaceId hash(typeface)
   typefaceTable[id] = typeface
-  typefaceLookupTable[typeface] = id
   result = id
   echo "getTypeFace: ", result
 

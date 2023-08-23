@@ -39,7 +39,7 @@ proc renderText(node: Node) =
       glyphId = ctx.getGlyphImage(glyph)
 
     if glyphId.isSome():
-      ctx.drawImage(glyphId.get(), glyph.rect.xy, node.fill)
+      ctx.drawImage(glyphId.get(), glyph.pos, node.fill)
   
 import macros
 
