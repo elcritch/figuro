@@ -14,7 +14,7 @@ var ctx*: Context
 
 proc renderBoxes*(node: Node)
 
-proc drawDrawable*(node: Node) =
+proc renderDrawable*(node: Node) =
   # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
@@ -23,7 +23,7 @@ proc drawDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-proc drawText(node: Node) =
+proc renderText(node: Node) =
   # draw characters
   for glyphIdx, glyph in node.textLayout:
     if glyph.rune == Rune(32):
@@ -32,8 +32,7 @@ proc drawText(node: Node) =
       continue
 
     let
-      fontId = glyph.fontId
-      subPixelShift = floor(glyph.subPixelShift * 10) / 10
+      # subPixelShift = floor(glyph.subPixelShift * 10) / 10
       glyphId = ctx.getGlyphImage(glyph)
 
     if glyphId.isSome():
@@ -175,10 +174,9 @@ proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
 
   ifrender true:
     if node.kind == nkText:
-      # node.drawText()
-      discard
+      node.renderText()
     elif node.kind == nkDrawable:
-      node.drawDrawable()
+      node.renderDrawable()
     elif node.kind == nkRectangle:
       node.renderBoxes()
 
