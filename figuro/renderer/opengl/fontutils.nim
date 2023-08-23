@@ -130,7 +130,7 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     
     try:
       let path = getGlyphPath(font.typeface, glyph.rune)
-      image.fillPath(path, rgba(255, 255, 255, 255))
+      image.fillPath(path, rgba(255, 255, 255, 0))
       ctx.putImage(hashFill, image)
       result = some hashFill
     except PixieError:

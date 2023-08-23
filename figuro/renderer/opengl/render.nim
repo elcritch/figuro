@@ -41,6 +41,8 @@ proc renderText(node: Node) =
     let
       # subPixelShift = floor(glyph.subPixelShift * 10) / 10
       glyphId = ctx.getGlyphImage(glyph)
+    
+    print "glyphId: ", glyphId, " ", node.offset, " fill: ", node.fill
 
     if glyphId.isSome():
       ctx.drawImage(glyphId.get(), glyph.pos, node.fill)
