@@ -24,10 +24,14 @@ proc renderDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
+import pretty
+
 proc renderText(node: Node) =
   # draw characters
-  echo "renderText: ", node.textLayout.runes.len
+
   for glyph in node.textLayout.glyphs():
+    echo "renderText:glyph: "
+    print glyph
 
     if glyph.rune == Rune(32):
       # Don't draw space, even if font has a char for it.

@@ -9,6 +9,8 @@ import pkg/windy
 import utils, context
 import commons
 
+import pretty
+
 type
 
   GlyphPosition* = object
@@ -17,7 +19,7 @@ type
     fontSize*: float32
     rune*: Rune
     pos*: Vec2       # Where to draw the image character.
-    selectionRect*: Rect
+    rect*: Rect
 
 var
   typefaceTable*: Table[TypefaceId, Typeface]
@@ -37,11 +39,6 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
         font = fontTable[fontId]
 
       while idx < arrangement.runes.len():
-        if idx notin span:
-          break
-        else:
-          idx.inc()
-
         let
           pos = arrangement.positions[idx]
           rune = arrangement.runes[idx]
@@ -52,8 +49,13 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           fontSize: font.size,
           rune: rune,
           pos: pos,
-          selectionRect: selection,
+          rect: selection,
         )
+
+        if idx notin span:
+          break
+        else:
+          idx.inc()
 
 proc hash*(tp: Typeface): Hash = 
   var h = Hash(0)
@@ -79,6 +81,7 @@ proc getFont*(font: GlyphFont): FontId =
   let id = FontId hash(font)
   let typeface = typefaceTable[font.typefaceId]
   var pxfont = newFont(typeface)
+  pxfont.size = font.size
   pxfont.typeface = typeface
   pxfont.textCase = parseEnum[TextCase]($font.fontCase)
   # copy rest of the fields with matching names
@@ -86,12 +89,16 @@ proc getFont*(font: GlyphFont): FontId =
     for fn, b in fieldPairs(font):
       when pn == fn:
         a = b
-  if font.lineHeight == -1.0:
+  if font.lineHeight < 0.0:
     pxfont.lineHeight = autoLineHeight
   fontTable[id] = pxfont
   fontLookupTable[pxfont] = id
   result = id
+  echo "getFont:input: "
+  print font
   echo "getFont: ", result
+  print pxfont.size
+  print pxfont.lineHeight
 
 # proc loadGlyph*(font: GlyphFont):  =
 
@@ -115,8 +122,8 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     let
       fontId = glyph.fontId
       font = fontTable[fontId]
-      w = glyph.pos.x.int
-      h = glyph.pos.y.int
+      w = glyph.rect.w.int
+      h = glyph.rect.h.int
 
     let
       image = newImage(w, h)
@@ -139,6 +146,8 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
 
   echo "getTypeset:"
   echo "snappedBounds: ", snappedBounds
+  # echo "arrangement: "
+  # print arrangement
   result = GlyphArrangement(
     lines: arrangement.lines,
     spans: arrangement.spans,
@@ -147,3 +156,8 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
+  echo "font: "
+  print arrangement.fonts[0].size
+  print arrangement.fonts[0].lineHeight
+  echo "arrangement: "
+  print result

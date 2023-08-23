@@ -19,7 +19,7 @@ type
   GlyphFont* = object
     typefaceId*: TypefaceId
     size*: float32              ## Font size in pixels.
-    lineHeight*: float32 ## The line height in pixels or autoLineHeight for the font's default line height.
+    lineHeight*: float32 = -1.0 ## The line height in pixels or autoLineHeight for the font's default line height.
     fontCase*: FontCase
     underline*: bool            ## Apply an underline.
     strikethrough*: bool        ## Apply a strikethrough.
@@ -41,4 +41,4 @@ proc newFont*(typeface: TypefaceId): GlyphFont {.raises: [].} =
   result = GlyphFont()
   result.typefaceId = typeface
   result.size = 12
-  result.lineHeight = -1
+  result.lineHeight = -1.0
