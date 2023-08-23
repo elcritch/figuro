@@ -46,16 +46,16 @@ proc configureEvents(renderer: Renderer) =
   window.onResize = proc () =
     updateWindowSize(window)
     renderLoop(window, renderer.nodes, poll = false)
-    renderEvent.trigger()
+    # renderEvent.trigger()
   
   window.onFocusChange = proc () =
     app.focused = window.focused
-    appEvent.trigger()
+    # appEvent.trigger()
 
   window.onScroll = proc () =
     app.requestedFrame.inc
     uxInputs.mouse.wheelDelta = window.scrollDelta().descaled
-    renderEvent.trigger()
+    # renderEvent.trigger()
 
   window.onRune = keyboardInput
 
@@ -70,27 +70,21 @@ proc configureEvents(renderer: Renderer) =
 
   window.onButtonPress = proc (button: windy.Button) =
     app.requestedFrame.inc
-    appEvent.trigger()
+    # appEvent.trigger()
+    discard
 
   window.onButtonRelease = proc (button: Button) =
-    appEvent.trigger()
+    # appEvent.trigger()
+    app.requestedFrame.inc
+    discard
 
-  internal.getWindowTitle = proc (): string =
-    window.title
-  internal.setWindowTitle = proc (title: string) =
-    if window != nil:
-      window.title = title
-  internal.getTypeface = proc (name: string): Hash =
-    ## loads typeface from pixie
-    render.loadTypeface(name)
-  internal.getFont = proc (font: GlyphFont): Hash =
-    ## loads fonts from pixie
-    render.loadFont(font)
-  internal.getTypeset = proc (text: string, font: FontId, box: Box): GlyphArrangement =
-    echo "typeset: ", text
-    render.typeset(text, font, box)
+  # internal.getWindowTitle = proc (): string =
+  #   window.title
+  # internal.setWindowTitle = proc (title: string) =
+  #   if window != nil:
+  #     window.title = title
 
-  app.running = true
+  # app.running = true
 
 proc setupRenderer*(
     pixelate: bool,

@@ -10,11 +10,8 @@ else:
 type
   MainCallback* = proc() {.closure.}
 
-type
-  ScaleInfo* = object
-    x*: float32
-    y*: float32
 
+type
   UiEvent* = tuple[cond: Cond, lock: Lock]
 
 when defined(nimscript):
@@ -26,13 +23,25 @@ when defined(nimscript):
     proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement = discard
 else:
 
+  from renderer/opengl/fontutils import loadTypeface, loadFont, typeset
   ## these are set at runtime by the opengl window
   var
     setWindowTitle* {.runtimeVar.}: proc (title: string)
     getWindowTitle* {.runtimeVar.}: proc (): string
-    getTypeface* {.runtimeVar.}: proc (name: string): TypefaceId
-    getFont* {.runtimeVar.}: proc (font: GlyphFont): FontId
-    getTypeset* {.runtimeVar.}: proc (text: string, font: FontId, box: Box): GlyphArrangement
+
+  proc getTypeface*(name: string): TypefaceId =
+    ## loads typeface from pixie
+    echo "getTypeFace"
+    loadTypeface(name)
+
+  proc getFont*(font: GlyphFont): FontId =
+    ## loads fonts from pixie
+    echo "getFont"
+    loadFont(font)
+
+  proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
+    echo "typeset: ", text
+    typeset(text, font, box)
 
   var
     appEvent* {.runtimeVar.}: UiEvent

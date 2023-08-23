@@ -28,6 +28,11 @@ const
   DataDirPath* {.strdefine.} = "./data"
 
 type
+  ScaleInfo* = object
+    x*: float32
+    y*: float32
+
+type
   AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
 
   AppState* = object
