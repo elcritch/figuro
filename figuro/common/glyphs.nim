@@ -7,6 +7,7 @@ type
 
   TypefaceId* = Hash
   FontId* = Hash
+  GlyphId* = Hash
   FontName* = string
 
   FontCase* = enum
@@ -31,6 +32,7 @@ type
     rect*: Rect       # Where to draw the image character.
     selectRect*: Rect # Were to draw or hit selection.
     rune*: Rune
+    fontId*: FontId
 
   GlyphArrangement* = ref object
     lines*: seq[(int, int)]    ## The (start, stop) of the lines of text.
@@ -39,3 +41,7 @@ type
     runes*: seq[Rune]          ## The runes of the text.
     positions*: seq[Vec2]      ## The positions of the glyphs for each rune.
     selectionRects*: seq[Rect] ## The selection rects for each glyph.
+
+  TextSpan* = object
+    text*: string
+    font*: FontId

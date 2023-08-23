@@ -44,22 +44,65 @@ proc loadFont*(font: GlyphFont): FontId =
         a = b
   fontTable[id] = pxfont
 
-proc hashFontFill*(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
+# proc loadGlyph*(font: GlyphFont):  =
+
+proc hash*(glyph: GlyphPosition): Hash {.inline.} =
   result = hash((
     2344,
-    node.textStyle.fontFamily,
-    pos.rune,
-    (node.textStyle.fontSize*100).int,
-    (subPixelShift*100).int,
+    glyph.fontId,
+    glyph.rune,
+    (glyph.subPixelShift*100).int,
     0
   ))
 
-proc hashFontStroke*(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
-  result = hash((
-    9812,
-    node.textStyle.fontFamily,
-    pos.rune,
-    (node.textStyle.fontSize*100).int,
-    (subPixelShift*100).int,
-    node.stroke.weight
-  ))
+proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] = 
+  ## returns Glyph's hash, will generate glyph if needed
+  
+  let hashFill = glyph.hash()
+
+  if hashFill in ctx.entries:
+    result = some hashFill
+  if hashFill notin ctx.entries:
+    let
+      fontId = glyph.fontId
+      font = fontTable[fontId]
+      w = glyph.selectRect.w.int
+      h = glyph.selectRect.h.int
+
+    let
+      image = newImage(w, h)
+    
+    try:
+      let path = getGlyphPath(font.typeface, glyph.rune)
+      image.fillPath(path, rgba(255, 255, 255, 255))
+      ctx.putImage(hashFill, image)
+      result = some hashFill
+    except PixieError:
+      result = none Hash
+
+  
+    # glyphOffsets[hashFill] = glyphOffset
+
+  # if node.stroke.weight > 0:
+  #   hashStroke = node.hashFontStroke(pos, subPixelShift)
+
+  #   if hashStroke notin ctx.entries:
+  #     var
+  #       glyph = font.typeface.glyphs[pos.character]
+  #       glyphOffset: Vec2
+  #     let
+  #       glyphFill = font.getGlyphImage( glyph, glyphOffset, subPixelShift=subPixelShift)
+
+  #     let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
+  #     ctx.putImage(hashStroke, glyphStroke)
+
+
+# proc hashFontStroke*(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
+#   result = hash((
+#     9812,
+#     node.textStyle.fontFamily,
+#     pos.rune,
+#     (node.textStyle.fontSize*100).int,
+#     (subPixelShift*100).int,
+#     node.stroke.weight
+#   ))

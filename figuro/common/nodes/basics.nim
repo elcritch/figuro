@@ -55,17 +55,6 @@ type
     tsWidthAndHeight
     tsHeight
 
-  TextStyle* = object
-    ## Holder for text styles.
-    fontFamily*: string
-    fontSize*: UICoord
-    fontWeight*: UICoord
-    lineHeight*: UICoord
-    textAlignHorizontal*: HAlign
-    textAlignVertical*: VAlign
-    autoResize*: TextAutoResize
-    textPadding*: int
-
   BorderStyle* = object
     ## What kind of border.
     # color*: Color

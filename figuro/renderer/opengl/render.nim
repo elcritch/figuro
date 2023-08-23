@@ -1,4 +1,4 @@
-import std/[hashes, os, strformat, tables, times]
+import std/[hashes, os, strformat, tables, times, unicode]
 
 import pixie, chroma
 
@@ -23,69 +23,21 @@ proc drawDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-# proc drawText(node: Node) =
-#   if node.textStyle.fontFamily notin fonts:
-#     quit &"font not found: {node.textStyle.fontFamily}"
+proc drawText(node: Node) =
+  # draw characters
+  for glyphIdx, glyph in node.textLayout:
+    if glyph.rune == Rune(32):
+      # Don't draw space, even if font has a char for it.
+      # FIXME: use unicode 'is whitespace' ?
+      continue
 
-#   var font = fonts[node.textStyle.fontFamily]
-#   font.size = node.textStyle.fontSize.scaled
-#   font.lineHeight = node.textStyle.lineHeight.scaled
-#   # if font.lineHeight == 0:
-#   #   font.lineHeight = defaultLineHeight(node.textStyle).scaled
+    let
+      fontId = glyph.fontId
+      subPixelShift = floor(glyph.subPixelShift * 10) / 10
+      glyphId = ctx.getGlyphImage(glyph)
 
-#   # draw characters
-#   for glyphIdx, pos in node.textLayout:
-#     if $pos.rune notin font.typeface.glyphs:
-#       continue
-#     if pos.rune == Rune(32):
-#       # Don't draw space, even if font has a char for it.
-#       # FIXME: use unicode 'is whitespace' ?
-#       continue
-
-#     let
-#       font = node.textStyle.font
-#       subPixelShift = floor(pos.subPixelShift * 10) / 10
-#       hashFill = node.hashFontFill(pos, subPixelShift)
-
-#     var
-#       hashStroke: Hash
-
-#     if hashFill notin ctx.entries:
-#       var
-#         glyph = font.typeface.glyphs[pos.character]
-#         glyphOffset: Vec2
-#       let
-#         glyphFill = font.getGlyphImage(glyph, glyphOffset, subPixelShift=subPixelShift)
-
-#       ctx.putImage(hashFill, glyphFill)
-#       glyphOffsets[hashFill] = glyphOffset
-
-#     if node.stroke.weight > 0:
-#       hashStroke = node.hashFontStroke(pos, subPixelShift)
-
-#       if hashStroke notin ctx.entries:
-#         var
-#           glyph = font.typeface.glyphs[pos.character]
-#           glyphOffset: Vec2
-#         let
-#           glyphFill = font.getGlyphImage( glyph, glyphOffset, subPixelShift=subPixelShift)
-
-#         let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
-#         ctx.putImage(hashStroke, glyphStroke)
-
-#     let
-#       glyphOffset = glyphOffsets[hashFill]
-#       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
-
-#     if node.stroke.weight > 0 and node.stroke.color.a > 0:
-#       ctx.drawImage(
-#         hashStroke,
-#         charPos - vec2(node.stroke.weight,
-#                        node.stroke.weight),
-#         node.stroke.color
-#       )
-
-#     ctx.drawImage(hashFill, charPos, node.fill)
+    if glyphId.isSome():
+      ctx.drawImage(glyphId.get(), glyph.rect.xy, node.fill)
   
 import macros
 
