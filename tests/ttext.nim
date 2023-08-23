@@ -8,7 +8,7 @@ let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = loadFont: GlyphFont(
       typefaceId: typeface,
-      size: 24
+      size: 44
     )
 
 type
@@ -27,8 +27,8 @@ proc draw*(self: Main) {.slot.} =
     self.mainRect = current
     box 60, 10, 600, 120
     cornerRadius 10.0
-    fill "#2A9EEA".parseHtmlColor * 0.7
-    # fill whiteColor
+    # fill "#2A9EEA".parseHtmlColor * 0.7
+    fill whiteColor
     text "text":
       box 20, 100, 400, 80
       fill blackColor

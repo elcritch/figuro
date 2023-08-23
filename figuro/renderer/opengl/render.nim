@@ -42,10 +42,15 @@ proc renderText(node: Node) =
       # subPixelShift = floor(glyph.subPixelShift * 10) / 10
       glyphId = ctx.getGlyphImage(glyph)
     
-    print "glyphId: ", glyphId, " ", node.offset, " fill: ", node.fill
+    print "glyphId: ", glyphId, " ", node.screenBox, " fill: ", node.fill
 
     if glyphId.isSome():
-      ctx.drawImage(glyphId.get(), glyph.pos, node.fill)
+      let
+        offset = node.screenBox.xy
+        charPos = vec2(glyph.pos.x + offset.x,
+                       glyph.pos.y + offset.y)
+      print charPos
+      ctx.drawImage(glyphId.get(), charPos, node.fill)
   
 import macros
 
@@ -100,6 +105,7 @@ proc renderShadows*(node: Node) =
 proc renderBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
+    print "renderBoxes: ", node.screenBox.atXY(0'f32, 0'f32)
     if node.cornerRadius > 0:
       ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.fill,

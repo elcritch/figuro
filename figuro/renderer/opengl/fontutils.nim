@@ -122,16 +122,22 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     let
       fontId = glyph.fontId
       font = fontTable[fontId]
+      wh = glyph.rect.wh
       w = glyph.rect.w.int
       h = glyph.rect.h.int
 
     let
+      text = $glyph.rune
+      arrangement = typeset(@[newSpan(text, font)], bounds=wh)
+      snappedBounds = arrangement.computeBounds().snapToPixels()
       image = newImage(w, h)
     
     try:
-      let path = getGlyphPath(font.typeface, glyph.rune)
-      image.fillPath(path, rgba(255, 255, 255, 0))
+      # let path = getGlyphPath(font.typeface, glyph.rune)
+      # image.fillPath(path, rgba(255, 255, 255, 255))
+      image.fillText(arrangement, translate(-snappedBounds.xy))
       ctx.putImage(hashFill, image)
+      image.writeFile("pics/" & text & ".png")
       result = some hashFill
     except PixieError:
       result = none Hash
