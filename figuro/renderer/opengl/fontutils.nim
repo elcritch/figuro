@@ -126,11 +126,13 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
       w = glyph.rect.w.int
       h = glyph.rect.h.int
 
+    font.paint = whiteColor
+
     let
       text = $glyph.rune
       arrangement = typeset(@[newSpan(text, font)], bounds=wh)
       snappedBounds = arrangement.computeBounds().snapToPixels()
-      image = newImage(w, h)
+      image = newImage(snappedBounds.w.int, snappedBounds.h.int)
     
     try:
       # let path = getGlyphPath(font.typeface, glyph.rune)
