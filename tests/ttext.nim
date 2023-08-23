@@ -30,7 +30,7 @@ proc draw*(self: Main) {.slot.} =
     fill "#2A9EEA".parseHtmlColor * 0.7
     # fill whiteColor
     text "text":
-      box 0, 0, 400, 80
+      box 10, 10, 400, 80
       fill blackColor
       setText(font, "hello world!")
 

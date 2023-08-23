@@ -51,10 +51,10 @@ proc renderText(node: Node) =
     if glyphId.isSome():
       let
         offset = node.screenBox.xy
-        # charPos = vec2(glyph.pos.x - offset.x,
-        #                glyph.pos.y - offset.y)
-        charPos = vec2(glyph.pos.x,
-                       glyph.pos.y + glyph.descent)
+        charPos = vec2(glyph.pos.x + offset.x,
+                       glyph.pos.y + offset.y)
+        # charPos = vec2(glyph.pos.x,
+        #                glyph.pos.y + glyph.descent)
       print charPos
       ctx.drawImage(glyphId.get(), charPos, node.fill)
   

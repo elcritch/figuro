@@ -140,9 +140,18 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
 
     let
       text = $glyph.rune
+      typeface = font.typeface
       arrangement = typeset(@[newSpan(text, font)], bounds=wh)
       snappedBounds = arrangement.computeBounds().snapToPixels()
-      image = newImage(snappedBounds.w.int, snappedBounds.h.int)
+      lh = font.defaultLineHeight()
+    print snappedBounds, lh
+    let
+      bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
+                    snappedBounds.w, lh)
+    print bounds
+    let
+      image = newImage(bounds.w.int, bounds.h.int)
+      # image = newImage(snappedBounds.w.int, snappedBounds.h.int)
     
     try:
       # let path = getGlyphPath(font.typeface, glyph.rune)
@@ -150,11 +159,11 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
       # var m = rotate(180.0'f32)
       # var m = translate(-snappedBounds.xy)
       # var m =  translate(-snappedBounds.xy) * rotate(180.0'f32)
-      var m = translate(-snappedBounds.xy)
+      var m = translate(-bounds.xy)
       image.fillText(arrangement, m)
-      image.rotate90()
-      image.rotate90()
-      image.flipHorizontal()
+      # image.rotate90()
+      # image.rotate90()
+      # image.flipHorizontal()
       ctx.putImage(hashFill, image)
       image.writeFile("pics/" & text & ".png")
       result = some hashFill
@@ -170,7 +179,7 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     snappedBounds = arrangement.computeBounds().snapToPixels()
 
   echo "getTypeset:"
-  echo "snappedBounds: ", snappedBounds
+  # echo "snappedBounds: ", snappedBounds
   # echo "arrangement: "
   # print arrangement
   result = GlyphArrangement(
