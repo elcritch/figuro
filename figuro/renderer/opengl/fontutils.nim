@@ -1,5 +1,6 @@
 import std/[os, strformat, unicode, times, strutils, hashes]
 
+import pkg/vmath
 import pkg/chroma
 import pkg/pixie
 import pkg/pixie/fonts
@@ -146,9 +147,15 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     try:
       # let path = getGlyphPath(font.typeface, glyph.rune)
       # image.fillPath(path, rgba(255, 255, 255, 255))
-      image.fillText(arrangement, translate(-snappedBounds.xy))
+      # var m = rotate(180.0'f32)
+      # var m = translate(-snappedBounds.xy)
+      # var m =  translate(-snappedBounds.xy) * rotate(180.0'f32)
+      var m = translate(-snappedBounds.xy)
+      image.fillText(arrangement, m)
+      image.rotate90()
+      image.rotate90()
+      image.flipHorizontal()
       ctx.putImage(hashFill, image)
-      echo "getGlyphImage: lineheight: ", font.defaultLineHeight
       image.writeFile("pics/" & text & ".png")
       result = some hashFill
     except PixieError:

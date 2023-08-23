@@ -54,7 +54,7 @@ proc renderText(node: Node) =
         # charPos = vec2(glyph.pos.x - offset.x,
         #                glyph.pos.y - offset.y)
         charPos = vec2(glyph.pos.x,
-                       glyph.pos.y + glyph.rect.h + glyph.descent)
+                       glyph.pos.y + glyph.descent)
       print charPos
       ctx.drawImage(glyphId.get(), charPos, node.fill)
   
