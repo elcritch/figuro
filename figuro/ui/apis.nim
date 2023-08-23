@@ -250,5 +250,5 @@ proc loadFont*(font: GlyphFont): FontId =
   ## Sets all radius of all 4 corners.
   internal.getFont(font)
 
-proc setText*(font: FontId, text: string): GlyphArrangement =
-  internal.getTypeset(text, font, current.box)
+proc setText*(font: FontId, text: string) =
+  current.textLayout = internal.getTypeset(text, font, current.box)

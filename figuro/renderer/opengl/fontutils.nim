@@ -12,6 +12,7 @@ import commons
 var
   typefaceTable*: Table[TypefaceId, Typeface]
   fontTable*: Table[FontId, Font]
+  fontLookupTable*: Table[Font, FontId]
 
   glyphOffsets*: Table[Hash, Vec2]
 
@@ -49,6 +50,7 @@ proc getFont*(font: GlyphFont): FontId =
   if font.lineHeight == -1.0:
     pxfont.lineHeight = autoLineHeight
   fontTable[id] = pxfont
+  fontLookupTable[pxfont] = id
   result = id
   echo "getFont: ", result
 
@@ -96,5 +98,11 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh)
     snappedBounds = arrangement.computeBounds().snapToPixels()
 
+  echo "getTypeset:"
   echo "snappedBounds: ", snappedBounds
+  result = GlyphArrangement(
+    lines: arrangement.lines,
+    spans: arrangement.spans,
+    fonts: arrangement.fonts.mapIt(fontLookupTable[it]),
+  )
 

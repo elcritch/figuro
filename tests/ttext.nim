@@ -30,6 +30,7 @@ proc draw*(self: Main) {.slot.} =
     fill "#2A9EEA".parseHtmlColor * 0.7
     text "text":
       box 0, 0, 660, 130
+      setText(font, "hello world!")
 
 var
   fig = FiguroApp()
