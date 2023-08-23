@@ -1,20 +1,31 @@
-import std/hashes, unicode, os, strformat, tables, times
+import std/hashes, os, strformat, tables, times
 
 # import typography
 import pixie, chroma
 
 import context, formatflippy
 import commons
+export tables
+
+proc hash*(tp: Typeface): Hash = 
+  var h = Hash(0)
+  h = h !& hash tp.filePath
+  result = !$h
+proc hash*(fnt: Font): Hash = 
+  var h = Hash(0)
+  for n, f in fnt[].fieldPairs():
+    when n != "paints":
+      h = h !& hash(f)
+  result = !$h
 
 type
   Context = context.Context
 
 var
   ctx*: Context
-  glyphOffsets: Table[Hash, Vec2]
-
-  # Used for double-clicking
-  # currLevel: ZLevel
+  glyphOffsets*: Table[Hash, Vec2]
+  typefaceTable*: Table[TypefaceId, Typeface]
+  fontTable*: Table[FontId, Font]
 
 proc hashFontFill(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
   result = hash((

@@ -5,8 +5,24 @@ export uimaths
 
 type
 
+  TypefaceId* = Hash
   FontId* = Hash
   FontName* = string
+
+  TextCase* = enum
+    NormalCase
+    UpperCase
+    LowerCase
+    TitleCase
+
+  GlyphFont* = object
+    typeface*: TypefaceId
+    size*: float32              ## Font size in pixels.
+    lineHeight*: float32 ## The line height in pixels or autoLineHeight for the font's default line height.
+    textCase*: TextCase
+    underline*: bool            ## Apply an underline.
+    strikethrough*: bool        ## Apply a strikethrough.
+    noKerningAdjustments*: bool ## Optionally disable kerning pair adjustments
 
   GlyphPosition* = object
     ## Represents a glyph position after typesetting.

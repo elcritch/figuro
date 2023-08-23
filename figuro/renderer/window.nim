@@ -1,8 +1,9 @@
 import std/[os, hashes, strformat, strutils, tables, times]
 
 import chroma
-import typography, typography/svgfont
+# import typography, typography/svgfont
 import pixie
+import pixie/fonts
 import windy
 
 import opengl/[base, context, render]
@@ -79,6 +80,11 @@ proc configureEvents(renderer: Renderer) =
   internal.setWindowTitle = proc (title: string) =
     if window != nil:
       window.title = title
+  internal.loadTypeface = proc (name: string): Hash =
+    let
+      typeface = readTypeface(DataDirPath / name)
+      id = TypefaceId hash(typeface)
+    typefaceTable[id] = typeface
 
   app.running = true
 

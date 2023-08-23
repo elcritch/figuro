@@ -20,17 +20,17 @@ type
 when defined(nimscript):
     proc setWindowTitle*(title: string) = discard
     proc getWindowTitle*(): string = discard
-
     proc getWindowTitle*(): string = discard
-    proc loadFont*(name: string): FontId = discard
+    proc loadTypeface*(name: string): TypefaceId = discard
+    proc loadFont*(font: GlyphFont): FontId = discard
 else:
 
   ## these are set at runtime by the opengl window
   var
     setWindowTitle* {.runtimeVar.}: proc (title: string)
     getWindowTitle* {.runtimeVar.}: proc (): string
-
-    loadFont* {.runtimeVar.}: proc (name: string): FontId
+    loadTypeface* {.runtimeVar.}: proc (name: string): TypefaceId
+    loadFont* {.runtimeVar.}: proc (font: GlyphFont): FontId
 
   var
     appEvent* {.runtimeVar.}: UiEvent
