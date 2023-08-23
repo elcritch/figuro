@@ -20,6 +20,7 @@ type
     rune*: Rune
     pos*: Vec2       # Where to draw the image character.
     rect*: Rect
+    descent*: float32
 
 var
   typefaceTable*: Table[TypefaceId, Typeface]
@@ -37,6 +38,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
       let
         span = span[0] .. span[1]
         font = fontTable[fontId]
+        typeface = font.typeface
 
       while idx < arrangement.runes.len():
         let
@@ -44,12 +46,19 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune = arrangement.runes[idx]
           selection = arrangement.selectionRects[idx]
 
+        echo "glyph:"
+        print typeface.descent() / typeface.scale * font.size
+        print typeface.ascent() / typeface.scale * font.size
+        print typeface.lineGap() / typeface.scale * font.size
+        print typeface.lineHeight() / typeface.scale * font.size
+
         yield GlyphPosition(
           fontId: fontId,
           fontSize: font.size,
           rune: rune,
           pos: pos,
           rect: selection,
+          descent: typeface.descent() / typeface.scale * font.size,
         )
 
         if idx notin span:
@@ -139,6 +148,7 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
       # image.fillPath(path, rgba(255, 255, 255, 255))
       image.fillText(arrangement, translate(-snappedBounds.xy))
       ctx.putImage(hashFill, image)
+      echo "getGlyphImage: lineheight: ", font.defaultLineHeight
       image.writeFile("pics/" & text & ".png")
       result = some hashFill
     except PixieError:

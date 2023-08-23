@@ -42,13 +42,19 @@ proc renderText(node: Node) =
       # subPixelShift = floor(glyph.subPixelShift * 10) / 10
       glyphId = ctx.getGlyphImage(glyph)
     
-    print "glyphId: ", glyphId, " ", node.screenBox, " fill: ", node.fill
+    print "glyphId: ", glyphId,
+              " screen: ", node.screenBox,
+              " offset: ", node.offset,
+              " total offset: ", node.totalOffset
+    print "glyph: ", glyph
 
     if glyphId.isSome():
       let
         offset = node.screenBox.xy
-        charPos = vec2(glyph.pos.x + offset.x,
-                       glyph.pos.y + offset.y)
+        # charPos = vec2(glyph.pos.x - offset.x,
+        #                glyph.pos.y - offset.y)
+        charPos = vec2(glyph.pos.x,
+                       glyph.pos.y + glyph.rect.h + glyph.descent)
       print charPos
       ctx.drawImage(glyphId.get(), charPos, node.fill)
   

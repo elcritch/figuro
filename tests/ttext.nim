@@ -25,12 +25,12 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
     self.mainRect = current
-    box 60, 10, 600, 120
+    box 0, 0, 600, 120
     cornerRadius 10.0
-    # fill "#2A9EEA".parseHtmlColor * 0.7
-    fill whiteColor
+    fill "#2A9EEA".parseHtmlColor * 0.7
+    # fill whiteColor
     text "text":
-      box 20, 100, 400, 80
+      box 0, 0, 400, 80
       fill blackColor
       setText(font, "hello world!")
 
