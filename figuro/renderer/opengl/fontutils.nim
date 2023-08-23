@@ -4,7 +4,7 @@ import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windy
 
-import utils, context, render
+import utils, context
 import commons
 
 var
