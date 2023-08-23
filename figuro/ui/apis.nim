@@ -8,10 +8,10 @@ import commons, core
 
 export core
 
-proc defaultLineHeight*(fontSize: UICoord): UICoord =
-  result = fontSize * defaultlineHeightRatio
-proc defaultLineHeight*(ts: TextStyle): UICoord =
-  result = defaultLineHeight(ts.fontSize)
+# proc defaultLineHeight*(fontSize: UICoord): UICoord =
+#   result = fontSize * defaultlineHeightRatio
+# proc defaultLineHeight*(ts: TextStyle): UICoord =
+#   result = defaultLineHeight(ts.fontSize)
 
 proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.

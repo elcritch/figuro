@@ -82,10 +82,7 @@ proc configureEvents(renderer: Renderer) =
       window.title = title
   internal.loadTypeface = proc (name: string): Hash =
     ## loads typeface from pixie
-    let
-      typeface = readTypeface(DataDirPath / name)
-      id = TypefaceId hash(typeface)
-    typefaceTable[id] = typeface
+    render.loadTypeface(name)
   internal.loadFont = proc (font: GlyphFont): Hash =
     ## loads fonts from pixie
     render.loadFont(font)
