@@ -26,6 +26,7 @@ proc renderDrawable*(node: Node) =
 
 proc renderText(node: Node) =
   # draw characters
+  echo "renderText: ", node.textLayout.len
   for glyphIdx, glyph in node.textLayout:
     if glyph.rune == Rune(32):
       # Don't draw space, even if font has a char for it.

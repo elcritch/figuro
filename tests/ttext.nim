@@ -1,0 +1,36 @@
+
+## This minimal example shows 5 blue squares.
+import figuro/widgets/button
+import figuro/widget
+import figuro
+
+type
+  Main* = ref object of Figuro
+    value: float
+    hasHovered: bool
+    mainRect: Figuro
+
+proc hover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
+  # echo "main: child hovered: ", kind
+  refresh(self.mainRect)
+
+proc draw*(self: Main) {.slot.} =
+  rectangle "main":
+    self.mainRect = current
+    box 60, 10, 600, 120
+    cornerRadius 10.0
+    fill "#2A9EEA".parseHtmlColor * 0.7
+    text "text":
+      box 0, 0, 660, 130
+
+var
+  fig = FiguroApp()
+  main = Main()
+
+connect(fig, onDraw, main, Main.draw)
+
+app.width = 720
+app.height = 140
+
+startFiguro(fig)

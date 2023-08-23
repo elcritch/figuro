@@ -75,6 +75,10 @@ template rectangle*(id, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkRectangle, id, inner)
 
+template text*(id, inner: untyped): untyped =
+  ## Starts a new rectangle.
+  node(nkText, id, inner)
+
 ## Overloaded Nodes 
 ## ^^^^^^^^^^^^^^^^
 ## 
