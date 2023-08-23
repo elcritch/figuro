@@ -49,6 +49,8 @@ proc getFont*(font: GlyphFont): FontId =
   if font.lineHeight == -1.0:
     pxfont.lineHeight = autoLineHeight
   fontTable[id] = pxfont
+  result = id
+  echo "getFont: ", result
 
 # proc loadGlyph*(font: GlyphFont):  =
 

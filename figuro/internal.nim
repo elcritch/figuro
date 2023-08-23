@@ -32,16 +32,13 @@ else:
 
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
-    echo "getTypeFace"
     fontutils.getTypeface(name)
 
   proc getFont*(font: GlyphFont): FontId =
     ## loads fonts from pixie
-    echo "getFont"
     fontutils.getFont(font)
 
   proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
-    echo "typeset: ", text
     fontutils.getTypeset(text, font, box)
 
   var
