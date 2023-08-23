@@ -45,3 +45,9 @@ type
   TextSpan* = object
     text*: string
     font*: FontId
+
+proc newFont*(typeface: TypefaceId): GlyphFont {.raises: [].} =
+  result = GlyphFont()
+  result.typefaceId = typeface
+  result.size = 12
+  result.lineHeight = -1

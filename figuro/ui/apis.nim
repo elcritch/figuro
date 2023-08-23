@@ -241,3 +241,11 @@ template onClick*(inner: untyped) =
 proc cornerRadius*(radius: UICoord|float|float32) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = UICoord radius
+
+proc loadTypeFace*(name: string): TypefaceId =
+  ## Sets all radius of all 4 corners.
+  internal.getTypeface(name)
+
+proc loadFont*(font: GlyphFont): FontId =
+  ## Sets all radius of all 4 corners.
+  internal.getFont(font)

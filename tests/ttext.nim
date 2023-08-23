@@ -4,6 +4,13 @@ import figuro/widgets/button
 import figuro/widget
 import figuro
 
+let
+  typeface = loadTypeFace(DataDirPath / "IBMPlexSans-Regular.ttf")
+  font = loadFont: GlyphFont(
+      typefaceId: typeface,
+      size: 24
+    )
+
 type
   Main* = ref object of Figuro
     value: float

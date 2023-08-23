@@ -42,6 +42,8 @@ proc loadFont*(font: GlyphFont): FontId =
     for fn, b in fieldPairs(font):
       when pn == fn:
         a = b
+  if font.lineHeight == -1.0:
+    pxfont.lineHeight = autoLineHeight
   fontTable[id] = pxfont
 
 # proc loadGlyph*(font: GlyphFont):  =

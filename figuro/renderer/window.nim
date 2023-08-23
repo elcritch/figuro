@@ -80,10 +80,10 @@ proc configureEvents(renderer: Renderer) =
   internal.setWindowTitle = proc (title: string) =
     if window != nil:
       window.title = title
-  internal.loadTypeface = proc (name: string): Hash =
+  internal.getTypeface = proc (name: string): Hash =
     ## loads typeface from pixie
     render.loadTypeface(name)
-  internal.loadFont = proc (font: GlyphFont): Hash =
+  internal.getFont = proc (font: GlyphFont): Hash =
     ## loads fonts from pixie
     render.loadFont(font)
 
