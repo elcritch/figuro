@@ -25,14 +25,17 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
     self.mainRect = current
-    box 0, 0, 600, 120
+    box 10, 10, 600, 120
     cornerRadius 10.0
     fill "#2A9EEA".parseHtmlColor * 0.7
     # fill whiteColor
     text "text":
-      box 10, 10, 400, 80
+      box 10, 10, 400, 10
       fill blackColor
       setText(font, "hello world!")
+    rectangle "main":
+      box 10, 10, 400, 80
+      fill whiteColor * 0.8
 
 var
   fig = FiguroApp()

@@ -59,7 +59,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune: rune,
           pos: pos,
           rect: selection,
-          descent: typeface.descent() / typeface.scale * font.size,
+          descent: font.defaultLineHeight(),
         )
 
         if idx notin span:
