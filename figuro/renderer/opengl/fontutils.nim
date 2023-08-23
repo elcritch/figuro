@@ -47,19 +47,13 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune = arrangement.runes[idx]
           selection = arrangement.selectionRects[idx]
 
-        echo "glyph:"
-        print typeface.descent() / typeface.scale * font.size
-        print typeface.ascent() / typeface.scale * font.size
-        print typeface.lineGap() / typeface.scale * font.size
-        print typeface.lineHeight() / typeface.scale * font.size
-
         yield GlyphPosition(
           fontId: fontId,
           fontSize: font.size,
           rune: rune,
           pos: pos,
           rect: selection,
-          descent: font.defaultLineHeight(),
+          descent: font.lineHeight,
         )
 
         if idx notin span:
@@ -100,7 +94,7 @@ proc getFont*(font: GlyphFont): FontId =
       when pn == fn:
         a = b
   if font.lineHeight < 0.0:
-    pxfont.lineHeight = autoLineHeight
+    pxfont.lineHeight = pxfont.defaultLineHeight()
   fontTable[id] = pxfont
   fontLookupTable[pxfont] = id
   result = id

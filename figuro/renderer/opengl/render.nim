@@ -24,14 +24,11 @@ proc renderDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-import pretty
 
 proc renderText(node: Node) =
   # draw characters
 
   for glyph in node.textLayout.glyphs():
-    echo "renderText:glyph: "
-    print glyph
 
     if glyph.rune == Rune(32):
       # Don't draw space, even if font has a char for it.
@@ -42,18 +39,10 @@ proc renderText(node: Node) =
       # subPixelShift = floor(glyph.subPixelShift * 10) / 10
       glyphId = ctx.getGlyphImage(glyph)
     
-    print "glyphId: ", glyphId,
-              " screen: ", node.screenBox,
-              " offset: ", node.offset,
-              " total offset: ", node.totalOffset
-    print "glyph: ", glyph
-
     if glyphId.isSome():
       let
-        offset = node.screenBox.xy
         charPos = vec2(glyph.pos.x ,
                        glyph.pos.y - glyph.descent )
-      print charPos
       ctx.drawImage(glyphId.get(), charPos, node.fill)
   
 import macros
@@ -109,7 +98,6 @@ proc renderShadows*(node: Node) =
 proc renderBoxes*(node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
-    print "renderBoxes: ", node.screenBox.atXY(0'f32, 0'f32)
     if node.cornerRadius > 0:
       ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
                           color = node.fill,
