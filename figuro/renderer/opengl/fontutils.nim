@@ -104,5 +104,8 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     lines: arrangement.lines,
     spans: arrangement.spans,
     fonts: arrangement.fonts.mapIt(fontLookupTable[it]),
+    runes: arrangement.runes,
+    positions: arrangement.positions,
+    selectionRects: arrangement.selectionRects,
   )
 
