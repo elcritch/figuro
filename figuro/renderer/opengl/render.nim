@@ -1,44 +1,21 @@
-import std/hashes, unicode, os, strformat, tables, times
+import std/[hashes, os, strformat, tables, times, unicode]
 
-# import typography
 import pixie, chroma
 
+import fontutils
 import context, formatflippy
 import commons
+export tables
+export getTypeface, getFont, getTypeset
 
 type
   Context = context.Context
 
-var
-  ctx*: Context
-  glyphOffsets: Table[Hash, Vec2]
-
-  # Used for double-clicking
-  # currLevel: ZLevel
-
-proc hashFontFill(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
-  result = hash((
-    2344,
-    node.textStyle.fontFamily,
-    pos.rune,
-    (node.textStyle.fontSize*100).int,
-    (subPixelShift*100).int,
-    0
-  ))
-
-proc hashFontStroke(node: Node, pos: GlyphPosition, subPixelShift: float32): Hash {.inline.} =
-  result = hash((
-    9812,
-    node.textStyle.fontFamily,
-    pos.rune,
-    (node.textStyle.fontSize*100).int,
-    (subPixelShift*100).int,
-    node.stroke.weight
-  ))
+var ctx*: Context
 
 proc renderBoxes*(node: Node)
 
-proc drawDrawable*(node: Node) =
+proc renderDrawable*(node: Node) =
   # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
@@ -47,69 +24,26 @@ proc drawDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-# proc drawText(node: Node) =
-#   if node.textStyle.fontFamily notin fonts:
-#     quit &"font not found: {node.textStyle.fontFamily}"
 
-#   var font = fonts[node.textStyle.fontFamily]
-#   font.size = node.textStyle.fontSize.scaled
-#   font.lineHeight = node.textStyle.lineHeight.scaled
-#   # if font.lineHeight == 0:
-#   #   font.lineHeight = defaultLineHeight(node.textStyle).scaled
+proc renderText(node: Node) =
+  # draw characters
 
-#   # draw characters
-#   for glyphIdx, pos in node.textLayout:
-#     if $pos.rune notin font.typeface.glyphs:
-#       continue
-#     if pos.rune == Rune(32):
-#       # Don't draw space, even if font has a char for it.
-#       # FIXME: use unicode 'is whitespace' ?
-#       continue
+  for glyph in node.textLayout.glyphs():
 
-#     let
-#       font = node.textStyle.font
-#       subPixelShift = floor(pos.subPixelShift * 10) / 10
-#       hashFill = node.hashFontFill(pos, subPixelShift)
+    if glyph.rune == Rune(32):
+      # Don't draw space, even if font has a char for it.
+      # FIXME: use unicode 'is whitespace' ?
+      continue
 
-#     var
-#       hashStroke: Hash
-
-#     if hashFill notin ctx.entries:
-#       var
-#         glyph = font.typeface.glyphs[pos.character]
-#         glyphOffset: Vec2
-#       let
-#         glyphFill = font.getGlyphImage(glyph, glyphOffset, subPixelShift=subPixelShift)
-
-#       ctx.putImage(hashFill, glyphFill)
-#       glyphOffsets[hashFill] = glyphOffset
-
-#     if node.stroke.weight > 0:
-#       hashStroke = node.hashFontStroke(pos, subPixelShift)
-
-#       if hashStroke notin ctx.entries:
-#         var
-#           glyph = font.typeface.glyphs[pos.character]
-#           glyphOffset: Vec2
-#         let
-#           glyphFill = font.getGlyphImage( glyph, glyphOffset, subPixelShift=subPixelShift)
-
-#         let glyphStroke = glyphFill.outlineBorder(node.stroke.weight.int)
-#         ctx.putImage(hashStroke, glyphStroke)
-
-#     let
-#       glyphOffset = glyphOffsets[hashFill]
-#       charPos = vec2(pos.rect.x + glyphOffset.x, pos.rect.y + glyphOffset.y)
-
-#     if node.stroke.weight > 0 and node.stroke.color.a > 0:
-#       ctx.drawImage(
-#         hashStroke,
-#         charPos - vec2(node.stroke.weight,
-#                        node.stroke.weight),
-#         node.stroke.color
-#       )
-
-#     ctx.drawImage(hashFill, charPos, node.fill)
+    let
+      # subPixelShift = floor(glyph.subPixelShift * 10) / 10
+      glyphId = ctx.getGlyphImage(glyph)
+    
+    if glyphId.isSome():
+      let
+        charPos = vec2(glyph.pos.x ,
+                       glyph.pos.y - glyph.descent )
+      ctx.drawImage(glyphId.get(), charPos, node.fill)
   
 import macros
 
@@ -247,10 +181,9 @@ proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
 
   ifrender true:
     if node.kind == nkText:
-      # node.drawText()
-      discard
+      node.renderText()
     elif node.kind == nkDrawable:
-      node.drawDrawable()
+      node.renderDrawable()
     elif node.kind == nkRectangle:
       node.renderBoxes()
 

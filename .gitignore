@@ -8,3 +8,4 @@ nimcache
 
 .tool-versions
 *.dSYM/
+/*.png

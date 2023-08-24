@@ -37,14 +37,15 @@ proc convert*(current: Figuro): render.Node =
   of nkImage:
     result.image = current.image
   of nkText:
-    result.textStyle = current.textStyle
     result.textLayout = current.textLayout
   of nkDrawable:
     result.points = current.points.mapIt(it.scaled)
   else:
     discard
 
-proc convert*(renders: var seq[render.Node], current: Figuro, parent: NodeID) =
+proc convert*(renders: var seq[render.Node],
+              current: Figuro,
+              parent: NodeID) =
   # echo "convert:node: ", current.uid, " parent: ", parent
   var render = current.convert()
   render.parent = parent

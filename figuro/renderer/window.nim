@@ -1,8 +1,9 @@
 import std/[os, hashes, strformat, strutils, tables, times]
 
 import chroma
-import typography, typography/svgfont
+# import typography, typography/svgfont
 import pixie
+import pixie/fonts
 import windy
 
 import opengl/[base, context, render]
@@ -45,16 +46,16 @@ proc configureEvents(renderer: Renderer) =
   window.onResize = proc () =
     updateWindowSize(window)
     renderLoop(window, renderer.nodes, poll = false)
-    renderEvent.trigger()
+    # renderEvent.trigger()
   
   window.onFocusChange = proc () =
     app.focused = window.focused
-    appEvent.trigger()
+    # appEvent.trigger()
 
   window.onScroll = proc () =
     app.requestedFrame.inc
     uxInputs.mouse.wheelDelta = window.scrollDelta().descaled
-    renderEvent.trigger()
+    # renderEvent.trigger()
 
   window.onRune = keyboardInput
 
@@ -69,16 +70,19 @@ proc configureEvents(renderer: Renderer) =
 
   window.onButtonPress = proc (button: windy.Button) =
     app.requestedFrame.inc
-    appEvent.trigger()
+    # appEvent.trigger()
+    discard
 
   window.onButtonRelease = proc (button: Button) =
-    appEvent.trigger()
+    # appEvent.trigger()
+    app.requestedFrame.inc
+    discard
 
-  internal.getWindowTitle = proc (): string =
-    window.title
-  internal.setWindowTitle = proc (title: string) =
-    if window != nil:
-      window.title = title
+  # internal.getWindowTitle = proc (): string =
+  #   window.title
+  # internal.setWindowTitle = proc (title: string) =
+  #   if window != nil:
+  #     window.title = title
 
   app.running = true
 

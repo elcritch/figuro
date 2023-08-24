@@ -8,10 +8,10 @@ import commons, core
 
 export core
 
-proc defaultLineHeight*(fontSize: UICoord): UICoord =
-  result = fontSize * defaultlineHeightRatio
-proc defaultLineHeight*(ts: TextStyle): UICoord =
-  result = defaultLineHeight(ts.fontSize)
+# proc defaultLineHeight*(fontSize: UICoord): UICoord =
+#   result = fontSize * defaultlineHeightRatio
+# proc defaultLineHeight*(ts: TextStyle): UICoord =
+#   result = defaultLineHeight(ts.fontSize)
 
 proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
@@ -74,6 +74,10 @@ template drawable*(id: static string, inner: untyped): untyped =
 template rectangle*(id, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkRectangle, id, inner)
+
+template text*(id, inner: untyped): untyped =
+  ## Starts a new rectangle.
+  node(nkText, id, inner)
 
 ## Overloaded Nodes 
 ## ^^^^^^^^^^^^^^^^
@@ -237,3 +241,14 @@ template onClick*(inner: untyped) =
 proc cornerRadius*(radius: UICoord|float|float32) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = UICoord radius
+
+proc loadTypeFace*(name: string): TypefaceId =
+  ## Sets all radius of all 4 corners.
+  internal.getTypeface(name)
+
+proc loadFont*(font: GlyphFont): FontId =
+  ## Sets all radius of all 4 corners.
+  internal.getFont(font)
+
+proc setText*(font: FontId, text: string) =
+  current.textLayout = internal.getTypeset(text, font, current.box)

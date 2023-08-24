@@ -4,6 +4,13 @@ import figuro/widgets/button
 import figuro/widget
 import figuro
 
+let
+  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  font = loadFont: GlyphFont(
+      typefaceId: typeface,
+      size: 44
+    )
+
 type
   Main* = ref object of Figuro
     value: float
@@ -20,18 +27,15 @@ proc draw*(self: Main) {.slot.} =
     self.mainRect = current
     box 10, 10, 600, 120
     cornerRadius 10.0
-    fill whiteColor
-    if self.hasHovered:
-      fill whiteColor.darken(0.12)
-    for i in 0 .. 4:
-      button "btn":
-        box 10 + i * 120, 10, 100, 100
-        # we need to connect it's onHover event
-        connect(current, onHover, self, Main.hover)
-        # unfortunately, we have many hovers
-        # so we need to give hover a type 
-        # perfect, the slot pragma adds all this for
-        # us
+    fill "#2A9EEA".parseHtmlColor * 0.7
+    # fill whiteColor
+    text "text":
+      box 10, 10, 400, 100
+      fill blackColor
+      setText(font, "hello world!")
+    rectangle "main":
+      box 10, 10, 400, 100
+      fill whiteColor * 0.33
 
 var
   fig = FiguroApp()
