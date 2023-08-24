@@ -142,7 +142,6 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
       var m = translate(-bounds.xy)
       image.fillText(arrangement, m)
       ctx.putImage(hashFill, image)
-      image.writeFile("pics/" & text & ".png")
       result = some hashFill
     except PixieError:
       result = none Hash
