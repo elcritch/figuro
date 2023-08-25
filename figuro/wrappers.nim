@@ -17,6 +17,9 @@ proc appTick*(val: AppStatePartial): AppStatePartial =
   appTicker()
   result.requestedFrame = app.requestedFrame
 
+proc appEvent*(uxi: AppInputs) =
+  discard
+
 proc appDraw*(): AppStatePartial =
   root.diffIndex = 0
   mainApp()
@@ -31,6 +34,7 @@ proc getAppState*(): AppState =
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(state: AppStatePartial): AppStatePartial {.nimcall.},
+          event: proc(inputs: AppInputs) {.nimcall.},
           draw: proc(): AppStatePartial {.nimcall.},
           getRoot: proc(): seq[Node] {.nimcall.},
           getAppState: proc(): AppState {.nimcall.}
@@ -68,6 +72,7 @@ proc startFiguro*(
   run(
     appInit,
     appTick,
+    appEvent,
     appDraw,
     getRoot,
     getAppState

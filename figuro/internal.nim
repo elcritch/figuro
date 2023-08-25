@@ -42,8 +42,8 @@ else:
     fontutils.getTypeset(text, font, box)
 
   var
-    appEvent* {.runtimeVar.}: UiEvent
-    renderEvent* {.runtimeVar.}: UiEvent
+    uiAppEvent* {.runtimeVar.}: UiEvent
+    uiRenderEvent* {.runtimeVar.}: UiEvent
 
 proc initUiEvent*(): UiEvent =
   result.lock.initLock()

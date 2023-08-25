@@ -38,7 +38,7 @@ var appThread, : Thread[MainCallback]
 
 proc renderTicker() {.thread.} =
   while true:
-    renderEvent.trigger()
+    uiRenderEvent.trigger()
     os.sleep(appPeriodMs - 2)
     app.tickCount.inc()
     if app.tickCount == app.tickCount.typeof.high:
@@ -46,19 +46,19 @@ proc renderTicker() {.thread.} =
 
 proc runRenderer(renderer: Renderer) =
   while app.running:
-    wait(renderEvent)
+    wait(uiRenderEvent)
     timeIt(renderAvgTime):
       renderLoop(renderer, true)
 
 proc appTicker() {.thread.} =
   while app.running:
-    appEvent.trigger()
+    uiAppEvent.trigger()
     os.sleep(renderPeriodMs - 2)
 
 proc runApplication(mainApp: MainCallback) {.thread.} =
   {.gcsafe.}:
     while app.running:
-      wait(appEvent)
+      wait(uiAppEvent)
       timeIt(appAvgTime):
         tickMain()
         # computeEvents(root)
@@ -78,8 +78,8 @@ proc run*(renderer: Renderer) =
   sendRoot = proc (nodes: sink seq[render.Node]) =
       renderer.nodes = nodes
 
-  renderEvent = initUiEvent()
-  appEvent = initUiEvent()
+  uiRenderEvent = initUiEvent()
+  uiAppEvent = initUiEvent()
 
   createThread(frameTickThread, renderTicker)
   createThread(appTickThread, appTicker)

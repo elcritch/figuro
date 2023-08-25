@@ -12,7 +12,7 @@ when isMainModule:
 
   var 
     intr: WrappedInterpreter
-    init, tick, draw, getRoot, getAppState: WrappedPnode
+    init, tick, event, draw, getRoot, getAppState: WrappedPnode
     addins: VmAddins
     lastModification = fromUnix(0)
 
@@ -24,9 +24,10 @@ proc runImpl(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
     init = args.getNode(0)
     tick = args.getNode(1)
-    draw = args.getNode(2)
-    getRoot = args.getNode(3)
-    getAppState = args.getNode(4)
+    event = args.getNode(2)
+    draw = args.getNode(3)
+    getRoot = args.getNode(4)
+    getAppState = args.getNode(5)
 
 proc getAgentId(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
@@ -85,6 +86,12 @@ proc invokeVmTick*() =
     let appRet = fromVm(AppStatePartial, ret)
     app.requestedFrame = appRet.requestedFrame
 
+proc invokeVmEvent*() =
+  if intr != nil and draw != nil:
+    let ret = intr.invoke(event, [newNode uxInputs])
+    # let appRet = fromVm(AppStatePartial, ret)
+    # result = appRet
+
 proc invokeVmDraw*(): AppStatePartial =
   if intr != nil and draw != nil:
     let ret = intr.invoke(draw, [])
@@ -129,7 +136,17 @@ proc startFiguroRuntime() =
     app.windowSize = Position vec2(app.uiScale * app.width.float32,
                                    app.uiScale * app.height.float32)
 
-  proc appRender() =
+  proc appLoad() =
+    discard
+
+  proc appTick() =
+    scriptUpdate()
+    invokeVmTick()
+
+  proc appEvent() =
+    invokeVmEvent()
+
+  proc appMain() =
     let ret = invokeVmDraw()
     app.requestedFrame = ret.requestedFrame
     # echo "appRender: ", app.requestedFrame
@@ -138,17 +155,10 @@ proc startFiguroRuntime() =
       uxInputs.mouse.consumed = true
     sendRoot(invokeVmGetRoot())
 
-  proc appTick() =
-    scriptUpdate()
-    invokeVmTick()
-    discard
-
-  proc appLoad() =
-    discard
-
-  mainApp = appRender
-  tickMain = appTick
   loadMain = appLoad
+  tickMain = appTick
+  eventMain = appEvent
+  mainApp = appMain
 
   let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
 
