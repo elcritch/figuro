@@ -146,7 +146,7 @@ proc startFiguroRuntime() =
   proc appLoad() =
     discard
 
-  appMain = appRender
+  mainApp = appRender
   tickMain = appTick
   loadMain = appLoad
 

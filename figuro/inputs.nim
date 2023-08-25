@@ -5,7 +5,7 @@ import common/nodes/basics
 import common/uimaths
 export uimaths
 
-when defined(compilervm):
+when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}

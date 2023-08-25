@@ -5,7 +5,7 @@ import widget
 
 var
   appWidget* {.compileTime.}: FiguroApp
-  appMain* {.compileTime.}: proc ()
+  mainApp* {.compileTime.}: proc ()
   appTicker* {.compileTime.}: proc ()
 
 proc appInit() =
@@ -19,7 +19,7 @@ proc appTick*(val: AppStatePartial): AppStatePartial =
 
 proc appDraw*(): AppStatePartial =
   root.diffIndex = 0
-  appMain()
+  mainApp()
   computeScreenBox(nil, root)
   result.requestedFrame = app.requestedFrame
 
@@ -55,9 +55,10 @@ proc startFiguro*(
   root = widget
   appWidget = widget
 
-  appMain = proc() =
+  mainApp = proc() =
     emit appWidget.onDraw()
-    emit appWidget.onHover()
+    # emit appWidget.onHover()
+    discard
 
   appTicker = proc() =
     emit appWidget.onTick()

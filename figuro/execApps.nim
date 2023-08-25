@@ -35,7 +35,16 @@ proc startFiguro*(
   redrawNodes = initOrderedSet[Figuro]()
   refresh(root)
 
-  proc appRender() =
+  proc appTick() =
+    emit root.onTick()
+
+  proc appEvent() =
+    computeEvents(root)
+
+  proc appLoad() =
+    emit root.onLoad()
+  
+  proc appMain() =
     # mixin draw
     root.diffIndex = 0
     if not uxInputs.mouse.consumed:
@@ -49,20 +58,17 @@ proc startFiguro*(
     computeScreenBox(nil, root)
     sendRoot(root.copyInto())
 
-  proc appTick() =
-    emit root.onTick()
-
-  proc appLoad() =
-    emit root.onLoad()
-  
   setupRoot(root)
 
-  appMain = appRender
-  tickMain = appTick
   loadMain = appLoad
+  tickMain = appTick
+  eventMain = appEvent
+  mainApp = appMain
 
-  if appMain.isNil:
-    raise newException(AssertionDefect, "appMain cannot be nil")
+  if mainApp.isNil:
+    raise newException(AssertionDefect, "mainApp cannot be nil")
+  if eventMain.isNil:
+    raise newException(AssertionDefect, "eventMain cannot be nil")
   if tickMain.isNil:
     tickMain = proc () = discard
   if loadMain.isNil:
