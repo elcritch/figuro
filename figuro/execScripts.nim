@@ -88,7 +88,8 @@ proc invokeVmTick*() =
 
 proc invokeVmEvent*() =
   if intr != nil and draw != nil:
-    let ret = intr.invoke(event, [newNode uxInputs.mouse])
+    # let ret = intr.invoke(event, [newNode uxInputs.mouse])
+    let ret = intr.invoke(event, [])
     # let appRet = fromVm(AppStatePartial, ret)
     # result = appRet
 
