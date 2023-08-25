@@ -17,7 +17,8 @@ proc appTick*(val: AppStatePartial): AppStatePartial =
   appTicker()
   result.requestedFrame = app.requestedFrame
 
-proc appEvent*(uxi: AppInputs) =
+proc appEvent*(uxi: Mouse) =
+  # echo "Mouse: ", uxi.repr
   discard
 
 proc appDraw*(): AppStatePartial =
@@ -34,7 +35,7 @@ proc getAppState*(): AppState =
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(state: AppStatePartial): AppStatePartial {.nimcall.},
-          event: proc(inputs: AppInputs) {.nimcall.},
+          event: proc(inputs: Mouse) {.nimcall.},
           draw: proc(): AppStatePartial {.nimcall.},
           getRoot: proc(): seq[Node] {.nimcall.},
           getAppState: proc(): AppState {.nimcall.}
