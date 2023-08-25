@@ -8,9 +8,10 @@ import figuro
 type
   Main* = ref object of Figuro
     value: float
+    mainRect: Figuro
 
 proc tick*(self: Main) {.slot.} =
-  refresh()
+  refresh(self.mainRect)
   # echo "tick widget: ", app.requestedFrame, " ", app.tickCount
   self.value = 0.008 * (1+app.tickCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
@@ -18,6 +19,7 @@ proc tick*(self: Main) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   # echo "draw widget!"
   frame "main":
+    self.mainRect = current
     box 0, 0, 620, 140
     for i in 0 .. 5:
       button "btn":
@@ -31,8 +33,8 @@ var
   fig = FiguroApp()
   main = Main()
 
-connect(fig, onDraw, main, twidget.draw)
-connect(fig, onTick, main, twidget.tick)
+connect(fig, onDraw, main, Main.draw)
+connect(fig, onTick, main, Main.tick)
 
 app.width = 720
 app.height = 140
