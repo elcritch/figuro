@@ -2,7 +2,8 @@ switch("styleCheck", "hint")
 
 --path:"$nim" ## important for nimscripter
 
---gc:orc
+# --gc:orc
+--gc:arc
 
 --d:windyNoHttp
 --d:printDebugTimings

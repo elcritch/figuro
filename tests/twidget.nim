@@ -13,7 +13,7 @@ type
 proc tick*(self: Main) {.slot.} =
   refresh(self.mainRect)
   # echo "tick widget: ", app.requestedFrame, " ", app.tickCount
-  self.value = 0.008 * (1+app.tickCount).toFloat
+  self.value = 0.004 * (1+app.tickCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
@@ -24,8 +24,8 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 5:
       button "btn":
         # fill "#A000A0"
-        box 20 + (i.toFloat + self.value) * 120, 20, 100, 100
-        # box 20 + (i.toFloat + app.value) * 120, 20 * sin(app.value + i.toFloat), 100, 100
+        # box 20 + (i.toFloat + self.value) * 120, 20, 40, 40
+        box 20 + (i.toFloat + self.value) * 120, 30 + 20 * sin(self.value + i.toFloat), 60, 60
         if i == 0:
           current.fill.a = self.value * 1.0
 
