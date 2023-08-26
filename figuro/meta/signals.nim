@@ -115,16 +115,22 @@ macro signalObj*(so: typed): auto =
   ## gets the type of the signal's object arg 
   ## 
   let p = so.getTypeInst
+  assert p.kind != nnkNone
   echo "signalObj: ", p.repr
   if p.kind == nnkSym and p.strVal == "none":
     error("cannot determine type of: " & repr(so), so)
   let obj = p[0][1]
   result = obj[1].getTypeInst
-macro signalType*(p: typed): auto =
+macro signalType*(p: untyped): auto =
   ## gets the type of the signal without 
   ## the Agent proc type
   ## 
   let p = p.getTypeInst
+  echo "signalType: ", p.treeRepr
+  if p.kind == nnkNone:
+    error("cannot determine type of: " & repr(p), p)
+  if p.kind == nnkSym and p.repr == "none":
+    error("cannot determine type of: " & repr(p), p)
   let obj = p[0]
   result = nnkTupleConstr.newNimNode()
   for arg in obj[2..^1]:

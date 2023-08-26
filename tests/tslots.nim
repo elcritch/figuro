@@ -32,9 +32,9 @@ when isMainModule:
     test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
-              b, setValue)
+              b, Counter.setValue)
       connect(a, valueChanged,
-              c, setValue)
+              c, Counter.setValue)
       
       check b.value == 0
       check c.value == 0
@@ -50,14 +50,15 @@ when isMainModule:
     test "signal / slot types":
       check avgChanged.signalType() is (float, )
       check valueChanged.signalType() is (int, )
-      check setValue.signalType() is (int, )
+      check Counter.setValue.signalType() is (int, )
+
 
     test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
-              b, setValue)
+              b, Counter.setValue)
       connect(a, valueChanged,
-              c, setValue)
+              c, Counter.setValue)
     
 
       check a.value == 0
