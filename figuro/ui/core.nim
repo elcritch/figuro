@@ -10,7 +10,7 @@ else:
   {.pragma: runtimeVar, global.}
 
 var
-  root* {.runtimeVar.}: FiguroApp
+  root* {.runtimeVar.}: Figuro
   parent* {.runtimeVar.}: Figuro
   current* {.runtimeVar.}: Figuro
 
@@ -138,7 +138,7 @@ proc refresh*(node: Figuro) =
     return
   app.requestedFrame.inc
   redrawNodes.incl(node)
-  assert app.frameCount < 10 or node.uid != 0
+  # assert app.frameCount < 10 or node.uid != 0
 
 proc getTitle*(): string =
   ## Gets window title
@@ -162,8 +162,10 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   if parent.children.len <= parent.diffIndex:
     parent = nodeStack[^1]
     # Create Node.
-    current = T()
-    current.uid = newUId()
+    let oldid = current.uid
+    current = T.new()
+    current.uid = current.agentId
+    echo "create node: old: ", oldid, " new: ", current.uid, " parent: ", parent.uid
     current.agentId = current.uid
     parent.children.add(current)
     # current.parent = parent

@@ -34,10 +34,16 @@ type
 when defined(nimscript):
   proc getAgentId(a: Agent): int = discard
   proc getAgentId(a: AgentProc): int = discard
+  var lastUId {.compileTime.}: int = 0
 else:
   proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
   proc getAgentId(a: AgentProc): int = cast[int](cast[pointer](a))
+  var lastUId: int = 0
 
+proc new*[T: Agent](tp: typedesc[T]): T =
+  result = T()
+  lastUId.inc()
+  result.agentId = lastUId
 
 proc hash*(a: Agent): Hash = hash(getAgentId(a))
 proc hash*(a: AgentProc): Hash = hash(getAgentId(a))
@@ -135,6 +141,7 @@ proc addAgentListeners*(obj: Agent,
                         tgt: Agent,
                         slot: AgentProc
                         ) =
+  # echo "add agent listener: ", sig, " obj: ", obj.agentId, " tgt: ", tgt.agentId
   # if obj.listeners.hasKey(sig):
   #   echo "listener:count: ", obj.listeners[sig].len()
   obj.listeners.

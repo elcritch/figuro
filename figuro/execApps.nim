@@ -15,7 +15,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 proc startFiguro*(
-    widget: FiguroApp,
+    widget: Figuro,
     setup: proc() = nil,
     fullscreen = false,
     pixelate = false,
@@ -49,10 +49,11 @@ proc startFiguro*(
     root.diffIndex = 0
     if not uxInputs.mouse.consumed:
       uxInputs.mouse.consumed = true
-    if app.requestedFrame > 1:
-      emit root.onDraw()
-    elif redrawNodes.len() > 0:
-      for node in redrawNodes:
+    if redrawNodes.len() > 0:
+      # echo "appMain:redrawNodes:len: ", redrawNodes.len()
+      let rn = redrawNodes
+      for node in rn:
+        # echo "appMain:redraw:id: ", node.uid
         emit node.onDraw()
       redrawNodes.clear()
     computeScreenBox(nil, root)

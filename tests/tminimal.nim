@@ -13,7 +13,7 @@ type
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   # echo "main: child hovered: ", kind
-  refresh(self.mainRect)
+  refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
@@ -38,6 +38,8 @@ var
   main = Main()
 
 connect(fig, onDraw, main, Main.draw)
+
+echo "main: ", main.listeners
 
 app.width = 720
 app.height = 140
