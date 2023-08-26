@@ -28,7 +28,7 @@ proc draw*(self: Main) {.slot.} =
       button "btn":
         fill "#AA0000"
         onHover:
-          fill "#A00000"
+          fill "#C00000"
         # box 20 + (i.toFloat + self.value) * 120, 20, 40, 40
         box 20 + (i.toFloat + self.value) * 120, 30 + 20 * sin(self.value + i.toFloat), 60, 60
         if i == 0:
