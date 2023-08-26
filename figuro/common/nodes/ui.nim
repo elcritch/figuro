@@ -51,8 +51,6 @@ type
     else:
       discard
 
-  FiguroApp* = ref object of Figuro
-
   EventsCapture*[T] = object
     zlvl*: ZLevel
     flags*: T
@@ -94,10 +92,3 @@ proc draw*(fig: Figuro) {.slot.} =
 
 proc load*(fig: Figuro) {.slot.} =
   discard
-
-# proc tick*(tp: FiguroApp) {.slot.} =
-#   emit tp.onTick()
-
-# proc draw*(tp: FiguroApp) {.slot.} =
-#   # echo "draw app"
-#   emit tp.onDraw()

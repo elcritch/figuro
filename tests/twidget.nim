@@ -33,13 +33,12 @@ proc draw*(self: Main) {.slot.} =
           current.fill.a = self.value * 1.0
 
 var
-  main = Main.new()
+  fig = Main.new()
 
-echo "fig: uid: ", main.agentId
-connect(main, onDraw, main, Main.draw)
-connect(main, onTick, main, Main.tick)
+connect(fig, onDraw, fig, Main.draw)
+connect(fig, onTick, fig, Main.tick)
 
 app.width = 720
 app.height = 140
 
-startFiguro(main)
+startFiguro(fig)

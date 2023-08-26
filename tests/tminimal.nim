@@ -34,8 +34,7 @@ proc draw*(self: Main) {.slot.} =
         # us
 
 var
-  fig = FiguroApp()
-  main = Main()
+  fig = Main.new()
 
 connect(fig, onDraw, main, Main.draw)
 

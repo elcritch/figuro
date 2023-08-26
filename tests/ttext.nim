@@ -38,10 +38,9 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor * 0.33
 
 var
-  fig = FiguroApp()
-  main = Main()
+  fig = Main.new()
 
-connect(fig, onDraw, main, Main.draw)
+connect(fig, onDraw, fig, Main.draw)
 
 app.width = 720
 app.height = 140

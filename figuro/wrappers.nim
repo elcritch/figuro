@@ -6,7 +6,7 @@ import std/json
 import runtime/jsonutils_lite
 
 var
-  appWidget* {.compileTime.}: FiguroApp
+  appWidget* {.compileTime.}: Figuro
   mainApp* {.compileTime.}: proc ()
   appTicker* {.compileTime.}: proc ()
 
@@ -46,7 +46,7 @@ proc run*(init: proc() {.nimcall.},
           ) = discard
 
 proc startFiguro*(
-    widget: FiguroApp,
+    widget: Figuro,
     setup: proc() = nil,
     fullscreen = false,
     pixelate = false,
