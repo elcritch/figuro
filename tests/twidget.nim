@@ -19,10 +19,10 @@ proc tick*(self: Main) {.slot.} =
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
-  echo "draw widget!"
+  # echo "draw widget!"
   frame "main":
     self.mainRect = current
-    echo "draw mainRect"
+    # echo "draw mainRect"
     box 0, 0, 620, 140
     for i in 0 .. 5:
       button "btn":
