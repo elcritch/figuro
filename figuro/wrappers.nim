@@ -22,6 +22,8 @@ proc appTick*(val: AppStatePartial): AppStatePartial =
 proc appEvent*(ijs: string) =
   # echo "Event:"
   uxInputs.fromJson(parseJson(ijs))
+  if root != nil:
+    computeEvents(root)
   # echo "Input: ", uxInputs.repr
 
 proc appDraw*(): AppStatePartial =

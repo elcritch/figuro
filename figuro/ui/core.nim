@@ -338,7 +338,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     result.mouse = max(captured.mouse, result.mouse)
     result.gesture = max(captured.gesture, result.gesture)
 
-var prevHover: Figuro
+var prevHover {.runtimeVar.}: Figuro
 
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
