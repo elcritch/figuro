@@ -208,6 +208,20 @@ proc `$`*(b: Box): string =
   let a = b.Rect
   &"Box<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
 
+# proc toJsonHook*(self: var Position; opt = initToJsonOptions()): JsonNode =
+#   var x: float = self.x.float
+#   var y: float = self.y.float
+#   result = newJArray()
+#   result.add x.toJson(opt)
+#   result.add y.toJson(opt)
+
+# proc fromJsonHook*(self: var Position; jn: JsonNode; opt = Joptions()) =
+#   var val: array[2, float]
+#   val[0] = jn[0].getFloat
+#   val[1] = jn[1].getFloat
+#   self = initPosition(val[0], val[1])
+  
+
 
 # when isMainModule:
 # proc testPosition() =

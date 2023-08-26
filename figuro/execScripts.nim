@@ -2,6 +2,7 @@
 import common/nodes/render
 import shared
 import exec
+import runtime/jsonutils_lite
 
 import nimscripter/nimscr
 
@@ -55,8 +56,8 @@ when isMainModule:
 
 let
   scriptDir = getAppDir() / "../tests/"
-  # scriptPath = scriptDir / "twidget.nim"
-  scriptPath = scriptDir / "tminimal.nim"
+  scriptPath = scriptDir / "twidget.nim"
+  # scriptPath = scriptDir / "tminimal.nim"
 
 proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   let (res, _) = execCmdEx("nim dump --verbosity:0 --dump.format:json dump.json")
@@ -88,8 +89,10 @@ proc invokeVmTick*() =
 
 proc invokeVmEvent*() =
   if intr != nil and draw != nil:
-    # let ret = intr.invoke(event, [newNode uxInputs.mouse])
-    let ret = intr.invoke(event, [])
+    let jm = toJson(uxInputs)
+    let jms = $jm
+    let ret = intr.invoke(event, [newNode jms])
+    # let ret = intr.invoke(event, [])
     # let appRet = fromVm(AppStatePartial, ret)
     # result = appRet
 

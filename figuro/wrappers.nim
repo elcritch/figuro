@@ -2,6 +2,8 @@
 import common/nodes/render
 import common/nodes/transfer
 import widget
+import std/json
+import runtime/jsonutils_lite
 
 var
   appWidget* {.compileTime.}: FiguroApp
@@ -12,20 +14,18 @@ proc appInit() =
   discard
 
 proc appTick*(val: AppStatePartial): AppStatePartial =
-  echo "TICK: "
   app.tickCount = val.tickCount
   app.uiScale = val.uiScale
-  echo "TICK:app: "
   appTicker()
-  echo "TICK:req: "
   result.requestedFrame = app.requestedFrame
 
-proc appEvent*() =
-  echo "MOUSE:"
-  # echo "Mouse: ", mouse.repr
-  discard
+proc appEvent*(ijs: string) =
+  # echo "MOUSE:"
+  uxInputs.fromJson(parseJson(ijs))
+  # echo "Input: ", uxInputs.repr
 
 proc appDraw*(): AppStatePartial =
+  echo "APP DRAW:"
   root.diffIndex = 0
   mainApp()
   computeScreenBox(nil, root)
@@ -39,7 +39,7 @@ proc getAppState*(): AppState =
 
 proc run*(init: proc() {.nimcall.},
           tick: proc(state: AppStatePartial): AppStatePartial {.nimcall.},
-          event: proc() {.nimcall.},
+          event: proc(inputs: string) {.nimcall.},
           draw: proc(): AppStatePartial {.nimcall.},
           getRoot: proc(): seq[Node] {.nimcall.},
           getAppState: proc(): AppState {.nimcall.}
