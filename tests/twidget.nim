@@ -12,9 +12,8 @@ type
 
 proc tick*(self: Main) {.slot.} =
   refresh(self)
-  if self.mainRect != nil:
-    echo "tick main: ", self.mainRect.uid
-  # echo "tick widget: ", app.requestedFrame, " ", app.tickCount
+  # if self.mainRect != nil:
+  #   echo "tick main: ", self.mainRect.uid
   self.value = 0.004 * (1+app.tickCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
