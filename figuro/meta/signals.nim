@@ -193,7 +193,7 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
 
-    echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
+    # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
     for (tgt, slot) in listeners:
       # echo "call listener: ", repr tgt
       let res = slot.callMethod(tgt, req)
