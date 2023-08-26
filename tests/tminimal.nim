@@ -19,9 +19,9 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc tick*(self: Main) {.slot.} =
   if self.hasHovered:
-    if self.hoveredAlpha < 0.2:
+    if self.hoveredAlpha < 0.14:
       refresh(self)
-      self.hoveredAlpha += 0.004
+      self.hoveredAlpha += 0.008
   else:
     if self.hoveredAlpha > 0.01:
       self.hoveredAlpha -= 0.004
@@ -33,7 +33,6 @@ proc draw*(self: Main) {.slot.} =
     self.mainRect = current
     box 10, 10, 600, 120
     cornerRadius 10.0
-    # fill whiteColor
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
       button "btn":
