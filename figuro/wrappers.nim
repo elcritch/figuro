@@ -20,7 +20,7 @@ proc appTick*(val: AppStatePartial): AppStatePartial =
   result.requestedFrame = app.requestedFrame
 
 proc appEvent*(ijs: string) =
-  # echo "MOUSE:"
+  echo "Event:"
   uxInputs.fromJson(parseJson(ijs))
   # echo "Input: ", uxInputs.repr
 

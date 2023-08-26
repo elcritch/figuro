@@ -32,10 +32,10 @@ proc runImpl(args: VmArgs) {.cdecl.} =
 
 proc getAgentId(args: VmArgs) {.cdecl.} =
   {.cast(gcSafe).}:
-    echo "getAgentId"
+    # echo "getAgentId"
     let res = args.getNode(0)
     let id = cast[int](cast[pointer](addr(res)))
-    echo "getAgentId: ", id
+    # echo "getAgentId: ", id
     args.setResult id
 
 const 

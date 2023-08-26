@@ -63,9 +63,8 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
         tickMain()
         # computeEvents(root)
         eventMain()
-        if redrawNodes.len() > 0:
-          mainApp()
-          app.frameCount.inc()
+        mainApp()
+        app.frameCount.inc()
         # clearInputs()
 
 
