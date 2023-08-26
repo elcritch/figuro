@@ -20,12 +20,12 @@ proc appTick*(val: AppStatePartial): AppStatePartial =
   result.requestedFrame = app.requestedFrame
 
 proc appEvent*(ijs: string) =
-  echo "Event:"
+  # echo "Event:"
   uxInputs.fromJson(parseJson(ijs))
   # echo "Input: ", uxInputs.repr
 
 proc appDraw*(): AppStatePartial =
-  echo "APP DRAW:"
+  # echo "APP DRAW:"
   root.diffIndex = 0
   mainApp()
   computeScreenBox(nil, root)
