@@ -115,9 +115,32 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     isSignal = publish.kind == nnkStrLit and publish.strVal == "signal"
   
   parameters.del(0, 1)
+  # echo "parameters: ", parameters.treeRepr
+  var pms = nnkFormalParams.newTree()
+  for param in parameters:
+    if param.kind == nnkEmpty:
+      pms.add param
+    else:
+      let p1 = params[1]
+      let p01 = params[0][1]
+      # echo "P2: ", params.treeRepr
+      if p01.kind == nnkBracketExpr:
+        echo "P2ch: ", p01.treeRepr
+        pms.add nnkIdentDefs.newTree(
+          param[0],
+          nnkCall.newTree(
+            bindSym("[]", brOpen),
+            p1[0],
+            p1[1],
+          ),
+          params[1],
+        )
+      else:
+        pms.add param
+  echo "PMS: ", pms.repr
+  # parameters = pms
 
   let
-
     # rpc method names
     pathStr = $path
     signalName = pathStr.strip(false, true, {'*'})
@@ -133,7 +156,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     rpcSlot = ident("agentSlot" & procNameStr)
 
     # ctxName = ident("context")
-
     # parameter type name
     # paramsIdent = genSym(nskParam, "args")
     paramsIdent = ident("args")
@@ -167,6 +189,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters:
       let n = ident repr param[0]
       let t = ident repr param[1]
+      echo "PARAM: ", param.treeRepr
       rms[3].add nnkIdentDefs.newTree(n, t, newEmptyNode())
     result.add rms
 
@@ -251,6 +274,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       result[0][3].add param
   echo "slot: "
   echo result.treeRepr
+  # echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
