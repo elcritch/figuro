@@ -37,28 +37,26 @@ when isMainModule:
       let tgtProc = Counter[uint].setValue
       echo "tgtProc:type: ", tgtProc.typeof.repr
       echo "tgtProc: ", tgtProc.repr
-      tgtProc(a, 3.uint)
+      # tgtProc(a, 3.uint)
       echo "check:sig: ", a.valueChanged(3.uint).typeof is (Agent, AgentRequest)
       echo "check:slot: ", compiles(b.setValue(3.uint))
       echo "check:src: ", genericParams(a.typeof).typeof is tuple
-      a.setValue(3.uint)
-      # echo "check:AGENT: ", agentSlotsetValue_1056964773[uint](a, RpcParams()).typeof.repr
-      # echo "check:AGENT: ", agentSlotsetValue_1056964753[uint](a, RpcParams()).typeof.repr
+      # a.setValue(3.uint)
       echo "check:AGENT: ", agentSlotsetValue(Counter[uint]).typeof.repr
 
-      # connect(a, valueChanged,
-      #         b, Counter[uint].setValue)
-      # connect(a, valueChanged,
-      #         c, Counter.setValue)
-      # check b.value == 0
-      # check c.value == 0
-      # check d.value == 0
-      # emit a.valueChanged(137)
+      connect(a, valueChanged,
+              b, Counter[uint].setValue)
+      connect(a, valueChanged,
+              c, Counter[uint].setValue)
+      check b.value == 0
+      check c.value == 0
+      check d.value == 0
+      emit a.valueChanged(137)
 
-      # check a.value == 0
-      # check b.value == 137
-      # check c.value == 137
-      # check d.value == 0
+      check a.value == 0
+      check b.value == 137
+      check c.value == 137
+      check d.value == 0
 
     # test "signal / slot types":
     #   check avgChanged.signalType() is (float, )
