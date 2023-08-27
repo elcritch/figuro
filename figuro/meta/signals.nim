@@ -111,6 +111,24 @@ macro getSignalName(signal: typed): auto =
 
 import typetraits
 
+macro signalObjRaw*(so, obj: typed): auto =
+  echo "signalObjRaw:so: ", so.treeRepr
+  echo "signalObjRaw:so: ", so.repr
+  echo "signalObjRaw:obj: ", obj.treeRepr
+  echo "signalObjRaw:obj: ", obj.repr
+  echo ""
+  let p = so.getType
+  let a = obj.getType
+  echo "signalObjRaw:OBJ: ", a.treeRepr
+  echo "signalObjRaw:OBJ:r: ", a.repr
+  echo "signalObjRaw:PROC: ", p.treeRepr
+  echo "signalObjRaw:PROC:r: ", p.repr
+  echo ""
+  # result = obj[1].getTypeInst
+  result = p[0][1][1]
+  echo "signalObjRaw:p:done: ", result.treeRepr
+  echo "signalObjRaw:p:done: ", result.repr
+
 macro signalObj*(so: typed): auto =
   ## gets the type of the signal's object arg 
   ## 
@@ -120,7 +138,8 @@ macro signalObj*(so: typed): auto =
   if p.kind == nnkSym and p.strVal == "none":
     error("cannot determine type of: " & repr(so), so)
   let obj = p[0][1]
-  result = obj[1].getTypeInst
+  # result = obj[1].getTypeInst
+  result = obj[1]
   echo "signalObj:end: ", result.repr
 
 macro signalType*(p: untyped): auto =
@@ -180,8 +199,6 @@ template connect*(
     b: Agent,
     slot: typed
 ) =
-  # echo "signal: ", repr typeof signal
-  # echo "slot: ", repr typeof slot
   when signalObj(signal) isnot Agent:
     {.error: "signal is wrong type".}
   when signalObj(slot) isnot Agent:

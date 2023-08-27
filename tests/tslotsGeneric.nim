@@ -5,6 +5,7 @@ type
     value: T
     avg: int
 
+
 proc valueChanged*[T](tp: Counter[T], val: T) {.signal.}
 
 proc avgChanged*[T](tp: Counter[T], val: float) {.signal.}
@@ -36,8 +37,8 @@ when isMainModule:
       echo "tgtProc:type: ", tgtProc.typeof.repr
       echo "tgtProc: ", tgtProc.repr
       tgtProc(a, 3.uint)
-      # connect(a, valueChanged,
-      #         b, Counter.setValue)
+      connect(a, valueChanged,
+              b, Counter[uint].setValue)
       # connect(a, valueChanged,
       #         c, Counter.setValue)
       
