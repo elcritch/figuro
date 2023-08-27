@@ -25,7 +25,7 @@ proc draw*(self: Main) {.slot.} =
     connect(current, onDraw, self, Main.draw)
     box 0, 0, 620, 140
     for i in 0 .. 5:
-      button "btn":
+      button "btn", i:
         fill "#AA0000"
         onHover:
           fill "#C00000"
