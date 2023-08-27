@@ -41,7 +41,7 @@ macro test() =
       let obj = Counter[T](context)
       if obj == nil:
         raise newException(ConversionError, "bad cast")
-      var args: RpcTypesetValue
+      var args: RpcTypesetValue[T]
       rpcUnpack(args, params)
       let obj = Counter[T](context)
       var value: T = args.value

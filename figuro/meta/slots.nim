@@ -83,6 +83,21 @@ proc makeProcsPublic(node: NimNode, gens: NimNode) =
     for ch in node:
       ch.makeProcsPublic(gens)
 
+proc makeGenerics(node: NimNode) =
+  if node.kind == nnkGenericParams:
+    return
+  elif node.kind == nnkIdentDefs:
+    let idType = node[1]
+    if idType.kind == nnkBracketExpr and idType.len == 2:
+      node[1] = nnkCall.newTree(
+        bindSym("[]", brOpen),
+        idType[0],
+        idType[1],
+      )
+  else:
+    for ch in node:
+      ch.makeGenerics()
+
 macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   ## Define a remote procedure call.
   ## Input and return parameters are defined using proc's with the `rpc` 
@@ -153,6 +168,15 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
                 else: body.body
 
   let
+    # contextType =
+    #   if firstType.kind == nnkBracketExpr:
+    #     nnkCall.newTree(
+    #       bindSym("[]", brOpen),
+    #       firstType[0],
+    #       firstType[1],
+    #     )
+    #   else:
+    #     firstType
     contextType = firstType
     contextTypeName = newStrLitNode repr contextType
 
@@ -228,6 +252,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     if isPublic:
       result.makeProcsPublic(genericParams)
 
+    result.makeGenerics()
 
     # result.add quote do:
     #   once:
