@@ -39,8 +39,8 @@ template button*(id: string, blk: untyped) =
 
 template button*[T](id: string, val: T, blk: untyped) =
   preNode(nkRectangle, Button[T], id)
-  connect(current, onHover, current, Button.hover)
-  proc doPost(self: Button) {.slot.} =
+  connect(current, onHover, current, Button[T].hover)
+  proc doPost(self: Button[T]) {.slot.} =
     `blk`
-  connect(current, onDraw, current, Button.doPost)
+  connect(current, onDraw, current, Button[T].doPost)
   postNode()
