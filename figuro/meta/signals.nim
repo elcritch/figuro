@@ -109,24 +109,59 @@ template packResponse*(res: AgentResponse): Variant =
 macro getSignalName(signal: typed): auto =
   result = newStrLitNode signal.strVal
 
-import typetraits
+import typetraits, sequtils, tables
+
+macro getSignalTuple*(obj, sig: typed): auto =
+  # echo "signalObjRaw:obj: ", obj.treeRepr
+  let otp = obj.getTypeInst
+  let stp = sig.getTypeInst.params()
+  let isGeneric = otp.kind == nnkBracketExpr
+
+  # echo "signalObjRaw:obj: ", otp.repr
+  # echo "signalObjRaw:obj:tr: ", otp.treeRepr
+  # echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
+  # echo "signalObjRaw:sig: ", stp.repr
+
+  var args: seq[NimNode]
+  for i in 2..<stp.len:
+    args.add stp[i]
+
+  result = nnkTupleConstr.newTree()
+  if isGeneric:
+    template genArgs(n): auto = n[1][1]
+    var genKinds: Table[string, NimNode]
+    for i in 1..<stp.genArgs.len:
+      genKinds[repr stp.genArgs[i]] = otp[i]
+    for arg in args:
+      result.add genKinds[arg[1].repr]
+  else:
+    # genKinds
+    # echo "ARGS: ", args.repr
+    for arg in args:
+      result.add arg[1]
+  # echo "ARG: ", result.repr
+  # echo ""
 
 macro signalObj*(so: typed): auto =
   ## gets the type of the signal's object arg 
   ## 
-  let p = so.getTypeInst
+  let p = so.getType
   assert p.kind != nnkNone
   echo "signalObj: ", p.repr
+  echo "signalObj: ", p.treeRepr
   if p.kind == nnkSym and p.strVal == "none":
     error("cannot determine type of: " & repr(so), so)
   let obj = p[0][1]
-  result = obj[1].getTypeInst
+  # result = obj[1].getTypeInst
+  result = obj[1]
+  echo "signalObj:end: ", result.repr
+
 macro signalType*(p: untyped): auto =
   ## gets the type of the signal without 
   ## the Agent proc type
   ## 
   let p = p.getTypeInst
-  echo "signalType: ", p.treeRepr
+  # echo "signalType: ", p.treeRepr
   if p.kind == nnkNone:
     error("cannot determine type of: " & repr(p), p)
   if p.kind == nnkSym and p.repr == "none":
@@ -163,45 +198,50 @@ macro signalCheck(signal, slot: typed) =
     error("signal and slot types don't match;" & errors, signal)
   else:
     result = nnkEmpty.newNimNode()
-macro toSlot(slot: typed): untyped =
-  let pimpl = ident("agentSlot" & slot.repr)
-  echo "TO_SLOT: ", slot.repr
-  echo "TO_SLOT: ", slot.lineinfoObj.filename
+macro toSlot(slot: untyped): untyped =
+  # echo "TO_SLOT: ", slot.treeRepr
+  # echo "TO_SLOT:tp: ", slot.getTypeImpl.repr
+  # echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
+  let pimpl = nnkCall.newTree(
+    ident("agentSlot" & slot[1].repr),
+    slot[0],
+  )
   # echo "TO_SLOT: ", slot.getImpl.treeRepr
-  echo "TO_SLOT: ", slot.getTypeImpl.repr
-  echo "TO_SLOT: done"
+  # echo "TO_SLOT: ", slot.getTypeImpl.repr
+  # echo "TO_SLOT: result: ", pimpl.repr
   return pimpl
 
 template connect*(
     a: Agent,
     signal: untyped,
     b: Agent,
-    slot: typed
+    slot: untyped
 ) =
-  # echo "signal: ", repr typeof signal
-  # echo "slot: ", repr typeof slot
-  when signalObj(signal) isnot Agent:
-    {.error: "signal is wrong type".}
-  when signalObj(slot) isnot Agent:
-    {.error: "slot is wrong type".}
-  signalCheck(signal, slot)
+  when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
+      {.error: "signal and slot types don't match".}
+  # signalCheck(signal, slot)
 
   let name = getSignalName(signal)
   a.addAgentListeners(name, b, AgentProc(toSlot(`slot`)))
+
+import pretty
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
 
     # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
+
     for (tgt, slot) in listeners:
-      # echo "call listener: ", repr tgt
+      # echo ""
+      # echo "call listener:tgt: ", repr tgt
+      # echo "call listener:slot: ", repr slot
       let res = slot.callMethod(tgt, req)
-      # variantMatch case res.result.buf as u
-      # of AgentError:
-      #   raise newException(AgentSlotError, u.msg)
-      # else:
-      #   discard
+      variantMatch case res.result.buf as u
+      of AgentError:
+        raise newException(AgentSlotError, u.msg)
+      else:
+        discard
 
 proc emit*(call: (Agent, AgentRequest)) =
   let (obj, req) = call
