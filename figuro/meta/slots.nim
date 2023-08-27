@@ -168,7 +168,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   var
     # process the argument types
     paramSetups = mkParamsVars(paramsIdent, paramTypeName, parameters)
-    paramTypes = mkParamsType(paramsIdent, paramTypeName, parameters, genericParams)
+    paramTypes = mkParamsType(paramsIdent, paramTypeName, pms, genericParams)
     procBody =  if body.kind == nnkStmtList: body
                 elif body.kind == nnkEmpty: body
                 else: body.body
