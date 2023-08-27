@@ -109,32 +109,46 @@ template packResponse*(res: AgentResponse): Variant =
 macro getSignalName(signal: typed): auto =
   result = newStrLitNode signal.strVal
 
-import typetraits
+import typetraits, sequtils, tables
 
-macro signalObjRaw*(so, obj: typed): auto =
-  echo "signalObjRaw:so: ", so.treeRepr
-  echo "signalObjRaw:so: ", so.repr
-  echo "signalObjRaw:obj: ", obj.treeRepr
-  echo "signalObjRaw:obj: ", obj.repr
+macro getSignalTuple*(obj, sig: typed): auto =
+  # echo "signalObjRaw:obj: ", obj.treeRepr
+  let otp = obj.getTypeInst
+  let stp = sig.getTypeInst.params()
+  let isGeneric = otp.kind == nnkBracketExpr
+
+  echo "signalObjRaw:obj: ", otp.repr
+  echo "signalObjRaw:obj:tr: ", otp.treeRepr
+  echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
+  echo "signalObjRaw:sig: ", stp.repr
+
+  var args: seq[NimNode]
+  for i in 2..<stp.len:
+    args.add stp[i]
+
+  result = nnkTupleConstr.newTree()
+  if isGeneric:
+    template genArgs(n): auto = n[1][1]
+    var genKinds: Table[string, NimNode]
+    for i in 1..<stp.genArgs.len:
+      genKinds[repr stp.genArgs[i]] = otp[i]
+    for arg in args:
+      result.add genKinds[arg[1].repr]
+  else:
+    # genKinds
+    echo "ARGS: ", args.repr
+    for arg in args:
+      result.add arg[1]
+  echo "ARG: ", result.repr
   echo ""
-  let p = so.getType
-  let a = obj.getType
-  echo "signalObjRaw:OBJ: ", a.treeRepr
-  echo "signalObjRaw:OBJ:r: ", a.repr
-  echo "signalObjRaw:PROC: ", p.treeRepr
-  echo "signalObjRaw:PROC:r: ", p.repr
-  echo ""
-  # result = obj[1].getTypeInst
-  result = p[0][1][1]
-  echo "signalObjRaw:p:done: ", result.treeRepr
-  echo "signalObjRaw:p:done: ", result.repr
 
 macro signalObj*(so: typed): auto =
   ## gets the type of the signal's object arg 
   ## 
-  let p = so.getTypeInst
+  let p = so.getType
   assert p.kind != nnkNone
   echo "signalObj: ", p.repr
+  echo "signalObj: ", p.treeRepr
   if p.kind == nnkSym and p.strVal == "none":
     error("cannot determine type of: " & repr(so), so)
   let obj = p[0][1]
@@ -184,26 +198,28 @@ macro signalCheck(signal, slot: typed) =
     error("signal and slot types don't match;" & errors, signal)
   else:
     result = nnkEmpty.newNimNode()
-macro toSlot(slot: typed): untyped =
-  let pimpl = ident("agentSlot" & slot.repr)
-  echo "TO_SLOT: ", slot.repr
-  echo "TO_SLOT: ", slot.lineinfoObj.filename
+macro toSlot(slot: untyped): untyped =
+  echo "TO_SLOT: ", slot.treeRepr
+  # echo "TO_SLOT:tp: ", slot.getTypeImpl.repr
+  # echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
+  let pimpl = nnkDotExpr.newTree(
+    slot[0],
+    ident("agentSlot" & slot[1].repr),
+  )
   # echo "TO_SLOT: ", slot.getImpl.treeRepr
-  echo "TO_SLOT: ", slot.getTypeImpl.repr
-  echo "TO_SLOT: done"
+  # echo "TO_SLOT: ", slot.getTypeImpl.repr
+  echo "TO_SLOT: result: ", pimpl.repr
   return pimpl
 
 template connect*(
     a: Agent,
     signal: untyped,
     b: Agent,
-    slot: typed
+    slot: untyped
 ) =
-  when signalObj(signal) isnot Agent:
-    {.error: "signal is wrong type".}
-  when signalObj(slot) isnot Agent:
-    {.error: "slot is wrong type".}
-  signalCheck(signal, slot)
+  when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
+      {.error: "signal and slot types don't match".}
+  # signalCheck(signal, slot)
 
   let name = getSignalName(signal)
   a.addAgentListeners(name, b, AgentProc(toSlot(`slot`)))
