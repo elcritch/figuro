@@ -121,6 +121,8 @@ macro signalObj*(so: typed): auto =
     error("cannot determine type of: " & repr(so), so)
   let obj = p[0][1]
   result = obj[1].getTypeInst
+  echo "signalObj:end: ", result.repr
+
 macro signalType*(p: untyped): auto =
   ## gets the type of the signal without 
   ## the Agent proc type

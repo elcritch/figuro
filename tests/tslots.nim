@@ -66,7 +66,6 @@ when isMainModule:
       check c.value == 0
 
       a.setValue(42)
-
       check a.value == 42
       check b.value == 42
       check c.value == 42

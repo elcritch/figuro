@@ -203,12 +203,20 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         `paramSetups`
         `mcall`
 
-      template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
-        `rpcMethodGen`
-      template `rpcSlot`(tp: typedesc[`contextType`]): AgentProc =
-        `procName`
+    if isPublic:
+      result.add quote do:
+        template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
+          `rpcMethodGen`[T]
+        template `rpcSlot`(tp: typedesc[`contextType`]): AgentProc =
+          `procName`[T]
+      result.makeProcsPublic(genericParams)
+    else:
+      result.add quote do:
+        template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
+          `rpcMethodGen`
+        template `rpcSlot`(tp: typedesc[`contextType`]): AgentProc =
+          `procName`
 
-    if isPublic: result.makeProcsPublic(genericParams)
 
     # result.add quote do:
     #   once:
@@ -242,7 +250,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters[1..^1]:
       result[0][3].add param
   echo "slot: "
-  echo result.repr
+  echo result.treeRepr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
