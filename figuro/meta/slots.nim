@@ -71,8 +71,7 @@ proc mkParamsType*(paramsIdent, paramsType, params, genericParams: NimNode): Nim
     tup[0][2].add newIdentDefs(paramIdent, paramType)
   result = tup
   result[0][1] = genericParams.copyNimTree()
-
-  echo "mkParamsType: ", genericParams.treeRepr
+  # echo "mkParamsType: ", genericParams.treeRepr
 
 proc makeProcsPublic(node: NimNode, gens: NimNode) =
   if node.kind in [nnkProcDef, nnkTemplateDef]:
@@ -175,15 +174,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
                 else: body.body
 
   let
-    # contextType =
-    #   if firstType.kind == nnkBracketExpr:
-    #     nnkCall.newTree(
-    #       bindSym("[]", brOpen),
-    #       firstType[0],
-    #       firstType[1],
-    #     )
-    #   else:
-    #     firstType
     contextType = firstType
     contextTypeName = newStrLitNode repr contextType
 
@@ -238,9 +228,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         if obj == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `rpcType`
-        # rpcUnpack(`paramsIdent`, params)
-        # `paramSetups`
-        # `mcall`
+        rpcUnpack(`paramsIdent`, params)
+        `paramSetups`
+        `mcall`
 
     if isGeneric:
       result.add quote do:
@@ -295,10 +285,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     gens.add gen[0].strVal
   result.makeGenerics(gens)
 
-  echo "slot: "
-  echo result.treeRepr
-  echo "slot:repr:"
-  echo result.repr
+  # echo "slot: "
+  # echo result.treeRepr
+  # echo "slot:repr:"
+  # echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)

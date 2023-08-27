@@ -117,10 +117,10 @@ macro getSignalTuple*(obj, sig: typed): auto =
   let stp = sig.getTypeInst.params()
   let isGeneric = otp.kind == nnkBracketExpr
 
-  echo "signalObjRaw:obj: ", otp.repr
-  echo "signalObjRaw:obj:tr: ", otp.treeRepr
-  echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
-  echo "signalObjRaw:sig: ", stp.repr
+  # echo "signalObjRaw:obj: ", otp.repr
+  # echo "signalObjRaw:obj:tr: ", otp.treeRepr
+  # echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
+  # echo "signalObjRaw:sig: ", stp.repr
 
   var args: seq[NimNode]
   for i in 2..<stp.len:
@@ -136,11 +136,11 @@ macro getSignalTuple*(obj, sig: typed): auto =
       result.add genKinds[arg[1].repr]
   else:
     # genKinds
-    echo "ARGS: ", args.repr
+    # echo "ARGS: ", args.repr
     for arg in args:
       result.add arg[1]
-  echo "ARG: ", result.repr
-  echo ""
+  # echo "ARG: ", result.repr
+  # echo ""
 
 macro signalObj*(so: typed): auto =
   ## gets the type of the signal's object arg 
@@ -161,7 +161,7 @@ macro signalType*(p: untyped): auto =
   ## the Agent proc type
   ## 
   let p = p.getTypeInst
-  echo "signalType: ", p.treeRepr
+  # echo "signalType: ", p.treeRepr
   if p.kind == nnkNone:
     error("cannot determine type of: " & repr(p), p)
   if p.kind == nnkSym and p.repr == "none":
@@ -199,7 +199,7 @@ macro signalCheck(signal, slot: typed) =
   else:
     result = nnkEmpty.newNimNode()
 macro toSlot(slot: untyped): untyped =
-  echo "TO_SLOT: ", slot.treeRepr
+  # echo "TO_SLOT: ", slot.treeRepr
   # echo "TO_SLOT:tp: ", slot.getTypeImpl.repr
   # echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
   let pimpl = nnkCall.newTree(
@@ -208,7 +208,7 @@ macro toSlot(slot: untyped): untyped =
   )
   # echo "TO_SLOT: ", slot.getImpl.treeRepr
   # echo "TO_SLOT: ", slot.getTypeImpl.repr
-  echo "TO_SLOT: result: ", pimpl.repr
+  # echo "TO_SLOT: result: ", pimpl.repr
   return pimpl
 
 template connect*(
@@ -224,19 +224,24 @@ template connect*(
   let name = getSignalName(signal)
   a.addAgentListeners(name, b, AgentProc(toSlot(`slot`)))
 
+import pretty
+
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
 
     # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
+
     for (tgt, slot) in listeners:
-      # echo "call listener: ", repr tgt
+      # echo ""
+      # echo "call listener:tgt: ", repr tgt
+      # echo "call listener:slot: ", repr slot
       let res = slot.callMethod(tgt, req)
-      # variantMatch case res.result.buf as u
-      # of AgentError:
-      #   raise newException(AgentSlotError, u.msg)
-      # else:
-      #   discard
+      variantMatch case res.result.buf as u
+      of AgentError:
+        raise newException(AgentSlotError, u.msg)
+      else:
+        discard
 
 proc emit*(call: (Agent, AgentRequest)) =
   let (obj, req) = call
