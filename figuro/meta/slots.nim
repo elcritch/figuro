@@ -156,6 +156,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     contextType = firstType
     contextTypeName = newStrLitNode repr contextType
 
+  echo "ContextType: ", contextType.treeRepr
+
   # Create the proc's that hold the users code 
   if not isSignal:
 
