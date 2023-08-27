@@ -75,4 +75,3 @@ when isMainModule:
       check not compiles(
         connect(a, avgChanged,
                 c, setValue))
-

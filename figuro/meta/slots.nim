@@ -47,7 +47,7 @@ proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
   result.add varList
   # echo "paramsSetup return:\n", treeRepr result
 
-proc mkParamsType*(paramsIdent, paramsType, params: NimNode): NimNode =
+proc mkParamsType*(paramsIdent, paramsType, params, genericParams: NimNode): NimNode =
   ## Create a type that represents the arguments for this rpc call
   ## 
   ## Example: 
@@ -70,14 +70,18 @@ proc mkParamsType*(paramsIdent, paramsType, params: NimNode): NimNode =
     # processing multiple variables of one type
     tup[0][2].add newIdentDefs(paramIdent, paramType)
   result = tup
+  result[0][1] = genericParams.copyNimTree()
 
-proc makeProcsPublic(node: NimNode) =
+  # echo "mkParamsType: ", result.treeRepr
+
+proc makeProcsPublic(node: NimNode, gens: NimNode) =
   if node.kind in [nnkProcDef, nnkTemplateDef]:
     let name = node[0]
     node[0] = nnkPostfix.newTree(newIdentNode("*"), name)
+    node[2] = gens.copyNimTree()
   else:
     for ch in node:
-      ch.makeProcsPublic()
+      ch.makeProcsPublic(gens)
 
 macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   ## Define a remote procedure call.
@@ -96,6 +100,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   
   let
     path = $p[0]
+    genericParams = p[2]
     params = p[3]
     # pragmas = p[4]
     body = p[6]
@@ -134,13 +139,14 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     paramsIdent = ident("args")
     paramTypeName = ident("RpcType" & procNameStr)
 
-  echo "SLOTS: rpcMethodGen:hash: ", rpcMethodGen.symBodyHash()
-  echo "SLOTS: rpcMethodGen:signatureHash: ", rpcMethodGen.signatureHash()
+  # echo "SLOTS:generic: ", genericParams.treeRepr
+  # echo "SLOTS: rpcMethodGen:hash: ", rpcMethodGen.symBodyHash()
+  # echo "SLOTS: rpcMethodGen:signatureHash: ", rpcMethodGen.signatureHash()
 
   var
     # process the argument types
     paramSetups = mkParamsVars(paramsIdent, paramTypeName, parameters)
-    paramTypes = mkParamsType(paramsIdent, paramTypeName, parameters)
+    paramTypes = mkParamsType(paramsIdent, paramTypeName, parameters, genericParams)
     procBody =  if body.kind == nnkStmtList: body
                 elif body.kind == nnkEmpty: body
                 else: body.body
@@ -172,13 +178,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         `rmCall`
     for param in parameters:
       rm[3].add param
-    # echo "RPC METHOD: ", rm.treeRepr
-    # for param in parameters: rm[3].add param
     result.add rm
 
     # Create the rpc wrapper procs
-    # let call = quote do:
-    #     `rpcMethod`(context)
     let objId = ident("obj")
     let mcall = nnkCall.newTree(rpcMethod)
     mcall.add(ident("obj"))
@@ -206,7 +208,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       template `rpcSlot`(tp: typedesc[`contextType`]): AgentProc =
         `procName`
 
-    if isPublic: result.makeProcsPublic()
+    if isPublic: result.makeProcsPublic(genericParams)
 
     # result.add quote do:
     #   once:
@@ -231,7 +233,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         result = (obj, sig)
         # callSlots(obj, sig)
 
-    if isPublic: result.makeProcsPublic()
+    if isPublic: result.makeProcsPublic(genericParams)
     result[0][3].add nnkIdentDefs.newTree(
       ident "obj",
       firstType,
@@ -240,7 +242,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters[1..^1]:
       result[0][3].add param
   echo "slot: "
-  echo result.treeRepr
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
