@@ -42,9 +42,9 @@ when isMainModule:
       echo "check:slot: ", compiles(b.setValue(3.uint))
       echo "check:src: ", genericParams(a.typeof).typeof is tuple
       a.setValue(3.uint)
-      echo "check:AGENT: ", agentSlotsetValue_1056964753[uint](a, RpcParams()).typeof.repr
+      # echo "check:AGENT: ", agentSlotsetValue_1056964773[uint](a, RpcParams()).typeof.repr
       # echo "check:AGENT: ", agentSlotsetValue_1056964753[uint](a, RpcParams()).typeof.repr
-      # echo "check:AGENT: ", agentSlotsetValue(Counter[uint]).typeof.repr
+      echo "check:AGENT: ", agentSlotsetValue(Counter[uint]).typeof.repr
 
       # connect(a, valueChanged,
       #         b, Counter[uint].setValue)

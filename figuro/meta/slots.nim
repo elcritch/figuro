@@ -83,20 +83,27 @@ proc makeProcsPublic(node: NimNode, gens: NimNode) =
     for ch in node:
       ch.makeProcsPublic(gens)
 
-proc makeGenerics(node: NimNode) =
+proc makeGenerics(node: NimNode, gens: seq[string], isIdentDefs = false) =
+  discard
   if node.kind == nnkGenericParams:
     return
-  elif node.kind == nnkIdentDefs:
-    let idType = node[1]
-    if idType.kind == nnkBracketExpr and idType.len == 2:
-      node[1] = nnkCall.newTree(
-        bindSym("[]", brOpen),
-        idType[0],
-        idType[1],
-      )
   else:
-    for ch in node:
-      ch.makeGenerics()
+    for i, ch in node:
+      # echo "MAKE GEN: CH: ", ch.treeRepr
+      if ch.kind == nnkBracketExpr and
+          ch[1].repr in gens:
+        let idType = ch
+        let genParam =
+          if idType[1].kind == nnkIdentDefs:
+            idType[1][0]
+          else: idType[1]
+        echo "MAKE GEN: ", ch.treeRepr
+        node[i] = nnkCall.newTree(
+          bindSym("[]", brOpen),
+          idType[0],
+          genParam,
+        )
+      ch.makeGenerics(gens)
 
 macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   ## Define a remote procedure call.
@@ -231,10 +238,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         if obj == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `rpcType`
-        rpcUnpack(`paramsIdent`, params)
-        # let `objId` = `firstType`(context)
-        `paramSetups`
-        `mcall`
+        # rpcUnpack(`paramsIdent`, params)
+        # `paramSetups`
+        # `mcall`
 
     if isGeneric:
       result.add quote do:
@@ -251,8 +257,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     if isPublic:
       result.makeProcsPublic(genericParams)
-
-    result.makeGenerics()
 
     # result.add quote do:
     #   once:
@@ -285,6 +289,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     )
     for param in parameters[1..^1]:
       result[0][3].add param
+
+  var gens: seq[string]
+  for gen in genericParams:
+    gens.add gen[0].strVal
+  result.makeGenerics(gens)
+
   echo "slot: "
   echo result.treeRepr
   echo "slot:repr:"
