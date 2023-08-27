@@ -35,7 +35,7 @@ when isMainModule:
               b, Counter.setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
-      
+
       check b.value == 0
       check c.value == 0
       check d.value == 0
