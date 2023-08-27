@@ -19,7 +19,6 @@ proc setValue*[T](self: Counter[T], value: T) {.slot.} =
 proc value*(self: Counter): int =
   self.value
 
-
 when isMainModule:
   import unittest
   import typetraits

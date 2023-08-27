@@ -96,7 +96,7 @@ proc makeGenerics(node: NimNode, gens: seq[string], isIdentDefs = false) =
           if idType[1].kind == nnkIdentDefs:
             idType[1][0]
           else: idType[1]
-        echo "MAKE GEN: ", ch.treeRepr
+        # echo "MAKE GEN: ", ch.treeRepr
         node[i] = nnkCall.newTree(
           bindSym("[]", brOpen),
           idType[0],
@@ -183,9 +183,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   let
     contextType = firstType
-    contextTypeName = newStrLitNode repr contextType
-
-  echo "ContextType: ", contextType.treeRepr
 
   # Create the proc's that hold the users code 
   if not isSignal:
