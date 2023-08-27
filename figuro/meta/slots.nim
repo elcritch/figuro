@@ -71,6 +71,14 @@ proc mkParamsType*(paramsIdent, paramsType, params: NimNode): NimNode =
     tup[0][2].add newIdentDefs(paramIdent, paramType)
   result = tup
 
+proc makeProcsPublic(node: NimNode) =
+  if node.kind in [nnkProcDef, nnkTemplateDef]:
+    let name = node[0]
+    node[0] = nnkPostfix.newTree(newIdentNode("*"), name)
+  else:
+    for ch in node:
+      ch.makeProcsPublic()
+
 macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   ## Define a remote procedure call.
   ## Input and return parameters are defined using proc's with the `rpc` 
@@ -137,10 +145,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
                 elif body.kind == nnkEmpty: body
                 else: body.body
 
-  proc makePublic(procDef: NimNode) =
-      let name = procDef[0]
-      procDef[0] = nnkPostfix.newTree(newIdentNode("*"), name)
-
   let
     contextType = firstType
     contextTypeName = newStrLitNode repr contextType
@@ -164,7 +168,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters:
       rmCall.add param[0]
     let rm = quote do:
-      proc `rpcMethod`*() =
+      proc `rpcMethod`() =
         `rmCall`
     for param in parameters:
       rm[3].add param
@@ -182,7 +186,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       mcall.add param[0]
 
     result.add quote do:
-      proc `procName`*(
+      proc `procName`(
           context: Agent,
           params: RpcParams,
       ) {.nimcall.} =
@@ -197,14 +201,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         `paramSetups`
         `mcall`
 
-      template `rpcMethod`*(tp: typedesc[`contextType`]): untyped =
+      template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
         `rpcMethodGen`
-      template `rpcSlot`*(tp: typedesc[`contextType`]): AgentProc =
+      template `rpcSlot`(tp: typedesc[`contextType`]): AgentProc =
         `procName`
 
-
-    if isPublic:
-      result[1].makePublic()
+    if isPublic: result.makeProcsPublic()
 
     # result.add quote do:
     #   once:
@@ -229,7 +231,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         result = (obj, sig)
         # callSlots(obj, sig)
 
-    if isPublic: result[0].makePublic()
+    if isPublic: result.makeProcsPublic()
     result[0][3].add nnkIdentDefs.newTree(
       ident "obj",
       firstType,
@@ -238,7 +240,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters[1..^1]:
       result[0][3].add param
   echo "slot: "
-  echo result.repr
+  echo result.treeRepr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
