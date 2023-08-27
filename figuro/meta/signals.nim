@@ -202,9 +202,9 @@ macro toSlot(slot: untyped): untyped =
   echo "TO_SLOT: ", slot.treeRepr
   # echo "TO_SLOT:tp: ", slot.getTypeImpl.repr
   # echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
-  let pimpl = nnkDotExpr.newTree(
-    slot[0],
+  let pimpl = nnkCall.newTree(
     ident("agentSlot" & slot[1].repr),
+    slot[0],
   )
   # echo "TO_SLOT: ", slot.getImpl.treeRepr
   # echo "TO_SLOT: ", slot.getTypeImpl.repr

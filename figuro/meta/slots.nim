@@ -72,7 +72,7 @@ proc mkParamsType*(paramsIdent, paramsType, params, genericParams: NimNode): Nim
   result = tup
   result[0][1] = genericParams.copyNimTree()
 
-  # echo "mkParamsType: ", result.treeRepr
+  echo "mkParamsType: ", genericParams.treeRepr
 
 proc makeProcsPublic(node: NimNode, gens: NimNode) =
   if node.kind in [nnkProcDef, nnkTemplateDef]:
@@ -181,6 +181,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       rm[3].add param
     result.add rm
 
+    var rpcType = paramTypeName.copyNimTree()
+    if isGeneric:
+      rpcType = nnkBracketExpr.newTree(paramTypeName)
+      for arg in genericParams:
+        rpcType.add arg
+
     # Create the rpc wrapper procs
     let objId = ident("obj")
     let mcall = nnkCall.newTree(rpcMethod)
@@ -195,12 +201,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       ) {.nimcall.} =
         if context == nil:
           raise newException(ValueError, "bad value")
-        let obj = `contextType`(context)
+        let `objId` = `contextType`(context)
         if obj == nil:
           raise newException(ConversionError, "bad cast")
-        var `paramsIdent`: `paramTypeName`
+        var `paramsIdent`: `rpcType`
         rpcUnpack(`paramsIdent`, params)
-        let `objId` = `firstType`(context)
+        # let `objId` = `firstType`(context)
         `paramSetups`
         `mcall`
 
@@ -252,8 +258,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     )
     for param in parameters[1..^1]:
       result[0][3].add param
-  # echo "slot: "
-  # echo result.treeRepr
+  echo "slot: "
+  echo result.treeRepr
   echo "slot:repr:"
   echo result.repr
 

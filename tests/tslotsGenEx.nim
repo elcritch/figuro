@@ -53,8 +53,10 @@ macro test() =
     template agentSlotsetValue[T](tp: typedesc[Counter[T]]): AgentProc =
       agentSlotsetValue_1056964731[T]
   echo "res: ", res.treeRepr
+  result
 
 test()
+
 # when isMainModule:
 #   import unittest
 #   suite "agent slots":
