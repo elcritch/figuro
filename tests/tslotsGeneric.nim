@@ -8,6 +8,8 @@ type
 
 proc valueChanged*[T](tp: Counter[T], val: T) {.signal.}
 
+proc someChange*[T](tp: Counter[T]) {.signal.}
+
 proc avgChanged*[T](tp: Counter[T], val: float) {.signal.}
 
 proc setValue*[T](self: Counter[T], value: T) {.slot.} =
@@ -56,6 +58,8 @@ when isMainModule:
       check b.value == 137
       check c.value == 137
       check d.value == 0
+
+      emit a.someChange()
 
     # test "signal / slot types":
     #   check avgChanged.signalType() is (float, )
