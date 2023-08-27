@@ -24,18 +24,18 @@ when isMainModule:
   suite "agent slots":
     setup:
       var
-        a {.used.} = Counter()
-        b {.used.} = Counter()
-        c {.used.} = Counter()
-        d {.used.} = Counter()
+        a {.used.} = Counter.new()
+        b {.used.} = Counter.new()
+        c {.used.} = Counter.new()
+        d {.used.} = Counter.new()
 
     test "signal connect":
-      # TODO: how to do this?
+      echo "Counter.setValue: ", Counter.setValue().repr
       connect(a, valueChanged,
               b, Counter.setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
-      
+
       check b.value == 0
       check c.value == 0
       check d.value == 0
@@ -66,7 +66,6 @@ when isMainModule:
       check c.value == 0
 
       a.setValue(42)
-
       check a.value == 42
       check b.value == 42
       check c.value == 42
@@ -75,4 +74,3 @@ when isMainModule:
       check not compiles(
         connect(a, avgChanged,
                 c, setValue))
-

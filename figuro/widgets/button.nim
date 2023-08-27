@@ -2,7 +2,8 @@
 import commons
 
 type
-  Button* = ref object of Figuro
+  Button*[T] = ref object of Figuro
+    val: T
     label: string
     isActive: bool
     disabled: bool
@@ -31,5 +32,15 @@ proc draw*(self: Button) {.slot.} =
 template button*(id: string, blk: untyped) =
   preNode(nkRectangle, Button, id)
   connect(current, onHover, current, Button.hover)
-  `blk`
+  proc doPost(self: Button) {.slot.} =
+    `blk`
+  connect(current, onDraw, current, Button.doPost)
+  postNode()
+
+template button*[T](id: string, val: T, blk: untyped) =
+  preNode(nkRectangle, Button, id)
+  connect(current, onHover, current, Button.hover)
+  proc doPost(self: Button) {.slot.} =
+    `blk`
+  connect(current, onDraw, current, Button.doPost)
   postNode()
