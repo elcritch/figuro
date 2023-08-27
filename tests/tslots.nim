@@ -17,6 +17,9 @@ proc setValue*(self: Counter, value: int) {.slot.} =
     self.value = value
   emit self.valueChanged(value)
 
+proc someAction*(self: Counter) {.slot.} =
+  echo "action"
+
 proc value*(self: Counter): int =
   self.value
 
@@ -50,6 +53,8 @@ when isMainModule:
       check d.value == 0
 
       emit a.someChange()
+      connect(a, someChange,
+              c, Counter.someAction)
 
     test "signal / slot types":
       check avgChanged.signalType() is (float, )
