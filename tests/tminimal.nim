@@ -13,20 +13,17 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-
-  # echo "main: child hovered: ", kind
   refresh(self)
 
 proc tick*(self: Main) {.slot.} =
   if self.hasHovered:
-    if self.hoveredAlpha < 0.14:
+    if self.hoveredAlpha < 0.15:
+      self.hoveredAlpha += 0.010
       refresh(self)
-      self.hoveredAlpha += 0.008
   else:
-    if self.hoveredAlpha > 0.01:
-      self.hoveredAlpha -= 0.004
+    if self.hoveredAlpha > 0.00:
+      self.hoveredAlpha -= 0.005
       refresh(self)
-    # self.hoveredAlpha = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
