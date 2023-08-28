@@ -32,11 +32,13 @@ proc draw*[T](self: Button[T]) {.slot.} =
       # this changes the color on hover!
 
 template button*(id: string, blk: untyped) =
-  preNode(nkRectangle, Button[T], id)
-  connect(current, onHover, current, Button.hover)
-  proc doPost(self: Button[T]) {.slot.} =
+  preNode(nkRectangle, Button[void], id)
+  template widget(): Button[void] = Button[void](current)
+  connect(current, onHover, current, Button[void].hover)
+  proc doPost(inst: Button[void]) {.slot.} =
     `blk`
-  connect(current, onDraw, current, Button.doPost)
+  connect(current, onDraw, current, Button[void].doPost)
+  emit current.onPost()
   postNode()
 
 template button*[T](id: string, value: T, blk: untyped) =
@@ -47,5 +49,5 @@ template button*[T](id: string, value: T, blk: untyped) =
   proc doPost(inst: Button[T]) {.slot.} =
     `blk`
   connect(current, onDraw, current, Button[T].doPost)
-  emit current.onPost()
+  emit current.onDraw()
   postNode()

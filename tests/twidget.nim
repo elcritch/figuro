@@ -30,7 +30,7 @@ proc draw*(self: Main) {.slot.} =
         let value = widget.state[1]
         fill "#AA0000"
         onHover:
-          fill "#C00000"
+          fill "#F00000"
         # # box 20 + (i.toFloat + self.value) * 120, 20, 40, 40
         box 20 + (j.toFloat + value) * 120, 30 + 20 * sin(value + j.toFloat), 60, 60
         if j == 0:
