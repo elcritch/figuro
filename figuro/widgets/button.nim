@@ -44,6 +44,6 @@ template button*[T](id: string, value: T, blk: untyped) =
   connect(current, onHover, current, Button[T].hover)
   proc doPost(inst: Button[T]) {.slot.} =
     `blk`
-  connect(current, onPost, current, Button[T].doPost)
+  connect(current, onDraw, current, Button[T].doPost)
   emit current.onPost()
   postNode()
