@@ -37,10 +37,13 @@ template button*(id: string, blk: untyped) =
   connect(current, onDraw, current, Button.doPost)
   postNode()
 
-template button*[T](id: string, val: T, blk: untyped) =
+template button*[T](id: string, value: T, blk: untyped) =
   preNode(nkRectangle, Button[T], id)
+  template widget(): Button[T] = Button[T](current)
+  widget.val = value
   connect(current, onHover, current, Button[T].hover)
-  proc doPost(self: Button[T]) {.slot.} =
+  proc doPost(inst: Button[T]) {.slot.} =
     `blk`
-  connect(current, onDraw, current, Button[T].doPost)
+  connect(current, onPost, current, Button[T].doPost)
+  emit current.onPost()
   postNode()

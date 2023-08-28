@@ -216,9 +216,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         rpcType.add arg
 
     # Create the rpc wrapper procs
-    let objId = ident("obj")
+    let objId = genSym(nskLet, "obj")
     let mcall = nnkCall.newTree(rpcMethod)
-    mcall.add(ident("obj"))
+    mcall.add(objId)
     for param in parameters[1..^1]:
       mcall.add param[0]
 
@@ -230,7 +230,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         if context == nil:
           raise newException(ValueError, "bad value")
         let `objId` = `contextType`(context)
-        if obj == nil:
+        if `objId` == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `rpcType`
         rpcUnpack(`paramsIdent`, params)
