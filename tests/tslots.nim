@@ -61,7 +61,6 @@ when isMainModule:
       check valueChanged.signalType() is (int, )
       check Counter.setValue.signalType() is (int, )
 
-
     test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
