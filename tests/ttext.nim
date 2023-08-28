@@ -19,7 +19,6 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  # echo "main: child hovered: ", kind
   refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
@@ -28,7 +27,6 @@ proc draw*(self: Main) {.slot.} =
     box 10, 10, 600, 120
     cornerRadius 10.0
     fill "#2A9EEA".parseHtmlColor * 0.7
-    # fill whiteColor
     text "text":
       box 10, 10, 400, 100
       fill blackColor
