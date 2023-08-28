@@ -2,8 +2,10 @@
 import commons
 
 type
-  Button*[T] = ref object of Figuro
-    val: T
+  Widget*[T] = ref object of Figuro
+    state: T
+
+  Button*[T] = ref object of Widget[T]
     label: string
     isActive: bool
     disabled: bool
@@ -40,7 +42,7 @@ template button*(id: string, blk: untyped) =
 template button*[T](id: string, value: T, blk: untyped) =
   preNode(nkRectangle, Button[T], id)
   template widget(): Button[T] = Button[T](current)
-  widget.val = value
+  widget.state = value
   connect(current, onHover, current, Button[T].hover)
   proc doPost(inst: Button[T]) {.slot.} =
     `blk`
