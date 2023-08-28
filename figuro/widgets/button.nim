@@ -2,10 +2,10 @@
 import commons
 
 type
-  Widget*[T] = ref object of Figuro
+  FiguroWidget*[T] = ref object of Figuro
     state: T
 
-  Button*[T] = ref object of Widget[T]
+  Button*[T] = ref object of FiguroWidget[T]
     label: string
     isActive: bool
     disabled: bool

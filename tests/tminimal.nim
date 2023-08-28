@@ -16,14 +16,12 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc tick*(self: Main) {.slot.} =
-  if self.hasHovered:
-    if self.hoveredAlpha < 0.15:
-      self.hoveredAlpha += 0.010
-      refresh(self)
-  else:
-    if self.hoveredAlpha > 0.00:
-      self.hoveredAlpha -= 0.005
-      refresh(self)
+  if self.hoveredAlpha < 0.15 and self.hasHovered:
+    self.hoveredAlpha += 0.010
+    refresh(self)
+  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
+    self.hoveredAlpha -= 0.005
+    refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
