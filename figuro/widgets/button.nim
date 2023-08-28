@@ -38,7 +38,7 @@ template button*(id: string, blk: untyped) =
   proc doPost(inst: Button[void]) {.slot.} =
     `blk`
   connect(current, onDraw, current, Button[void].doPost)
-  emit current.onPost()
+  emit current.onDraw()
   postNode()
 
 template button*[T](id: string, value: T, blk: untyped) =
