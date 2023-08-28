@@ -28,8 +28,6 @@ proc draw*(self: Main) {.slot.} =
       button "btn", (i, self.value):
         let j = widget.val[0]
         let value = widget.val[1]
-        echo "widget:j: ", j
-        # echo "value: ", self.value
         fill "#AA0000"
         onHover:
           fill "#C00000"
