@@ -1,8 +1,9 @@
 import basics
 import ../../meta
 import ../../inputs
+import cssgrid
 
-export basics, meta, inputs
+export basics, meta, inputs, cssgrid
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -37,6 +38,9 @@ type
     highlight*: Color
     transparency*: float32
     stroke*: Stroke
+
+    gridTemplate*: GridTemplate
+    gridItem*: GridItem
 
     case kind*: NodeKind
     of nkRectangle:
