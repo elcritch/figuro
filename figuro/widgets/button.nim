@@ -25,7 +25,6 @@ proc draw*[T](self: Button[T]) {.slot.} =
   else:
     fill "#2B9FEA"
     onHover:
-      fill current.fill.spin(15)
-      # this changes the color on hover!
+      fill current.fill.spin(15) # this changes the color on hover!
 
 template button*[Button, V](id: string, value: V, blk: untyped) {.statefulWidget.}
