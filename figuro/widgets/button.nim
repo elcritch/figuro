@@ -31,7 +31,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill current.fill.spin(15)
       # this changes the color on hover!
 
-template button*[Button: Figuro, T](id: string, value: T, blk: untyped) {.figuroWidget.}
+template button*[Button, V](id: string, value: V, blk: untyped) {.statefulWidget.}
 
 # template button*[T](id: string, value: T, blk: untyped) =
 #   preNode(nkRectangle, Button[T], id)
