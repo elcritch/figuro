@@ -1,12 +1,12 @@
 import chroma, bumpy
 import std/[algorithm, macros, tables, os]
-# import cssgrid
+import cssgrid
 
 import std/[hashes]
 
 import commons, core
 
-export core
+export core, cssgrid
 
 # proc defaultLineHeight*(fontSize: UICoord): UICoord =
 #   result = fontSize * defaultlineHeightRatio
@@ -252,3 +252,133 @@ proc loadFont*(font: GlyphFont): FontId =
 
 proc setText*(font: FontId, text: string) =
   current.textLayout = internal.getTypeset(text, font, current.box)
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##             Node Layouts and Constraints
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+## These APIs provide the basic functionality for
+## setting up layouts and constraingts. 
+## 
+
+template gridTemplateColumns*(args: untyped) =
+  ## configure columns for CSS grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
+  ## names can include multiple names (aliaes):
+  ## - `["name", "header-line", "col1" ]` to make layout easier
+  ## 
+  layout lmGrid
+  parseGridTemplateColumns(current.gridTemplate, args)
+
+template gridTemplateRows*(args: untyped) =
+  ## configure rows for CSS grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## 
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
+  ## names can include multiple names (aliaes):
+  ## - `["name", "header-line", "col1" ]` to make layout easier
+  ## 
+  parseGridTemplateRows(current.gridTemplate, args)
+  layout lmGrid
+
+template defaultGridTemplate() =
+  if current.gridTemplate.isNil:
+    current.gridTemplate = newGridTemplate()
+
+template findGridColumn*(index: GridIndex): GridLine =
+  defaultGridTemplate()
+  current.gridTemplate.getLine(dcol, index)
+
+template findGridRow*(index: GridIndex): GridLine =
+  defaultGridTemplate()
+  current.gridTemplate.getLine(drow, index)
+
+template getGridItem(): untyped =
+  if current.gridItem.isNil:
+    current.gridItem = newGridItem()
+  current.gridItem
+
+proc span*(idx: int | string): GridIndex =
+  mkIndex(idx, isSpan = true)
+
+template columnStart*(idx: untyped) =
+  ## set CSS grid starting column 
+  getGridItem().index[dcol].a = idx.mkIndex()
+template columnEnd*(idx: untyped) =
+  ## set CSS grid ending column 
+  getGridItem().index[dcol].b = idx.mkIndex()
+template gridColumn*(val: untyped) =
+  ## set CSS grid ending column 
+  getGridItem().column = val
+
+template rowStart*(idx: untyped) =
+  ## set CSS grid starting row 
+  getGridItem().index[drow].a = idx.mkIndex()
+template rowEnd*(idx: untyped) =
+  ## set CSS grid ending row 
+  getGridItem().index[drow].b = idx.mkIndex()
+template gridRow*(val: untyped) =
+  ## set CSS grid ending column
+  getGridItem().row = val
+
+template gridArea*(r, c: untyped) =
+  getGridItem().row = r
+  getGridItem().column = c
+
+proc columnGap*(value: UICoord) =
+  ## set CSS grid column gap
+  defaultGridTemplate()
+  current.gridTemplate.gaps[dcol] = value.UiScalar
+
+proc rowGap*(value: UICoord) =
+  ## set CSS grid column gap
+  defaultGridTemplate()
+  current.gridTemplate.gaps[drow] = value.UiScalar
+
+proc justifyItems*(con: ConstraintBehavior) =
+  ## justify items on css grid (horizontal)
+  defaultGridTemplate()
+  current.gridTemplate.justifyItems = con
+proc alignItems*(con: ConstraintBehavior) =
+  ## align items on css grid (vertical)
+  defaultGridTemplate()
+  current.gridTemplate.alignItems = con
+proc justifyContent*(con: ConstraintBehavior) =
+  ## justify items on css grid (horizontal)
+  defaultGridTemplate()
+  current.gridTemplate.justifyContent = con
+proc alignContent*(con: ConstraintBehavior) =
+  ## align items on css grid (vertical)
+  defaultGridTemplate()
+  current.gridTemplate.alignContent = con
+proc placeItems*(con: ConstraintBehavior) =
+  ## align items on css grid (vertical)
+  defaultGridTemplate()
+  current.gridTemplate.justifyItems = con
+  current.gridTemplate.alignItems = con
+
+proc gridAutoColumns*(item: Constraint) =
+  defaultGridTemplate()
+  current.gridTemplate.autos[dcol] = item
+proc gridAutoRows*(item: Constraint) =
+  defaultGridTemplate()
+  current.gridTemplate.autos[drow] = item
