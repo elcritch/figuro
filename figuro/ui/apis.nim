@@ -298,7 +298,7 @@ template gridTemplateRows*(args: untyped) =
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
   parseGridTemplateRows(current.gridTemplate, args)
-  layout lmGrid
+  # layout lmGrid
 
 template defaultGridTemplate() =
   if current.gridTemplate.isNil:
