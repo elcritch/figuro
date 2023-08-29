@@ -8,7 +8,7 @@ srcDir        = "."
 
 requires "nim >= 1.6.5"
 requires "pixie >= 5.0.1"
-requires "cssgrid >= 0.2.10"
+requires "cssgrid >= 0.4.0"
 requires "chroma >= 0.2.7"
 requires "bumpy"
 requires "pretty"

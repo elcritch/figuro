@@ -117,10 +117,10 @@ macro getSignalTuple*(obj, sig: typed): auto =
   let stp = sig.getTypeInst.params()
   let isGeneric = otp.kind == nnkBracketExpr
 
-  echo "signalObjRaw:obj: ", otp.repr
-  echo "signalObjRaw:obj:tr: ", otp.treeRepr
-  echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
-  echo "signalObjRaw:sig: ", stp.repr
+  # echo "signalObjRaw:obj: ", otp.repr
+  # echo "signalObjRaw:obj:tr: ", otp.treeRepr
+  # echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
+  # echo "signalObjRaw:sig: ", stp.repr
 
   var args: seq[NimNode]
   for i in 2..<stp.len:
@@ -139,8 +139,8 @@ macro getSignalTuple*(obj, sig: typed): auto =
     # echo "ARGS: ", args.repr
     for arg in args:
       result.add arg[1]
-  echo "ARG: ", result.repr
-  echo ""
+  # echo "ARG: ", result.repr
+  # echo ""
   if result.len == 0:
     result = bindSym"void"
 
