@@ -240,6 +240,34 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   inner
   postNode()
 
+template mkStatefulWidget(fig, name: untyped) =
+  template `name`*[T](id: string, value: T, blk: untyped) =
+    preNode(nkRectangle, `fig`[T], id)
+    template widget(): `fig`[T] = `fig`[T](current)
+    widget.state = value
+    connect(current, onHover, current, `fig`[T].hover)
+    proc doPost(inst: `fig`[T]) {.slot.} =
+      `blk`
+    connect(current, onDraw, current, `fig`[T].doPost)
+    emit current.onDraw()
+    postNode()
+  template `name`*(id: string, blk: untyped) =
+    `name`(id, void, blk)
+
+import macros
+
+macro figuroWidget*(p: untyped): untyped =
+  p.expectKind nnkTemplateDef
+  let name = p.name()
+  let genericParams = p[2]
+  var gens: seq[string]
+  if genericParams.len() > 1:
+    error("incorrect generic types: " & repr(genericParams) & "; " & "Should be [WidgetType, T]", genericParams)
+  let typ = gens[0]
+  # echo "figuroWidget: ", " name: ", name, " gens: ", gens
+  result = quote do:
+    mkStatefulWidget(`typ`, `name`)
+
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
