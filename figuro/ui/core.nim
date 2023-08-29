@@ -241,17 +241,21 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   postNode()
 
 template mkStatefulWidget(fig, name: untyped) =
+  ## expands into constructor templates for the `Fig` widget type using `name`
+  ## 
   template `name`*[T](id: string, value: T, blk: untyped) =
-    preNode(nkRectangle, `fig`[T], id)
+    preNode(nkRectangle, `fig`[T], id) # start the node
     template widget(): `fig`[T] = `fig`[T](current)
-    widget.state = value
-    connect(current, onHover, current, `fig`[T].hover)
+    widget.state = value # set the state
+    # connect(current, onHover, current, `fig`[T].hover) # setup hover
     proc doPost(inst: `fig`[T]) {.slot.} =
+      ## runs the users `blk` as a slot with state taken from widget
       `blk`
-    connect(current, onDraw, current, `fig`[T].doPost)
-    emit current.onDraw()
-    postNode()
+    connect(current, onDraw, current, `fig`[T].doPost) ## bind the doPost slot
+    emit current.onDraw() # need to draw our node!
+    postNode() # required postNode cleanup
   template `name`*(id: string, blk: untyped) =
+    ## helper for empty slates
     `name`(id, void, blk)
 
 import macros

@@ -11,9 +11,6 @@ type
     disabled: bool
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
-  # self.fill = parseHtmlColor "#9BDFFA"
-  # echo "button hover!"
-  # echo "child hovered: ", kind
   discard
 
 proc draw*[T](self: Button[T]) {.slot.} =
