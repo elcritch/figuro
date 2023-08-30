@@ -240,7 +240,7 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   inner
   postNode()
 
-template mkStatefulWidget(fig, name: untyped) =
+template mkStatefulWidget(fig, name, doPostId: untyped) =
   ## expands into constructor templates for the `Fig` widget type using `name`
   ## 
   template `name`*[T](id: string, value: T, blk: untyped) =
@@ -248,10 +248,10 @@ template mkStatefulWidget(fig, name: untyped) =
     template widget(): `fig`[T] = `fig`[T](current)
     widget.state = value # set the state
     # connect(current, onHover, current, `fig`[T].hover) # setup hover
-    proc doPost(inst: `fig`[T]) {.slot.} =
+    proc `doPostId`(inst: `fig`[T]) {.slot.} =
       ## runs the users `blk` as a slot with state taken from widget
       `blk`
-    connect(current, onDraw, current, `fig`[T].doPost) ## bind the doPost slot
+    connect(current, onDraw, current, `fig`[T].`doPostId`) ## bind the doPost slot
     emit current.onDraw() # need to draw our node!
     postNode() # required postNode cleanup
   template `name`*(id: string, blk: untyped) =
@@ -282,8 +282,10 @@ macro statefulWidget*(p: untyped): untyped =
   if p.params()[3][1].repr() != "untyped":
     error("incorrect arguments: " & repr(p.params()[3][1]) & "; " & "Should be `untyped`", p.params()[3][1])
   # echo "figuroWidget: ", " name: ", name, " typ: ", typ
+  let doPostId = genSym(nskProc, "doPost")
+  echo "doPostId: ", doPostId
   result = quote do:
-    mkStatefulWidget(`typ`, `name`)
+    mkStatefulWidget(`typ`, `name`, doPostId)
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.

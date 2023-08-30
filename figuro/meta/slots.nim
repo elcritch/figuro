@@ -150,7 +150,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # rpc method names
     pathStr = $path
     signalName = pathStr.strip(false, true, {'*'})
-    procNameStr = pathStr.makeProcName()
+    procNameStr = p.name().strVal
     isPublic = pathStr.endsWith("*")
     isGeneric = genericParams.kind != nnkEmpty
 
