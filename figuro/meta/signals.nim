@@ -269,11 +269,9 @@ macro connect*(
 
   let slotAgent = 
     if slot.kind == nnkIdent:
-      nnkCall.newTree(
-        slot,
-        ident bTyp.strVal,
-        ident "AgentProc",
-      )
+      nnkCall.newTree(slot, ident bTyp.strVal, ident "AgentProc")
+    elif slot.kind == nnkDotExpr:
+      nnkCall.newTree(slot[1], slot[0].strVal, ident "AgentProc",)
     else:
       slot
 
@@ -282,11 +280,8 @@ macro connect*(
   let sigTupleSlot = sigTuple.copyNimTree()
   sigTupleSlot.insert(0, bTyp)
   for i, ty in sigTupleSlot:
-    procTyp.params.add nnkIdentDefs.newTree(
-      ident("a" & $i),
-      ty,
-      nnkEmpty.newNimNode(),
-    )
+    let empty = nnkEmpty.newNimNode()
+    procTyp.params.add nnkIdentDefs.newTree( ident("a" & $i), ty, empty)
   # echo "AA:procTyp: ", procTyp.treeRepr
   echo "AA:procTyp: ", procTyp.repr
 
