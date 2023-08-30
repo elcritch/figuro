@@ -113,11 +113,11 @@ import typetraits, sequtils, tables
 
 proc getSignalTuple*(obj, sig: NimNode): NimNode =
   let otp = obj.getTypeInst
-  # echo "signalObjRaw:sig1: ", sig.treeRepr
+  echo "signalObjRaw:sig1: ", sig.treeRepr
   let sigTyp =
     if sig.kind == nnkSym: sig.getTypeInst
     else: sig.getTypeInst
-  # echo "signalObjRaw:sig2: ", sigTyp.treeRepr
+  echo "signalObjRaw:sig2: ", sigTyp.treeRepr
   let stp =
     if sigTyp.kind == nnkProcTy:
       sig.getTypeInst[0]
@@ -125,10 +125,10 @@ proc getSignalTuple*(obj, sig: NimNode): NimNode =
       sigTyp.params()
   let isGeneric = otp.kind == nnkBracketExpr
 
-  # echo "signalObjRaw:obj: ", otp.repr
-  # echo "signalObjRaw:obj:tr: ", otp.treeRepr
-  # echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
-  # echo "signalObjRaw:sig: ", stp.repr
+  echo "signalObjRaw:obj: ", otp.repr
+  echo "signalObjRaw:obj:tr: ", otp.treeRepr
+  echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
+  echo "signalObjRaw:sig: ", stp.repr
 
   var args: seq[NimNode]
   for i in 2..<stp.len:
@@ -147,10 +147,10 @@ proc getSignalTuple*(obj, sig: NimNode): NimNode =
     # echo "ARGS: ", args.repr
     for arg in args:
       result.add arg[1]
-  # echo "ARG: ", result.repr
-  # echo ""
   if result.len == 0:
     result = bindSym"void"
+  echo "ARG: ", result.repr
+  echo ""
 
 macro signalType*(p: untyped): auto =
   ## gets the type of the signal without 
@@ -176,18 +176,21 @@ macro connect*(
   # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
   #     {.error: "signal and slot types don't match".}
 
-  # echo "\n\nAA:sig: ", signal.repr
-  # echo "AA:sig: ", signal.getTypeImpl.repr
-  # # echo "AA:sig: ", signal.getImpl.repr
-  # echo "AA:sig:tup: ", getSignalTuple(a, signal).repr
+  echo "\n\nAA:a: ", a.repr
+  echo "AA:a: ", a.getTypeImpl.repr
+  echo "AA:a:tup: ", getSignalTuple(a, signal).repr
+
+  echo "AA:sig: ", signal.repr
+  echo "AA:sig: ", signal.getTypeImpl.repr
+  # echo "AA:sig: ", signal.getImpl.repr
 
   let sigTuple = getSignalTuple(a, signal)
 
-  # echo "\nAA:slot:repr: ", slot.treerepr
+  echo "\nAA:slot:repr: ", slot.treerepr
 
-  # echo "\nAA:B:repr: ", b.treeRepr
-  # echo "\nAA:B:tinst: ", b.getTypeInst().treerepr
-  # echo "\nAA:B:timpl: ", b.getTypeImpl().repr
+  echo "\nAA:B:repr: ", b.treeRepr
+  echo "\nAA:B:tinst: ", b.getTypeInst().treerepr
+  echo "\nAA:B:timpl: ", b.getTypeImpl().repr
 
   let bTyp = b.getTypeInst()
   # echo "\nAA:B:typ: ", bTyp.treeRepr
@@ -225,8 +228,8 @@ macro connect*(
       static:
         {.error: serror.}
     let agentSlot: AgentProc = `slotAgent`
-    a.addAgentListeners(`name`, `b`, agentSlot)
-  # echo "CONNECT: ", result.repr
+    `a`.addAgentListeners(`name`, `b`, agentSlot)
+  echo "CONNECT: ", result.repr
 
 import pretty
 

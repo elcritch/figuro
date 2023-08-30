@@ -89,3 +89,4 @@ when isMainModule:
         connect(a, avgChanged,
                 c, Counter.setValue))
 
+
