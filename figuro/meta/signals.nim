@@ -106,7 +106,7 @@ template packResponse*(res: AgentResponse): Variant =
   so.pack(res)
   so
 
-macro getSignalName(signal: typed): auto =
+proc getSignalName(signal: NimNode): NimNode =
   result = newStrLitNode signal.strVal
 
 import typetraits, sequtils, tables
@@ -213,8 +213,9 @@ macro toSlot(slot: typed): untyped =
   echo "TO_SLOT:tp: ", slot.getImpl.repr
   echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
   let name = slot.getImpl().name().repr
-  echo "TO_SLOT:NAME: ", name
-  let pimpl = ident("agentSlot_" & name)
+  let aname = "agentSlot_" & name
+  echo "TO_SLOT:NAME: ", aname
+  let pimpl = ident(aname)
   echo "pimpl: ", pimpl.treeRepr
   # let pimpl = nnkCall.newTree(
   #   ident("agentSlot" & slot[1].repr),
@@ -238,35 +239,66 @@ macro toSlot(slot: typed): untyped =
 #     echo "TO_SLOT:IS PROC: ", slot.typeof.repr
 #   a.addAgentListeners(name, b, AgentProc(toSlot(slot)))
 
+macro getSigType(x: typed): untyped =
+  result = x
+
 macro connect*(
     a: Agent,
     signal: typed,
     b: Agent,
-    slot: typed
+    slot: untyped
 ) =
   # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
   #     {.error: "signal and slot types don't match".}
 
   echo "\n\nAA:sig: ", signal.repr
   echo "AA:sig: ", signal.getTypeImpl.repr
-  echo "AA:sig: ", signal.getImpl.repr
+  # echo "AA:sig: ", signal.getImpl.repr
   echo "AA:sig:tup: ", getSignalTuple(a, signal).repr
-  echo "\nAA:slot: ", slot.repr
-  echo "AA:slot: ", slot.getTypeImpl.repr
-  echo "AA:slot: ", slot.getTypeInst.repr
-  echo "AA:slot: ", slot.getImpl.repr
-  echo "AA:slot:tup: ", getSignalTuple(b, slot).repr
-  if getSignalTuple(a, signal) != getSignalTuple(b, slot):
-    error("signal and slot types don't match")
-  # echo "A: ", getSignalTuple(a, signal)
-  # echo "B: ", getSignalTuple(b, slot)
 
-  result = newStmtList()
-  # result = quote do:
-  #   let name = getSignalName(signal)
-  #   static:
-  #     echo "TO_SLOT:IS PROC: ", slot.typeof.repr
-  #   a.addAgentListeners(name, b, AgentProc(toSlot(slot)))
+  let sigTuple = getSignalTuple(a, signal)
+
+  echo "\nAA:slot:repr: ", slot.treerepr
+
+  echo "\nAA:B:repr: ", b.treeRepr
+  # echo "\nAA:B:tinst: ", b.getTypeInst().treerepr
+  # echo "\nAA:B:timpl: ", b.getTypeImpl().repr
+
+  let bTyp = b.getTypeInst()
+  echo "\nAA:B:typ: ", bTyp.treeRepr
+
+  let slotAgent = 
+    if slot.kind == nnkIdent:
+      nnkCall.newTree(
+        slot,
+        ident bTyp.strVal,
+        ident "AgentProc",
+      )
+    else:
+      slot
+
+  let procTyp = quote do:
+    proc () {.nimcall.}
+  let sigTupleSlot = sigTuple.copyNimTree()
+  sigTupleSlot.insert(0, bTyp)
+  for i, ty in sigTupleSlot:
+    procTyp.params.add nnkIdentDefs.newTree(
+      ident("a" & $i),
+      ty,
+      nnkEmpty.newNimNode(),
+    )
+  # echo "AA:procTyp: ", procTyp.treeRepr
+  echo "AA:procTyp: ", procTyp.repr
+
+  let name = getSignalName(signal)
+  # let aname = 
+  echo "AA:NAME: ", name
+  # result = newStmtList()
+  result = quote do:
+    let agentSlot: AgentProc = `slotAgent`
+    a.addAgentListeners(`name`, `b`, AgentProc(agentSlot))
+  
+  echo "CONNECT: ", result.repr
 
 import pretty
 

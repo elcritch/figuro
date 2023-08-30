@@ -37,7 +37,7 @@ when isMainModule:
     test "signal connect":
       echo "Counter.setValue: ", Counter.setValue().repr
       connect(a, valueChanged,
-              b, Counter.setValue)
+              b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
 
