@@ -178,7 +178,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   result = newStmtList()
   var
     (_, firstType) = params.firstArgument()
-    parameters = params
+    parameters = params.copyNimTree()
 
   let
     # determine if this is a "signal" rpc method
@@ -271,15 +271,24 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         `paramSetups`
         `mcall`
 
+    let procTyp = quote do:
+      proc ()
+    procTyp.params = params.copyNimTree()
     echo "SIG:TUPLE: ", parameters.repr
+    echo "SIG:TUPLE: ", paramTypes.repr
+    # echo "SIG:TUPLE:procTyp: ", procTyp.treeRepr
+    echo "SIG:TUPLE:procTyp: ", procTyp.repr
+
     if isGeneric:
       result.add quote do:
         template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
-          `rpcMethodGen`[T]
+          let p: `procTyp` = `rpcMethod`[T]
+          p
     else:
       result.add quote do:
         template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
-          `rpcMethodGen`
+          let p: `procTyp` = `rpcMethod`
+          p
 
     if isPublic:
       result.makeProcsPublic(genericParams)
