@@ -277,7 +277,7 @@ template gridTemplateColumns*(args: untyped) =
   ## names can include multiple names (aliaes):
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
-  layout lmGrid
+  # layout lmGrid
   parseGridTemplateColumns(current.gridTemplate, args)
 
 template gridTemplateRows*(args: untyped) =

@@ -67,25 +67,25 @@ when isMainModule:
     #   check Counter.setValue.signalType() is (int, )
 
 
-    # test "signal connect":
-    #   # TODO: how to do this?
-    #   connect(a, valueChanged,
-    #           b, Counter.setValue)
-    #   connect(a, valueChanged,
-    #           c, Counter.setValue)
+    test "signal connect":
+      # TODO: how to do this?
+      connect(a, valueChanged,
+              b, Counter[uint].setValue)
+      connect(a, valueChanged,
+              c, Counter[uint].setValue)
 
-    #   check a.value == 0
-    #   check b.value == 0
-    #   check c.value == 0
+      check a.value == 0
+      check b.value == 0
+      check c.value == 0
 
-    #   a.setValue(42)
+      a.setValue(42)
 
-    #   check a.value == 42
-    #   check b.value == 42
-    #   check c.value == 42
+      check a.value == 42
+      check b.value == 42
+      check c.value == 42
 
-    # test "connect type errors":
-    #   check not compiles(
-    #     connect(a, avgChanged,
-    #             c, setValue))
+    test "connect type errors":
+      check not compiles(
+        connect(a, avgChanged,
+                c, Counter.setValue))
 

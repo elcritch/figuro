@@ -5,14 +5,14 @@ import figuro/widget
 import figuro
 
 type
-  GridApp = ref object
+  GridApp = ref object of Figuro
     ## this creates a new ref object type name using the
     ## capitalized proc name which is `ExampleApp` in this example. 
     ## This will be customizable in the future. 
     count: int
     value: float
 
-proc drawMain() =
+proc draw*(self: GridApp) {.slot.} =
   # echo "\n\n=================================\n"
   frame "main":
     # setWindowBounds(vec2(400, 200), vec2(800, 600))
@@ -41,10 +41,10 @@ proc drawMain() =
       gridRow "top" // "middle-top"
       gridColumn "outer-l" // "outer-r"
 
-      self.value = (self.count.toFloat * 0.10) mod 1.0001
+      # self.value = (self.count.toFloat * 0.10) mod 1.0001
 
-      ProgressBar:
-        value: self.value
+      # ProgressBar:
+      #   value: self.value
 
     rectangle "btn":
       # currently rendering sub-text with css grids
@@ -54,25 +54,28 @@ proc drawMain() =
       gridRow "middle" // "bottom"
       gridColumn "button-la" // "button-lb"
 
-      Button:
-        label fmt"Clicked1: {self.count:4d}"
-        size csAuto(), csAuto()
+      button "btn", (self):
+        # label fmt"Clicked1: {self.count:4d}"
+        # size csAuto(), csAuto()
+        fill "#A00000"
 
-        onClick:
-          self.count.inc()
+        # onClick:
+        #   self.count.inc()
 
-    Button:
+    button "grid", (self):
       gridRow "middle" // "bottom"
       gridColumn "button-ra" // "button-rb"
-      label fmt"Clicked2: {self.count:4d}"
-      onClick: self.count.inc()
+      # label fmt"Clicked2: {self.count:4d}"
+      # onClick: self.count.inc()
   
     # gridTemplateDebugLines true
 
-startFidget(
-  drawMain,
-  setup = 
-    when defined(demoBulmaTheme): bulmaTheme
-    else: grayTheme,
-  w=480, h=300
-)
+var fig = GridApp.new()
+
+connect(fig, onDraw, fig, GridApp.draw)
+# connect(fig, onTick, fig, GridApp.tick)
+
+app.width = 480
+app.height = 300
+
+startFiguro(fig)

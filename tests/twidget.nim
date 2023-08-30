@@ -35,8 +35,7 @@ proc draw*(self: Main) {.slot.} =
         if j == 0:
           current.fill.a = value * 1.0
 
-var
-  fig = Main.new()
+var fig = Main.new()
 
 connect(fig, onDraw, fig, Main.draw)
 connect(fig, onTick, fig, Main.tick)
