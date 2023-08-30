@@ -226,7 +226,7 @@ macro connect*(
   result = quote do:
     when not compiles(`slotAgent`):
       static:
-        {.error: serror.}
+        {.error: `serror`.}
     let agentSlot: AgentProc = `slotAgent`
     `a`.addAgentListeners(`name`, `b`, agentSlot)
   echo "CONNECT: ", result.repr
