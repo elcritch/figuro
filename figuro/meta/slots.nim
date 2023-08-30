@@ -291,7 +291,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
           let p: `procTyp` = `rpcMethod`
           p
-        proc `rpcSlot`(tp: typedesc[`contextType`]): `procTyp` =
+        proc `rpcSlot`(tp: typedesc[`contextType`]): AgentProc =
           `agentSlotImpl`
 
     if isPublic:
