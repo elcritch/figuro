@@ -111,10 +111,18 @@ macro getSignalName(signal: typed): auto =
 
 import typetraits, sequtils, tables
 
-macro getSignalTuple*(obj, sig: typed): auto =
-  # echo "signalObjRaw:obj: ", obj.treeRepr
+proc getSignalTuple*(obj, sig: NimNode): NimNode =
   let otp = obj.getTypeInst
-  let stp = sig.getTypeInst.params()
+  # echo "signalObjRaw:sig1: ", sig.treeRepr
+  let sigTyp =
+    if sig.kind == nnkSym: sig.getTypeInst
+    else: sig.getTypeInst
+  # echo "signalObjRaw:sig2: ", sigTyp.treeRepr
+  let stp =
+    if sigTyp.kind == nnkProcTy:
+      sig.getTypeInst[0]
+    else:
+      sigTyp.params()
   let isGeneric = otp.kind == nnkBracketExpr
 
   # echo "signalObjRaw:obj: ", otp.repr
@@ -200,31 +208,65 @@ macro signalCheck(signal, slot: typed) =
     error("signal and slot types don't match;" & errors, signal)
   else:
     result = nnkEmpty.newNimNode()
-macro toSlot(slot: untyped): untyped =
-  # echo "TO_SLOT: ", slot.treeRepr
-  # echo "TO_SLOT:tp: ", slot.getTypeImpl.repr
-  # echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
-  let pimpl = nnkCall.newTree(
-    ident("agentSlot" & slot[1].repr),
-    slot[0],
-  )
+macro toSlot(slot: typed): untyped =
+  echo "TO_SLOT: ", slot.treeRepr
+  echo "TO_SLOT:tp: ", slot.getImpl.repr
+  echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
+  let name = slot.getImpl().name().repr
+  echo "TO_SLOT:NAME: ", name
+  let pimpl = ident("agentSlot_" & name)
+  echo "pimpl: ", pimpl.treeRepr
+  # let pimpl = nnkCall.newTree(
+  #   ident("agentSlot" & slot[1].repr),
+  #   slot[0],
+  # )
   # echo "TO_SLOT: ", slot.getImpl.treeRepr
   # echo "TO_SLOT: ", slot.getTypeImpl.repr
-  # echo "TO_SLOT: result: ", pimpl.repr
+  echo "TO_SLOT: result: ", pimpl.repr
   return pimpl
 
-template connect*(
-    a: Agent,
-    signal: untyped,
-    b: Agent,
-    slot: untyped
-) =
-  when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
-      {.error: "signal and slot types don't match".}
-  # signalCheck(signal, slot)
+# template connect*(
+#     a: Agent,
+#     signal: typed,
+#     b: Agent,
+#     slot: typed
+# ) =
+#   # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
+#   #     {.error: "signal and slot types don't match".}
+#   let name = getSignalName(signal)
+#   static:
+#     echo "TO_SLOT:IS PROC: ", slot.typeof.repr
+#   a.addAgentListeners(name, b, AgentProc(toSlot(slot)))
 
-  let name = getSignalName(signal)
-  a.addAgentListeners(name, b, AgentProc(toSlot(`slot`)))
+macro connect*(
+    a: Agent,
+    signal: typed,
+    b: Agent,
+    slot: typed
+) =
+  # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
+  #     {.error: "signal and slot types don't match".}
+
+  echo "\n\nAA:sig: ", signal.repr
+  echo "AA:sig: ", signal.getTypeImpl.repr
+  echo "AA:sig: ", signal.getImpl.repr
+  echo "AA:sig:tup: ", getSignalTuple(a, signal).repr
+  echo "\nAA:slot: ", slot.repr
+  echo "AA:slot: ", slot.getTypeImpl.repr
+  echo "AA:slot: ", slot.getTypeInst.repr
+  echo "AA:slot: ", slot.getImpl.repr
+  echo "AA:slot:tup: ", getSignalTuple(b, slot).repr
+  if getSignalTuple(a, signal) != getSignalTuple(b, slot):
+    error("signal and slot types don't match")
+  # echo "A: ", getSignalTuple(a, signal)
+  # echo "B: ", getSignalTuple(b, slot)
+
+  result = newStmtList()
+  # result = quote do:
+  #   let name = getSignalName(signal)
+  #   static:
+  #     echo "TO_SLOT:IS PROC: ", slot.typeof.repr
+  #   a.addAgentListeners(name, b, AgentProc(toSlot(slot)))
 
 import pretty
 

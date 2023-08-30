@@ -150,7 +150,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # rpc method names
     pathStr = $path
     signalName = pathStr.strip(false, true, {'*'})
-    procNameStr = p.name().strVal
+    procNameStr = p.name().repr
     isPublic = pathStr.endsWith("*")
     isGeneric = genericParams.kind != nnkEmpty
 
@@ -158,9 +158,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # rpcSlot = ident(procNameStr & "Slot")
     rpcMethodGen = genSym(nskProc, procNameStr)
     rpcMethodGenName = newStrLitNode repr rpcMethodGen
-    procName = ident("agentSlot" & rpcMethodGen.repr)
+    procName = ident("agentSlot_" & rpcMethodGen.repr)
     rpcMethod = ident(procNameStr)
-    rpcSlot = ident("agentSlot" & procNameStr)
+    rpcSlot = ident("agentSlot_" & procNameStr)
 
     # ctxName = ident("context")
     # parameter type name
@@ -168,6 +168,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     paramsIdent = ident("args")
     paramTypeName = ident("RpcType" & procNameStr)
 
+  echo "SLOTS:slot:NAME: ", p.name(), " => ", procNameStr
+  echo "SLOTS:paramTypeName:NAME: ", paramTypeName
   # echo "SLOTS:generic: ", genericParams.treeRepr
   # echo "SLOTS: rpcMethodGen:hash: ", rpcMethodGen.symBodyHash()
   # echo "SLOTS: rpcMethodGen:signatureHash: ", rpcMethodGen.signatureHash()
@@ -292,8 +294,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.treeRepr
-  # echo "slot:repr:"
-  # echo result.repr
+  echo "slot:repr:"
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
