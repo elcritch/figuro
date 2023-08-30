@@ -284,8 +284,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         proc `rpcMethod`(tp: typedesc[`contextType`]): `procTyp` =
           let p: `procTyp` = `rpcMethod`[T]
           p
-        template `rpcSlot`(tp: typedesc[`contextType`]): untyped =
+        proc `rpcMethod`(tp: typedesc[`contextType`], agent: typedesc[AgentProc]): AgentProc =
           `agentSlotImpl`
+          slot
     else:
       result.add quote do:
         proc `rpcMethod`(tp: typedesc[`contextType`]): `procTyp` =
