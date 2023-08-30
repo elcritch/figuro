@@ -17,6 +17,12 @@ proc setValue*(self: Counter, value: int) {.slot.} =
     self.value = value
   emit self.valueChanged(value)
 
+proc setSomeValue*(self: Counter, value: int) =
+  echo "setValue! ", value
+  if self.value != value:
+    self.value = value
+  emit self.valueChanged(value)
+
 proc someAction*(self: Counter) {.slot.} =
   echo "action"
 
@@ -80,20 +86,16 @@ when isMainModule:
       check c.value == 42
 
     test "connect type errors":
-      check not compiles(
-        connect(a, avgChanged,
-                c, setValue))
+      # check not compiles(
+      connect(a, avgChanged,
+                c, setValue)
 
     test "signal connect reg proc":
       # TODO: how to do this?
       static:
         echo "\n\n\nREG PROC"
       # let sv: proc (self: Counter, value: int) = Counter.setValue
-      connect(a, valueChanged,
-              b, Counter.setValue)
-
-      check a.value == 0
-      check b.value == 0
-      a.setValue(39)
-      check a.value == 39
-      check b.value == 39
+      check not compiles(
+        connect(a, valueChanged,
+              b, setSomeValue)
+      )

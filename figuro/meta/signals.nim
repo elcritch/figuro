@@ -291,13 +291,16 @@ macro connect*(
   echo "AA:procTyp: ", procTyp.repr
 
   let name = getSignalName(signal)
+  let sname = newStrLitNode("`" & slotAgent[0].repr & "`")
   # let aname = 
   echo "AA:NAME: ", name
   # result = newStmtList()
   result = quote do:
+    when not compiles(`slotAgent`):
+      static:
+        {.error: "cannot find slot for " & `sname`.}
     let agentSlot: AgentProc = `slotAgent`
     a.addAgentListeners(`name`, `b`, agentSlot)
-  
   echo "CONNECT: ", result.repr
 
 import pretty
