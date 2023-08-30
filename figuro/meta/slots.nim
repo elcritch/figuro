@@ -201,7 +201,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     rpcMethodGenName = newStrLitNode repr rpcMethodGen
     procName = ident(procNameStr) # ident("agentSlot_" & rpcMethodGen.repr)
     rpcMethod = ident(procNameStr)
-    # rpcSlot = ident("agentSlot_" & procNameStr)
+    rpcSlot = ident("agentSlot_" & procNameStr)
 
     # ctxName = ident("context")
     # parameter type name
@@ -250,21 +250,21 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         rpcType.add arg
 
     # Create the rpc wrapper procs
-    let objId = genSym(nskLet, "obj")
+    let objId = ident "obj"
     let mcall = nnkCall.newTree(rpcMethod)
     mcall.add(objId)
     for param in parameters[1..^1]:
       mcall.add param[0]
 
-    result.add quote do:
+    let agentSlotImpl = quote do:
       proc `procName`(
           context: Agent,
           params: RpcParams,
       ) {.nimcall.} =
         if context == nil:
           raise newException(ValueError, "bad value")
-        let obj = `contextType`(context)
-        if obj == nil:
+        let `objId` = `contextType`(context)
+        if `objId` == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `rpcType`
         rpcUnpack(`paramsIdent`, params)
@@ -289,6 +289,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         template `rpcMethod`(tp: typedesc[`contextType`]): untyped =
           let p: `procTyp` = `rpcMethod`
           p
+        template `rpcSlot`(tp: typedesc[`contextType`]): untyped =
+          `agentSlotImpl`
 
     if isPublic:
       result.makeProcsPublic(genericParams)
