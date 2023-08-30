@@ -56,6 +56,7 @@ when isMainModule:
       connect(a, someChange,
               c, Counter.someAction)
 
+
     test "signal / slot types":
       check avgChanged.signalType() is (float, )
       check valueChanged.signalType() is (int, )

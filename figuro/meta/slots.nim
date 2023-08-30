@@ -257,7 +257,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       mcall.add param[0]
 
     let agentSlotImpl = quote do:
-      proc `procName`(
+      proc slot(
           context: Agent,
           params: RpcParams,
       ) {.nimcall.} =
@@ -293,6 +293,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
           p
         proc `rpcMethod`(tp: typedesc[`contextType`], agent: typedesc[AgentProc]): AgentProc =
           `agentSlotImpl`
+          slot
 
     if isPublic:
       result.makeProcsPublic(genericParams)

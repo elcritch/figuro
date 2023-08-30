@@ -296,7 +296,7 @@ macro connect*(
   # result = newStmtList()
   result = quote do:
     let agentSlot: AgentProc = `slotAgent`
-    a.addAgentListeners(`name`, `b`, AgentProc(agentSlot))
+    a.addAgentListeners(`name`, `b`, agentSlot)
   
   echo "CONNECT: ", result.repr
 
@@ -306,12 +306,12 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
 
-    # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
+    echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
 
     for (tgt, slot) in listeners:
-      # echo ""
-      # echo "call listener:tgt: ", repr tgt
-      # echo "call listener:slot: ", repr slot
+      echo ""
+      echo "call listener:tgt: ", repr tgt
+      echo "call listener:slot: ", repr slot
       let res = slot.callMethod(tgt, req)
       variantMatch case res.result.buf as u
       of AgentError:
