@@ -93,7 +93,6 @@ when isMainModule:
 
       check a.value == 0
       check b.value == 0
-
       a.setValue(39)
       check a.value == 39
       check b.value == 39
