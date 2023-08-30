@@ -62,7 +62,6 @@ when isMainModule:
       connect(a, someChange,
               c, Counter.someAction)
 
-
     test "signal / slot types":
       check avgChanged.signalType() is (float, )
       check valueChanged.signalType() is (int, )
@@ -71,7 +70,7 @@ when isMainModule:
     test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
-              b, Counter.setValue)
+              b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
     
@@ -99,3 +98,4 @@ when isMainModule:
         connect(a, valueChanged,
               b, setSomeValue)
       )
+

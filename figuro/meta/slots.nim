@@ -209,8 +209,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     paramsIdent = ident("args")
     paramTypeName = ident("RpcType" & procNameStr)
 
-  echo "SLOTS:slot:NAME: ", p.name(), " => ", procNameStr, " genname: ", rpcMethodGen
-  echo "SLOTS:paramTypeName:NAME: ", paramTypeName
+  # echo "SLOTS:slot:NAME: ", p.name(), " => ", procNameStr, " genname: ", rpcMethodGen
+  # echo "SLOTS:paramTypeName:NAME: ", paramTypeName
   # echo "SLOTS:generic: ", genericParams.treeRepr
   # echo "SLOTS: rpcMethodGen:hash: ", rpcMethodGen.symBodyHash()
   # echo "SLOTS: rpcMethodGen:signatureHash: ", rpcMethodGen.signatureHash()
@@ -274,10 +274,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     let procTyp = quote do:
       proc ()
     procTyp.params = params.copyNimTree()
-    echo "SIG:TUPLE: ", parameters.repr
-    echo "SIG:TUPLE: ", paramTypes.repr
+    # echo "SIG:TUPLE: ", parameters.repr
+    # echo "SIG:TUPLE: ", paramTypes.repr
     # echo "SIG:TUPLE:procTyp: ", procTyp.treeRepr
-    echo "SIG:TUPLE:procTyp: ", procTyp.repr
+    # echo "SIG:TUPLE:procTyp: ", procTyp.repr
 
     if isGeneric:
       result.add quote do:

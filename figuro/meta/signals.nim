@@ -152,20 +152,6 @@ proc getSignalTuple*(obj, sig: NimNode): NimNode =
   if result.len == 0:
     result = bindSym"void"
 
-macro signalObj*(so: typed): auto =
-  ## gets the type of the signal's object arg 
-  ## 
-  let p = so.getType
-  assert p.kind != nnkNone
-  echo "signalObj: ", p.repr
-  echo "signalObj: ", p.treeRepr
-  if p.kind == nnkSym and p.strVal == "none":
-    error("cannot determine type of: " & repr(so), so)
-  let obj = p[0][1]
-  # result = obj[1].getTypeInst
-  result = obj[1]
-  echo "signalObj:end: ", result.repr
-
 macro signalType*(p: untyped): auto =
   ## gets the type of the signal without 
   ## the Agent proc type
@@ -180,67 +166,6 @@ macro signalType*(p: untyped): auto =
   result = nnkTupleConstr.newNimNode()
   for arg in obj[2..^1]:
     result.add arg[1]
-proc signalKind(p: NimNode): seq[NimNode] =
-  ## gets the type of the signal without 
-  ## the Agent proc type
-  ## 
-  let p = p.getTypeInst
-  let obj = p[0]
-  for arg in obj[2..^1]:
-    result.add arg[1]
-macro signalCheck(signal, slot: typed) =
-  let ksig = signalKind(signal)
-  let kslot = signalKind(slot)
-  var res = true
-  if ksig.len != kslot.len:
-    error("signal and slot types have different number of args", signal)
-  var errors = ""
-  if ksig.len == kslot.len:
-    for i in 0..<ksig.len():
-      res = ksig[i] == kslot[i]
-      if not res:
-        errors &= " signal: " & ksig.repr &
-                    " != slot: " & kslot.repr
-        errors &= "; first mismatch: " & ksig[i].repr &
-                    " != " & kslot[i].repr
-        break
-  if not res:
-    error("signal and slot types don't match;" & errors, signal)
-  else:
-    result = nnkEmpty.newNimNode()
-macro toSlot(slot: typed): untyped =
-  echo "TO_SLOT: ", slot.treeRepr
-  echo "TO_SLOT:tp: ", slot.getImpl.repr
-  echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
-  let name = slot.getImpl().name().repr
-  let aname = "agentSlot_" & name
-  echo "TO_SLOT:NAME: ", aname
-  let pimpl = ident(aname)
-  echo "pimpl: ", pimpl.treeRepr
-  # let pimpl = nnkCall.newTree(
-  #   ident("agentSlot" & slot[1].repr),
-  #   slot[0],
-  # )
-  # echo "TO_SLOT: ", slot.getImpl.treeRepr
-  # echo "TO_SLOT: ", slot.getTypeImpl.repr
-  echo "TO_SLOT: result: ", pimpl.repr
-  return pimpl
-
-# template connect*(
-#     a: Agent,
-#     signal: typed,
-#     b: Agent,
-#     slot: typed
-# ) =
-#   # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
-#   #     {.error: "signal and slot types don't match".}
-#   let name = getSignalName(signal)
-#   static:
-#     echo "TO_SLOT:IS PROC: ", slot.typeof.repr
-#   a.addAgentListeners(name, b, AgentProc(toSlot(slot)))
-
-macro getSigType(x: typed): untyped =
-  result = x
 
 macro connect*(
     a: Agent,
@@ -251,21 +176,21 @@ macro connect*(
   # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
   #     {.error: "signal and slot types don't match".}
 
-  echo "\n\nAA:sig: ", signal.repr
-  echo "AA:sig: ", signal.getTypeImpl.repr
-  # echo "AA:sig: ", signal.getImpl.repr
-  echo "AA:sig:tup: ", getSignalTuple(a, signal).repr
+  # echo "\n\nAA:sig: ", signal.repr
+  # echo "AA:sig: ", signal.getTypeImpl.repr
+  # # echo "AA:sig: ", signal.getImpl.repr
+  # echo "AA:sig:tup: ", getSignalTuple(a, signal).repr
 
   let sigTuple = getSignalTuple(a, signal)
 
-  echo "\nAA:slot:repr: ", slot.treerepr
+  # echo "\nAA:slot:repr: ", slot.treerepr
 
-  echo "\nAA:B:repr: ", b.treeRepr
+  # echo "\nAA:B:repr: ", b.treeRepr
   # echo "\nAA:B:tinst: ", b.getTypeInst().treerepr
   # echo "\nAA:B:timpl: ", b.getTypeImpl().repr
 
   let bTyp = b.getTypeInst()
-  echo "\nAA:B:typ: ", bTyp.treeRepr
+  # echo "\nAA:B:typ: ", bTyp.treeRepr
 
   let slotAgent = 
     if slot.kind == nnkIdent:
@@ -288,20 +213,20 @@ macro connect*(
     let empty = nnkEmpty.newNimNode()
     procTyp.params.add nnkIdentDefs.newTree( ident("a" & $i), ty, empty)
   # echo "AA:procTyp: ", procTyp.treeRepr
-  echo "AA:procTyp: ", procTyp.repr
+  # echo "AA:procTyp: ", procTyp.repr
 
   let name = getSignalName(signal)
-  let sname = newStrLitNode("`" & slotAgent[0].repr & "`")
+  let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent[0].repr & "`")
   # let aname = 
-  echo "AA:NAME: ", name
+  # echo "AA:NAME: ", name
   # result = newStmtList()
   result = quote do:
     when not compiles(`slotAgent`):
       static:
-        {.error: "cannot find slot for " & `sname`.}
+        {.error: serror.}
     let agentSlot: AgentProc = `slotAgent`
     a.addAgentListeners(`name`, `b`, agentSlot)
-  echo "CONNECT: ", result.repr
+  # echo "CONNECT: ", result.repr
 
 import pretty
 
@@ -309,12 +234,12 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
 
-    echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
+    # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
 
     for (tgt, slot) in listeners:
-      echo ""
-      echo "call listener:tgt: ", repr tgt
-      echo "call listener:slot: ", repr slot
+      # echo ""
+      # echo "call listener:tgt: ", repr tgt
+      # echo "call listener:slot: ", repr slot
       let res = slot.callMethod(tgt, req)
       variantMatch case res.result.buf as u
       of AgentError:
