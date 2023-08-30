@@ -87,9 +87,9 @@ when isMainModule:
       # TODO: how to do this?
       static:
         echo "\n\n\nREG PROC"
-      let sv: proc (self: Counter, value: int) = Counter.setValue
+      # let sv: proc (self: Counter, value: int) = Counter.setValue
       connect(a, valueChanged,
-              b, sv)
+              b, Counter.setValue)
 
       check a.value == 0
       check b.value == 0
