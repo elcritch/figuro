@@ -263,8 +263,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       ) {.nimcall.} =
         if context == nil:
           raise newException(ValueError, "bad value")
-        let `objId` = `contextType`(context)
-        if `objId` == nil:
+        let obj = `contextType`(context)
+        if obj == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `rpcType`
         rpcUnpack(`paramsIdent`, params)
