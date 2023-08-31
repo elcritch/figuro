@@ -85,7 +85,7 @@ proc getId*(fig: Figuro): NodeID =
 
 proc onTick*(tp: Figuro) {.signal.}
 proc onDraw*(tp: Figuro) {.signal.}
-proc onPost*(tp: Figuro) {.signal.}
+proc onPost*[T](tp: Figuro, state: T) {.signal.}
 proc onLoad*(tp: Figuro) {.signal.}
 proc onHover*(tp: Figuro, kind: EventKind) {.signal.}
 

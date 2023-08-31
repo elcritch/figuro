@@ -193,11 +193,15 @@ macro connect*(
   echo "\nAA:B:timpl: ", b.getTypeImpl().repr
 
   let bTyp = b.getTypeInst()
-  # echo "\nAA:B:typ: ", bTyp.treeRepr
+  echo "\nAA:B:typ: ", bTyp.treeRepr
 
   let slotAgent = 
     if slot.kind == nnkIdent:
-      nnkCall.newTree(slot, ident bTyp.strVal, ident "AgentProc")
+      echo "SLOT:bTyp: ", bTyp.treerepr
+      let bTypIdent =
+        if bTyp.kind == nnkBracketExpr: bTyp
+        else: ident bTyp.strVal
+      nnkCall.newTree(slot, bTypIdent, ident "AgentProc")
     elif slot.kind == nnkDotExpr:
       echo "SLOT: ", slot.treeRepr
       let s0 = slot[0]
@@ -219,7 +223,7 @@ macro connect*(
   # echo "AA:procTyp: ", procTyp.repr
 
   let name = getSignalName(signal)
-  let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent[0].repr & "`")
+  let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent.repr & "`")
   # let aname = 
   # echo "AA:NAME: ", name
   # result = newStmtList()

@@ -254,11 +254,12 @@ template mkStatefulWidget(fig, name: untyped) =
     template widget(): `fig`[T] = `fig`[T](current)
     widget.state = value # set the state
     # connect(current, onHover, current, `fig`[T].hover) # setup hover
-    proc `statefulWidgetProc`(inst: `fig`[T]) {.slot.} =
+    type PostObj = distinct T
+    proc doPost(inst: Figuro, state: PostObj) {.slot.} =
       ## runs the users `blk` as a slot with state taken from widget
       `blk`
-    connect(current, onDraw, current, `fig`[T].`doPostId`) ## bind the doPost slot
-    emit current.onDraw() # need to draw our node!
+    connect(current, onPost, `fig`[T](current), doPost) ## bind the doPost slot
+    emit current.onPost(value) # need to draw our node!
     postNode() # required postNode cleanup
   template `name`*(id: string, blk: untyped) =
     ## helper for empty slates
