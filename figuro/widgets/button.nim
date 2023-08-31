@@ -39,12 +39,23 @@ proc draw*(self: Button) {.slot.} =
 # connect(current, onHover, current, Button[T].hover)
 # connect(current, onDraw, current, Button[T].doPost)
 
-import sugar
+import sugar, macros
+
+macro captureArgs(args, blk: untyped): untyped =
+  echo "CaptureArgs:args: ", args.treeRepr
+  result = nnkCommand.newTree(bindSym"capture")
+  if args.kind in [nnkSym, nnkIdent]:
+    result.add args
+  else:
+    for arg in args:
+      result.add args
+  result.add blk
+  echo "result: ", result.repr
 
 template button*[T](id: string, value: T, blk: untyped) =
   preNode(nkRectangle, Button, id)
   template widget(): Button = Button(current)
-  capture value:
+  captureArgs value:
     current.postDraw = proc () =
       echo "postDraw: ", current.uid
       `blk`
