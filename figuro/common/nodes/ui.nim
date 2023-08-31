@@ -87,7 +87,6 @@ proc getId*(fig: Figuro): NodeID =
 
 proc onTick*(tp: Figuro) {.signal.}
 proc onDraw*(tp: Figuro) {.signal.}
-proc onPost*[T](tp: Figuro, state: T) {.signal.}
 proc onLoad*(tp: Figuro) {.signal.}
 proc onHover*(tp: Figuro, kind: EventKind) {.signal.}
 
@@ -99,3 +98,7 @@ proc draw*(fig: Figuro) {.slot.} =
 
 proc load*(fig: Figuro) {.slot.} =
   discard
+
+proc postDraw*(fig: Figuro) {.slot.} =
+  if not fig.postDraw.isNil:
+    fig.postDraw()

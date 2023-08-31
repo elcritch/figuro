@@ -13,11 +13,14 @@ type
 proc hover*(self: Button, kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  # echo "child hovered: ", kind
+  echo "child hovered: ", kind
   discard
+
+import print
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
+  print "button:draw!"
   current = self
   
   clipContent true
@@ -26,20 +29,26 @@ proc draw*(self: Button) {.slot.} =
   if self.disabled:
     fill "#F0F0F0"
   else:
+    print "button:color"
     fill "#2B9FEA"
     onHover:
+      print "button:hover!"
       fill current.fill.spin(15)
       # this changes the color on hover!
 
 # connect(current, onHover, current, Button[T].hover)
 # connect(current, onDraw, current, Button[T].doPost)
 
-template button*(id: string, blk: untyped) =
+import sugar
+
+template button*[T](id: string, value: T, blk: untyped) =
   preNode(nkRectangle, Button, id)
   template widget(): Button = Button(current)
-  current.postDraw = proc () =
-    closureScope:
+  capture value:
+    current.postDraw = proc () =
+      echo "postDraw: ", current.uid
       `blk`
+  connect(current, onDraw, current, Figuro.postDraw)
   # emit current.onDraw()
   postNode()
 

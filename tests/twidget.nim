@@ -25,13 +25,15 @@ proc draw*(self: Main) {.slot.} =
     connect(current, onDraw, self, Main.draw)
     box 0, 0, 620, 140
     for i in 0 .. 5:
-      button "btn":
+      button "btn", i:
         let j = i
         let value = self.value
         # let j = widget.state[0]
         # let value = widget.state[1]
+        echo "button: ", current.uid
         fill "#AA0000"
         onHover:
+          echo "button:hover: ", current.uid
           fill "#F00000"
         box 20 + (j.toFloat + value) * 120, 30 + 20 * sin(value + j.toFloat), 60, 60
         if j == 0:

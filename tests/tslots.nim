@@ -87,7 +87,7 @@ when isMainModule:
     test "connect type errors":
       # check not compiles(
       connect(a, avgChanged,
-                c, setValue)
+              c, setValue)
 
     test "signal connect reg proc":
       # TODO: how to do this?

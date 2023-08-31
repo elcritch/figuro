@@ -208,7 +208,6 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   current.diffIndex = 0
   # TODO: which is better?
   # draw(T(current))
-  let x = tp(current)
   connect(current, onDraw, current, tp.draw)
   emit current.onDraw()
 
@@ -232,7 +231,9 @@ proc postNode*() =
   else:
     parent = nil
 
-template node*(kind: NodeKind, id: static string, inner, setup: untyped): untyped =
+template node*(kind: NodeKind,
+                id: static string,
+                inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
   preNode(kind, Figuro, id)
   setup
