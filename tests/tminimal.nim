@@ -30,10 +30,11 @@ proc draw*(self: Main) {.slot.} =
     cornerRadius 10.0
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
-      button "btn", (i, self):
-        box 10 + widget.state[0] * 120, 10, 100, 100
+      # button "btn", (i, self):
+      button "btn":
+        box 10 + i * 120, 10, 100, 100
         # we need to connect it's onHover event
-        connect(current, onHover, widget.state[1], Main.hover)
+        connect(current, onHover, self, Main.hover)
         # unfortunately, we have many hovers
         # so we need to give hover a type 
         # perfect, the slot pragma adds all this for

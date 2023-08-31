@@ -5,18 +5,18 @@ type
   FiguroWidget*[T] = ref object of Figuro
     state: T
 
-  Button*[T] = ref object of FiguroWidget[T]
+  Button* = ref object of Figuro
     label: string
     isActive: bool
     disabled: bool
 
-proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
+proc hover*(self: Button, kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
   # echo "child hovered: ", kind
   discard
 
-proc draw*[T](self: Button[T]) {.slot.} =
+proc draw*(self: Button) {.slot.} =
   ## button widget!
   current = self
   
@@ -31,15 +31,16 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill current.fill.spin(15)
       # this changes the color on hover!
 
-template button*[T](id: string, value: T, blk: untyped) =
-  preNode(nkRectangle, Button[T], id)
-  template widget(): Button[T] = Button[T](current)
-  widget.state = value
-  connect(current, onHover, current, Button[T].hover)
-  proc doPost(inst: Button[T]) {.slot.} =
-    `blk`
-  connect(current, onDraw, current, Button[T].doPost)
-  emit current.onDraw()
+# connect(current, onHover, current, Button[T].hover)
+# connect(current, onDraw, current, Button[T].doPost)
+
+template button*(id: string, blk: untyped) =
+  preNode(nkRectangle, Button, id)
+  template widget(): Button = Button(current)
+  current.postDraw = proc () =
+    closureScope:
+      `blk`
+  # emit current.onDraw()
   postNode()
 
 template button*(id: string, blk: untyped) =

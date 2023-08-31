@@ -25,9 +25,11 @@ proc draw*(self: Main) {.slot.} =
     connect(current, onDraw, self, Main.draw)
     box 0, 0, 620, 140
     for i in 0 .. 5:
-      button "btn", (i, self.value):
-        let j = widget.state[0]
-        let value = widget.state[1]
+      button "btn":
+        let j = i
+        let value = self.value
+        # let j = widget.state[0]
+        # let value = widget.state[1]
         fill "#AA0000"
         onHover:
           fill "#F00000"

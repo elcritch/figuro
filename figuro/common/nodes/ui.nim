@@ -42,6 +42,8 @@ type
     gridTemplate*: GridTemplate
     gridItem*: GridItem
 
+    postDraw*: proc ()
+
     case kind*: NodeKind
     of nkRectangle:
       shadow*: Option[Shadow]

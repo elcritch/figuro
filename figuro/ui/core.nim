@@ -213,6 +213,10 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   emit current.onDraw()
 
 proc postNode*() =
+
+  if not current.postDraw.isNil:
+    current.postDraw()
+
   current.removeExtraChildren()
   current.events.mouse = {}
   current.events.gesture = {}
