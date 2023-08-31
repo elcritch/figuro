@@ -20,7 +20,6 @@ import print
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
-  print "button:draw!"
   current = self
   
   clipContent true
@@ -29,10 +28,8 @@ proc draw*(self: Button) {.slot.} =
   if self.disabled:
     fill "#F0F0F0"
   else:
-    print "button:color"
     fill "#2B9FEA"
     onHover:
-      print "button:hover!"
       fill current.fill.spin(15)
       # this changes the color on hover!
 
@@ -42,7 +39,6 @@ proc draw*(self: Button) {.slot.} =
 import sugar, macros
 
 macro captureArgs(args, blk: untyped): untyped =
-  echo "CaptureArgs:args: ", args.treeRepr
   result = nnkCommand.newTree(bindSym"capture")
   if args.kind in [nnkSym, nnkIdent]:
     result.add args
@@ -50,14 +46,12 @@ macro captureArgs(args, blk: untyped): untyped =
     for arg in args:
       result.add args
   result.add blk
-  echo "result: ", result.repr
 
 template button*[T](id: string, value: T, blk: untyped) =
   preNode(nkRectangle, Button, id)
   template widget(): Button = Button(current)
   captureArgs value:
     current.postDraw = proc () =
-      echo "postDraw: ", current.uid
       `blk`
   connect(current, onDraw, current, Figuro.postDraw)
   # emit current.onDraw()

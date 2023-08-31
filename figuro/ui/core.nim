@@ -176,7 +176,6 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
     if not (current of T):
       # mismatch types, replace node
-      echo "new type"
       current = T()
       parent.children[parent.diffIndex] = current
 

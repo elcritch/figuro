@@ -13,8 +13,7 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  echo "\nmain hovered: ", kind
-  # refresh(self)
+  refresh(self)
 
 proc tick*(self: Main) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
@@ -35,7 +34,6 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn", i:
           let j = i
-          print "button child: ", current.uid, " self: ", self.uid, j
           box 10 + j * 120, 10, 100, 100
           # we need to connect it's onHover event
           connect(current, onHover, self, Main.hover)
@@ -48,7 +46,7 @@ var
   main = Main.new()
 
 connect(main, onDraw, main, Main.draw)
-# connect(main, onTick, main, Main.tick)
+connect(main, onTick, main, Main.tick)
 
 echo "main: ", main.listeners
 

@@ -30,10 +30,8 @@ proc draw*(self: Main) {.slot.} =
         let value = self.value
         # let j = widget.state[0]
         # let value = widget.state[1]
-        echo "button: ", current.uid
         fill "#AA0000"
         onHover:
-          echo "button:hover: ", current.uid
           fill "#F00000"
         box 20 + (j.toFloat + value) * 120, 30 + 20 * sin(value + j.toFloat), 60, 60
         if j == 0:
