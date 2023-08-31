@@ -176,7 +176,6 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
     if not (current of T):
       # mismatch types, replace node
-      echo "new type"
       current = T()
       parent.children[parent.diffIndex] = current
 
@@ -208,10 +207,14 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   current.diffIndex = 0
   # TODO: which is better?
   # draw(T(current))
-  connect(current, onDraw, current, T.draw)
+  connect(current, onDraw, current, tp.draw)
   emit current.onDraw()
 
 proc postNode*() =
+
+  if not current.postDraw.isNil:
+    current.postDraw()
+
   current.removeExtraChildren()
   current.events.mouse = {}
   current.events.gesture = {}
@@ -227,7 +230,9 @@ proc postNode*() =
   else:
     parent = nil
 
-template node*(kind: NodeKind, id: static string, inner, setup: untyped): untyped =
+template node*(kind: NodeKind,
+                id: static string,
+                inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
   preNode(kind, Figuro, id)
   setup
@@ -240,7 +245,12 @@ template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
   inner
   postNode()
 
-template mkStatefulWidget(fig, name, doPostId: untyped) =
+import macros
+
+macro statefulWidgetProc*(): untyped =
+  ident(repr(genSym(nskProc, "doPost")))
+
+template mkStatefulWidget(fig, name: untyped) =
   ## expands into constructor templates for the `Fig` widget type using `name`
   ## 
   template `name`*[T](id: string, value: T, blk: untyped) =
@@ -248,17 +258,16 @@ template mkStatefulWidget(fig, name, doPostId: untyped) =
     template widget(): `fig`[T] = `fig`[T](current)
     widget.state = value # set the state
     # connect(current, onHover, current, `fig`[T].hover) # setup hover
-    proc `doPostId`(inst: `fig`[T]) {.slot.} =
+    type PostObj = distinct T
+    proc doPost(inst: Figuro, state: PostObj) {.slot.} =
       ## runs the users `blk` as a slot with state taken from widget
       `blk`
-    connect(current, onDraw, current, `fig`[T].`doPostId`) ## bind the doPost slot
-    emit current.onDraw() # need to draw our node!
+    connect(current, onPost, `fig`[T](current), doPost) ## bind the doPost slot
+    emit current.onPost(value) # need to draw our node!
     postNode() # required postNode cleanup
   template `name`*(id: string, blk: untyped) =
     ## helper for empty slates
     `name`(id, void, blk)
-
-import macros
 
 macro statefulWidget*(p: untyped): untyped =
   ## implements a stateful widget template constructors where 
@@ -282,8 +291,8 @@ macro statefulWidget*(p: untyped): untyped =
   if p.params()[3][1].repr() != "untyped":
     error("incorrect arguments: " & repr(p.params()[3][1]) & "; " & "Should be `untyped`", p.params()[3][1])
   # echo "figuroWidget: ", " name: ", name, " typ: ", typ
-  let doPostId = genSym(nskProc, "doPost")
-  echo "doPostId: ", doPostId
+  # echo "\n"
+  # echo "doPostId: ", doPostId, " li: ", lineInfo(p.name())
   result = quote do:
     mkStatefulWidget(`typ`, `name`, doPostId)
 
