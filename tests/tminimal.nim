@@ -33,8 +33,7 @@ proc draw*(self: Main) {.slot.} =
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
       button "btn", i:
-          let j = i
-          box 10 + j * 120, 10, 100, 100
+          box 10 + i * 120, 10, 100, 100
           # we need to connect it's onHover event
           connect(current, onHover, self, Main.hover)
           # unfortunately, we have many hovers
