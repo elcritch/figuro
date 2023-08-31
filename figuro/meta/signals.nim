@@ -106,21 +106,29 @@ template packResponse*(res: AgentResponse): Variant =
   so.pack(res)
   so
 
-macro getSignalName(signal: typed): auto =
+proc getSignalName(signal: NimNode): NimNode =
   result = newStrLitNode signal.strVal
 
 import typetraits, sequtils, tables
 
-macro getSignalTuple*(obj, sig: typed): auto =
-  # echo "signalObjRaw:obj: ", obj.treeRepr
+proc getSignalTuple*(obj, sig: NimNode): NimNode =
   let otp = obj.getTypeInst
-  let stp = sig.getTypeInst.params()
+  echo "signalObjRaw:sig1: ", sig.treeRepr
+  let sigTyp =
+    if sig.kind == nnkSym: sig.getTypeInst
+    else: sig.getTypeInst
+  echo "signalObjRaw:sig2: ", sigTyp.treeRepr
+  let stp =
+    if sigTyp.kind == nnkProcTy:
+      sig.getTypeInst[0]
+    else:
+      sigTyp.params()
   let isGeneric = otp.kind == nnkBracketExpr
 
-  # echo "signalObjRaw:obj: ", otp.repr
-  # echo "signalObjRaw:obj:tr: ", otp.treeRepr
-  # echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
-  # echo "signalObjRaw:sig: ", stp.repr
+  echo "signalObjRaw:obj: ", otp.repr
+  echo "signalObjRaw:obj:tr: ", otp.treeRepr
+  echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
+  echo "signalObjRaw:sig: ", stp.repr
 
   var args: seq[NimNode]
   for i in 2..<stp.len:
@@ -139,24 +147,10 @@ macro getSignalTuple*(obj, sig: typed): auto =
     # echo "ARGS: ", args.repr
     for arg in args:
       result.add arg[1]
-  # echo "ARG: ", result.repr
-  # echo ""
   if result.len == 0:
     result = bindSym"void"
-
-macro signalObj*(so: typed): auto =
-  ## gets the type of the signal's object arg 
-  ## 
-  let p = so.getType
-  assert p.kind != nnkNone
-  echo "signalObj: ", p.repr
-  echo "signalObj: ", p.treeRepr
-  if p.kind == nnkSym and p.strVal == "none":
-    error("cannot determine type of: " & repr(so), so)
-  let obj = p[0][1]
-  # result = obj[1].getTypeInst
-  result = obj[1]
-  echo "signalObj:end: ", result.repr
+  echo "ARG: ", result.repr
+  echo ""
 
 macro signalType*(p: untyped): auto =
   ## gets the type of the signal without 
@@ -172,59 +166,74 @@ macro signalType*(p: untyped): auto =
   result = nnkTupleConstr.newNimNode()
   for arg in obj[2..^1]:
     result.add arg[1]
-proc signalKind(p: NimNode): seq[NimNode] =
-  ## gets the type of the signal without 
-  ## the Agent proc type
-  ## 
-  let p = p.getTypeInst
-  let obj = p[0]
-  for arg in obj[2..^1]:
-    result.add arg[1]
-macro signalCheck(signal, slot: typed) =
-  let ksig = signalKind(signal)
-  let kslot = signalKind(slot)
-  var res = true
-  if ksig.len != kslot.len:
-    error("signal and slot types have different number of args", signal)
-  var errors = ""
-  if ksig.len == kslot.len:
-    for i in 0..<ksig.len():
-      res = ksig[i] == kslot[i]
-      if not res:
-        errors &= " signal: " & ksig.repr &
-                    " != slot: " & kslot.repr
-        errors &= "; first mismatch: " & ksig[i].repr &
-                    " != " & kslot[i].repr
-        break
-  if not res:
-    error("signal and slot types don't match;" & errors, signal)
-  else:
-    result = nnkEmpty.newNimNode()
-macro toSlot(slot: untyped): untyped =
-  # echo "TO_SLOT: ", slot.treeRepr
-  # echo "TO_SLOT:tp: ", slot.getTypeImpl.repr
-  # echo "TO_SLOT: ", slot.lineinfoObj.filename, ":", slot.lineinfoObj.line
-  let pimpl = nnkCall.newTree(
-    ident("agentSlot" & slot[1].repr),
-    slot[0],
-  )
-  # echo "TO_SLOT: ", slot.getImpl.treeRepr
-  # echo "TO_SLOT: ", slot.getTypeImpl.repr
-  # echo "TO_SLOT: result: ", pimpl.repr
-  return pimpl
 
-template connect*(
+macro connect*(
     a: Agent,
-    signal: untyped,
+    signal: typed,
     b: Agent,
     slot: untyped
 ) =
-  when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
-      {.error: "signal and slot types don't match".}
-  # signalCheck(signal, slot)
+  # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
+  #     {.error: "signal and slot types don't match".}
+
+  echo "\n\nAA:a: ", a.repr
+  echo "AA:a: ", a.getTypeImpl.repr
+  echo "AA:a:tup: ", getSignalTuple(a, signal).repr
+
+  echo "AA:sig: ", signal.repr
+  echo "AA:sig: ", signal.getTypeImpl.repr
+  # echo "AA:sig: ", signal.getImpl.repr
+
+  let sigTuple = getSignalTuple(a, signal)
+
+  echo "\nAA:slot:repr: ", slot.treerepr
+
+  echo "\nAA:B:repr: ", b.treeRepr
+  echo "\nAA:B:tinst: ", b.getTypeInst().treerepr
+  echo "\nAA:B:timpl: ", b.getTypeImpl().repr
+
+  let bTyp = b.getTypeInst()
+  echo "\nAA:B:typ: ", bTyp.treeRepr
+
+  let slotAgent = 
+    if slot.kind == nnkIdent:
+      echo "SLOT:bTyp: ", bTyp.treerepr
+      let bTypIdent =
+        if bTyp.kind == nnkBracketExpr: bTyp
+        else: ident bTyp.strVal
+      nnkCall.newTree(slot, bTypIdent, ident "AgentProc")
+    elif slot.kind == nnkDotExpr:
+      echo "SLOT: ", slot.treeRepr
+      let s0 = slot[0]
+      let s1 = slot[1]
+      nnkCall.newTree(s1, s0, ident "AgentProc")
+      # quote do:
+      #   `s1`(typeof(`b`), typeof(AgentProc))
+    else:
+      slot
+
+  let procTyp = quote do:
+    proc () {.nimcall.}
+  # let sigTupleSlot = sigTuple.copyNimTree()
+  # sigTupleSlot.insert(0, bTyp)
+  for i, ty in sigTuple:
+    let empty = nnkEmpty.newNimNode()
+    procTyp.params.add nnkIdentDefs.newTree( ident("a" & $i), ty, empty)
+  # echo "AA:procTyp: ", procTyp.treeRepr
+  # echo "AA:procTyp: ", procTyp.repr
 
   let name = getSignalName(signal)
-  a.addAgentListeners(name, b, AgentProc(toSlot(`slot`)))
+  let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent.repr & "`")
+  # let aname = 
+  # echo "AA:NAME: ", name
+  # result = newStmtList()
+  result = quote do:
+    when not compiles(`slotAgent`):
+      static:
+        {.error: `serror`.}
+    let agentSlot: AgentProc = `slotAgent`
+    `a`.addAgentListeners(`name`, `b`, agentSlot)
+  echo "CONNECT: ", result.repr
 
 import pretty
 

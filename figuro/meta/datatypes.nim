@@ -144,6 +144,7 @@ proc addAgentListeners*(obj: Agent,
   # echo "add agent listener: ", sig, " obj: ", obj.agentId, " tgt: ", tgt.agentId
   # if obj.listeners.hasKey(sig):
   #   echo "listener:count: ", obj.listeners[sig].len()
+  assert slot != nil
   obj.listeners.
     mgetOrPut(sig, initOrderedSet[(Agent, AgentProc)]()).
     incl((tgt, slot))

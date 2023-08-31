@@ -138,6 +138,26 @@
         "sha1": "f873f4b97e87a82e27e0b85bf9130fe3e320a2b8"
       }
     },
+    "micros": {
+      "version": "0.1.14",
+      "vcsRevision": "6791af3cacfdf1c098dc404376b09865c1a1d2cc",
+      "url": "https://github.com/beef331/micros",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "ea3fe87fdc7993c7f602430ecaad129af46d10b8"
+      }
+    },
+    "stack_strings": {
+      "version": "1.1.0",
+      "vcsRevision": "98df4cefe32fc55cf02ca3895252b1951f16dfd5",
+      "url": "https://github.com/termermc/nim-stack-strings",
+      "downloadMethod": "git",
+      "dependencies": [],
+      "checksums": {
+        "sha1": "76b4bec631df1140c54ef83eba6f9a5ee8b4a581"
+      }
+    },
     "msgpack4nim": {
       "version": "0.4.4",
       "vcsRevision": "f4cc097ca9694f17feced9f82994f583ef7911fe",
@@ -150,14 +170,14 @@
     },
     "nimscripter": {
       "version": "1.1.2",
-      "vcsRevision": "70897c85805ac4765e2f8290c01261ff5b8d8118",
+      "vcsRevision": "70926d2e383d3d239605573935468efcb470b7b1",
       "url": "https://github.com/beef331/nimscripter",
       "downloadMethod": "git",
       "dependencies": [
         "assume"
       ],
       "checksums": {
-        "sha1": "ca71466fb5011353751773c8d7b0d1a67818bbe9"
+        "sha1": "51e40b7ee28fa2a343449a5b7d8803fe94a5ca9f"
       }
     },
     "threading": {
@@ -172,8 +192,8 @@
     },
     "windy": {
       "version": "0.0.0",
-      "vcsRevision": "89a9d2d14c0c203bed696097f1ceac02cac6b4c0",
-      "url": "https://github.com/treeform/windy",
+      "vcsRevision": "f7cedbaccb5d73922350f409b1ce3fee6a310a76",
+      "url": "https://github.com/elcritch/windy",
       "downloadMethod": "git",
       "dependencies": [
         "urlly",
@@ -182,7 +202,7 @@
         "ws"
       ],
       "checksums": {
-        "sha1": "8e58900d728a0f2132030ba937b678ccf504e5e5"
+        "sha1": "ad80bfce0ef735c39d69d7059bb956a09ea00759"
       }
     },
     "asynctools": {
@@ -268,19 +288,20 @@
       }
     },
     "cssgrid": {
-      "version": "0.2.10",
-      "vcsRevision": "ecb4be9bcff2d73ff613f078df700268696dbcb3",
+      "version": "0.4.0",
+      "vcsRevision": "ace74ae7000060ef10898cb94691ab8e929fc39b",
       "url": "https://github.com/elcritch/cssgrid",
       "downloadMethod": "git",
       "dependencies": [
+        "stack_strings",
         "vmath",
+        "pretty",
         "bumpy",
         "patty",
-        "macroutils",
-        "cdecl"
+        "macroutils"
       ],
       "checksums": {
-        "sha1": "1da628688259ddeea15df956c61c7f91a22755f7"
+        "sha1": "da14146c39376933f424fa6e74a828650c279648"
       }
     }
   },
