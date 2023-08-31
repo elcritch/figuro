@@ -155,7 +155,7 @@
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "76b4bec631df1140c54ef83eba6f9a5ee8b4a581"
+        "sha1": "e3e54d19867b3a118b7afcb56819c99c3f8e587e"
       }
     },
     "msgpack4nim": {
@@ -192,7 +192,7 @@
     },
     "windy": {
       "version": "0.0.0",
-      "vcsRevision": "f7cedbaccb5d73922350f409b1ce3fee6a310a76",
+      "vcsRevision": "89a9d2d14c0c203bed696097f1ceac02cac6b4c0",
       "url": "https://github.com/elcritch/windy",
       "downloadMethod": "git",
       "dependencies": [
@@ -202,7 +202,7 @@
         "ws"
       ],
       "checksums": {
-        "sha1": "ad80bfce0ef735c39d69d7059bb956a09ea00759"
+        "sha1": "8e58900d728a0f2132030ba937b678ccf504e5e5"
       }
     },
     "asynctools": {
