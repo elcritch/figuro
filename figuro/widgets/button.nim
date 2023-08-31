@@ -36,7 +36,8 @@ proc draw*(self: Button) {.slot.} =
 # connect(current, onHover, current, Button[T].hover)
 # connect(current, onDraw, current, Button[T].doPost)
 
-import sugar, macros
+from sugar import capture
+import macros
 
 macro captureArgs(args, blk: untyped): untyped =
   result = nnkCommand.newTree(bindSym"capture")
