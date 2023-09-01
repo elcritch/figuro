@@ -353,9 +353,9 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evOverlapped, true)
     # if result != {}:
     #   echo "mouse result: ", result, " ", node.uid
-  # else:
-  #   node.checkEvent(evClickOut, uxInputs.mouse.click())
-  #   node.checkEvent(evHoverOut, true)
+  else:
+    node.checkEvent(evClick, uxInputs.mouse.click())
+    # node.checkEvent(evHoverOut, true)
 
 proc checkGestureEvents*(node: Figuro): GestureEventFlags =
   ## Compute gesture events
@@ -422,55 +422,42 @@ proc computeEvents*(node: Figuro) =
     target.events.gesture = evts.flags
 
   # Mouse
-  if not captured.mouse.target.isNil:
-    # echo "\n======= computeNodeEvents ====="
-    let evts = captured.mouse
-    let target = evts.target
+  let mouseButtons = uxInputs.buttonPress * MouseButtons
+  let evts = captured.mouse
+  let target = evts.target
+  if not target.isNil:
     target.events.mouse = evts.flags
 
-    # if target.uid != 0 and target.events.mouse != {evHover}:
-    #   echo "target:mouse: ", target.events.mouse, " press: ", uxInputs.buttonPress, " :: ", target.uid 
-
-    # if target.kind != nkFrame and evts.flags != {}:
-    # if evClick in evts.flags:
-    #   emit target.onClick(Enter, uxInputs.buttonPress * MouseButtons)
-
-    if evHover in target.events.mouse:
-      if prevHover.getId != target.getId:
-        emit target.onHover(Enter)
-        refresh(target)
-
-        if prevHover != nil:
-          prevHover.events.mouse.excl evHover
-          emit prevHover.onHover(Exit)
-          refresh(prevHover)
-
-        prevHover = target
-    else:
-      if prevHover.getId != target.getId:
-        if evHover in prevHover.events.mouse:
-          prevHover.events.mouse.excl evHover
-          emit prevHover.onHover(Exit)
-          prevHover.refresh()
+  if not prevHover.isNil and evHover in prevHover.events.mouse:
+    if prevHover.getId != target.getId:
+      prevHover.events.mouse.excl evHover
+      emit prevHover.onHover(Exit)
+      prevHover.refresh()
       prevHover = nil
 
-    let mouseButtons = uxInputs.buttonPress * MouseButtons
-    if evClick in target.events.mouse:
-      echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
-      emit target.onClick(Enter, mouseButtons)
+  if not target.isNil and evHover in target.events.mouse:
+    if prevHover.getId != target.getId:
+      emit target.onHover(Enter)
       refresh(target)
 
-      if target.getId != prevClick.getId:
-        if prevClick != nil:
-          echo "prev click: ", prevClick.getId
-          prevClick.events.mouse.excl evClick
-          emit prevClick.onClick(Exit, mouseButtons)
-          refresh(prevClick)
-        prevClick = target
-    else:
-      if prevClick != nil and prevClick.getId != target.getId:
-        if evClick in prevClick.events.mouse:
-          echo "prev click: ", prevClick.getId
-          prevClick.events.mouse.excl evHover
-          emit prevClick.onClick(Exit, mouseButtons)
-          prevClick.refresh()
+      if prevHover != nil:
+        prevHover.events.mouse.excl evHover
+        emit prevHover.onHover(Exit)
+        refresh(prevHover)
+
+      prevHover = target
+
+  if not prevClick.isNil and evClick in prevClick.events.mouse:
+    echo "evClick:out: ", " prev: ", prevClick.getId
+    if prevHover.getId != target.getId:
+      echo "prev click: ", prevClick.getId
+      prevClick.events.mouse.excl evClick
+      emit prevClick.onClick(Exit, mouseButtons)
+      prevClick.refresh()
+
+  if not target.isNil and evClick in target.events.mouse:
+    echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
+    emit target.onClick(Enter, mouseButtons)
+    refresh(target)
+    prevClick = target
+
