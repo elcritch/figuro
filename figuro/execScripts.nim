@@ -154,9 +154,9 @@ proc startFiguroRuntime() =
     let ret = invokeVmDraw()
     app.requestedFrame = ret.requestedFrame
     # echo "appRender: ", app.requestedFrame
-    if not uxInputs.mouse.consumed:
-      # echo "got mouse: ", uxInputs.mouse.pos
-      uxInputs.mouse.consumed = true
+    # if not uxInputs.mouse.consumed:
+    #   # echo "got mouse: ", uxInputs.mouse.pos
+    #   uxInputs.mouse.consumed = true
     sendRoot(invokeVmGetRoot())
 
   loadMain = appLoad

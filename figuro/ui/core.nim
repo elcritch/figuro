@@ -391,8 +391,6 @@ proc computeEvents*(node: Figuro) =
 
   var captured: CapturedEvents = computeNodeEvents(node)
 
-  uxInputs.mouse.consumed = true
-
   # Gestures
   if not captured.gesture.target.isNil:
     let evts = captured.gesture
@@ -406,8 +404,12 @@ proc computeEvents*(node: Figuro) =
   if not target.isNil:
     target.events.mouse.incl evts.flags
 
+  if uxInputs.mouse.consumed:
+    return
+  echo "uxInputs.mouse.consumed: ", uxInputs.mouse.consumed
   if evts.flags != {} and evts.flags != {evHover}:
     echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
+
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
@@ -433,7 +435,9 @@ proc computeEvents*(node: Figuro) =
       prevClick = nil
 
   if evClick in target:
-    if prevClick.getId != target.getId:
+    # if prevClick.getId != target.getId:
       emit target.onClick(Enter, mouseButtons)
       refresh(target)
       prevClick = target
+
+  uxInputs.mouse.consumed = true

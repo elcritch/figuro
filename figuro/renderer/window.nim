@@ -88,14 +88,20 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
-    uxInputs.keyboard.consumed = false
-    echo "\n\nbuttonPress: ", uxInputs.buttonPress
+    if uxInputs.buttonPress * MouseButtons != {}:
+      uxInputs.mouse.consumed = false
+    if uxInputs.buttonPress - MouseButtons != {}:
+      uxInputs.keyboard.consumed = false
+    echo "buttonPress: ", uxInputs.buttonPress
 
   window.onButtonRelease = proc (button: Button) =
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
-    uxInputs.keyboard.consumed = false
+    if uxInputs.buttonPress * MouseButtons != {}:
+      uxInputs.mouse.consumed = false
+    if uxInputs.buttonPress - MouseButtons != {}:
+      uxInputs.keyboard.consumed = false
 
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune

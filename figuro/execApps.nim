@@ -47,8 +47,8 @@ proc startFiguro*(
   proc appMain() =
     # mixin draw
     root.diffIndex = 0
-    if not uxInputs.mouse.consumed:
-      uxInputs.mouse.consumed = true
+    # if not uxInputs.mouse.consumed:
+    #   uxInputs.mouse.consumed = true
     if redrawNodes.len() > 0:
       # echo "appMain:redrawNodes:len: ", redrawNodes.len()
       let rn = redrawNodes
