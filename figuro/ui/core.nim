@@ -436,10 +436,7 @@ proc computeEvents*(node: Figuro) =
 
   # if evts.flags != {} and evts.flags != {evHover}:
   #   echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
-  #   if prevClick != nil:
-  #     echo "mouse events: prev click: ", prevClick.getId, " evts: ", prevClick.events.mouse
-  #   else:
-  #     echo "mouse events: prev click: ", "nil"
+  
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
@@ -452,14 +449,14 @@ proc computeEvents*(node: Figuro) =
       prevHover = nil
   if evHover in target:
     if prevHover.getId != target.getId:
-      echo "evHover: ", " prev: ", prevClick.getId, " target: ", target.getId
+      # echo "evHover: ", " prev: ", prevClick.getId, " target: ", target.getId
       emit target.onHover(Enter)
       refresh(target)
       prevHover = target
 
   if evClickOut in target: # and evClick in prevClick:
     if prevClick != nil and prevClick.getId != target.getId:
-      echo "evClick:out: ", " prev: ", prevClick.getId, " target: ", target.getId
+      # echo "evClick:out: ", " prev: ", prevClick.getId, " target: ", target.getId
       prevClick.events.mouse.excl evClick
       emit prevClick.onClick(Exit, mouseButtons)
       prevClick.refresh()
@@ -467,7 +464,7 @@ proc computeEvents*(node: Figuro) =
 
   if evClick in target:
     if prevClick.getId != target.getId:
-      echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
+      # echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
       emit target.onClick(Enter, mouseButtons)
       refresh(target)
       prevClick = target
