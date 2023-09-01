@@ -220,6 +220,9 @@ const
     MouseMiddle,
     MouseButton4,
     MouseButton5,
+    DoubleClick,
+    TripleClick,
+    QuadrupleClick
   }
 
 type
@@ -245,19 +248,16 @@ proc toEvent*(kind: GestureEventType): GestureEvent =
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 
 proc click*(mouse: Mouse): bool =
-  if MouseButtons * uxInputs.buttonPress != {}:
-    return true
+  return MouseButtons * uxInputs.buttonPress != {}
 
 proc down*(mouse: Mouse): bool =
-  if MouseButtons * uxInputs.buttonDown != {}:
-    return true
+  return MouseButtons * uxInputs.buttonDown != {}
+
+proc release*(mouse: Mouse): bool =
+  return MouseButtons * uxInputs.buttonRelease != {}
 
 proc scrolled*(mouse: Mouse): bool =
   mouse.wheelDelta.x != 0.0'ui
-
-proc release*(mouse: Mouse): bool =
-  if MouseButtons * uxInputs.buttonRelease != {}:
-    return true
 
 # proc consume*(keyboard: Keyboard) =
 #   ## Reset the keyboard state consuming any event information.

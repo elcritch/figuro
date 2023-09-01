@@ -350,8 +350,8 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evHover, true)
     node.checkEvent(evOverlapped, true)
-    # if result != {}:
-    #   echo "mouse hover: ", result, " ", node.uid
+    if result != {}:
+      echo "mouse hover: ", result, " ", node.uid
   # else:
   #   node.checkEvent(evClickOut, uxInputs.mouse.click())
   #   node.checkEvent(evHoverOut, true)
@@ -401,20 +401,20 @@ import pretty
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
-  var capturedEvts = computeNodeEvents(node)
+  var captured: CapturedEvents = computeNodeEvents(node)
 
   # Gestures
-  if not capturedEvts.gesture.target.isNil:
-    let evts = capturedEvts.gesture
+  if not captured.gesture.target.isNil:
+    let evts = captured.gesture
     let target = evts.target
     target.events.gesture = evts.flags
 
-  if capturedEvts.mouse.flags != {evHover}:
-    print "capturedEvts : ", capturedEvts
+  if captured.mouse.flags != {evHover} and captured.mouse.flags != {}:
+    print "capturedEvts : ", captured.mouse.flags, " target: ", captured.mouse.target.uid
 
   # Mouse
-  if not capturedEvts.mouse.target.isNil:
-    let evts = capturedEvts.mouse
+  if not captured.mouse.target.isNil:
+    let evts = captured.mouse
     let target = evts.target
     target.events.mouse = evts.flags
 
