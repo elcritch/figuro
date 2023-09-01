@@ -21,8 +21,11 @@ static:
     assert $Button(i) == $UiButton(i)
 
 proc toUi(wbtn: windy.ButtonView): UiButtonView =
-  for b in set[Button](wbtn):
-    result.incl UiButton(b.int)
+  when defined(nimscript):
+    for b in set[Button](wbtn):
+      result.incl UiButton(b.int)
+  else:
+    cast[set[UiButton]](set[Button](wbtn))
 
 proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
   if window.closeRequested:
@@ -73,11 +76,14 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.mouse.consumed = false
     # app.requestedFrame.inc
     # appEvent.trigger()
+  window.onScroll = proc () =
+    uxInputs.mouse.wheelDelta = window.scrollDelta().descaled()
 
   window.onButtonPress = proc (button: windy.Button) =
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
+
   window.onButtonRelease = proc (button: Button) =
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
