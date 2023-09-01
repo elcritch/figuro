@@ -42,18 +42,25 @@ type
 
     postDraw*: proc ()
 
-    case kind*: NodeKind
-    of nkRectangle:
-      shadow*: Option[Shadow]
-      cornerRadius*: UICoord
-    of nkImage:
-      image*: ImageStyle
-    of nkText:
-      textLayout*: GlyphArrangement
-    of nkDrawable:
-      points*: seq[Position]
-    else:
-      discard
+    kind*: NodeKind
+    shadow*: Option[Shadow]
+    cornerRadius*: UICoord
+    image*: ImageStyle
+    textLayout*: GlyphArrangement
+    points*: seq[Position]
+
+    # case kind*: NodeKind
+    # of nkRectangle:
+    #   shadow*: Option[Shadow]
+    #   cornerRadius*: UICoord
+    # of nkImage:
+    #   image*: ImageStyle
+    # of nkText:
+    #   textLayout*: GlyphArrangement
+    # of nkDrawable:
+    #   points*: seq[Position]
+    # else:
+    #   discard
 
   EventsCapture*[T] = object
     zlvl*: ZLevel

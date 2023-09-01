@@ -4,6 +4,13 @@ import figuro/widgets/button
 import figuro/widget
 import figuro
 
+let
+  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  font = loadFont: GlyphFont(
+      typefaceId: typeface,
+      size: 44
+    )
+
 type
   Main* = ref object of Figuro
     value: float
@@ -42,6 +49,12 @@ proc draw*(self: Main) {.slot.} =
           box 10 + i * 120, 10, 100, 100
           # echo "button:draw: ", " :: ", self.getId
           connect(current, onClick, widget, Button[int].btnClicked)
+
+          let btn = widget
+          text "text":
+            box 10, 10, 20, 20
+            fill blackColor
+            setText(font, $btn.state)
 
 var main = Main.new()
 

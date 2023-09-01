@@ -50,6 +50,7 @@ macro captureArgs(args, blk: untyped): untyped =
   else:
     for arg in args:
       result.add args
+  result.add bindSym"current"
   result.add blk
 
 template button*[T; V](typ: typedesc[T], id: string, value: V, blk: untyped) =
@@ -60,7 +61,7 @@ template button*[T; V](typ: typedesc[T], id: string, value: V, blk: untyped) =
       if postDraw in current.attrs:
         return
       `blk`
-      current.attrs.incl postDraw
+      # current.attrs.incl postDraw
   connect(current, onDraw, current, Figuro.postDraw)
   connect(current, onClick, current, Button[T].clicked)
   connect(current, onHover, current, Button[T].hovered)

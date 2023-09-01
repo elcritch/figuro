@@ -34,8 +34,8 @@ var
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
-  for (span, fontId) in zip(arrangement.spans, arrangement.fonts):
-    block spanners:
+  if arrangement != nil:
+    for (span, fontId) in zip(arrangement.spans, arrangement.fonts):
       let
         span = span[0] .. span[1]
         font = fontTable[fontId]

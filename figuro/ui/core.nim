@@ -62,7 +62,7 @@ var
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
 
-  node.kind = kind
+  # node.kind = kind
   # node.id = ""
   # node.uid = ""
   # node.idPath = ""
