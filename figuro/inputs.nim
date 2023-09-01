@@ -72,6 +72,7 @@ type
     mouse*: MouseEventFlags
     gesture*: GestureEventFlags
   ListenEvents* = object
+    signals*: MouseEventFlags
     mouse*: MouseEventFlags
     gesture*: GestureEventFlags
 

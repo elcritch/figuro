@@ -340,20 +340,14 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
-  # if node.kind == nkFrame:
-  #   return
-
   if node.mouseOverlapsNode():
     node.checkEvent(evClick, uxInputs.mouse.click())
     node.checkEvent(evPress, uxInputs.mouse.down())
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evHover, true)
     node.checkEvent(evOverlapped, true)
-    # if result != {}:
-    #   echo "mouse result: ", result, " ", node.uid
     if uxInputs.mouse.click():
       result.incl evClickOut
-    # node.checkEvent(evHoverOut, true)
 
 proc checkGestureEvents*(node: Figuro): GestureEventFlags =
   ## Compute gesture events
@@ -367,19 +361,11 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     result.mouse = max(result.mouse, child.mouse)
     result.gesture = max(result.gesture, child.gesture)
 
-  # echo "\ncomputeNodeEvents:start:: ", node.uid
-
   let
     allMouseEvts = node.checkMouseEvents()
     # mouseOutEvts = allMouseEvts * MouseOnOutEvents
     mouseEvts = allMouseEvts
     gestureEvts = node.checkGestureEvents()
-
-  # set on-out events 
-  # node.events.mouse.incl(mouseOutEvts)
-
-  # if node.events.mouse != {}:
-  #   echo "computeNodeEvents: ", node.events.mouse, " ", node.uid
 
   let
     captured = CapturedEvents(
@@ -387,18 +373,13 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
     )
 
-  # echo "computeNodeEvents: ", captured.mouse.flags, " :: ", captured.mouse.target.uid, " overlaps: ", node.mouseOverlapsNode()
-  # echo "computeNodeEvents:result: ", result.mouse.flags
-
   if clipContent in node.attrs and not node.mouseOverlapsNode():
     # this node clips events, so it must overlap child events, 
     # e.g. ignore child captures if this node isn't also overlapping 
     result = captured
-    # echo "computeNodeEvents: ", "clipped"
   else:
     result.mouse = max(captured.mouse, result.mouse)
     result.gesture = max(captured.gesture, result.gesture)
-    # echo "computeNodeEvents: ", "maxed :: ", node.uid
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
