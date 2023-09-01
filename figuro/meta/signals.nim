@@ -211,6 +211,8 @@ macro connect*(
     `a`.addAgentListeners(`name`, `b`, agentSlot)
   echo "CONNECT: ", result.repr
 
+# import pretty
+
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
