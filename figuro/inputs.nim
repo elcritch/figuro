@@ -36,11 +36,7 @@ type
   Keyboard* = object
     state*: KeyState
     consumed*: bool ## Consumed - need to prevent default action.
-    keyString*: string
-    altKey*: bool
-    ctrlKey*: bool
-    shiftKey*: bool
-    superKey*: bool
+
     # focusNode*: Node
     # onFocusNode*: Node
     # onUnFocusNode*: Node
@@ -231,12 +227,11 @@ type
   AppInputs* = object
     mouse*: Mouse
     keyboard*: Keyboard
+
     buttonPress*: UiButtonView
     buttonDown*: UiButtonView
     buttonRelease*: UiButtonView
     buttonToggle*: UiButtonView
-    # cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
-    # prevCursorStyle*: MouseCursorStyle
 
 var
   uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
