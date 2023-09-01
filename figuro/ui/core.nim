@@ -406,8 +406,6 @@ var
   prevHover {.runtimeVar.}: Figuro
   prevClick {.runtimeVar.}: Figuro
 
-import pretty
-
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
@@ -433,14 +431,12 @@ proc computeEvents*(node: Figuro) =
 
   # if evts.flags != {} and evts.flags != {evHover}:
   #   echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
-  
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
 
   if evHover in prevHover:
     if prevHover.getId != target.getId:
-      echo "prevHover: ", "exclude"
       prevHover.events.mouse.excl evHover
       emit prevHover.onHover(Exit)
       prevHover.refresh()

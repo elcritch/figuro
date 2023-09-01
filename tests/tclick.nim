@@ -34,14 +34,7 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn", i:
           box 10 + i * 120, 10, 100, 100
-          # we need to connect it's onHover event
-          connect(current, onHover, self, Main.hover)
-          # onClick:
-          #   echo "clicked! ", current.getId, " # ", i
-          # unfortunately, we have many hovers
-          # so we need to give hover a type 
-          # perfect, the slot pragma adds all this for
-          # us
+          echo "button:draw: ", " :: ", self.getId, " evts: ", self.events.mouse
 
 var
   main = Main.new()

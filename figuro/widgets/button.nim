@@ -27,7 +27,6 @@ import print
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
-  echo "button:draw: ", " :: ", self.getId, " evts: ", self.events.mouse
   current = self
   
   clipContent true
