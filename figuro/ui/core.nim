@@ -439,12 +439,6 @@ proc computeEvents*(node: Figuro) =
     if prevHover.getId != target.getId:
       emit target.onHover(Enter)
       refresh(target)
-
-      if prevHover != nil:
-        prevHover.events.mouse.excl evHover
-        emit prevHover.onHover(Exit)
-        refresh(prevHover)
-
       prevHover = target
 
   if not prevClick.isNil and evClick in prevClick.events.mouse:
