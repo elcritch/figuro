@@ -51,8 +51,8 @@ proc startFiguro*(
       for node in rn:
         emit node.onDraw()
       redrawNodes.clear()
-    computeScreenBox(nil, root)
-    sendRoot(root.copyInto())
+      computeScreenBox(nil, root)
+      sendRoot(root.copyInto())
 
   setupRoot(root)
 

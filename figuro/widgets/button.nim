@@ -14,7 +14,7 @@ proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
   # echo "button:hovered: ", kind, " :: ", self.getId
-  # refresh(self)
+  refresh(self)
   discard
 
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =

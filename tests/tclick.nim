@@ -50,7 +50,6 @@ proc draw*(self: Main) {.slot.} =
           # echo "button:draw: ", " :: ", self.getId
           connect(current, onClick, widget, Button[int].btnClicked)
 
-          # let btn = widget
           text "text":
             box 10, 10, 20, 20
             fill blackColor
