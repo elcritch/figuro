@@ -34,11 +34,11 @@ type
 when defined(nimscript):
   proc getAgentId(a: Agent): int = discard
   proc getAgentId(a: AgentProc): int = discard
-  var lastUId {.compileTime.}: int = 0
+  var lastUId {.compileTime.}: int = 1
 else:
   proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
   proc getAgentId(a: AgentProc): int = cast[int](cast[pointer](a))
-  var lastUId: int = 0
+  var lastUId: int = 1
 
 proc new*[T: Agent](tp: typedesc[T]): T =
   result = T()

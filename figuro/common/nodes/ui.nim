@@ -11,8 +11,6 @@ else:
   {.pragma: runtimeVar, global.}
 
 
-var lastUId {.runtimeVar.}: int = 1
-
 type
 
   Figuro* = ref object of Agent
@@ -68,16 +66,6 @@ type
   CapturedEvents* = object
     mouse*: MouseCapture
     gesture*: GestureCapture
-
-
-proc newUId*(): NodeID =
-  # Returns next numerical unique id.
-  inc lastUId
-  when defined(js) or defined(StringUID):
-    $lastUId
-  else:
-    echo "newUID: ", lastUId
-    NodeID(lastUId)
 
 proc getId*(fig: Figuro): NodeID =
   ## Get's the Figuro Node's ID

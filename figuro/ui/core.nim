@@ -110,7 +110,6 @@ proc setupRoot*(widget: Figuro) =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
     # root = Figuro()
-    # root.uid = newUId()
     # root.zlevel = ZLevelDefault
   # root = widget
   nodeStack = @[Figuro(root)]
@@ -415,7 +414,12 @@ import pretty
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
+  if uxInputs.mouse.consumed and uxInputs.keyboard.consumed:
+    return
+
   var captured: CapturedEvents = computeNodeEvents(node)
+
+  uxInputs.mouse.consumed = true
 
   # Gestures
   if not captured.gesture.target.isNil:
@@ -430,8 +434,12 @@ proc computeEvents*(node: Figuro) =
   if not target.isNil:
     target.events.mouse = evts.flags
 
-  if evts.flags != {} and evts.flags != {evHover}:
-    echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
+  # if evts.flags != {} and evts.flags != {evHover}:
+  #   echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
+  #   if prevClick != nil:
+  #     echo "mouse events: prev click: ", prevClick.getId, " evts: ", prevClick.events.mouse
+  #   else:
+  #     echo "mouse events: prev click: ", "nil"
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
@@ -449,8 +457,8 @@ proc computeEvents*(node: Figuro) =
       refresh(target)
       prevHover = target
 
-  if evClickOut in target and evClick in prevClick:
-    if prevClick.getId != target.getId:
+  if evClickOut in target: # and evClick in prevClick:
+    if prevClick != nil and prevClick.getId != target.getId:
       echo "evClick:out: ", " prev: ", prevClick.getId, " target: ", target.getId
       prevClick.events.mouse.excl evClick
       emit prevClick.onClick(Exit, mouseButtons)
@@ -458,7 +466,7 @@ proc computeEvents*(node: Figuro) =
       prevClick = nil
 
   if evClick in target:
-    if prevHover.getId != target.getId:
+    if prevClick.getId != target.getId:
       echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
       emit target.onClick(Enter, mouseButtons)
       refresh(target)
