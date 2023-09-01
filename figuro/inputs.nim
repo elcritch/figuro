@@ -72,9 +72,10 @@ type
     mouse*: MouseEventFlags
     gesture*: GestureEventFlags
   ListenEvents* = object
-    signals*: MouseEventFlags
     mouse*: MouseEventFlags
+    mouseSignals*: MouseEventFlags
     gesture*: GestureEventFlags
+    gestureSignals*: GestureEventFlags
 
   UiButton* = enum
     ButtonUnknown
