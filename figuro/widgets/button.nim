@@ -50,13 +50,6 @@ macro captureArgs(args, blk: untyped): untyped =
       result.add args
   result.add blk
 
-macro connectHook*(
-    a: Agent,
-    signal: typed,
-    b: Agent,
-    slot: untyped
-) =
-  echo "connectHook! ", getSignalName(signal)
 
 template button*[T](id: string, value: T, blk: untyped) =
   preNode(nkRectangle, Button, id)

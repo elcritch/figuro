@@ -36,6 +36,7 @@ proc draw*(self: Main) {.slot.} =
           box 10 + i * 120, 10, 100, 100
           echo "button:draw: ", " :: ", self.getId, " evts: ", self.events.mouse
 
+
 var
   main = Main.new()
 

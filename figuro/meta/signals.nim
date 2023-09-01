@@ -165,7 +165,6 @@ macro connect*(
     b: Agent,
     slot: untyped
 ) =
-  mixin connectHook
 
   let sigTuple = getSignalTuple(a, signal)
   let bTyp = b.getTypeInst()
@@ -189,17 +188,14 @@ macro connect*(
 
   let name = getSignalName(signal)
   let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent.repr & "`")
-  echo "AA:NAME: ", name
+  # echo "AA:NAME: ", name
   result = quote do:
-    mixin connectHook
     when not compiles(`slotAgent`):
       static:
         {.error: `serror`.}
-    when compiles(connectHook(a, signal, b, slot)):
-      connectHook(a, signal, b, slot)
     let agentSlot: AgentProc = `slotAgent`
     `a`.addAgentListeners(`name`, `b`, agentSlot)
-  echo "CONNECT: ", result.repr
+  # echo "CONNECT: ", result.repr
 
 # import pretty
 
