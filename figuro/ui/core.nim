@@ -396,6 +396,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
 var prevHover {.runtimeVar.}: Figuro
 
+import pretty
+
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
@@ -412,6 +414,9 @@ proc computeEvents*(node: Figuro) =
     let evts = res.mouse
     let target = evts.target
     target.events.mouse = evts.flags
+
+    if target.uid != 0 and evHover notin target.events.mouse:
+      print "target: ", target.uid, target.events.mouse, uxInputs.buttonPress
 
     # if target.kind != nkFrame and evts.flags != {}:
     if evHover in evts.flags:

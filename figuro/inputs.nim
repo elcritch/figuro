@@ -234,6 +234,7 @@ type
     buttonPress*: UiButtonView
     buttonDown*: UiButtonView
     buttonRelease*: UiButtonView
+    buttonToggle*: UiButtonView
     # cursorStyle*: MouseCursorStyle ## Sets the mouse cursor icon
     # prevCursorStyle*: MouseCursorStyle
 

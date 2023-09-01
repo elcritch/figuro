@@ -1,11 +1,8 @@
 import std/[os, hashes, strformat, strutils, tables, times]
+import pkg/pixie
+import pkg/windy
 
-import chroma
-# import typography, typography/svgfont
-import pixie
-import pixie/fonts
-import windy
-
+import ../inputs
 import opengl/[base, context, render]
 import opengl/commons
 
@@ -17,6 +14,15 @@ type
 const
   openglMajor {.intdefine.} = 3
   openglMinor {.intdefine.} = 3
+
+static:
+  ## compile check to ensure windy buttons don't change on us
+  for i in 0..windy.Button.high().int:
+    assert $Button(i) == $UiButton(i)
+
+proc toUi(wbtn: windy.ButtonView): UiButtonView =
+  for b in set[Button](wbtn):
+    result.incl UiButton(b.int)
 
 proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
   if window.closeRequested:
@@ -69,14 +75,16 @@ proc configureEvents(renderer: Renderer) =
     # appEvent.trigger()
 
   window.onButtonPress = proc (button: windy.Button) =
-    app.requestedFrame.inc
-    # appEvent.trigger()
-    discard
-
+    uxInputs.buttonPress = toUi window.buttonPressed()
+    uxInputs.buttonDown = toUi window.buttonDown()
+    uxInputs.buttonToggle = toUi window.buttonToggle()
   window.onButtonRelease = proc (button: Button) =
-    # appEvent.trigger()
-    app.requestedFrame.inc
-    discard
+    uxInputs.buttonPress = toUi window.buttonPressed()
+    uxInputs.buttonDown = toUi window.buttonDown()
+    uxInputs.buttonToggle = toUi window.buttonToggle()
+
+  window.onRune = proc (rune: Rune) =
+    uxInputs.keyboard.input.add rune
 
   # internal.getWindowTitle = proc (): string =
   #   window.title
@@ -101,7 +109,9 @@ proc setupRenderer*(
   renderer.window.startOpenGL(openglVersion)
   renderer.configureEvents()
 
-  ctx = newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = app.pixelScale)
+  ctx = newContext(atlasSize = atlasSize,
+                    pixelate = pixelate,
+                    pixelScale = app.pixelScale)
   app.requestedFrame.inc
 
   useDepthBuffer(false)
