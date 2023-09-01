@@ -47,7 +47,7 @@ proc renderText(node: Node) =
   
 import macros
 
-var postDrawsImpl {.compileTime.}: seq[NimNode]
+var postRenderImpl {.compileTime.}: seq[NimNode]
 
 macro ifrender(check, code: untyped, post: untyped = nil) =
   ## check if code should be drawn
@@ -62,14 +62,14 @@ macro ifrender(check, code: untyped, post: untyped = nil) =
   if post != nil:
     post.expectKind(nnkFinally)
     let postBlock = post[0]
-    postDrawsImpl.add quote do:
+    postRenderImpl.add quote do:
       if `checkval`:
         `postBlock`
 
-macro postDraws() =
+macro postRender() =
   result = newStmtList()
-  while postDrawsImpl.len() > 0:
-    result.add postDrawsImpl.pop()
+  while postRenderImpl.len() > 0:
+    result.add postRenderImpl.pop()
 
 proc drawMasks*(node: Node) =
   if node.cornerRadius != 0:
@@ -203,7 +203,7 @@ proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
     render(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
-  postDraws()
+  postRender()
 
 proc renderRoot*(nodes: var seq[Node]) =
   # draw root for each level

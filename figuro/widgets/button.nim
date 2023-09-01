@@ -56,6 +56,7 @@ template button*[T](id: string, value: T, blk: untyped) =
   template widget(): Button = Button(current)
   captureArgs value:
     current.postDraw = proc () =
+      echo "post"
       `blk`
   connect(current, onDraw, current, Figuro.postDraw)
   connect(current, onClick, current, Button.clicked)
