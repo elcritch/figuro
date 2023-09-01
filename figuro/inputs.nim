@@ -272,9 +272,3 @@ proc release*(mouse: Mouse): bool =
 proc consume*(mouse: Mouse) =
   ## Reset the mouse state consuming any event information.
   uxInputs.buttonPress.excl MouseLeft
-
-# proc setMousePos*(item: var Mouse, x, y: float64) =
-#   item.pos = vec2(x, y)
-#   item.pos *= pixelRatio / item.pixelScale
-#   item.delta = item.pos - item.prevPos
-#   item.prevPos = item.pos

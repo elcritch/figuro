@@ -401,17 +401,20 @@ import pretty
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
-  var res = computeNodeEvents(node)
+  var capturedEvts = computeNodeEvents(node)
 
   # Gestures
-  if not res.gesture.target.isNil:
-    let evts = res.gesture
+  if not capturedEvts.gesture.target.isNil:
+    let evts = capturedEvts.gesture
     let target = evts.target
     target.events.gesture = evts.flags
 
+  if capturedEvts.mouse.flags != {evHover}:
+    print "capturedEvts : ", capturedEvts
+
   # Mouse
-  if not res.mouse.target.isNil:
-    let evts = res.mouse
+  if not capturedEvts.mouse.target.isNil:
+    let evts = capturedEvts.mouse
     let target = evts.target
     target.events.mouse = evts.flags
 
