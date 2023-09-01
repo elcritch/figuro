@@ -57,7 +57,7 @@ template button*[T; V](typ: typedesc[T], id: string, value: V, blk: untyped) =
   preNode(nkRectangle, Button[T], id)
   captureArgs value:
     current.postDraw = proc () =
-      template widget(): Button[T] = Button[T](current)
+      let widget {.inject.} = Button[T](current)
       if postDraw in current.attrs:
         return
       `blk`
