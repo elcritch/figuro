@@ -404,7 +404,9 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
-var prevHover {.runtimeVar.}: Figuro
+var
+  prevHover {.runtimeVar.}: Figuro
+  prevClick {.runtimeVar.}: Figuro
 
 import pretty
 
@@ -430,22 +432,44 @@ proc computeEvents*(node: Figuro) =
     #   echo "target:mouse: ", target.events.mouse, " press: ", uxInputs.buttonPress, " :: ", target.uid 
 
     # if target.kind != nkFrame and evts.flags != {}:
-    if evClick in evts.flags:
-      emit target.onClick(uxInputs.buttonPress * MouseButtons)
+    # if evClick in evts.flags:
+    #   emit target.onClick(Enter, uxInputs.buttonPress * MouseButtons)
 
-    if evHover in evts.flags:
+    if evHover in target.events.mouse:
       if prevHover.getId != target.getId:
         emit target.onHover(Enter)
         refresh(target)
+
         if prevHover != nil:
           prevHover.events.mouse.excl evHover
           emit prevHover.onHover(Exit)
           refresh(prevHover)
+
         prevHover = target
     else:
       if prevHover.getId != target.getId:
         if evHover in prevHover.events.mouse:
+          prevHover.events.mouse.excl evHover
           emit prevHover.onHover(Exit)
           prevHover.refresh()
-          prevHover.events.mouse.excl evHover
       prevHover = nil
+
+    if evClick in target.events.mouse:
+      echo "evClick: ", target.events.mouse
+      if prevClick.getId != target.getId:
+        emit target.onClick(Enter, uxInputs.buttonPress * MouseButtons)
+        refresh(target)
+
+        if prevClick != nil:
+          prevClick.events.mouse.excl evClick
+          emit prevClick.onClick(Exit, uxInputs.buttonPress * MouseButtons)
+          refresh(prevClick)
+
+        prevClick = target
+    else:
+      if prevClick != nil and prevClick.getId != target.getId:
+        if evClick in prevClick.events.mouse:
+          prevClick.events.mouse.excl evHover
+          emit prevClick.onHover(Exit)
+          prevClick.refresh()
+      prevClick = nil

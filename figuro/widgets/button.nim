@@ -16,9 +16,11 @@ proc hovered*(self: Button, kind: EventKind) {.slot.} =
   echo "button:hovered: ", kind
   discard
 
-proc clicked*(self: Button, buttons: UiButtonView) {.slot.} =
-  echo "button:clicked: ", buttons
-  refresh(self)
+proc clicked*(self: Button, kind: EventKind, buttons: UiButtonView) {.slot.} =
+  echo "button:clicked: ", buttons, " kind: ", kind
+  if not self.isActive:
+    refresh(self)
+  self.isActive = true
 
 import print
 
