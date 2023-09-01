@@ -326,8 +326,12 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   when ET is MouseEventType:
     if evt in node.listens.mouse and predicate:
       result.incl(evt)
+    if evt in node.listens.mouseSignals and predicate:
+      result.incl(evt)
   elif ET is GestureEventType:
     if evt in node.listens.gesture and predicate:
+      result.incl(evt)
+    if evt in node.listens.gestureSignals and predicate:
       result.incl(evt)
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
@@ -402,8 +406,8 @@ proc computeEvents*(node: Figuro) =
   if not target.isNil:
     target.events.mouse.incl evts.flags
 
-  # if evts.flags != {} and evts.flags != {evHover}:
-  #   echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
+  if evts.flags != {} and evts.flags != {evHover}:
+    echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
