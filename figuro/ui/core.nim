@@ -449,7 +449,7 @@ proc computeEvents*(node: Figuro) =
       refresh(target)
       prevHover = target
 
-  if evClick in prevClick:
+  if evClickOut in target and evClick in prevClick:
     if prevClick.getId != target.getId:
       echo "evClick:out: ", " prev: ", prevClick.getId, " target: ", target.getId
       prevClick.events.mouse.excl evClick
