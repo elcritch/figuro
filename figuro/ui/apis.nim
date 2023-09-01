@@ -238,6 +238,13 @@ template onClick*(inner: untyped) =
       MouseLeft in uxInputs.buttonPress:
     inner
 
+template onClickOut*(inner: untyped) =
+  ## On click event handler.
+  current.listens.mouse.incl(evClickOut)
+  if evClickOut in current.events.mouse and
+      MouseLeft in uxInputs.buttonPress:
+    inner
+
 proc cornerRadius*(radius: UICoord|float|float32) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = UICoord radius

@@ -36,8 +36,8 @@ proc draw*(self: Main) {.slot.} =
           box 10 + i * 120, 10, 100, 100
           # we need to connect it's onHover event
           connect(current, onHover, self, Main.hover)
-          onClick:
-            echo "clicked! ", i
+          # onClick:
+          #   echo "clicked! ", current.getId, " # ", i
           # unfortunately, we have many hovers
           # so we need to give hover a type 
           # perfect, the slot pragma adds all this for

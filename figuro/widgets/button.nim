@@ -38,6 +38,10 @@ proc draw*(self: Button) {.slot.} =
     onHover:
       fill current.fill.spin(15)
       # this changes the color on hover!
+    onClick:
+      echo "clicked:button: ", current.getId
+    onClickOut:
+      echo "clickedOut:button: ", current.getId
 
 from sugar import capture
 import macros

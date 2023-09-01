@@ -337,7 +337,6 @@ proc mouseOverlapsNode*(node: Figuro): bool =
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   when ET is MouseEventType:
     if evt in node.listens.mouse and predicate:
-      # echo "checkEvent:true: ", evt, " :: ", node.uid
       result.incl(evt)
   elif ET is GestureEventType:
     if evt in node.listens.gesture and predicate:
@@ -345,7 +344,10 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
-  if node.kind != nkFrame and node.mouseOverlapsNode():
+  # if node.kind == nkFrame:
+  #   return
+
+  if node.mouseOverlapsNode():
     node.checkEvent(evClick, uxInputs.mouse.click())
     node.checkEvent(evPress, uxInputs.mouse.down())
     node.checkEvent(evRelease, uxInputs.mouse.release())
@@ -353,8 +355,8 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evOverlapped, true)
     # if result != {}:
     #   echo "mouse result: ", result, " ", node.uid
-  else:
-    node.checkEvent(evClick, uxInputs.mouse.click())
+    if uxInputs.mouse.click():
+      result.incl evClickOut
     # node.checkEvent(evHoverOut, true)
 
 proc checkGestureEvents*(node: Figuro): GestureEventFlags =
@@ -429,7 +431,7 @@ proc computeEvents*(node: Figuro) =
     target.events.mouse = evts.flags
 
   if evts.flags != {} and evts.flags != {evHover}:
-    echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts
+    echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
@@ -442,6 +444,7 @@ proc computeEvents*(node: Figuro) =
       prevHover = nil
   if evHover in target:
     if prevHover.getId != target.getId:
+      echo "evHover: ", " prev: ", prevClick.getId, " target: ", target.getId
       emit target.onHover(Enter)
       refresh(target)
       prevHover = target
