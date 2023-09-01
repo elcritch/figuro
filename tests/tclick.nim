@@ -14,7 +14,7 @@ type
 proc hovered*(self: Button, kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  echo "button:hovered: ", kind, " :: ", self.getId
+  # echo "button:hovered: ", kind, " :: ", self.getId
   refresh(self)
 
 proc tick*(self: Main) {.slot.} =

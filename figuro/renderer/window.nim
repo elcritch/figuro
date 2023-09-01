@@ -89,7 +89,7 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
-    echo "buttonPress: ", uxInputs.buttonPress
+    echo "\n\nbuttonPress: ", uxInputs.buttonPress
 
   window.onButtonRelease = proc (button: Button) =
     uxInputs.buttonPress = toUi window.buttonPressed()
