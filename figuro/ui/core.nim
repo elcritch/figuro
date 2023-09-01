@@ -416,14 +416,12 @@ proc computeEvents*(node: Figuro) =
       prevHover = nil
   if evHover in target:
     if prevHover.getId != target.getId:
-      # echo "evHover: ", " prev: ", prevClick.getId, " target: ", target.getId
       emit target.onHover(Enter)
       refresh(target)
       prevHover = target
 
   if evClickOut in target:
     if prevClick != nil and prevClick.getId != target.getId:
-      # echo "evClick:out: ", " prev: ", prevClick.getId, " target: ", target.getId
       prevClick.events.mouse.excl evClick
       emit prevClick.onClick(Exit, mouseButtons)
       prevClick.refresh()
@@ -431,7 +429,6 @@ proc computeEvents*(node: Figuro) =
 
   if evClick in target:
     if prevClick.getId != target.getId:
-      # echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
       emit target.onClick(Enter, mouseButtons)
       refresh(target)
       prevClick = target
