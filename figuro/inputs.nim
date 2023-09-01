@@ -262,17 +262,3 @@ proc release*(mouse: Mouse): bool =
 
 proc scrolled*(mouse: Mouse): bool =
   mouse.wheelDelta.x != 0.0'ui
-
-# proc consume*(keyboard: Keyboard) =
-#   ## Reset the keyboard state consuming any event information.
-#   keyboard.state = Empty
-#   keyboard.keyString = ""
-#   keyboard.altKey = false
-#   keyboard.ctrlKey = false
-#   keyboard.shiftKey = false
-#   keyboard.superKey = false
-#   keyboard.consumed = true
-
-proc consume*(mouse: Mouse) =
-  ## Reset the mouse state consuming any event information.
-  uxInputs.buttonPress.excl MouseLeft

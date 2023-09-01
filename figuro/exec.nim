@@ -61,11 +61,9 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
       wait(uiAppEvent)
       timeIt(appAvgTime):
         tickMain()
-        # computeEvents(root)
         eventMain()
         mainApp()
         app.frameCount.inc()
-        # clearInputs()
 
 
 proc init*(renderer: Renderer) =

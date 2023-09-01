@@ -79,8 +79,7 @@ proc configureEvents(renderer: Renderer) =
     let prevPos = vec2(window.mousePrevPos())
     uxInputs.mouse.prev = prevPos.descaled()
     uxInputs.mouse.consumed = false
-    # app.requestedFrame.inc
-    # appEvent.trigger()
+
   window.onScroll = proc () =
     uxInputs.mouse.wheelDelta = window.scrollDelta().descaled()
 
@@ -88,20 +87,20 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
-    if uxInputs.buttonPress * MouseButtons != {}:
-      uxInputs.mouse.consumed = false
-    if uxInputs.buttonPress - MouseButtons != {}:
-      uxInputs.keyboard.consumed = false
+    # if uxInputs.buttonPress * MouseButtons != {}:
+    #   uxInputs.mouse.consumed = false
+    # if uxInputs.buttonPress - MouseButtons != {}:
+    uxInputs.keyboard.consumed = false
     echo "buttonPress: ", uxInputs.buttonPress
 
   window.onButtonRelease = proc (button: Button) =
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
-    if uxInputs.buttonPress * MouseButtons != {}:
-      uxInputs.mouse.consumed = false
-    if uxInputs.buttonPress - MouseButtons != {}:
-      uxInputs.keyboard.consumed = false
+    # if uxInputs.buttonPress * MouseButtons != {}:
+    #   uxInputs.mouse.consumed = false
+    # if uxInputs.buttonPress - MouseButtons != {}:
+    uxInputs.keyboard.consumed = false
 
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune

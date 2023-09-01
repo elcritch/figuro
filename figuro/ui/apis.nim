@@ -111,13 +111,6 @@ template blank*(): untyped =
 ## These APIs provide the APIs for Fidget nodes.
 ## 
 
-proc clearInputs*() =
-  resetNodes = 0
-  uxInputs.mouse.pos = Position(vec2(0, 0))
-  uxInputs.mouse.wheelDelta = Position(vec2(0, 0))
-  uxInputs.mouse.consumed = false
-  uxInputs.mouse.clickedOutside = false
-
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node User Interactions
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

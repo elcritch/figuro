@@ -45,15 +45,10 @@ proc startFiguro*(
     emit root.onLoad()
   
   proc appMain() =
-    # mixin draw
     root.diffIndex = 0
-    # if not uxInputs.mouse.consumed:
-    #   uxInputs.mouse.consumed = true
     if redrawNodes.len() > 0:
-      # echo "appMain:redrawNodes:len: ", redrawNodes.len()
       let rn = redrawNodes
       for node in rn:
-        # echo "appMain:redraw:id: ", node.uid
         emit node.onDraw()
       redrawNodes.clear()
     computeScreenBox(nil, root)

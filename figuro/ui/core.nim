@@ -404,40 +404,38 @@ proc computeEvents*(node: Figuro) =
   if not target.isNil:
     target.events.mouse.incl evts.flags
 
-  if uxInputs.mouse.consumed:
-    return
-  echo "uxInputs.mouse.consumed: ", uxInputs.mouse.consumed
-  if evts.flags != {} and evts.flags != {evHover}:
-    echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
-
+  # if evts.flags != {} and evts.flags != {evHover}:
+  #   echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
 
-  if evHover in prevHover:
-    if prevHover.getId != target.getId:
-      prevHover.events.mouse.excl evHover
-      emit prevHover.onHover(Exit)
-      prevHover.refresh()
-      prevHover = nil
-  if evHover in target:
-    if prevHover.getId != target.getId:
-      emit target.onHover(Enter)
-      refresh(target)
-      prevHover = target
+  if not uxInputs.mouse.consumed:
+    if evHover in prevHover:
+      if prevHover.getId != target.getId:
+        prevHover.events.mouse.excl evHover
+        emit prevHover.onHover(Exit)
+        prevHover.refresh()
+        prevHover = nil
+    if evHover in target:
+      if prevHover.getId != target.getId:
+        emit target.onHover(Enter)
+        refresh(target)
+        prevHover = target
 
-  if evClickOut in target:
-    target.events.mouse.excl evClickOut
-    if prevClick != nil and prevClick.getId != target.getId:
-      prevClick.events.mouse.excl evClick
-      emit prevClick.onClick(Exit, mouseButtons)
-      prevClick.refresh()
-      prevClick = nil
-
-  if evClick in target:
-    # if prevClick.getId != target.getId:
-      emit target.onClick(Enter, mouseButtons)
-      refresh(target)
-      prevClick = target
+  if not uxInputs.keyboard.consumed:
+    if evClickOut in target:
+      target.events.mouse.excl evClickOut
+      if prevClick != nil and prevClick.getId != target.getId:
+        prevClick.events.mouse.excl evClick
+        emit prevClick.onClick(Exit, mouseButtons)
+        prevClick.refresh()
+        prevClick = nil
+    if evClick in target:
+      # if prevClick.getId != target.getId:
+        emit target.onClick(Enter, mouseButtons)
+        refresh(target)
+        prevClick = target
 
   uxInputs.mouse.consumed = true
+  uxInputs.keyboard.consumed = true
