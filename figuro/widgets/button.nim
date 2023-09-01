@@ -26,6 +26,8 @@ proc clicked*(self: Button, kind: EventKind, buttons: UiButtonView) {.slot.} =
 proc draw*(self: Button) {.slot.} =
   ## button widget!
   current = self
+  echo "button:draw"
+  current.attrs.excl postDraw
   
   clipContent true
   cornerRadius 10.0
@@ -56,8 +58,11 @@ template button*[T](id: string, value: T, blk: untyped) =
   template widget(): Button = Button(current)
   captureArgs value:
     current.postDraw = proc () =
+      if postDraw in current.attrs:
+        return
       echo "post"
       `blk`
+      current.attrs.incl postDraw
   connect(current, onDraw, current, Figuro.postDraw)
   connect(current, onClick, current, Button.clicked)
   connect(current, onHover, current, Button.hovered)

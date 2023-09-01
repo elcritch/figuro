@@ -199,6 +199,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
   current.listens.mouse = {}
   current.listens.gesture = {}
+  current.attrs.excl postDraw
 
   nodeStack.add(current)
   inc parent.diffIndex
@@ -429,12 +430,13 @@ proc computeEvents*(node: Figuro) =
       if prevClick != nil and prevClick.getId != target.getId:
         prevClick.events.mouse.excl evClick
         emit prevClick.onClick(Exit, mouseButtons)
-        prevClick.refresh()
+        # prevClick.refresh()
         prevClick = nil
     if evClick in target:
+      if mouseButtons != {}:
       # if prevClick.getId != target.getId:
         emit target.onClick(Enter, mouseButtons)
-        refresh(target)
+        # refresh(target)
         prevClick = target
 
   uxInputs.mouse.consumed = true
