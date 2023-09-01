@@ -2,28 +2,28 @@
 import commons
 
 type
-  FiguroWidget*[T] = ref object of Figuro
-    state: T
+  StatefulWidget*[T] = ref object of Figuro
+    state*: T
 
-  Button* = ref object of Figuro
-    label: string
-    isActive: bool
-    disabled: bool
+  Button*[T] = ref object of StatefulWidget[T]
+    label*: string
+    isActive*: bool
+    disabled*: bool
 
-proc hovered*(self: Button, kind: EventKind) {.slot.} =
+proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
   # echo "button:hovered: ", kind, " :: ", self.getId
   # refresh(self)
   discard
 
-proc clicked*(self: Button, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
   if not self.isActive:
     refresh(self)
   self.isActive = true
 
-proc draw*(self: Button) {.slot.} =
+proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   current = self
   # echo "button:draw"
@@ -52,20 +52,20 @@ macro captureArgs(args, blk: untyped): untyped =
       result.add args
   result.add blk
 
-
-template button*[T](id: string, value: T, blk: untyped) =
-  preNode(nkRectangle, Button, id)
-  template widget(): Button = Button(current)
+template button*[T; V](typ: typedesc[T], id: string, value: V, blk: untyped) =
+  preNode(nkRectangle, Button[T], id)
   captureArgs value:
     current.postDraw = proc () =
+      template widget(): Button[T] = Button[T](current)
       if postDraw in current.attrs:
         return
       `blk`
       current.attrs.incl postDraw
   connect(current, onDraw, current, Figuro.postDraw)
-  connect(current, onClick, current, Button.clicked)
-  connect(current, onHover, current, Button.hovered)
+  connect(current, onClick, current, Button[T].clicked)
+  connect(current, onHover, current, Button[T].hovered)
   postNode()
 
-template button*(id: string, blk: untyped) =
-  button(id, void, blk)
+template button*[V](id: string, value: V, blk: untyped) =
+# template button*(id: string, blk: untyped) =
+  button[void, V](void, id, value, blk)

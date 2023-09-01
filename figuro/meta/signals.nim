@@ -187,8 +187,10 @@ macro connect*(
     procTyp.params.add nnkIdentDefs.newTree( ident("a" & $i), ty, empty)
 
   let name = getSignalName(signal)
-  let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent.repr & "`")
+  let emsg = "cannot find slot for " & "`" & slotAgent.repr & "`"
+  let serror = newStrLitNode(emsg)
   # echo "AA:NAME: ", name
+  # let skError = error(emsg, slot)
   result = quote do:
     when not compiles(`slotAgent`):
       static:

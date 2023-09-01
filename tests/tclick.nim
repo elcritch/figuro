@@ -11,7 +11,12 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc hovered*(self: Button, kind: EventKind) {.slot.} =
+proc btnClicked*(self: Button[int], kind: EventKind, buttons: UiButtonView) {.slot.} =
+  self.state.inc
+  echo "button:clicked: ", self.state
+  refresh(self)
+
+proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
   # echo "button:hovered: ", kind, " :: ", self.getId
@@ -32,13 +37,13 @@ proc draw*(self: Main) {.slot.} =
     cornerRadius 10.0
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
-      button "btn", i:
+      # button "btn", i, typ = void:
+      button int, "btn", i:
           box 10 + i * 120, 10, 100, 100
           # echo "button:draw: ", " :: ", self.getId
+          connect(current, onClick, widget, Button[int].btnClicked)
 
-
-var
-  main = Main.new()
+var main = Main.new()
 
 connect(main, onDraw, main, Main.draw)
 connect(main, onTick, main, Main.tick)

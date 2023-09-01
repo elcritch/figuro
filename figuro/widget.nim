@@ -2,11 +2,12 @@
 import common/nodes/ui
 import meta/signals
 import meta/slots
+import inputs
 import ui/core
 import ui/apis
 
 export signals, slots
-export apis, core, ui
+export apis, core, ui, inputs
 
 template connect*(
     a: Figuro,
