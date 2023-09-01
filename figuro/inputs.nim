@@ -256,8 +256,8 @@ proc scrolled*(mouse: Mouse): bool =
   mouse.wheelDelta.x != 0.0'ui
 
 proc release*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if mbtn in uxInputs.buttonRelease: return true
+  if MouseButtons * uxInputs.buttonRelease != {}:
+    return true
 
 # proc consume*(keyboard: Keyboard) =
 #   ## Reset the keyboard state consuming any event information.
