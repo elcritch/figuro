@@ -13,11 +13,11 @@ type
 proc hovered*(self: Button, kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  echo "button:hovered: ", kind
+  echo "button:hovered: ", kind, " :: ", self.getId
   discard
 
 proc clicked*(self: Button, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "button:clicked: ", buttons, " kind: ", kind
+  echo "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
   if not self.isActive:
     refresh(self)
   self.isActive = true

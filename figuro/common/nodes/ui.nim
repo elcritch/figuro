@@ -82,7 +82,7 @@ proc newUId*(): NodeID =
 proc getId*(fig: Figuro): NodeID =
   ## Get's the Figuro Node's ID
   ## or returns 0 if it's nil
-  if fig.isNil: NodeID 0
+  if fig.isNil: NodeID -1
   else: fig.uid
 
 proc onTick*(tp: Figuro) {.signal.}

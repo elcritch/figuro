@@ -428,6 +428,9 @@ proc computeEvents*(node: Figuro) =
   if not target.isNil:
     target.events.mouse = evts.flags
 
+  if evts.flags != {} and evts.flags != {evHover}:
+    echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts
+
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
 
@@ -444,17 +447,17 @@ proc computeEvents*(node: Figuro) =
       prevHover = target
 
   if evClick in prevClick:
-    echo "evClick:out: ", " prev: ", prevClick.getId
-    if prevHover.getId != target.getId:
-      echo "prev click: ", prevClick.getId
+    if prevClick.getId != target.getId:
+      echo "evClick:out: ", " prev: ", prevClick.getId, " target: ", target.getId
       prevClick.events.mouse.excl evClick
       emit prevClick.onClick(Exit, mouseButtons)
       prevClick.refresh()
       prevClick = nil
 
   if evClick in target:
-    echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
-    emit target.onClick(Enter, mouseButtons)
-    refresh(target)
-    prevClick = target
+    if prevHover.getId != target.getId:
+      echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
+      emit target.onClick(Enter, mouseButtons)
+      refresh(target)
+      prevClick = target
 
