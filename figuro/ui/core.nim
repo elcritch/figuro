@@ -450,6 +450,7 @@ proc computeEvents*(node: Figuro) =
       prevClick.events.mouse.excl evClick
       emit prevClick.onClick(Exit, mouseButtons)
       prevClick.refresh()
+      prevClick = nil
 
   if evClick in target:
     echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
