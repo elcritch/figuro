@@ -32,7 +32,9 @@ proc draw*(self: Main) {.slot.} =
         fill "#AA0000"
         onHover:
           fill "#F00000"
-        box 20 + (i.toFloat + value) * 120, 30 + 20 * sin(value + i.toFloat), 60, 60
+        box 20 + (i.toFloat + value) * 120,
+            30 + 20 * sin(value + i.toFloat),
+            60, 60
         if i == 0:
           current.fill.a = value * 1.0
 
