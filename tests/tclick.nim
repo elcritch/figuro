@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn", i:
           box 10 + i * 120, 10, 100, 100
-          echo "button:draw: ", " :: ", self.getId, " evts: ", self.events.mouse
+          echo "button:draw: ", " :: ", self.getId
 
 
 var

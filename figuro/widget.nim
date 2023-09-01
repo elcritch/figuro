@@ -15,7 +15,7 @@ template connect*(
     slot: untyped
 ) =
   when signal == ui.onClick:
-    current.listens.mouseSignals.incl(evClick)
+    a.listens.mouseSignals.incl(evClick)
     static:
       echo "CONNECT HOOK! :: onClick: ", signal == onClick
   signals.connect(a, signal, b, slot)
