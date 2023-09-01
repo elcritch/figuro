@@ -93,6 +93,8 @@ proc configureEvents(renderer: Renderer) =
 
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune
+    echo "keyboard: ", uxInputs.keyboard.input
+
 
   # internal.getWindowTitle = proc (): string =
   #   window.title
