@@ -52,6 +52,8 @@ proc configureEvents(renderer: Renderer) =
 
   let window = renderer.window
 
+  window.runeInputEnabled = true
+
   window.onResize = proc () =
     updateWindowSize(window)
     renderLoop(window, renderer.nodes, poll = false)
@@ -84,6 +86,7 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
+    echo "buttonPress: ", uxInputs.buttonPress
 
   window.onButtonRelease = proc (button: Button) =
     uxInputs.buttonPress = toUi window.buttonPressed()
@@ -94,6 +97,8 @@ proc configureEvents(renderer: Renderer) =
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune
     echo "keyboard: ", uxInputs.keyboard.input
+  window.onImeChange = proc () =
+    echo "ime: ", window.imeCompositionString()
 
 
   # internal.getWindowTitle = proc (): string =

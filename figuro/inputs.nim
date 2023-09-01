@@ -36,7 +36,6 @@ type
   Keyboard* = object
     state*: KeyState
     consumed*: bool ## Consumed - need to prevent default action.
-
     # focusNode*: Node
     # onFocusNode*: Node
     # onUnFocusNode*: Node
@@ -215,13 +214,13 @@ type
 
 
 const
-  MouseButtons = [
+  MouseButtons = {
     MouseLeft,
     MouseRight,
     MouseMiddle,
     MouseButton4,
     MouseButton5,
-  ]
+  }
 
 type
   AppInputs* = object
@@ -246,14 +245,12 @@ proc toEvent*(kind: GestureEventType): GestureEvent =
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 
 proc click*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if mbtn in uxInputs.buttonPress:
-      return true
+  if MouseButtons * uxInputs.buttonPress != {}:
+    return true
 
 proc down*(mouse: Mouse): bool =
-  for mbtn in MouseButtons:
-    if mbtn in uxInputs.buttonDown:
-      return true
+  if MouseButtons * uxInputs.buttonDown != {}:
+    return true
 
 proc scrolled*(mouse: Mouse): bool =
   mouse.wheelDelta.x != 0.0'ui

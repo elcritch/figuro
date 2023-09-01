@@ -415,7 +415,7 @@ proc computeEvents*(node: Figuro) =
     let target = evts.target
     target.events.mouse = evts.flags
 
-    if target.uid != 0 and evHover notin target.events.mouse:
+    if target.uid != 0 and target.events.mouse != {evHover}:
       print "target: ", target.uid, target.events.mouse, uxInputs.buttonPress
 
     # if target.kind != nkFrame and evts.flags != {}:
