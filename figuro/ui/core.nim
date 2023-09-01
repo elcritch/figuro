@@ -413,7 +413,6 @@ import pretty
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
-  # echo "\n\n======= computeNodeEvents ====="
   var captured: CapturedEvents = computeNodeEvents(node)
 
   # Gestures
@@ -424,6 +423,7 @@ proc computeEvents*(node: Figuro) =
 
   # Mouse
   if not captured.mouse.target.isNil:
+    # echo "\n======= computeNodeEvents ====="
     let evts = captured.mouse
     let target = evts.target
     target.events.mouse = evts.flags
@@ -454,22 +454,23 @@ proc computeEvents*(node: Figuro) =
           prevHover.refresh()
       prevHover = nil
 
+    let mouseButtons = uxInputs.buttonPress * MouseButtons
     if evClick in target.events.mouse:
-      echo "evClick: ", target.events.mouse
-      if prevClick.getId != target.getId:
-        emit target.onClick(Enter, uxInputs.buttonPress * MouseButtons)
-        refresh(target)
+      echo "evClick: ", target.events.mouse, " tgt: ", target.getId, " prev: ", prevClick.getId
+      emit target.onClick(Enter, mouseButtons)
+      refresh(target)
 
+      if target.getId != prevClick.getId:
         if prevClick != nil:
+          echo "prev click: ", prevClick.getId
           prevClick.events.mouse.excl evClick
-          emit prevClick.onClick(Exit, uxInputs.buttonPress * MouseButtons)
+          emit prevClick.onClick(Exit, mouseButtons)
           refresh(prevClick)
-
         prevClick = target
     else:
       if prevClick != nil and prevClick.getId != target.getId:
         if evClick in prevClick.events.mouse:
+          echo "prev click: ", prevClick.getId
           prevClick.events.mouse.excl evHover
-          emit prevClick.onHover(Exit)
+          emit prevClick.onClick(Exit, mouseButtons)
           prevClick.refresh()
-      prevClick = nil
