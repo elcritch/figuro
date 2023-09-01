@@ -25,8 +25,6 @@ proc tick*(self: Main) {.slot.} =
     self.hoveredAlpha -= 0.005
     refresh(self)
 
-import pretty
-
 proc draw*(self: Main) {.slot.} =
   rectangle "main":
     self.mainRect = current

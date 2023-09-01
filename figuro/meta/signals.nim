@@ -173,69 +173,43 @@ macro connect*(
     b: Agent,
     slot: untyped
 ) =
+  mixin connectHook
   # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
   #     {.error: "signal and slot types don't match".}
 
-  echo "\n\nAA:a: ", a.repr
-  echo "AA:a: ", a.getTypeImpl.repr
-  echo "AA:a:tup: ", getSignalTuple(a, signal).repr
-
-  echo "AA:sig: ", signal.repr
-  echo "AA:sig: ", signal.getTypeImpl.repr
-  # echo "AA:sig: ", signal.getImpl.repr
-
   let sigTuple = getSignalTuple(a, signal)
-
-  echo "\nAA:slot:repr: ", slot.treerepr
-
-  echo "\nAA:B:repr: ", b.treeRepr
-  echo "\nAA:B:tinst: ", b.getTypeInst().treerepr
-  echo "\nAA:B:timpl: ", b.getTypeImpl().repr
-
   let bTyp = b.getTypeInst()
-  echo "\nAA:B:typ: ", bTyp.treeRepr
 
   let slotAgent = 
     if slot.kind == nnkIdent:
-      echo "SLOT:bTyp: ", bTyp.treerepr
       let bTypIdent =
         if bTyp.kind == nnkBracketExpr: bTyp
         else: ident bTyp.strVal
       nnkCall.newTree(slot, bTypIdent, ident "AgentProc")
     elif slot.kind == nnkDotExpr:
-      echo "SLOT: ", slot.treeRepr
-      let s0 = slot[0]
-      let s1 = slot[1]
-      nnkCall.newTree(s1, s0, ident "AgentProc")
-      # quote do:
-      #   `s1`(typeof(`b`), typeof(AgentProc))
+      nnkCall.newTree(slot[1], slot[0], ident "AgentProc")
     else:
       slot
 
   let procTyp = quote do:
     proc () {.nimcall.}
-  # let sigTupleSlot = sigTuple.copyNimTree()
-  # sigTupleSlot.insert(0, bTyp)
   for i, ty in sigTuple:
     let empty = nnkEmpty.newNimNode()
     procTyp.params.add nnkIdentDefs.newTree( ident("a" & $i), ty, empty)
-  # echo "AA:procTyp: ", procTyp.treeRepr
-  # echo "AA:procTyp: ", procTyp.repr
 
   let name = getSignalName(signal)
   let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent.repr & "`")
-  # let aname = 
-  # echo "AA:NAME: ", name
-  # result = newStmtList()
+  echo "AA:NAME: ", name
   result = quote do:
+    mixin connectHook
     when not compiles(`slotAgent`):
       static:
         {.error: `serror`.}
+    when compiles(connectHook(a, signal, b, slot)):
+      connectHook(a, signal, b, slot)
     let agentSlot: AgentProc = `slotAgent`
     `a`.addAgentListeners(`name`, `b`, agentSlot)
   echo "CONNECT: ", result.repr
-
-import pretty
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
