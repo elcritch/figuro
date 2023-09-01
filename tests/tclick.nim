@@ -11,8 +11,10 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+proc hovered*(self: Button, kind: EventKind) {.slot.} =
+  # self.fill = parseHtmlColor "#9BDFFA"
+  # echo "button hover!"
+  echo "button:hovered: ", kind, " :: ", self.getId
   refresh(self)
 
 proc tick*(self: Main) {.slot.} =

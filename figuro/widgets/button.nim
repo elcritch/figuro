@@ -13,17 +13,15 @@ type
 proc hovered*(self: Button, kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  echo "button:hovered: ", kind, " :: ", self.getId
+  # echo "button:hovered: ", kind, " :: ", self.getId
+  # refresh(self)
   discard
-  refresh(self)
 
 proc clicked*(self: Button, kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
   if not self.isActive:
     refresh(self)
   self.isActive = true
-
-import print
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
@@ -39,10 +37,6 @@ proc draw*(self: Button) {.slot.} =
     onHover:
       fill current.fill.spin(15)
       # this changes the color on hover!
-    onClick:
-      echo "clicked:button: ", current.getId
-    onClickOut:
-      echo "clickedOut:button: ", current.getId
 
 from sugar import capture
 import macros

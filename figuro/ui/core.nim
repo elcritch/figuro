@@ -399,7 +399,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     result.mouse = max(captured.mouse, result.mouse)
     result.gesture = max(captured.gesture, result.gesture)
     # echo "computeNodeEvents: ", "maxed :: ", node.uid
-  
+
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
 var
