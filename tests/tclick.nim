@@ -35,8 +35,6 @@ proc draw*(self: Main) {.slot.} =
       button "btn", i:
           box 10 + i * 120, 10, 100, 100
           # we need to connect it's onHover event
-          onHover:
-            echo "hovered: ", i
           connect(current, onHover, self, Main.hover)
           onClick:
             echo "clicked! ", i

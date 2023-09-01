@@ -214,7 +214,7 @@ type
 
 
 const
-  MouseButtons = {
+  MouseButtons* = {
     MouseLeft,
     MouseRight,
     MouseMiddle,

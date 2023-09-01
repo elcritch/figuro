@@ -10,11 +10,15 @@ type
     isActive: bool
     disabled: bool
 
-proc hover*(self: Button, kind: EventKind) {.slot.} =
+proc hovered*(self: Button, kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  echo "child hovered: ", kind
+  echo "button:hovered: ", kind
   discard
+
+proc clicked*(self: Button, buttons: UiButtonView) {.slot.} =
+  echo "button:clicked: ", buttons
+  refresh(self)
 
 import print
 
@@ -32,9 +36,6 @@ proc draw*(self: Button) {.slot.} =
     onHover:
       fill current.fill.spin(15)
       # this changes the color on hover!
-
-# connect(current, onHover, current, Button[T].hover)
-# connect(current, onDraw, current, Button[T].doPost)
 
 from sugar import capture
 import macros
@@ -55,7 +56,8 @@ template button*[T](id: string, value: T, blk: untyped) =
     current.postDraw = proc () =
       `blk`
   connect(current, onDraw, current, Figuro.postDraw)
-  # emit current.onDraw()
+  connect(current, onClick, current, Button.clicked)
+  connect(current, onHover, current, Button.hovered)
   postNode()
 
 template button*(id: string, blk: untyped) =

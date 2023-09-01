@@ -337,6 +337,7 @@ proc mouseOverlapsNode*(node: Figuro): bool =
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   when ET is MouseEventType:
     if evt in node.listens.mouse and predicate:
+      # echo "checkEvent:true: ", evt, " :: ", node.uid
       result.incl(evt)
   elif ET is GestureEventType:
     if evt in node.listens.gesture and predicate:
@@ -350,8 +351,8 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evHover, true)
     node.checkEvent(evOverlapped, true)
-    if result != {}:
-      echo "mouse hover: ", result, " ", node.uid
+    # if result != {}:
+    #   echo "mouse result: ", result, " ", node.uid
   # else:
   #   node.checkEvent(evClickOut, uxInputs.mouse.click())
   #   node.checkEvent(evHoverOut, true)
@@ -367,6 +368,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     let child = computeNodeEvents(n)
     result.mouse = max(result.mouse, child.mouse)
     result.gesture = max(result.gesture, child.gesture)
+
+  # echo "\ncomputeNodeEvents:start:: ", node.uid
 
   let
     allMouseEvts = node.checkMouseEvents()
@@ -386,13 +389,20 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
     )
 
+  # echo "computeNodeEvents: ", captured.mouse.flags, " :: ", captured.mouse.target.uid, " overlaps: ", node.mouseOverlapsNode()
+  # echo "computeNodeEvents:result: ", result.mouse.flags
+
   if clipContent in node.attrs and not node.mouseOverlapsNode():
     # this node clips events, so it must overlap child events, 
     # e.g. ignore child captures if this node isn't also overlapping 
     result = captured
+    # echo "computeNodeEvents: ", "clipped"
   else:
     result.mouse = max(captured.mouse, result.mouse)
     result.gesture = max(captured.gesture, result.gesture)
+    # echo "computeNodeEvents: ", "maxed :: ", node.uid
+  
+  # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
 var prevHover {.runtimeVar.}: Figuro
 
@@ -401,6 +411,7 @@ import pretty
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
+  # echo "\n\n======= computeNodeEvents ====="
   var captured: CapturedEvents = computeNodeEvents(node)
 
   # Gestures
@@ -409,19 +420,19 @@ proc computeEvents*(node: Figuro) =
     let target = evts.target
     target.events.gesture = evts.flags
 
-  if captured.mouse.flags != {evHover} and captured.mouse.flags != {}:
-    print "capturedEvts : ", captured.mouse.flags, " target: ", captured.mouse.target.uid
-
   # Mouse
   if not captured.mouse.target.isNil:
     let evts = captured.mouse
     let target = evts.target
     target.events.mouse = evts.flags
 
-    if target.uid != 0 and target.events.mouse != {evHover}:
-      print "target: ", target.uid, target.events.mouse, uxInputs.buttonPress
+    # if target.uid != 0 and target.events.mouse != {evHover}:
+    #   echo "target:mouse: ", target.events.mouse, " press: ", uxInputs.buttonPress, " :: ", target.uid 
 
     # if target.kind != nkFrame and evts.flags != {}:
+    if evClick in evts.flags:
+      emit target.onClick(uxInputs.buttonPress * MouseButtons)
+
     if evHover in evts.flags:
       if prevHover.getId != target.getId:
         emit target.onHover(Enter)

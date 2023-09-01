@@ -89,6 +89,7 @@ proc onTick*(tp: Figuro) {.signal.}
 proc onDraw*(tp: Figuro) {.signal.}
 proc onLoad*(tp: Figuro) {.signal.}
 proc onHover*(tp: Figuro, kind: EventKind) {.signal.}
+proc onClick*(tp: Figuro, buttonPress: UiButtonView) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
