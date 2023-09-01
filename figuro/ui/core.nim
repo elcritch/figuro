@@ -303,16 +303,8 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
     node.screenBox = node.box + parent.screenBox
     node.totalOffset = node.offset + parent.totalOffset
 
-  # if depth == 0: echo ""
-  # var sp = ""
-  # for i in 0..depth: sp &= "  "
-  # echo "node: ", sp, node.uid, " ", node.screenBox
-
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
-
-# const
-#   MouseOnOutEvents = {evClickOut, evHoverOut, evOverlapped}
 
 proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b else: a
