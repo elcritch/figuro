@@ -210,13 +210,10 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   emit current.onDraw()
 
 proc postNode*() =
-
   if not current.postDraw.isNil:
     current.postDraw()
 
   current.removeExtraChildren()
-  current.events.mouse = {}
-  current.events.gesture = {}
 
   # Pop the stack.
   discard nodeStack.pop()
@@ -432,7 +429,7 @@ proc computeEvents*(node: Figuro) =
   let evts = captured.mouse
   let target = evts.target
   if not target.isNil:
-    target.events.mouse = evts.flags
+    target.events.mouse.incl evts.flags
 
   # if evts.flags != {} and evts.flags != {evHover}:
   #   echo "mouse events: ", "tgt: ", target.getId, " evts: ", evts.flags
@@ -443,6 +440,7 @@ proc computeEvents*(node: Figuro) =
 
   if evHover in prevHover:
     if prevHover.getId != target.getId:
+      echo "prevHover: ", "exclude"
       prevHover.events.mouse.excl evHover
       emit prevHover.onHover(Exit)
       prevHover.refresh()

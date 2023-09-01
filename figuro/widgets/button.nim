@@ -15,6 +15,7 @@ proc hovered*(self: Button, kind: EventKind) {.slot.} =
   # echo "button hover!"
   echo "button:hovered: ", kind, " :: ", self.getId
   discard
+  refresh(self)
 
 proc clicked*(self: Button, kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
@@ -26,6 +27,7 @@ import print
 
 proc draw*(self: Button) {.slot.} =
   ## button widget!
+  echo "button:draw: ", " :: ", self.getId, " evts: ", self.events.mouse
   current = self
   
   clipContent true

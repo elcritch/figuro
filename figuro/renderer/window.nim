@@ -41,6 +41,8 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
   else:
     app.requestedFrame.dec
 
+  echo "renderLoop: ", app.requestedFrame
+
   preInput()
   renderAndSwap(window, nodes)
   postInput()
@@ -71,6 +73,7 @@ proc configureEvents(renderer: Renderer) =
   window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
+    ## TODO: this is racey no?
     let pos = vec2(window.mousePos())
     uxInputs.mouse.pos = pos.descaled()
     let prevPos = vec2(window.mousePrevPos())
