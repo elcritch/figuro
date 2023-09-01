@@ -56,7 +56,7 @@ macro connectHook*(
     b: Agent,
     slot: untyped
 ) =
-  echo "connectHook! "
+  echo "connectHook! ", getSignalName(signal)
 
 template button*[T](id: string, value: T, blk: untyped) =
   preNode(nkRectangle, Button, id)

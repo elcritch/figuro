@@ -106,29 +106,21 @@ template packResponse*(res: AgentResponse): Variant =
   so.pack(res)
   so
 
-proc getSignalName(signal: NimNode): NimNode =
+proc getSignalName*(signal: NimNode): NimNode =
   result = newStrLitNode signal.strVal
 
 import typetraits, sequtils, tables
 
 proc getSignalTuple*(obj, sig: NimNode): NimNode =
-  let otp = obj.getTypeInst
-  echo "signalObjRaw:sig1: ", sig.treeRepr
-  let sigTyp =
-    if sig.kind == nnkSym: sig.getTypeInst
-    else: sig.getTypeInst
-  echo "signalObjRaw:sig2: ", sigTyp.treeRepr
-  let stp =
-    if sigTyp.kind == nnkProcTy:
-      sig.getTypeInst[0]
-    else:
-      sigTyp.params()
-  let isGeneric = otp.kind == nnkBracketExpr
-
-  echo "signalObjRaw:obj: ", otp.repr
-  echo "signalObjRaw:obj:tr: ", otp.treeRepr
-  echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
-  echo "signalObjRaw:sig: ", stp.repr
+  let
+    otp = obj.getTypeInst
+    isGeneric = otp.kind == nnkBracketExpr
+    sigTyp =
+      if sig.kind == nnkSym: sig.getTypeInst
+      else: sig.getTypeInst
+    stp =
+      if sigTyp.kind == nnkProcTy: sig.getTypeInst[0]
+      else: sigTyp.params()
 
   var args: seq[NimNode]
   for i in 2..<stp.len:
@@ -174,8 +166,6 @@ macro connect*(
     slot: untyped
 ) =
   mixin connectHook
-  # when getSignalTuple(a, signal) isnot getSignalTuple(b, slot):
-  #     {.error: "signal and slot types don't match".}
 
   let sigTuple = getSignalTuple(a, signal)
   let bTyp = b.getTypeInst()
