@@ -145,17 +145,17 @@ proc getSignalTuple*(obj, sig: NimNode): NimNode =
       result.add arg[1]
   if result.len == 0:
     result = bindSym"void"
-  echo "ARG: ", result.repr
-  echo ""
+  # echo "ARG: ", result.repr
+  # echo ""
 
 macro signalType*(s: untyped): auto =
   ## gets the type of the signal without 
   ## the Agent proc type
   ## 
   let p = s.getTypeInst
-  echo "\nsignalType: ", p.treeRepr
-  echo "signalType: ", p.repr
-  echo "signalType:orig: ", s.treeRepr
+  # echo "\nsignalType: ", p.treeRepr
+  # echo "signalType: ", p.repr
+  # echo "signalType:orig: ", s.treeRepr
   if p.kind == nnkNone:
     error("cannot determine type of: " & repr(p), p)
   if p.kind == nnkSym and p.repr == "none":
@@ -165,7 +165,7 @@ macro signalType*(s: untyped): auto =
       p[0]
     else:
       p[0]
-  echo "signalType:p0: ", obj.repr
+  # echo "signalType:p0: ", obj.repr
   result = nnkTupleConstr.newNimNode()
   for arg in obj[2..^1]:
     result.add arg[1]
