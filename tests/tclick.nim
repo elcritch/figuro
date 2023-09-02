@@ -18,7 +18,9 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc btnClicked*(self: Button[int], kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc btnClicked*(self: Button[int],
+                  kind: EventKind,
+                  buttons: UiButtonView) {.slot.} =
   self.state.inc
   echo "button:clicked: ", self.state
   refresh(self)
@@ -49,8 +51,12 @@ proc draw*(self: Main) {.slot.} =
       # button "btn", i, typ = void:
       button int, "btn", i:
           box 10 + i * 120, 10, 100, 100
+          static:
+            echo "button draw: ", draw(Button[int], AgentProc).typeof.repr
+            echo "button btnClicked: ",  btnClicked(Button[int], AgentProc).typeof.repr
           # echo "button:draw: ", " :: ", self.getId
-          connect(current, onClick, widget, Button[int].btnClicked)
+          connect(current, onClick, current, btnClicked)
+          connect(current, onDraw, current, draw)
 
           text "text":
             echo "text: ", current.getId, " parent: ", parent.getId
@@ -60,8 +66,9 @@ proc draw*(self: Main) {.slot.} =
 
 var main = Main.new()
 
-connect(main, onDraw, main, Main.draw)
-connect(main, onTick, main, Main.tick)
+connect(main, onDraw, main, Main.draw(AgentProc))
+connect(main, onDraw, main, AgentProc.draw(Main))
+connect(main, onTick, main, Main.tick(AgentProc))
 
 echo "main: ", main.listeners
 

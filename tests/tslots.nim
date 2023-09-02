@@ -65,7 +65,7 @@ when isMainModule:
     test "signal / slot types":
       check avgChanged.signalType() is (float, )
       check valueChanged.signalType() is (int, )
-      check Counter.setValue.signalType() is (int, )
+      check setValue.signalType() is (int, )
 
     test "signal connect":
       # TODO: how to do this?

@@ -209,22 +209,22 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: var
   # TODO: which is better?
   # draw(T(current))
 
-proc postNode*(current, parent: var Figuro) =
+proc postNode*[T](current: var T, parent: var Figuro) =
   if not current.postDraw.isNil:
     current.postDraw()
 
   current.removeExtraChildren()
 
   # Pop the stack.
-  discard nodeStack.pop()
-  if nodeStack.len > 1:
-    current = nodeStack[^1]
-  else:
-    current = nil
-  if nodeStack.len > 2:
-    parent = nodeStack[^2]
-  else:
-    parent = nil
+  # discard nodeStack.pop()
+  # if nodeStack.len > 1:
+  #   current = nodeStack[^1]
+  # else:
+  #   current = nil
+  # if nodeStack.len > 2:
+  #   parent = nodeStack[^2]
+  # else:
+  #   parent = nil
 
 template node*(kind: NodeKind,
                 id: static string,
@@ -248,7 +248,7 @@ template node*(kind: NodeKind,
     var parent {.inject.}: Figuro = current
     var current {.inject.}: Figuro
     preNode(kind, id, current, parent)
-    connect(current, onDraw, current, Figuro.draw)
+    connect(current, onDraw, current, Figuro.draw(AgentProc))
     emit current.onDraw()
     inner
     postNode(current, parent)
