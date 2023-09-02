@@ -11,8 +11,8 @@ else:
 
 var
   root* {.runtimeVar.}: Figuro
-  # parent* {.runtimeVar.}: Figuro
-  # current* {.runtimeVar.}: Figuro
+  current* {.runtimeVar.}: Figuro
+  # parent* {.runtimeVar, threadvar.}: Figuro
 
   redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
 
@@ -44,20 +44,6 @@ var
   scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color 
   scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
-  # buttonPress*: ButtonView
-  # buttonDown*: ButtonView
-  # buttonRelease*: ButtonView
-
-
-# inputs.keyboardInput = proc (rune: Rune) =
-#     app.requestedFrame.inc
-#     # if keyboard.focusNode != nil:
-#     #   keyboard.state = KeyState.Press
-#     #   # currTextBox.typeCharacter(rune)
-#     # else:
-#     #   keyboard.state = KeyState.Press
-#     #   keyboard.keyString = rune.toUTF8()
-#     appEvent.trigger()
 
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
@@ -112,20 +98,23 @@ proc setupRoot*(widget: Figuro) =
     # root = Figuro()
     # root.zlevel = ZLevelDefault
   # root = widget
-  nodeStack = @[Figuro(root)]
-  # current = root
+  # nodeStack = @[Figuro(root)]
+  current = root
+  current.parent = root
   root.diffIndex = 0
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
+  echo "remove: ", node.getId
   proc disable(fig: Figuro) =
-    # echo "Disable: ", fig.getId
+    echo "Disable: ", fig.getId
+    fig.parent = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
-  # echo "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   for i in node.diffIndex..<node.children.len:
     disable(node.children[i])
+  echo "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
 # proc refresh*() =
@@ -145,16 +134,25 @@ proc getTitle*(): string =
   ## Gets window title
   getWindowTitle()
 
-template setTitle*(title: string) =
+proc setTitle*(title: string) =
   ## Sets window title
   if (getWindowTitle() != title):
     setWindowTitle(title)
     refresh(current)
 
-proc preNode*[T: Figuro](kind: NodeKind, name: string, current: var T, parent: var Figuro) =
+var nodeDepth = 0
+proc nd*(): string =
+  for i in 0..nodeDepth:
+    result &= "   "
+
+proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   ## Process the start of the node.
   mixin draw
+
+  nodeDepth.inc()
   # parent = nodeStack[^1]
+  let parent = current
+  # echo nd(), "preNode:pre: ", current.getId, " name: ", current.name, " parent: ", current.parent.getId
 
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
@@ -169,14 +167,13 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, current: var T, parent: v
     refresh(current)
   else:
     # Reuse Node.
-    # current = parent.children[parent.diffIndex]
+    current = parent.children[parent.diffIndex]
 
-    if not (parent.children[parent.diffIndex] of typeof(current)):
+    if not (current of T):
       # mismatch types, replace node
-      current = T()
+      current = T.new()
+      current.parent = parent
       parent.children[parent.diffIndex] = current
-    else:
-      current = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex and
@@ -189,9 +186,9 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, current: var T, parent: v
       current.resetToDefault(kind)
       refresh(current)
 
-  # echo "preNode: ", id, " current: ", current.getId, " parent: ", parent.getId
+  echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
   
-  current.name.add(name)
+  current.name.add id
   current.kind = kind
   # current.textStyle = parent.textStyle
   # current.cursorColor = parent.cursorColor
@@ -204,55 +201,41 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, current: var T, parent: v
   current.attrs.excl postDraw
 
   nodeStack.add(current)
-  echo "parent:diffIndex: ", parent.diffIndex, " :: ", parent.getId, " ", parent.name
   inc parent.diffIndex
 
   current.diffIndex = 0
   # TODO: which is better?
   # draw(T(current))
-  connect(current, onDraw, current, T.draw())
+  connect(current, onDraw, current, tp.draw)
   emit current.onDraw()
 
-proc postNode*[T](current: var T, parent: var Figuro) =
+proc postNode*() =
   if not current.postDraw.isNil:
     current.postDraw()
 
   current.removeExtraChildren()
 
+  nodeDepth.dec()
   # Pop the stack.
-  # discard nodeStack.pop()
-  # if nodeStack.len > 1:
-  #   current = nodeStack[^1]
-  # else:
-  #   current = nil
-  # if nodeStack.len > 2:
-  #   parent = nodeStack[^2]
-  # else:
-  #   parent = nil
+  current = current.parent
+  # parent = current.parent
 
 template node*(kind: NodeKind,
-                id: static string,
+                id: string,
                 inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
   block:
-    var parent {.inject.}: Figuro = current
-    var current {.inject.}: Figuro
-    preNode(kind, id, current, parent)
+    preNode(kind, Figuro, id)
     setup
     inner
-    postNode(current, parent)
+    postNode()
 
-template node*(kind: NodeKind,
-                id: static string,
-                inner: untyped): untyped =
+template node*(kind: NodeKind, id: string, inner: untyped): untyped =
   ## Base template for node, frame, rectangle...
   block:
-    var parent {.inject.}: Figuro = current
-    var current {.inject.}: Figuro
-    preNode(kind, id, current, parent)
-    # connect(current, onDraw, current, Figuro.draw)
+    preNode(kind, Figuro, id)
     inner
-    postNode(current, parent)
+    postNode()
 
 import macros
 
@@ -418,7 +401,6 @@ proc computeEvents*(node: Figuro) =
     target.events.mouse.incl evts.flags
 
   if evts.flags != {} and evts.flags != {evHover}:
-    echo "\n"
     echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =

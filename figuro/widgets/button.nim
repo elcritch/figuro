@@ -20,7 +20,7 @@ proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
 proc clicked*[T](self: Button[T],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-  echo "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
+  echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
   if not self.isActive:
     refresh(self)
   self.isActive = true
@@ -59,9 +59,9 @@ macro captureArgs(args, blk: untyped): untyped =
 
 template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
   block:
-    var parent {.inject.}: Figuro = current
-    var current {.inject.}: Button[T]
-    preNode(nkRectangle, name, current, parent)
+    # var parent {.inject.}: Figuro = current
+    # var current {.inject.}: Button[T]
+    preNode(nkRectangle, Button[T], name)
     captureArgs value:
       current.postDraw = proc () =
         let widget {.inject.} = Button[T](current)
@@ -73,7 +73,7 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
     connect(current, onDraw, current, postDraw)
     connect(current, onClick, current, Button[T].clicked)
     # connect(current, onHover, current, Button[T].hovered)
-    postNode(current, parent)
+    postNode()
 
 template button*[V](id: string, value: V, blk: untyped) =
 # template button*(id: string, blk: untyped) =

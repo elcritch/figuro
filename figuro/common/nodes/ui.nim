@@ -15,6 +15,7 @@ else:
 type
 
   Figuro* = ref object of Agent
+    parent*: Figuro
     name*: StackString[16]
     uid*: NodeID
     children*: seq[Figuro]

@@ -43,8 +43,8 @@ else:
   var lastUId: int = 1
 
 proc new*[T: Agent](tp: typedesc[T]): T =
-  result = T()
   lastUId.inc()
+  result = T()
   result.agentId = lastUId
 
 proc hash*(a: Agent): Hash = hash(getAgentId(a))

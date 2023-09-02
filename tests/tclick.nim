@@ -40,9 +40,11 @@ proc tick*(self: Main) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  var current = self
+  # var current = self
+  self.name.add "main"
+  echo "\n\nmain:draw: ", current.getId, " parent: ", current.parent.getId
 
-  rectangle "main":
+  rectangle "body":
     self.mainRect = current
     box 10, 10, 600, 120
     cornerRadius 10.0
@@ -55,12 +57,12 @@ proc draw*(self: Main) {.slot.} =
             echo "button draw: ", Button[int].draw().typeof.repr
             echo "button btnClicked: ",  Button[int].btnClicked().typeof.repr
 
-          echo "button:draw: ", " :: ", current.getId, " name: ", current.name
-          connect(current, onClick, current, btnClicked)
+          echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
+          connect(current, onClick, current, Button[int].btnClicked())
           # connect(current, onDraw, current, draw)
 
           text "text":
-            echo "text: ", current.getId, " parent: ", parent.getId
+            echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
             box 10, 10, 20, 20
             fill blackColor
             setText(font, $widget.state)
