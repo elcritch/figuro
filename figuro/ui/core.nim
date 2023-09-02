@@ -204,6 +204,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, current: var T, parent: v
   current.attrs.excl postDraw
 
   nodeStack.add(current)
+  echo "parent:diffIndex: ", parent.diffIndex, " :: ", parent.getId, " ", parent.name
   inc parent.diffIndex
 
   current.diffIndex = 0
