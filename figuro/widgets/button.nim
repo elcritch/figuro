@@ -72,7 +72,7 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
     # connect(current, onDraw, current, Button[T].draw())
     connect(current, onDraw, current, postDraw)
     connect(current, onClick, current, Button[T].clicked)
-    connect(current, onHover, current, Button[T].hovered)
+    # connect(current, onHover, current, Button[T].hovered)
     postNode(current, parent)
 
 template button*[V](id: string, value: V, blk: untyped) =
