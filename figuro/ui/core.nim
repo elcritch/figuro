@@ -92,6 +92,11 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.hasRendered = false
   # node.userStates = initTable[int, Variant]()
 
+var nodeDepth = 0
+proc nd*(): string =
+  for i in 0..nodeDepth:
+    result &= "   "
+
 proc setupRoot*(widget: Figuro) =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
@@ -105,16 +110,16 @@ proc setupRoot*(widget: Figuro) =
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
-  echo "remove: ", node.getId
+  echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
   proc disable(fig: Figuro) =
-    echo "Disable: ", fig.getId
+    echo nd(), "Disable: ", fig.getId
     fig.parent = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
   for i in node.diffIndex..<node.children.len:
     disable(node.children[i])
-  echo "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
+  echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
 # proc refresh*() =
@@ -140,10 +145,6 @@ proc setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
-var nodeDepth = 0
-proc nd*(): string =
-  for i in 0..nodeDepth:
-    result &= "   "
 
 proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   ## Process the start of the node.
@@ -172,7 +173,6 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
     if not (current of T):
       # mismatch types, replace node
       current = T.new()
-      current.parent = parent
       parent.children[parent.diffIndex] = current
 
     if resetNodes == 0 and
@@ -188,6 +188,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
   echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
   
+  current.parent = parent
   current.name.add id
   current.kind = kind
   # current.textStyle = parent.textStyle
