@@ -31,6 +31,8 @@ type
                     params: RpcParams,
                     ) {.nimcall.}
 
+  SignalTypes* = distinct object
+
 when defined(nimscript):
   proc getAgentId(a: Agent): int = discard
   proc getAgentId(a: AgentProc): int = discard

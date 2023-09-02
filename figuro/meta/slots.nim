@@ -285,17 +285,17 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     let agent = ident "agent"
     if isGeneric:
       result.add quote do:
-        # proc `rpcMethod`(`tp`: typedesc[`contextType`]): `procTyp` =
-        #   let p: `procTyp` = `rpcMethod`[T]
-        #   p
+        proc `rpcMethod`(kd: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `procTyp` =
+          let p: `procTyp` = `rpcMethod`[T]
+          p
         proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
           `agentSlotImpl`
           slot
     else:
       result.add quote do:
-        # proc `rpcMethod`(`tp`: typedesc[`contextType`]): `procTyp` =
-        #   let p: `procTyp` = `rpcMethod`
-        #   p
+        proc `rpcMethod`(kd: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `procTyp` =
+          let p: `procTyp` = `rpcMethod`
+          p
         proc `rpcMethod`(tp: typedesc[`contextType`]): AgentProc =
           `agentSlotImpl`
           slot

@@ -65,7 +65,8 @@ when isMainModule:
     test "signal / slot types":
       check avgChanged.signalType() is (float, )
       check valueChanged.signalType() is (int, )
-      check setValue.signalType() is (int, )
+      echo "type: ", SignalTypes.setValue(Counter).typeof.repr
+      check SignalTypes.setValue(Counter) is (int, )
 
     test "signal connect":
       # TODO: how to do this?
