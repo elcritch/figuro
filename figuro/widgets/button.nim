@@ -42,20 +42,6 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill current.fill.spin(15)
       # this changes the color on hover!
 
-from sugar import capture
-import macros
-
-macro captureArgs(args, blk: untyped): untyped =
-  result = nnkCommand.newTree(bindSym"capture")
-  if args.kind in [nnkSym, nnkIdent]:
-    result.add args
-  else:
-    for arg in args:
-      result.add args
-  # result.add ident"parent"
-  # result.add ident"current"
-  result.add blk
-
 template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
   block:
     # var parent {.inject.}: Figuro = current

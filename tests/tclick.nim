@@ -63,7 +63,9 @@ proc draw*(self: Main) {.slot.} =
           connect(current, onClick, current, Button[int].btnClicked())
           # connect(current, onDraw, current, draw)
 
-          text "text":
+          # button int, "btn", i:
+          #   box 10, 10, 20, 20
+          node nkText, "text":
             echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
             box 10, 10, 20, 20
             fill blackColor

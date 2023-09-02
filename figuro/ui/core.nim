@@ -227,24 +227,36 @@ proc postNode*() =
   current = current.parent
   # parent = current.parent
 
-template node*(kind: NodeKind,
-                id: string,
-                inner, setup: untyped): untyped =
-  ## Base template for node, frame, rectangle...
-  block:
-    preNode(kind, Figuro, id)
-    setup
-    inner
-    postNode()
-
-template node*(kind: NodeKind, id: string, inner: untyped): untyped =
-  ## Base template for node, frame, rectangle...
-  block:
-    preNode(kind, Figuro, id)
-    inner
-    postNode()
-
+from sugar import capture
 import macros
+
+macro captureArgs*(args, blk: untyped): untyped =
+  result = nnkCommand.newTree(bindSym"capture")
+  if args.kind in [nnkSym, nnkIdent]:
+    result.add args
+  else:
+    for arg in args:
+      result.add args
+  # result.add ident"parent"
+  # result.add ident"current"
+  result.add blk
+  echo "captured: ", result.repr
+
+template node*(kind: NodeKind, id: string, blk: untyped): untyped =
+  ## Base template for node, frame, rectangle...
+  block:
+    preNode(kind, Figuro, id)
+    # captureArgs value:
+    current.postDraw = proc () =
+      # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
+      # let widget {.inject.} = Button[T](current)
+      if postDraw in current.attrs:
+        return
+      `blk`
+    postNode()
+
+# template node*(kind: NodeKind, id: string, blk: untyped): untyped =
+#   node(kind, id, void, blk)
 
 macro statefulWidgetProc*(): untyped =
   ident(repr(genSym(nskProc, "doPost")))
