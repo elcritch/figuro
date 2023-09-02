@@ -63,13 +63,15 @@ proc draw*(self: Main) {.slot.} =
           connect(current, onClick, current, Button[int].btnClicked())
           # connect(current, onDraw, current, draw)
 
+          # The challenges of developing UIs!
           # button int, "btn", i:
           #   box 10, 10, 20, 20
           node nkText, "text":
             echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
             box 10, 10, 20, 20
             fill blackColor
-            setText(font, $(Button[int](current.parent).state))
+            # setText(font, $(Button[int](current.parent).state))
+            setText(font, $i)
 
 var main = Main.new()
 

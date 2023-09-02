@@ -233,26 +233,31 @@ import macros
 macro captureArgs*(args, blk: untyped): untyped =
   result = nnkCommand.newTree(bindSym"capture")
   if args.kind in [nnkSym, nnkIdent]:
-    result.add args
+    if args.strVal != "void":
+      result.add args
   else:
     for arg in args:
       result.add args
   # result.add ident"parent"
   # result.add ident"current"
-  result.add blk
+  if result.len() == 0:
+    result = nnkEmpty.newNimNode
+  result.add nnkStmtList.newTree(blk)
   echo "captured: ", result.repr
 
 template node*(kind: NodeKind, id: string, blk: untyped): untyped =
   ## Base template for node, frame, rectangle...
   block:
     preNode(kind, Figuro, id)
-    # captureArgs value:
-    current.postDraw = proc () =
-      # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
-      # let widget {.inject.} = Button[T](current)
-      if postDraw in current.attrs:
-        return
-      `blk`
+    let x = id
+    captureArgs x:
+      current.postDraw = proc () =
+        # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
+        # let widget {.inject.} = Button[T](current)
+        if postDraw in current.attrs:
+          return
+        `blk`
+        current.attrs.incl postDraw
     postNode()
 
 # template node*(kind: NodeKind, id: string, blk: untyped): untyped =

@@ -54,7 +54,7 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
         if postDraw in current.attrs:
           return
         `blk`
-        # current.attrs.incl postDraw
+        current.attrs.incl postDraw
     # connect(current, onDraw, current, Button[T].draw())
     # connect(current, onDraw, current, postDraw)
     connect(current, onClick, current, Button[T].clicked)
