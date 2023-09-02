@@ -76,6 +76,6 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
     # connect(current, onHover, current, Button[T].hovered)
     postNode()
 
-template button*[V](id: string, value: V, blk: untyped) =
-# template button*(id: string, blk: untyped) =
-  button[void, V](void, id, value, blk)
+# template button*[V](id: string, value: V, blk: untyped) =
+# # template button*(id: string, blk: untyped) =
+#   button[void, V](void, id, value, blk)

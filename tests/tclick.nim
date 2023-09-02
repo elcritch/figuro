@@ -21,9 +21,10 @@ type
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-  echo "tclick:button:clicked: ", self.state
-  self.state.inc
-  refresh(self)
+  echo nd(), "tclick:button:clicked: ", self.state
+  if kind == Enter:
+    self.state.inc
+    refresh(self)
 
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
@@ -41,6 +42,7 @@ proc tick*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   # var current = self
+  self.name.setLen(0)
   self.name.add "main"
   echo "\n\nmain:draw: ", current.getId, " parent: ", current.parent.getId
 
@@ -65,7 +67,7 @@ proc draw*(self: Main) {.slot.} =
             echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
             box 10, 10, 20, 20
             fill blackColor
-            setText(font, $widget.state)
+            setText(font, $(Button[int](current.parent).state))
 
 var main = Main.new()
 
