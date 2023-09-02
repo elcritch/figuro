@@ -218,7 +218,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
 
 proc postNode*() =
   if not current.postDraw.isNil:
-    current.postDraw()
+    current.postDraw(current)
 
   current.removeExtraChildren()
 
@@ -251,13 +251,14 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
     preNode(kind, Figuro, id)
     let x = id
     captureArgs x:
-      current.postDraw = proc () =
+      current.postDraw = proc (widget: Figuro) =
+        current = widget
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
-        if postDraw in current.attrs:
+        if postDraw in widget.attrs:
           return
         `blk`
-        current.attrs.incl postDraw
+        widget.attrs.incl postDraw
     postNode()
 
 # template node*(kind: NodeKind, id: string, blk: untyped): untyped =

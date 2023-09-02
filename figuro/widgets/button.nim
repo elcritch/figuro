@@ -48,13 +48,14 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
     # var current {.inject.}: Button[T]
     preNode(nkRectangle, Button[T], name)
     captureArgs value:
-      current.postDraw = proc () =
+      current.postDraw = proc (widget: Figuro) =
+        current = widget
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
-        if postDraw in current.attrs:
+        if postDraw in widget.attrs:
           return
         `blk`
-        current.attrs.incl postDraw
+        widget.attrs.incl postDraw
     # connect(current, onDraw, current, Button[T].draw())
     # connect(current, onDraw, current, postDraw)
     connect(current, onClick, current, Button[T].clicked)

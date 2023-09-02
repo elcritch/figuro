@@ -43,7 +43,7 @@ type
     gridTemplate*: GridTemplate
     gridItem*: GridItem
 
-    postDraw*: proc ()
+    postDraw*: proc (current: Figuro)
 
     kind*: NodeKind
     shadow*: Option[Shadow]
@@ -103,4 +103,4 @@ proc clearDraw*(fig: Figuro) {.slot.} =
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
-    fig.postDraw()
+    fig.postDraw(fig)
