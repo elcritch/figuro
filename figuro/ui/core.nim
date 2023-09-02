@@ -417,6 +417,7 @@ proc computeEvents*(node: Figuro) =
     target.events.mouse.incl evts.flags
 
   if evts.flags != {} and evts.flags != {evHover}:
+    echo "\n"
     echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =

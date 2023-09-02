@@ -21,8 +21,8 @@ type
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-  self.state.inc
   echo "tclick:button:clicked: ", self.state
+  self.state.inc
   refresh(self)
 
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
