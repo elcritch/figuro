@@ -98,6 +98,9 @@ proc draw*(fig: Figuro) {.slot.} =
 proc load*(fig: Figuro) {.slot.} =
   discard
 
-proc postDraw*(fig: Figuro) {.slot.} =
-  if not fig.postDraw.isNil:
+proc clearDraw*(fig: Figuro) {.slot.} =
+  fig.attrs.excl postDraw
+
+proc handlePostDraw*(fig: Figuro) {.slot.} =
+  if fig.postDraw != nil:
     fig.postDraw()

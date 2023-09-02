@@ -30,7 +30,6 @@ proc draw*[T](self: Button[T]) {.slot.} =
   # current = self
   # echo "button:draw"
   var current = self
-  self.attrs.excl postDraw
   
   clipContent true
   cornerRadius 10.0
