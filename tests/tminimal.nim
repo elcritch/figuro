@@ -26,8 +26,8 @@ proc tick*(self: Main) {.slot.} =
 import pretty
 
 proc draw*(self: Main) {.slot.} =
-  var current = self
-  rectangle "main":
+  current = self
+  rectangle "body":
     self.mainRect = current
     box 10, 10, 600, 120
     cornerRadius 10.0
@@ -35,6 +35,7 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn", i:
           box 10 + i * 120, 10, 100, 100
+          echo nd(), "btn: ", i
           # we need to connect it's onHover event
           connect(current, onHover, self, Main.hover)
           # unfortunately, we have many hovers

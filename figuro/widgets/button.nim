@@ -64,13 +64,14 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
     preNode(nkRectangle, Button[T], name)
     captureArgs value:
       current.postDraw = proc () =
-        let widget {.inject.} = Button[T](current)
+        # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
+        # let widget {.inject.} = Button[T](current)
         if postDraw in current.attrs:
           return
         `blk`
         # current.attrs.incl postDraw
     # connect(current, onDraw, current, Button[T].draw())
-    connect(current, onDraw, current, postDraw)
+    # connect(current, onDraw, current, postDraw)
     connect(current, onClick, current, Button[T].clicked)
     # connect(current, onHover, current, Button[T].hovered)
     postNode()

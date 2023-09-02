@@ -51,7 +51,7 @@ proc draw*(self: Main) {.slot.} =
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
       # button "btn", i, typ = void:
-      button int, "btn" & $i, i:
+      button int, "btn", i:
           box 10 + i * 120, 10, 100, 100
           static:
             echo "button draw: ", Button[int].draw().typeof.repr

@@ -110,13 +110,16 @@ proc setupRoot*(widget: Figuro) =
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
-  echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
   proc disable(fig: Figuro) =
     echo nd(), "Disable: ", fig.getId
     fig.parent = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
+  
+  if node.diffIndex == node.children.len:
+    return
+  echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
   for i in node.diffIndex..<node.children.len:
     disable(node.children[i])
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
@@ -189,6 +192,7 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
   
   current.parent = parent
+  current.name.setLen(0)
   current.name.add id
   current.kind = kind
   # current.textStyle = parent.textStyle
