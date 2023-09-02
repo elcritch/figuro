@@ -57,11 +57,11 @@ macro captureArgs(args, blk: untyped): untyped =
   # result.add ident"current"
   result.add blk
 
-template button*[T; V](typ: typedesc[T], id: string, value: V, blk: untyped) =
+template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
   block:
     var parent {.inject.}: Figuro = current
     var current {.inject.}: Button[T]
-    preNode(nkRectangle, id, current, parent)
+    preNode(nkRectangle, name, current, parent)
     captureArgs value:
       current.postDraw = proc () =
         let widget {.inject.} = Button[T](current)
@@ -69,8 +69,8 @@ template button*[T; V](typ: typedesc[T], id: string, value: V, blk: untyped) =
           return
         `blk`
         # current.attrs.incl postDraw
-    # connect(current, onDraw, current, draw)
-    # connect(current, onDraw, current, Figuro.postDraw)
+    connect(current, onDraw, current, Button[T].draw())
+    # connect(current, onDraw, current, Figuro.postDraw())
     # connect(current, onClick, current, Button[T].clicked)
     # connect(current, onHover, current, Button[T].hovered)
     postNode(current, parent)

@@ -119,11 +119,11 @@ proc setupRoot*(widget: Figuro) =
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
   proc disable(fig: Figuro) =
-    echo "Disable: ", fig.getId
+    # echo "Disable: ", fig.getId
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
-  echo "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
+  # echo "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   for i in node.diffIndex..<node.children.len:
     disable(node.children[i])
   node.children.setLen(node.diffIndex)
@@ -151,7 +151,7 @@ template setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
-proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: var Figuro) =
+proc preNode*[T: Figuro](kind: NodeKind, name: string, current: var T, parent: var Figuro) =
   ## Process the start of the node.
   mixin draw
   # parent = nodeStack[^1]
@@ -189,8 +189,9 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: var
       current.resetToDefault(kind)
       refresh(current)
 
-  echo "preNode: ", id, " current: ", current.getId, " parent: ", parent.getId
+  # echo "preNode: ", id, " current: ", current.getId, " parent: ", parent.getId
   
+  current.name.add(name)
   current.kind = kind
   # current.textStyle = parent.textStyle
   # current.cursorColor = parent.cursorColor

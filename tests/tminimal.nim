@@ -26,6 +26,7 @@ proc tick*(self: Main) {.slot.} =
 import pretty
 
 proc draw*(self: Main) {.slot.} =
+  var current = self
   rectangle "main":
     self.mainRect = current
     box 10, 10, 600, 120

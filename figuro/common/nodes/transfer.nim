@@ -46,7 +46,7 @@ proc convert*(current: Figuro): render.Node =
 proc convert*(renders: var seq[render.Node],
               current: Figuro,
               parent: NodeID) =
-  echo "convert:node: ", current.uid, " parent: ", parent
+  # echo "convert:node: ", current.uid, " parent: ", parent
   var render = current.convert()
   render.parent = parent
   render.childCount = current.children.len()

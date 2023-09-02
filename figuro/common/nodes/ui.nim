@@ -2,8 +2,9 @@ import basics
 import ../../meta
 import ../../inputs
 import cssgrid
+import stack_strings
 
-export basics, meta, inputs, cssgrid
+export basics, meta, inputs, cssgrid, stack_strings
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -14,6 +15,7 @@ else:
 type
 
   Figuro* = ref object of Agent
+    name*: StackString[16]
     uid*: NodeID
     children*: seq[Figuro]
     # parent*: Figuro

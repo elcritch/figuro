@@ -22,7 +22,7 @@ proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
   self.state.inc
-  echo "button:clicked: ", self.state
+  echo "tclick:button:clicked: ", self.state
   refresh(self)
 
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
@@ -40,8 +40,8 @@ proc tick*(self: Main) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  var parent = self
   var current = self
+
   rectangle "main":
     self.mainRect = current
     box 10, 10, 600, 120
@@ -49,14 +49,15 @@ proc draw*(self: Main) {.slot.} =
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
       # button "btn", i, typ = void:
-      button int, "btn", i:
+      button int, "btn" & $i, i:
           box 10 + i * 120, 10, 100, 100
           static:
             echo "button draw: ", Button[int].draw().typeof.repr
             echo "button btnClicked: ",  Button[int].btnClicked().typeof.repr
-          # echo "button:draw: ", " :: ", self.getId
+
+          echo "button:draw: ", " :: ", current.getId, " name: ", current.name
           connect(current, onClick, current, btnClicked)
-          connect(current, onDraw, current, draw)
+          # connect(current, onDraw, current, draw)
 
           text "text":
             echo "text: ", current.getId, " parent: ", parent.getId
