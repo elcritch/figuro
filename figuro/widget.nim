@@ -13,7 +13,7 @@ template connect*(
     a: Figuro,
     signal: typed,
     b: Figuro,
-    slot: untyped
+    slot: typed
 ) =
   when signal == ui.onClick:
     a.listens.mouseSignals.incl {evClick, evClickOut}

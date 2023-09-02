@@ -17,7 +17,9 @@ proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   refresh(self)
   discard
 
-proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*[T](self: Button[T],
+                  kind: EventKind,
+                  buttons: UiButtonView) {.slot.} =
   echo "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
   if not self.isActive:
     refresh(self)
@@ -25,9 +27,9 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
-  current = self
+  # current = self
   # echo "button:draw"
-  current.attrs.excl postDraw
+  self.attrs.excl postDraw
   
   clipContent true
   cornerRadius 10.0
@@ -50,22 +52,26 @@ macro captureArgs(args, blk: untyped): untyped =
   else:
     for arg in args:
       result.add args
-  result.add bindSym"current"
+  # result.add ident"parent"
+  # result.add ident"current"
   result.add blk
 
 template button*[T; V](typ: typedesc[T], id: string, value: V, blk: untyped) =
-  preNode(nkRectangle, Button[T], id)
-  captureArgs value:
-    current.postDraw = proc () =
-      let widget {.inject.} = Button[T](current)
-      if postDraw in current.attrs:
-        return
-      `blk`
-      # current.attrs.incl postDraw
-  connect(current, onDraw, current, Figuro.postDraw)
-  connect(current, onClick, current, Button[T].clicked)
-  connect(current, onHover, current, Button[T].hovered)
-  postNode()
+  block:
+    var parent {.inject.}: Figuro = current
+    var current {.inject.}: Button[T]
+    preNode(nkRectangle, id, current, parent)
+    captureArgs value:
+      current.postDraw = proc () =
+        let widget {.inject.} = Button[T](current)
+        if postDraw in current.attrs:
+          return
+        `blk`
+        # current.attrs.incl postDraw
+    connect(current, onDraw, current, Figuro.postDraw)
+    connect(current, onClick, current, Button[T].clicked)
+    connect(current, onHover, current, Button[T].hovered)
+    postNode(current, parent)
 
 template button*[V](id: string, value: V, blk: untyped) =
 # template button*(id: string, blk: untyped) =

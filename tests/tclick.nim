@@ -38,6 +38,8 @@ proc tick*(self: Main) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
+  var parent = self
+  var current = self
   rectangle "main":
     self.mainRect = current
     box 10, 10, 600, 120
@@ -51,6 +53,7 @@ proc draw*(self: Main) {.slot.} =
           connect(current, onClick, widget, Button[int].btnClicked)
 
           text "text":
+            echo "text: ", current.getId, " parent: ", parent.getId
             box 10, 10, 20, 20
             fill blackColor
             setText(font, $widget.state)

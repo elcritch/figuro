@@ -51,7 +51,7 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
 ## Fidget nodes. 
 ## 
 
-proc boxFrom*(x, y, w, h: float32) =
+template boxFrom*(x, y, w, h: float32) =
   ## Sets the box dimensions.
   current.box = initBox(x, y, w, h)
 
@@ -132,7 +132,7 @@ proc csOrFixed*(x: int|float32|float64|UICoord|CSSConstraint): CSSConstraint =
     x
   else: csFixed(x.UiScalar)
 
-proc box*(
+template box*(
   x: int|float32|float64|UICoord|CSSConstraint,
   y: int|float32|float64|UICoord|CSSConstraint,
   w: int|float32|float64|UICoord|CSSConstraint,
@@ -145,11 +145,11 @@ proc box*(
   # current.cxSize = [csOrFixed(w), csOrFixed(h)]
   # orgBox(float32 x, float32 y, float32 w, float32 h)
 
-proc box*(rect: Box) =
+template box*(rect: Box) =
   ## Sets the box dimensions with integers
   box(rect.x, rect.y, rect.w, rect.h)
 
-proc size*(
+template size*(
   w: int|float32|float64|UICoord|CSSConstraint,
   h: int|float32|float64|UICoord|CSSConstraint,
 ) =
@@ -185,7 +185,7 @@ proc size*(
 #   ## Loads the font from the dataDir.
 #   loadFontAbsolute(name, dataDir / pathOrUrl)
 
-proc clipContent*(clip: bool) =
+template clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
     current.attrs.incl clipContent
@@ -193,21 +193,21 @@ proc clipContent*(clip: bool) =
     current.attrs.excl clipContent
 
 
-proc fill*(color: Color) =
+template fill*(color: Color) =
   ## Sets background color.
   current.fill = color
 
-proc fill*(color: Color, alpha: float32) =
+template fill*(color: Color, alpha: float32) =
   ## Sets background color.
   current.fill = color
   current.fill.a = alpha
 
-proc fill*(color: string, alpha: float32 = 1.0) =
+template fill*(color: string, alpha: float32 = 1.0) =
   ## Sets background color.
   current.fill = parseHtmlColor(color)
   current.fill.a = alpha
 
-proc fill*(node: Figuro) =
+template fill*(node: Figuro) =
   ## Sets background color.
   current.fill = node.fill
 
@@ -238,7 +238,7 @@ template onClickOut*(inner: untyped) =
       MouseLeft in uxInputs.buttonPress:
     inner
 
-proc cornerRadius*(radius: UICoord|float|float32) =
+template cornerRadius*(radius: UICoord|float|float32) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = UICoord radius
 
@@ -250,7 +250,7 @@ proc loadFont*(font: GlyphFont): FontId =
   ## Sets all radius of all 4 corners.
   internal.getFont(font)
 
-proc setText*(font: FontId, text: string) =
+template setText*(font: FontId, text: string) =
   current.textLayout = internal.getTypeset(text, font, current.box)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -344,41 +344,41 @@ template gridArea*(r, c: untyped) =
   getGridItem().row = r
   getGridItem().column = c
 
-proc columnGap*(value: UICoord) =
+template columnGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.gaps[dcol] = value.UiScalar
 
-proc rowGap*(value: UICoord) =
+template rowGap*(value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.gaps[drow] = value.UiScalar
 
-proc justifyItems*(con: ConstraintBehavior) =
+template justifyItems*(con: ConstraintBehavior) =
   ## justify items on css grid (horizontal)
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
-proc alignItems*(con: ConstraintBehavior) =
+template alignItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignItems = con
-proc justifyContent*(con: ConstraintBehavior) =
+template justifyContent*(con: ConstraintBehavior) =
   ## justify items on css grid (horizontal)
   defaultGridTemplate()
   current.gridTemplate.justifyContent = con
-proc alignContent*(con: ConstraintBehavior) =
+template alignContent*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignContent = con
-proc placeItems*(con: ConstraintBehavior) =
+template placeItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
 
-proc gridAutoColumns*(item: Constraint) =
+template gridAutoColumns*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
-proc gridAutoRows*(item: Constraint) =
+template gridAutoRows*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[drow] = item

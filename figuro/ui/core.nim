@@ -11,8 +11,8 @@ else:
 
 var
   root* {.runtimeVar.}: Figuro
-  parent* {.runtimeVar.}: Figuro
-  current* {.runtimeVar.}: Figuro
+  # parent* {.runtimeVar.}: Figuro
+  # current* {.runtimeVar.}: Figuro
 
   redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
 
@@ -113,15 +113,17 @@ proc setupRoot*(widget: Figuro) =
     # root.zlevel = ZLevelDefault
   # root = widget
   nodeStack = @[Figuro(root)]
-  current = root
+  # current = root
   root.diffIndex = 0
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
   proc disable(fig: Figuro) =
+    echo "Disable: ", fig.getId
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
+  echo "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   for i in node.diffIndex..<node.children.len:
     disable(node.children[i])
   node.children.setLen(node.diffIndex)
@@ -143,40 +145,38 @@ proc getTitle*(): string =
   ## Gets window title
   getWindowTitle()
 
-proc setTitle*(title: string) =
+template setTitle*(title: string) =
   ## Sets window title
   if (getWindowTitle() != title):
     setWindowTitle(title)
     refresh(current)
 
-proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
+proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: var Figuro) =
   ## Process the start of the node.
   mixin draw
-
-  parent = nodeStack[^1]
-  # if current.parent != nil:
-  #   parent = current.parent
+  # parent = nodeStack[^1]
 
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
-    parent = nodeStack[^1]
+    # parent = nodeStack[^1]
     # Create Node.
-    let oldid = current.uid
     current = T.new()
     current.uid = current.agentId
-    echo "create node: old: ", oldid, " new: ", current.uid, " parent: ", parent.uid
+    # echo "create node: old: ", oldid, " new: ", current.uid, " parent: ", parent.uid
     current.agentId = current.uid
     parent.children.add(current)
     # current.parent = parent
     refresh(current)
   else:
     # Reuse Node.
-    current = parent.children[parent.diffIndex]
+    # current = parent.children[parent.diffIndex]
 
-    if not (current of T):
+    if not (parent.children[parent.diffIndex] of typeof(current)):
       # mismatch types, replace node
       current = T()
       parent.children[parent.diffIndex] = current
+    else:
+      current = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex and
@@ -189,8 +189,9 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
       current.resetToDefault(kind)
       refresh(current)
 
-  {.cast(uncheckedAssign).}:
-    current.kind = kind
+  echo "preNode: ", id, " current: ", current.getId, " parent: ", parent.getId
+  
+  current.kind = kind
   # current.textStyle = parent.textStyle
   # current.cursorColor = parent.cursorColor
   current.highlight = parent.highlight
@@ -207,10 +208,8 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   current.diffIndex = 0
   # TODO: which is better?
   # draw(T(current))
-  connect(current, onDraw, current, tp.draw)
-  emit current.onDraw()
 
-proc postNode*() =
+proc postNode*(current, parent: var Figuro) =
   if not current.postDraw.isNil:
     current.postDraw()
 
@@ -231,16 +230,28 @@ template node*(kind: NodeKind,
                 id: static string,
                 inner, setup: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, Figuro, id)
-  setup
-  inner
-  postNode()
+  block:
+    var parent {.inject.}: Figuro = current
+    var current {.inject.}: Figuro
+    preNode(kind, id, current, parent)
+    connect(current, onDraw, current, Figuro.draw)
+    emit current.onDraw()
+    setup
+    inner
+    postNode(current, parent)
 
-template node*(kind: NodeKind, id: static string, inner: untyped): untyped =
+template node*(kind: NodeKind,
+                id: static string,
+                inner: untyped): untyped =
   ## Base template for node, frame, rectangle...
-  preNode(kind, Figuro, id)
-  inner
-  postNode()
+  block:
+    var parent {.inject.}: Figuro = current
+    var current {.inject.}: Figuro
+    preNode(kind, id, current, parent)
+    connect(current, onDraw, current, Figuro.draw)
+    emit current.onDraw()
+    inner
+    postNode(current, parent)
 
 import macros
 
