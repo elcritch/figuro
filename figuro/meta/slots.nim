@@ -274,6 +274,11 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     let procTyp = quote do:
       proc () {.nimcall.}
     procTyp.params = params.copyNimTree()
+    var signalTyp = nnkTupleConstr.newTree()
+    for i in 2..<params.len:
+      signalTyp.add params[i][1]
+    if params.len == 2:
+      signalTyp = bindSym"void"
     # echo "SIG:TUPLE: ", parameters.repr
     # echo "SIG:TUPLE: ", paramTypes.repr
     # echo "SIG:TUPLE:procTyp: ", procTyp.treeRepr
@@ -281,22 +286,21 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # echo "SIG:contextType:: ", contextType.repr
     # echo "SIG:contextType:: ", contextType.treeRepr
 
+    let kd = ident "kd"
     let tp = ident "tp"
     let agent = ident "agent"
     if isGeneric:
       result.add quote do:
-        proc `rpcMethod`(kd: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `procTyp` =
-          let p: `procTyp` = `rpcMethod`[T]
-          p
+        proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
+          discard
         proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
           `agentSlotImpl`
           slot
     else:
       result.add quote do:
-        proc `rpcMethod`(kd: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `procTyp` =
-          let p: `procTyp` = `rpcMethod`
-          p
-        proc `rpcMethod`(tp: typedesc[`contextType`]): AgentProc =
+        proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
+          discard
+        proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
           `agentSlotImpl`
           slot
 

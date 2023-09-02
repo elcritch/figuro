@@ -68,6 +68,7 @@ when isMainModule:
       echo "type: ", SignalTypes.setValue(Counter).typeof.repr
       check SignalTypes.setValue(Counter) is (int, )
 
+
     test "signal connect":
       # TODO: how to do this?
       connect(a, valueChanged,
