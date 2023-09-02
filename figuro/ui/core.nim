@@ -208,6 +208,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: var
   current.diffIndex = 0
   # TODO: which is better?
   # draw(T(current))
+  connect(current, onDraw, current, T.draw())
+  emit current.onDraw()
 
 proc postNode*[T](current: var T, parent: var Figuro) =
   if not current.postDraw.isNil:
@@ -234,8 +236,6 @@ template node*(kind: NodeKind,
     var parent {.inject.}: Figuro = current
     var current {.inject.}: Figuro
     preNode(kind, id, current, parent)
-    connect(current, onDraw, current, Figuro.draw)
-    emit current.onDraw()
     setup
     inner
     postNode(current, parent)
@@ -248,8 +248,7 @@ template node*(kind: NodeKind,
     var parent {.inject.}: Figuro = current
     var current {.inject.}: Figuro
     preNode(kind, id, current, parent)
-    connect(current, onDraw, current, Figuro.draw())
-    emit current.onDraw()
+    # connect(current, onDraw, current, Figuro.draw)
     inner
     postNode(current, parent)
 
