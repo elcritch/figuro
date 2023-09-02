@@ -248,7 +248,7 @@ template node*(kind: NodeKind,
     var parent {.inject.}: Figuro = current
     var current {.inject.}: Figuro
     preNode(kind, id, current, parent)
-    connect(current, onDraw, current, Figuro.draw(AgentProc))
+    connect(current, onDraw, current, Figuro.draw())
     emit current.onDraw()
     inner
     postNode(current, parent)

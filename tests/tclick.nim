@@ -52,8 +52,8 @@ proc draw*(self: Main) {.slot.} =
       button int, "btn", i:
           box 10 + i * 120, 10, 100, 100
           static:
-            echo "button draw: ", draw(Button[int], AgentProc).typeof.repr
-            echo "button btnClicked: ",  btnClicked(Button[int], AgentProc).typeof.repr
+            echo "button draw: ", Button[int].draw().typeof.repr
+            echo "button btnClicked: ",  Button[int].btnClicked().typeof.repr
           # echo "button:draw: ", " :: ", self.getId
           connect(current, onClick, current, btnClicked)
           connect(current, onDraw, current, draw)
@@ -66,9 +66,8 @@ proc draw*(self: Main) {.slot.} =
 
 var main = Main.new()
 
-connect(main, onDraw, main, Main.draw(AgentProc))
-connect(main, onDraw, main, AgentProc.draw(Main))
-connect(main, onTick, main, Main.tick(AgentProc))
+connect(main, onDraw, main, Main.draw())
+connect(main, onTick, main, Main.tick())
 
 echo "main: ", main.listeners
 
