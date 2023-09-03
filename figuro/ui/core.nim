@@ -159,7 +159,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
   nodeDepth.inc()
   # parent = nodeStack[^1]
-  # echo nd(), "preNode:pre: ", current.getId, " name: ", current.name, " parent: ", current.parent.getId
+  echo nd(), "preNode:setup: id: ", id, " parent: ", parent.getId, " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len
 
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
@@ -167,7 +167,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     # Create Node.
     current = T.new()
     current.uid = current.agentId
-    # echo "create node: old: ", oldid, " new: ", current.uid, " parent: ", parent.uid
+    echo nd(), "create new node: ", id, " new: ", current.uid, " parent: ", parent.uid
     current.agentId = current.uid
     parent.children.add(current)
     # current.parent = parent
@@ -178,6 +178,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
       current = T.new()
+      echo nd(), "create new replacement node: ", id, " new: ", current.uid, " parent: ", parent.uid
       parent.children[parent.diffIndex] = current
     else:
       current = T(parent.children[parent.diffIndex])

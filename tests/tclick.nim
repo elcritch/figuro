@@ -53,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
       # button "btn", i, typ = void:
-      button int, "btn", i:
+      button int, "btn" & $i, i:
           box 10 + i * 120, 10, 100, 100
 
           echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
