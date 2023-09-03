@@ -81,10 +81,6 @@ proc setupRoot*(widget: Figuro) =
   root.diffIndex = 0
 
 proc disable(fig: Figuro) =
-  echo "\n\nDisable: ", fig.getId
-  echo ""
-  stdout.write("HEYA")
-  stdout.flushFile()
   if not fig.isNil:
     fig.parent = nil
     fig.attrs.incl inactive
@@ -363,7 +359,11 @@ var
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
-  if uxInputs.mouse.consumed and uxInputs.keyboard.consumed:
+
+  if redrawNodes.len() == 0 and
+      uxInputs.mouse.consumed and
+      uxInputs.keyboard.consumed and
+      prevHover == nil:
     return
 
   var captured: CapturedEvents = computeNodeEvents(node)
@@ -387,7 +387,8 @@ proc computeEvents*(node: Figuro) =
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse
 
-  if not uxInputs.mouse.consumed:
+  # if not uxInputs.mouse.consumed and prevHover == nil:
+  block:
     if evHover in prevHover:
       if prevHover.getId != target.getId:
         prevHover.events.mouse.excl evHover

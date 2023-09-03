@@ -36,7 +36,7 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button void, "btn", i:
           box 10 + i * 120, 10, 100, 100
-          echo nd(), "btn: ", i
+          # echo nd(), "btn: ", i
           # we need to connect it's onHover event
           connect(current, onHover, self, Main.hover)
           # unfortunately, we have many hovers
