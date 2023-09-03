@@ -26,6 +26,7 @@ proc wrapResponseError*(
     stacktraces: bool
 ): AgentResponse = 
   let errobj = AgentError(code: code, msg: msg)
+  raise err
   # when defined(nimscript):
   #   discard
   # else:
@@ -188,20 +189,21 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
 
-    echo "call slots:req: ", req.repr
+    # echo "call slots:req: ", req.repr
     # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
 
     for (tgt, slot) in listeners:
-      echo ""
-      echo "call listener:tgt: ", tgt.agentId, " ", req.procName
-      echo "call listener:slot: ", repr slot
+      # echo ""
+      # echo "call listener:tgt: ", tgt.agentId, " ", req.procName
+      # echo "call listener:slot: ", repr slot
       let res = slot.callMethod(tgt, req)
       when defined(nimscript) or defined(useJsonSerde):
         discard
       else:
+        discard
         variantMatch case res.result.buf as u
         of AgentError:
-          raise newException(AgentSlotError, u.msg)
+          raise newException(AgentSlotError, $u.code & " msg: " & u.msg)
         else:
           discard
 

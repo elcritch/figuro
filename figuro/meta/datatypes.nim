@@ -119,7 +119,6 @@ proc rpcPack*[T](res: T): RpcParams =
     let jn = toJson(res)
     result = RpcParams(buf: jn)
   else:
-    echo "rpcPack: ", res.repr
     result = RpcParams(buf: newVariant(res))
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
@@ -142,7 +141,7 @@ proc initAgentRequest*[T](
   rkind: AgentType = Request,
   id = AgentId(0),
 ): AgentRequest =
-  echo "AgentRequest: ", procName, " args: ", args.repr
+  # echo "AgentRequest: ", procName, " args: ", args.repr
   result = AgentRequest(
     kind: Request,
     id: AgentId(0),

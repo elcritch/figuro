@@ -27,6 +27,8 @@ proc renderDrawable*(node: Node) =
 
 proc renderText(node: Node) =
   # draw characters
+  if node.textLayout == nil:
+    return
 
   for glyph in node.textLayout.glyphs():
 

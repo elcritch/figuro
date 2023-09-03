@@ -137,8 +137,8 @@ template connect*(
   signals.connect(a, signal, b, slot)
 
 template bubble*(signal: typed, parent: typed) =
-  connect(current, onClick, parent, `signal Bubble`)
+  connect(current, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(current, onClick, current.parent, `signal Bubble`)
+  connect(current, `signal`, current.parent, `signal Bubble`)
 
