@@ -162,7 +162,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
       refresh(current)
 
   # echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
-  
+
   current.parent = parent
   let name = $(id) & " " & repr(typeof(T))
   current.name.setLen(0)
@@ -208,8 +208,6 @@ macro captureArgs*(args, blk: untyped): untyped =
   else:
     for arg in args:
       result.add args
-  # result.add ident"parent"
-  # result.add ident"current"
   if result.len() == 0:
     result = nnkEmpty.newNimNode
   result.add nnkStmtList.newTree(blk)
