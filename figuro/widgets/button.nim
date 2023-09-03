@@ -49,8 +49,8 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
     preNode(nkRectangle, name, current, parent)
     captureArgs value:
       current.postDraw = proc (widget: Figuro) =
-        echo nd(), "button:postDraw: ", " name: ", (widget).getName()
-        echo nd(), "button:postDraw: ", widget.getId, " widget is button: ", widget is Button[T]
+        # echo nd(), "button:postDraw: ", " name: ", (widget).getName()
+        # echo nd(), "button:postDraw: ", widget.getId, " widget is button: ", widget is Button[T]
         var current {.inject.}: Button[T] = Button[T](widget)
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)

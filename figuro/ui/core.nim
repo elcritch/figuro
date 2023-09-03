@@ -126,14 +126,13 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   mixin draw
 
   nodeDepth.inc()
-  echo nd(), "preNode:setup: id: ", id, " current: ", current.getId, " parent: ", parent.getId,
-              " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
-              " cattrs: ", if current.isNil: "{}" else: $current.attrs,
-              " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
+  # echo nd(), "preNode:setup: id: ", id, " current: ", current.getId, " parent: ", parent.getId,
+  #             " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
+  #             " cattrs: ", if current.isNil: "{}" else: $current.attrs,
+  #             " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
-  if drawing in parent.attrs and
-      parent.children.len <= parent.diffIndex:
+  if parent.children.len <= parent.diffIndex:
     # parent = nodeStack[^1]
     # Create Node.
     current = T.new()
@@ -145,14 +144,14 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     refresh(current)
   else:
     # Reuse Node.
-    echo nd(), "checking reuse node"
+    # echo nd(), "checking reuse node"
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
       current = T.new()
-      echo nd(), "create new replacement node: ", id, " new: ", current.uid, " parent: ", parent.uid
+      # echo nd(), "create new replacement node: ", id, " new: ", current.uid, " parent: ", parent.uid
       parent.children[parent.diffIndex] = current
     else:
-      echo nd(), "reuse node: ", id, " new: ", current.getId, " parent: ", parent.uid
+      # echo nd(), "reuse node: ", id, " new: ", current.getId, " parent: ", parent.uid
       current = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and
@@ -166,11 +165,10 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
       current.resetToDefault(kind)
       refresh(current)
 
-  echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
+  # echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
   
   current.parent = parent
   let name = $(id) & " " & repr(typeof(T))
-  echo "SET NAME: ", name
   current.name.setLen(0)
   discard current.name.tryAdd(name)
   current.kind = kind
@@ -190,9 +188,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   # TODO: which is better?
   # draw(T(current))
 
-  current.attrs.incl drawing
-  current.attrs.incl postDrawReady
-
+  # current.attrs.incl postDrawReady
   connect(current, onDraw, current, Figuro.clearDraw())
   connect(current, onDraw, current, typeof(current).draw())
   connect(current, onDraw, current, Figuro.handlePostDraw())
@@ -203,11 +199,7 @@ proc postNode*(current: var Figuro) =
     current.postDraw(current)
 
   current.removeExtraChildren()
-  current.attrs.excl drawing
   nodeDepth.dec()
-  # Pop the stack.
-  # current = current.parent
-  # parent = current.parent
 
 from sugar import capture
 import macros
@@ -236,7 +228,7 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
     let x = id
     captureArgs x:
       current.postDraw = proc (widget: Figuro) =
-        echo nd(), "node:postDraw: ", widget.getId
+        # echo nd(), "node:postDraw: ", widget.getId
         var current {.inject.}: Figuro = widget
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)

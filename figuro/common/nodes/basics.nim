@@ -31,7 +31,6 @@ type
     disableRender
     scrollpane
     inactive
-    drawing
     postDrawReady
 
   FidgetConstraint* = enum
