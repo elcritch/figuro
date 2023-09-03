@@ -3,15 +3,20 @@ import std/[options, tables, sets, macros, hashes]
 import std/times
 
 # import pkg/threading/channels
-import pkg/variant
 
 # import equeues
 import protocol
 
-when defined(nimscript) or defined(useJsonSerde):
+when defined(nimscript):
   import std/json
   import ../runtime/jsonutils_lite
   export json
+elif defined(useJsonSerde):
+  import std/json
+  import std/jsonutils
+  export json
+else:
+  import pkg/variant
 
 export protocol
 export sets
@@ -113,8 +118,8 @@ proc rpcPack*[T](res: T): RpcParams =
   when defined(nimscript) or defined(useJsonSerde):
     let jn = toJson(res)
     result = RpcParams(buf: jn)
-    discard
   else:
+    echo "rpcPack: ", res.repr
     result = RpcParams(buf: newVariant(res))
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
@@ -130,6 +135,20 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   except AssertionDefect as err:
     raise newException(ConversionError,
                        "unable to parse parameters: " & err.msg)
+
+proc initAgentRequest*[T](
+  procName: string,
+  args: T,
+  rkind: AgentType = Request,
+  id = AgentId(0),
+): AgentRequest =
+  echo "AgentRequest: ", procName, " args: ", args.repr
+  result = AgentRequest(
+    kind: Request,
+    id: AgentId(0),
+    procName: procName,
+    params: rpcPack(args)
+  )
 
 proc getAgentListeners*(obj: Agent,
                         sig: string

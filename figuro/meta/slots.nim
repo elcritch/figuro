@@ -321,14 +321,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     result.add quote do:
       proc `rpcMethod`(): (Agent, AgentRequest) =
         let args = `construct`
-        let sig = AgentRequest(
-          kind: Request,
-          id: AgentId(0),
-          procName: `signalName`,
-          params: rpcPack(args)
-        )
-        result = (obj, sig)
-        # callSlots(obj, sig)
+        let req = initAgentRequest(procName=`signalName`, args=args)
+        result = (obj, req)
 
     if isPublic: result.makeProcsPublic(genericParams)
     result[0][3].add nnkIdentDefs.newTree(
