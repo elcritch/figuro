@@ -67,8 +67,8 @@ proc draw*(self: Main) {.slot.} =
             echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
             box 10, 10, 20, 20
             fill blackColor
-            # setText(font, $(Button[int](current.parent).state))
-            setText(font, $i)
+            setText(font, $(Button[int](current.parent).state))
+            # setText(font, $i)
 
 var main = Main.new()
 
