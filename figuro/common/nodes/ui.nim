@@ -102,7 +102,7 @@ proc load*(fig: Figuro) {.slot.} =
   discard
 
 proc clearDraw*(fig: Figuro) {.slot.} =
-  fig.attrs.excl postDraw
+  fig.attrs.incl postDrawReady
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:

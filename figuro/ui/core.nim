@@ -210,7 +210,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
   current.listens.mouse = {}
   current.listens.gesture = {}
-  current.attrs.excl postDraw
 
   nodeStack.add(current)
   inc parent.diffIndex
@@ -218,6 +217,10 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.diffIndex = 0
   # TODO: which is better?
   # draw(T(current))
+
+  current.attrs.incl drawing
+  current.attrs.incl postDrawReady
+
   connect(current, onDraw, current, Figuro.clearDraw())
   connect(current, onDraw, current, typeof(current).draw())
   connect(current, onDraw, current, Figuro.handlePostDraw())
@@ -228,6 +231,7 @@ proc postNode*(current: var Figuro) =
     current.postDraw(current)
 
   current.removeExtraChildren()
+  current.attrs.excl drawing
 
   nodeDepth.dec()
   # Pop the stack.
@@ -265,10 +269,9 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
         var current {.inject.}: Figuro = widget
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
-        if postDraw in widget.attrs:
-          return
-        `blk`
-        widget.attrs.incl postDraw
+        if postDrawReady in widget.attrs:
+          widget.attrs.excl postDrawReady
+          `blk`
     postNode(current)
 
 # template node*(kind: NodeKind, id: string, blk: untyped): untyped =
@@ -283,7 +286,6 @@ macro statefulWidgetProc*(): untyped =
 #   ## 
 #   ##    template `name`*[`type`, T](id: string, value: T, blk: untyped) {.statefulWidget.}
 #   ## 
-
 #   # echo "figuroWidget: ", p.treeRepr
 #   p.expectKind nnkTemplateDef
 #   let name = p.name()

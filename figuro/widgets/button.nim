@@ -54,10 +54,9 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
         var current {.inject.}: Button[T] = Button[T](widget)
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
-        if postDraw in widget.attrs:
-          return
-        `blk`
-        widget.attrs.incl postDraw
+        if postDrawReady in widget.attrs:
+          widget.attrs.excl postDrawReady
+          `blk`
     # connect(current, onDraw, current, Button[T].draw())
     # connect(current, onDraw, current, postDraw)
     connect(current, onClick, current, Button[T].clicked)
