@@ -13,10 +13,17 @@ let
 
 type
   Main* = ref object of Figuro
-    value: float
+    value: int
     hasHovered: bool
     hoveredAlpha: float
     mainRect: Figuro
+
+proc update*(fig: Figuro) {.signal.}
+
+proc btnTick*(self: Button[int]) {.slot.} =
+  # echo "BUTTON: TICK: ", self.getId
+  self.state.inc
+  refresh(self)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
@@ -39,6 +46,12 @@ proc tick*(self: Main) {.slot.} =
   elif self.hoveredAlpha > 0.00 and not self.hasHovered:
     self.hoveredAlpha -= 0.005
     refresh(self)
+  self.value.inc()
+  emit self.update()
+
+proc hover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
+  refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   var current = self
@@ -56,19 +69,21 @@ proc draw*(self: Main) {.slot.} =
       button int, "btn" & $i, i:
           box 10 + i * 120, 10, 100, 100
 
-          echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
+          connect(current, onHover, self, Main.hover)
+          # echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
           connect(current, onClick, current, Button[int].btnClicked())
+          if i == 0:
+            connect(self, update, current, Button[int].btnTick())
           # connect(current, onDraw, current, draw)
 
           # The challenges of developing UIs!
           # button int, "btn", i:
           #   box 10, 10, 20, 20
           node nkText, "text":
-            echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
+            # echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
             box 10, 10, 70, 70
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
-            echo nd(), "text:connect: ", current.getId
             connect(current, onClick, current.parent, onClickBubble)
 
 var main = Main.new()

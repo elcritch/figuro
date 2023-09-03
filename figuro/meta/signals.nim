@@ -7,11 +7,13 @@ export datatypes
 export times
 
 proc wrapResponse*(id: AgentId, resp: RpcParams, kind = Response): AgentResponse = 
+  # echo "WRAP RESP: ", id, " kind: ", kind
   result.kind = kind
   result.id = id
   result.result = resp
 
 proc wrapResponseError*(id: AgentId, err: AgentError): AgentResponse = 
+  echo "WRAP ERROR: ", id, " err: ", err.repr
   result.kind = Error
   result.id = id
   result.result = rpcPack(err)
@@ -182,54 +184,6 @@ template connect*(
     let agentSlot: AgentProc = `slot`(typeof(b))
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
-
-
-# macro connect*(
-#     a: Agent,
-#     signal: typed,
-#     b: Agent,
-#     slot: untyped
-# ) =
-
-#   let sigTuple = getSignalTuple(a, signal)
-#   let bTyp = b.getTypeInst()
-
-#   let slotAgent = 
-#     if slot.kind == nnkIdent:
-#       let bTypIdent =
-#         if bTyp.kind == nnkBracketExpr: bTyp
-#         else: ident bTyp.strVal
-#       nnkCall.newTree(slot, bTypIdent, ident "AgentProc")
-#     elif slot.kind == nnkDotExpr:
-#       nnkCall.newTree(slot[1], slot[0], ident "AgentProc")
-#     else:
-#       slot
-
-#   let procTyp = quote do:
-#     proc () {.nimcall.}
-#   for i, ty in sigTuple:
-#     let empty = nnkEmpty.newNimNode()
-#     procTyp.params.add nnkIdentDefs.newTree( ident("a" & $i), ty, empty)
-
-#   let name = getSignalName(signal)
-#   let emsg = "cannot find slot for " & "`" & slotAgent.repr & "`"
-#   let serror = newStrLitNode(emsg)
-
-#   echo "connect:slot: ", slot.repr
-#   echo "connect:NAME: ", name
-#   # let skError = error(emsg, slot)
-#   result = quote do:
-#     # when not compiles(`slotAgent`):
-#     #   static:
-#     #     {.warning: `serror`.}
-#     let agentSlot: AgentProc = `slotAgent`
-#     `a`.addAgentListeners(`name`, `b`, agentSlot)
-#   result.makeGenerics(@[])
-#   echo "\nCONNECT:", result.repr
-#   echo "CONNECT:\n", result.treeRepr
-
-# import pretty
-
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
@@ -238,7 +192,7 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
 
     for (tgt, slot) in listeners:
       # echo ""
-      # echo "call listener:tgt: ", repr tgt
+      # echo "call listener:tgt: ", tgt.agentId
       # echo "call listener:slot: ", repr slot
       let res = slot.callMethod(tgt, req)
       variantMatch case res.result.buf as u
