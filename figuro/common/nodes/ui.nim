@@ -136,8 +136,9 @@ template connect*(
     a.listens.mouseSignals.incl {evHover}
   signals.connect(a, signal, b, slot)
 
+template bubble*(signal: typed, parent: typed) =
+  connect(current, onClick, parent, `signal Bubble`)
+
 template bubble*(signal: typed) =
-  # when signal == ui.onClick:
   connect(current, onClick, current.parent, `signal Bubble`)
-  # echo "bubble: ", fig.getId, " p: ", fig.parent.getId, " list: ", fig.listeners
 
