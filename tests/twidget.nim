@@ -18,14 +18,15 @@ proc tick*(self: Main) {.slot.} =
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
+  var current = self
   # echo "draw widget!"
-  frame "main":
+  rectangle "main":
     self.mainRect = current
     # echo "draw mainRect"
-    connect(current, onDraw, self, Main.draw)
+    # connect(current, onDraw, self, Main.draw)
     box 0, 0, 620, 140
     for i in 0 .. 5:
-      button "btn", i:
+      button void, "btn", i:
         let value = self.value
         fill "#AA0000"
         onHover:
