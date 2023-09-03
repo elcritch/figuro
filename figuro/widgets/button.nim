@@ -52,6 +52,7 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
         echo nd(), "button:postDraw: ", " name: ", (widget).getName()
         echo nd(), "button:postDraw: ", widget.getId, " widget is button: ", widget is Button[T]
         var current {.inject.}: Button[T] = Button[T](widget)
+        current.diffIndex = 0
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
         if postDrawReady in widget.attrs:

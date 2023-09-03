@@ -128,8 +128,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   nodeDepth.inc()
   echo nd(), "preNode:setup: id: ", id, " current: ", current.getId, " parent: ", parent.getId,
               " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
-              " current.attrs: ", if current.isNil: "{}" else: $current.attrs,
-              " parent.attrs: ", if parent.isNil: "{}" else: $parent.attrs
+              " cattrs: ", if current.isNil: "{}" else: $current.attrs,
+              " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
   if drawing in parent.attrs and
@@ -240,6 +240,7 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
       current.postDraw = proc (widget: Figuro) =
         echo nd(), "node:postDraw: ", widget.getId
         var current {.inject.}: Figuro = widget
+        current.diffIndex = 0
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
         if postDrawReady in widget.attrs:
