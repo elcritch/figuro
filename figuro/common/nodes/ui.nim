@@ -132,7 +132,7 @@ template connect*(
     static:
       echo "SIGNAL CONNECT MOUSE"
     a.listens.mouseSignals.incl {evClick, evClickOut}
-  when signal == ui.onHover:
+  elif signal == ui.onHover:
     a.listens.mouseSignals.incl {evHover}
   signals.connect(a, signal, b, slot)
 

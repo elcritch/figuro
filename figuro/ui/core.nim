@@ -375,14 +375,14 @@ proc computeEvents*(node: Figuro) =
     target.events.gesture = evts.flags
 
   # Mouse
-  let mouseButtons = uxInputs.buttonPress * MouseButtons
+  let mouseButtons = uxInputs.buttonRelease * MouseButtons
   let evts = captured.mouse
   let target = evts.target
   if not target.isNil:
     target.events.mouse.incl evts.flags
 
-  if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
-    echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
+  # if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
+  #   echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
   proc contains(fig: Figuro, evt: MouseEventType): bool =
     not fig.isNil and evt in fig.events.mouse

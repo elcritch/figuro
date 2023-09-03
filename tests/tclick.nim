@@ -28,6 +28,7 @@ proc btnTick*(self: Button[int]) {.slot.} =
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
+  echo ""
   echo nd(), "tclick:button:clicked: ", self.state
   if kind == Enter:
     self.state.inc
@@ -86,6 +87,7 @@ proc draw*(self: Main) {.slot.} =
             setText(font, $(Button[int](current.parent).state))
             # connect(current, onClick, current.parent, onClickBubble)
             bubble(onClick)
+            # bubble(onHover)
 
 var main = Main.new()
 
