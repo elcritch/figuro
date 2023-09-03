@@ -44,12 +44,14 @@ proc draw*[T](self: Button[T]) {.slot.} =
 
 template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
   block:
-    # var parent {.inject.}: Figuro = current
-    # var current {.inject.}: Button[T]
-    preNode(nkRectangle, Button[T], name)
+    var parent: Figuro = Figuro(current)
+    var current {.inject.}: Button[T] = nil
+    preNode(nkRectangle, name, current, parent)
     captureArgs value:
       current.postDraw = proc (widget: Figuro) =
-        current = widget
+        echo nd(), "button:postDraw: ", " name: ", (widget).getName()
+        echo nd(), "button:postDraw: ", widget.getId, " widget is button: ", widget is Button[T]
+        var current {.inject.}: Button[T] = Button[T](widget)
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
         if postDraw in widget.attrs:
@@ -60,7 +62,7 @@ template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
     # connect(current, onDraw, current, postDraw)
     connect(current, onClick, current, Button[T].clicked)
     # connect(current, onHover, current, Button[T].hovered)
-    postNode()
+    postNode(Figuro(current))
 
 # template button*[V](id: string, value: V, blk: untyped) =
 # # template button*(id: string, blk: untyped) =

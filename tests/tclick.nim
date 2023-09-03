@@ -41,7 +41,7 @@ proc tick*(self: Main) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  # var current = self
+  var current = self
   self.name.setLen(0)
   self.name.add "main"
   echo "\n\nmain:draw: ", current.getId, " parent: ", current.parent.getId
@@ -55,9 +55,6 @@ proc draw*(self: Main) {.slot.} =
       # button "btn", i, typ = void:
       button int, "btn", i:
           box 10 + i * 120, 10, 100, 100
-          static:
-            echo "button draw: ", Button[int].draw().typeof.repr
-            echo "button btnClicked: ",  Button[int].btnClicked().typeof.repr
 
           echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
           connect(current, onClick, current, Button[int].btnClicked())

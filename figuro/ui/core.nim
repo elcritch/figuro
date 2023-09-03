@@ -11,7 +11,7 @@ else:
 
 var
   root* {.runtimeVar.}: Figuro
-  current* {.runtimeVar.}: Figuro
+  # current* {.runtimeVar.}: Figuro
   # parent* {.runtimeVar, threadvar.}: Figuro
 
   redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
@@ -104,19 +104,23 @@ proc setupRoot*(widget: Figuro) =
     # root.zlevel = ZLevelDefault
   # root = widget
   # nodeStack = @[Figuro(root)]
-  current = root
-  current.parent = root
+  # current = root
+  # current.parent = root
   root.diffIndex = 0
 
-proc removeExtraChildren*(node: Figuro) =
-  ## Deal with removed nodes.
-  proc disable(fig: Figuro) =
-    echo nd(), "Disable: ", fig.getId
+proc disable(fig: Figuro) =
+  echo "\n\nDisable: ", fig.getId
+  echo ""
+  stdout.write("HEYA")
+  stdout.flushFile()
+  if not fig.isNil:
     fig.parent = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
-  
+
+proc removeExtraChildren*(node: Figuro) =
+  ## Deal with removed nodes.
   if node.diffIndex == node.children.len:
     return
   echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
@@ -142,20 +146,19 @@ proc getTitle*(): string =
   ## Gets window title
   getWindowTitle()
 
-proc setTitle*(title: string) =
+template setTitle*(title: string) =
   ## Sets window title
   if (getWindowTitle() != title):
     setWindowTitle(title)
     refresh(current)
 
 
-proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
+proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Figuro) =
   ## Process the start of the node.
   mixin draw
 
   nodeDepth.inc()
   # parent = nodeStack[^1]
-  let parent = current
   # echo nd(), "preNode:pre: ", current.getId, " name: ", current.name, " parent: ", current.parent.getId
 
   # TODO: maybe a better node differ?
@@ -171,12 +174,13 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
     refresh(current)
   else:
     # Reuse Node.
-    current = parent.children[parent.diffIndex]
 
-    if not (current of T):
+    if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
       current = T.new()
       parent.children[parent.diffIndex] = current
+    else:
+      current = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex and
@@ -192,8 +196,10 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
   
   current.parent = parent
+  let name = $(id) & " " & repr(typeof(T))
+  echo "SET NAME: ", name
   current.name.setLen(0)
-  current.name.add id
+  discard current.name.tryAdd(name)
   current.kind = kind
   # current.textStyle = parent.textStyle
   # current.cursorColor = parent.cursorColor
@@ -212,11 +218,11 @@ proc preNode*[T: Figuro](kind: NodeKind, tp: typedesc[T], id: string) =
   # TODO: which is better?
   # draw(T(current))
   connect(current, onDraw, current, Figuro.clearDraw())
-  connect(current, onDraw, current, tp.draw())
+  connect(current, onDraw, current, typeof(current).draw())
   connect(current, onDraw, current, Figuro.handlePostDraw())
   emit current.onDraw()
 
-proc postNode*() =
+proc postNode*(current: var Figuro) =
   if not current.postDraw.isNil:
     current.postDraw(current)
 
@@ -224,7 +230,7 @@ proc postNode*() =
 
   nodeDepth.dec()
   # Pop the stack.
-  current = current.parent
+  # current = current.parent
   # parent = current.parent
 
 from sugar import capture
@@ -248,18 +254,21 @@ macro captureArgs*(args, blk: untyped): untyped =
 template node*(kind: NodeKind, id: string, blk: untyped): untyped =
   ## Base template for node, frame, rectangle...
   block:
-    preNode(kind, Figuro, id)
+    var parent: Figuro = current
+    var current {.inject.}: Figuro = nil
+    preNode(kind, id, current, parent)
     let x = id
     captureArgs x:
       current.postDraw = proc (widget: Figuro) =
-        current = widget
+        echo nd(), "node:postDraw: ", widget.getId
+        var current {.inject.}: Figuro = widget
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
         if postDraw in widget.attrs:
           return
         `blk`
         widget.attrs.incl postDraw
-    postNode()
+    postNode(current)
 
 # template node*(kind: NodeKind, id: string, blk: untyped): untyped =
 #   node(kind, id, void, blk)
@@ -267,51 +276,32 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
 macro statefulWidgetProc*(): untyped =
   ident(repr(genSym(nskProc, "doPost")))
 
-template mkStatefulWidget(fig, name: untyped) =
-  ## expands into constructor templates for the `Fig` widget type using `name`
-  ## 
-  template `name`*[T](id: string, value: T, blk: untyped) =
-    preNode(nkRectangle, `fig`[T], id) # start the node
-    template widget(): `fig`[T] = `fig`[T](current)
-    widget.state = value # set the state
-    # connect(current, onHover, current, `fig`[T].hover) # setup hover
-    type PostObj = distinct T
-    proc doPost(inst: Figuro, state: PostObj) {.slot.} =
-      ## runs the users `blk` as a slot with state taken from widget
-      `blk`
-    connect(current, onPost, `fig`[T](current), doPost) ## bind the doPost slot
-    emit current.onPost(value) # need to draw our node!
-    postNode() # required postNode cleanup
-  template `name`*(id: string, blk: untyped) =
-    ## helper for empty slates
-    `name`(id, void, blk)
+# macro statefulWidget*(p: untyped): untyped =
+#   ## implements a stateful widget template constructors where 
+#   ## the type and the name are taken from the template definition:
+#   ## 
+#   ##    template `name`*[`type`, T](id: string, value: T, blk: untyped) {.statefulWidget.}
+#   ## 
 
-macro statefulWidget*(p: untyped): untyped =
-  ## implements a stateful widget template constructors where 
-  ## the type and the name are taken from the template definition:
-  ## 
-  ##    template `name`*[`type`, T](id: string, value: T, blk: untyped) {.statefulWidget.}
-  ## 
-
-  # echo "figuroWidget: ", p.treeRepr
-  p.expectKind nnkTemplateDef
-  let name = p.name()
-  let genericParams = p[2]
-  let typ = genericParams[0][0]
-  p.params()[0].expectKind(nnkEmpty) # no return type
-  if genericParams.len() > 1:
-    error("incorrect generic types: " & repr(genericParams) & "; " & "Should be `[WidgetType, T]`", genericParams)
-  if p.params()[1].repr() != "id: string":
-    error("incorrect arguments: " & repr(p.params()[1]) & "; " & "Should be `id: string`", p.params()[1])
-  if p.params()[2][1].repr() != genericParams[0][1].repr:
-    error("incorrect arguments: " & repr(p.params()[2][1]) & "; " & "Should be `" & genericParams[0][1].repr & "`", p.params()[2][1])
-  if p.params()[3][1].repr() != "untyped":
-    error("incorrect arguments: " & repr(p.params()[3][1]) & "; " & "Should be `untyped`", p.params()[3][1])
-  # echo "figuroWidget: ", " name: ", name, " typ: ", typ
-  # echo "\n"
-  # echo "doPostId: ", doPostId, " li: ", lineInfo(p.name())
-  result = quote do:
-    mkStatefulWidget(`typ`, `name`, doPostId)
+#   # echo "figuroWidget: ", p.treeRepr
+#   p.expectKind nnkTemplateDef
+#   let name = p.name()
+#   let genericParams = p[2]
+#   let typ = genericParams[0][0]
+#   p.params()[0].expectKind(nnkEmpty) # no return type
+#   if genericParams.len() > 1:
+#     error("incorrect generic types: " & repr(genericParams) & "; " & "Should be `[WidgetType, T]`", genericParams)
+#   if p.params()[1].repr() != "id: string":
+#     error("incorrect arguments: " & repr(p.params()[1]) & "; " & "Should be `id: string`", p.params()[1])
+#   if p.params()[2][1].repr() != genericParams[0][1].repr:
+#     error("incorrect arguments: " & repr(p.params()[2][1]) & "; " & "Should be `" & genericParams[0][1].repr & "`", p.params()[2][1])
+#   if p.params()[3][1].repr() != "untyped":
+#     error("incorrect arguments: " & repr(p.params()[3][1]) & "; " & "Should be `untyped`", p.params()[3][1])
+#   # echo "figuroWidget: ", " name: ", name, " typ: ", typ
+#   # echo "\n"
+#   # echo "doPostId: ", doPostId, " li: ", lineInfo(p.name())
+#   result = quote do:
+#     mkStatefulWidget(`typ`, `name`, doPostId)
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.

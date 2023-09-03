@@ -77,6 +77,9 @@ type
     mouse*: MouseCapture
     gesture*: GestureCapture
 
+proc getName*(fig: Figuro): string =
+  result = fig.name.toString()
+
 proc getId*(fig: Figuro): NodeID =
   ## Get's the Figuro Node's ID
   ## or returns 0 if it's nil
