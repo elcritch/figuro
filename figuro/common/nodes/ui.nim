@@ -103,6 +103,7 @@ proc load*(fig: Figuro) {.slot.} =
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl postDrawReady
+  fig.diffIndex = 0
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:

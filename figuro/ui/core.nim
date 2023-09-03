@@ -143,8 +143,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     parent.children.add(current)
     # current.parent = parent
     refresh(current)
-  elif parent == nil and current != nil and drawing notin current.attrs:
-    echo nd(), "reuse node - already created"
   else:
     # Reuse Node.
     echo nd(), "checking reuse node"
@@ -240,7 +238,6 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
       current.postDraw = proc (widget: Figuro) =
         echo nd(), "node:postDraw: ", widget.getId
         var current {.inject.}: Figuro = widget
-        current.diffIndex = 0
         # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
         # let widget {.inject.} = Button[T](current)
         if postDrawReady in widget.attrs:
