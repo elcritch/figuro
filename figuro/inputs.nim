@@ -252,7 +252,7 @@ proc toEvent*(kind: GestureEventType): GestureEvent =
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 
 proc click*(mouse: Mouse): bool =
-  return MouseButtons * uxInputs.buttonPress != {}
+  return MouseButtons * uxInputs.buttonRelease != {}
 
 proc down*(mouse: Mouse): bool =
   return MouseButtons * uxInputs.buttonDown != {}

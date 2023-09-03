@@ -84,6 +84,7 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.mouse.wheelDelta = window.scrollDelta().descaled()
 
   window.onButtonPress = proc (button: windy.Button) =
+    uxInputs.buttonRelease = toUi window.buttonReleased()
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
@@ -91,10 +92,12 @@ proc configureEvents(renderer: Renderer) =
     echo "buttonPress: ", uxInputs.buttonPress
 
   window.onButtonRelease = proc (button: Button) =
+    uxInputs.buttonRelease = toUi window.buttonReleased()
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
+    echo "buttonRelease: ", uxInputs.buttonRelease
 
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune
