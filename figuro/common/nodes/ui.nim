@@ -109,6 +109,7 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
 
+
 proc onTickBubble*(fig: Figuro) {.slot.} =
   emit fig.onTick()
 proc onDrawBubble*(fig: Figuro) {.slot.} =
@@ -121,8 +122,22 @@ proc onClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.s
   echo "CLICK BUBBLE"
   emit fig.onClick(kind, buttonPress)
 
-# proc bubble*(fig: Figuro) =
-#   # when signal == ui.onClick:
-#   connect(fig, onClick, fig.parent, Figuro.onClickBubble)
-#   echo "bubble: ", fig.getId, " p: ", fig.parent.getId, " list: ", fig.listeners
+template connect*(
+    a: Figuro,
+    signal: typed,
+    b: Figuro,
+    slot: typed
+) =
+  when signal == ui.onClick:
+    static:
+      echo "SIGNAL CONNECT MOUSE"
+    a.listens.mouseSignals.incl {evClick, evClickOut}
+  when signal == ui.onHover:
+    a.listens.mouseSignals.incl {evHover}
+  signals.connect(a, signal, b, slot)
+
+template bubble*(signal: typed) =
+  # when signal == ui.onClick:
+  connect(current, onClick, current.parent, `signal Bubble`)
+  # echo "bubble: ", fig.getId, " p: ", fig.parent.getId, " list: ", fig.listeners
 
