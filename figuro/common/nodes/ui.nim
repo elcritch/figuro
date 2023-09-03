@@ -86,11 +86,11 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
-proc onTick*(tp: Figuro) {.signal.}
-proc onDraw*(tp: Figuro) {.signal.}
-proc onLoad*(tp: Figuro) {.signal.}
-proc onHover*(tp: Figuro, kind: EventKind) {.signal.}
-proc onClick*(tp: Figuro, kind: EventKind, buttonPress: UiButtonView) {.signal.}
+proc onTick*(fig: Figuro) {.signal.}
+proc onDraw*(fig: Figuro) {.signal.}
+proc onLoad*(fig: Figuro) {.signal.}
+proc onHover*(fig: Figuro, kind: EventKind) {.signal.}
+proc onClick*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -108,3 +108,21 @@ proc clearDraw*(fig: Figuro) {.slot.} =
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
+
+proc onTickBubble*(fig: Figuro) {.slot.} =
+  emit fig.onTick()
+proc onDrawBubble*(fig: Figuro) {.slot.} =
+  emit fig.onDraw()
+proc onLoadBubble*(fig: Figuro) {.slot.} =
+  emit fig.onLoad()
+proc onHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
+  emit fig.onHover(kind)
+proc onClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+  echo "CLICK BUBBLE"
+  emit fig.onClick(kind, buttonPress)
+
+# proc bubble*(fig: Figuro) =
+#   # when signal == ui.onClick:
+#   connect(fig, onClick, fig.parent, Figuro.onClickBubble)
+#   echo "bubble: ", fig.getId, " p: ", fig.parent.getId, " list: ", fig.listeners
+

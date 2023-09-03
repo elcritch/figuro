@@ -68,7 +68,8 @@ proc draw*(self: Main) {.slot.} =
             box 10, 10, 70, 70
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
-            # setText(font, $i)
+            echo nd(), "text:connect: ", current.getId
+            connect(current, onClick, current.parent, onClickBubble)
 
 var main = Main.new()
 
