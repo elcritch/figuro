@@ -8,7 +8,6 @@ import figuro
 type
   Main* = ref object of Figuro
     value: float
-    mainRect: Figuro
 
 proc tick*(self: Main) {.slot.} =
   refresh(self)
@@ -21,7 +20,6 @@ proc draw*(self: Main) {.slot.} =
   var current = self
   # echo "draw widget!"
   rectangle "main":
-    self.mainRect = current
     # echo "draw mainRect"
     # connect(current, onDraw, self, Main.draw)
     box 0, 0, 620, 140
