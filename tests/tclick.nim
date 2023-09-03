@@ -65,7 +65,7 @@ proc draw*(self: Main) {.slot.} =
           #   box 10, 10, 20, 20
           node nkText, "text":
             echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
-            box 10, 10, 20, 20
+            box 10, 10, 70, 70
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
             # setText(font, $i)
