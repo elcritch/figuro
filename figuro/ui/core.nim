@@ -48,14 +48,6 @@ var
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
 
-  # node.kind = kind
-  # node.id = ""
-  # node.uid = ""
-  # node.idPath = ""
-  # node.kind = nkRoot
-  # node.text = "".toRunes()
-  # node.code = ""
-  # node.nodes = @[]
   node.box = initBox(0,0,0,0)
   node.orgBox = initBox(0,0,0,0)
   node.rotation = 0
@@ -70,27 +62,7 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.shadow = Shadow.none()
   node.diffIndex = 0
   node.zlevel = ZLevelDefault
-  # node.editableText = false
-  # node.multiline = false
-  # node.bindingSet = false
-  # node.drawable = false
-  # node.cursorColor = clearColor
-  # node.highlightColor = clearColor
-  # node.gridTemplate = nil
-  # node.gridItem = nil
-  # node.constraintsHorizontal = cMin
-  # node.constraintsVertical = cMin
-  # node.layoutAlign = laMin
-  # node.layoutMode = lmNone
-  # node.counterAxisSizingMode = csAuto
-  # node.horizontalPadding = 0'ui
-  # node.verticalPadding = 0'ui
-  # node.itemSpacing = 0'ui
-  # node.clipContent = false
-  # node.selectable = false
-  # node.scrollpane = false
-  # node.hasRendered = false
-  # node.userStates = initTable[int, Variant]()
+  
 
 var nodeDepth = 0
 proc nd*(): string =
@@ -129,10 +101,6 @@ proc removeExtraChildren*(node: Figuro) =
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
-# proc refresh*() =
-#   ## Request the screen be redrawn
-#   app.requestedFrame = max(1, app.requestedFrame)
-
 proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
   # app.requestedFrame = max(1, app.requestedFrame)
@@ -158,11 +126,14 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   mixin draw
 
   nodeDepth.inc()
-  # parent = nodeStack[^1]
-  echo nd(), "preNode:setup: id: ", id, " parent: ", parent.getId, " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len
+  echo nd(), "preNode:setup: id: ", id, " current: ", current.getId, " parent: ", parent.getId,
+              " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
+              " current.attrs: ", if current.isNil: "{}" else: $current.attrs,
+              " parent.attrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
-  if parent.children.len <= parent.diffIndex:
+  if drawing in parent.attrs and
+      parent.children.len <= parent.diffIndex:
     # parent = nodeStack[^1]
     # Create Node.
     current = T.new()
@@ -172,15 +143,18 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     parent.children.add(current)
     # current.parent = parent
     refresh(current)
+  elif parent == nil and current != nil and drawing notin current.attrs:
+    echo nd(), "reuse node - already created"
   else:
     # Reuse Node.
-
+    echo nd(), "checking reuse node"
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
       current = T.new()
       echo nd(), "create new replacement node: ", id, " new: ", current.uid, " parent: ", parent.uid
       parent.children[parent.diffIndex] = current
     else:
+      echo nd(), "reuse node: ", id, " new: ", current.getId, " parent: ", parent.uid
       current = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and
@@ -232,7 +206,6 @@ proc postNode*(current: var Figuro) =
 
   current.removeExtraChildren()
   current.attrs.excl drawing
-
   nodeDepth.dec()
   # Pop the stack.
   # current = current.parent

@@ -45,6 +45,7 @@ proc draw*(self: Main) {.slot.} =
   self.name.setLen(0)
   self.name.add "main"
   echo "\n\nmain:draw: ", current.getId, " parent: ", current.parent.getId
+  current.attrs.incl drawing
 
   rectangle "body":
     self.mainRect = current
@@ -69,6 +70,7 @@ proc draw*(self: Main) {.slot.} =
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
             # setText(font, $i)
+  current.attrs.excl drawing
 
 var main = Main.new()
 
