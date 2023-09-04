@@ -50,6 +50,8 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
 proc renderLoop*(renderer: Renderer, poll = true) =
   renderLoop(renderer.window, renderer.nodes)
 
+import std/terminal
+
 proc configureEvents(renderer: Renderer) =
 
   let window = renderer.window
@@ -89,7 +91,7 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
-    echo "buttonPress: ", uxInputs.buttonPress
+    stdout.styledWriteLine({styleDim}, fgWhite, "buttonPress ", {styleBright}, fgGreen, $uxInputs.buttonPress)
 
   window.onButtonRelease = proc (button: Button) =
     uxInputs.buttonRelease = toUi window.buttonReleased()
@@ -97,7 +99,7 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
-    echo "buttonRelease: ", uxInputs.buttonRelease
+    stdout.styledWriteLine({styleDim}, fgWhite, "buttonPress ", {styleDim}, fgGreen, $uxInputs.buttonRelease)
 
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune

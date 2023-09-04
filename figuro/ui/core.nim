@@ -340,6 +340,9 @@ var
   prevClick {.runtimeVar.}: Figuro
 
 import pretty
+import std/terminal
+
+var evtMsg: seq[(string, string)]
 
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
@@ -376,8 +379,23 @@ proc computeEvents*(node: Figuro) =
     if not target.isNil:
       target.events.mouse.incl evts.flags
 
-    if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
-      echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
+    if evts.flags != {} and
+      # evts.flags != {evHover} and
+      # not uxInputs.keyboard.consumed and
+      true:
+      let emsg: seq[(string, string)] = @[
+                  ("tgt: ", $target.getId),
+                  (" prevClick: ", $prevClick.getId),
+                  (" prevHover: ", $prevHover.getId),
+                  (" evts: ", $evts.flags),
+                  # ( " ", $app.frameCount),
+                  ]
+      if emsg != evtMsg:
+        evtMsg = emsg
+        stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
+        for (n, v) in evtMsg.items():
+          stdout.styledWrite({styleBright}, fgBlue, n, fgGreen, v)
+        stdout.styledWriteLine(fgWhite, "")
 
     proc contains(fig: Figuro, evt: MouseEventKinds): bool =
       not fig.isNil and evt in fig.events.mouse

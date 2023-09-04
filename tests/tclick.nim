@@ -36,13 +36,13 @@ proc btnClicked*(self: Button[int],
 
 proc txtHovered*(self: Figuro, kind: EventKind) {.slot.} =
   echo "TEXT hover! ", kind, " :: ", self.getId
-  refresh(self)
+  # refresh(self)
 
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  # echo "button:hovered: ", kind, " :: ", self.getId
-  refresh(self)
+  echo "button:hovered: ", kind, " :: ", self.getId
+  # refresh(self)
 
 proc tick*(self: Main) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
@@ -91,7 +91,7 @@ proc draw*(self: Main) {.slot.} =
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
             bubble(onClick)
-            # connect(current, onHover, current, Figuro.txtHovered())
+            connect(current, onHover, current, Figuro.txtHovered())
             # bubble(onHover)
 
 var main = Main.new()
