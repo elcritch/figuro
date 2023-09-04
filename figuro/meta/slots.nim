@@ -324,10 +324,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     gens.add gen[0].strVal
   result.makeGenerics(gens)
 
-  echo "slot: "
-  echo result.treeRepr
-  echo "slot:repr:"
-  echo result.repr
+  # echo "slot: "
+  # echo result.treeRepr
+  # echo "slot:repr:"
+  # echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
