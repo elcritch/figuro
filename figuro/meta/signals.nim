@@ -111,26 +111,31 @@ template packResponse*(res: AgentResponse): Variant =
   so
 
 proc getSignalName*(signal: NimNode): NimNode =
-  # echo "getSignalName: ", signal.treeRepr
-  if signal.kind == nnkClosedSymChoice:
+  echo "getSignalName: ", signal.treeRepr
+  if signal.kind in [nnkClosedSymChoice, nnkOpenSymChoice]:
     result = newStrLitNode signal[0].strVal
   else:
     result = newStrLitNode signal.strVal
-  # echo "getSignalName:result: ", result.treeRepr
+    echo "getSignalName:result: ", result.treeRepr
 
 macro signalName*(signal: untyped): untyped =
   result = getSignalName(signal)
 
 proc splitNamesImpl(slot: NimNode): Option[(NimNode, NimNode)] =
-  # echo "splitNamesImpl: ", slot.treeRepr
-  if slot.kind == nnkCall:
+  echo "splitNamesImpl: ", slot.treeRepr
+  if slot.kind == nnkCall and slot[0].kind == nnkDotExpr:
     return splitNamesImpl(slot[0])
+  elif slot.kind == nnkCall:
+    result = some (
+      slot[1].copyNimTree,
+      slot[0].copyNimTree,
+    )
   elif slot.kind == nnkDotExpr:
     result = some (
       slot[0].copyNimTree,
       slot[1].copyNimTree,
     )
-  # echo "splitNamesImpl:res: ", slot.treeRepr
+  echo "splitNamesImpl:res: ", result.repr
 
 macro splitNames(slot: untyped): untyped =
   let res = splitNamesImpl(slot)
@@ -207,7 +212,6 @@ macro tryGetTypeAgentProc(slot: untyped): untyped =
     error("can't determine slot type", slot)
       
   let (tp, name) = res.get()
-  # echo "getTypeAgentProc: ", res.repr
 
   result = quote do:
     SignalTypes.`name`(typeof(`tp`))

@@ -128,11 +128,11 @@ template connect*(
     b: Figuro,
     slot: typed
 ) =
-  when signal == ui.onClick:
+  when signalName(signal) == "onClick":
     static:
       echo "SIGNAL CONNECT MOUSE"
     a.listens.mouseSignals.incl {evClick, evClickOut}
-  elif signal == ui.onHover:
+  elif signalName(signal) == "onHover":
     a.listens.mouseSignals.incl {evHover}
   signals.connect(a, signal, b, slot)
 
