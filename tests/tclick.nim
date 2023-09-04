@@ -87,12 +87,12 @@ proc draw*(self: Main) {.slot.} =
           #   box 10, 10, 20, 20
           node nkText, "text":
             # echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
-            box 10, 10, 70, 70
+            box 0, 0, 70, 70
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
             bubble(onClick)
+            connect(current, onHover, current, Figuro.txtHovered())
             bubble(onHover)
-            # connect(current, onHover, current, Figuro.txtHovered())
 
 var main = Main.new()
 
