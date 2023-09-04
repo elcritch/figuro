@@ -268,8 +268,8 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
-    if node.mouseOverlaps():
-      result.incl evHover
+    # if node.mouseOverlaps():
+    #   result.incl evHover
     if uxInputs.mouse.click():
       result.incl evClickOut
 
@@ -314,9 +314,10 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result.mouse[ek] = captured
-    elif ek == evHover:
+    elif ek == evHover and evHover in mouseEvts:
       result.mouse[ek].targets.incl(captured.targets)
       result.mouse[ek].targets.incl(result.mouse[ek].targets)
+      result.mouse[ek].flags.incl(evHover)
     else:
       result.mouse[ek] = maxEvt(captured, result.mouse[ek])
       # result.gesture = max(captured.gesture, result.gesture)
