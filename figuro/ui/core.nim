@@ -358,74 +358,61 @@ proc computeEvents*(node: Figuro) =
 
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
+
+  var nodeEvts: Table[Figuro, tuple[zlvl: ZLevel, flags: MouseEventFlags]]
   for ek in MouseEventKinds:
     let evts = captured.mouse[ek]
     let targets = evts.targets
+    for target in targets:
+      nodeEvts.mgetOrPut(target, (target.zlevel, evts.flags)).flags.incl(evts.flags)
 
+  for target, evts in nodeEvts:
     if evts.flags != {} and
-      # evts.flags != {evHover} and
-      # not uxInputs.keyboard.consumed and
-      true:
-      let emsg: seq[(string, string)] = @[
-                  ("tgt: ", targets.toString()),
-                  ("ek: ", $ek),
-                  ("pClick: ", $prevClick.getId),
-                  ("pHover: ", $prevHovers.toString()),
-                  ("evts: ", $evts.flags),
-                  # (" consumed: ", $uxInputs.mouse.consumed),
-                  # ( " ", $app.frameCount),
-                  ]
-      if emsg != evtMsg:
-        evtMsg = emsg
-        stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
-        for (n, v) in evtMsg.items():
-          stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
-        stdout.styledWriteLine(fgWhite, "")
+        # evts.flags != {evHover} and
+        # not uxInputs.keyboard.consumed and
+        true:
+          let emsg: seq[(string, string)] = @[
+                      ("tgt: ", $target.getId),
+                      ("pClick: ", $prevClick.getId),
+                      ("evts: ", $evts.flags),
+                      # (" consumed: ", $uxInputs.mouse.consumed),
+                      # ( " ", $app.frameCount),
+                      ]
+          if emsg != evtMsg:
+            evtMsg = emsg
+            stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
+            for (n, v) in evtMsg.items():
+              stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
+            stdout.styledWriteLine(fgWhite, "")
 
   proc contains(fig: Figuro, evt: MouseEventKinds): bool =
     not fig.isNil and evt in fig.events.mouse
 
+  if captured.mouse[evHover].targets != prevHovers:
+    let evts = captured.mouse[evHover]
+    let hoverTargets = evts.targets
+    if hoverTargets != prevHovers:
+      echo "hoverTargets: ", hoverTargets.toString
+    let newHovers = hoverTargets - prevHovers
+    let delHovers = prevHovers - hoverTargets
+
+    for target in delHovers:
+      echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
+      target.events.mouse.excl evHover
+      emit target.onHover(Exit)
+      target.refresh()
+      prevHovers.excl target
+
+    for target in newHovers:
+      echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
+      target.events.mouse.incl evHover
+      emit target.onHover(Enter)
+      target.refresh()
+      prevHovers.incl target
+  
   for ek in MouseEventKinds:
     let evts = captured.mouse[ek]
 
-    if ek == evHover:
-      let hoverTargets = evts.targets
-      if hoverTargets != prevHovers:
-        echo "hoverTargets: ", hoverTargets.toString
-      let newHovers = hoverTargets - prevHovers
-      let delHovers = prevHovers - hoverTargets
-
-      for target in delHovers:
-        echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
-        target.events.mouse.excl evHover
-        emit target.onHover(Exit)
-        target.refresh()
-        prevHovers.excl target
-
-      for target in newHovers:
-        echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
-        target.events.mouse.incl evHover
-        emit target.onHover(Enter)
-        target.refresh()
-        prevHovers.incl target
-
-    # for target in evts.targets:
-    #   block:
-    #     let currPrevHovers = prevHovers
-    #     if target notin prevHovers:
-    #       for prevHover in currPrevHovers:
-    #         if evHover in prevHover:
-    #         # if prevHover.getId != target.getId:
-    #           echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
-    #           prevHover.events.mouse.excl evHover
-    #           emit prevHover.onHover(Exit)
-    #           prevHover.refresh()
-    #           prevHovers.excl prevHover
-    #     if evHover in target:
-    #       if target notin prevHovers:
-    #         emit target.onHover(Enter)
-    #         refresh(target)
-    #         prevHovers.incl target
 
     for target in evts.targets:
       if not uxInputs.keyboard.consumed:
