@@ -16,7 +16,7 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   echo "button:hovered: ", kind, " :: ", self.getId, " buttons: ", self.events.mouse
   if kind == Enter:
     self.events.mouse.incl evHover
-  refresh(self)
+  # refresh(self)
 
 proc clicked*[T](self: Button[T],
                   kind: EventKind,
