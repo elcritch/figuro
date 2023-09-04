@@ -14,6 +14,14 @@ else:
 
 type
 
+  InputEvents* = object
+    mouse*: MouseEventFlags
+    keyboard*: KeyboardEventFlags
+
+  ListenEvents* = object
+    mouse*: MouseEventFlags
+    mouseSignals*: MouseEventFlags
+
   Figuro* = ref object of Agent
     parent*: Figuro
     name*: StackString[16]
@@ -65,17 +73,6 @@ type
     # else:
     #   discard
 
-  EventsCapture*[T] = object
-    zlvl*: ZLevel
-    flags*: T
-    target*: Figuro
-
-  MouseCapture* = EventsCapture[MouseEventFlags] 
-  GestureCapture* = EventsCapture[GestureEventFlags] 
-
-  CapturedEvents* = object
-    mouse*: MouseCapture
-    gesture*: GestureCapture
 
 proc getName*(fig: Figuro): string =
   result = fig.name.toString()

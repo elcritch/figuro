@@ -43,40 +43,36 @@ type
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
   
-  MouseEventType* {.size: sizeof(int16).} = enum
+  MouseEvent* {.size: sizeof(int8).} = enum
     evClick
     evClickOut
     evHover
     evOverlapped
     evPress
     evRelease
+    evScroll
+    evDrag
 
   EventKind* = enum
     Enter
     Exit
 
-  KeyboardEventType* {.size: sizeof(int16).} = enum
+  KeyboardEvent* {.size: sizeof(int8).} = enum
     evKeyboardInput
     evKeyboardFocus
     evKeyboardFocusOut
 
-  GestureEventType* {.size: sizeof(int16).} = enum
-    evScroll
-    evDrag # TODO: implement this!?
+  MouseEventFlags* = set[MouseEvent]
+  KeyboardEventFlags* = set[KeyboardEvent]
 
-  MouseEventFlags* = set[MouseEventType]
-  KeyboardEventFlags* = set[KeyboardEventType]
-  GestureEventFlags* = set[GestureEventType]
+  EventsCapture*[N; T: set] = object
+    zlvl*: ZLevel
+    flags*: MouseEventFlags
+    target*: N
 
-  InputEvents* = object
-    mouse*: MouseEventFlags
-    gesture*: GestureEventFlags
-
-  ListenEvents* = object
-    mouse*: MouseEventFlags
-    mouseSignals*: MouseEventFlags
-    gesture*: GestureEventFlags
-    gestureSignals*: GestureEventFlags
+  CapturedEvents*[N] = object
+    mouse*: array[MouseEvent, EventsCapture[N, MouseEventFlags]]
+    keyboard*: array[KeyboardEvent, EventsCapture[N, KeyboardEventFlags]]
 
   UiButton* = enum
     ButtonUnknown
@@ -196,27 +192,6 @@ type
 
   UiButtonView* = set[UiButton]
 
-type
-    MouseEvent* = object
-      case kind*: MouseEventType
-      of evClick: discard
-      of evClickOut: discard
-      of evHover: discard
-      of evOverlapped: discard
-      of evPress: discard
-      of evRelease: discard
-
-    KeyboardEvent* = object
-      case kind*: KeyboardEventType
-      of evKeyboardInput: discard
-      of evKeyboardFocus: discard
-      of evKeyboardFocusOut: discard
-
-    GestureEvent* = object
-      case kind*: GestureEventType
-      of evScroll: discard
-      of evDrag: discard
-
 
 const
   MouseButtons* = {
@@ -242,13 +217,6 @@ type
 
 var
   uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
-
-proc toEvent*(kind: MouseEventType): MouseEvent =
-  MouseEvent(kind: kind)
-proc toEvent*(kind: KeyboardEventType): KeyboardEvent =
-  KeyboardEvent(kind: kind)
-proc toEvent*(kind: GestureEventType): GestureEvent =
-  GestureEvent(kind: kind)
 
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 

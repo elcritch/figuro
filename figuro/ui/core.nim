@@ -294,7 +294,7 @@ proc mouseOverlapsNode*(node: Figuro): bool =
     (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
-  when ET is MouseEventType:
+  when ET is MouseEvent:
     if evt in node.listens.mouse and predicate:
       result.incl(evt)
     if evt in node.listens.mouseSignals and predicate:
@@ -382,7 +382,7 @@ proc computeEvents*(node: Figuro) =
   # if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
   #   echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
-  proc contains(fig: Figuro, evt: MouseEventType): bool =
+  proc contains(fig: Figuro, evt: MouseEvent): bool =
     not fig.isNil and evt in fig.events.mouse
 
   # if not uxInputs.mouse.consumed and prevHover == nil:
