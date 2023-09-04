@@ -251,7 +251,7 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
 
-proc mouseOverlapsNode*(node: Figuro): bool =
+proc mouseOverlaps*(node: Figuro): bool =
   ## Returns true if mouse overlaps the node node.
   let mpos = uxInputs.mouse.pos + node.totalOffset 
   let act = 
@@ -279,12 +279,14 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
-  if node.mouseOverlapsNode():
+  if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
     node.checkEvent(evPress, uxInputs.mouse.down())
     node.checkEvent(evRelease, uxInputs.mouse.release())
-    node.checkEvent(evHover, true)
     node.checkEvent(evOverlapped, true)
+    node.checkEvent(evHover, true)
+    if node.mouseOverlaps():
+      result.incl evHover
     if uxInputs.mouse.click():
       result.incl evClickOut
 
@@ -301,7 +303,7 @@ type
     mouse*: array[MouseEventKinds, EventsCapture[MouseEventFlags]]
     keyboard*: array[KeyboardEventKinds, EventsCapture[KeyboardEventFlags]]
 
-proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
+proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
@@ -310,7 +312,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
     for ek in MouseEventKinds:
-      result.mouse[ek] = max(result.mouse[ek], child.mouse[ek])
+      result.mouse[ek] = maxEvt(result.mouse[ek], child.mouse[ek])
     # result.gesture = max(result.gesture, child.gesture)
 
   let
@@ -325,12 +327,14 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
                                 flags: mouseEvts * {ek},
                                 targets: @[node])
 
-    if clipContent in node.attrs and not node.mouseOverlapsNode():
+    if clipContent in node.attrs and not node.mouseOverlaps():
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result.mouse[ek] = captured
+    elif ek == evHover:
+      result.mouse[ek] = maxEvt(captured, result.mouse[ek])
     else:
-      result.mouse[ek] = max(captured, result.mouse[ek])
+      result.mouse[ek] = maxEvt(captured, result.mouse[ek])
       # result.gesture = max(captured.gesture, result.gesture)
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
@@ -354,25 +358,14 @@ proc computeEvents*(node: Figuro) =
       prevHover == nil:
     return
 
-  var capturedAll: CapturedEvents = computeNodeEvents(node)
-  var captured: Table[int, EventsCapture[MouseEventFlags]]
-
-  for ek in MouseEventKinds:
-    let cevt = capturedAll.mouse[ek]
-    if cevt.flags != {}:
-      for tgt in cevt.targets:
-        captured.withValue(tgt.getId, value):
-          value.flags = cevt.flags + value.flags
-        do:
-          var cevtTgt = cevt
-          cevtTgt.targets = @[tgt]
-          captured[tgt.getId] = cevtTgt
+  var captured: CapturedEvents = computeNodeEvents(node)
 
   # set mouse event flags in targets
-  for evts in captured.values():
-    assert evts.targets.len() == 1
+  for ek in MouseEventKinds:
+    let evts = captured.mouse[ek]
     for target in evts.targets:
-      target.events.mouse.incl evts.flags
+      for target in evts.targets:
+        target.events.mouse.incl evts.flags
 
   # echo "captured:len: ", captured.len
   # for evts in captured.values():
@@ -383,7 +376,8 @@ proc computeEvents*(node: Figuro) =
 
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
-  for evts in captured.values():
+  for ek in MouseEventKinds:
+    let evts = captured.mouse[ek]
     let target = evts.targets[0]
 
     if evts.flags != {} and
@@ -392,16 +386,18 @@ proc computeEvents*(node: Figuro) =
       true:
       let emsg: seq[(string, string)] = @[
                   ("tgt: ", $target.getId),
-                  (" prevClick: ", $prevClick.getId),
-                  (" prevHover: ", $prevHover.getId),
-                  (" evts: ", $evts.flags),
+                  ("ek: ", $ek),
+                  ("pClick: ", $prevClick.getId),
+                  ("pHover: ", $prevHover.getId),
+                  ("evts: ", $evts.flags),
+                  # (" consumed: ", $uxInputs.mouse.consumed),
                   # ( " ", $app.frameCount),
                   ]
       if emsg != evtMsg:
         evtMsg = emsg
         stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
         for (n, v) in evtMsg.items():
-          stdout.styledWrite({styleBright}, fgBlue, n, fgGreen, v)
+          stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
         stdout.styledWriteLine(fgWhite, "")
 
     proc contains(fig: Figuro, evt: MouseEventKinds): bool =
