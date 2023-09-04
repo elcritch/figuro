@@ -179,18 +179,12 @@ template connect*(
     slot: untyped
 ) =
   when slot is AgentProc:
-    static:
-      echo "A': ", SignalTypes.`signal`(typeof(a)).typeof.repr 
-      echo "B':splitNames: ", tryGetTypeAgentProc(slot).typeof.repr
     when SignalTypes.`signal`(typeof(a)).typeof isnot
           tryGetTypeAgentProc(slot).typeof:
       typeMismatchError(signal, slot)
     let agentSlot: AgentProc = slot
   else:
     let agentSlot: AgentProc = `slot`(typeof(b))
-    # static:
-    #   echo "A: ", SignalTypes.`signal`(typeof(a)).typeof.repr 
-    #   echo "B: ", SignalTypes.`slot`(typeof(b)).typeof.repr 
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =

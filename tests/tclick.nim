@@ -23,7 +23,7 @@ proc update*(fig: Figuro) {.signal.}
 proc btnTick*(self: Button[int]) {.slot.} =
   # echo "BUTTON: TICK: ", self.getId
   self.state.inc
-  refresh(self)
+  # refresh(self)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
@@ -35,9 +35,8 @@ proc btnClicked*(self: Button[int],
     refresh(self)
 
 proc txtHovered*(self: Figuro, kind: EventKind) {.slot.} =
-  if kind == Enter:
-    echo "TEXT hover! ", kind, " :: ", self.getId
-  # refresh(self)
+  echo "TEXT hover! ", kind, " :: ", self.getId
+  refresh(self)
 
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
@@ -93,7 +92,7 @@ proc draw*(self: Main) {.slot.} =
             setText(font, $(Button[int](current.parent).state))
             bubble(onClick)
             bubble(onHover)
-            connect(current, onHover, current, Figuro.txtHovered())
+            # connect(current, onHover, current, Figuro.txtHovered())
 
 var main = Main.new()
 

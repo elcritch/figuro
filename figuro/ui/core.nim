@@ -401,6 +401,7 @@ proc computeEvents*(node: Figuro) =
 
   if not uxInputs.keyboard.consumed:
     if evClickOut in target:
+      echo "click out: ", target.getId
       target.events.mouse.excl evClickOut
       if prevClick != nil and prevClick.getId != target.getId:
         prevClick.events.mouse.excl evClick
