@@ -277,8 +277,20 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
 
+
+type
+  EventsCapture*[T: set] = object
+    zlvl*: ZLevel
+    flags*: MouseEventFlags
+    target*: Figuro
+
+  CapturedEvents*[N] = object
+    mouse*: array[MouseEvent, EventsCapture[MouseEventFlags]]
+    keyboard*: array[KeyboardEvent, EventsCapture[KeyboardEventFlags]]
+
 proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
-  if b.zlvl >= a.zlvl and b.flags != {}: b else: a
+  if b.zlvl >= a.zlvl and b.flags != {}: b
+  else: a
 
 proc mouseOverlapsNode*(node: Figuro): bool =
   ## Returns true if mouse overlaps the node node.
@@ -316,10 +328,10 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     if uxInputs.mouse.click():
       result.incl evClickOut
 
-proc checkGestureEvents*(node: Figuro): GestureEventFlags =
-  ## Compute gesture events
-  if node.mouseOverlapsNode():
-    node.checkEvent(evScroll, uxInputs.mouse.scrolled())
+# proc checkGestureEvents*(node: Figuro): GestureEventFlags =
+#   ## Compute gesture events
+#   if node.mouseOverlapsNode():
+#     node.checkEvent(evScroll, uxInputs.mouse.scrolled())
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
@@ -332,7 +344,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     allMouseEvts = node.checkMouseEvents()
     # mouseOutEvts = allMouseEvts * MouseOnOutEvents
     mouseEvts = allMouseEvts
-    gestureEvts = node.checkGestureEvents()
+    # gestureEvts = node.checkGestureEvents()
 
   let
     captured = CapturedEvents(

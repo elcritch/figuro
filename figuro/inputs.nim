@@ -65,15 +65,6 @@ type
   MouseEventFlags* = set[MouseEvent]
   KeyboardEventFlags* = set[KeyboardEvent]
 
-  EventsCapture*[N; T: set] = object
-    zlvl*: ZLevel
-    flags*: MouseEventFlags
-    target*: N
-
-  CapturedEvents*[N] = object
-    mouse*: array[MouseEvent, EventsCapture[N, MouseEventFlags]]
-    keyboard*: array[KeyboardEvent, EventsCapture[N, KeyboardEventFlags]]
-
   UiButton* = enum
     ButtonUnknown
     MouseLeft
