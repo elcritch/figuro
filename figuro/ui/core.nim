@@ -324,23 +324,18 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
-var
-  prevHover {.runtimeVar.}: Figuro
-  prevClick {.runtimeVar.}: Figuro
-
-import pretty
 import std/terminal
-import std/sequtils
-import std/sugar
-
 var evtMsg: seq[(string, string)]
-
 proc toString(figs: HashSet[Figuro]): string =
   result.add "["
   for fig in figs:
     result.add $fig.getId
     result.add ","
   result.add "]"
+
+var
+  prevHovers {.runtimeVar.}: HashSet[Figuro]
+  prevClick {.runtimeVar.}: Figuro
 
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
@@ -349,7 +344,7 @@ proc computeEvents*(node: Figuro) =
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
       uxInputs.keyboard.consumed and
-      prevHover == nil:
+      prevHovers.len == 0:
     return
 
   var captured: CapturedEvents = computeNodeEvents(node)
@@ -375,7 +370,7 @@ proc computeEvents*(node: Figuro) =
                   ("tgt: ", targets.toString()),
                   ("ek: ", $ek),
                   ("pClick: ", $prevClick.getId),
-                  ("pHover: ", $prevHover.getId),
+                  ("pHover: ", $prevHovers.toString()),
                   ("evts: ", $evts.flags),
                   # (" consumed: ", $uxInputs.mouse.consumed),
                   # ( " ", $app.frameCount),
@@ -392,22 +387,47 @@ proc computeEvents*(node: Figuro) =
 
   for ek in MouseEventKinds:
     let evts = captured.mouse[ek]
-    for target in evts.targets:
-      # if not uxInputs.mouse.consumed and prevHover == nil:
-      block:
-        if evHover in prevHover:
-          if prevHover.getId != target.getId:
-            echo "prevHover: ", prevHover.getId(), " tgt: ", target.getId
-            prevHover.events.mouse.excl evHover
-            emit prevHover.onHover(Exit)
-            prevHover.refresh()
-            prevHover = nil
-        if evHover in target:
-          if prevHover.getId != target.getId:
-            emit target.onHover(Enter)
-            refresh(target)
-            prevHover = target
 
+    if ek == evHover:
+      let hoverTargets = evts.targets
+      if hoverTargets != prevHovers:
+        echo "hoverTargets: ", hoverTargets.toString
+      let newHovers = hoverTargets - prevHovers
+      let delHovers = prevHovers - hoverTargets
+
+      for target in delHovers:
+        echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
+        target.events.mouse.excl evHover
+        emit target.onHover(Exit)
+        target.refresh()
+        prevHovers.excl target
+
+      for target in newHovers:
+        echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
+        target.events.mouse.incl evHover
+        emit target.onHover(Enter)
+        target.refresh()
+        prevHovers.incl target
+
+    # for target in evts.targets:
+    #   block:
+    #     let currPrevHovers = prevHovers
+    #     if target notin prevHovers:
+    #       for prevHover in currPrevHovers:
+    #         if evHover in prevHover:
+    #         # if prevHover.getId != target.getId:
+    #           echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
+    #           prevHover.events.mouse.excl evHover
+    #           emit prevHover.onHover(Exit)
+    #           prevHover.refresh()
+    #           prevHovers.excl prevHover
+    #     if evHover in target:
+    #       if target notin prevHovers:
+    #         emit target.onHover(Enter)
+    #         refresh(target)
+    #         prevHovers.incl target
+
+    for target in evts.targets:
       if not uxInputs.keyboard.consumed:
         if evClickOut in target:
           echo "click out: ", target.getId
