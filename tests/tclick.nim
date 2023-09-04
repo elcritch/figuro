@@ -75,7 +75,7 @@ proc draw*(self: Main) {.slot.} =
           box 10 + i * 120, 10, 100, 100
 
           connect(current, onHover, self, Main.hover)
-          connect(current, onHover, current, Button[int].hover)
+          # connect(current, onHover, current, Button[int].hover)
           # echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
           connect(current, onClick, current, Button[int].btnClicked())
           if i == 0:

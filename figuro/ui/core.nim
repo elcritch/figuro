@@ -351,25 +351,33 @@ proc computeEvents*(node: Figuro) =
       prevHover == nil:
     return
 
-  var captured: CapturedEvents = computeNodeEvents(node)
+  var capturedAll: CapturedEvents = computeNodeEvents(node)
+  var captured: Table[int, EventsCapture[MouseEventFlags]]
 
-  print captured
-  # # Gestures
-  # if not captured.gesture.target.isNil:
-  #   let evts = captured.gesture
-  #   let target = evts.target
-  #   target.events.gesture = evts.flags
+  for ek in MouseEventKinds:
+    let cevt = capturedAll.mouse[ek]
+    if cevt.flags != {}:
+      captured.withValue(cevt.target.getId, value):
+        value.flags = cevt.flags + value.flags
+      do:
+        captured[cevt.target.getId] = cevt
+
+  # echo "captured:len: ", captured.len
+  # for evts in captured.values():
+  #   echo "Captured: ", "  tgt: ", evts.target.getId,
+  #         "  zlvl: ", evts.zlvl,
+  #         "  flags: ", evts.flags,
+  #         "  target: ", evts.target.getId
 
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
-  for ek in MouseEventKinds:
-    let evts = captured.mouse[ek]
+  for evts in captured.values():
     let target = evts.target
     if not target.isNil:
       target.events.mouse.incl evts.flags
 
-    # if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
-    #   echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
+    if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
+      echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
     proc contains(fig: Figuro, evt: MouseEventKinds): bool =
       not fig.isNil and evt in fig.events.mouse
