@@ -277,7 +277,7 @@ type
   EventsCapture*[T: set] = object
     zlvl*: ZLevel
     flags*: MouseEventFlags
-    targets*: OrderedSet[Figuro]
+    targets*: HashSet[Figuro]
 
   MouseCapture* = EventsCapture[MouseEventFlags]
   KeyboardCapture* = EventsCapture[KeyboardEventFlags]
@@ -308,7 +308,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
                                 flags: mouseEvts * {ek},
-                                targets: toOrderedSet([node]))
+                                targets: toHashSet([node]))
 
     if clipContent in node.attrs and not node.mouseOverlaps():
       # this node clips events, so it must overlap child events, 
@@ -334,7 +334,7 @@ import std/sugar
 
 var evtMsg: seq[(string, string)]
 
-proc toString(figs: OrderedSet[Figuro]): string =
+proc toString(figs: HashSet[Figuro]): string =
   result.add "["
   for fig in figs:
     result.add $fig.getId
