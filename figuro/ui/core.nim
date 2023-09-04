@@ -277,7 +277,7 @@ type
   EventsCapture*[T: set] = object
     zlvl*: ZLevel
     flags*: MouseEventFlags
-    targets*: seq[Figuro]
+    targets*: OrderedSet[Figuro]
 
   MouseCapture* = EventsCapture[MouseEventFlags]
   KeyboardCapture* = EventsCapture[KeyboardEventFlags]
@@ -308,14 +308,15 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
                                 flags: mouseEvts * {ek},
-                                targets: @[node])
+                                targets: toOrderedSet([node]))
 
     if clipContent in node.attrs and not node.mouseOverlaps():
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result.mouse[ek] = captured
     elif ek == evHover:
-      result.mouse[ek] = maxEvt(captured, result.mouse[ek])
+      result.mouse[ek].targets.incl(captured.targets)
+      result.mouse[ek].targets.incl(result.mouse[ek].targets)
     else:
       result.mouse[ek] = maxEvt(captured, result.mouse[ek])
       # result.gesture = max(captured.gesture, result.gesture)
@@ -333,7 +334,7 @@ import std/sugar
 
 var evtMsg: seq[(string, string)]
 
-proc toString(figs: openArray[Figuro]): string =
+proc toString(figs: OrderedSet[Figuro]): string =
   result.add "["
   for fig in figs:
     result.add $fig.getId
@@ -370,7 +371,7 @@ proc computeEvents*(node: Figuro) =
       # not uxInputs.keyboard.consumed and
       true:
       let emsg: seq[(string, string)] = @[
-                  ("tgt: ", $targets.toString()),
+                  ("tgt: ", targets.toString()),
                   ("ek: ", $ek),
                   ("pClick: ", $prevClick.getId),
                   ("pHover: ", $prevHover.getId),
