@@ -291,22 +291,8 @@ proc mouseOverlapsNode*(node: Figuro): bool =
     (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
 
 
-type
-  EventsCapture*[T: set] = object
-    zlvl*: ZLevel
-    flags*: MouseEventFlags
-    target*: Figuro
-
-  CapturedEvents*[N] = object
-    mouse*: array[MouseEvent, EventsCapture[MouseEventFlags]]
-    keyboard*: array[KeyboardEvent, EventsCapture[KeyboardEventFlags]]
-
-proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
-  if b.zlvl >= a.zlvl and b.flags != {}: b
-  else: a
-
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
-  when ET is MouseEvent:
+  when ET is MouseEventKinds:
     if evt in node.listens.mouse and predicate:
       result.incl(evt)
     if evt in node.listens.mouseSignals and predicate:
@@ -333,12 +319,27 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
 #   if node.mouseOverlapsNode():
 #     node.checkEvent(evScroll, uxInputs.mouse.scrolled())
 
+type
+  EventsCapture*[T: set] = object
+    zlvl*: ZLevel
+    flags*: MouseEventFlags
+    target*: Figuro
+
+  CapturedEvents* = object
+    mouse*: array[MouseEventKinds, EventsCapture[MouseEventFlags]]
+    keyboard*: array[KeyboardEventKinds, EventsCapture[KeyboardEventFlags]]
+
+proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
+  if b.zlvl >= a.zlvl and b.flags != {}: b
+  else: a
+
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
-    result.mouse = max(result.mouse, child.mouse)
-    result.gesture = max(result.gesture, child.gesture)
+    for i in 0..<child.mouse.high:
+      result.mouse[i] = maxEvt(result.mouse[i], child.mouse[i])
+    # result.gesture = max(result.gesture, child.gesture)
 
   let
     allMouseEvts = node.checkMouseEvents()
@@ -394,7 +395,7 @@ proc computeEvents*(node: Figuro) =
   # if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
   #   echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
-  proc contains(fig: Figuro, evt: MouseEvent): bool =
+  proc contains(fig: Figuro, evt: MouseEventKinds): bool =
     not fig.isNil and evt in fig.events.mouse
 
   # if not uxInputs.mouse.consumed and prevHover == nil:
