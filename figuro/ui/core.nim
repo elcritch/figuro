@@ -325,7 +325,9 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
 import std/terminal
-var evtMsg: seq[(string, string)]
+
+var evtMsg: array[MouseEventKinds, seq[(string, string)]]
+
 proc toString(figs: HashSet[Figuro]): string =
   result.add "["
   for fig in figs:
@@ -358,32 +360,32 @@ proc computeEvents*(node: Figuro) =
 
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
-
-  var nodeEvts: Table[Figuro, tuple[zlvl: ZLevel, flags: MouseEventFlags]]
+  
   for ek in MouseEventKinds:
     let evts = captured.mouse[ek]
     let targets = evts.targets
-    for target in targets:
-      nodeEvts.mgetOrPut(target, (target.zlevel, evts.flags)).flags.incl(evts.flags)
 
-  for target, evts in nodeEvts:
     if evts.flags != {} and
-        # evts.flags != {evHover} and
-        # not uxInputs.keyboard.consumed and
-        true:
-          let emsg: seq[(string, string)] = @[
-                      ("tgt: ", $target.getId),
-                      ("pClick: ", $prevClick.getId),
-                      ("evts: ", $evts.flags),
-                      # (" consumed: ", $uxInputs.mouse.consumed),
-                      # ( " ", $app.frameCount),
-                      ]
-          if emsg != evtMsg:
-            evtMsg = emsg
-            stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
-            for (n, v) in evtMsg.items():
-              stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
-            stdout.styledWriteLine(fgWhite, "")
+      ek in evts.flags and
+      # evts.flags != {evHover} and
+      # not uxInputs.keyboard.consumed and
+      true:
+      
+      let emsg: seq[(string, string)] = @[
+                  ("tgt: ", targets.toString()),
+                  ("ek: ", $ek),
+                  ("pClick: ", $prevClick.getId),
+                  ("pHover: ", $prevHovers.toString()),
+                  ("evts: ", $evts.flags),
+                  # (" consumed: ", $uxInputs.mouse.consumed),
+                  # ( " ", $app.frameCount),
+                  ]
+      if emsg != evtMsg[ek]:
+        evtMsg[ek] = emsg
+        stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
+        for (n, v) in emsg.items():
+          stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
+        stdout.styledWriteLine(fgWhite, "")
 
   proc contains(fig: Figuro, evt: MouseEventKinds): bool =
     not fig.isNil and evt in fig.events.mouse
