@@ -10,12 +10,15 @@ type
     isActive*: bool
     disabled*: bool
 
-proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
+proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  # echo "button:hovered: ", kind, " :: ", self.getId
-  refresh(self)
-  discard
+  echo "button:hovered: ", kind, " :: ", self.getId, " buttons: ", self.events.mouse
+  if kind == Enter:
+    self.events.mouse.incl evHover
+  # else:
+  #   self.events.mouse.excl evHover
+  # refresh(self)
 
 proc clicked*[T](self: Button[T],
                   kind: EventKind,

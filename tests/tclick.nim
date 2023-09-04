@@ -35,8 +35,8 @@ proc btnClicked*(self: Button[int],
     refresh(self)
 
 proc txtHovered*(self: Figuro, kind: EventKind) {.slot.} =
-  echo "TEXT hover!"
-  # echo "button:hovered: ", kind, " :: ", self.getId
+  if kind == Enter:
+    echo "TEXT hover! ", kind, " :: ", self.getId
   # refresh(self)
 
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
@@ -76,6 +76,7 @@ proc draw*(self: Main) {.slot.} =
           box 10 + i * 120, 10, 100, 100
 
           connect(current, onHover, self, Main.hover)
+          connect(current, onHover, current, Button[int].hover)
           # echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
           connect(current, onClick, current, Button[int].btnClicked())
           if i == 0:
@@ -92,7 +93,7 @@ proc draw*(self: Main) {.slot.} =
             setText(font, $(Button[int](current.parent).state))
             bubble(onClick)
             bubble(onHover)
-            connect(self, onHover, current, Figuro.txtHovered())
+            connect(current, onHover, current, Figuro.txtHovered())
 
 var main = Main.new()
 

@@ -129,8 +129,6 @@ template connect*(
     slot: typed
 ) =
   when signalName(signal) == "onClick":
-    static:
-      echo "SIGNAL CONNECT MOUSE"
     a.listens.mouseSignals.incl {evClick, evClickOut}
   elif signalName(signal) == "onHover":
     a.listens.mouseSignals.incl {evHover}

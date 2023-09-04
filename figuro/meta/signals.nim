@@ -137,53 +137,6 @@ proc splitNamesImpl(slot: NimNode): Option[(NimNode, NimNode)] =
     )
   echo "splitNamesImpl:res: ", result.repr
 
-macro splitNames(slot: untyped): untyped =
-  let res = splitNamesImpl(slot)
-  if res.isSome:
-    let (tp, name) = res.get()
-    result = quote do:
-      (`tp`.repr, `name`.repr)
-  else:
-    result = quote do:
-      error("can't compile")
-  # echo "splitNames:res: ", slot.treeRepr
-  
-  
-import typetraits, sequtils
-
-proc getSignalTuple*(obj, sig: NimNode): NimNode =
-  let
-    otp = obj.getTypeInst
-    isGeneric = otp.kind == nnkBracketExpr
-    sigTyp =
-      if sig.kind == nnkSym: sig.getTypeInst
-      else: sig.getTypeInst
-    stp =
-      if sigTyp.kind == nnkProcTy: sig.getTypeInst[0]
-      else: sigTyp.params()
-
-  var args: seq[NimNode]
-  for i in 2..<stp.len:
-    args.add stp[i]
-
-  result = nnkTupleConstr.newTree()
-  if isGeneric:
-    template genArgs(n): auto = n[1][1]
-    var genKinds: Table[string, NimNode]
-    for i in 1..<stp.genArgs.len:
-      genKinds[repr stp.genArgs[i]] = otp[i]
-    for arg in args:
-      result.add genKinds[arg[1].repr]
-  else:
-    # genKinds
-    # echo "ARGS: ", args.repr
-    for arg in args:
-      result.add arg[1]
-  if result.len == 0:
-    result = bindSym"void"
-  # echo "ARG: ", result.repr
-  # echo ""
-
 macro signalType*(s: untyped): auto =
   ## gets the type of the signal without 
   ## the Agent proc type
