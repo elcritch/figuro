@@ -325,6 +325,9 @@ type
     flags*: MouseEventFlags
     target*: Figuro
 
+  MouseCapture* = EventsCapture[MouseEventFlags]
+  KeyboardCapture* = EventsCapture[KeyboardEventFlags]
+  
   CapturedEvents* = object
     mouse*: array[MouseEventKinds, EventsCapture[MouseEventFlags]]
     keyboard*: array[KeyboardEventKinds, EventsCapture[KeyboardEventFlags]]
@@ -337,8 +340,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
-    for i in 0..<child.mouse.high:
-      result.mouse[i] = maxEvt(result.mouse[i], child.mouse[i])
+    for ek in MouseEventKinds:
+      result.mouse[ek] = maxEvt(result.mouse[ek], child.mouse[ek])
     # result.gesture = max(result.gesture, child.gesture)
 
   let
@@ -347,19 +350,19 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     mouseEvts = allMouseEvts
     # gestureEvts = node.checkGestureEvents()
 
-  let
-    captured = CapturedEvents(
-      mouse: MouseCapture(zlvl: node.zlevel, flags: mouseEvts, target: node),
-      gesture: GestureCapture(zlvl: node.zlevel, flags: gestureEvts, target: node)
-    )
 
-  if clipContent in node.attrs and not node.mouseOverlapsNode():
-    # this node clips events, so it must overlap child events, 
-    # e.g. ignore child captures if this node isn't also overlapping 
-    result = captured
-  else:
-    result.mouse = max(captured.mouse, result.mouse)
-    result.gesture = max(captured.gesture, result.gesture)
+  for ek in MouseEventKinds:
+    let captured = MouseCapture(zlvl: node.zlevel,
+                                flags: mouseEvts * {ek},
+                                target: node)
+
+    if clipContent in node.attrs and not node.mouseOverlapsNode():
+      # this node clips events, so it must overlap child events, 
+      # e.g. ignore child captures if this node isn't also overlapping 
+      result.mouse[ek] = captured
+    else:
+      result.mouse[ek] = max(captured, result.mouse[ek])
+      # result.gesture = max(captured.gesture, result.gesture)
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
@@ -379,54 +382,55 @@ proc computeEvents*(node: Figuro) =
 
   var captured: CapturedEvents = computeNodeEvents(node)
 
-  # Gestures
-  if not captured.gesture.target.isNil:
-    let evts = captured.gesture
-    let target = evts.target
-    target.events.gesture = evts.flags
+  # # Gestures
+  # if not captured.gesture.target.isNil:
+  #   let evts = captured.gesture
+  #   let target = evts.target
+  #   target.events.gesture = evts.flags
 
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
-  let evts = captured.mouse
-  let target = evts.target
-  if not target.isNil:
-    target.events.mouse.incl evts.flags
+  for ek in MouseEventKinds:
+    let evts = captured.mouse[ek]
+    let target = evts.target
+    if not target.isNil:
+      target.events.mouse.incl evts.flags
 
-  # if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
-  #   echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
+    # if evts.flags != {} and evts.flags != {evHover} and not uxInputs.keyboard.consumed:
+    #   echo "mouse events: ", "tgt: ", target.getId, " prevClick: ", prevClick.getId, " evts: ", evts.flags
 
-  proc contains(fig: Figuro, evt: MouseEventKinds): bool =
-    not fig.isNil and evt in fig.events.mouse
+    proc contains(fig: Figuro, evt: MouseEventKinds): bool =
+      not fig.isNil and evt in fig.events.mouse
 
-  # if not uxInputs.mouse.consumed and prevHover == nil:
-  block:
-    if evHover in prevHover:
-      if prevHover.getId != target.getId:
-        prevHover.events.mouse.excl evHover
-        emit prevHover.onHover(Exit)
-        prevHover.refresh()
-        prevHover = nil
-    if evHover in target:
-      if prevHover.getId != target.getId:
-        emit target.onHover(Enter)
-        refresh(target)
-        prevHover = target
+    # if not uxInputs.mouse.consumed and prevHover == nil:
+    block:
+      if evHover in prevHover:
+        if prevHover.getId != target.getId:
+          prevHover.events.mouse.excl evHover
+          emit prevHover.onHover(Exit)
+          prevHover.refresh()
+          prevHover = nil
+      if evHover in target:
+        if prevHover.getId != target.getId:
+          emit target.onHover(Enter)
+          refresh(target)
+          prevHover = target
 
-  if not uxInputs.keyboard.consumed:
-    if evClickOut in target:
-      echo "click out: ", target.getId
-      target.events.mouse.excl evClickOut
-      if prevClick != nil and prevClick.getId != target.getId:
-        prevClick.events.mouse.excl evClick
-        emit prevClick.onClick(Exit, mouseButtons)
-        # prevClick.refresh()
-        prevClick = nil
-    if evClick in target:
-      if mouseButtons != {}:
-      # if prevClick.getId != target.getId:
-        emit target.onClick(Enter, mouseButtons)
-        # refresh(target)
-        prevClick = target
+    if not uxInputs.keyboard.consumed:
+      if evClickOut in target:
+        echo "click out: ", target.getId
+        target.events.mouse.excl evClickOut
+        if prevClick != nil and prevClick.getId != target.getId:
+          prevClick.events.mouse.excl evClick
+          emit prevClick.onClick(Exit, mouseButtons)
+          # prevClick.refresh()
+          prevClick = nil
+      if evClick in target:
+        if mouseButtons != {}:
+        # if prevClick.getId != target.getId:
+          emit target.onClick(Enter, mouseButtons)
+          # refresh(target)
+          prevClick = target
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true
