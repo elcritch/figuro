@@ -71,6 +71,7 @@ type
   InputEvents* = object
     mouse*: MouseEventFlags
     gesture*: GestureEventFlags
+
   ListenEvents* = object
     mouse*: MouseEventFlags
     mouseSignals*: MouseEventFlags
