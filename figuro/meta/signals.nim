@@ -111,7 +111,12 @@ template packResponse*(res: AgentResponse): Variant =
   so
 
 proc getSignalName*(signal: NimNode): NimNode =
-  result = newStrLitNode signal.strVal
+  echo "getSignalName: ", signal.treeRepr
+  if signal.kind == nnkClosedSymChoice:
+    result = newStrLitNode signal[0].strVal
+  else:
+    result = newStrLitNode signal.strVal
+  echo "getSignalName:result: ", result.treeRepr
 
 macro signalName*(signal: untyped): untyped =
   result = getSignalName(signal)

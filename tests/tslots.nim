@@ -17,6 +17,7 @@ proc setValue*(self: Counter, value: int) {.slot.} =
     self.value = value
   emit self.valueChanged(value)
 
+
 proc setSomeValue*(self: Counter, value: int) =
   echo "setValue! ", value
   if self.value != value:
@@ -64,10 +65,10 @@ when isMainModule:
 
 
     test "signal / slot types":
-      check avgChanged.signalType() is (float, )
-      check valueChanged.signalType() is (int, )
+      check SignalTypes.avgChanged(Counter) is (float, )
+      check SignalTypes.valueChanged(Counter) is (int, )
       # check SignalTypes.valueChanged(Counter) is (int, )
-      # echo "type: ", SignalTypes.setValue(Counter).typeof.repr
+      # echo "type: ", SignalTypes.setValue(Counter).typeo.repr
       check SignalTypes.setValue(Counter) is (int, )
 
 
