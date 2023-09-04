@@ -41,12 +41,19 @@ when isMainModule:
         c {.used.} = Counter.new()
         d {.used.} = Counter.new()
 
+    test "signal / slot types":
+      check SignalTypes.avgChanged(Counter) is (float, )
+      check SignalTypes.valueChanged(Counter) is (int, )
+      echo "someChange: ", SignalTypes.someChange(Counter).typeof.repr
+      check SignalTypes.someChange(Counter) is tuple[]
+      check SignalTypes.setValue(Counter) is (int, )
+
     test "signal connect":
       echo "Counter.setValue: ", Counter.setValue().repr
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
-              c, Counter.setValue)
+              c, Counter.setValue())
 
       check b.value == 0
       check c.value == 0
@@ -63,13 +70,6 @@ when isMainModule:
       connect(a, someChange,
               c, Counter.someAction)
 
-
-    test "signal / slot types":
-      check SignalTypes.avgChanged(Counter) is (float, )
-      check SignalTypes.valueChanged(Counter) is (int, )
-      # check SignalTypes.valueChanged(Counter) is (int, )
-      # echo "type: ", SignalTypes.setValue(Counter).typeo.repr
-      check SignalTypes.setValue(Counter) is (int, )
 
 
     test "signal connect":

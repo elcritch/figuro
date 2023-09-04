@@ -74,7 +74,9 @@ proc signalTuple*(sig: NimNode): NimNode =
   # echo "ARG: ", result.repr
   # echo ""
   if result.len == 0:
-    result = bindSym"void"
+    # result = bindSym"void"
+    result = quote do:
+      tuple[]
 
 proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
   ## Create local variables for each parameter in the actual RPC call proc
@@ -235,7 +237,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   for i in 2..<params.len:
     signalTyp.add params[i][1]
   if params.len == 2:
-    signalTyp = bindSym"void"
+    # signalTyp = bindSym"void"
+    signalTyp = quote do:
+      tuple[]
 
   # Create the proc's that hold the users code 
   if not isSignal:
@@ -326,8 +330,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.treeRepr
-  # echo "slot:repr:"
-  # echo result.repr
+  echo "slot:repr:"
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)

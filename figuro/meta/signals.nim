@@ -186,9 +186,13 @@ template connect*(
 ) =
   when slot is AgentProc:
     let agentSlot: AgentProc = slot
+    echo "A': ", typeof(a).repr 
+    echo "A': ", SignalTypes.someChange(Counter).typeof.repr
+    # echo "A: ", SignalTypes.`signal`(typeof(a)).typeof.repr 
+    # echo "B: ", signalName(slot)
   else:
     let agentSlot: AgentProc = `slot`(typeof(b))
-    # echo "A: ", signalType(a).typeof.repr 
+    echo "A: ", SignalTypes.`signal`(typeof(a)).typeof.repr 
     echo "B: ", SignalTypes.`slot`(typeof(b)).typeof.repr 
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
