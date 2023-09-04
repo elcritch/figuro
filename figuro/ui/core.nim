@@ -339,6 +339,8 @@ var
   prevHover {.runtimeVar.}: Figuro
   prevClick {.runtimeVar.}: Figuro
 
+import pretty
+
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
@@ -351,6 +353,7 @@ proc computeEvents*(node: Figuro) =
 
   var captured: CapturedEvents = computeNodeEvents(node)
 
+  print captured
   # # Gestures
   # if not captured.gesture.target.isNil:
   #   let evts = captured.gesture
