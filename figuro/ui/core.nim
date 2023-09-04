@@ -359,13 +359,6 @@ proc computeEvents*(node: Figuro) =
       for target in evts.targets:
         target.events.mouse.incl evts.flags
 
-  # echo "captured:len: ", captured.len
-  # for evts in captured.values():
-  #   echo "Captured: ", "  tgt: ", evts.target.getId,
-  #         "  zlvl: ", evts.zlvl,
-  #         "  flags: ", evts.flags,
-  #         "  target: ", evts.target.getId
-
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
   for ek in MouseEventKinds:
