@@ -183,6 +183,8 @@ template connect*(
     let agentSlot: AgentProc = slot
   else:
     let agentSlot: AgentProc = `slot`(typeof(b))
+    # echo "A: ", signalType(a).typeof.repr 
+    echo "B: ", SignalTypes.`slot`(typeof(b)).typeof.repr 
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =

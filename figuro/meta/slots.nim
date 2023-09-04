@@ -289,29 +289,15 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     let kd = ident "kd"
     let tp = ident "tp"
     let agent = ident "agent"
-    if isGeneric:
-      result.add quote do:
-        proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
-          discard
-        proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
-          `agentSlotImpl`
-          slot
-    else:
-      result.add quote do:
-        proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
-          discard
-        proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
-          `agentSlotImpl`
-          slot
+    result.add quote do:
+      proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
+        discard
+      proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
+        `agentSlotImpl`
+        slot
 
     if isPublic:
       result.makeProcsPublic(genericParams)
-
-    # result.add quote do:
-    #   once:
-    #     register("", repr signalName, repr rpcMethodGenName)
-    # echo "slots: "
-    # echo result.repr
 
   elif isSignal:
     var construct = nnkTupleConstr.newTree()
@@ -340,8 +326,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.treeRepr
-  # echo "slot:repr:"
-  # echo result.repr
+  echo "slot:repr:"
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
