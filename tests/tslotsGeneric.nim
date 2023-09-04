@@ -33,6 +33,13 @@ when isMainModule:
         c {.used.} = Counter[uint]()
         d {.used.} = Counter[uint]()
 
+    test "signal / slot types":
+      check SignalTypes.avgChanged(Counter[uint]) is (float, )
+      check SignalTypes.valueChanged(Counter[uint]) is (uint, )
+      # check SignalTypes.valueChanged(Counter) is (int, )
+      # echo "type: ", SignalTypes.setValue(Counter).typeo.repr
+      check SignalTypes.setValue(Counter[uint]) is (uint, )
+
     test "signal connect":
       # let tgtProc = Counter[uint].setValue
       # echo "check:sig: ", a.valueChanged(3.uint).typeof is (Agent, AgentRequest)
