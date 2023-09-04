@@ -288,11 +288,6 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     if uxInputs.mouse.click():
       result.incl evClickOut
 
-# proc checkGestureEvents*(node: Figuro): GestureEventFlags =
-#   ## Compute gesture events
-#   if node.mouseOverlapsNode():
-#     node.checkEvent(evScroll, uxInputs.mouse.scrolled())
-
 type
   EventsCapture*[T: set] = object
     zlvl*: ZLevel
