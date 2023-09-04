@@ -1,4 +1,4 @@
-import strutils, macros
+import strutils, macros, options
 import std/times
 import slots
 
@@ -111,16 +111,39 @@ template packResponse*(res: AgentResponse): Variant =
   so
 
 proc getSignalName*(signal: NimNode): NimNode =
-  echo "getSignalName: ", signal.treeRepr
+  # echo "getSignalName: ", signal.treeRepr
   if signal.kind == nnkClosedSymChoice:
     result = newStrLitNode signal[0].strVal
   else:
     result = newStrLitNode signal.strVal
-  echo "getSignalName:result: ", result.treeRepr
+  # echo "getSignalName:result: ", result.treeRepr
 
 macro signalName*(signal: untyped): untyped =
   result = getSignalName(signal)
 
+proc splitNamesImpl(slot: NimNode): Option[(NimNode, NimNode)] =
+  # echo "splitNamesImpl: ", slot.treeRepr
+  if slot.kind == nnkCall:
+    return splitNamesImpl(slot[0])
+  elif slot.kind == nnkDotExpr:
+    result = some (
+      slot[0].copyNimTree,
+      slot[1].copyNimTree,
+    )
+  # echo "splitNamesImpl:res: ", slot.treeRepr
+
+macro splitNames(slot: untyped): untyped =
+  let res = splitNamesImpl(slot)
+  if res.isSome:
+    let (tp, name) = res.get()
+    result = quote do:
+      (`tp`.repr, `name`.repr)
+  else:
+    result = quote do:
+      error("can't compile")
+  # echo "splitNames:res: ", slot.treeRepr
+  
+  
 import typetraits, sequtils
 
 proc getSignalTuple*(obj, sig: NimNode): NimNode =
@@ -178,6 +201,20 @@ macro signalType*(s: untyped): auto =
   for arg in obj[2..^1]:
     result.add arg[1]
 
+macro tryGetTypeAgentProc(slot: untyped): untyped =
+  let res = splitNamesImpl(slot)
+  if res.isNone:
+    error("can't determine slot type", slot)
+      
+  let (tp, name) = res.get()
+  # echo "getTypeAgentProc: ", res.repr
+
+  result = quote do:
+    SignalTypes.`name`(typeof(`tp`))
+
+macro typeMismatchError(signal, slot: typed): untyped =
+  error("mismatched signal and slot type: " & repr(signal) & " != " & repr(slot), slot)
+
 template connect*(
     a: Agent,
     signal: typed,
@@ -185,15 +222,18 @@ template connect*(
     slot: untyped
 ) =
   when slot is AgentProc:
+    static:
+      echo "A': ", SignalTypes.`signal`(typeof(a)).typeof.repr 
+      echo "B':splitNames: ", tryGetTypeAgentProc(slot).typeof.repr
+    when SignalTypes.`signal`(typeof(a)).typeof isnot
+          tryGetTypeAgentProc(slot).typeof:
+      typeMismatchError(signal, slot)
     let agentSlot: AgentProc = slot
-    echo "A': ", typeof(a).repr 
-    echo "A': ", SignalTypes.someChange(Counter).typeof.repr
-    # echo "A: ", SignalTypes.`signal`(typeof(a)).typeof.repr 
-    # echo "B: ", signalName(slot)
   else:
     let agentSlot: AgentProc = `slot`(typeof(b))
-    echo "A: ", SignalTypes.`signal`(typeof(a)).typeof.repr 
-    echo "B: ", SignalTypes.`slot`(typeof(b)).typeof.repr 
+    # static:
+    #   echo "A: ", SignalTypes.`signal`(typeof(a)).typeof.repr 
+    #   echo "B: ", SignalTypes.`slot`(typeof(b)).typeof.repr 
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =

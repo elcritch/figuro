@@ -53,7 +53,13 @@ when isMainModule:
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
-              c, Counter.setValue())
+              c, Counter.setValue)
+      check not(compiles(
+        connect(a, valueChanged,
+              c, setValue Counter)))
+      check not(compiles(
+        connect(a, someAction,
+                c, Counter.setValue)))
 
       check b.value == 0
       check c.value == 0
