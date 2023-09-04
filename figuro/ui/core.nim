@@ -277,6 +277,19 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
 
+proc mouseOverlapsNode*(node: Figuro): bool =
+  ## Returns true if mouse overlaps the node node.
+  let mpos = uxInputs.mouse.pos + node.totalOffset 
+  let act = 
+    (not popupActive or inPopup) and
+    node.screenBox.w > 0'ui and
+    node.screenBox.h > 0'ui 
+
+  result =
+    act and
+    mpos.overlaps(node.screenBox) and
+    (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
+
 
 type
   EventsCapture*[T: set] = object
@@ -291,19 +304,6 @@ type
 proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
-
-proc mouseOverlapsNode*(node: Figuro): bool =
-  ## Returns true if mouse overlaps the node node.
-  let mpos = uxInputs.mouse.pos + node.totalOffset 
-  let act = 
-    (not popupActive or inPopup) and
-    node.screenBox.w > 0'ui and
-    node.screenBox.h > 0'ui 
-
-  result =
-    act and
-    mpos.overlaps(node.screenBox) and
-    (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   when ET is MouseEvent:
