@@ -367,6 +367,8 @@ proc computeEvents*(node: Figuro) =
       for target in evts.targets:
         target.events.mouse.incl evts.flags
 
+  echo "mouse hovered: ", captured.mouse[evHover].targets.mapIt(it.getId)
+
   # echo "captured:len: ", captured.len
   # for evts in captured.values():
   #   echo "Captured: ", "  tgt: ", evts.target.getId,
