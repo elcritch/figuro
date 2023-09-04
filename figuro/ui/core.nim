@@ -292,7 +292,7 @@ type
   EventsCapture*[T: set] = object
     zlvl*: ZLevel
     flags*: MouseEventFlags
-    target*: Figuro
+    targets*: seq[Figuro]
 
   MouseCapture* = EventsCapture[MouseEventFlags]
   KeyboardCapture* = EventsCapture[KeyboardEventFlags]
@@ -323,7 +323,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
                                 flags: mouseEvts * {ek},
-                                target: node)
+                                targets: @[node])
 
     if clipContent in node.attrs and not node.mouseOverlapsNode():
       # this node clips events, so it must overlap child events, 
@@ -360,10 +360,19 @@ proc computeEvents*(node: Figuro) =
   for ek in MouseEventKinds:
     let cevt = capturedAll.mouse[ek]
     if cevt.flags != {}:
-      captured.withValue(cevt.target.getId, value):
-        value.flags = cevt.flags + value.flags
-      do:
-        captured[cevt.target.getId] = cevt
+      for tgt in cevt.targets:
+        captured.withValue(tgt.getId, value):
+          value.flags = cevt.flags + value.flags
+        do:
+          var cevtTgt = cevt
+          cevtTgt.targets = @[tgt]
+          captured[tgt.getId] = cevtTgt
+
+  # set mouse event flags in targets
+  for evts in captured.values():
+    assert evts.targets.len() == 1
+    for target in evts.targets:
+      target.events.mouse.incl evts.flags
 
   # echo "captured:len: ", captured.len
   # for evts in captured.values():
@@ -375,9 +384,7 @@ proc computeEvents*(node: Figuro) =
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
   for evts in captured.values():
-    let target = evts.target
-    if not target.isNil:
-      target.events.mouse.incl evts.flags
+    let target = evts.targets[0]
 
     if evts.flags != {} and
       # evts.flags != {evHover} and
