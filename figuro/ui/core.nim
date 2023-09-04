@@ -397,6 +397,7 @@ proc computeEvents*(node: Figuro) =
       block:
         if evHover in prevHover:
           if prevHover.getId != target.getId:
+            echo "prevHover: ", prevHover.getId(), " tgt: ", target.getId
             prevHover.events.mouse.excl evHover
             emit prevHover.onHover(Exit)
             prevHover.refresh()
