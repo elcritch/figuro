@@ -175,7 +175,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.zlevel = parent.zlevel
 
   current.listens.mouse = {}
-  current.listens.gesture = {}
+  # current.listens.gesture = {}
 
   nodeStack.add(current)
   inc parent.diffIndex
@@ -236,32 +236,6 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
 
 macro statefulWidgetProc*(): untyped =
   ident(repr(genSym(nskProc, "doPost")))
-
-# macro statefulWidget*(p: untyped): untyped =
-#   ## implements a stateful widget template constructors where 
-#   ## the type and the name are taken from the template definition:
-#   ## 
-#   ##    template `name`*[`type`, T](id: string, value: T, blk: untyped) {.statefulWidget.}
-#   ## 
-#   # echo "figuroWidget: ", p.treeRepr
-#   p.expectKind nnkTemplateDef
-#   let name = p.name()
-#   let genericParams = p[2]
-#   let typ = genericParams[0][0]
-#   p.params()[0].expectKind(nnkEmpty) # no return type
-#   if genericParams.len() > 1:
-#     error("incorrect generic types: " & repr(genericParams) & "; " & "Should be `[WidgetType, T]`", genericParams)
-#   if p.params()[1].repr() != "id: string":
-#     error("incorrect arguments: " & repr(p.params()[1]) & "; " & "Should be `id: string`", p.params()[1])
-#   if p.params()[2][1].repr() != genericParams[0][1].repr:
-#     error("incorrect arguments: " & repr(p.params()[2][1]) & "; " & "Should be `" & genericParams[0][1].repr & "`", p.params()[2][1])
-#   if p.params()[3][1].repr() != "untyped":
-#     error("incorrect arguments: " & repr(p.params()[3][1]) & "; " & "Should be `untyped`", p.params()[3][1])
-#   # echo "figuroWidget: ", " name: ", name, " typ: ", typ
-#   # echo "\n"
-#   # echo "doPostId: ", doPostId, " li: ", lineInfo(p.name())
-#   result = quote do:
-#     mkStatefulWidget(`typ`, `name`, doPostId)
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
@@ -332,7 +306,7 @@ type
     mouse*: array[MouseEventKinds, EventsCapture[MouseEventFlags]]
     keyboard*: array[KeyboardEventKinds, EventsCapture[KeyboardEventFlags]]
 
-proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
+proc max[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
@@ -341,7 +315,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
     for ek in MouseEventKinds:
-      result.mouse[ek] = maxEvt(result.mouse[ek], child.mouse[ek])
+      result.mouse[ek] = max(result.mouse[ek], child.mouse[ek])
     # result.gesture = max(result.gesture, child.gesture)
 
   let
