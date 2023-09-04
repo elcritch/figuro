@@ -197,21 +197,7 @@ proc postNode*(current: var Figuro) =
   current.removeExtraChildren()
   nodeDepth.dec()
 
-from sugar import capture
-import macros
-
-macro captureArgs*(args, blk: untyped): untyped =
-  result = nnkCommand.newTree(bindSym"capture")
-  if args.kind in [nnkSym, nnkIdent]:
-    if args.strVal != "void":
-      result.add args
-  else:
-    for arg in args:
-      result.add args
-  if result.len() == 0:
-    result = nnkEmpty.newNimNode
-  result.add nnkStmtList.newTree(blk)
-  echo "captured: ", result.repr
+import utils
 
 template node*(kind: NodeKind, id: string, blk: untyped): untyped =
   ## Base template for node, frame, rectangle...
@@ -233,9 +219,6 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
 
 # template node*(kind: NodeKind, id: string, blk: untyped): untyped =
 #   node(kind, id, void, blk)
-
-macro statefulWidgetProc*(): untyped =
-  ident(repr(genSym(nskProc, "doPost")))
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
@@ -345,8 +328,17 @@ var
 
 import pretty
 import std/terminal
+import std/sequtils
+import std/sugar
 
 var evtMsg: seq[(string, string)]
+
+proc toString(figs: openArray[Figuro]): string =
+  result.add "["
+  for fig in figs:
+    result.add $fig.getId
+    result.add ","
+  result.add "]"
 
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
@@ -367,8 +359,6 @@ proc computeEvents*(node: Figuro) =
       for target in evts.targets:
         target.events.mouse.incl evts.flags
 
-  echo "mouse hovered: ", captured.mouse[evHover].targets.mapIt(it.getId)
-
   # echo "captured:len: ", captured.len
   # for evts in captured.values():
   #   echo "Captured: ", "  tgt: ", evts.target.getId,
@@ -380,14 +370,14 @@ proc computeEvents*(node: Figuro) =
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
   for ek in MouseEventKinds:
     let evts = captured.mouse[ek]
-    let target = evts.targets[0]
+    let targets = evts.targets
 
     if evts.flags != {} and
       # evts.flags != {evHover} and
       # not uxInputs.keyboard.consumed and
       true:
       let emsg: seq[(string, string)] = @[
-                  ("tgt: ", $target.getId),
+                  ("tgt: ", $targets.toString()),
                   ("ek: ", $ek),
                   ("pClick: ", $prevClick.getId),
                   ("pHover: ", $prevHover.getId),
@@ -402,38 +392,41 @@ proc computeEvents*(node: Figuro) =
           stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
         stdout.styledWriteLine(fgWhite, "")
 
-    proc contains(fig: Figuro, evt: MouseEventKinds): bool =
-      not fig.isNil and evt in fig.events.mouse
+  proc contains(fig: Figuro, evt: MouseEventKinds): bool =
+    not fig.isNil and evt in fig.events.mouse
 
-    # if not uxInputs.mouse.consumed and prevHover == nil:
-    block:
-      if evHover in prevHover:
-        if prevHover.getId != target.getId:
-          prevHover.events.mouse.excl evHover
-          emit prevHover.onHover(Exit)
-          prevHover.refresh()
-          prevHover = nil
-      if evHover in target:
-        if prevHover.getId != target.getId:
-          emit target.onHover(Enter)
-          refresh(target)
-          prevHover = target
+  for ek in MouseEventKinds:
+    let evts = captured.mouse[ek]
+    for target in evts.targets:
+      # if not uxInputs.mouse.consumed and prevHover == nil:
+      block:
+        if evHover in prevHover:
+          if prevHover.getId != target.getId:
+            prevHover.events.mouse.excl evHover
+            emit prevHover.onHover(Exit)
+            prevHover.refresh()
+            prevHover = nil
+        if evHover in target:
+          if prevHover.getId != target.getId:
+            emit target.onHover(Enter)
+            refresh(target)
+            prevHover = target
 
-    if not uxInputs.keyboard.consumed:
-      if evClickOut in target:
-        echo "click out: ", target.getId
-        target.events.mouse.excl evClickOut
-        if prevClick != nil and prevClick.getId != target.getId:
-          prevClick.events.mouse.excl evClick
-          emit prevClick.onClick(Exit, mouseButtons)
-          # prevClick.refresh()
-          prevClick = nil
-      if evClick in target:
-        if mouseButtons != {}:
-        # if prevClick.getId != target.getId:
-          emit target.onClick(Enter, mouseButtons)
-          # refresh(target)
-          prevClick = target
+      if not uxInputs.keyboard.consumed:
+        if evClickOut in target:
+          echo "click out: ", target.getId
+          target.events.mouse.excl evClickOut
+          if prevClick != nil and prevClick.getId != target.getId:
+            prevClick.events.mouse.excl evClick
+            emit prevClick.onClick(Exit, mouseButtons)
+            # prevClick.refresh()
+            prevClick = nil
+        if evClick in target:
+          if mouseButtons != {}:
+          # if prevClick.getId != target.getId:
+            emit target.onClick(Enter, mouseButtons)
+            # refresh(target)
+            prevClick = target
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true

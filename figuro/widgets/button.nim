@@ -45,6 +45,8 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill current.fill.spin(15)
       # this changes the color on hover!
 
+import ../ui/utils
+
 template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
   block:
     var parent: Figuro = Figuro(current)
