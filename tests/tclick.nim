@@ -23,7 +23,7 @@ proc update*(fig: Figuro) {.signal.}
 proc btnTick*(self: Button[int]) {.slot.} =
   # echo "BUTTON: TICK: ", self.getId
   self.state.inc
-  # refresh(self)
+  refresh(self)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
