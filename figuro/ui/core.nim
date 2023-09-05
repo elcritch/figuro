@@ -411,5 +411,9 @@ proc computeEvents*(node: Figuro) =
         emit target.onClick(Enter, click.buttons)
         prevClicks.incl target
 
+  uxInputs.buttonPress.excl MouseButtons
+  uxInputs.buttonDown.excl MouseButtons
+  uxInputs.buttonRelease.excl MouseButtons
+
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true
