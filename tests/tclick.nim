@@ -97,7 +97,7 @@ proc draw*(self: Main) {.slot.} =
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
             connect(current, onClick, current, Figuro.txtClicked())
-            # bubble(onClick)
+            bubble(onClick)
             connect(current, onHover, current, Figuro.txtHovered())
             # bubble(onHover)
 
