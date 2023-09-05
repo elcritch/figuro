@@ -249,24 +249,24 @@ proc mouseOverlaps*(node: Figuro): bool =
 
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
+  let res = predicate
   when ET is MouseEventKinds:
-    if evt in node.listens.mouse and predicate:
+    if evt in node.listens.mouse and res:
       result.incl(evt)
-    if evt in node.listens.mouseSignals and predicate:
-      uxInputs.buttonRelease.excl MouseButtons
+    if evt in node.listens.mouseSignals and res:
       result.incl(evt)
   elif ET is GestureEventType:
-    if evt in node.listens.gesture and predicate:
+    if evt in node.listens.gesture and res:
       result.incl(evt)
-    if evt in node.listens.gestureSignals and predicate:
+    if evt in node.listens.gestureSignals and res:
       result.incl(evt)
 
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
   if node.mouseOverlaps():
-    node.checkEvent(evClick, uxInputs.mouse.consumeClick())
-    node.checkEvent(evPress, uxInputs.mouse.consumeDown())
-    node.checkEvent(evRelease, uxInputs.mouse.consumeRelease())
+    node.checkEvent(evClick, uxInputs.mouse.click())
+    node.checkEvent(evPress, uxInputs.mouse.down())
+    node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
     # if node.mouseOverlaps():
@@ -349,7 +349,7 @@ proc computeEvents*(node: Figuro) =
         target.events.mouse.incl evts.flags
 
   # Mouse
-  let mouseButtons = uxInputs.buttonRelease * MouseButtons
+  # let mouseButtons = uxInputs.buttonRelease * MouseButtons
   
   printNewEventInfo()
 
@@ -384,7 +384,8 @@ proc computeEvents*(node: Figuro) =
     let newClicks = clickTargets
     let delClicks = prevClicks - clickTargets
 
-    if not uxInputs.keyboard.consumed:
+    # if not uxInputs.keyboard.consumed:
+    block:
 
       for target in delClicks:
           echo "click out: ", target.getId
