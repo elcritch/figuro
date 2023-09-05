@@ -292,6 +292,27 @@ proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
+proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiButtonView] =
+  # Consume mouse buttons
+  if evPress in mouseEvts:
+    result[evPress] = uxInputs.buttonPress * MouseButtons
+    uxInputs.buttonPress.excl MouseButtons
+  if evDown in mouseEvts:
+    result[evDown] = uxInputs.buttonDown * MouseButtons
+    uxInputs.buttonDown.excl MouseButtons
+  if evRelease in mouseEvts:
+    result[evRelease] = uxInputs.buttonRelease * MouseButtons
+    uxInputs.buttonRelease.excl MouseButtons
+  if evClick in mouseEvts:
+    when defined(clickOnDown):
+      result[evPress] = uxInputs.buttonPress * MouseButtons
+      result[evClick] = result[evRelease]
+      uxInputs.buttonPress.excl MouseButtons
+    else:
+      result[evRelease] = uxInputs.buttonRelease * MouseButtons
+      result[evClick] = result[evRelease]
+      uxInputs.buttonRelease.excl MouseButtons
+
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
   for n in node.children.reverse:
@@ -306,27 +327,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     # mouseEvts = allMouseEvts
     # gestureEvts = node.checkGestureEvents()
 
-  # Consume mouse buttons
-  var buttons: array[MouseEventKinds, UiButtonView]
-  if evPress in mouseEvts:
-    buttons[evPress] = uxInputs.buttonPress * MouseButtons
-    uxInputs.buttonPress.excl MouseButtons
-  if evDown in mouseEvts:
-    buttons[evDown] = uxInputs.buttonDown * MouseButtons
-    uxInputs.buttonDown.excl MouseButtons
-  if evRelease in mouseEvts:
-    buttons[evRelease] = uxInputs.buttonRelease * MouseButtons
-    echo "remove buttons: ", uxInputs.buttonRelease, " node: ", node.getId()
-    uxInputs.buttonRelease.excl MouseButtons
-  if evClick in mouseEvts:
-    when defined(clickOnDown):
-      buttons[evPress] = uxInputs.buttonPress * MouseButtons
-      buttons[evClick] = buttons[evRelease]
-      uxInputs.buttonPress.excl MouseButtons
-    else:
-      buttons[evRelease] = uxInputs.buttonRelease * MouseButtons
-      buttons[evClick] = buttons[evRelease]
-      uxInputs.buttonRelease.excl MouseButtons
+  let buttons = mouseEvts.consumeMouseButtons()
+  # echo "remove buttons: ", uxInputs.buttonRelease, " node: ", node.getId()
 
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
