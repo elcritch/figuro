@@ -263,15 +263,15 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
   if node.mouseOverlaps():
-    node.checkEvent(evClick, uxInputs.mouse.click())
-    node.checkEvent(evPress, uxInputs.mouse.down())
-    node.checkEvent(evRelease, uxInputs.mouse.release())
+    node.checkEvent(evClick, uxInputs.mouse.click() and not uxInputs.keyboard.consumed)
+    node.checkEvent(evPress, uxInputs.mouse.down() and not uxInputs.keyboard.consumed)
+    node.checkEvent(evRelease, uxInputs.mouse.release() and not uxInputs.keyboard.consumed)
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
     # if node.mouseOverlaps():
     #   result.incl evHover
-    if uxInputs.mouse.click():
-      result.incl evClickOut
+    # if uxInputs.mouse.click():
+    #   result.incl evClickOut
 
 type
   EventsCapture*[T: set] = object
@@ -326,7 +326,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
 var
   prevHovers {.runtimeVar.}: HashSet[Figuro]
-  prevClick {.runtimeVar.}: Figuro
+  prevClicks {.runtimeVar.}: HashSet[Figuro]
 
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
@@ -356,8 +356,7 @@ proc computeEvents*(node: Figuro) =
     not fig.isNil and evt in fig.events.mouse
 
   if captured.mouse[evHover].targets != prevHovers:
-    let evts = captured.mouse[evHover]
-    let hoverTargets = evts.targets
+    let hoverTargets = captured.mouse[evHover].targets
     let newHovers = hoverTargets - prevHovers
     let delHovers = prevHovers - hoverTargets
 
@@ -374,25 +373,31 @@ proc computeEvents*(node: Figuro) =
       prevHovers.excl target
 
   
-  for ek in MouseEventKinds:
-    let evts = captured.mouse[ek]
+  let click = captured.mouse[evClick]
+  if click.targets.len() > 0 and
+      # click.targets != prevClicks and
+      evClick in click.flags:
+    let clickTargets = captured.mouse[evClick].targets
+    # let clickOutTargets = captured.mouse[evClickOut].targets
 
-    for target in evts.targets:
-      if not uxInputs.keyboard.consumed:
-        if evClickOut in target:
+    let newClicks = clickTargets
+    let delClicks = prevClicks - clickTargets
+
+    if not uxInputs.keyboard.consumed:
+
+      for target in delClicks:
           echo "click out: ", target.getId
-          target.events.mouse.excl evClickOut
-          if prevClick != nil and prevClick.getId != target.getId:
-            prevClick.events.mouse.excl evClick
-            emit prevClick.onClick(Exit, mouseButtons)
-            # prevClick.refresh()
-            prevClick = nil
-        if evClick in target:
-          if mouseButtons != {}:
-          # if prevClick.getId != target.getId:
-            emit target.onClick(Enter, mouseButtons)
-            # refresh(target)
-            prevClick = target
+          target.events.mouse.excl evClick
+          emit target.onClick(Exit, mouseButtons)
+          # prevClick.refresh()
+          prevClicks.excl target
+
+      for target in newClicks:
+          echo "click: ", target.getId
+          target.events.mouse.incl evClick
+          emit target.onClick(Enter, mouseButtons)
+          # prevClick.refresh()
+          prevClicks.incl target
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true

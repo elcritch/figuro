@@ -99,7 +99,7 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
-    stdout.styledWriteLine({styleDim}, fgWhite, "buttonPress ", {styleDim}, fgGreen, $uxInputs.buttonRelease)
+    stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ", {styleDim}, fgGreen, $uxInputs.buttonRelease)
 
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune

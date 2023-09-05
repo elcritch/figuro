@@ -42,15 +42,18 @@ template printNewEventInfo*() =
       # not uxInputs.keyboard.consumed and
       true:
       
-      let emsg: seq[(string, string)] = @[
-                  ("tgt: ", targets.toString()),
+      var emsg: seq[(string, string)] = @[
                   ("ek: ", $ek),
-                  ("pClick: ", $prevClick.getId),
-                  ("pHover: ", $prevHovers.toString()),
-                  ("evts: ", $evts.flags),
+                  ("tgt: ", targets.toString()),
+                  # ("evts: ", $evts.flags),
                   # (" consumed: ", $uxInputs.mouse.consumed),
                   # ( " ", $app.frameCount),
                   ]
+      if ek == evClick:
+        emsg.add ("pClick: ", $prevClicks.toString())
+      if ek == evClick:
+        emsg.add ("pHover: ", $prevHovers.toString())
+
       if emsg != evtMsg[ek]:
         evtMsg[ek] = emsg
         stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")

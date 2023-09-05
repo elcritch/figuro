@@ -90,7 +90,7 @@ proc draw*(self: Main) {.slot.} =
             box 10, 10, 70, 70
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
-            bubble(onClick)
+            # bubble(onClick)
             connect(current, onHover, current, Figuro.txtHovered())
             # bubble(onHover)
 
