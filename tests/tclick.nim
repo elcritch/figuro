@@ -38,6 +38,12 @@ proc txtHovered*(self: Figuro, kind: EventKind) {.slot.} =
   echo "TEXT hover! ", kind, " :: ", self.getId
   # refresh(self)
 
+proc txtClicked*(self: Figuro,
+                  kind: EventKind,
+                  buttons: UiButtonView) {.slot.} =
+  echo "TEXT clicked! ", kind, " buttons ", buttons, " :: ", self.getId
+  # refresh(self)
+
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
@@ -90,6 +96,7 @@ proc draw*(self: Main) {.slot.} =
             box 10, 10, 70, 70
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
+            connect(current, onClick, current, Figuro.txtClicked())
             # bubble(onClick)
             connect(current, onHover, current, Figuro.txtHovered())
             # bubble(onHover)
