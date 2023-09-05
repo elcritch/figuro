@@ -47,6 +47,8 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
   renderAndSwap(window, nodes)
   postInput()
 
+var lastMouse = Mouse()
+
 proc renderLoop*(renderer: Renderer, poll = true) =
   renderLoop(renderer.window, renderer.nodes)
 
@@ -54,7 +56,7 @@ import std/terminal
 
 proc configureEvents(renderer: Renderer) =
 
-  uxInputList = newChan[AppInputs]()
+  uxInputList = newChan[AppInputs](40)
 
   let window = renderer.window
 
@@ -79,7 +81,10 @@ proc configureEvents(renderer: Renderer) =
     let prevPos = vec2(window.mousePrevPos())
     uxInput.mouse.prev = prevPos.descaled()
     uxInput.mouse.consumed = false
-    discard uxInputList.trySend(uxInput)
+    lastMouse = uxInput.mouse
+    let res = uxInputList.trySend(uxInput)
+    if res == false:
+      echo "mouse blocked"
 
   window.onScroll = proc () =
     var uxInput = AppInputs()
@@ -87,7 +92,7 @@ proc configureEvents(renderer: Renderer) =
     discard uxInputList.trySend(uxInput)
 
   window.onButtonPress = proc (button: windy.Button) =
-    var uxInput = AppInputs()
+    var uxInput = AppInputs(mouse: lastMouse)
     uxInput.buttonRelease = toUi window.buttonReleased()
     uxInput.buttonPress = toUi window.buttonPressed()
     uxInput.buttonDown = toUi window.buttonDown()
@@ -97,7 +102,7 @@ proc configureEvents(renderer: Renderer) =
     discard uxInputList.trySend(uxInput)
 
   window.onButtonRelease = proc (button: Button) =
-    var uxInput = AppInputs()
+    var uxInput = AppInputs(mouse: lastMouse)
     uxInput.buttonRelease = toUi window.buttonReleased()
     uxInput.buttonPress = toUi window.buttonPressed()
     uxInput.buttonDown = toUi window.buttonDown()
@@ -107,7 +112,7 @@ proc configureEvents(renderer: Renderer) =
     discard uxInputList.trySend(uxInput)
 
   window.onRune = proc (rune: Rune) =
-    var uxInput = AppInputs()
+    var uxInput = AppInputs(mouse: lastMouse)
     uxInput.keyboard.input.add rune
     echo "keyboard: ", uxInput.keyboard.input
     discard uxInputList.trySend(uxInput)

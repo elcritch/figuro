@@ -39,7 +39,13 @@ proc startFiguro*(
     emit root.onTick()
 
   proc appEvent() =
-    computeEvents(root)
+    var input: AppInputs
+    let sz = uxInputList.peek()
+    if sz > 0:
+      echo "app events: ", sz
+    while uxInputList.tryRecv(input):
+      uxInputs = input
+      computeEvents(root)
 
   proc appLoad() =
     emit root.onLoad()
