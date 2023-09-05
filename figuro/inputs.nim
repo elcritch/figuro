@@ -211,17 +211,21 @@ var
 
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 
-proc click*(mouse: Mouse): bool =
+proc consumeClick*(mouse: Mouse): bool =
   when defined(clickOnDown):
-    return MouseButtons * uxInputs.buttonPressed != {}
+    result = MouseButtons * uxInputs.buttonPressed != {}
+    uxInputs.buttonPressed.excl MouseButtons
   else:
-    return MouseButtons * uxInputs.buttonRelease != {}
+    result = MouseButtons * uxInputs.buttonRelease != {}
+    uxInputs.buttonRelease.excl MouseButtons
 
-proc down*(mouse: Mouse): bool =
-  return MouseButtons * uxInputs.buttonDown != {}
+proc consumeDown*(mouse: Mouse): bool =
+  result = MouseButtons * uxInputs.buttonDown != {}
+  uxInputs.buttonDown.excl MouseButtons
 
-proc release*(mouse: Mouse): bool =
-  return MouseButtons * uxInputs.buttonRelease != {}
+proc consumeRelease*(mouse: Mouse): bool =
+  result = MouseButtons * uxInputs.buttonRelease != {}
+  uxInputs.buttonRelease.excl MouseButtons
 
 proc scrolled*(mouse: Mouse): bool =
   mouse.wheelDelta.x != 0.0'ui

@@ -253,6 +253,7 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
     if evt in node.listens.mouse and predicate:
       result.incl(evt)
     if evt in node.listens.mouseSignals and predicate:
+      uxInputs.buttonRelease.excl MouseButtons
       result.incl(evt)
   elif ET is GestureEventType:
     if evt in node.listens.gesture and predicate:
@@ -263,9 +264,9 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 proc checkMouseEvents*(node: Figuro): MouseEventFlags =
   ## Compute mouse events
   if node.mouseOverlaps():
-    node.checkEvent(evClick, uxInputs.mouse.click() and not uxInputs.keyboard.consumed)
-    node.checkEvent(evPress, uxInputs.mouse.down() and not uxInputs.keyboard.consumed)
-    node.checkEvent(evRelease, uxInputs.mouse.release() and not uxInputs.keyboard.consumed)
+    node.checkEvent(evClick, uxInputs.mouse.consumeClick())
+    node.checkEvent(evPress, uxInputs.mouse.consumeDown())
+    node.checkEvent(evRelease, uxInputs.mouse.consumeRelease())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
     # if node.mouseOverlaps():
