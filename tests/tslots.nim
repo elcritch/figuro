@@ -17,6 +17,7 @@ proc setValue*(self: Counter, value: int) {.slot.} =
     self.value = value
   emit self.valueChanged(value)
 
+
 proc setSomeValue*(self: Counter, value: int) =
   echo "setValue! ", value
   if self.value != value:
@@ -40,12 +41,25 @@ when isMainModule:
         c {.used.} = Counter.new()
         d {.used.} = Counter.new()
 
+    test "signal / slot types":
+      check SignalTypes.avgChanged(Counter) is (float, )
+      check SignalTypes.valueChanged(Counter) is (int, )
+      echo "someChange: ", SignalTypes.someChange(Counter).typeof.repr
+      check SignalTypes.someChange(Counter) is tuple[]
+      check SignalTypes.setValue(Counter) is (int, )
+
     test "signal connect":
       echo "Counter.setValue: ", Counter.setValue().repr
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
+      check not(compiles(
+        connect(a, valueChanged,
+              c, setValue Counter)))
+      check not(compiles(
+        connect(a, someAction,
+                c, Counter.setValue)))
 
       check b.value == 0
       check c.value == 0
@@ -62,10 +76,7 @@ when isMainModule:
       connect(a, someChange,
               c, Counter.someAction)
 
-    test "signal / slot types":
-      check avgChanged.signalType() is (float, )
-      check valueChanged.signalType() is (int, )
-      check Counter.setValue.signalType() is (int, )
+
 
     test "signal connect":
       # TODO: how to do this?

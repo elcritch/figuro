@@ -31,7 +31,8 @@ type
     disableRender
     scrollpane
     inactive
-    postDraw
+    postDrawReady
+    clearHover
 
   FidgetConstraint* = enum
     cMin

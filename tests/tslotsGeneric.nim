@@ -33,15 +33,18 @@ when isMainModule:
         c {.used.} = Counter[uint]()
         d {.used.} = Counter[uint]()
 
+    test "signal / slot types":
+      check SignalTypes.avgChanged(Counter[uint]) is (float, )
+      check SignalTypes.valueChanged(Counter[uint]) is (uint, )
+      # check SignalTypes.valueChanged(Counter) is (int, )
+      # echo "type: ", SignalTypes.setValue(Counter).typeo.repr
+      check SignalTypes.setValue(Counter[uint]) is (uint, )
+
     test "signal connect":
-      # TODO: how to do this?
-      let tgtProc = Counter[uint].setValue
-      echo "tgtProc:type: ", tgtProc.typeof.repr
-      echo "tgtProc: ", tgtProc.repr
-      # tgtProc(a, 3.uint)
-      echo "check:sig: ", a.valueChanged(3.uint).typeof is (Agent, AgentRequest)
-      echo "check:slot: ", compiles(b.setValue(3.uint))
-      echo "check:src: ", genericParams(a.typeof).typeof is tuple
+      # let tgtProc = Counter[uint].setValue
+      # echo "check:sig: ", a.valueChanged(3.uint).typeof is (Agent, AgentRequest)
+      # echo "check:slot: ", compiles(b.setValue(3.uint))
+      # echo "check:src: ", genericParams(a.typeof).typeof is tuple
       # a.setValue(3.uint)
       # echo "check:AGENT: ", agentSlotsetValue(Counter[uint]).typeof.repr
 

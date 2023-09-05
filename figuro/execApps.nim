@@ -47,12 +47,14 @@ proc startFiguro*(
   proc appMain() =
     root.diffIndex = 0
     if redrawNodes.len() > 0:
+      # echo "\nredraw: ", redrawNodes.len
       let rn = redrawNodes
       for node in rn:
+        # echo "  redraw: ", node.getId
         emit node.onDraw()
       redrawNodes.clear()
-    computeScreenBox(nil, root)
-    sendRoot(root.copyInto())
+      computeScreenBox(nil, root)
+      sendRoot(root.copyInto())
 
   setupRoot(root)
 

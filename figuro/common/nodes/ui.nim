@@ -2,8 +2,9 @@ import basics
 import ../../meta
 import ../../inputs
 import cssgrid
+import stack_strings
 
-export basics, meta, inputs, cssgrid
+export basics, meta, inputs, cssgrid, stack_strings
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -13,7 +14,17 @@ else:
 
 type
 
+  InputEvents* = object
+    mouse*: MouseEventFlags
+    keyboard*: KeyboardEventFlags
+
+  ListenEvents* = object
+    mouse*: MouseEventFlags
+    mouseSignals*: MouseEventFlags
+
   Figuro* = ref object of Agent
+    parent*: Figuro
+    name*: StackString[16]
     uid*: NodeID
     children*: seq[Figuro]
     # parent*: Figuro
@@ -40,32 +51,31 @@ type
     gridTemplate*: GridTemplate
     gridItem*: GridItem
 
-    postDraw*: proc ()
+    postDraw*: proc (current: Figuro)
 
-    case kind*: NodeKind
-    of nkRectangle:
-      shadow*: Option[Shadow]
-      cornerRadius*: UICoord
-    of nkImage:
-      image*: ImageStyle
-    of nkText:
-      textLayout*: GlyphArrangement
-    of nkDrawable:
-      points*: seq[Position]
-    else:
-      discard
+    kind*: NodeKind
+    shadow*: Option[Shadow]
+    cornerRadius*: UICoord
+    image*: ImageStyle
+    textLayout*: GlyphArrangement
+    points*: seq[Position]
 
-  EventsCapture*[T] = object
-    zlvl*: ZLevel
-    flags*: T
-    target*: Figuro
+    # case kind*: NodeKind
+    # of nkRectangle:
+    #   shadow*: Option[Shadow]
+    #   cornerRadius*: UICoord
+    # of nkImage:
+    #   image*: ImageStyle
+    # of nkText:
+    #   textLayout*: GlyphArrangement
+    # of nkDrawable:
+    #   points*: seq[Position]
+    # else:
+    #   discard
 
-  MouseCapture* = EventsCapture[MouseEventFlags] 
-  GestureCapture* = EventsCapture[GestureEventFlags] 
 
-  CapturedEvents* = object
-    mouse*: MouseCapture
-    gesture*: GestureCapture
+proc getName*(fig: Figuro): string =
+  result = fig.name.toString()
 
 proc getId*(fig: Figuro): NodeID =
   ## Get's the Figuro Node's ID
@@ -73,11 +83,11 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
-proc onTick*(tp: Figuro) {.signal.}
-proc onDraw*(tp: Figuro) {.signal.}
-proc onLoad*(tp: Figuro) {.signal.}
-proc onHover*(tp: Figuro, kind: EventKind) {.signal.}
-proc onClick*(tp: Figuro, kind: EventKind, buttonPress: UiButtonView) {.signal.}
+proc onTick*(fig: Figuro) {.signal.}
+proc onDraw*(fig: Figuro) {.signal.}
+proc onLoad*(fig: Figuro) {.signal.}
+proc onHover*(fig: Figuro, kind: EventKind) {.signal.}
+proc onClick*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -88,6 +98,42 @@ proc draw*(fig: Figuro) {.slot.} =
 proc load*(fig: Figuro) {.slot.} =
   discard
 
-proc postDraw*(fig: Figuro) {.slot.} =
-  if not fig.postDraw.isNil:
-    fig.postDraw()
+proc clearDraw*(fig: Figuro) {.slot.} =
+  fig.attrs.incl postDrawReady
+  fig.diffIndex = 0
+
+proc handlePostDraw*(fig: Figuro) {.slot.} =
+  if fig.postDraw != nil:
+    fig.postDraw(fig)
+
+
+proc onTickBubble*(fig: Figuro) {.slot.} =
+  emit fig.onTick()
+proc onDrawBubble*(fig: Figuro) {.slot.} =
+  emit fig.onDraw()
+proc onLoadBubble*(fig: Figuro) {.slot.} =
+  emit fig.onLoad()
+proc onHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
+  emit fig.onHover(kind)
+proc onClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+  echo "CLICK BUBBLE"
+  emit fig.onClick(kind, buttonPress)
+
+template connect*(
+    a: Figuro,
+    signal: typed,
+    b: Figuro,
+    slot: typed
+) =
+  when signalName(signal) == "onClick":
+    a.listens.mouseSignals.incl {evClick, evClickOut}
+  elif signalName(signal) == "onHover":
+    a.listens.mouseSignals.incl {evHover}
+  signals.connect(a, signal, b, slot)
+
+template bubble*(signal: typed, parent: typed) =
+  connect(current, `signal`, parent, `signal Bubble`)
+
+template bubble*(signal: typed) =
+  connect(current, `signal`, current.parent, `signal Bubble`)
+

@@ -2,32 +2,37 @@
 import commons
 
 type
-  FiguroWidget*[T] = ref object of Figuro
-    state: T
+  StatefulWidget*[T] = ref object of Figuro
+    state*: T
 
-  Button* = ref object of Figuro
-    label: string
-    isActive: bool
-    disabled: bool
+  Button*[T] = ref object of StatefulWidget[T]
+    label*: string
+    isActive*: bool
+    disabled*: bool
 
-proc hovered*(self: Button, kind: EventKind) {.slot.} =
+proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  # echo "button:hovered: ", kind, " :: ", self.getId
+  echo "button:hovered: ", kind, " :: ", self.getId, " buttons: ", self.events.mouse
+  # if kind == Enter:
+  #   self.events.mouse.incl evHover
+  # else:
+  #   self.events.mouse.excl evHover
   # refresh(self)
-  discard
 
-proc clicked*(self: Button, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
+proc clicked*[T](self: Button[T],
+                  kind: EventKind,
+                  buttons: UiButtonView) {.slot.} =
+  echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
   if not self.isActive:
     refresh(self)
   self.isActive = true
 
-proc draw*(self: Button) {.slot.} =
+proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
-  current = self
+  # current = self
   # echo "button:draw"
-  current.attrs.excl postDraw
+  var current = self
   
   clipContent true
   cornerRadius 10.0
@@ -40,32 +45,29 @@ proc draw*(self: Button) {.slot.} =
       fill current.fill.spin(15)
       # this changes the color on hover!
 
-from sugar import capture
-import macros
+import ../ui/utils
 
-macro captureArgs(args, blk: untyped): untyped =
-  result = nnkCommand.newTree(bindSym"capture")
-  if args.kind in [nnkSym, nnkIdent]:
-    result.add args
-  else:
-    for arg in args:
-      result.add args
-  result.add blk
+template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
+  block:
+    var parent: Figuro = Figuro(current)
+    var current {.inject.}: Button[T] = nil
+    preNode(nkRectangle, name, current, parent)
+    captureArgs value:
+      current.postDraw = proc (widget: Figuro) =
+        # echo nd(), "button:postDraw: ", " name: ", (widget).getName()
+        # echo nd(), "button:postDraw: ", widget.getId, " widget is button: ", widget is Button[T]
+        var current {.inject.}: Button[T] = Button[T](widget)
+        # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
+        # let widget {.inject.} = Button[T](current)
+        if postDrawReady in widget.attrs:
+          widget.attrs.excl postDrawReady
+          `blk`
+    # connect(current, onDraw, current, Button[T].draw())
+    # connect(current, onDraw, current, postDraw)
+    connect(current, onClick, current, Button[T].clicked)
+    # connect(current, onHover, current, Button[T].hovered)
+    postNode(Figuro(current))
 
-
-template button*[T](id: string, value: T, blk: untyped) =
-  preNode(nkRectangle, Button, id)
-  template widget(): Button = Button(current)
-  captureArgs value:
-    current.postDraw = proc () =
-      if postDraw in current.attrs:
-        return
-      `blk`
-      current.attrs.incl postDraw
-  connect(current, onDraw, current, Figuro.postDraw)
-  connect(current, onClick, current, Button.clicked)
-  connect(current, onHover, current, Button.hovered)
-  postNode()
-
-template button*(id: string, blk: untyped) =
-  button(id, void, blk)
+# template button*[V](id: string, value: V, blk: untyped) =
+# # template button*(id: string, blk: untyped) =
+#   button[void, V](void, id, value, blk)

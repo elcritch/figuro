@@ -1,16 +1,19 @@
-import tables, strutils, macros
+import strutils, macros, options
 import std/times
+import slots
 
 import datatypes
 export datatypes
 export times
 
 proc wrapResponse*(id: AgentId, resp: RpcParams, kind = Response): AgentResponse = 
+  # echo "WRAP RESP: ", id, " kind: ", kind
   result.kind = kind
   result.id = id
   result.result = resp
 
 proc wrapResponseError*(id: AgentId, err: AgentError): AgentResponse = 
+  echo "WRAP ERROR: ", id, " err: ", err.repr
   result.kind = Error
   result.id = id
   result.result = rpcPack(err)
@@ -23,6 +26,7 @@ proc wrapResponseError*(
     stacktraces: bool
 ): AgentResponse = 
   let errobj = AgentError(code: code, msg: msg)
+  raise err
   # when defined(nimscript):
   #   discard
   # else:
@@ -107,114 +111,103 @@ template packResponse*(res: AgentResponse): Variant =
   so
 
 proc getSignalName*(signal: NimNode): NimNode =
-  result = newStrLitNode signal.strVal
-
-import typetraits, sequtils, tables
-
-proc getSignalTuple*(obj, sig: NimNode): NimNode =
-  let
-    otp = obj.getTypeInst
-    isGeneric = otp.kind == nnkBracketExpr
-    sigTyp =
-      if sig.kind == nnkSym: sig.getTypeInst
-      else: sig.getTypeInst
-    stp =
-      if sigTyp.kind == nnkProcTy: sig.getTypeInst[0]
-      else: sigTyp.params()
-
-  var args: seq[NimNode]
-  for i in 2..<stp.len:
-    args.add stp[i]
-
-  result = nnkTupleConstr.newTree()
-  if isGeneric:
-    template genArgs(n): auto = n[1][1]
-    var genKinds: Table[string, NimNode]
-    for i in 1..<stp.genArgs.len:
-      genKinds[repr stp.genArgs[i]] = otp[i]
-    for arg in args:
-      result.add genKinds[arg[1].repr]
+  echo "getSignalName: ", signal.treeRepr
+  if signal.kind in [nnkClosedSymChoice, nnkOpenSymChoice]:
+    result = newStrLitNode signal[0].strVal
   else:
-    # genKinds
-    # echo "ARGS: ", args.repr
-    for arg in args:
-      result.add arg[1]
-  if result.len == 0:
-    result = bindSym"void"
-  echo "ARG: ", result.repr
-  echo ""
+    result = newStrLitNode signal.strVal
+    echo "getSignalName:result: ", result.treeRepr
 
-macro signalType*(p: untyped): auto =
+macro signalName*(signal: untyped): untyped =
+  result = getSignalName(signal)
+
+proc splitNamesImpl(slot: NimNode): Option[(NimNode, NimNode)] =
+  echo "splitNamesImpl: ", slot.treeRepr
+  if slot.kind == nnkCall and slot[0].kind == nnkDotExpr:
+    return splitNamesImpl(slot[0])
+  elif slot.kind == nnkCall:
+    result = some (
+      slot[1].copyNimTree,
+      slot[0].copyNimTree,
+    )
+  elif slot.kind == nnkDotExpr:
+    result = some (
+      slot[0].copyNimTree,
+      slot[1].copyNimTree,
+    )
+  echo "splitNamesImpl:res: ", result.repr
+
+macro signalType*(s: untyped): auto =
   ## gets the type of the signal without 
   ## the Agent proc type
   ## 
-  let p = p.getTypeInst
-  # echo "signalType: ", p.treeRepr
+  let p = s.getTypeInst
+  # echo "\nsignalType: ", p.treeRepr
+  # echo "signalType: ", p.repr
+  # echo "signalType:orig: ", s.treeRepr
   if p.kind == nnkNone:
     error("cannot determine type of: " & repr(p), p)
   if p.kind == nnkSym and p.repr == "none":
     error("cannot determine type of: " & repr(p), p)
-  let obj = p[0]
+  let obj =
+    if p.kind == nnkProcTy:
+      p[0]
+    else:
+      p[0]
+  # echo "signalType:p0: ", obj.repr
   result = nnkTupleConstr.newNimNode()
   for arg in obj[2..^1]:
     result.add arg[1]
 
-macro connect*(
+macro tryGetTypeAgentProc(slot: untyped): untyped =
+  let res = splitNamesImpl(slot)
+  if res.isNone:
+    error("can't determine slot type", slot)
+      
+  let (tp, name) = res.get()
+
+  result = quote do:
+    SignalTypes.`name`(typeof(`tp`))
+
+macro typeMismatchError(signal, slot: typed): untyped =
+  error("mismatched signal and slot type: " & repr(signal) & " != " & repr(slot), slot)
+
+template connect*(
     a: Agent,
     signal: typed,
     b: Agent,
     slot: untyped
 ) =
-
-  let sigTuple = getSignalTuple(a, signal)
-  let bTyp = b.getTypeInst()
-
-  let slotAgent = 
-    if slot.kind == nnkIdent:
-      let bTypIdent =
-        if bTyp.kind == nnkBracketExpr: bTyp
-        else: ident bTyp.strVal
-      nnkCall.newTree(slot, bTypIdent, ident "AgentProc")
-    elif slot.kind == nnkDotExpr:
-      nnkCall.newTree(slot[1], slot[0], ident "AgentProc")
-    else:
-      slot
-
-  let procTyp = quote do:
-    proc () {.nimcall.}
-  for i, ty in sigTuple:
-    let empty = nnkEmpty.newNimNode()
-    procTyp.params.add nnkIdentDefs.newTree( ident("a" & $i), ty, empty)
-
-  let name = getSignalName(signal)
-  let serror = newStrLitNode("cannot find slot for " & "`" & slotAgent.repr & "`")
-  # echo "AA:NAME: ", name
-  result = quote do:
-    when not compiles(`slotAgent`):
-      static:
-        {.error: `serror`.}
-    let agentSlot: AgentProc = `slotAgent`
-    `a`.addAgentListeners(`name`, `b`, agentSlot)
-  # echo "CONNECT: ", result.repr
-
-# import pretty
+  when slot is AgentProc:
+    when SignalTypes.`signal`(typeof(a)).typeof isnot
+          tryGetTypeAgentProc(slot).typeof:
+      typeMismatchError(signal, slot)
+    let agentSlot: AgentProc = slot
+  else:
+    let agentSlot: AgentProc = `slot`(typeof(b))
+  a.addAgentListeners(signalName(signal), b, agentSlot)
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
 
+    # echo "call slots:req: ", req.repr
     # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
 
     for (tgt, slot) in listeners:
       # echo ""
-      # echo "call listener:tgt: ", repr tgt
+      # echo "call listener:tgt: ", tgt.agentId, " ", req.procName
       # echo "call listener:slot: ", repr slot
       let res = slot.callMethod(tgt, req)
-      variantMatch case res.result.buf as u
-      of AgentError:
-        raise newException(AgentSlotError, u.msg)
+      when defined(nimscript) or defined(useJsonSerde):
+        discard
       else:
         discard
+        variantMatch case res.result.buf as u
+        of AgentError:
+          raise newException(AgentSlotError, $u.code & " msg: " & u.msg)
+        else:
+          discard
 
 proc emit*(call: (Agent, AgentRequest)) =
   let (obj, req) = call

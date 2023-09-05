@@ -50,6 +50,8 @@ proc renderLoop(window: Window, nodes: var seq[Node], poll = true) =
 proc renderLoop*(renderer: Renderer, poll = true) =
   renderLoop(renderer.window, renderer.nodes)
 
+import std/terminal
+
 proc configureEvents(renderer: Renderer) =
 
   let window = renderer.window
@@ -84,17 +86,20 @@ proc configureEvents(renderer: Renderer) =
     uxInputs.mouse.wheelDelta = window.scrollDelta().descaled()
 
   window.onButtonPress = proc (button: windy.Button) =
+    uxInputs.buttonRelease = toUi window.buttonReleased()
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
-    echo "buttonPress: ", uxInputs.buttonPress
+    stdout.styledWriteLine({styleDim}, fgWhite, "buttonPress ", {styleBright}, fgGreen, $uxInputs.buttonPress)
 
   window.onButtonRelease = proc (button: Button) =
+    uxInputs.buttonRelease = toUi window.buttonReleased()
     uxInputs.buttonPress = toUi window.buttonPressed()
     uxInputs.buttonDown = toUi window.buttonDown()
     uxInputs.buttonToggle = toUi window.buttonToggle()
     uxInputs.keyboard.consumed = false
+    stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ", {styleDim}, fgGreen, $uxInputs.buttonRelease)
 
   window.onRune = proc (rune: Rune) =
     uxInputs.keyboard.input.add rune

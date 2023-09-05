@@ -43,39 +43,28 @@ type
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
   
-  MouseEventType* {.size: sizeof(int16).} = enum
+  MouseEventKinds* {.size: sizeof(int8).} = enum
     evClick
     evClickOut
     evHover
     evOverlapped
     evPress
+    evDown
     evRelease
+    evScroll
+    evDrag
 
   EventKind* = enum
     Enter
     Exit
 
-  KeyboardEventType* {.size: sizeof(int16).} = enum
+  KeyboardEventKinds* {.size: sizeof(int8).} = enum
     evKeyboardInput
     evKeyboardFocus
     evKeyboardFocusOut
 
-  GestureEventType* {.size: sizeof(int16).} = enum
-    evScroll
-    evDrag # TODO: implement this!?
-
-  MouseEventFlags* = set[MouseEventType]
-  KeyboardEventFlags* = set[KeyboardEventType]
-  GestureEventFlags* = set[GestureEventType]
-
-  InputEvents* = object
-    mouse*: MouseEventFlags
-    gesture*: GestureEventFlags
-  ListenEvents* = object
-    mouse*: MouseEventFlags
-    mouseSignals*: MouseEventFlags
-    gesture*: GestureEventFlags
-    gestureSignals*: GestureEventFlags
+  MouseEventFlags* = set[MouseEventKinds]
+  KeyboardEventFlags* = set[KeyboardEventKinds]
 
   UiButton* = enum
     ButtonUnknown
@@ -195,27 +184,6 @@ type
 
   UiButtonView* = set[UiButton]
 
-type
-    MouseEvent* = object
-      case kind*: MouseEventType
-      of evClick: discard
-      of evClickOut: discard
-      of evHover: discard
-      of evOverlapped: discard
-      of evPress: discard
-      of evRelease: discard
-
-    KeyboardEvent* = object
-      case kind*: KeyboardEventType
-      of evKeyboardInput: discard
-      of evKeyboardFocus: discard
-      of evKeyboardFocusOut: discard
-
-    GestureEvent* = object
-      case kind*: GestureEventType
-      of evScroll: discard
-      of evDrag: discard
-
 
 const
   MouseButtons* = {
@@ -242,17 +210,13 @@ type
 var
   uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
 
-proc toEvent*(kind: MouseEventType): MouseEvent =
-  MouseEvent(kind: kind)
-proc toEvent*(kind: KeyboardEventType): KeyboardEvent =
-  KeyboardEvent(kind: kind)
-proc toEvent*(kind: GestureEventType): GestureEvent =
-  GestureEvent(kind: kind)
-
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 
 proc click*(mouse: Mouse): bool =
-  return MouseButtons * uxInputs.buttonPress != {}
+  when defined(clickOnDown):
+    return MouseButtons * uxInputs.buttonDown != {}
+  else:
+    return MouseButtons * uxInputs.buttonRelease != {}
 
 proc down*(mouse: Mouse): bool =
   return MouseButtons * uxInputs.buttonDown != {}

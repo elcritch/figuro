@@ -74,7 +74,9 @@ proc signalTuple*(sig: NimNode): NimNode =
   # echo "ARG: ", result.repr
   # echo ""
   if result.len == 0:
-    result = bindSym"void"
+    # result = bindSym"void"
+    result = quote do:
+      tuple[]
 
 proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
   ## Create local variables for each parameter in the actual RPC call proc
@@ -114,24 +116,25 @@ proc mkParamsType*(paramsIdent, paramsType, params, genericParams: NimNode): Nim
   result[0][1] = genericParams.copyNimTree()
   # echo "mkParamsType: ", genericParams.treeRepr
 
-proc makeProcsPublic(node: NimNode, gens: NimNode) =
+proc updateProcsSig(node: NimNode, isPublic: bool, gens: NimNode) =
   if node.kind in [nnkProcDef, nnkTemplateDef]:
     let name = node[0]
-    node[0] = nnkPostfix.newTree(newIdentNode("*"), name)
+    if isPublic:
+      node[0] = nnkPostfix.newTree(newIdentNode("*"), name)
     node[2] = gens.copyNimTree()
   else:
     for ch in node:
-      ch.makeProcsPublic(gens)
+      ch.updateProcsSig(isPublic, gens)
 
-proc makeGenerics(node: NimNode, gens: seq[string], isIdentDefs = false) =
+proc makeGenerics*(node: NimNode, gens: seq[string], isIdentDefs = false) =
   discard
   if node.kind == nnkGenericParams:
     return
   else:
     for i, ch in node:
       # echo "MAKE GEN: CH: ", ch.treeRepr
-      if ch.kind == nnkBracketExpr and
-          ch[1].repr in gens:
+      if ch.kind == nnkBracketExpr: # and
+          # (ch[1].repr in gens:
         let idType = ch
         let genParam =
           if idType[1].kind == nnkIdentDefs:
@@ -140,7 +143,7 @@ proc makeGenerics(node: NimNode, gens: seq[string], isIdentDefs = false) =
         # echo "MAKE GEN: ", ch.treeRepr
         node[i] = nnkCall.newTree(
           bindSym("[]", brOpen),
-          idType[0],
+          ident idType[0].repr,
           genParam,
         )
       ch.makeGenerics(gens)
@@ -226,6 +229,17 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   let
     contextType = firstType
+    kd = ident "kd"
+    tp = ident "tp"
+    agent = ident "agent"
+
+  var signalTyp = nnkTupleConstr.newTree()
+  for i in 2..<params.len:
+    signalTyp.add params[i][1]
+  if params.len == 2:
+    # signalTyp = bindSym"void"
+    signalTyp = quote do:
+      tuple[]
 
   # Create the proc's that hold the users code 
   if not isSignal:
@@ -237,7 +251,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters:
       rmCall.add param[0]
     let rm = quote do:
-      proc `rpcMethod`() =
+      proc `rpcMethod`() {.nimcall.} =
         `procBody`
     for param in parameters:
       rm[3].add param
@@ -272,38 +286,17 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         `mcall`
 
     let procTyp = quote do:
-      proc ()
+      proc () {.nimcall.}
     procTyp.params = params.copyNimTree()
-    # echo "SIG:TUPLE: ", parameters.repr
-    # echo "SIG:TUPLE: ", paramTypes.repr
-    # echo "SIG:TUPLE:procTyp: ", procTyp.treeRepr
-    # echo "SIG:TUPLE:procTyp: ", procTyp.repr
 
-    if isGeneric:
-      result.add quote do:
-        proc `rpcMethod`(tp: typedesc[`contextType`]): `procTyp` =
-          let p: `procTyp` = `rpcMethod`[T]
-          p
-        proc `rpcMethod`(tp: typedesc[`contextType`], agent: typedesc[AgentProc]): AgentProc =
-          `agentSlotImpl`
-          slot
-    else:
-      result.add quote do:
-        proc `rpcMethod`(tp: typedesc[`contextType`]): `procTyp` =
-          let p: `procTyp` = `rpcMethod`
-          p
-        proc `rpcMethod`(tp: typedesc[`contextType`], agent: typedesc[AgentProc]): AgentProc =
-          `agentSlotImpl`
-          slot
+    result.add quote do:
+      proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
+        discard
+      proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
+        `agentSlotImpl`
+        slot
 
-    if isPublic:
-      result.makeProcsPublic(genericParams)
-
-    # result.add quote do:
-    #   once:
-    #     register("", repr signalName, repr rpcMethodGenName)
-    # # echo "slots: "
-    # echo result.repr
+    result.updateProcsSig(isPublic, genericParams)
 
   elif isSignal:
     var construct = nnkTupleConstr.newTree()
@@ -313,16 +306,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     result.add quote do:
       proc `rpcMethod`(): (Agent, AgentRequest) =
         let args = `construct`
-        let sig = AgentRequest(
-          kind: Request,
-          id: AgentId(0),
-          procName: `signalName`,
-          params: rpcPack(args)
-        )
-        result = (obj, sig)
-        # callSlots(obj, sig)
+        let req = initAgentRequest(procName=`signalName`, args=args)
+        result = (obj, req)
 
-    if isPublic: result.makeProcsPublic(genericParams)
     result[0][3].add nnkIdentDefs.newTree(
       ident "obj",
       firstType,
@@ -331,6 +317,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     for param in parameters[1..^1]:
       result[0][3].add param
 
+    result.add quote do:
+      proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
+        discard
+
+    result.updateProcsSig(isPublic, genericParams)
+
   var gens: seq[string]
   for gen in genericParams:
     gens.add gen[0].strVal
@@ -338,8 +330,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.treeRepr
-  # echo "slot:repr:"
-  # echo result.repr
+  echo "slot:repr:"
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
