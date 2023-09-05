@@ -46,12 +46,14 @@ template printNewEventInfo*() =
                   ("ek: ", $ek),
                   ("tgt: ", targets.toString()),
                   # ("evts: ", $evts.flags),
+                  ("btnsP: ", $uxInputs.buttonPress),
+                  ("btnsR: ", $uxInputs.buttonRelease),
                   # (" consumed: ", $uxInputs.mouse.consumed),
                   # ( " ", $app.frameCount),
                   ]
       if ek == evClick:
         emsg.add ("pClick: ", $prevClicks.toString())
-      if ek == evClick:
+      if ek == evHover:
         emsg.add ("pHover: ", $prevHovers.toString())
 
       if emsg != evtMsg[ek]:

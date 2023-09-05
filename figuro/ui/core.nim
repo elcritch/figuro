@@ -301,13 +301,13 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     # result.gesture = max(result.gesture, child.gesture)
 
   let
-    allMouseEvts = node.checkMouseEvents()
+    mouseEvts = node.checkMouseEvents()
     # mouseOutEvts = allMouseEvts * MouseOnOutEvents
-    mouseEvts = allMouseEvts
+    # mouseEvts = allMouseEvts
     # gestureEvts = node.checkGestureEvents()
 
-  var buttons: array[MouseEventKinds, UiButtonView]
   # Consume mouse buttons
+  var buttons: array[MouseEventKinds, UiButtonView]
   if evPress in mouseEvts:
     buttons[evPress] = uxInputs.buttonPress * MouseButtons
     uxInputs.buttonPress.excl MouseButtons
@@ -316,10 +316,17 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     uxInputs.buttonDown.excl MouseButtons
   if evRelease in mouseEvts:
     buttons[evRelease] = uxInputs.buttonRelease * MouseButtons
+    echo "remove buttons: ", uxInputs.buttonRelease, " node: ", node.getId()
     uxInputs.buttonRelease.excl MouseButtons
   if evClick in mouseEvts:
-    when defined(clickOnDown): buttons[evClick] = buttons[evDown]
-    else: buttons[evClick] = buttons[evRelease]
+    when defined(clickOnDown):
+      buttons[evPress] = uxInputs.buttonPress * MouseButtons
+      buttons[evClick] = buttons[evRelease]
+      uxInputs.buttonPress.excl MouseButtons
+    else:
+      buttons[evRelease] = uxInputs.buttonRelease * MouseButtons
+      buttons[evClick] = buttons[evRelease]
+      uxInputs.buttonRelease.excl MouseButtons
 
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
@@ -389,13 +396,13 @@ proc computeEvents*(node: Figuro) =
       target.refresh()
       prevHovers.excl target
 
-  
   let click = captured.mouse[evClick]
   if click.targets.len() > 0 and
       # click.targets != prevClicks and
       evClick in click.flags:
     let clickTargets = captured.mouse[evClick].targets
     # let clickOutTargets = captured.mouse[evClickOut].targets
+    echo "click: ", clickTargets.toString(), " buttonReleased: ", uxInputs.buttonRelease, " mouseButton: ", click.buttons
 
     let newClicks = clickTargets
     let delClicks = prevClicks - clickTargets
