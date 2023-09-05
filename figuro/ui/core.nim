@@ -378,9 +378,6 @@ proc computeEvents*(node: Figuro) =
   
   printNewEventInfo()
 
-  proc contains(fig: Figuro, evt: MouseEventKinds): bool =
-    not fig.isNil and evt in fig.events.mouse
-
   if captured.mouse[evHover].targets != prevHovers:
     let hoverTargets = captured.mouse[evHover].targets
     let newHovers = hoverTargets - prevHovers
@@ -399,32 +396,20 @@ proc computeEvents*(node: Figuro) =
       prevHovers.excl target
 
   let click = captured.mouse[evClick]
-  if click.targets.len() > 0 and
-      # click.targets != prevClicks and
-      evClick in click.flags:
+  if click.targets.len() > 0 and evClick in click.flags:
     let clickTargets = captured.mouse[evClick].targets
-    # let clickOutTargets = captured.mouse[evClickOut].targets
-    echo "click: ", clickTargets.toString(), " buttonReleased: ", uxInputs.buttonRelease, " mouseButton: ", click.buttons
-
     let newClicks = clickTargets
     let delClicks = prevClicks - clickTargets
 
-    # if not uxInputs.keyboard.consumed:
-    block:
+    for target in delClicks:
+        target.events.mouse.excl evClick
+        emit target.onClick(Exit, click.buttons)
+        prevClicks.excl target
 
-      for target in delClicks:
-          echo "click out: ", target.getId
-          target.events.mouse.excl evClick
-          emit target.onClick(Exit, click.buttons)
-          # prevClick.refresh()
-          prevClicks.excl target
-
-      for target in newClicks:
-          echo "click: ", target.getId
-          target.events.mouse.incl evClick
-          emit target.onClick(Enter, click.buttons)
-          # prevClick.refresh()
-          prevClicks.incl target
+    for target in newClicks:
+        target.events.mouse.incl evClick
+        emit target.onClick(Enter, click.buttons)
+        prevClicks.incl target
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true
