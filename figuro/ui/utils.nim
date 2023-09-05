@@ -17,3 +17,43 @@ macro captureArgs*(args, blk: untyped): untyped =
 
 macro statefulWidgetProc*(): untyped =
   ident(repr(genSym(nskProc, "doPost")))
+
+import commons
+
+import std/terminal
+
+proc toString*(figs: HashSet[Figuro]): string =
+  result.add "["
+  for fig in figs:
+    result.add $fig.getId
+    result.add ","
+  result.add "]"
+
+var evtMsg: array[MouseEventKinds, seq[(string, string)]]
+
+template printNewEventInfo*() =
+  for ek in MouseEventKinds:
+    let evts = captured.mouse[ek]
+    let targets = evts.targets
+
+    if evts.flags != {} and
+      ek in evts.flags and
+      # evts.flags != {evHover} and
+      # not uxInputs.keyboard.consumed and
+      true:
+      
+      let emsg: seq[(string, string)] = @[
+                  ("tgt: ", targets.toString()),
+                  ("ek: ", $ek),
+                  ("pClick: ", $prevClick.getId),
+                  ("pHover: ", $prevHovers.toString()),
+                  ("evts: ", $evts.flags),
+                  # (" consumed: ", $uxInputs.mouse.consumed),
+                  # ( " ", $app.frameCount),
+                  ]
+      if emsg != evtMsg[ek]:
+        evtMsg[ek] = emsg
+        stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
+        for (n, v) in emsg.items():
+          stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
+        stdout.styledWriteLine(fgWhite, "")

@@ -283,8 +283,8 @@ type
   KeyboardCapture* = EventsCapture[KeyboardEventFlags]
   
   CapturedEvents* = object
-    mouse*: array[MouseEventKinds, EventsCapture[MouseEventFlags]]
-    keyboard*: array[KeyboardEventKinds, EventsCapture[KeyboardEventFlags]]
+    mouse*: array[MouseEventKinds, MouseCapture]
+    keyboard*: array[KeyboardEventKinds, KeyboardCapture]
 
 proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
@@ -324,17 +324,6 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
-import std/terminal
-
-var evtMsg: array[MouseEventKinds, seq[(string, string)]]
-
-proc toString(figs: HashSet[Figuro]): string =
-  result.add "["
-  for fig in figs:
-    result.add $fig.getId
-    result.add ","
-  result.add "]"
-
 var
   prevHovers {.runtimeVar.}: HashSet[Figuro]
   prevClick {.runtimeVar.}: Figuro
@@ -361,31 +350,7 @@ proc computeEvents*(node: Figuro) =
   # Mouse
   let mouseButtons = uxInputs.buttonRelease * MouseButtons
   
-  for ek in MouseEventKinds:
-    let evts = captured.mouse[ek]
-    let targets = evts.targets
-
-    if evts.flags != {} and
-      ek in evts.flags and
-      # evts.flags != {evHover} and
-      # not uxInputs.keyboard.consumed and
-      true:
-      
-      let emsg: seq[(string, string)] = @[
-                  ("tgt: ", targets.toString()),
-                  ("ek: ", $ek),
-                  ("pClick: ", $prevClick.getId),
-                  ("pHover: ", $prevHovers.toString()),
-                  ("evts: ", $evts.flags),
-                  # (" consumed: ", $uxInputs.mouse.consumed),
-                  # ( " ", $app.frameCount),
-                  ]
-      if emsg != evtMsg[ek]:
-        evtMsg[ek] = emsg
-        stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
-        for (n, v) in emsg.items():
-          stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
-        stdout.styledWriteLine(fgWhite, "")
+  printNewEventInfo()
 
   proc contains(fig: Figuro, evt: MouseEventKinds): bool =
     not fig.isNil and evt in fig.events.mouse
@@ -393,28 +358,24 @@ proc computeEvents*(node: Figuro) =
   if captured.mouse[evHover].targets != prevHovers:
     let evts = captured.mouse[evHover]
     let hoverTargets = evts.targets
-    if hoverTargets != prevHovers:
-      echo "hoverTargets: ", hoverTargets.toString
     let newHovers = hoverTargets - prevHovers
     let delHovers = prevHovers - hoverTargets
 
+    for target in newHovers:
+      target.events.mouse.incl evHover
+      emit target.onHover(Enter)
+      target.refresh()
+      prevHovers.incl target
+
     for target in delHovers:
-      echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
       target.events.mouse.excl evHover
       emit target.onHover(Exit)
       target.refresh()
       prevHovers.excl target
 
-    for target in newHovers:
-      echo "prevHover: ", prevHovers.toString(), " tgt: ", target.getId
-      target.events.mouse.incl evHover
-      emit target.onHover(Enter)
-      target.refresh()
-      prevHovers.incl target
   
   for ek in MouseEventKinds:
     let evts = captured.mouse[ek]
-
 
     for target in evts.targets:
       if not uxInputs.keyboard.consumed:
