@@ -279,6 +279,7 @@ type
     zlvl*: ZLevel
     flags*: MouseEventFlags
     targets*: HashSet[Figuro]
+    buttons*: UiButtonView
 
   MouseCapture* = EventsCapture[MouseEventFlags]
   KeyboardCapture* = EventsCapture[KeyboardEventFlags]
@@ -305,10 +306,25 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     mouseEvts = allMouseEvts
     # gestureEvts = node.checkGestureEvents()
 
+  var buttons: array[MouseEventKinds, UiButtonView]
+  # Consume mouse buttons
+  if evPress in mouseEvts:
+    buttons[evPress] = uxInputs.buttonPress * MouseButtons
+    uxInputs.buttonPress.excl MouseButtons
+  if evDown in mouseEvts:
+    buttons[evDown] = uxInputs.buttonDown * MouseButtons
+    uxInputs.buttonDown.excl MouseButtons
+  if evRelease in mouseEvts:
+    buttons[evRelease] = uxInputs.buttonRelease * MouseButtons
+    uxInputs.buttonRelease.excl MouseButtons
+  if evClick in mouseEvts:
+    when defined(clickOnDown): buttons[evClick] = buttons[evDown]
+    else: buttons[evClick] = buttons[evRelease]
 
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
                                 flags: mouseEvts * {ek},
+                                buttons: buttons[ek],
                                 targets: toHashSet([node]))
 
     if clipContent in node.attrs and not node.mouseOverlaps():
@@ -390,14 +406,14 @@ proc computeEvents*(node: Figuro) =
       for target in delClicks:
           echo "click out: ", target.getId
           target.events.mouse.excl evClick
-          emit target.onClick(Exit, mouseButtons)
+          emit target.onClick(Exit, click.buttons)
           # prevClick.refresh()
           prevClicks.excl target
 
       for target in newClicks:
           echo "click: ", target.getId
           target.events.mouse.incl evClick
-          emit target.onClick(Enter, mouseButtons)
+          emit target.onClick(Enter, click.buttons)
           # prevClick.refresh()
           prevClicks.incl target
 

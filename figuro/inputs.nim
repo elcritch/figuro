@@ -49,6 +49,7 @@ type
     evHover
     evOverlapped
     evPress
+    evDown
     evRelease
     evScroll
     evDrag
@@ -213,7 +214,7 @@ var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 
 proc click*(mouse: Mouse): bool =
   when defined(clickOnDown):
-    return MouseButtons * uxInputs.buttonPressed != {}
+    return MouseButtons * uxInputs.buttonDown != {}
   else:
     return MouseButtons * uxInputs.buttonRelease != {}
 
