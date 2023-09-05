@@ -40,12 +40,12 @@ proc startFiguro*(
 
   proc appEvent() =
     var input: AppInputs
-    let sz = uxInputList.peek()
-    if sz > 0:
-      echo "app events: ", sz
-    while uxInputList.tryRecv(input):
+    ## only process up to ~10 events at a time
+    var cnt = 10
+    while uxInputList.tryRecv(input) and cnt > 0:
       uxInputs = input
       computeEvents(root)
+      cnt.dec
 
   proc appLoad() =
     emit root.onLoad()

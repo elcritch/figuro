@@ -84,7 +84,7 @@ proc configureEvents(renderer: Renderer) =
     lastMouse = uxInput.mouse
     let res = uxInputList.trySend(uxInput)
     if res == false:
-      echo "mouse blocked"
+      echo "warning: mouse event blocked!"
 
   window.onScroll = proc () =
     var uxInput = AppInputs()
