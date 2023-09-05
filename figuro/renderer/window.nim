@@ -54,6 +54,8 @@ import std/terminal
 
 proc configureEvents(renderer: Renderer) =
 
+  uxInputList = newChan[AppInputs]()
+
   let window = renderer.window
 
   window.runeInputEnabled = true
@@ -67,43 +69,49 @@ proc configureEvents(renderer: Renderer) =
     app.focused = window.focused
     # appEvent.trigger()
 
-  window.onScroll = proc () =
-    app.requestedFrame.inc
-    uxInputs.mouse.wheelDelta = window.scrollDelta().descaled
-    # renderEvent.trigger()
-
   window.onRune = keyboardInput
 
   window.onMouseMove = proc () =
     ## TODO: this is racey no?
+    var uxInput = AppInputs()
     let pos = vec2(window.mousePos())
-    uxInputs.mouse.pos = pos.descaled()
+    uxInput.mouse.pos = pos.descaled()
     let prevPos = vec2(window.mousePrevPos())
-    uxInputs.mouse.prev = prevPos.descaled()
-    uxInputs.mouse.consumed = false
+    uxInput.mouse.prev = prevPos.descaled()
+    uxInput.mouse.consumed = false
+    discard uxInputList.trySend(uxInput)
 
   window.onScroll = proc () =
-    uxInputs.mouse.wheelDelta = window.scrollDelta().descaled()
+    var uxInput = AppInputs()
+    uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
+    discard uxInputList.trySend(uxInput)
 
   window.onButtonPress = proc (button: windy.Button) =
-    uxInputs.buttonRelease = toUi window.buttonReleased()
-    uxInputs.buttonPress = toUi window.buttonPressed()
-    uxInputs.buttonDown = toUi window.buttonDown()
-    uxInputs.buttonToggle = toUi window.buttonToggle()
-    uxInputs.keyboard.consumed = false
-    stdout.styledWriteLine({styleDim}, fgWhite, "buttonPress ", {styleBright}, fgGreen, $uxInputs.buttonPress)
+    var uxInput = AppInputs()
+    uxInput.buttonRelease = toUi window.buttonReleased()
+    uxInput.buttonPress = toUi window.buttonPressed()
+    uxInput.buttonDown = toUi window.buttonDown()
+    uxInput.buttonToggle = toUi window.buttonToggle()
+    uxInput.keyboard.consumed = false
+    stdout.styledWriteLine({styleDim}, fgWhite, "buttonPress ", {styleBright}, fgGreen, $uxInput.buttonPress)
+    discard uxInputList.trySend(uxInput)
 
   window.onButtonRelease = proc (button: Button) =
-    uxInputs.buttonRelease = toUi window.buttonReleased()
-    uxInputs.buttonPress = toUi window.buttonPressed()
-    uxInputs.buttonDown = toUi window.buttonDown()
-    uxInputs.buttonToggle = toUi window.buttonToggle()
-    uxInputs.keyboard.consumed = false
+    var uxInput = AppInputs()
+    uxInput.buttonRelease = toUi window.buttonReleased()
+    uxInput.buttonPress = toUi window.buttonPressed()
+    uxInput.buttonDown = toUi window.buttonDown()
+    uxInput.buttonToggle = toUi window.buttonToggle()
+    uxInput.keyboard.consumed = false
     stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ", {styleDim}, fgGreen, $uxInputs.buttonRelease)
+    discard uxInputList.trySend(uxInput)
 
   window.onRune = proc (rune: Rune) =
-    uxInputs.keyboard.input.add rune
-    echo "keyboard: ", uxInputs.keyboard.input
+    var uxInput = AppInputs()
+    uxInput.keyboard.input.add rune
+    echo "keyboard: ", uxInput.keyboard.input
+    discard uxInputList.trySend(uxInput)
+
   window.onImeChange = proc () =
     echo "ime: ", window.imeCompositionString()
 

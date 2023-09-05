@@ -10,7 +10,6 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-
 type
   KeyState* = enum
     Empty
@@ -31,7 +30,6 @@ type
     delta*: Position
     wheelDelta*: Position
     consumed*: bool ## Consumed - need to prevent default action.
-    clickedOutside*: bool ##
 
   Keyboard* = object
     state*: KeyState
@@ -209,6 +207,11 @@ type
 
 var
   uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
+
+when not defined(nimscript):
+  import threading/channels
+  export channels
+  var uxInputList*: Chan[AppInputs]
 
 var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
 
