@@ -13,7 +13,7 @@ macro captureArgs*(args, blk: untyped): untyped =
   if result.len() == 0:
     result = nnkEmpty.newNimNode
   result.add nnkStmtList.newTree(blk)
-  echo "captured: ", result.repr
+  # echo "captured: ", result.repr
 
 macro statefulWidgetProc*(): untyped =
   ident(repr(genSym(nskProc, "doPost")))

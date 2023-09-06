@@ -31,7 +31,7 @@ proc clicked*[T](self: Button[T],
     refresh(self)
   self.isActive = true
 
-proc draw*[T](self: Button[T]) {.slot, widget.} =
+proc draw*[T](self: Button[T]) {.widget, slot.} =
   ## button widget!
   # current = self
   # echo "button:draw"
@@ -49,7 +49,6 @@ proc draw*[T](self: Button[T]) {.slot, widget.} =
       # this changes the color on hover!
 
 import ../ui/utils
-
 
 template button*[T; V](typ: typedesc[T],
                         name: string,

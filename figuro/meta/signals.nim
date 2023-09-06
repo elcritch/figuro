@@ -111,18 +111,18 @@ template packResponse*(res: AgentResponse): Variant =
   so
 
 proc getSignalName*(signal: NimNode): NimNode =
-  echo "getSignalName: ", signal.treeRepr
+  # echo "getSignalName: ", signal.treeRepr
   if signal.kind in [nnkClosedSymChoice, nnkOpenSymChoice]:
     result = newStrLitNode signal[0].strVal
   else:
     result = newStrLitNode signal.strVal
-    echo "getSignalName:result: ", result.treeRepr
+    # echo "getSignalName:result: ", result.treeRepr
 
 macro signalName*(signal: untyped): untyped =
   result = getSignalName(signal)
 
 proc splitNamesImpl(slot: NimNode): Option[(NimNode, NimNode)] =
-  echo "splitNamesImpl: ", slot.treeRepr
+  # echo "splitNamesImpl: ", slot.treeRepr
   if slot.kind == nnkCall and slot[0].kind == nnkDotExpr:
     return splitNamesImpl(slot[0])
   elif slot.kind == nnkCall:
@@ -135,7 +135,7 @@ proc splitNamesImpl(slot: NimNode): Option[(NimNode, NimNode)] =
       slot[0].copyNimTree,
       slot[1].copyNimTree,
     )
-  echo "splitNamesImpl:res: ", result.repr
+  # echo "splitNamesImpl:res: ", result.repr
 
 macro signalType*(s: untyped): auto =
   ## gets the type of the signal without 
