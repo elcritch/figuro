@@ -60,17 +60,13 @@ template button*[T; V](typ: typedesc[T],
     preNode(nkRectangle, name, current, parent)
     captureArgs value:
       current.postDraw = proc (widget: Figuro) =
-        # echo nd(), "button:postDraw: ", " name: ", (widget).getName()
-        # echo nd(), "button:postDraw: ", widget.getId, " widget is button: ", widget is Button[T]
         var current {.inject.}: Button[T] = Button[T](widget)
-        # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
-        # let widget {.inject.} = Button[T](current)
         if postDrawReady in widget.attrs:
           widget.attrs.excl postDrawReady
           `blk`
     # connect(current, onDraw, current, Button[T].draw())
     # connect(current, onDraw, current, postDraw)
-    connect(current, onClick, current, Button[T].clicked)
+    # connect(current, onClick, current, Button[T].clicked)
     # connect(current, onHover, current, Button[T].hovered)
     postNode(Figuro(current))
 
