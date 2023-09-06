@@ -13,7 +13,8 @@ type
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # self.fill = parseHtmlColor "#9BDFFA"
   # echo "button hover!"
-  echo "button:hovered: ", kind, " :: ", self.getId, " buttons: ", self.events.mouse
+  echo "button:hovered: ", kind, " :: ", self.getId,
+          " buttons: ", self.events.mouse
   # if kind == Enter:
   #   self.events.mouse.incl evHover
   # else:
@@ -23,12 +24,14 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
 proc clicked*[T](self: Button[T],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-  echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId
+  echo nd(), "button:clicked: ", buttons,
+              " kind: ", kind, " :: ", self.getId
+
   if not self.isActive:
     refresh(self)
   self.isActive = true
 
-proc draw*[T](self: Button[T]) {.slot.} =
+proc draw*[T](self: Button[T]) {.slot, widget.} =
   ## button widget!
   # current = self
   # echo "button:draw"
@@ -47,7 +50,11 @@ proc draw*[T](self: Button[T]) {.slot.} =
 
 import ../ui/utils
 
-template button*[T; V](typ: typedesc[T], name: string, value: V, blk: untyped) =
+
+template button*[T; V](typ: typedesc[T],
+                        name: string,
+                        value: V,
+                        blk: untyped) =
   block:
     var parent: Figuro = Figuro(current)
     var current {.inject.}: Button[T] = nil
