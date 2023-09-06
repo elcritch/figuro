@@ -87,11 +87,8 @@ proc draw*(self: Main) {.slot.} =
             connect(current, onHover, current, Figuro.txtHovered())
 
 var main = Main.new()
-
 connect(main, onDraw, main, Main.draw())
 connect(main, onTick, main, Main.tick())
-
-echo "main: ", main.listeners
 
 app.width = 720
 app.height = 140
