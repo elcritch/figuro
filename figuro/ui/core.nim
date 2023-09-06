@@ -168,8 +168,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.name.setLen(0)
   discard current.name.tryAdd(name)
   current.kind = kind
-  # current.textStyle = parent.textStyle
-  # current.cursorColor = parent.cursorColor
   current.highlight = parent.highlight
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
@@ -179,12 +177,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
   nodeStack.add(current)
   inc parent.diffIndex
-
   current.diffIndex = 0
-  # TODO: which is better?
-  # draw(T(current))
 
-  # current.attrs.incl postDrawReady
   connect(current, onDraw, current, Figuro.clearDraw())
   connect(current, onDraw, current, typeof(current).draw())
   connect(current, onDraw, current, Figuro.handlePostDraw())
