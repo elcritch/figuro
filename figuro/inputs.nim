@@ -206,7 +206,7 @@ type
     buttonToggle*: UiButtonView
 
 var
-  uxInputs* {.runtimeVar.} = AppInputs(mouse: Mouse(), keyboard: Keyboard())
+  uxInputs* {.runtimeVar.} = AppInputs()
 
 when not defined(nimscript):
   import threading/channels
