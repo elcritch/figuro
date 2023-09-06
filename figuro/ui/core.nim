@@ -321,12 +321,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   let
     mouseEvts = node.checkMouseEvents()
-    # mouseOutEvts = allMouseEvts * MouseOnOutEvents
-    # mouseEvts = allMouseEvts
-    # gestureEvts = node.checkGestureEvents()
-
-  let buttons = mouseEvts.consumeMouseButtons()
-  # echo "remove buttons: ", uxInputs.buttonRelease, " node: ", node.getId()
+    buttons = mouseEvts.consumeMouseButtons()
 
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
