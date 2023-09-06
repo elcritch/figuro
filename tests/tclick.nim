@@ -1,15 +1,10 @@
-
-## This minimal example shows 5 blue squares.
 import figuro/widgets/button
 import figuro/widget
 import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = loadFont: GlyphFont(
-      typefaceId: typeface,
-      size: 44
-    )
+  font = loadFont: GlyphFont(typefaceId: typeface, size: 44)
 
 type
   Main* = ref object of Figuro
