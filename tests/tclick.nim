@@ -60,17 +60,17 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  var current = self
-  self.name.setLen(0)
-  self.name.add "main"
+  withDraw(self):
+    self.name.setLen(0)
+    self.name.add "main"
 
-  rectangle "body":
-    self.mainRect = current
-    box 10, 10, 600, 120
-    cornerRadius 10.0
-    fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
-    for i in 0 .. 4:
-      button int, "btn" & $i, i:
+    rectangle "body":
+      self.mainRect = current
+      box 10, 10, 600, 120
+      cornerRadius 10.0
+      fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
+      for i in 0 .. 4:
+        button int, "btn" & $i, i:
           box 10 + i * 120, 10, 100, 100
 
           connect(current, onHover, self, Main.hover)

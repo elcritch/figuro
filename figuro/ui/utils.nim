@@ -63,6 +63,12 @@ template printNewEventInfo*() =
           stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
         stdout.styledWriteLine(fgWhite, "")
 
+template withDraw*[T](fig: T, blk: untyped): untyped =
+  block:
+    var parent {.inject.} = fig.parent
+    var current {.inject.} = fig
+    `blk`
+
 macro widget*(p: untyped): untyped =
   ## implements a stateful widget template constructors where 
   ## the type and the name are taken from the template definition:

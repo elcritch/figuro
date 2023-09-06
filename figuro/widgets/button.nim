@@ -1,5 +1,6 @@
 
 import commons
+import ../ui/utils
 
 type
   StatefulWidget*[T] = ref object of Figuro
@@ -31,22 +32,20 @@ proc clicked*[T](self: Button[T],
     refresh(self)
   self.isActive = true
 
-proc draw*[T](self: Button[T]) {.widget, slot.} =
+proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
-  # current = self
-  # echo "button:draw"
-  var current = self
-  
-  clipContent true
-  cornerRadius 10.0
+  withDraw(self):
+    
+    clipContent true
+    cornerRadius 10.0
 
-  if self.disabled:
-    fill "#F0F0F0"
-  else:
-    fill "#2B9FEA"
-    onHover:
-      fill current.fill.spin(15)
-      # this changes the color on hover!
+    if self.disabled:
+      fill "#F0F0F0"
+    else:
+      fill "#2B9FEA"
+      onHover:
+        fill current.fill.spin(15)
+        # this changes the color on hover!
 
 import ../ui/utils
 
@@ -64,10 +63,6 @@ template button*[T; V](typ: typedesc[T],
         if postDrawReady in widget.attrs:
           widget.attrs.excl postDrawReady
           `blk`
-    # connect(current, onDraw, current, Button[T].draw())
-    # connect(current, onDraw, current, postDraw)
-    # connect(current, onClick, current, Button[T].clicked)
-    # connect(current, onHover, current, Button[T].hovered)
     postNode(Figuro(current))
 
 # template button*[V](id: string, value: V, blk: untyped) =
