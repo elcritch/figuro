@@ -361,8 +361,6 @@ proc computeEvents*(node: Figuro) =
         target.events.mouse.incl evts.flags
 
   # Mouse
-  # let mouseButtons = uxInputs.buttonRelease * MouseButtons
-  
   printNewEventInfo()
 
   if captured.mouse[evHover].targets != prevHovers:
