@@ -269,10 +269,6 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
-    # if node.mouseOverlaps():
-    #   result.incl evHover
-    # if uxInputs.mouse.click():
-    #   result.incl evClickOut
 
 type
   EventsCapture*[T: set] = object
@@ -293,7 +289,8 @@ proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   else: a
 
 proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiButtonView] =
-  # Consume mouse buttons
+  ## Consume mouse buttons
+  ## 
   if evPress in mouseEvts:
     result[evPress] = uxInputs.buttonPress * MouseButtons
     uxInputs.buttonPress.excl MouseButtons
@@ -315,6 +312,7 @@ proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiB
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
+  ## 
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
     for ek in MouseEventKinds:

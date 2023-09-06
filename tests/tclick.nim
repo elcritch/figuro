@@ -68,7 +68,6 @@ proc draw*(self: Main) {.slot.} =
   var current = self
   self.name.setLen(0)
   self.name.add "main"
-  # echo "\n\nmain:draw: ", current.getId, " parent: ", current.parent.getId
 
   rectangle "body":
     self.mainRect = current
@@ -76,21 +75,14 @@ proc draw*(self: Main) {.slot.} =
     cornerRadius 10.0
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
-      # button "btn", i, typ = void:
       button int, "btn" & $i, i:
           box 10 + i * 120, 10, 100, 100
 
           connect(current, onHover, self, Main.hover)
-          # connect(current, onHover, current, Button[int].hover)
-          # echo nd(), "button:draw: ", " :: ", current.getId, " name: ", current.name
           connect(current, onClick, current, Button[int].btnClicked())
           if i == 0:
             connect(self, update, current, Button[int].btnTick())
-          # connect(current, onDraw, current, draw)
 
-          # The challenges of developing UIs!
-          # button int, "btn", i:
-          #   box 10, 10, 20, 20
           node nkText, "text":
             # echo nd(), "text: ", current.getId, " parent: ", current.parent.getId
             box 10, 10, 70, 70
