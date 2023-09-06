@@ -65,8 +65,8 @@ template printNewEventInfo*() =
 
 template withDraw*[T](fig: T, blk: untyped): untyped =
   block:
-    var parent {.inject.} = fig.parent
-    var current {.inject.} = fig
+    var parent {.inject, used.} = fig.parent
+    var current {.inject, used.} = fig
     `blk`
 
 macro widget*(p: untyped): untyped =
