@@ -70,10 +70,19 @@ template button*[T](s: State[T],
           `blk`
     postNode(Figuro(current))
 
-template button*[T](s: State[T],
+template button*[T](s: State[T] = state(void),
                     name: string,
                     blk: untyped) =
   button(s, name, void, blk)
+
+template button*(name: string,
+                    blk: untyped) =
+  button(state(void), name, void, blk)
+
+template button*(name: string,
+                    value: untyped,
+                    blk: untyped) =
+  button(state(void), name, value, blk)
 
 # import macros
 # macro button*(s, args: varargs[untyped]) =
