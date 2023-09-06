@@ -264,9 +264,12 @@ template onClickOut*(inner: untyped) =
       MouseLeft in uxInputs.buttonPress:
     inner
 
-template cornerRadius*(radius: UICoord|float|float32) =
+template cornerRadius*(radius: UICoord) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = UICoord radius
+
+template cornerRadius*(radius: float|float32) =
+  cornerRadius(UICoord radius)
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
