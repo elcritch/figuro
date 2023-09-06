@@ -120,7 +120,6 @@ proc configureEvents(renderer: Renderer) =
   window.onImeChange = proc () =
     echo "ime: ", window.imeCompositionString()
 
-
   # internal.getWindowTitle = proc (): string =
   #   window.title
   # internal.setWindowTitle = proc (title: string) =
