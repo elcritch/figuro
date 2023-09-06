@@ -7,6 +7,8 @@ let
   font = loadFont: GlyphFont(typefaceId: typeface, size: 44)
 
 type
+  Counter* = object
+
   Main* = ref object of Figuro
     value: int
     hasHovered: bool
@@ -72,8 +74,8 @@ proc draw*(self: Main) {.slot.} =
                       spin(10*self.hoveredAlpha)
       let x = 10
       for i in 0 .. 4:
-        button state(int), "btn", (i):
-          box 10 + 120, 10, 100, 100
+        button "btn", state=[Counter] do(i):
+          box 10 + i*120, 10, 100, 100
 
           # connect(current, onHover, self, Main.hover)
           # connect(current, onClick, current, Button[int].btnClicked())
