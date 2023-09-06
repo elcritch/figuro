@@ -68,7 +68,8 @@ proc draw*(self: Main) {.slot.} =
       self.mainRect = current
       box 10, 10, 600, 120
       cornerRadius 10.0
-      fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
+      fill whiteColor.darken(self.hoveredAlpha).
+                      spin(10*self.hoveredAlpha)
       for i in 0 .. 4:
         button int, "btn" & $i, i:
           box 10 + i * 120, 10, 100, 100
