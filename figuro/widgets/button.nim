@@ -76,13 +76,13 @@ template button*[T](s: State[T] = state(void),
   button(s, name, void, blk)
 
 template button*(name: string,
-                    blk: untyped) =
-  button(state(void), name, void, blk)
+                 value: untyped,
+                 blk: untyped) =
+  button(state(void), name, value, blk)
 
 template button*(name: string,
-                    value: untyped,
-                    blk: untyped) =
-  button(state(void), name, value, blk)
+                 blk: untyped) =
+  button(state(void), name, void, blk)
 
 # import macros
 # macro button*(s, args: varargs[untyped]) =

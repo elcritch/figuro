@@ -72,7 +72,7 @@ proc draw*(self: Main) {.slot.} =
                       spin(10*self.hoveredAlpha)
       let x = 10
       for i in 0 .. 4:
-        button "btn":
+        button state(int), "btn", (i):
           box 10 + 120, 10, 100, 100
 
           # connect(current, onHover, self, Main.hover)
