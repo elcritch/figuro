@@ -199,8 +199,7 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
     var parent: Figuro = current
     var current {.inject.}: Figuro = nil
     preNode(kind, id, current, parent)
-    let x = id
-    captureArgs x:
+    captureArgs id:
       current.postDraw = proc (widget: Figuro) =
         # echo nd(), "node:postDraw: ", widget.getId
         var current {.inject.}: Figuro = widget

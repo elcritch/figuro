@@ -70,22 +70,23 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha).
                       spin(10*self.hoveredAlpha)
+      let x = 10
       for i in 0 .. 4:
-        button int, "btn" & $i, i:
-          box 10 + i * 120, 10, 100, 100
+        button state(int), "btn", (i, x):
+          box 10 + 120, 10, 100, 100
 
-          connect(current, onHover, self, Main.hover)
-          connect(current, onClick, current, Button[int].btnClicked())
-          if i == 0:
-            connect(self, update, current, Button[int].btnTick())
+          # connect(current, onHover, self, Main.hover)
+          # connect(current, onClick, current, Button[int].btnClicked())
+          # if i == 0:
+          #   connect(self, update, current, Button[int].btnTick())
 
-          node nkText, "text":
-            box 10, 10, 70, 70
-            fill blackColor
-            setText(font, $(Button[int](current.parent).state))
-            connect(current, onClick, current, Figuro.txtClicked())
-            bubble(onClick)
-            connect(current, onHover, current, Figuro.txtHovered())
+          # node nkText, "text":
+          #   box 10, 10, 70, 70
+          #   fill blackColor
+          #   setText(font, $(Button[int](current.parent).state))
+          #   connect(current, onClick, current, Figuro.txtClicked())
+          #   bubble(onClick)
+          #   connect(current, onHover, current, Figuro.txtHovered())
 
 var main = Main.new()
 connect(main, onDraw, main, Main.draw())

@@ -3,17 +3,23 @@ from sugar import capture
 import macros
 
 macro captureArgs*(args, blk: untyped): untyped =
+  echo "captureArgs: ", args.treeRepr
   result = nnkCommand.newTree(bindSym"capture")
   if args.kind in [nnkSym, nnkIdent]:
     if args.strVal != "void":
       result.add args
   else:
     for arg in args:
-      result.add args
-  if result.len() == 0:
-    result = nnkEmpty.newNimNode
-  result.add nnkStmtList.newTree(blk)
-  # echo "captured: ", result.repr
+      echo "arg add: ", arg.repr
+      if arg.strVal != "void":
+        result.add arg
+  echo "captured: ", result.treeRepr
+  if result.len() > 1:
+    result.add nnkStmtList.newTree(blk)
+  else:
+    result = nnkStmtList.newTree()
+    result.add blk
+  echo "captured: ", result.repr
 
 macro statefulWidgetProc*(): untyped =
   ident(repr(genSym(nskProc, "doPost")))
@@ -76,19 +82,36 @@ macro widget*(p: untyped): untyped =
   ##    template `name`*[`type`, T](id: string, value: T, blk: untyped) {.statefulWidget.}
   ## 
   echo "figuroWidget: ", p.treeRepr
+  echo "figuroWidget: ", p.repr
+
   p.expectKind nnkTemplateDef
   let name = p.name()
   let genericParams = p[2]
   let typ = genericParams[0][0]
+  echo "genericParams: ", genericParams.treeRepr
+  echo "genericParams: ", genericParams[0][0].treeRepr
   p.params()[0].expectKind(nnkEmpty) # no return type
   if genericParams.len() > 1:
-    error("incorrect generic types: " & repr(genericParams) & "; " & "Should be `[WidgetType, T]`", genericParams)
+    error("incorrect generic types: " &
+              repr(genericParams) & "; " &
+              "Should be `[WidgetType, T]`",
+          genericParams)
   if p.params()[1].repr() != "id: string":
-    error("incorrect arguments: " & repr(p.params()[1]) & "; " & "Should be `id: string`", p.params()[1])
+    error("incorrect arguments: " &
+              repr(p.params()[1]) & "; " &
+              "Should be `id: string`",
+          p.params()[1])
+  echo "repr21: ", p.params()[2][1].repr(), " ", genericParams[0][1].repr
   if p.params()[2][1].repr() != genericParams[0][1].repr:
-    error("incorrect arguments: " & repr(p.params()[2][1]) & "; " & "Should be `" & genericParams[0][1].repr & "`", p.params()[2][1])
+    error("incorrect arguments: `" &
+              repr(p.params()[2][1]) & "`; " &
+              "Should be `[WidgetType, T]`",
+          p.params()[2][1])
   if p.params()[3][1].repr() != "untyped":
-    error("incorrect arguments: " & repr(p.params()[3][1]) & "; " & "Should be `untyped`", p.params()[3][1])
+    error("incorrect arguments: " &
+              repr(p.params()[3][1]) & "; " &
+              "Should be `untyped`",
+          p.params()[3][1])
   # echo "figuroWidget: ", " name: ", name, " typ: ", typ
   # echo "\n"
   # echo "doPostId: ", doPostId, " li: ", lineInfo(p.name())

@@ -49,10 +49,15 @@ proc draw*[T](self: Button[T]) {.slot.} =
 
 import ../ui/utils
 
-template button*[T; V](typ: typedesc[T],
-                        name: string,
-                        value: V,
-                        blk: untyped) =
+type
+  State*[T] = object
+
+proc state*[T](tp: typedesc[T]): State[T] = discard
+
+template button*[T](s: State[T],
+                    name: string,
+                    value: untyped,
+                    blk: untyped) =
   block:
     var parent: Figuro = Figuro(current)
     var current {.inject.}: Button[T] = nil
@@ -64,6 +69,16 @@ template button*[T; V](typ: typedesc[T],
           widget.attrs.excl postDrawReady
           `blk`
     postNode(Figuro(current))
+
+template button*[T](s: State[T],
+                    name: string,
+                    blk: untyped) =
+  button(s, name, void, blk)
+
+# import macros
+# macro button*(s, args: varargs[untyped]) =
+#   echo "button: ", s.treeRepr
+
 
 # template button*[V](id: string, value: V, blk: untyped) =
 # # template button*(id: string, blk: untyped) =
