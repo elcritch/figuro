@@ -146,21 +146,23 @@ template box*(rect: Box) =
   box(rect.x, rect.y, rect.w, rect.h)
 
 template size*(
-  w: int|float32|float64|UICoord|CSSConstraint,
-  h: int|float32|float64|UICoord|CSSConstraint,
+  w: int|float32|float64|UICoord,
+  h: int|float32|float64|UICoord,
 ) =
   ## Sets the box dimension width and height
-  when w is CSSConstraint:
-    current.cxSize[dcol] = w
-  else:
-    current.cxSize[dcol] = csFixed(w.UiScalar)
-    current.box.w = w.UICoord
+  current.cxSize[dcol] = csFixed(w.UiScalar)
+  current.box.w = w.UICoord
   
-  when h is CSSConstraint:
-    current.cxSize[drow] = h
-  else:
-    current.cxSize[drow] = csFixed(h.UiScalar)
-    current.box.h = h.UICoord
+  current.cxSize[drow] = csFixed(h.UiScalar)
+  current.box.h = h.UICoord
+
+template size*(
+  w: CSSConstraint,
+  h: CSSConstraint,
+) =
+  ## Sets the box dimension width and height
+  current.cxSize[dcol] = w
+  current.cxSize[drow] = h
 
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)

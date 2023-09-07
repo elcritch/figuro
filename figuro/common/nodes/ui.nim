@@ -38,6 +38,9 @@ type
     totalOffset*: Position
     attrs*: set[Attributes]
 
+    cxSize*: array[GridDir, Constraint]
+    cxOffset*: array[GridDir, Constraint]
+
     events*: InputEvents
     listens*: ListenEvents
 
