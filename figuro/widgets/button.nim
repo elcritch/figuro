@@ -51,44 +51,27 @@ import ../ui/utils
 
 type
   State*[T] = object
+  Captures* = object
 
 proc state*[T](tp: typedesc[T]): State[T] = discard
 
-# template buttonWidget*[T](
-#                           name: string,
-#                           blk: untyped) =
-#   block:
-#     var parent: Figuro = Figuro(current)
-#     var current {.inject.}: Button[T] = nil
-#     preNode(nkRectangle, name, current, parent)
-#     captureArgs value:
-#       current.postDraw = proc (widget: Figuro) =
-#         var current {.inject.}: Button[T] = Button[T](widget)
-#         if postDrawReady in widget.attrs:
-#           widget.attrs.excl postDrawReady
-#           `blk`
-#     postNode(Figuro(current))
-
-proc buttonWidget*[T](
+template button*[T; V](
     name: string,
-    current: var Button[T],
-    parent: var Figuro,
-    body: proc (self: Button[T])
+    state: State[T],
+    value: V,
+    blk: untyped
 ) =
-    preNode(nkRectangle, name, current, parent)
-    current.postDraw = proc (widget: Figuro) =
-        var self: Button[T] = Button[T](widget)
-        if postDrawReady in self.attrs:
-          self.attrs.excl postDrawReady
-          body(self)
-    postNode(Figuro(current))
-
-template button*[T](name: string,
-                body: proc (self: Button[T])) =
   block:
-    var parent: Figuro = current
+    var parent: Figuro = Figuro(current)
     var current {.inject.}: Button[T] = nil
-    buttonWidget(name, current, parent, body)
+    preNode(nkRectangle, name, current, parent)
+    captureArgs value:
+      current.postDraw = proc (widget: Figuro) =
+        var current {.inject.}: Button[T] = Button[T](widget)
+        if postDrawReady in widget.attrs:
+          widget.attrs.excl postDrawReady
+          `blk`
+    postNode(Figuro(current))
 
 # template button*[T](s: State[T] = state(void),
 #                     name: string,
