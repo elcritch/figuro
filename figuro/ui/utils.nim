@@ -123,3 +123,53 @@ macro widget*(p: untyped): untyped =
   # echo "doPostId: ", doPostId, " li: ", lineInfo(p.name())
   result = quote do:
     mkStatefulWidget(`typ`, `name`, doPostId)
+
+type
+  State*[T] = object
+  Captures*[V] = object
+    val*: V
+
+proc state*[T](tp: typedesc[T]): State[T] =
+  ## represents the state
+  discard
+
+macro captures*(vals: varargs[untyped]): untyped = 
+  ## represents the captures
+  var tpl = nnkTupleConstr.newNimNode()
+  for val in vals:
+    # echo "captures:val: ", val.getTypeInst.repr
+    tpl.add val
+  result = quote do:
+    Captures[typeof(`tpl`)](val: `tpl`)
+
+template declareStatefulWidget*[Widget](
+  widget: untyped,
+  tp: typedesc[Widget]
+) =
+
+  template `widget`*[T; V](
+      id: string,
+      state: State[T],
+      value: Captures[V],
+      blk: untyped
+  ) =
+    block:
+      var parent: Figuro = Figuro(current)
+      var current {.inject.}: Widget[T] = nil
+      preNode(nkRectangle, id, current, parent)
+      captureArgs value:
+        current.postDraw = proc (self: Figuro) =
+          var current {.inject.}: Widget[T] = Widget[T](self)
+          if postDrawReady in self.attrs:
+            self.attrs.excl postDrawReady
+            `blk`
+      postNode(Figuro(current))
+
+  template `widget`*[V](id: string, value: Captures[V], blk: untyped) =
+    `widget`(id, state(void), value, blk)
+
+  template `widget`*[T](id: string, state: State[T], blk: untyped) =
+    `widget`(id, state, captures(), blk)
+
+  template `widget`*(id: string, blk: untyped) =
+    `widget`(id, state(void), void, blk)
