@@ -15,7 +15,7 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc update*(fig: Figuro) {.signal.}
+proc update*(fig: Main) {.signal.}
 
 proc btnTick*(self: Button[int]) {.slot.} =
   self.state.inc
