@@ -49,32 +49,4 @@ proc draw*[T](self: Button[T]) {.slot.} =
 
 import ../ui/utils
 
-# template button*[T](s: State[T] = state(void),
-#                     name: string,
-#                     blk: untyped) =
-#   button(s, name, void, blk)
-
-# template button*(name: string,
-#                  value: untyped,
-#                  blk: untyped) =
-#   button(state(void), name, value, blk)
-
-# template button*(name: string,
-#                  blk: untyped) =
-#   button(state(void), name, void, blk)
-
-from sugar import capture
-import macros
-
-template exportWidget*(name, widget: untyped) =
-  macro `name`*(args: varargs[untyped]) =
-    let widget = ident(repr `widget`)
-    let wargs = args.parseWidgetArgs()
-    result = widget.generateBodies(wargs)
-
-
 exportWidget(button, Button)
-
-# template button*[V](id: string, value: V, blk: untyped) =
-# # template button*(id: string, blk: untyped) =
-#   button[void, V](void, id, value, blk)

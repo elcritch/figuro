@@ -155,4 +155,12 @@ proc generateBodies*(widget: NimNode, wargs: WidgetArgs): NimNode =
       `outer`
       postNode(Figuro(current))
 
-  echo "widget:result:\n", result.repr
+  echo "Widget:result:\n", result.repr
+
+template exportWidget*[T](name: untyped, class: typedesc[T]) =
+  ## exports a helper 
+  macro `name`*(args: varargs[untyped]) =
+    let widget = ident(repr `class`)
+    let wargs = args.parseWidgetArgs()
+    result = widget.generateBodies(wargs)
+
