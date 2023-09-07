@@ -51,13 +51,26 @@ import ../ui/utils
 
 type
   State*[T] = object
-  Captures* = object
+  Captures*[V] = object
+    val*: V
+
+import macros
 
 proc state*[T](tp: typedesc[T]): State[T] = discard
 
+macro captures*(vals: varargs[untyped]): untyped = 
+  echo "captures: ", vals.treeRepr
+  var tpl = nnkTupleConstr.newNimNode()
+  for val in vals:
+    # echo "captures:val: ", val.getTypeInst.repr
+    tpl.add val
+  result = quote do:
+    Captures[typeof(`tpl`)](val: `tpl`)
+  echo "captures:res: ", result.repr
+
 template button*[T; V](
     name: string,
-    state: State[T],
+    state: State[T] = state(void),
     value: V,
     blk: untyped
 ) =
@@ -72,6 +85,13 @@ template button*[T; V](
           widget.attrs.excl postDrawReady
           `blk`
     postNode(Figuro(current))
+
+template button*[V]( name: string, value: V, blk: untyped) =
+  button(name, state(void), value, blk)
+
+template button*(name: string, blk: untyped) =
+  button(name, state(void), void, blk)
+
 
 # template button*[T](s: State[T] = state(void),
 #                     name: string,

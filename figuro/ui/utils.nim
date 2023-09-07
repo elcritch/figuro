@@ -4,10 +4,16 @@ import macros
 
 macro captureArgs*(args, blk: untyped): untyped =
   echo "captureArgs: ", args.treeRepr
+  echo "captureArgs: ", args.repr
   result = nnkCommand.newTree(bindSym"capture")
   if args.kind in [nnkSym, nnkIdent]:
     if args.strVal != "void":
       result.add args
+  elif args.kind == nnkObjConstr:
+    for arg in args[1][^1][^1]:
+      echo "arg add: ", arg.repr
+      if arg.strVal != "void":
+        result.add arg
   else:
     for arg in args:
       echo "arg add: ", arg.repr
