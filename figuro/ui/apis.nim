@@ -164,6 +164,16 @@ template size*(
   current.cxSize[dcol] = w
   current.cxSize[drow] = h
 
+template boxOf*(node: Figuro) =
+  ## Sets current node's box from another node
+  ## e.g. `boxOf(parent)`
+  current.box = node.box
+
+template boxSizeOf*(node: Figuro) =
+  ## Sets current node's box from another node
+  ## e.g. `boxOf(parent)`
+  current.box = node.box.atXY(0, 0)
+
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)
 

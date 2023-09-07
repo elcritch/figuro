@@ -19,14 +19,14 @@ proc draw*(self: GridApp) {.slot.} =
   withDraw(self):
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
-      box 0, 0, 100, 100
+      box 0, 0, 480, 300
       fill rgb(224, 239, 255).to(Color)
 
       rectangle "css grid area":
         # if current.gridTemplate != nil:
         #   echo "grid template: ", repr current.gridTemplate
         # setup frame for css grid
-        box 10, 10, 80, 80
+        box 10, 10, 400, 240
         fill "#FFFFFF"
         cornerRadius 3
         clipContent true
@@ -43,6 +43,7 @@ proc draw*(self: GridApp) {.slot.} =
           gridRow 1 // 3
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
+          boxSizeOf current.parent
 
         for i in 1..4:
           rectangle "items b":
