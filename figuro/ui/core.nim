@@ -168,8 +168,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.name.setLen(0)
   discard current.name.tryAdd(name)
   current.kind = kind
-  # current.textStyle = parent.textStyle
-  # current.cursorColor = parent.cursorColor
   current.highlight = parent.highlight
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
@@ -179,12 +177,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
   nodeStack.add(current)
   inc parent.diffIndex
-
   current.diffIndex = 0
-  # TODO: which is better?
-  # draw(T(current))
 
-  # current.attrs.incl postDrawReady
   connect(current, onDraw, current, Figuro.clearDraw())
   connect(current, onDraw, current, typeof(current).draw())
   connect(current, onDraw, current, Figuro.handlePostDraw())
@@ -205,8 +199,7 @@ template node*(kind: NodeKind, id: string, blk: untyped): untyped =
     var parent: Figuro = current
     var current {.inject.}: Figuro = nil
     preNode(kind, id, current, parent)
-    let x = id
-    captureArgs x:
+    captureArgs id:
       current.postDraw = proc (widget: Figuro) =
         # echo nd(), "node:postDraw: ", widget.getId
         var current {.inject.}: Figuro = widget
@@ -269,10 +262,6 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
-    # if node.mouseOverlaps():
-    #   result.incl evHover
-    # if uxInputs.mouse.click():
-    #   result.incl evClickOut
 
 type
   EventsCapture*[T: set] = object
@@ -293,7 +282,8 @@ proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   else: a
 
 proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiButtonView] =
-  # Consume mouse buttons
+  ## Consume mouse buttons
+  ## 
   if evPress in mouseEvts:
     result[evPress] = uxInputs.buttonPress * MouseButtons
     uxInputs.buttonPress.excl MouseButtons
@@ -315,6 +305,7 @@ proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiB
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
+  ## 
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
     for ek in MouseEventKinds:
@@ -323,12 +314,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   let
     mouseEvts = node.checkMouseEvents()
-    # mouseOutEvts = allMouseEvts * MouseOnOutEvents
-    # mouseEvts = allMouseEvts
-    # gestureEvts = node.checkGestureEvents()
-
-  let buttons = mouseEvts.consumeMouseButtons()
-  # echo "remove buttons: ", uxInputs.buttonRelease, " node: ", node.getId()
+    buttons = mouseEvts.consumeMouseButtons()
 
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
@@ -374,8 +360,6 @@ proc computeEvents*(node: Figuro) =
         target.events.mouse.incl evts.flags
 
   # Mouse
-  # let mouseButtons = uxInputs.buttonRelease * MouseButtons
-  
   printNewEventInfo()
 
   if captured.mouse[evHover].targets != prevHovers:
