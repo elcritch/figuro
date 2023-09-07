@@ -98,3 +98,56 @@ macro captures*(vals: varargs[untyped]): untyped =
     tpl.add val
   result = quote do:
     Captures[typeof(`tpl`)](val: `tpl`)
+
+type
+  WidgetArgs* = tuple[
+    id: NimNode,
+    stateArg: NimNode,
+    capturedVals: NimNode,
+    blk: NimNode
+  ]
+
+proc parseWidgetArgs*(args: NimNode): WidgetArgs =
+  args.expectKind(nnkArgList)
+
+  result.id = args[0]
+  result.blk = args[^1]
+
+  for arg in args[0..^2]:
+    if arg.kind == nnkCall:
+      let fname = arg[0]
+      if fname.repr == "state":
+        if arg.len() != 2:
+          error "only one type var allowed"
+        # arg[1].expectKind(nnkBracket)
+        result.stateArg = arg[1]
+      elif fname.repr == "captures":
+        result.capturedVals = nnkBracket.newTree()
+        result.capturedVals.add arg[1..^1]
+
+proc generateBodies*(widget: NimNode, wargs: WidgetArgs): NimNode =
+  let (id, stateArg, capturedVals, blk) = wargs
+
+  let body = quote do:
+      current.postDraw = proc (widget: Figuro) =
+        var current {.inject.}: `widget`[`stateArg`] = `widget`[`stateArg`](widget)
+        if postDrawReady in widget.attrs:
+          widget.attrs.excl postDrawReady
+          `blk`
+
+  let outer =
+    if not capturedVals.isNil:
+      quote do:
+        capture `capturedVals`:
+          `body`
+    else:
+      quote do:
+        `body`
+
+  result = quote do:
+    block:
+      var parent: Figuro = Figuro(current)
+      var current {.inject.}: `widget`[`stateArg`] = nil
+      preNode(nkRectangle, `id`, current, parent)
+      `outer`
+      postNode(Figuro(current))

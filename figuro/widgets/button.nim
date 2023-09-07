@@ -70,47 +70,9 @@ macro button*(args: varargs[untyped]) =
   echo "button:\n", args.treeRepr
   # echo "do:\n", args[2].treeRepr
   let widget = ident "Button"
-  let id = args[0]
-  var stateArg: NimNode
-  var capturedVals: NimNode = nil
-  var blk: NimNode = args[^1]
+  let wargs = args.parseWidgetArgs()
 
-  for arg in args[0..^2]:
-    if arg.kind == nnkCall:
-      let fname = arg[0]
-      if fname.repr == "state":
-        if arg.len() != 2:
-          error "only one type var allowed"
-        # arg[1].expectKind(nnkBracket)
-        stateArg = arg[1]
-      elif fname.repr == "captures":
-        capturedVals = nnkBracket.newTree()
-        capturedVals.add arg[1..^1]
-
-  let body = quote do:
-      current.postDraw = proc (widget: Figuro) =
-        var current {.inject.}: `widget`[`stateArg`] = `widget`[`stateArg`](widget)
-        if postDrawReady in widget.attrs:
-          widget.attrs.excl postDrawReady
-          `blk`
-
-  let outer =
-    if not capturedVals.isNil:
-      quote do:
-        capture `capturedVals`:
-          `body`
-    else:
-      quote do:
-        `body`
-
-  result = quote do:
-    block:
-      var parent: Figuro = Figuro(current)
-      var current {.inject.}: `widget`[`stateArg`] = nil
-      preNode(nkRectangle, `id`, current, parent)
-      `outer`
-      postNode(Figuro(current))
-
+  result = widget.generateBodies(wargs)
   echo "button:result:\n", result.repr
   
 
