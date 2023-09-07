@@ -17,23 +17,23 @@ proc tick*(self: Main) {.slot.} =
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
-  var current = self
-  # echo "draw widget!"
-  rectangle "main":
-    # echo "draw mainRect"
-    # connect(current, onDraw, self, Main.draw)
-    box 0, 0, 620, 140
-    for i in 0 .. 5:
-      button void, "btn", i:
-        let value = self.value
-        fill "#AA0000"
-        onHover:
-          fill "#F00000"
-        box 20 + (i.toFloat + value) * 120,
-            30 + 20 * sin(value + i.toFloat),
-            60, 60
-        if i == 0:
-          current.fill.a = value * 1.0
+  withDraw(self):
+    # echo "draw widget!"
+    rectangle "main":
+      # echo "draw mainRect"
+      # connect(current, onDraw, self, Main.draw)
+      box 0, 0, 620, 140
+      for i in 0 .. 5:
+        button "btn", captures(i):
+          let value = self.value
+          fill "#AA0000"
+          onHover:
+            fill "#F00000"
+          box 20 + (i.toFloat + value) * 120,
+              30 + 20 * sin(value + i.toFloat),
+              60, 60
+          if i == 0:
+            current.fill.a = value * 1.0
 
 var fig = Main.new()
 

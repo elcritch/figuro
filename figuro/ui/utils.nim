@@ -43,9 +43,10 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   echo "parseWidgetArgs:args: ", args.treeRepr
 
   result.id = args[0]
+  result.id.expectKind(nnkStrLit)
   result.blk = args[^1]
 
-  for arg in args[0..^2]:
+  for arg in args[1..^2]:
     ## iterate through the widget args looking for 
     ## `state(int)` or `captures(i, x)` 
     ## 
@@ -59,6 +60,9 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]
+    else:
+      echo "UNEXPECTED"
+      error("unexpected arguement: " & arg.repr, arg)
   
   if result.stateArg.isNil:
     result.stateArg = ident"void"
@@ -114,6 +118,8 @@ proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
 
   result = quote do:
     block:
+      when not compiles(current.typeof):
+        {.error: "missing `var current` in current scope!".}
       var parent {.inject.}: Figuro = Figuro(current)
       var current {.inject.}: `widget`[`stateArg`] = nil
       preNode(`kind`, `id`, current, parent)
