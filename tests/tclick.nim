@@ -96,5 +96,4 @@ connect(main, onTick, main, Main.tick())
 
 app.width = 720
 app.height = 140
-
 startFiguro(main)
