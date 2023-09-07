@@ -66,8 +66,8 @@ proc draw*(self: GridApp) {.slot.} =
           # size csAuto(), csAuto()
           fill "#A00000"
           echo "cssize: ", current.cxSize.repr
-          # current.cxSize[dcol] = csAuto()
-          # current.cxSize[drow] = csAuto()
+          current.cxSize[dcol] = csAuto()
+          current.cxSize[drow] = csAuto()
 
           # onClick:
           #   self.count.inc()
@@ -86,6 +86,9 @@ var fig = GridApp.new()
 
 connect(fig, onDraw, fig, GridApp.draw)
 connect(fig, onTick, fig, GridApp.tick)
+
+fig.cxSize[dcol] = csAuto()
+fig.cxSize[drow] = csAuto()
 
 app.width = 480
 app.height = 300

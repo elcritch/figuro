@@ -133,14 +133,19 @@ proc makeGenerics*(node: NimNode, gens: seq[string], isIdentDefs = false) =
   else:
     for i, ch in node:
       echo "MAKE GEN: CH: ", ch.treeRepr
-      if ch.kind == nnkBracketExpr: # and
-          # (ch[1].repr in gens:
+      if ch.kind == nnkBracketExpr:
+        var allIdents = true
+        for n in ch:
+          if n.kind notin [nnkIdentDefs, nnkIdent]: allIdents = false
+        if not allIdents:
+          break
         let idType = ch
         let genParam =
           if idType[1].kind == nnkIdentDefs:
             idType[1][0]
           else: idType[1]
         echo "MAKE GEN: ", ch.treeRepr
+        echo "MAKE GEN:idType: ", idType.treeRepr
         node[i] = nnkCall.newTree(
           bindSym("[]", brOpen),
           ident idType[0].repr,

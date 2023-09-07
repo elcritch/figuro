@@ -95,7 +95,7 @@ proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
       `outer`
       postNode(Figuro(current))
 
-  echo "Widget:result:\n", result.repr
+  # echo "Widget:result:\n", result.repr
 
 proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
   let (id, stateArg, capturedVals, blk) = wargs
@@ -126,7 +126,7 @@ proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
       `outer`
       postNode(Figuro(current))
 
-  echo "Widget:result:\n", result.repr
+  # echo "Widget:result:\n", result.repr
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
   ## exports a helper 
