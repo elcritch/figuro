@@ -108,6 +108,10 @@ type
   ]
 
 proc parseWidgetArgs*(args: NimNode): WidgetArgs =
+  ## Parses widget args looking for options:
+  ## - `state(int)` 
+  ## - `captures(i, x)` 
+  ## 
   args.expectKind(nnkArgList)
 
   result.id = args[0]
@@ -139,13 +143,13 @@ proc generateBodies*(widget: NimNode, wargs: WidgetArgs): NimNode =
           `blk`
 
   let outer =
-    if not capturedVals.isNil:
+    if capturedVals.isNil:
+      quote do:
+        `body`
+    else:
       quote do:
         capture `capturedVals`:
           `body`
-    else:
-      quote do:
-        `body`
 
   result = quote do:
     block:
