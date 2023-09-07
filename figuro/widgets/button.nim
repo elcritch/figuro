@@ -70,8 +70,8 @@ macro captures*(vals: varargs[untyped]): untyped =
 
 template button*[T; V](
     name: string,
-    state: State[T] = state(void),
-    value: V,
+    state: State[T],
+    value: Captures[V],
     blk: untyped
 ) =
   block:
@@ -86,8 +86,11 @@ template button*[T; V](
           `blk`
     postNode(Figuro(current))
 
-template button*[V]( name: string, value: V, blk: untyped) =
+template button*[V](name: string, value: Captures[V], blk: untyped) =
   button(name, state(void), value, blk)
+
+template button*[T](name: string, state: State[T], blk: untyped) =
+  button(name, state, captures(), blk)
 
 template button*(name: string, blk: untyped) =
   button(name, state(void), void, blk)
