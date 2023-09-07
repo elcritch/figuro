@@ -70,7 +70,7 @@ macro button*(args: varargs[untyped]) =
   # echo "do:\n", args[2].treeRepr
   let id = args[0]
   var stateArg: NimNode
-  var capturedVals: seq[NimNode]
+  var capturedVals: NimNode = nnkBracket.newTree()
   var isCaptured: bool
 
   var blk: NimNode = args[^1]
@@ -84,7 +84,7 @@ macro button*(args: varargs[untyped]) =
         # arg[1].expectKind(nnkBracket)
         stateArg = arg[1]
       elif fname.repr == "captures":
-        capturedVals = arg[1..^1]
+        capturedVals.add arg[1..^1]
 
   let body = quote do:
       current.postDraw = proc (widget: Figuro) =
