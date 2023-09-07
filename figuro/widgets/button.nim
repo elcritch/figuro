@@ -84,6 +84,7 @@ macro button*(args: varargs[untyped]) =
         # arg[1].expectKind(nnkBracket)
         stateArg = arg[1]
       elif fname.repr == "captures":
+        isCaptured = true
         capturedVals.add arg[1..^1]
 
   let body = quote do:
@@ -93,7 +94,7 @@ macro button*(args: varargs[untyped]) =
           widget.attrs.excl postDrawReady
           `blk`
 
-  let outer = 
+  let outer =
     if isCaptured:
       quote do:
         capture `capturedVals`:
