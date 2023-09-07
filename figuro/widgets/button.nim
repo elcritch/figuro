@@ -12,15 +12,9 @@ type
     disabled*: bool
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
-  # self.fill = parseHtmlColor "#9BDFFA"
-  # echo "button hover!"
   echo "button:hovered: ", kind, " :: ", self.getId,
           " buttons: ", self.events.mouse
-  # if kind == Enter:
-  #   self.events.mouse.incl evHover
-  # else:
-  #   self.events.mouse.excl evHover
-  # refresh(self)
+  
 
 proc clicked*[T](self: Button[T],
                   kind: EventKind,
@@ -46,7 +40,5 @@ proc draw*[T](self: Button[T]) {.slot.} =
       onHover:
         fill current.fill.spin(15)
         # this changes the color on hover!
-
-import ../ui/utils
 
 exportWidget(button, Button)
