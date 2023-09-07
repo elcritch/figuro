@@ -44,9 +44,7 @@ proc draw*(self: Main) {.slot.} =
           # perfect, the slot pragma adds all this for
           # us
 
-var
-  main = Main.new()
-
+var main = Main.new()
 connect(main, onDraw, main, Main.draw)
 connect(main, onTick, main, Main.tick)
 

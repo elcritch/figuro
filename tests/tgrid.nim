@@ -14,66 +14,71 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   # echo "\n\n=================================\n"
-  frame "main":
-    # setWindowBounds(vec2(400, 200), vec2(800, 600))
-    fill "#F7F7F9"
-    cornerRadius 10
+  withDraw(self):
+    rectangle "main":
+      # setWindowBounds(vec2(400, 200), vec2(800, 600))
+      fill "#F7F7F9"
+      cornerRadius 10
+      box 10, 10, 40, 40
 
-    # Setup CSS Grid Template
-    gridTemplateRows  ["edge-t"] auto \
-                      ["header"] 70'ux \
-                      ["top"]    70'ux \
-                      ["middle-top"] 30'ux \ 
-                      ["middle"] 30'ux \ 
-                      ["bottom"] 1'fr \ 
-                      ["footer"] auto \
-                      ["edge-b"]
+      # Setup CSS Grid Template
+      gridTemplateRows  ["edge-t"] auto \
+                        ["header"] 70'ux \
+                        ["top"]    70'ux \
+                        ["middle-top"] 30'ux \ 
+                        ["middle"] 30'ux \ 
+                        ["bottom"] 1'fr \ 
+                        ["footer"] auto \
+                        ["edge-b"]
 
-    gridTemplateColumns ["edge-l"]  40'ux \
-                        ["button-la", "outer-l"] 150'ux \
-                        ["button-lb"] 1'fr \
-                        ["inner-m"] 1'fr \
-                        ["button-ra"] 150'ux \
-                        ["button-rb", "outer-r"] 40'ux \
-                        ["edge-r"]
+      gridTemplateColumns ["edge-l"]  40'ux \
+                          ["button-la", "outer-l"] 150'ux \
+                          ["button-lb"] 1'fr \
+                          ["inner-m"] 1'fr \
+                          ["button-ra"] 150'ux \
+                          ["button-rb", "outer-r"] 40'ux \
+                          ["edge-r"]
 
-    rectangle "bar":
-      gridRow "top" // "middle-top"
-      gridColumn "outer-l" // "outer-r"
+      rectangle "bar":
+        gridRow "top" // "middle-top"
+        gridColumn "outer-l" // "outer-r"
+        # self.value = (self.count.toFloat * 0.10) mod 1.0001
+        box 10, 10, 40, 40
 
-      # self.value = (self.count.toFloat * 0.10) mod 1.0001
+        # ProgressBar:
+        #   value: self.value
 
-      # ProgressBar:
-      #   value: self.value
+      rectangle "btn":
+        box 10, 10, 40, 40
+        # currently rendering sub-text with css grids
+        # is a bit broken due to the order constraints
+        # are computed. There's a fix for this 
+        # that should simplify this. 
+        gridRow "middle" // "bottom"
+        gridColumn "button-la" // "button-lb"
 
-    rectangle "btn":
-      # currently rendering sub-text with css grids
-      # is a bit broken due to the order constraints
-      # are computed. There's a fix for this 
-      # that should simplify this. 
-      gridRow "middle" // "bottom"
-      gridColumn "button-la" // "button-lb"
+        button "btn":
+          box 10, 10, 40, 40
+          # label fmt"Clicked1: {self.count:4d}"
+          # size csAuto(), csAuto()
+          fill "#A00000"
 
-      button "btn", (self):
-        # label fmt"Clicked1: {self.count:4d}"
-        # size csAuto(), csAuto()
-        fill "#A00000"
+          # onClick:
+          #   self.count.inc()
 
-        # onClick:
-        #   self.count.inc()
-
-    button "grid", (self):
-      gridRow "middle" // "bottom"
-      gridColumn "button-ra" // "button-rb"
-      # label fmt"Clicked2: {self.count:4d}"
-      # onClick: self.count.inc()
-  
-    # gridTemplateDebugLines true
+      button "grid":
+        box 10, 10, 40, 40
+        gridRow "middle" // "bottom"
+        gridColumn "button-ra" // "button-rb"
+        # label fmt"Clicked2: {self.count:4d}"
+        # onClick: self.count.inc()
+    
+      # gridTemplateDebugLines true
 
 var fig = GridApp.new()
 
 connect(fig, onDraw, fig, GridApp.draw)
-# connect(fig, onTick, fig, GridApp.tick)
+connect(fig, onTick, fig, GridApp.tick)
 
 app.width = 480
 app.height = 300
