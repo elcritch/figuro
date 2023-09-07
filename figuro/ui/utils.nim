@@ -114,6 +114,9 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   result.blk = args[^1]
 
   for arg in args[0..^2]:
+    ## iterate through the widget args looking for 
+    ## `state(int)` or `captures(i, x)` 
+    ## 
     if arg.kind == nnkCall:
       let fname = arg[0]
       if fname.repr == "state":
@@ -151,3 +154,5 @@ proc generateBodies*(widget: NimNode, wargs: WidgetArgs): NimNode =
       preNode(nkRectangle, `id`, current, parent)
       `outer`
       postNode(Figuro(current))
+
+  echo "widget:result:\n", result.repr

@@ -66,16 +66,14 @@ import ../ui/utils
 from sugar import capture
 import macros
 
-macro button*(args: varargs[untyped]) =
-  echo "button:\n", args.treeRepr
-  # echo "do:\n", args[2].treeRepr
-  let widget = ident "Button"
-  let wargs = args.parseWidgetArgs()
+template exportWidget*(name, widget: untyped) =
+  macro `name`*(args: varargs[untyped]) =
+    let widget = ident(repr `widget`)
+    let wargs = args.parseWidgetArgs()
+    result = widget.generateBodies(wargs)
 
-  result = widget.generateBodies(wargs)
-  echo "button:result:\n", result.repr
-  
 
+exportWidget(button, Button)
 
 # template button*[V](id: string, value: V, blk: untyped) =
 # # template button*(id: string, blk: untyped) =
