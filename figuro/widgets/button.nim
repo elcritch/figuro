@@ -71,8 +71,7 @@ macro button*(args: varargs[untyped]) =
   # echo "do:\n", args[2].treeRepr
   let id = args[0]
   var stateArg: NimNode
-  var capturedVals: NimNode = nnkBracket.newTree()
-  var isCaptured: bool
+  var capturedVals: NimNode = nil
 
   var blk: NimNode = args[^1]
 
@@ -85,7 +84,7 @@ macro button*(args: varargs[untyped]) =
         # arg[1].expectKind(nnkBracket)
         stateArg = arg[1]
       elif fname.repr == "captures":
-        isCaptured = true
+        capturedVals = nnkBracket.newTree()
         capturedVals.add arg[1..^1]
 
   let body = quote do:
@@ -96,7 +95,7 @@ macro button*(args: varargs[untyped]) =
           `blk`
 
   let outer =
-    if isCaptured:
+    if not capturedVals.isNil:
       quote do:
         capture `capturedVals`:
           `body`
