@@ -17,6 +17,7 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   withDraw(self):
+    box 0, 0, 480, 300
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
       box 0, 0, 480, 300
@@ -64,7 +65,7 @@ proc draw*(self: GridApp) {.slot.} =
           fill rgba(245, 129, 49, 123).to(Color)
 
         # draw debug lines
-        gridTemplateDebugLines true
+        # gridTemplateDebugLines true
 
 
 var fig = GridApp.new()
