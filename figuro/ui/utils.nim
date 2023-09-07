@@ -81,49 +81,6 @@ template withDraw*[T](fig: T, blk: untyped): untyped =
     var current {.inject, used.} = fig
     `blk`
 
-macro widget*(p: untyped): untyped =
-  ## implements a stateful widget template constructors where 
-  ## the type and the name are taken from the template definition:
-  ## 
-  ##    template `name`*[`type`, T](id: string, value: T, blk: untyped) {.statefulWidget.}
-  ## 
-  echo "figuroWidget: ", p.treeRepr
-  echo "figuroWidget: ", p.repr
-
-  p.expectKind nnkTemplateDef
-  let name = p.name()
-  let genericParams = p[2]
-  let typ = genericParams[0][0]
-  echo "genericParams: ", genericParams.treeRepr
-  echo "genericParams: ", genericParams[0][0].treeRepr
-  p.params()[0].expectKind(nnkEmpty) # no return type
-  if genericParams.len() > 1:
-    error("incorrect generic types: " &
-              repr(genericParams) & "; " &
-              "Should be `[WidgetType, T]`",
-          genericParams)
-  if p.params()[1].repr() != "id: string":
-    error("incorrect arguments: " &
-              repr(p.params()[1]) & "; " &
-              "Should be `id: string`",
-          p.params()[1])
-  echo "repr21: ", p.params()[2][1].repr(), " ", genericParams[0][1].repr
-  if p.params()[2][1].repr() != genericParams[0][1].repr:
-    error("incorrect arguments: `" &
-              repr(p.params()[2][1]) & "`; " &
-              "Should be `[WidgetType, T]`",
-          p.params()[2][1])
-  if p.params()[3][1].repr() != "untyped":
-    error("incorrect arguments: " &
-              repr(p.params()[3][1]) & "; " &
-              "Should be `untyped`",
-          p.params()[3][1])
-  # echo "figuroWidget: ", " name: ", name, " typ: ", typ
-  # echo "\n"
-  # echo "doPostId: ", doPostId, " li: ", lineInfo(p.name())
-  result = quote do:
-    mkStatefulWidget(`typ`, `name`, doPostId)
-
 type
   State*[T] = object
   Captures*[V] = object
