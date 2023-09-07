@@ -19,7 +19,7 @@ proc draw*(self: GridApp) {.slot.} =
       # setWindowBounds(vec2(400, 200), vec2(800, 600))
       fill "#F7F7F9"
       cornerRadius 10
-      box 10, 10, 40, 40
+      # box 10, 10, 40, 40
 
       # Setup CSS Grid Template
       gridTemplateRows  ["edge-t"] auto \
@@ -42,23 +42,25 @@ proc draw*(self: GridApp) {.slot.} =
       rectangle "bar":
         gridRow "top" // "middle-top"
         gridColumn "outer-l" // "outer-r"
+        fill "#00A0A0"
         # self.value = (self.count.toFloat * 0.10) mod 1.0001
-        box 10, 10, 40, 40
+        # box 10, 10, 40, 40
 
         # ProgressBar:
         #   value: self.value
 
       rectangle "btn":
-        box 10, 10, 40, 40
+        # box 10, 10, 40, 40
         # currently rendering sub-text with css grids
         # is a bit broken due to the order constraints
         # are computed. There's a fix for this 
         # that should simplify this. 
+        fill "#0000A0"
         gridRow "middle" // "bottom"
         gridColumn "button-la" // "button-lb"
 
         button "btn":
-          box 10, 10, 40, 40
+          # box 10, 10, 40, 40
           # label fmt"Clicked1: {self.count:4d}"
           # size csAuto(), csAuto()
           fill "#A00000"
@@ -67,9 +69,10 @@ proc draw*(self: GridApp) {.slot.} =
           #   self.count.inc()
 
       button "grid":
-        box 10, 10, 40, 40
+        # box 10, 10, 40, 40
         gridRow "middle" // "bottom"
         gridColumn "button-ra" // "button-rb"
+        fill "#00A000"
         # label fmt"Clicked2: {self.count:4d}"
         # onClick: self.count.inc()
 

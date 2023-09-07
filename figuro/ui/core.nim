@@ -130,7 +130,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
     # parent = nodeStack[^1]
-    # Create Node.
+    # Create Figuro.
     current = T.new()
     current.uid = current.agentId
     echo nd(), "create new node: ", id, " new: ", current.uid, " parent: ", parent.uid
@@ -139,7 +139,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     # current.parent = parent
     refresh(current)
   else:
-    # Reuse Node.
+    # Reuse Figuro.
     # echo nd(), "checking reuse node"
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
@@ -390,3 +390,197 @@ proc computeEvents*(node: Figuro) =
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true
+
+var gridChildren: seq[Figuro]
+
+# template calcBasicConstraintImpl(
+#     parent, node: Figuro,
+#     dir: static GridDir,
+#     f: untyped
+# ) =
+#   ## computes basic constraints for box'es when set
+#   ## this let's the use do things like set 90'pp (90 percent)
+#   ## of the box width post css grid or auto constraints layout
+#   template calcBasic(val: untyped): untyped =
+#     block:
+#       var res: UICoord
+#       match val:
+#         UiFixed(coord):
+#           res = coord.UICoord
+#         UiFrac(frac):
+#           res = frac.UICoord * parent.box.f
+#         UiPerc(perc):
+#           let ppval = when astToStr(f) == "x": parent.box.w
+#                       elif astToStr(f) == "y": parent.box.h
+#                       else: parent.box.f
+#           res = perc.UICoord / 100.0.UICoord * ppval
+#       res
+  
+#   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
+#                 else: node.cxOffset[dir]
+#   match csValue:
+#     UiAuto():
+#       when astToStr(f) in ["w", "h"]:
+#         node.box.f = parent.box.f
+#       else:
+#         discard
+#     UiSum(ls, rs):
+#       let lv = ls.calcBasic()
+#       let rv = rs.calcBasic()
+#       node.box.f = lv + rv
+#     UiMin(ls, rs):
+#       let lv = ls.calcBasic()
+#       let rv = rs.calcBasic()
+#       node.box.f = min(lv, rv)
+#     UiMax(ls, rs):
+#       let lv = ls.calcBasic()
+#       let rv = rs.calcBasic()
+#       node.box.f = max(lv, rv)
+#     UiValue(value):
+#       node.box.f = calcBasic(value)
+#     _:
+#       discard
+
+# proc calcBasicConstraint(parent, node: Figuro, dir: static GridDir, isXY: static bool) =
+#   when isXY == true and dir == dcol: 
+#     calcBasicConstraintImpl(parent, node, dir, x)
+#   elif isXY == true and dir == drow: 
+#     calcBasicConstraintImpl(parent, node, dir, y)
+#   elif isXY == false and dir == dcol: 
+#     calcBasicConstraintImpl(parent, node, dir, w)
+#   elif isXY == false and dir == drow: 
+#     calcBasicConstraintImpl(parent, node, dir, h)
+
+proc computeLayout*(parent, node: Figuro) =
+  ## Computes constraints and auto-layout.
+  
+  # # simple constraints
+  # if node.gridItem.isNil:
+  #   calcBasicConstraint(parent, node, dcol, true)
+  #   calcBasicConstraint(parent, node, drow, true)
+  #   calcBasicConstraint(parent, node, dcol, false)
+  #   calcBasicConstraint(parent, node, drow, false)
+
+  # css grid impl
+  if not node.gridTemplate.isNil:
+    echo "calc grid!"
+    
+    gridChildren.setLen(0)
+    for n in node.children:
+      # if n.layoutAlign != laIgnore:
+      gridChildren.add(n)
+    node.gridTemplate.computeNodeLayout(node, gridChildren)
+
+    for n in node.children:
+      computeLayout(node, n)
+    
+    return
+
+  for n in node.children:
+    computeLayout(node, n)
+
+  # if node.layoutAlign == laIgnore:
+  #   return
+
+  # Constraints code.
+  # case node.constraintsVertical:
+  #   of cMin: discard
+  #   of cMax:
+  #     let rightSpace = parent.orgBox.w - node.box.x
+  #     # echo "rightSpace : ", rightSpace  
+  #     node.box.x = parent.box.w - rightSpace
+  #   of cScale:
+  #     let xScale = parent.box.w / parent.orgBox.w
+  #     # echo "xScale: ", xScale 
+  #     node.box.x *= xScale
+  #     node.box.w *= xScale
+  #   of cStretch:
+  #     let xDiff = parent.box.w - parent.orgBox.w
+  #     # echo "xDiff: ", xDiff   
+  #     node.box.w += xDiff
+  #   of cCenter:
+  #     let offset = floor((node.orgBox.w - parent.orgBox.w) / 2.0'ui + node.orgBox.x)
+  #     # echo "offset: ", offset   
+  #     node.box.x = floor((parent.box.w - node.box.w) / 2.0'ui) + offset
+
+  # case node.constraintsHorizontal:
+  #   of cMin: discard
+  #   of cMax:
+  #     let bottomSpace = parent.orgBox.h - node.box.y
+  #     # echo "bottomSpace  : ", bottomSpace   
+  #     node.box.y = parent.box.h - bottomSpace
+  #   of cScale:
+  #     let yScale = parent.box.h / parent.orgBox.h
+  #     # echo "yScale: ", yScale
+  #     node.box.y *= yScale
+  #     node.box.h *= yScale
+  #   of cStretch:
+  #     let yDiff = parent.box.h - parent.orgBox.h
+  #     # echo "yDiff: ", yDiff 
+  #     node.box.h += yDiff
+  #   of cCenter:
+  #     let offset = floor((node.orgBox.h - parent.orgBox.h) / 2.0'ui + node.orgBox.y)
+  #     node.box.y = floor((parent.box.h - node.box.h) / 2.0'ui) + offset
+
+  # # Typeset text
+  # if node.kind == nkText:
+  #   computeTextLayout(node)
+  #   case node.textStyle.autoResize:
+  #     of tsNone:
+  #       # Fixed sized text node.
+  #       discard
+  #     of tsHeight:
+  #       # Text will grow down.
+  #       node.box.h = node.textLayoutHeight
+  #     of tsWidthAndHeight:
+  #       # Text will grow down and wide.
+  #       node.box.w = node.textLayoutWidth
+  #       node.box.h = node.textLayoutHeight
+  #   # print "layout:nkText: ", node.id, node.box
+
+  # template compAutoLayoutNorm(field, fieldSz, padding: untyped;
+  #                             orth, orthSz, orthPadding: untyped) =
+  #   # echo "layoutMode : ", node.layoutMode 
+  #   if node.counterAxisSizingMode == csAuto:
+  #     # Resize to fit elements tightly.
+  #     var maxOrth = 0.0'ui
+  #     for n in node.nodes:
+  #       if n.layoutAlign != laStretch:
+  #         maxOrth = max(maxOrth, n.box.`orthSz`)
+  #     node.box.`orthSz` = maxOrth  + node.`orthPadding` * 2'ui
+
+  #   var at = 0.0'ui
+  #   at += node.`padding`
+  #   for i, n in node.nodes.pairs:
+  #     if n.layoutAlign == laIgnore:
+  #       continue
+  #     if i > 0:
+  #       at += node.itemSpacing
+
+  #     n.box.`field` = at
+
+  #     case n.layoutAlign:
+  #       of laMin:
+  #         n.box.`orth` = node.`orthPadding`
+  #       of laCenter:
+  #         n.box.`orth` = node.box.`orthSz`/2'ui - n.box.`orthSz`/2'ui
+  #       of laMax:
+  #         n.box.`orth` = node.box.`orthSz` - n.box.`orthSz` - node.`orthPadding`
+  #       of laStretch:
+  #         n.box.`orth` = node.`orthPadding`
+  #         n.box.`orthSz` = node.box.`orthSz` - node.`orthPadding` * 2'ui
+  #         # Redo the layout for child node.
+  #         computeLayout(node, n)
+  #       of laIgnore:
+  #         continue
+  #     at += n.box.`fieldSz`
+  #   at += node.`padding`
+  #   node.box.`fieldSz` = at
+
+  # # Auto-layout code.
+  # if node.layoutMode == lmVertical:
+  #   compAutoLayoutNorm(y, h, verticalPadding, x, w, horizontalPadding)
+
+  # if node.layoutMode == lmHorizontal:
+  #   # echo "layoutMode : ", node.layoutMode 
+  #   compAutoLayoutNorm(x, w, horizontalPadding, y, h, verticalPadding)

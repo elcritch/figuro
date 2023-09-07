@@ -59,6 +59,7 @@ proc startFiguro*(
         # echo "  redraw: ", node.getId
         emit node.onDraw()
       redrawNodes.clear()
+      computeLayout(nil, root)
       computeScreenBox(nil, root)
       sendRoot(root.copyInto())
 
