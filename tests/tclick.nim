@@ -18,7 +18,6 @@ type
 proc update*(fig: Figuro) {.signal.}
 
 proc btnTick*(self: Button[int]) {.slot.} =
-  # echo "BUTTON: TICK: ", self.getId
   self.state.inc
   refresh(self)
 
@@ -33,19 +32,14 @@ proc btnClicked*(self: Button[int],
 
 proc txtHovered*(self: Figuro, kind: EventKind) {.slot.} =
   echo "TEXT hover! ", kind, " :: ", self.getId
-  # refresh(self)
 
 proc txtClicked*(self: Figuro,
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
   echo "TEXT clicked! ", kind, " buttons ", buttons, " :: ", self.getId
-  # refresh(self)
 
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
-  # self.fill = parseHtmlColor "#9BDFFA"
-  # echo "button hover!"
   echo "button:hovered: ", kind, " :: ", self.getId
-  # refresh(self)
 
 proc tick*(self: Main) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
