@@ -382,6 +382,8 @@ template gridAutoRows*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
 
+from sugar import capture
+
 template gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
   ## helper that draws css grid lines. great for debugging layouts.
   if draw:
@@ -390,18 +392,20 @@ template gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
       # computeLayout(nil, current)
       # echo "grid template post: ", repr current.gridTemplate
       let cg = current.gridTemplate.gaps[dcol]
-      let wd = max(0.1'em, cg.UICoord)
+      let wd = max(10, cg.UICoord)
       let w = current.gridTemplate.columns[^1].start
       let h = current.gridTemplate.rows[^1].start
       # echo "size: ", (w, h)
       for col in current.gridTemplate.columns[1..^2]:
-        rectangle "column":
-          layoutAlign laIgnore
-          fill color
-          box col.start.UICoord - wd, 0.UICoord, wd, h.UICoord
+        capture col:
+          rectangle "column":
+            # layoutAlign laIgnore
+            fill color
+            box col.start.UICoord - wd, 0.UICoord, wd, h.UICoord
       for row in current.gridTemplate.rows[1..^2]:
-        rectangle "row":
-          layoutAlign laIgnore
-          fill color
-          box 0, row.start.UICoord - wd, w.UICoord, wd
+        capture row:
+          rectangle "row":
+            # layoutAlign laIgnore
+            fill color
+            box 0, row.start.UICoord - wd, w.UICoord, wd
 
