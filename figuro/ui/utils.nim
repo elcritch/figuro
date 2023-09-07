@@ -40,7 +40,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   ## - `captures(i, x)` 
   ## 
   args.expectKind(nnkArgList)
-  echo "parseWidgetArgs:args: ", args.treeRepr
+  # echo "parseWidgetArgs:args: ", args.treeRepr
 
   result.id = args[0]
   result.id.expectKind(nnkStrLit)
@@ -66,7 +66,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   
   if result.stateArg.isNil:
     result.stateArg = ident"void"
-  echo "parseWidgetArgs:res: ", result.repr
+  # echo "parseWidgetArgs:res: ", result.repr
 
 proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
   let (id, stateArg, capturedVals, blk) = wargs

@@ -72,8 +72,8 @@ proc draw*(self: GridApp) {.slot.} =
         gridColumn "button-ra" // "button-rb"
         # label fmt"Clicked2: {self.count:4d}"
         # onClick: self.count.inc()
-    
-      # gridTemplateDebugLines true
+
+      gridTemplateDebugLines true
 
 var fig = GridApp.new()
 
