@@ -1,6 +1,5 @@
 import std/[math, strformat]
 
-import cssgrid
 import figuro/widgets/button
 import figuro/widget
 import figuro
@@ -66,8 +65,6 @@ proc draw*(self: GridApp) {.slot.} =
           size csAuto(), csAuto()
           fill "#A00000"
           echo "cssize: ", current.cxSize.repr
-          current.cxSize[dcol] = csAuto()
-          current.cxSize[drow] = csAuto()
 
           # onClick:
           #   self.count.inc()
