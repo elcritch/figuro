@@ -69,10 +69,10 @@ import macros
 macro button*(args: varargs[untyped]) =
   echo "button:\n", args.treeRepr
   # echo "do:\n", args[2].treeRepr
+  let widget = ident "Button"
   let id = args[0]
   var stateArg: NimNode
   var capturedVals: NimNode = nil
-
   var blk: NimNode = args[^1]
 
   for arg in args[0..^2]:
@@ -89,7 +89,7 @@ macro button*(args: varargs[untyped]) =
 
   let body = quote do:
       current.postDraw = proc (widget: Figuro) =
-        var current {.inject.}: Button[`stateArg`] = Button[`stateArg`](widget)
+        var current {.inject.}: `widget`[`stateArg`] = `widget`[`stateArg`](widget)
         if postDrawReady in widget.attrs:
           widget.attrs.excl postDrawReady
           `blk`
@@ -106,7 +106,7 @@ macro button*(args: varargs[untyped]) =
   result = quote do:
     block:
       var parent: Figuro = Figuro(current)
-      var current {.inject.}: Button[`stateArg`] = nil
+      var current {.inject.}: `widget`[`stateArg`] = nil
       preNode(nkRectangle, `id`, current, parent)
       `outer`
       postNode(Figuro(current))
