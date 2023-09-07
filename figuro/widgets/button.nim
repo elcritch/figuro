@@ -65,6 +65,7 @@ import ../ui/utils
 
 from sugar import capture
 import macros
+
 macro button*(args: varargs[untyped]) =
   echo "button:\n", args.treeRepr
   # echo "do:\n", args[2].treeRepr
