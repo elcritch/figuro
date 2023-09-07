@@ -51,9 +51,9 @@ template boxFrom*(x, y, w, h: float32) =
   ## Sets the box dimensions.
   current.box = initBox(x, y, w, h)
 
-template frame*(id: static string, inner: untyped): untyped =
+template frame*(id: static string, args: varargs[untyped]): untyped =
   ## Starts a new frame.
-  node(nkFrame, id, inner):
+  node(nkFrame, id, args):
     # boxSizeOf parent
     discard
     # current.cxSize = [csAuto(), csAuto()]
@@ -67,9 +67,9 @@ template drawable*(id: static string, inner: untyped): untyped =
   ## Note: Experimental!
   node(nkDrawable, id, inner)
 
-template rectangle*(id, inner: untyped): untyped =
+template rectangle*(id: static string, args: varargs[untyped]): untyped =
   ## Starts a new rectangle.
-  node(nkRectangle, id, inner)
+  node(nkRectangle, id, args)
 
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.

@@ -2,35 +2,6 @@ from sugar import capture
 import macros
 import commons
 
-macro captureArgs*(args, blk: untyped): untyped =
-  ## helper to wrap the actual capture args
-  # echo "captureArgs: ", args.treeRepr
-  # echo "captureArgs: ", args.repr
-  result = nnkCommand.newTree(bindSym"capture")
-  if args.kind in [nnkSym, nnkIdent]:
-    if args.strVal != "void":
-      result.add args
-  elif args.kind == nnkObjConstr:
-    for arg in args[1][^1][^1]:
-      echo "arg add: ", arg.repr
-      if arg.strVal != "void":
-        result.add arg
-  else:
-    for arg in args:
-      echo "arg add: ", arg.repr
-      if arg.strVal != "void":
-        result.add arg
-  echo "captured: ", result.treeRepr
-  if result.len() > 1:
-    result.add nnkStmtList.newTree(blk)
-  else:
-    result = nnkStmtList.newTree()
-    result.add blk
-  echo "captured: ", result.repr
-
-macro statefulWidgetProc*(): untyped =
-  ident(repr(genSym(nskProc, "doPost")))
-
 template withDraw*[T](fig: T, blk: untyped): untyped =
   block:
     var parent {.inject, used.} = fig.parent
@@ -69,6 +40,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   ## - `captures(i, x)` 
   ## 
   args.expectKind(nnkArgList)
+  echo "parseWidgetArgs:args: ", args.treeRepr
 
   result.id = args[0]
   result.blk = args[^1]
@@ -87,8 +59,38 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]
+  echo "parseWidgetArgs:res: ", result.repr
 
-proc generateBodies*(widget: NimNode, wargs: WidgetArgs): NimNode =
+proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
+  let (id, stateArg, capturedVals, blk) = wargs
+
+  let body = quote do:
+      current.postDraw = proc (widget: Figuro) =
+        var current {.inject.}: `widget` = `widget`(widget)
+        if postDrawReady in widget.attrs:
+          widget.attrs.excl postDrawReady
+          `blk`
+
+  let outer =
+    if capturedVals.isNil:
+      quote do:
+        `body`
+    else:
+      quote do:
+        capture `capturedVals`:
+          `body`
+
+  result = quote do:
+    block:
+      var parent: Figuro = Figuro(current)
+      var current {.inject.}: `widget` = nil
+      preNode(`kind`, `id`, current, parent)
+      `outer`
+      postNode(Figuro(current))
+
+  echo "Widget:result:\n", result.repr
+
+proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
   let (id, stateArg, capturedVals, blk) = wargs
 
   let body = quote do:
@@ -109,9 +111,9 @@ proc generateBodies*(widget: NimNode, wargs: WidgetArgs): NimNode =
 
   result = quote do:
     block:
-      var parent: Figuro = Figuro(current)
+      var parent {.inject.}: Figuro = Figuro(current)
       var current {.inject.}: `widget`[`stateArg`] = nil
-      preNode(nkRectangle, `id`, current, parent)
+      preNode(`kind`, `id`, current, parent)
       `outer`
       postNode(Figuro(current))
 
@@ -122,7 +124,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]) =
   macro `name`*(args: varargs[untyped]) =
     let widget = ident(repr `class`)
     let wargs = args.parseWidgetArgs()
-    result = widget.generateBodies(wargs)
+    result = widget.generateGenericBodies(ident "nkRectangle", wargs)
 
 import std/terminal
 

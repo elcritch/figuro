@@ -191,24 +191,13 @@ proc postNode*(current: var Figuro) =
   current.removeExtraChildren()
   nodeDepth.dec()
 
-import utils
+import utils, macros
 
-template node*(kind: NodeKind, id: string, blk: untyped): untyped =
+macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
-  block:
-    var parent: Figuro = current
-    var current {.inject.}: Figuro = nil
-    preNode(kind, id, current, parent)
-    captureArgs id:
-      current.postDraw = proc (widget: Figuro) =
-        # echo nd(), "node:postDraw: ", widget.getId
-        var current {.inject.}: Figuro = widget
-        # echo "BUTTON: ", current.getId, " parent: ", current.parent.getId
-        # let widget {.inject.} = Button[T](current)
-        if postDrawReady in widget.attrs:
-          widget.attrs.excl postDrawReady
-          `blk`
-    postNode(current)
+  let widget = ident("Figuro")
+  let wargs = args.parseWidgetArgs()
+  result = widget.generateBodies(kind, wargs)
 
 # template node*(kind: NodeKind, id: string, blk: untyped): untyped =
 #   node(kind, id, void, blk)
