@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
     cornerRadius 10.0
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
-      button void, "btn", i:
+      button "btn", captures(i):
           box 10 + i * 120, 10, 100, 100
           # echo nd(), "btn: ", i
           # we need to connect it's onHover event
