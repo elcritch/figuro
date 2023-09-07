@@ -115,7 +115,7 @@ template blank*(): untyped =
 ## interacting with user interactions. 
 ## 
 
-type CSSConstraint = distinct int # move to cssgrid
+type CSSConstraint = Constraint
 
 proc fltOrZero(x: int|float32|float64|UICoord|CSSConstraint): float32 =
   when x is CSSConstraint:
