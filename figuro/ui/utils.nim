@@ -59,6 +59,9 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]
+  
+  if result.stateArg.isNil:
+    result.stateArg = ident"void"
   echo "parseWidgetArgs:res: ", result.repr
 
 proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =

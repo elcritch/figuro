@@ -22,18 +22,19 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
-  rectangle "main":
-    self.mainRect = current
-    box 10, 10, 600, 120
-    cornerRadius 10.0
-    fill "#2A9EEA".parseHtmlColor * 0.7
-    text "text":
-      box 10, 10, 400, 100
-      fill blackColor
-      setText(font, "hello world!")
+  withDraw(self):
     rectangle "main":
-      box 10, 10, 400, 100
-      fill whiteColor * 0.33
+      self.mainRect = current
+      box 10, 10, 600, 120
+      cornerRadius 10.0
+      fill "#2A9EEA".parseHtmlColor * 0.7
+      text "text":
+        box 10, 10, 400, 100
+        fill blackColor
+        setText(font, "hello world!")
+      rectangle "main":
+        box 10, 10, 400, 100
+        fill whiteColor * 0.33
 
 var
   fig = Main.new()
