@@ -49,8 +49,6 @@ proc draw*[T](self: Button[T]) {.slot.} =
 
 import ../ui/utils
 
-declareStatefulWidget(button, Button)
-
 # template button*[T](s: State[T] = state(void),
 #                     name: string,
 #                     blk: untyped) =
@@ -67,62 +65,52 @@ declareStatefulWidget(button, Button)
 
 from sugar import capture
 import macros
-# macro button*(args: varargs[untyped]) =
-#   echo "button:\n", args.treeRepr
-#   # echo "do:\n", args[2].treeRepr
-#   let id = args[0]
-#   var stateArg: NimNode
-#   var blk: NimNode
-#   var capturedVals: NimNode
-#   var isCaptured: bool
+macro button*(args: varargs[untyped]) =
+  echo "button:\n", args.treeRepr
+  # echo "do:\n", args[2].treeRepr
+  let id = args[0]
+  var stateArg: NimNode
+  var capturedVals: seq[NimNode]
+  var isCaptured: bool
 
-#   for arg in args:
-#     if arg.kind == nnkExprEqExpr and arg[0].repr == "state":
-#       arg[1].expectKind(nnkBracket)
-#       assert arg[1].len() == 1
-#       stateArg = arg[1][0]
+  var blk: NimNode = args[^1]
 
-#   if args[2].kind == nnkDo:
-#     let doblk = args[2]
-#     let pms = doblk.params()
-#     blk = doblk[^1]
-#     echo "pms:\n", pms.treeRepr
+  for arg in args[0..^2]:
+    if arg.kind == nnkCall:
+      let fname = arg[0]
+      if fname.repr == "state":
+        if arg.len() != 2:
+          error "only one type var allowed"
+        # arg[1].expectKind(nnkBracket)
+        stateArg = arg[1]
+      elif fname.repr == "captures":
+        capturedVals = arg[1..^1]
 
-#     var vals = nnkBracket.newNimNode()
-#     for arg in pms[1..^1]: vals.add arg[0]
-#     capturedVals = vals
-#     echo "vals: ", vals.repr
-#     echo "state: ", stateArg.repr
-#     isCaptured = true
-#   else:
-#     capturedVals = nnkBracket.newTree()
-#     blk = args[^1]
+  let body = quote do:
+      current.postDraw = proc (widget: Figuro) =
+        var current {.inject.}: Button[`stateArg`] = Button[`stateArg`](widget)
+        if postDrawReady in widget.attrs:
+          widget.attrs.excl postDrawReady
+          `blk`
 
-#   let body = quote do:
-#       current.postDraw = proc (widget: Figuro) =
-#         var current {.inject.}: Button[`stateArg`] = Button[`stateArg`](widget)
-#         if postDrawReady in widget.attrs:
-#           widget.attrs.excl postDrawReady
-#           `blk`
+  let outer = 
+    if isCaptured:
+      quote do:
+        capture `capturedVals`:
+          `body`
+    else:
+      quote do:
+        `body`
 
-#   let outer = 
-#     if isCaptured:
-#       quote do:
-#         capture `capturedVals`:
-#           `body`
-#     else:
-#       quote do:
-#         `body`
+  result = quote do:
+    block:
+      var parent: Figuro = Figuro(current)
+      var current {.inject.}: Button[`stateArg`] = nil
+      preNode(nkRectangle, `id`, current, parent)
+      `outer`
+      postNode(Figuro(current))
 
-#   result = quote do:
-#     block:
-#       var parent: Figuro = Figuro(current)
-#       var current {.inject.}: Button[`stateArg`] = nil
-#       preNode(nkRectangle, `id`, current, parent)
-#       `outer`
-#       postNode(Figuro(current))
-
-#   echo "button:result:\n", result.repr
+  echo "button:result:\n", result.repr
   
 
 

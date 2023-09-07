@@ -141,35 +141,3 @@ macro captures*(vals: varargs[untyped]): untyped =
     tpl.add val
   result = quote do:
     Captures[typeof(`tpl`)](val: `tpl`)
-
-template declareStatefulWidget*[Widget](
-  widget: untyped,
-  tp: typedesc[Widget]
-) =
-
-  template `widget`*[T; V](
-      id: string,
-      state: State[T],
-      value: Captures[V],
-      blk: untyped
-  ) =
-    block:
-      var parent: Figuro = Figuro(current)
-      var current {.inject.}: Widget[T] = nil
-      preNode(nkRectangle, id, current, parent)
-      captureArgs value:
-        current.postDraw = proc (self: Figuro) =
-          var current {.inject.}: Widget[T] = Widget[T](self)
-          if postDrawReady in self.attrs:
-            self.attrs.excl postDrawReady
-            `blk`
-      postNode(Figuro(current))
-
-  template `widget`*[V](id: string, value: Captures[V], blk: untyped) =
-    `widget`(id, state(void), value, blk)
-
-  template `widget`*[T](id: string, state: State[T], blk: untyped) =
-    `widget`(id, state, captures(), blk)
-
-  template `widget`*(id: string, blk: untyped) =
-    `widget`(id, state(void), void, blk)
