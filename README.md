@@ -11,9 +11,16 @@ The core idea is to split it into two main pieces:
 ## Demo
 
 ```sh
-atlas replay
-nim c -r "tests/twidget.nim" 
+git clone https://github.com/elcritch/figuro
+cd figuro/
+atlas replay atlas.lock
+nim c -r "tests/tclick.nim" 
 ```
+
+## Updates
+
+Note much of the below has been completed in some form, but the descriptions likely aren't 100% accurate anymore.
+
 
 ## Widget and Application Layer
 
