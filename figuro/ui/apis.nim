@@ -137,9 +137,8 @@ template box*(
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
   boxFrom(fltOrZero x, fltOrZero y, fltOrZero w, fltOrZero h)
-  # current.cxOffset = [csOrFixed(x), csOrFixed(y)]
-  # current.cxSize = [csOrFixed(w), csOrFixed(h)]
-  # orgBox(float32 x, float32 y, float32 w, float32 h)
+  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
+  current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
 template box*(rect: Box) =
   ## Sets the box dimensions with integers
