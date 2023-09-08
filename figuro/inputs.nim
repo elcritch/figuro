@@ -205,6 +205,8 @@ type
     buttonRelease*: UiButtonView
     buttonToggle*: UiButtonView
 
+    windowSize*: Option[Position]
+
 var
   uxInputs* {.runtimeVar.} = AppInputs()
 

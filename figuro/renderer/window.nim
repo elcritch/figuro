@@ -54,6 +54,14 @@ proc renderLoop*(renderer: Renderer, poll = true) =
 
 import std/terminal
 
+proc copyInputs(window: Window): AppInputs =
+  result = AppInputs(mouse: lastMouse)
+  result.buttonRelease = toUi window.buttonReleased()
+  result.buttonPress = toUi window.buttonPressed()
+  result.buttonDown = toUi window.buttonDown()
+  result.buttonToggle = toUi window.buttonToggle()
+  result.keyboard.consumed = false
+
 proc configureEvents(renderer: Renderer) =
 
   uxInputList = newChan[AppInputs](40)
@@ -65,7 +73,9 @@ proc configureEvents(renderer: Renderer) =
   window.onResize = proc () =
     updateWindowSize(window)
     renderLoop(window, renderer.nodes, poll = false)
-    # renderEvent.trigger()
+    var uxInput = window.copyInputs()
+    uxInput.windowSize = some app.windowSize
+    discard uxInputList.trySend(uxInput)
   
   window.onFocusChange = proc () =
     app.focused = window.focused
@@ -92,12 +102,7 @@ proc configureEvents(renderer: Renderer) =
     discard uxInputList.trySend(uxInput)
 
   window.onButtonPress = proc (button: windy.Button) =
-    var uxInput = AppInputs(mouse: lastMouse)
-    uxInput.buttonRelease = toUi window.buttonReleased()
-    uxInput.buttonPress = toUi window.buttonPressed()
-    uxInput.buttonDown = toUi window.buttonDown()
-    uxInput.buttonToggle = toUi window.buttonToggle()
-    uxInput.keyboard.consumed = false
+    let uxInput = window.copyInputs()
     stdout.styledWriteLine({styleDim},
             fgWhite, "buttonPress ", {styleBright},
             fgGreen, $uxInput.buttonPress)
@@ -105,12 +110,7 @@ proc configureEvents(renderer: Renderer) =
     discard uxInputList.trySend(uxInput)
 
   window.onButtonRelease = proc (button: Button) =
-    var uxInput = AppInputs(mouse: lastMouse)
-    uxInput.buttonRelease = toUi window.buttonReleased()
-    uxInput.buttonPress = toUi window.buttonPressed()
-    uxInput.buttonDown = toUi window.buttonDown()
-    uxInput.buttonToggle = toUi window.buttonToggle()
-    uxInput.keyboard.consumed = false
+    let uxInput = window.copyInputs()
     stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ",
                             {styleDim}, fgGreen, $uxInput.buttonRelease)
     discard uxInputList.trySend(uxInput)

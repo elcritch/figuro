@@ -33,6 +33,7 @@ type
     inactive
     postDrawReady
     clearHover
+    rxWindowResize
 
   FidgetConstraint* = enum
     cMin

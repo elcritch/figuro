@@ -21,7 +21,8 @@ proc draw*(self: GridApp) {.slot.} =
       fill "#D7D7D9"
       cornerRadius 10
       # box 10, 10, 460, 280
-      box 10'vw, 10'vh, 90'vw, 90'vh
+      box 10'vw, 10'vh, 80'vw, 80'vh
+      echo "windowSize: ", app.windowSize
 
       # Setup CSS Grid Template
       gridTemplateRows  ["edge-t"] auto \

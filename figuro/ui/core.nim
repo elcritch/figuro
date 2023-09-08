@@ -295,6 +295,10 @@ proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiB
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
   ## 
+  
+  if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
+    refresh(node)
+
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
     for ek in MouseEventKinds:
@@ -340,6 +344,8 @@ proc computeEvents*(node: Figuro) =
     return
 
   var captured: CapturedEvents = computeNodeEvents(node)
+
+  uxInputs.windowSize = none Position
 
   # set mouse event flags in targets
   for ek in MouseEventKinds:

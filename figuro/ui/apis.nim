@@ -291,15 +291,17 @@ proc findRoot*(node: Figuro): Figuro =
 
 template Vw*(size: float32): UICoord =
   ## percentage of Viewport width
-  current.findRoot().box.w * size.UICoord / 100.0
+  current.attrs.incl rxWindowResize
+  app.windowSize.x * size.UICoord / 100.0
+
+template Vh*(size: float32): UICoord =
+  ## percentage of Viewport height
+  current.attrs.incl rxWindowResize
+  app.windowSize.y * size.UICoord / 100.0
 
 template `'vw`*(n: string): UICoord =
   ## numeric literal view width unit
   Vw(parseFloat(n))
-
-template Vh*(size: float32): UICoord =
-  ## percentage of Viewport height
-  current.findRoot().box.h * size.UICoord / 100.0
 
 template `'vh`*(n: string): UICoord =
   ## numeric literal view height unit
