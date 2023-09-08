@@ -25,22 +25,22 @@ proc draw*(self: GridApp) {.slot.} =
       echo "windowSize: ", app.windowSize
 
       # Setup CSS Grid Template
-      gridTemplateRows  ["edge-t"] auto \
-                        ["header"] 70'ux \
-                        ["top"]    70'ux \
-                        ["middle-top"] 30'ux \ 
-                        ["middle"] 30'ux \ 
-                        ["bottom"] 1'fr \ 
-                        ["footer"] auto \
-                        ["edge-b"]
+      setGridRows ["edge-t"] auto \
+                  ["header"] 70'ux \
+                  ["top"]    70'ux \
+                  ["middle-top"] 30'ux \ 
+                  ["middle"] 30'ux \ 
+                  ["bottom"] 1'fr \ 
+                  ["footer"] auto \
+                  ["edge-b"]
 
-      gridTemplateColumns ["edge-l"]  40'ux \
-                          ["button-la", "outer-l"] 150'ux \
-                          ["button-lb"] 1'fr \
-                          ["inner-m"] 1'fr \
-                          ["button-ra"] 150'ux \
-                          ["button-rb", "outer-r"] 40'ux \
-                          ["edge-r"]
+      setGridCols ["edge-l"]  40'ux \
+                  ["button-la", "outer-l"] 150'ux \
+                  ["button-lb"] 1'fr \
+                  ["inner-m"] 1'fr \
+                  ["button-ra"] 150'ux \
+                  ["button-rb", "outer-r"] 40'ux \
+                  ["edge-r"]
 
       rectangle "bar":
         gridRow "top" // "middle-top"

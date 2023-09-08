@@ -336,7 +336,7 @@ proc csFixed*(coord: UICoord): Constraint =
 ## setting up layouts and constraingts. 
 ## 
 
-template gridTemplateColumns*(args: untyped) =
+template setGridCols*(args: untyped) =
   ## configure columns for CSS grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -355,7 +355,7 @@ template gridTemplateColumns*(args: untyped) =
   # layout lmGrid
   parseGridTemplateColumns(current.gridTemplate, args)
 
-template gridTemplateRows*(args: untyped) =
+template setGridRows*(args: untyped) =
   ## configure rows for CSS grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
