@@ -34,11 +34,13 @@ proc startFiguro*(
   root = widget
   redrawNodes = initOrderedSet[Figuro]()
   refresh(root)
+  setupRoot(root)
 
-  proc appTick() =
+  loadMain = proc () =
+    emit root.onLoad()
+  tickMain = proc () =
     emit root.onTick()
-
-  proc appEvent() =
+  eventMain = proc () =
     var input: AppInputs
     ## only process up to ~10 events at a time
     var cnt = 10
@@ -46,14 +48,11 @@ proc startFiguro*(
       uxInputs = input
       computeEvents(root)
       cnt.dec
-
-  proc appLoad() =
-    emit root.onLoad()
-  
-  proc appMain() =
+  mainApp = proc () =
     root.diffIndex = 0
     if redrawNodes.len() > 0:
       # echo "\nredraw: ", redrawNodes.len
+      computeEvents(root)
       let rn = redrawNodes
       for node in rn:
         # echo "  redraw: ", node.getId
@@ -62,13 +61,6 @@ proc startFiguro*(
       computeLayout(nil, root)
       computeScreenBox(nil, root)
       sendRoot(root.copyInto())
-
-  setupRoot(root)
-
-  loadMain = appLoad
-  tickMain = appTick
-  eventMain = appEvent
-  mainApp = appMain
 
   if mainApp.isNil:
     raise newException(AssertionDefect, "mainApp cannot be nil")
