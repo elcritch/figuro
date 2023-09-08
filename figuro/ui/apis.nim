@@ -263,6 +263,61 @@ proc loadFont*(font: GlyphFont): FontId =
 template setText*(font: FontId, text: string) =
   current.textLayout = internal.getTypeset(text, font, current.box)
 
+
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+##        Dimension Helpers
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+## 
+## These provide basic dimension units and helpers 
+## similar to those available in HTML. They help
+## specify details like: "set node width to 100% of it's parents size."
+## 
+
+# template Em*(size: float32): UICoord =
+#   ## unit size relative to current font size
+#   current.textStyle.fontSize * size.UICoord
+
+# proc `'em`*(n: string): UICoord =
+#   ## numeric literal em unit
+#   result = Em(parseFloat(n))
+
+{.hint[Name]:off.}
+
+proc findRoot*(node: Figuro): Figuro =
+  result = node
+  while node.parent != nil:
+    result = node.parent
+  echo "findRoot: ", result.getId, " box: ", result.box
+
+template Vw*(size: float32): UICoord =
+  ## percentage of Viewport width
+  current.findRoot().box.w * size.UICoord / 100.0
+
+template `'vw`*(n: string): UICoord =
+  ## numeric literal view width unit
+  Vw(parseFloat(n))
+
+template Vh*(size: float32): UICoord =
+  ## percentage of Viewport height
+  current.findRoot().box.h * size.UICoord / 100.0
+
+template `'vh`*(n: string): UICoord =
+  ## numeric literal view height unit
+  Vh(parseFloat(n))
+
+template WPerc*(n: SomeNumber): UICoord =
+  ## numeric literal percent of parent width
+  UICoord(max(0'f32, parent.box.w.float32 * n.float32 / 100.0))
+
+template HPerc*(n: SomeNumber): UICoord =
+  ## numeric literal percent of parent height
+  UICoord(max(0'f32, parent.box.h.float32 * n.float32 / 100.0))
+
+proc csFixed*(coord: UICoord): Constraint =
+  csFixed(coord.UiScalar)
+
+{.hint[Name]:on.}
+
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

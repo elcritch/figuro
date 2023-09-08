@@ -21,6 +21,7 @@ proc draw*(self: GridApp) {.slot.} =
       fill "#D7D7D9"
       cornerRadius 10
       box 10, 10, 460, 280
+      # box 10, 10, 100'vw, 100'vh
 
       # Setup CSS Grid Template
       gridTemplateRows  ["edge-t"] auto \
@@ -43,7 +44,7 @@ proc draw*(self: GridApp) {.slot.} =
       rectangle "bar":
         gridRow "top" // "middle-top"
         gridColumn "outer-l" // "outer-r"
-        fill "#B0D000"
+        fill "#1010D0"
 
       rectangle "btn":
         # box 10, 10, 40, 40
@@ -82,6 +83,7 @@ connect(fig, onTick, fig, GridApp.tick)
 
 fig.cxSize[dcol] = csAuto()
 fig.cxSize[drow] = csAuto()
+fig.box = initBox(0, 0, 480, 300)
 
 app.width = 480
 app.height = 300
