@@ -51,7 +51,7 @@ proc startFiguro*(
   mainApp = proc () =
     root.diffIndex = 0
     if redrawNodes.len() > 0:
-      # echo "\nredraw: ", redrawNodes.len
+      echo "\nredraw: ", redrawNodes.len
       computeEvents(root)
       let rn = redrawNodes
       for node in rn:

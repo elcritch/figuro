@@ -19,16 +19,18 @@ proc update*(fig: Main) {.signal.}
 
 proc btnTick*(self: Button[int]) {.slot.} =
   self.state.inc
+  echo "btnTick: ", self.getid
   refresh(self)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-  echo ""
-  echo nd(), "tclick:button:clicked: ", self.state
-  if kind == Enter:
-    self.state.inc
-    refresh(self)
+  if buttons == {MouseLeft}:
+    echo ""
+    echo nd(), "tclick:button:clicked: ", self.state, " button: ", buttons
+    if kind == Enter:
+      self.state.inc
+      refresh(self)
 
 proc txtHovered*(self: Figuro, kind: EventKind) {.slot.} =
   echo "TEXT hover! ", kind, " :: ", self.getId
@@ -73,8 +75,9 @@ proc draw*(self: Main) {.slot.} =
 
           connect(current, onHover, self, Main.hover)
           connect(current, onClick, current, btnClicked)
-          if i == 0:
-            connect(self, update, current, btnTick)
+          # if i == 0:
+          #   echo "CURRENT: ", current.getId
+          #   connect(self, update, current, btnTick)
 
           node nkText, "text":
             box 10, 10, 70, 70

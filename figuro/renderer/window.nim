@@ -98,7 +98,10 @@ proc configureEvents(renderer: Renderer) =
     uxInput.buttonDown = toUi window.buttonDown()
     uxInput.buttonToggle = toUi window.buttonToggle()
     uxInput.keyboard.consumed = false
-    stdout.styledWriteLine({styleDim}, fgWhite, "buttonPress ", {styleBright}, fgGreen, $uxInput.buttonPress)
+    stdout.styledWriteLine({styleDim},
+            fgWhite, "buttonPress ", {styleBright},
+            fgGreen, $uxInput.buttonPress)
+            # fgBlue, " time: " & $(time - lastButtonRelease) )
     discard uxInputList.trySend(uxInput)
 
   window.onButtonRelease = proc (button: Button) =
@@ -108,7 +111,8 @@ proc configureEvents(renderer: Renderer) =
     uxInput.buttonDown = toUi window.buttonDown()
     uxInput.buttonToggle = toUi window.buttonToggle()
     uxInput.keyboard.consumed = false
-    stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ", {styleDim}, fgGreen, $uxInputs.buttonRelease)
+    stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ",
+                            {styleDim}, fgGreen, $uxInput.buttonRelease)
     discard uxInputList.trySend(uxInput)
 
   window.onRune = proc (rune: Rune) =

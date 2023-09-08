@@ -262,6 +262,7 @@ proc loadFont*(font: GlyphFont): FontId =
   internal.getFont(font)
 
 template setText*(font: FontId, text: string) =
+  echo "setText"
   current.textLayout = internal.getTypeset(text, font, current.box)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
