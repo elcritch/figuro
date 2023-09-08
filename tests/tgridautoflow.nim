@@ -20,21 +20,23 @@ proc draw*(self: GridApp) {.slot.} =
     box 0, 0, 480, 300
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
-      box 0, 0, 480, 300
+      # box 0, 0, 100'vh, 100'vw
+      box 10'pw, 10'ph, 80'pw, 80'ph
       fill rgb(224, 239, 255).to(Color)
 
       rectangle "css grid area":
         # if current.gridTemplate != nil:
         #   echo "grid template: ", repr current.gridTemplate
         # setup frame for css grid
-        box 10, 10, 400, 240
+        # box 10, 10, 400, 240
+        box 0, 0, 100'pw, 100'ph
         fill "#FFFFFF"
         cornerRadius 3
         clipContent true
         
         # Setup CSS Grid Template
-        gridTemplateColumns 60'ux 60'ux 60'ux 60'ux 60'ux
-        gridTemplateRows 90'ux 90'ux
+        setGridCols 60'ux 60'ux 60'ux 60'ux 60'ux
+        setGridRows 90'ux 90'ux
         justifyContent CxCenter
 
         rectangle "item a":
