@@ -285,7 +285,7 @@ template setText*(font: FontId, text: string) =
 
 proc findRoot*(node: Figuro): Figuro =
   result = node
-  while node.parent != nil:
+  while result.parent != nil:
     result = node.parent
   echo "findRoot: ", result.getId, " box: ", result.box
 
