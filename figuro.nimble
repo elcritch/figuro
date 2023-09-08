@@ -26,6 +26,6 @@ requires "https://github.com/elcritch/windy#http-cleanup"
 requires "threading"
 requires "nimscripter#dll"
 requires "msgpack4nim"
-requires "stack_strings"
+requires "stackstrings"
 requires "micros"
 
