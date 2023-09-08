@@ -19,13 +19,13 @@ proc update*(fig: Main) {.signal.}
 
 proc btnTick*(self: Button[int]) {.slot.} =
   self.state.inc
-  echo "btnTick: ", self.getid
+  # echo "btnTick: ", self.getid
   refresh(self)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-  if buttons == {MouseLeft}:
+  if buttons == {MouseLeft} or buttons == {DoubleClick}:
     echo ""
     echo nd(), "tclick:button:clicked: ", self.state, " button: ", buttons
     if kind == Enter:
@@ -75,9 +75,8 @@ proc draw*(self: Main) {.slot.} =
 
           connect(current, onHover, self, Main.hover)
           connect(current, onClick, current, btnClicked)
-          # if i == 0:
-          #   echo "CURRENT: ", current.getId
-          #   connect(self, update, current, btnTick)
+          if i == 0:
+            connect(self, update, current, btnTick)
 
           node nkText, "text":
             box 10, 10, 70, 70

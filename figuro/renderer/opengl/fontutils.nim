@@ -152,7 +152,7 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
     wh = rect.wh
     pf = fontTable[font]
   
-  echo "FONTS:pf:isNil: ", pf.isNil
+  assert pf.isNil == false
   # echo "FONTS: ", pf.repr
   let
     arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh)
