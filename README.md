@@ -8,7 +8,7 @@ The core idea is to split it into two main pieces:
 1. Widget / UI Application
 2. Rendering Engine
 
-## Demo
+## Trying it out
 
 ```sh
 git clone https://github.com/elcritch/figuro
@@ -16,6 +16,12 @@ cd figuro/
 atlas replay atlas.lock
 nim c -r "tests/tclick.nim" 
 ```
+
+Currently during the early development only Atlas with `atlas.lock` files are intended to work. Nimble lock files are updated but may or may not work.
+
+Note using `atlas use figuro` or `atlas install figuro` likely won't grab the correct versions of things. You can do a `atlas replay atlas.lock` to setup your workspace. Then create your own project in the same workspace and set it up with `atlas use --cfgHere --keepCommits ../figuro/figuro.nimble`.
+
+Eventually these issues will be resolved.
 
 ## Updates
 
