@@ -40,15 +40,10 @@ proc draw*(self: GridApp) {.slot.} =
                           ["button-rb", "outer-r"] 40'ux \
                           ["edge-r"]
 
-      # rectangle "bar":
-      #   gridRow "top" // "middle-top"
-      #   gridColumn "outer-l" // "outer-r"
-      #   fill "#B0D000"
-      #   # self.value = (self.count.toFloat * 0.10) mod 1.0001
-      #   # box 10, 10, 40, 40
-
-      #   # ProgressBar:
-      #   #   value: self.value
+      rectangle "bar":
+        gridRow "top" // "middle-top"
+        gridColumn "outer-l" // "outer-r"
+        fill "#B0D000"
 
       rectangle "btn":
         # box 10, 10, 40, 40
@@ -61,7 +56,7 @@ proc draw*(self: GridApp) {.slot.} =
         gridColumn "button-la" // "button-lb"
 
         button "btn":
-          box 10, 10, 40, 40
+          # box 10, 10, 40, 40
           # label fmt"Clicked1: {self.count:4d}"
           size csAuto(), csAuto()
           fill "#A00000"
@@ -78,7 +73,7 @@ proc draw*(self: GridApp) {.slot.} =
         # label fmt"Clicked2: {self.count:4d}"
         # onClick: self.count.inc()
 
-      gridTemplateDebugLines true
+      # gridTemplateDebugLines true
 
 var fig = GridApp.new()
 

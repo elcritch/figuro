@@ -393,73 +393,81 @@ proc computeEvents*(node: Figuro) =
 
 var gridChildren: seq[Figuro]
 
-# template calcBasicConstraintImpl(
-#     parent, node: Figuro,
-#     dir: static GridDir,
-#     f: untyped
-# ) =
-#   ## computes basic constraints for box'es when set
-#   ## this let's the use do things like set 90'pp (90 percent)
-#   ## of the box width post css grid or auto constraints layout
-#   template calcBasic(val: untyped): untyped =
-#     block:
-#       var res: UICoord
-#       match val:
-#         UiFixed(coord):
-#           res = coord.UICoord
-#         UiFrac(frac):
-#           res = frac.UICoord * parent.box.f
-#         UiPerc(perc):
-#           let ppval = when astToStr(f) == "x": parent.box.w
-#                       elif astToStr(f) == "y": parent.box.h
-#                       else: parent.box.f
-#           res = perc.UICoord / 100.0.UICoord * ppval
-#       res
+proc checkParent(node: Figuro) =
+  if node.parent.isNil:
+    raise newException(FiguroError, "cannot calculate exception: current: " & $node.getId & " parent: " & $node.parent.getId)
+
+template calcBasicConstraintImpl(
+    node: Figuro,
+    dir: static GridDir,
+    f: untyped
+) =
+  ## computes basic constraints for box'es when set
+  ## this let's the use do things like set 90'pp (90 percent)
+  ## of the box width post css grid or auto constraints layout
+  template calcBasic(val: untyped): untyped =
+    block:
+      var res: UICoord
+      match val:
+        UiFixed(coord):
+          res = coord.UICoord
+        UiFrac(frac):
+          node.checkParent()
+          res = frac.UICoord * node.parent.box.f
+        UiPerc(perc):
+          node.checkParent()
+          let ppval = when astToStr(f) == "x": node.parent.box.w
+                      elif astToStr(f) == "y": node.parent.box.h
+                      else: node.parent.box.f
+          res = perc.UICoord / 100.0.UICoord * ppval
+      res
   
-#   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
-#                 else: node.cxOffset[dir]
-#   match csValue:
-#     UiAuto():
-#       when astToStr(f) in ["w", "h"]:
-#         node.box.f = parent.box.f
-#       else:
-#         discard
-#     UiSum(ls, rs):
-#       let lv = ls.calcBasic()
-#       let rv = rs.calcBasic()
-#       node.box.f = lv + rv
-#     UiMin(ls, rs):
-#       let lv = ls.calcBasic()
-#       let rv = rs.calcBasic()
-#       node.box.f = min(lv, rv)
-#     UiMax(ls, rs):
-#       let lv = ls.calcBasic()
-#       let rv = rs.calcBasic()
-#       node.box.f = max(lv, rv)
-#     UiValue(value):
-#       node.box.f = calcBasic(value)
-#     _:
-#       discard
+  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
+                else: node.cxOffset[dir]
+  match csValue:
+    UiAuto():
+      when astToStr(f) in ["w", "h"]:
+        node.checkParent()
+        node.box.f = node.parent.box.f
+      else:
+        discard
+    UiSum(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = lv + rv
+    UiMin(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = min(lv, rv)
+    UiMax(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = max(lv, rv)
+    UiValue(value):
+      node.box.f = calcBasic(value)
+    _:
+      discard
 
-# proc calcBasicConstraint(parent, node: Figuro, dir: static GridDir, isXY: static bool) =
-#   when isXY == true and dir == dcol: 
-#     calcBasicConstraintImpl(parent, node, dir, x)
-#   elif isXY == true and dir == drow: 
-#     calcBasicConstraintImpl(parent, node, dir, y)
-#   elif isXY == false and dir == dcol: 
-#     calcBasicConstraintImpl(parent, node, dir, w)
-#   elif isXY == false and dir == drow: 
-#     calcBasicConstraintImpl(parent, node, dir, h)
+proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
+  when isXY == true and dir == dcol: 
+    calcBasicConstraintImpl(node, dir, x)
+  elif isXY == true and dir == drow: 
+    calcBasicConstraintImpl(node, dir, y)
+  elif isXY == false and dir == dcol: 
+    calcBasicConstraintImpl(node, dir, w)
+  elif isXY == false and dir == drow: 
+    calcBasicConstraintImpl(node, dir, h)
 
-proc computeLayout*(parent, node: Figuro) =
+proc computeLayout*(node: Figuro) =
   ## Computes constraints and auto-layout.
   
   # # simple constraints
-  # if node.gridItem.isNil:
-  #   calcBasicConstraint(parent, node, dcol, true)
-  #   calcBasicConstraint(parent, node, drow, true)
-  #   calcBasicConstraint(parent, node, dcol, false)
-  #   calcBasicConstraint(parent, node, drow, false)
+  if node.gridItem.isNil and node.parent != nil:
+    # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
+    calcBasicConstraint(node, dcol, true)
+    calcBasicConstraint(node, drow, true)
+    calcBasicConstraint(node, dcol, false)
+    calcBasicConstraint(node, drow, false)
 
   # css grid impl
   if not node.gridTemplate.isNil:
@@ -472,12 +480,12 @@ proc computeLayout*(parent, node: Figuro) =
     node.gridTemplate.computeNodeLayout(node, gridChildren)
 
     for n in node.children:
-      computeLayout(node, n)
-    
+      computeLayout(n)
+
     return
 
   for n in node.children:
-    computeLayout(node, n)
+    computeLayout(n)
 
   # if node.layoutAlign == laIgnore:
   #   return
