@@ -20,7 +20,7 @@ atlas init --deps=vendor
 atlas use https://github.com/elcritch/figuro.git
 
 # sync deps
-cp vendor/figuro/vendor/atlas.lock atlas.lock
+cp figuro/vendor/atlas.lock atlas.lock
 atlas replay atlas.lock
 nim c -r vendor/figuro/tests/tclick.nim
 ```
