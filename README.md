@@ -22,7 +22,7 @@ atlas use https://github.com/elcritch/figuro.git
 # sync deps
 cp figuro/vendor/atlas.lock atlas.lock
 atlas replay atlas.lock
-nim c -r vendor/figuro/tests/tclick.nim
+nim c -r figuro/tests/tclick.nim
 ```
 
 (note there's a fix in the works for Atlas to simplify this a bit)
