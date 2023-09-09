@@ -11,11 +11,21 @@ The core idea is to split it into two main pieces:
 ## Trying it out
 
 ```sh
-git clone https://github.com/elcritch/figuro
-cd figuro/
-atlas replay atlas.lock
+# new atlas workspace
+mkdir fig_ws && cd fig_ws
+# setup atlas workspace to use `deps="vendor"`
+echo '' > atlas.workspace
+echo 'deps="vendor"' >> atlas.workspace
+echo 'resolver="MaxVer"' >> atlas.workspace
+
+# download figuro
+atlas use https://github.com/elcritch/figuro.git
+# setup dep versions to match figuro dev
+atlas replay figuro/atlas.lock
 nim c -r "tests/tclick.nim" 
 ```
+
+(note this setup should made simpler after an Atlas fix is added)
 
 ![Click Example](tests/tclick-screenshot.png)
 
