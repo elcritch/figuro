@@ -261,7 +261,9 @@ proc loadFont*(font: GlyphFont): FontId =
   internal.getFont(font)
 
 template setText*(font: FontId, text: string) =
-  current.textLayout = internal.getTypeset(text, font, current.box)
+  let thash = text.hash()
+  if current.textLayout.isNil or thash != current.textLayout.contentHash:
+    current.textLayout = internal.getTypeset(text, font, current.box)
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

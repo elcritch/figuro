@@ -26,6 +26,7 @@ type
     noKerningAdjustments*: bool ## Optionally disable kerning pair adjustments
 
   GlyphArrangement* = ref object
+    contentHash*: Hash
     lines*: seq[(int, int)]    ## The (start, stop) of the lines of text.
     spans*: seq[(int, int)]    ## The (start, stop) of the spans in the text.
     fonts*: seq[FontId]          ## The font for each span.
