@@ -13,21 +13,19 @@ The core idea is to split it into two main pieces:
 ```sh
 # new atlas workspace
 mkdir fig_ws && cd fig_ws
-# setup atlas workspace to use `deps="vendor"`
-echo '' > atlas.workspace
-echo 'deps="vendor"' >> atlas.workspace
-echo 'resolver="MaxVer"' >> atlas.workspace
+rm atlas.workspace # only if this already exits
+atlas init --deps=vendor
 
-# clone figuro; don't use `atlas clone` for now
-git clone https://github.com/elcritch/figuro.git
+# get deps
+atlas use https://github.com/elcritch/figuro.git
+
 # sync deps
-atlas replay figuro/atlas.lock
-atlas use --cfgHere --keepCommits figuro/figuro.nimble
-cp figuro/tests/tclick.nim ./
-nim c -r tclick.nim
+cp vendor/figuro/atlas.lock atlas.lock
+atlas replay atlas.lock
+nim c -r vendor/figuro/tests/tclick.nim
 ```
 
-(note there's a fix in the works for Atlas to simplify this)
+(note there's a fix in the works for Atlas to simplify this a bit)
 
 ![Click Example](tests/tclick-screenshot.png)
 
