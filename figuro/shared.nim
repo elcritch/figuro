@@ -25,7 +25,7 @@ const
   blackColor* = color(0, 0, 0, 1)
 
 const
-  DataDirPath* {.strdefine.} = "./data"
+  DataDirPath* {.strdefine.} = currentSourcePath() / "data"
 
 type
   ScaleInfo* = object
