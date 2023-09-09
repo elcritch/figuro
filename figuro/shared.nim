@@ -1,17 +1,16 @@
 import std/[sequtils, tables, hashes]
 import std/[options, unicode, strformat]
+import std/paths
 import pkg/[variant]
 
 import common/[extras, uimaths]
 import inputs
-from os import `/`
-from os import `changeFileExt`
 
 export sequtils, strformat, tables, hashes
 export variant
 export extras, uimaths
 export inputs
-export `/`
+export paths
 
 import chroma
 
@@ -26,7 +25,7 @@ const
   blackColor* = color(0, 0, 0, 1)
 
 const
-  DataDirPath* {.strdefine.} = currentSourcePath().changeFileExt("") / "data"
+  DataDirPath* {.strdefine.} = Path(currentSourcePath()).splitPath().head / "data".Path
 
 type
   ScaleInfo* = object
