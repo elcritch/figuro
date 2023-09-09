@@ -25,7 +25,7 @@ const
   blackColor* = color(0, 0, 0, 1)
 
 const
-  DataDirPath* {.strdefine.} = Path(currentSourcePath()).splitPath().head / "data".Path
+  DataDirPath* {.strdefine.} = Path(currentSourcePath()).splitPath().head /../ "data".Path
 
 type
   ScaleInfo* = object
@@ -58,7 +58,7 @@ type
     lastDraw*, lastTick*: int
 
 var
-  dataDir* {.runtimeVar.}: string = DataDirPath
+  dataDir* {.runtimeVar.}: string = DataDirPath.string
   app* {.runtimeVar.} = AppState(
     uiScale: 1.0,
     autoUiScale: true

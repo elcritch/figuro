@@ -75,7 +75,7 @@ proc hash*(fnt: Font): Hash =
 
 proc getTypeface*(name: string): FontId =
   let
-    typeface = readTypeface(DataDirPath / name)
+    typeface = readTypeface(DataDirPath.string / name)
     id = TypefaceId hash(typeface)
   typefaceTable[id] = typeface
   result = id
