@@ -18,14 +18,16 @@ echo '' > atlas.workspace
 echo 'deps="vendor"' >> atlas.workspace
 echo 'resolver="MaxVer"' >> atlas.workspace
 
-# download figuro
-atlas use https://github.com/elcritch/figuro.git
-# setup dep versions to match figuro dev
+# clone figuro; don't use `atlas clone` for now
+git clone https://github.com/elcritch/figuro.git
+# sync deps
 atlas replay figuro/atlas.lock
-nim c -r "tests/tclick.nim" 
+atlas use --cfgHere --keepCommits figuro/figuro.nimble
+cp figuro/tests/tclick.nim ./
+nim c -r tclick.nim
 ```
 
-(note this setup should made simpler after an Atlas fix is added)
+(note there's a fix in the works for Atlas to simplify this)
 
 ![Click Example](tests/tclick-screenshot.png)
 
