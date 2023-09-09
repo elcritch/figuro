@@ -100,11 +100,6 @@
       "url": "https://github.com/yglukhov/variant",
       "commit": "4934aa62d135eeda49fdb3967ffe8116811ef904"
     },
-    "figuro": {
-      "dir": "figuro",
-      "url": "https://github.com/elcritch/figuro",
-      "commit": "1a6e95b54a29edc14d0a5e8effa566f93046185e"
-    },
     "pretty": {
       "dir": "pretty",
       "url": "https://github.com/treeform/pretty",
