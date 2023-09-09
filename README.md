@@ -13,8 +13,7 @@ The core idea is to split it into two main pieces:
 ```sh
 # new atlas workspace
 mkdir fig_ws && cd fig_ws
-rm atlas.workspace # only if this already exits
-atlas init --deps=vendor
+atlas init
 
 # get deps
 atlas use https://github.com/elcritch/figuro.git
