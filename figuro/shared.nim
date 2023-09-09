@@ -5,6 +5,7 @@ import pkg/[variant]
 import common/[extras, uimaths]
 import inputs
 from os import `/`
+from os import `changeFileExt`
 
 export sequtils, strformat, tables, hashes
 export variant
