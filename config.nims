@@ -12,7 +12,6 @@ if not defined(emscripten):
   --threads:on
 
 import os
-switch("define", "DataDirPath=" & "./data/".absolutePath)
 
 if defined(emscripten):
   # This path will only run if -d:emscripten is passed to nim.
