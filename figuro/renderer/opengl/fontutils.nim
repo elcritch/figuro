@@ -29,7 +29,6 @@ var
 
   fontTable* {.threadvar.}: Table[FontId, Font]
 
-  glyphOffsets*: Table[Hash, Vec2]
 
 proc convertFont*(font: GlyphFont): (FontId, Font) =
   let
