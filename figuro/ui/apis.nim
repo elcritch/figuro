@@ -256,10 +256,6 @@ proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
   internal.getTypeface(name)
 
-proc loadFont*(font: GlyphFont): FontId =
-  ## Sets all radius of all 4 corners.
-  internal.getFont(font)
-
 template setText*(font: FontId, text: string) =
   let thash = text.hash()
   if current.textLayout.isNil or thash != current.textLayout.contentHash:

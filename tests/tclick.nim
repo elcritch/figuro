@@ -4,7 +4,7 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = loadFont: GlyphFont(typefaceId: typeface, size: 44)
+  font = GlyphFont(typefaceId: typeface, size: 44)
 
 type
   Counter* = object

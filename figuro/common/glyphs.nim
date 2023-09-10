@@ -29,7 +29,7 @@ type
     contentHash*: Hash
     lines*: seq[(int, int)]    ## The (start, stop) of the lines of text.
     spans*: seq[(int, int)]    ## The (start, stop) of the spans in the text.
-    fonts*: seq[FontId]          ## The font for each span.
+    fonts*: seq[GlyphFont]          ## The font for each span.
     runes*: seq[Rune]          ## The runes of the text.
     positions*: seq[Vec2]      ## The positions of the glyphs for each rune.
     selectionRects*: seq[Rect] ## The selection rects for each glyph.

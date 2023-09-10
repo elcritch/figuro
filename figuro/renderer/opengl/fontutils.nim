@@ -14,9 +14,10 @@ import pretty
 
 type
 
-  GlyphPosition* = object
+  GlyphPosition* = ref object
     ## Represents a glyph position after typesetting.
     fontId*: FontId
+    font*: Font
     fontSize*: float32
     rune*: Rune
     pos*: Vec2       # Where to draw the image character.
@@ -25,21 +26,43 @@ type
 
 var
   typefaceTable*: Table[TypefaceId, Typeface]
-  # typefaceLookupTable*: Table[Typeface, TypefaceId]
 
-  fontTable*: Table[FontId, Font]
-  fontLookupTable*: Table[Font, FontId]
+  fontTable* {.threadvar.}: Table[FontId, Font]
 
   glyphOffsets*: Table[Hash, Vec2]
+
+proc convertFont*(font: GlyphFont): (FontId, Font) =
+  let
+    id = FontId hash(font)
+    typeface = typefaceTable[font.typefaceId]
+
+  if not fontTable.hasKey(id):
+    var pxfont = newFont(typeface)
+    pxfont.size = font.size
+    pxfont.typeface = typeface
+    pxfont.textCase = parseEnum[TextCase]($font.fontCase)
+    # copy rest of the fields with matching names
+    for pn, a in fieldPairs(pxfont[]):
+      for fn, b in fieldPairs(font):
+        when pn == fn:
+          a = b
+    if font.lineHeight < 0.0:
+      pxfont.lineHeight = pxfont.defaultLineHeight()
+
+    fontTable[id] = pxfont
+    result = (id, pxfont)
+    # echo "getFont:input: "
+    # print font
+  else:
+    result = (id, fontTable[id])
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
   if arrangement != nil:
-    for (span, fontId) in zip(arrangement.spans, arrangement.fonts):
+    for (span, gfont) in zip(arrangement.spans, arrangement.fonts):
       let
         span = span[0] .. span[1]
-        font = fontTable[fontId]
-        typeface = font.typeface
+        (fontId, font) = convertFont(gfont)
 
       while idx < arrangement.runes.len():
         let
@@ -49,6 +72,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
 
         yield GlyphPosition(
           fontId: fontId,
+          font: font,
           fontSize: font.size,
           rune: rune,
           pos: pos,
@@ -81,35 +105,12 @@ proc getTypeface*(name: string): FontId =
   result = id
   echo "getTypeFace: ", result
 
-proc getFont*(font: GlyphFont): FontId =
-  let id = FontId hash(font)
-  let typeface = typefaceTable[font.typefaceId]
-  var pxfont = newFont(typeface)
-  pxfont.size = font.size
-  pxfont.typeface = typeface
-  pxfont.textCase = parseEnum[TextCase]($font.fontCase)
-  # copy rest of the fields with matching names
-  for pn, a in fieldPairs(pxfont[]):
-    for fn, b in fieldPairs(font):
-      when pn == fn:
-        a = b
-  if font.lineHeight < 0.0:
-    pxfont.lineHeight = pxfont.defaultLineHeight()
-  fontTable[id] = pxfont
-  fontLookupTable[pxfont] = id
-  result = id
-  echo "getFont:input: "
-  print font
-  echo "getFont: ", result
-  print pxfont.size
-  print pxfont.lineHeight
-
 # proc loadGlyph*(font: GlyphFont):  =
 
 proc hash*(glyph: GlyphPosition): Hash {.inline.} =
   result = hash((
     2344,
-    glyph.fontId,
+    glyph.font.hash(),
     glyph.rune,
     # (glyph.subPixelShift*100).int,
     0
@@ -146,12 +147,12 @@ proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] =
     except PixieError:
       result = none Hash
 
-proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
+proc getTypeset*(text: string, gfont: GlyphFont, box: Box): GlyphArrangement =
   let
     rect = box.scaled()
     wh = rect.wh
-    pf = fontTable[font]
-  
+    (_, pf) = convertFont(gfont)
+
   assert pf.isNil == false
   # echo "FONTS: ", pf.repr
   let
@@ -164,7 +165,7 @@ proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
   result = GlyphArrangement(
     lines: arrangement.lines,
     spans: arrangement.spans,
-    fonts: arrangement.fonts.mapIt(fontLookupTable[it]),
+    fonts: arrangement.fonts.mapIt(gfont), ## FIXME
     runes: arrangement.runes,
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
