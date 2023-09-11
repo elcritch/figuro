@@ -265,10 +265,11 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   # result.paint.color = color(0, 0, 0, 1)
 
 
-template setText*(font: UiFont, text: string) =
-  let thash = text.hash()
+template setText*(spans: openArray[(UiFont, string)]) =
+  let thash = spans.hash()
+  let box = current.box
   if current.textLayout.isNil or thash != current.textLayout.contentHash:
-    current.textLayout = internal.getTypeset(text, font, current.box)
+    current.textLayout = internal.getTypeset(box, spans)
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

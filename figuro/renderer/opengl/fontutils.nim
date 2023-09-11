@@ -168,29 +168,35 @@ proc convertFont*(font: UiFont): (FontId, Font) =
 
 proc getTypeset*(
     box: Box,
-    text: string,
-    font: UiFont,
+    uiSpans: openArray[(UiFont, string)],
 ): GlyphArrangement =
   threads: MainThread
 
   let
     rect = box.scaled()
     wh = rect.wh
-    (_, pf) = convertFont(font)
+  
+  var spans: seq[Span]
+  var pfs: seq[Font]
+  var gfonts: seq[GlyphFont]
+  for (uiFont, txt) in uiSpans:
+    let (_, pf) = uiFont.convertFont()
+    pfs.add(pf)
+    spans.add(newSpan(txt, pf))
+    assert not pf.typeface.isNil
+    gfonts.add GlyphFont(fontId: uiFont.getId(),
+                          lineHeight: pf.lineHeight)
 
-  assert pf.isNil == false
-  # echo "FONTS: ", pf.repr
-  let arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh, vAlign = TopAlign)
+  let arrangement = pixie.typeset(spans, bounds = rect.wh, vAlign = TopAlign)
 
   # echo "getTypeset:"
   # echo "snappedBounds: ", snappedBounds
   # print arrangement
-  var gfont = GlyphFont(fontId: font.getId(), lineHeight: pf.lineHeight)
 
   result = GlyphArrangement(
     lines: arrangement.lines,
     spans: arrangement.spans,
-    fonts: @[gfont], ## FIXME
+    fonts: gfonts, ## FIXME
     runes: arrangement.runes,
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,

@@ -34,8 +34,8 @@ else:
     ## loads typeface from pixie
     fontutils.getTypeface(name)
 
-  proc getTypeset*(text: string, font: UiFont, box: Box): GlyphArrangement =
-    fontutils.getTypeset(box, text, font)
+  proc getTypeset*(box: Box, spans: openArray[(UiFont, string)]): GlyphArrangement =
+    fontutils.getTypeset(box, spans)
 
   var
     uiAppEvent* {.runtimeVar.}: UiEvent
