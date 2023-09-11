@@ -36,7 +36,7 @@ type
 
   TextSpan* = object
     text*: string
-    font*: FontId
+    font*: GlyphFont
 
 proc newFont*(typeface: TypefaceId): GlyphFont {.raises: [].} =
   result = GlyphFont()

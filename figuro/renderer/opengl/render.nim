@@ -39,7 +39,7 @@ proc renderText(node: Node) {.forbids: [MainThreadEff].} =
     let
       glyphId = glyph.hash()
       charPos = vec2(glyph.pos.x ,
-                      glyph.pos.y - glyph.descent )
+                      glyph.pos.y - glyph.descent)
     ctx.drawImage(glyphId, charPos, node.fill)
 
 import macros
