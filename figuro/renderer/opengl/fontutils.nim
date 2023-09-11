@@ -85,7 +85,7 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
   threads: MainThread
   ## returns Glyph's hash, will generate glyph if needed
 
-  for glyph in arrangement.glyphs():
+  for idx, glyph in arrangement.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
       echo "skipped:rune: ", glyph.rune, " ", glyph.rune.int
       continue
@@ -110,7 +110,7 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
       # echo "tf:lf: ", font.typeface.lineHeight
       # echo "font:lh: ", font.lineHeight
       # echo "font:dlh: ", font.defaultLineHeight
-      echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr
+      echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr, " idx: ", idx
       let
         lh = font.defaultLineHeight()
         # bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
