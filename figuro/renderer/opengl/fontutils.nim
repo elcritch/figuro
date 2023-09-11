@@ -130,8 +130,6 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
       let
         wh = glyph.rect.wh
         font = glyph.font
-
-      let
         text = $glyph.rune
         arrangement = typeset(@[newSpan(text, font)], bounds=wh)
         snappedBounds = arrangement.computeBounds().snapToPixels()
