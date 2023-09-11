@@ -1,13 +1,12 @@
-import std/[os, strformat, unicode, times, strutils, hashes]
+import std/[os, unicode, strutils, sets, hashes]
+import std/isolation
 
 import pkg/vmath
-import pkg/chroma
 import pkg/pixie
 import pkg/pixie/fonts
-import pkg/opengl
 import pkg/windy
+import pkg/threading/channels
 
-import utils, context
 import commons
 
 import pretty
@@ -26,7 +25,6 @@ type
 
 var
   typefaceTable*: Table[TypefaceId, Typeface]
-
   fontTable* {.threadvar.}: Table[FontId, Font]
 
 
@@ -56,6 +54,8 @@ proc convertFont*(font: GlyphFont): (FontId, Font) =
     result = (id, fontTable[id])
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
+  # threads: RenderThread
+
   var idx = 0
   if arrangement != nil:
     for (span, gfont) in zip(arrangement.spans, arrangement.fonts):
@@ -96,16 +96,6 @@ proc hash*(fnt: Font): Hash =
       h = h !& hash(f)
   result = !$h
 
-proc getTypeface*(name: string): FontId =
-  let
-    typeface = readTypeface(DataDirPath.string / name)
-    id = TypefaceId hash(typeface)
-  typefaceTable[id] = typeface
-  result = id
-  echo "getTypeFace: ", result
-
-# proc loadGlyph*(font: GlyphFont):  =
-
 proc hash*(glyph: GlyphPosition): Hash {.inline.} =
   result = hash((
     2344,
@@ -115,38 +105,60 @@ proc hash*(glyph: GlyphPosition): Hash {.inline.} =
     0
   ))
 
-proc getGlyphImage*(ctx: context.Context, glyph: GlyphPosition): Option[Hash] = 
+proc getTypeface*(name: string): FontId =
+  threads: MainThread
+
+  let
+    typeface = readTypeface(DataDirPath.string / name)
+    id = TypefaceId hash(typeface)
+  typefaceTable[id] = typeface
+  result = id
+  echo "getTypeFace: ", result
+
+var
+  glyphImageChan* = newChan[(Hash, Image)](1000)
+  glyphImageCached*: HashSet[Hash]
+
+proc generateGlyphImage*(arrangement: GlyphArrangement) =
+  threads: MainThread
   ## returns Glyph's hash, will generate glyph if needed
-  
-  let hashFill = glyph.hash()
 
-  if hashFill in ctx.entries:
-    result = some hashFill
-  if hashFill notin ctx.entries:
-    let
-      fontId = glyph.fontId
-      font = fontTable[fontId]
-      wh = glyph.rect.wh
+  for glyph in arrangement.glyphs():
+    let hashFill = glyph.hash()
 
-    let
-      text = $glyph.rune
-      arrangement = typeset(@[newSpan(text, font)], bounds=wh)
-      snappedBounds = arrangement.computeBounds().snapToPixels()
-      lh = font.defaultLineHeight()
-      bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
-                    snappedBounds.w, lh)
-      image = newImage(bounds.w.int, bounds.h.int)
-    
-    try:
-      font.paint = whiteColor
-      var m = translate(-bounds.xy)
-      image.fillText(arrangement, m)
-      ctx.putImage(hashFill, image)
-      result = some hashFill
-    except PixieError:
-      result = none Hash
+    if hashFill notin glyphImageCached:
+      let
+        wh = glyph.rect.wh
+        font = glyph.font
 
-proc getTypeset*(text: string, gfont: GlyphFont, box: Box): GlyphArrangement =
+      let
+        text = $glyph.rune
+        arrangement = typeset(@[newSpan(text, font)], bounds=wh)
+        snappedBounds = arrangement.computeBounds().snapToPixels()
+        lh = font.defaultLineHeight()
+        bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
+                      snappedBounds.w, lh)
+        image = newImage(bounds.w.int, bounds.h.int)
+
+      try:
+        font.paint = whiteColor
+        var m = translate(-bounds.xy)
+        image.fillText(arrangement, m)
+
+        # put into cache
+        glyphImageCached.incl hashFill
+        glyphImageChan.send(unsafeIsolate (hashFill, image,))
+
+      except PixieError:
+        discard
+
+proc getTypeset*(
+    text: string,
+    gfont: GlyphFont,
+    box: Box
+): GlyphArrangement =
+  threads: MainThread
+
   let
     rect = box.scaled()
     wh = rect.wh
@@ -154,8 +166,7 @@ proc getTypeset*(text: string, gfont: GlyphFont, box: Box): GlyphArrangement =
 
   assert pf.isNil == false
   # echo "FONTS: ", pf.repr
-  let
-    arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh)
+  let arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh)
 
   # echo "getTypeset:"
   # echo "snappedBounds: ", snappedBounds
@@ -169,6 +180,8 @@ proc getTypeset*(text: string, gfont: GlyphFont, box: Box): GlyphArrangement =
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
+
+  result.generateGlyphImage()
   # echo "font: "
   # print arrangement.fonts[0].size
   # print arrangement.fonts[0].lineHeight

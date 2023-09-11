@@ -1,4 +1,4 @@
-import std/[os, strformat, unicode, times, strutils]
+import std/[strformat, times, strutils]
 
 import pkg/[chroma, pixie]
 import pkg/opengl

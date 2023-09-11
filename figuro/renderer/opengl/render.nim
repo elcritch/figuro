@@ -24,8 +24,7 @@ proc renderDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-
-proc renderText(node: Node) =
+proc renderText(node: Node) {.forbids: [MainThreadEff].} =
   # draw characters
   if node.textLayout == nil:
     return
@@ -38,15 +37,11 @@ proc renderText(node: Node) =
       continue
 
     let
-      # subPixelShift = floor(glyph.subPixelShift * 10) / 10
-      glyphId = ctx.getGlyphImage(glyph)
-    
-    if glyphId.isSome():
-      let
-        charPos = vec2(glyph.pos.x ,
-                       glyph.pos.y - glyph.descent )
-      ctx.drawImage(glyphId.get(), charPos, node.fill)
-  
+      glyphId = glyph.hash()
+      charPos = vec2(glyph.pos.x ,
+                      glyph.pos.y - glyph.descent )
+    ctx.drawImage(glyphId, charPos, node.fill)
+
 import macros
 
 var postRenderImpl {.compileTime.}: seq[NimNode]
@@ -129,7 +124,7 @@ proc renderBoxes*(node: Node) =
                           weight = node.stroke.weight,
                           radius = node.cornerRadius)
 
-proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
+proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
 
   template node(): auto = nodes[nodeIdx]
   template parent(): auto = nodes[parentIdx]
@@ -207,10 +202,15 @@ proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) =
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(nodes: var seq[Node]) =
+proc renderRoot*(nodes: var seq[Node]) {.forbids: [MainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   # echo "drawRoot:nodes:count: ", nodes.len()
+  var img: (Hash, Image)
+  while glyphImageChan.tryRecv(img):
+    # echo "img: ", img
+    ctx.putImage(img[0], img[1])
+
   if nodes.len() > 0:
     render(nodes, 0.NodeIdx, -1.NodeIdx)
 
