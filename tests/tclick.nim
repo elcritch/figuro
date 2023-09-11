@@ -68,7 +68,6 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha).
                       spin(10*self.hoveredAlpha)
-      let x = 10
       for i in 0 .. 4:
         button "btn", state(int), captures(i):
           box 10 + i*120, 10, 100, 100
@@ -79,7 +78,7 @@ proc draw*(self: Main) {.slot.} =
             connect(self, update, current, btnTick)
 
           node nkText, "text":
-            box 0, 0, 100'pw, 100'ph
+            box 10'pw, 10'pw, 80'pw, 80'ph
             fill blackColor
             setText({font: $(Button[int](current.parent).state)})
             connect(current, onClick, current, Figuro.txtClicked())
