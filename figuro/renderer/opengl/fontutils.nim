@@ -55,7 +55,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
       echo "span: ", span.repr
       let
-        span = span[0] .. span[1]
+        span = span[0] ..< span[1]
 
       while idx < arrangement.runes.len():
         let
@@ -73,6 +73,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
         )
 
         if idx notin span:
+          idx.inc()
           break
         else:
           idx.inc()
@@ -85,7 +86,7 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
   threads: MainThread
   ## returns Glyph's hash, will generate glyph if needed
 
-  for idx, glyph in arrangement.glyphs():
+  for glyph in arrangement.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
       echo "skipped:rune: ", glyph.rune, " ", glyph.rune.int
       continue
@@ -110,7 +111,7 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
       # echo "tf:lf: ", font.typeface.lineHeight
       # echo "font:lh: ", font.lineHeight
       # echo "font:dlh: ", font.defaultLineHeight
-      echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr, " idx: ", idx
+      echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr
       let
         lh = font.defaultLineHeight()
         # bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,

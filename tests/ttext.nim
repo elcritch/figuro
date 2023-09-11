@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
       text "text":
         box 10, 10, 400, 100
         fill blackColor
-        setText({font: "hello\nworld!\n",
+        setText({font: "hello world!\n",
                  smallFont: "it's a small world"})
       rectangle "main":
         box 10, 10, 400, 100
