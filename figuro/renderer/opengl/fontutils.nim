@@ -25,7 +25,7 @@ type
 
 var
   typefaceChan* = newChan[string](100)
-  glyphImageChan* = newChan[(Hash, Image)](100)
+  glyphImageChan* = newChan[(Hash, Image)](1000)
   glyphImageCached*: HashSet[Hash]
 
 proc hash*(tp: Typeface): Hash =

@@ -79,7 +79,7 @@ proc draw*(self: Main) {.slot.} =
             connect(self, update, current, btnTick)
 
           node nkText, "text":
-            box 0, 0, 70, 70
+            box 0, 0, 100'pw, 100'ph
             fill blackColor
             setText(font, $(Button[int](current.parent).state))
             connect(current, onClick, current, Figuro.txtClicked())
