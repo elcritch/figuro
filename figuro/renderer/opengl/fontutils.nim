@@ -52,9 +52,10 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
 
   var idx = 0
   if arrangement != nil:
-    for (span, gfont) in zip(arrangement.spans, arrangement.fonts):
+    for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
       echo "span: ", span.repr
-      let span = span[0] .. span[1]
+      let
+        span = span[0] .. span[1]
 
       while idx < arrangement.runes.len():
         let
@@ -64,7 +65,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
 
         yield GlyphPosition(
           fontId: gfont.fontId,
-          # fontSize: gfont.size,
+          fontSize: gfont.size,
           rune: rune,
           pos: pos,
           rect: selection,
@@ -86,6 +87,7 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
 
   for glyph in arrangement.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
+      echo "skipped:rune: ", glyph.rune, " ", glyph.rune.int
       continue
 
     let hashFill = glyph.hash()
@@ -105,10 +107,10 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
         )
       var
         snappedBounds = arrangement.computeBounds().snapToPixels()
-      echo "tf:lf: ", font.typeface.lineHeight
-      echo "font:lh: ", font.lineHeight
-      echo "font:dlh: ", font.defaultLineHeight
-      echo "snappedBounds: ", glyph.rune, " box: ", snappedBounds.repr
+      # echo "tf:lf: ", font.typeface.lineHeight
+      # echo "font:lh: ", font.lineHeight
+      # echo "font:dlh: ", font.defaultLineHeight
+      echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr
       let
         lh = font.defaultLineHeight()
         # bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
