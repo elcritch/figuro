@@ -53,7 +53,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
   if arrangement != nil:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
-      echo "span: ", span.repr
+      # echo "span: ", span.repr
       let
         span = span[0] ..< span[1]
 
@@ -92,7 +92,7 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
 
   for glyph in arrangement.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
-      echo "skipped:rune: ", glyph.rune, " ", glyph.rune.int
+      # echo "skipped:rune: ", glyph.rune, " ", glyph.rune.int
       continue
 
     let hashFill = glyph.hash()
@@ -112,10 +112,8 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
         )
       var
         snappedBounds = arrangement.computeBounds().snapToPixels()
-      # echo "tf:lf: ", font.typeface.lineHeight
-      # echo "font:lh: ", font.lineHeight
-      # echo "font:dlh: ", font.defaultLineHeight
-      echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr
+      # echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr
+    
       let
         lh = font.defaultLineHeight()
         # bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
@@ -176,9 +174,6 @@ proc convertFont*(font: UiFont): (FontId, Font) =
     if font.lineHeight < 0.0'ui:
       pxfont.lineHeight = pxfont.defaultLineHeight()
     
-    print "pf:lineGap: ", pxfont.typeface.lineGap() * pxfont.scale()
-    print "pf:lineHeight: ", pxfont.lineHeight
-
     fontTable[id] = pxfont
     result = (id, pxfont)
     # echo "getFont:input: "
@@ -221,8 +216,8 @@ proc getTypeset*(
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
-  echo "arrangement:\n", result.repr
-  print result
+  # echo "arrangement:\n", result.repr
+  # print result
 
   result.generateGlyphImage()
   # echo "font: "
