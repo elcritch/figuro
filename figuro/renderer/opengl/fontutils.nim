@@ -22,8 +22,6 @@ type
     rect*: Rect
     descent*: float32
 
-var
-  fontTable* {.threadvar.}: Table[FontId, Font]
 
 var
   typefaceChan* = newChan[string](100)
@@ -84,6 +82,10 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
         else:
           idx.inc()
 
+var
+  typefaceTable*: Table[TypefaceId, Typeface]
+  fontTable* {.threadvar.}: Table[FontId, Font]
+
 proc generateGlyphImage*(arrangement: GlyphArrangement) =
   threads: MainThread
   ## returns Glyph's hash, will generate glyph if needed
@@ -116,9 +118,6 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
       except PixieError:
         discard
 
-var
-  typefaceTable* {.threadvar.}: Table[TypefaceId, Typeface]
-
 proc getTypeface*(name: string): FontId =
   threads: MainThread
 
@@ -130,14 +129,18 @@ proc getTypeface*(name: string): FontId =
   typefaceTable[id] = typeface
   typefaceChan.send(typefacePath)
   result = id
+  echo "typefaceTable:addr: ", getThreadId()
   echo "getTypeFace: ", result
+  echo "getTypeFace:res: ", typefaceTable[id].hash()
 
 proc convertFont*(font: GlyphFont): (FontId, Font) =
   threads: MainThread
   echo "convertFont: ", font.typefaceId
+  echo "typefaceTable:addr: ", getThreadId()
   let
     id = FontId hash(font)
     typeface = typefaceTable[font.typefaceId]
+  echo "convertFont:res: ", typeface.hash
 
   if not fontTable.hasKey(id):
     var pxfont = newFont(typeface)
