@@ -83,8 +83,12 @@ var
   fontTable* {.threadvar.}: Table[FontId, Font]
 
 proc generateGlyphImage*(arrangement: GlyphArrangement) =
-  threads: MainThread
   ## returns Glyph's hash, will generate glyph if needed
+  ## 
+  ## Font Glyphs are generated with Bottom vAlign and Center hAlign
+  ## this puts the glyphs in the right position
+  ## so that the renderer doesn't need to figure out adjustments
+  threads: MainThread
 
   for glyph in arrangement.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
