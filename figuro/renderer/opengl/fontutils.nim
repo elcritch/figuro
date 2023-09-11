@@ -50,8 +50,8 @@ proc hash*(glyph: GlyphPosition): Hash {.inline.} =
 proc getId*(typeface: Typeface): TypefaceId =
   TypefaceId typeface.hash()
 
-proc getId*(typeface: Font): FontId =
-  FontId typeface.hash()
+proc getId*(font: Font): FontId =
+  FontId font.hash()
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   # threads: RenderThread
@@ -91,6 +91,9 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
   ## returns Glyph's hash, will generate glyph if needed
 
   for glyph in arrangement.glyphs():
+    if unicode.isWhiteSpace(glyph.rune):
+      continue
+
     let hashFill = glyph.hash()
 
     if hashFill notin glyphImageCached:
@@ -101,6 +104,8 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
         text = $glyph.rune
         arrangement = typeset(@[newSpan(text, font)], bounds=wh)
         snappedBounds = arrangement.computeBounds().snapToPixels()
+      echo "snappedBounds: ", glyph.rune, " box: ", snappedBounds.repr
+      let
         lh = font.defaultLineHeight()
         bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
                       snappedBounds.w, lh)
@@ -176,20 +181,21 @@ proc getTypeset*(
 
   assert pf.isNil == false
   # echo "FONTS: ", pf.repr
-  let arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh)
+  let arrangement = typeset(@[newSpan(text, pf)], bounds = rect.wh, vAlign = TopAlign)
 
   # echo "getTypeset:"
   # echo "snappedBounds: ", snappedBounds
-  # echo "arrangement: "
   # print arrangement
+
   result = GlyphArrangement(
     lines: arrangement.lines,
     spans: arrangement.spans,
-    fonts: arrangement.fonts.mapIt(gfont), ## FIXME
+    fonts: @[gfont], ## FIXME
     runes: arrangement.runes,
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
+  echo "arrangement: ", result.repr
 
   result.generateGlyphImage()
   # echo "font: "

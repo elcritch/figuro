@@ -31,7 +31,7 @@ proc renderText(node: Node) {.forbids: [MainThreadEff].} =
 
   for glyph in node.textLayout.glyphs():
 
-    if glyph.rune == Rune(32):
+    if unicode.isWhiteSpace(glyph.rune):
       # Don't draw space, even if font has a char for it.
       # FIXME: use unicode 'is whitespace' ?
       continue
