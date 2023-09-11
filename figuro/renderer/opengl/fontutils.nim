@@ -53,8 +53,8 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
   if arrangement != nil:
     for (span, gfont) in zip(arrangement.spans, arrangement.fonts):
-      let
-        span = span[0] .. span[1]
+      echo "span: ", span.repr
+      let span = span[0] .. span[1]
 
       while idx < arrangement.runes.len():
         let
@@ -201,6 +201,7 @@ proc getTypeset*(
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
+  echo "arrangement:\n", result.repr
   print result
 
   result.generateGlyphImage()

@@ -40,6 +40,9 @@ proc renderText(node: Node) {.forbids: [MainThreadEff].} =
       glyphId = glyph.hash()
       charPos = vec2(glyph.pos.x ,
                       glyph.pos.y - glyph.descent)
+    if glyphId notin ctx.entries:
+      echo "no glyph in context"
+      continue
     ctx.drawImage(glyphId, charPos, node.fill)
 
 import macros
