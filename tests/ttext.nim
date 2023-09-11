@@ -6,7 +6,7 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = GlyphFont(typefaceId: typeface, size: 44)
+  font = GlyphFont(typefaceId: typeface, size: 22)
 
 type
   Main* = ref object of Figuro

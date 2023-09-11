@@ -149,14 +149,17 @@ proc convertFont*(font: GlyphFont): (FontId, Font) =
 
   if not fontTable.hasKey(id):
     var pxfont = newFont(typeface)
-    pxfont.size = font.size
+    pxfont.size = font.size * app.uiScale
     pxfont.typeface = typeface
     pxfont.textCase = parseEnum[TextCase]($font.fontCase)
     # copy rest of the fields with matching names
     for pn, a in fieldPairs(pxfont[]):
       for fn, b in fieldPairs(font):
         when pn == fn:
-          a = b
+          when b is float32:
+            a = b * app.uiScale
+          else:
+            a = b
     if font.lineHeight < 0.0:
       pxfont.lineHeight = pxfont.defaultLineHeight()
 
