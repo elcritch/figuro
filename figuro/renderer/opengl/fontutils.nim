@@ -33,12 +33,6 @@ proc hash*(tp: Typeface): Hash =
   h = h !& hash tp.filePath
   result = !$h
 
-proc hash*(fnt: Font): Hash =
-  var h = Hash(0)
-  for n, f in fnt[].fieldPairs():
-    when n != "paints":
-      h = h !& hash(f)
-  result = !$h
 
 proc hash*(glyph: GlyphPosition): Hash {.inline.} =
   result = hash((
@@ -50,8 +44,8 @@ proc hash*(glyph: GlyphPosition): Hash {.inline.} =
 proc getId*(typeface: Typeface): TypefaceId =
   TypefaceId typeface.hash()
 
-proc getId*(font: Font): FontId =
-  FontId font.hash()
+# proc getId*(font: Font): FontId =
+#   FontId font.hash()
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   # threads: RenderThread
@@ -69,8 +63,8 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           selection = arrangement.selectionRects[idx]
 
         yield GlyphPosition(
-          fontId: gfont.hash(),
-          fontSize: gfont.size,
+          fontId: gfont.fontId,
+          # fontSize: gfont.size,
           rune: rune,
           pos: pos,
           rect: selection,
@@ -138,30 +132,32 @@ proc getTypeface*(name: string): FontId =
   # echo "getTypeFace: ", result
   # echo "getTypeFace:res: ", typefaceTable[id].hash()
 
-proc convertFont*(font: GlyphFont): (FontId, Font) =
+proc convertFont*(font: UiFont): (FontId, Font) =
   threads: MainThread
   # echo "convertFont: ", font.typefaceId
   # echo "typefaceTable:addr: ", getThreadId()
   let
-    id = FontId hash(font)
+    id = font.getId()
     typeface = typefaceTable[font.typefaceId]
   # echo "convertFont:res: ", typeface.hash
 
   if not fontTable.hasKey(id):
     var pxfont = newFont(typeface)
-    pxfont.size = font.size * app.uiScale
+    pxfont.size = font.size.scaled
     pxfont.typeface = typeface
     pxfont.textCase = parseEnum[TextCase]($font.fontCase)
     # copy rest of the fields with matching names
     for pn, a in fieldPairs(pxfont[]):
       for fn, b in fieldPairs(font):
         when pn == fn:
-          when b is float32:
-            a = b * app.uiScale
+          when b is UICoord:
+            a = b.scaled()
           else:
             a = b
-    if font.lineHeight < 0.0:
-      pxfont.lineHeight = pxfont.defaultLineHeight()
+    if font.lineHeight < 0.0'ui:
+      pxfont.lineHeight = pxfont.defaultLineHeight() * app.uiScale
+    
+    print "lineHeight: ", pxfont.lineHeight
 
     fontTable[id] = pxfont
     result = (id, pxfont)
@@ -173,14 +169,14 @@ proc convertFont*(font: GlyphFont): (FontId, Font) =
 proc getTypeset*(
     box: Box,
     text: string,
-    gfont: GlyphFont,
+    font: UiFont,
 ): GlyphArrangement =
   threads: MainThread
 
   let
     rect = box.scaled()
     wh = rect.wh
-    (_, pf) = convertFont(gfont)
+    (_, pf) = convertFont(font)
 
   assert pf.isNil == false
   # echo "FONTS: ", pf.repr
@@ -189,6 +185,7 @@ proc getTypeset*(
   # echo "getTypeset:"
   # echo "snappedBounds: ", snappedBounds
   # print arrangement
+  var gfont = GlyphFont(fontId: font.getId(), lineHeight: pf.lineHeight)
 
   result = GlyphArrangement(
     lines: arrangement.lines,
@@ -198,7 +195,7 @@ proc getTypeset*(
     positions: arrangement.positions,
     selectionRects: arrangement.selectionRects,
   )
-  echo "arrangement: ", result.repr
+  print result
 
   result.generateGlyphImage()
   # echo "font: "

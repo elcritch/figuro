@@ -34,7 +34,7 @@ else:
     ## loads typeface from pixie
     fontutils.getTypeface(name)
 
-  proc getTypeset*(text: string, font: GlyphFont, box: Box): GlyphArrangement =
+  proc getTypeset*(text: string, font: UiFont, box: Box): GlyphArrangement =
     fontutils.getTypeset(box, text, font)
 
   var
