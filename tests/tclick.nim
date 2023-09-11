@@ -4,7 +4,7 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = GlyphFont(typefaceId: typeface, size: 44)
+  font = UiFont(typefaceId: typeface, size: 22)
 
 type
   Counter* = object
@@ -81,7 +81,7 @@ proc draw*(self: Main) {.slot.} =
           node nkText, "text":
             box 0, 0, 100'pw, 100'ph
             fill blackColor
-            setText(font, $(Button[int](current.parent).state))
+            setText({font: $(Button[int](current.parent).state)})
             connect(current, onClick, current, Figuro.txtClicked())
             bubble(onClick)
             connect(current, onHover, current, Figuro.txtHovered())

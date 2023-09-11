@@ -96,13 +96,25 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
         fontId = glyph.fontId
         font = fontTable[fontId]
         text = $glyph.rune
-        arrangement = typeset(@[newSpan(text, font)], bounds=wh)
+        arrangement = pixie.typeset(
+          @[newSpan(text, font)],
+          bounds = wh,
+          hAlign = CenterAlign,
+          vAlign = BottomAlign,
+          wrap = false
+        )
+      var
         snappedBounds = arrangement.computeBounds().snapToPixels()
+      echo "tf:lf: ", font.typeface.lineHeight
+      echo "font:lh: ", font.lineHeight
+      echo "font:dlh: ", font.defaultLineHeight
       echo "snappedBounds: ", glyph.rune, " box: ", snappedBounds.repr
       let
         lh = font.defaultLineHeight()
-        bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
-                      snappedBounds.w, lh)
+        # bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
+        #               snappedBounds.w, lh)
+        bounds = rect(0, 0,
+                      snappedBounds.w + snappedBounds.x, lh)
         image = newImage(bounds.w.int, bounds.h.int)
 
       try:
@@ -155,9 +167,10 @@ proc convertFont*(font: UiFont): (FontId, Font) =
           else:
             a = b
     if font.lineHeight < 0.0'ui:
-      pxfont.lineHeight = pxfont.defaultLineHeight() * app.uiScale
+      pxfont.lineHeight = pxfont.defaultLineHeight()
     
-    print "lineHeight: ", pxfont.lineHeight
+    print "pf:lineGap: ", pxfont.typeface.lineGap() * pxfont.scale()
+    print "pf:lineHeight: ", pxfont.lineHeight
 
     fontTable[id] = pxfont
     result = (id, pxfont)
