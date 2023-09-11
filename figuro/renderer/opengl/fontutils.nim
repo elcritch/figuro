@@ -129,18 +129,18 @@ proc getTypeface*(name: string): FontId =
   typefaceTable[id] = typeface
   typefaceChan.send(typefacePath)
   result = id
-  echo "typefaceTable:addr: ", getThreadId()
-  echo "getTypeFace: ", result
-  echo "getTypeFace:res: ", typefaceTable[id].hash()
+  # echo "typefaceTable:addr: ", getThreadId()
+  # echo "getTypeFace: ", result
+  # echo "getTypeFace:res: ", typefaceTable[id].hash()
 
 proc convertFont*(font: GlyphFont): (FontId, Font) =
   threads: MainThread
-  echo "convertFont: ", font.typefaceId
-  echo "typefaceTable:addr: ", getThreadId()
+  # echo "convertFont: ", font.typefaceId
+  # echo "typefaceTable:addr: ", getThreadId()
   let
     id = FontId hash(font)
     typeface = typefaceTable[font.typefaceId]
-  echo "convertFont:res: ", typeface.hash
+  # echo "convertFont:res: ", typeface.hash
 
   if not fontTable.hasKey(id):
     var pxfont = newFont(typeface)
