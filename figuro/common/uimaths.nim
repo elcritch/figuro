@@ -98,7 +98,7 @@ borrowMaths(UICoord, float32)
 
 converter toUI*[F: float|int|float32](x: static[F]): UICoord = UICoord x
 
-proc `'ui`*(n: string): UICoord =
+proc `'ui`*(n: string): UICoord {.compileTime.} =
   ## numeric literal UI Coordinate unit
   result = UICoord(parseFloat(n))
 

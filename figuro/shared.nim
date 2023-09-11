@@ -14,6 +14,16 @@ export paths
 
 import chroma
 
+type
+  MainThreadEff* = object of RootEffect ## MainThr effect
+  RenderThreadEff* = object of RootEffect ## RenderThr effect
+
+{.push hint[Name]: off.}
+proc MainThread*() {.tags: [MainThreadEff].} = discard
+proc RenderThread*() {.tags: [RenderThreadEff].} = discard
+template threads*(arg: typed) = arg()
+{.pop.}
+
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:

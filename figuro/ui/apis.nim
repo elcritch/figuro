@@ -256,14 +256,20 @@ proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
   internal.getTypeface(name)
 
-proc loadFont*(font: GlyphFont): FontId =
-  ## Sets all radius of all 4 corners.
-  internal.getFont(font)
+proc newFont*(typefaceId: TypefaceId): UiFont =
+  result = UiFont()
+  result.typefaceId = typefaceId
+  result.size = 12
+  result.lineHeight = -1'ui
+  # result.paint = newPaint(SolidPaint)
+  # result.paint.color = color(0, 0, 0, 1)
 
-template setText*(font: FontId, text: string) =
-  let thash = text.hash()
+
+template setText*(spans: openArray[(UiFont, string)]) =
+  let thash = spans.hash()
+  let box = current.box
   if current.textLayout.isNil or thash != current.textLayout.contentHash:
-    current.textLayout = internal.getTypeset(text, font, current.box)
+    current.textLayout = internal.getTypeset(box, spans)
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

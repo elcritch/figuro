@@ -6,10 +6,8 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = loadFont: GlyphFont(
-      typefaceId: typeface,
-      size: 44
-    )
+  font = UiFont(typefaceId: typeface, size: 22'ui)
+  smallFont = UiFont(typefaceId: typeface, size: 12'ui)
 
 type
   Main* = ref object of Figuro
@@ -31,7 +29,8 @@ proc draw*(self: Main) {.slot.} =
       text "text":
         box 10, 10, 400, 100
         fill blackColor
-        setText(font, "hello world!")
+        setText({font: "hello world!\n",
+                 smallFont: "it's a small world"})
       rectangle "main":
         box 10, 10, 400, 100
         fill whiteColor * 0.33
