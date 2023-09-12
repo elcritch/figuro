@@ -33,6 +33,7 @@ proc value*(self: Counter): int =
 when isMainModule:
   import unittest
 
+
   suite "agent slots":
     setup:
       var

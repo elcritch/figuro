@@ -132,7 +132,7 @@ proc makeGenerics*(node: NimNode, gens: seq[string], isIdentDefs = false) =
     return
   else:
     for i, ch in node:
-      echo "MAKE GEN: CH: ", ch.treeRepr
+      # echo "MAKE GEN: CH: ", ch.treeRepr
       if ch.kind == nnkBracketExpr:
         var allIdents = true
         for n in ch:
@@ -144,8 +144,8 @@ proc makeGenerics*(node: NimNode, gens: seq[string], isIdentDefs = false) =
           if idType[1].kind == nnkIdentDefs:
             idType[1][0]
           else: idType[1]
-        echo "MAKE GEN: ", ch.treeRepr
-        echo "MAKE GEN:idType: ", idType.treeRepr
+        # echo "MAKE GEN: ", ch.treeRepr
+        # echo "MAKE GEN:idType: ", idType.treeRepr
         node[i] = nnkCall.newTree(
           bindSym("[]", brOpen),
           ident idType[0].repr,
@@ -295,7 +295,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     procTyp.params = params.copyNimTree()
 
     result.add quote do:
-      proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
+      proc `rpcMethod`(`kd`: typedesc[SignalTypes],
+                       `tp`: typedesc[`contextType`]): `signalTyp` =
         discard
       proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
         `agentSlotImpl`
@@ -323,7 +324,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       result[0][3].add param
 
     result.add quote do:
-      proc `rpcMethod`(`kd`: typedesc[SignalTypes], `tp`: typedesc[`contextType`]): `signalTyp` =
+      proc `rpcMethod`(`kd`: typedesc[SignalTypes],
+                       `tp`: typedesc[`contextType`]): `signalTyp` =
         discard
 
     result.updateProcsSig(isPublic, genericParams)
