@@ -116,15 +116,20 @@ proc mkParamsType*(paramsIdent, paramsType, params, genericParams: NimNode): Nim
   result[0][1] = genericParams.copyNimTree()
   # echo "mkParamsType: ", genericParams.treeRepr
 
-proc updateProcsSig(node: NimNode, isPublic: bool, gens: NimNode) =
+proc updateProcsSig(node: NimNode,
+                    isPublic: bool,
+                    gens: NimNode,
+                    procLineInfo: LineInfo) =
   if node.kind in [nnkProcDef, nnkTemplateDef]:
+    node[0].setLineInfo(procLineInfo)
     let name = node[0]
     if isPublic:
       node[0] = nnkPostfix.newTree(newIdentNode("*"), name)
     node[2] = gens.copyNimTree()
+    node[^1].setLineInfo(procLineInfo)
   else:
     for ch in node:
-      ch.updateProcsSig(isPublic, gens)
+      ch.updateProcsSig(isPublic, gens, procLineInfo)
 
 proc makeGenerics*(node: NimNode, gens: seq[string], isIdentDefs = false) =
   discard
@@ -153,14 +158,6 @@ proc makeGenerics*(node: NimNode, gens: seq[string], isIdentDefs = false) =
         )
       ch.makeGenerics(gens)
 
-proc makeProcsPublic(node: NimNode) =
-  if node.kind in [nnkProcDef, nnkTemplateDef]:
-    let name = node[0]
-    node[0] = nnkPostfix.newTree(newIdentNode("*"), name)
-  else:
-    for ch in node:
-      ch.makeProcsPublic()
-
 macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   ## Define a remote procedure call.
   ## Input and return parameters are defined using proc's with the `rpc` 
@@ -178,6 +175,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   
   let
     path = $p[0]
+    procLineInfo = p.lineInfoObj
     genericParams = p[2]
     params = p[3]
     # pragmas = p[4]
@@ -302,7 +300,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         `agentSlotImpl`
         slot
 
-    result.updateProcsSig(isPublic, genericParams)
+    result.updateProcsSig(isPublic, genericParams, procLineInfo)
 
   elif isSignal:
     var construct = nnkTupleConstr.newTree()
@@ -328,7 +326,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
                        `tp`: typedesc[`contextType`]): `signalTyp` =
         discard
 
-    result.updateProcsSig(isPublic, genericParams)
+    result.updateProcsSig(isPublic, genericParams, procLineInfo)
 
   var gens: seq[string]
   for gen in genericParams:
@@ -336,7 +334,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   result.makeGenerics(gens)
 
   # echo "slot: "
-  # echo result.treeRepr
+  # echo result.lispRepr
   # echo "slot:repr:"
   # echo result.repr
 
