@@ -30,12 +30,14 @@ proc draw*(self: GridApp) {.slot.} =
         # box 10, 10, 400, 240
         box 0, 0, 100'pw, 100'ph
         fill "#FFFFFF"
-        cornerRadius 3
+        cornerRadius 6
         clipContent true
         
         # Setup CSS Grid Template
-        setGridCols 20'pp 20'pp 20'pp 20'pp 20'pp
-        setGridRows 40'pp 40'pp
+        setGridCols 1'fr  1'fr  1'fr  1'fr  1'fr
+        # setGridCols 20'pp 20'pp 20'pp 20'pp 20'pp
+        setGridRows 1'fr 1'fr
+        # setGridRows 40'pp 40'pp
         justifyContent CxCenter
 
         rectangle "item a":
@@ -50,8 +52,7 @@ proc draw*(self: GridApp) {.slot.} =
         for i in 1..4:
           rectangle "items b", captures(i):
             # Setup CSS Grid Template
-            size 20'pp, 20'pp
-            cornerRadius 3
+            cornerRadius 6
 
             # some color stuff
             fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
@@ -59,7 +60,7 @@ proc draw*(self: GridApp) {.slot.} =
         rectangle "item e":
           # Setup CSS Grid Template
           size 20'pp, 20'pp
-          cornerRadius 3
+          cornerRadius 6
           gridColumn 5 // 6
           gridRow 1 // 3
           # some color stuff
