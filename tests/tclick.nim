@@ -72,8 +72,8 @@ proc draw*(self: Main) {.slot.} =
         button "btn", state(int), captures(i):
           box 10 + i*120, 10, 100, 100
 
-          connect(current, onHover, self, Main.hover)
-          connect(current, onClick, current, btnClicked)
+          connect(current, doHover, self, Main.hover)
+          connect(current, doClick, current, btnClicked)
           if i == 0:
             connect(self, update, current, btnTick)
 
@@ -81,13 +81,13 @@ proc draw*(self: Main) {.slot.} =
             box 10'pw, 10'pw, 80'pw, 80'ph
             fill blackColor
             setText({font: $(Button[int](current.parent).state)})
-            connect(current, onClick, current, Figuro.txtClicked())
-            bubble(onClick)
-            connect(current, onHover, current, Figuro.txtHovered())
+            connect(current, doClick, current, Figuro.txtClicked())
+            bubble(doClick)
+            connect(current, doHover, current, Figuro.txtHovered())
 
 var main = Main.new()
-connect(main, onDraw, main, Main.draw())
-connect(main, onTick, main, Main.tick())
+connect(main, doDraw, main, Main.draw())
+connect(main, doTick, main, Main.tick())
 
 app.width = 720
 app.height = 140

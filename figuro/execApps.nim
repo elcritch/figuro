@@ -37,9 +37,9 @@ proc startFiguro*(
   setupRoot(root)
 
   loadMain = proc () =
-    emit root.onLoad()
+    emit root.doLoad()
   tickMain = proc () =
-    emit root.onTick()
+    emit root.doTick()
   eventMain = proc () =
     var input: AppInputs
     ## only process up to ~10 events at a time
@@ -56,7 +56,7 @@ proc startFiguro*(
       let rn = redrawNodes
       for node in rn:
         # echo "  redraw: ", node.getId
-        emit node.onDraw()
+        emit node.doDraw()
       redrawNodes.clear()
       computeLayout(root)
       computeScreenBox(nil, root)

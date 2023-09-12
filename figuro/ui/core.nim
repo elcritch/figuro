@@ -179,10 +179,10 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   inc parent.diffIndex
   current.diffIndex = 0
 
-  connect(current, onDraw, current, Figuro.clearDraw())
-  connect(current, onDraw, current, typeof(current).draw())
-  connect(current, onDraw, current, Figuro.handlePostDraw())
-  emit current.onDraw()
+  connect(current, doDraw, current, Figuro.clearDraw())
+  connect(current, doDraw, current, typeof(current).draw())
+  connect(current, doDraw, current, Figuro.handlePostDraw())
+  emit current.doDraw()
 
 proc postNode*(current: var Figuro) =
   if not current.postDraw.isNil:
@@ -364,13 +364,13 @@ proc computeEvents*(node: Figuro) =
 
     for target in newHovers:
       target.events.mouse.incl evHover
-      emit target.onHover(Enter)
+      emit target.doHover(Enter)
       target.refresh()
       prevHovers.incl target
 
     for target in delHovers:
       target.events.mouse.excl evHover
-      emit target.onHover(Exit)
+      emit target.doHover(Exit)
       target.refresh()
       prevHovers.excl target
 
@@ -382,12 +382,12 @@ proc computeEvents*(node: Figuro) =
 
     for target in delClicks:
         target.events.mouse.excl evClick
-        emit target.onClick(Exit, click.buttons)
+        emit target.doClick(Exit, click.buttons)
         prevClicks.excl target
 
     for target in newClicks:
         target.events.mouse.incl evClick
-        emit target.onClick(Enter, click.buttons)
+        emit target.doClick(Enter, click.buttons)
         prevClicks.incl target
 
   uxInputs.buttonPress.excl MouseButtons
