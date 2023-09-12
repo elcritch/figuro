@@ -25,8 +25,8 @@ proc draw*(self: Main) {.slot.} =
           box 10 + i * 120, 10, 100, 100
 
 var main = Main.new()
-connect(main, onDraw, main, Main.draw)
-connect(main, onTick, main, Main.tick)
+connect(main, doDraw, main, Main.draw)
+connect(main, doTick, main, Main.tick)
 
 echo "main: ", main.listeners
 

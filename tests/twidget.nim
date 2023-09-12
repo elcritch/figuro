@@ -37,8 +37,8 @@ proc draw*(self: Main) {.slot.} =
 
 var fig = Main.new()
 
-connect(fig, onDraw, fig, Main.draw)
-connect(fig, onTick, fig, Main.tick)
+connect(fig, doDraw, fig, Main.draw)
+connect(fig, doTick, fig, Main.tick)
 
 app.width = 720
 app.height = 140
