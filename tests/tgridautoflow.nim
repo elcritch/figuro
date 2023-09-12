@@ -16,7 +16,7 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   withDraw(self):
-    box 0, 0, 480, 300
+    box 0, 0, 100'vw, 100'vh
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
       # box 0, 0, 100'vh, 100'vw
@@ -34,8 +34,8 @@ proc draw*(self: GridApp) {.slot.} =
         clipContent true
         
         # Setup CSS Grid Template
-        setGridCols 60'ux 60'ux 60'ux 60'ux 60'ux
-        setGridRows 90'ux 90'ux
+        setGridCols 20'pp 20'pp 20'pp 20'pp 20'pp
+        setGridRows 40'pp 40'pp
         justifyContent CxCenter
 
         rectangle "item a":
@@ -48,17 +48,17 @@ proc draw*(self: GridApp) {.slot.} =
           boxSizeOf current.parent
 
         for i in 1..4:
-          rectangle "items b":
+          rectangle "items b", captures(i):
             # Setup CSS Grid Template
-            size 30'ux, 30'ux
+            size 20'pp, 20'pp
             cornerRadius 3
-            
+
             # some color stuff
             fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
 
         rectangle "item e":
           # Setup CSS Grid Template
-          size 30'ux, 30'ux
+          size 20'pp, 20'pp
           cornerRadius 3
           gridColumn 5 // 6
           gridRow 1 // 3

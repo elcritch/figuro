@@ -60,6 +60,8 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]
+      else:
+        error("unexpected arguement: " & arg.repr, arg)
     else:
       echo "UNEXPECTED"
       error("unexpected arguement: " & arg.repr, arg)

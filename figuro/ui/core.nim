@@ -477,7 +477,7 @@ proc computeLayout*(node: Figuro) =
 
   # css grid impl
   if not node.gridTemplate.isNil:
-    echo "calc grid!"
+    # echo "calc grid!"
     
     gridChildren.setLen(0)
     for n in node.children:
