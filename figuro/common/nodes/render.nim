@@ -39,7 +39,7 @@ type
     else:
       discard
 
-proc childIndex*(nodes: var seq[Node], current: NodeIdx): seq[NodeIdx] =
+proc childIndex*(nodes: seq[Node], current: NodeIdx): seq[NodeIdx] =
   let id = nodes[current].uid
   let cnt = nodes[current].childCount
 

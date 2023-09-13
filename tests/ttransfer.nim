@@ -1,6 +1,7 @@
 
 import std/unittest
 import figuro/widget
+import figuro/common/nodes/render
 import figuro/common/nodes/transfer
 
 import pretty
@@ -22,4 +23,7 @@ suite "test layers":
 
     let renders = copyInto(self)
     print renders
-    # childIndex()
+    let res1 = renders[0.ZLevel].childIndex(0.NodeIdx)
+    print res1.mapIt(it+1)
+    let res2 = renders[0.ZLevel].childIndex(1.NodeIdx)
+    print res2.mapIt(it+1)
