@@ -43,19 +43,25 @@ proc convert*(current: Figuro): render.Node =
   else:
     discard
 
-proc convert*(renders: var seq[render.Node],
+proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
               current: Figuro,
-              parent: NodeID) =
+              parent: NodeID,
+              maxzlvl: ZLevel
+              ) =
   # echo "convert:node: ", current.uid, " parent: ", parent
   var render = current.convert()
   render.parent = parent
   render.childCount = current.children.len()
+  let zlvl = max(current.zlevel, maxzlvl)
 
-  renders.add(move render)
+  renders.mgetOrPut(zlvl, @[]).add(move render)
   for child in current.children:
-    renders.convert(child, current.uid)
+    let chlvl = max(child.zlevel, zlvl)
+    if chlvl != zlvl:
+      render.childCount.dec()
+    renders.convert(child, current.uid, zlvl)
 
-proc copyInto*(uiNodes: Figuro): seq[render.Node] =
-  result = newSeq[render.Node]()
-  convert(result, uiNodes, -1.NodeID)
-  # echo "nodes:len: ", result.len()
+proc copyInto*(uiNodes: Figuro): OrderedTable[ZLevel, seq[Node]] =
+  result = initOrderedTable[ZLevel, seq[render.Node]]()
+  result.convert(uiNodes, -1.NodeID, 0.ZLevel)
+  echo "nodes:len: ", result.len()

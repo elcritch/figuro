@@ -88,13 +88,7 @@ type
     DropShadow
     InnerShadow
 
-  ZLevel* = enum
-    ## The z-index for widget interactions
-    ZLevelBottom
-    ZLevelLower
-    ZLevelDefault
-    ZLevelRaised
-    ZLevelOverlay
+  ZLevel* = int8
 
   Shadow* = object
     kind*: ShadowStyle
