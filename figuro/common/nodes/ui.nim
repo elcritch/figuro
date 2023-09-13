@@ -76,6 +76,10 @@ type
     # else:
     #   discard
 
+proc new*[T: Figuro](tp: typedesc[T]): T =
+  result = T()
+  result.agentId = nextAgentId()
+  result.uid = result.agentId
 
 proc getName*(fig: Figuro): string =
   result = fig.name.toString()

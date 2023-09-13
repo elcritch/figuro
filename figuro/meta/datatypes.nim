@@ -45,12 +45,15 @@ when defined(nimscript):
 else:
   proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
   proc getAgentId(a: AgentProc): int = cast[int](cast[pointer](a))
-  var lastUId: int = 1
+  var lastUId: int = 0
+
+proc nextAgentId*(): int =
+  lastUId.inc()
+  lastUId
 
 proc new*[T: Agent](tp: typedesc[T]): T =
-  lastUId.inc()
   result = T()
-  result.agentId = lastUId
+  result.agentId = nextAgentId()
 
 proc hash*(a: Agent): Hash = hash(getAgentId(a))
 proc hash*(a: AgentProc): Hash = hash(getAgentId(a))

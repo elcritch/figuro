@@ -61,7 +61,7 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   node.cornerRadius = 0'ui
   # node.shadow = Shadow.none()
   node.diffIndex = 0
-  node.zlevel = ZLevelDefault
+  node.zlevel = 0.ZLevel
   
 
 var nodeDepth = 0
@@ -132,9 +132,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     # parent = nodeStack[^1]
     # Create Figuro.
     current = T.new()
-    current.uid = current.agentId
     echo nd(), "create new node: ", id, " new: ", current.uid, " parent: ", parent.uid
-    current.agentId = current.uid
     parent.children.add(current)
     # current.parent = parent
     refresh(current)
@@ -163,6 +161,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
   # echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
 
+  current.uid = current.agentId
   current.parent = parent
   let name = $(id) & " " & repr(typeof(T))
   current.name.setLen(0)
