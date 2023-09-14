@@ -60,6 +60,11 @@ suite "test layers":
 
     emit self.doDraw()
 
+    proc printNodes(n: Figuro) =
+      print "\tnode: ", "uid:", n.uid, "pnt:", n.parent, "zlvl:", n.zlevel
+      for c in n.children:
+        printNodes(c)
+
     let renders = copyInto(self)
     for k, v in renders.pairs():
       print k
