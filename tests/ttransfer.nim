@@ -1,6 +1,7 @@
 
 import std/unittest
 import figuro/widget
+import figuro/common/nodes/ui
 import figuro/common/nodes/render
 import figuro/common/nodes/transfer
 
@@ -23,11 +24,14 @@ suite "test layers":
       rectangle "body":
         discard
 
+    emit self.doDraw()
+
     let renders = copyInto(self)
     for k, v in renders.pairs():
       print k
       for n in v:
         print "node: ", "uid:", n.uid, "child:", n.childCount, "parent:", n.parent
+        print n
     let n1 = renders[0.ZLevel].childIndex(0.NodeIdx)
     let res1: seq[int] = n1.mapIt(it+1)
     check res1.repr == "@[2, 6]"
