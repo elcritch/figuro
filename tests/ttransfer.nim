@@ -43,6 +43,10 @@ suite "test layers":
     echo "self: ", self.uid
     withDraw(self):
       rectangle "body":
+        rectangle "child0":
+          discard
+          rectangle "child01":
+            discard
         rectangle "child1":
           current.zlevel = 11
         rectangle "child2":
@@ -62,12 +66,13 @@ suite "test layers":
       for n in v:
         print "\tnode: ", "uid:", n.uid, "child:", n.childCount, "chCnt:", n.childCount, "pnt:", n.parent, "zlvl:", n.zlevel
     let n1 = renders[0.ZLevel].childIndex(0.NodeIdx)
-    let res1 = n1.mapIt(it+(self.agentId-1).NodeIdx)
+    let res1 = n1.mapIt(renders[0.ZLevel][it.int].uid)
     print res1
-    check res1.repr == "@[2]"
+    check res1.repr == "@[8]"
 
     let n2 = renders[0.ZLevel].childIndex(1.NodeIdx)
-    let res2 = n2.mapIt(it+(self.agentId-1).NodeIdx)
+    # let res2 = n2.mapIt(it)
+    let res2 = n2.mapIt(renders[0.ZLevel][it.int].uid)
     print res2
-    check res2.repr == "@[3, 4]"
+    check res2.repr == "@[9, 12, 13]"
 
