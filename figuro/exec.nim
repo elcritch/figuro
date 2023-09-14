@@ -28,7 +28,7 @@ var
   tickMain*: MainCallback
   eventMain*: MainCallback
   loadMain*: MainCallback
-  sendRoot*: proc (nodes: sink seq[render.Node]) {.closure.}
+  sendRoot*: proc (nodes: sink OrderedTable[ZLevel, seq[render.Node]]) {.closure.}
 
 const renderPeriodMs {.intdefine.} = 16
 const appPeriodMs {.intdefine.} = 16
@@ -67,12 +67,12 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
 
 
 proc init*(renderer: Renderer) =
-  sendRoot = proc (nodes: sink seq[render.Node]) =
+  sendRoot = proc (nodes: sink OrderedTable[ZLevel, seq[render.Node]]) =
       renderer.nodes = nodes
 
 proc run*(renderer: Renderer) =
 
-  sendRoot = proc (nodes: sink seq[render.Node]) =
+  sendRoot = proc (nodes: sink OrderedTable[ZLevel, seq[render.Node]]) =
       renderer.nodes = nodes
 
   uiRenderEvent = initUiEvent()
