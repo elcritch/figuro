@@ -1,6 +1,6 @@
 ## This minimal example shows 5 blue squares moving.
 
-import figuro/[timers, widgets]
+import figuro/[timers, widget]
 import figuro
 
 type
@@ -8,7 +8,7 @@ type
     value: float
 
 method tick(self: Main) =
-  refresh()
+  refresh(self)
   self.value = 0.008 * (1+app.frameCount).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 

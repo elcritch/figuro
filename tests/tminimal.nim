@@ -13,16 +13,19 @@ type
 
 
 proc draw*(self: Main) {.slot.} =
-  var current = self
-  # current = self
-  rectangle "body":
-    self.mainRect = current
-    box 10, 10, 600, 120
-    cornerRadius 10.0
-    fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
-    for i in 0 .. 4:
-      button "btn", captures(i):
-          box 10 + i * 120, 10, 100, 100
+  withDraw(self):
+    box 0, 0, 100'vw, 100'vh
+    rectangle "body":
+      fill "#D0D0D0"
+      box 10'pw, 10'ph, 40'pw, 40'ph
+      cornerRadius 10.0
+      clipContent true
+
+      button "btn":
+        box 10'pw, 10'ph, 60'pw, 60'ph
+
+      button "btn":
+        box 10'pw, 10'ph, 160'pw, 60'ph
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
@@ -30,7 +33,7 @@ connect(main, doTick, main, Main.tick)
 
 echo "main: ", main.listeners
 
-app.width = 720
-app.height = 140
+app.width = 400
+app.height = 400
 
 startFiguro(main)
