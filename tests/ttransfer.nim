@@ -35,9 +35,7 @@ suite "test layers":
 
     let n2 = renders[0.ZLevel].childIndex(1.NodeIdx)
     let res2 = n2.mapIt(it+1)
-    print res2
     check res2.repr == "@[3, 4, 5]"
-
 
   suite "basic two layer":
     var self = Figuro.new()
@@ -46,14 +44,15 @@ suite "test layers":
     withDraw(self):
       rectangle "body":
         rectangle "child1":
-          discard
           current.zlevel = 11
         rectangle "child2":
           discard
         rectangle "child3":
           discard
       rectangle "body":
-        discard
+        current.zlevel = 12
+        rectangle "child4":
+          discard
 
     emit self.doDraw()
 
