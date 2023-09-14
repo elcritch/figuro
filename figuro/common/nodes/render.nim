@@ -47,13 +47,13 @@ proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 import std/sequtils
 
 proc childIndex*(nodes: seq[Node], current: NodeIdx): seq[NodeIdx] =
-  print "\nchildIndex: ", current, "childCnt: ", nodes[current.int].childCount, " nodes: ", nodes.mapIt(it.uid)
+  # print "\nchildIndex: ", current, "childCnt: ", nodes[current.int].childCount, " nodes: ", nodes.mapIt(it.uid)
   let id = nodes[current.int].uid
   let cnt = nodes[current.int].childCount
 
   var idx = current.int + 1
   while result.len() < cnt:
-    print "childNodes: ", current, "(" & $nodes[idx].childCount & ")", idx, "parent:", id
+    # print "childNodes: ", current, "(" & $nodes[idx].childCount & ")", idx, "parent:", id
     if nodes[idx.int].parent == id:
       result.add idx.NodeIdx
     idx.inc()

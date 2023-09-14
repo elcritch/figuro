@@ -1,5 +1,6 @@
 
 import std/unittest
+import std/strutils
 import figuro/widget
 import figuro/common/nodes/ui
 import figuro/common/nodes/render
@@ -83,4 +84,17 @@ suite "test layers":
     let uids2 = n2.mapIt(renders[0.ZLevel][it.int].uid)
     print uids2
     check uids2.repr == "@[9, 12, 13]"
+
+    proc printRenders(nodes: seq[Node], idx: NodeIdx, depth = 0) =
+      let n = nodes[idx.int]
+      print "  ".repeat(depth), "render: ", n.uid, " p: ", n.parent
+      let childs = nodes.childIndex(idx)
+      for ci in childs:
+        printRenders(nodes, ci, depth+1)
+    
+    printRenders(renders[0.ZLevel], 0.NodeIdx)
+    printRenders(renders[11.ZLevel], 0.NodeIdx)
+    printRenders(renders[12.ZLevel], 0.NodeIdx)
+
+
 
