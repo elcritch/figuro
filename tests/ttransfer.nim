@@ -60,13 +60,14 @@ suite "test layers":
     for k, v in renders.pairs():
       print k
       for n in v:
-        print "\tnode: ", "uid:", n.uid, "child:", n.childCount, "parent:", n.parent, "zlevel:", n.zlevel
+        print "\tnode: ", "uid:", n.uid, "child:", n.childCount, "chCnt:", n.childCount, "pnt:", n.parent, "zlvl:", n.zlevel
     let n1 = renders[0.ZLevel].childIndex(0.NodeIdx)
-    let res1 = n1.mapIt(it+1.NodeIdx)
-    check res1.repr == "@[2, 6]"
+    let res1 = n1.mapIt(it+(self.agentId-1).NodeIdx)
+    print res1
+    check res1.repr == "@[2]"
 
     let n2 = renders[0.ZLevel].childIndex(1.NodeIdx)
-    let res2 = n2.mapIt(it+1.NodeIdx)
+    let res2 = n2.mapIt(it+(self.agentId-1).NodeIdx)
     print res2
-    check res2.repr == "@[3, 4, 5]"
+    check res2.repr == "@[3, 4]"
 

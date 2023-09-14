@@ -53,7 +53,7 @@ proc childIndex*(nodes: seq[Node], current: NodeIdx): seq[NodeIdx] =
 
   var idx = current.int + 1
   while result.len() < cnt:
-    print "childNodes: ", current, idx,  "parent:", id
+    print "childNodes: ", current, "(" & $nodes[idx].childCount & ")", idx, "parent:", id
     if nodes[idx.int].parent == id:
       result.add idx.NodeIdx
     idx.inc()
