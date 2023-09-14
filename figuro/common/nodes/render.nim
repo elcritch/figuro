@@ -57,5 +57,3 @@ proc childIndex*(nodes: seq[Node], current: NodeIdx): seq[NodeIdx] =
     if nodes[idx.int].parent == id:
       result.add idx.NodeIdx
     idx.inc()
-
-
