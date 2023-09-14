@@ -4,7 +4,7 @@ export basics
 
 type
 
-  NodeIdx* = int
+  NodeIdx* = distinct int
 
   Node* = object
     uid*: NodeID
@@ -39,16 +39,21 @@ type
     else:
       discard
 
+import pretty
+
+proc `$`*(id: NodeIdx): string = "NodeIdx(" & $id & ")"
+proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
+
 proc childIndex*(nodes: seq[Node], current: NodeIdx): seq[NodeIdx] =
-  let id = nodes[current].uid
-  let cnt = nodes[current].childCount
+  let id = nodes[current.int].uid
+  let cnt = nodes[current.int].childCount
 
   var
-    idx = current + 1
+    idx = current.int + 1
   while result.len() < cnt:
-    # echo "childNodes: ", idx, " parent: ", id
-    if nodes[idx].parent == id:
-      result.add idx
+    print "childNodes: ", current, idx,  "parent:", id
+    if nodes[idx.int].parent == id:
+      result.add idx.NodeIdx
     idx.inc()
 
 

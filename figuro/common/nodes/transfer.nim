@@ -58,6 +58,9 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
   for child in current.children:
     let chlvl = max(child.zlevel, zlvl)
     if chlvl != zlvl:
+      echo "child move: ", $render.uid, " -> ",
+            $child.uid, " zlvl: ", $zlvl, " / ", $chlvl,
+            " parent: ", $current.uid
       render.childCount.dec()
     renders.convert(child, current.uid, zlvl)
 
