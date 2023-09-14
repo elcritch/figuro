@@ -70,7 +70,7 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
     let chlvl = max(child.zlevel, zlvl)
     renders.convert(child, current.uid, zlvl)
 
-proc printRenders*(nodes: seq[Node], idx = 0.NodeIdx, depth = 0) =
+proc printRenders*(nodes: seq[Node], idx = 0.NodeIdx, depth = 1) =
   let n = nodes[idx.int]
   echo "  ".repeat(depth), "render: ", n.uid, " p: ", n.parent
   let childs = nodes.childIndex(idx)
@@ -78,7 +78,9 @@ proc printRenders*(nodes: seq[Node], idx = 0.NodeIdx, depth = 0) =
     printRenders(nodes, ci, depth+1)
 
 proc printRenders*(nodes: OrderedTable[ZLevel, seq[Node]]) =
-  for k, v in nodes.pairs():
+  echo "\nprint renders: "
+  for k, v in nodes.pairs:
+    echo "K: ", k
     printRenders(v, 0.NodeIdx)
 
 proc copyInto*(uiNodes: Figuro): OrderedTable[ZLevel, seq[Node]] =
