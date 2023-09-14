@@ -25,15 +25,15 @@ proc draw*(self: Main) {.slot.} =
       button "btn":
         box 10'pw, 10'ph, 160'pw, 10'ph
         # fill "#2B9FEA"
-        current.zlevel = 5.ZLevel
+        current.zlevel = 20.ZLevel
         button "btn":
           # fill "#2B9FEA".parseHtmlColor.darken(0.2)
           box 10'pw, 10'ph, 80'pw, 60'ph
 
-      button "btn":
-        box 10'pw, 60'ph, 160'pw, 10'ph
-        fill "#CB0F0A"
-        current.zlevel = 15.ZLevel
+        button "btn":
+          box 10'pw, 60'ph, 160'pw, 60'ph
+          fill "#CB0F0A"
+          current.zlevel = 15.ZLevel
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
