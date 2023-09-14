@@ -66,13 +66,13 @@ suite "test layers":
       for n in v:
         print "\tnode: ", "uid:", n.uid, "child:", n.childCount, "chCnt:", n.childCount, "pnt:", n.parent, "zlvl:", n.zlevel
     let n1 = renders[0.ZLevel].childIndex(0.NodeIdx)
-    let res1 = n1.mapIt(renders[0.ZLevel][it.int].uid)
-    print res1
-    check res1.repr == "@[8]"
+    let uids1 = n1.mapIt(renders[0.ZLevel][it.int].uid)
+    print uids1
+    check uids1.repr == "@[8]"
 
     let n2 = renders[0.ZLevel].childIndex(1.NodeIdx)
     # let res2 = n2.mapIt(it)
-    let res2 = n2.mapIt(renders[0.ZLevel][it.int].uid)
-    print res2
-    check res2.repr == "@[9, 12, 13]"
+    let uids2 = n2.mapIt(renders[0.ZLevel][it.int].uid)
+    print uids2
+    check uids2.repr == "@[9, 12, 13]"
 
