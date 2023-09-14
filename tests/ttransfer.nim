@@ -91,10 +91,8 @@ suite "test layers":
       let childs = nodes.childIndex(idx)
       for ci in childs:
         printRenders(nodes, ci, depth+1)
-    
+
     printRenders(renders[0.ZLevel], 0.NodeIdx)
     printRenders(renders[11.ZLevel], 0.NodeIdx)
     printRenders(renders[12.ZLevel], 0.NodeIdx)
-
-
 
