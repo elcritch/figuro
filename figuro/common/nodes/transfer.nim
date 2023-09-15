@@ -53,7 +53,8 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
   var render = current.convert()
   render.parent = parent
   render.childCount = current.children.len()
-  let zlvl = max(current.zlevel, maxzlvl)
+  # let zlvl = max(current.zlevel, maxzlvl)
+  let zlvl = current.zlevel
 
   for child in current.children:
     let chlvl = max(child.zlevel, zlvl)
@@ -68,8 +69,9 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
 
   renders.mgetOrPut(zlvl, @[]).add(render)
   for child in current.children:
-    let chlvl = max(child.zlevel, zlvl)
-    renders.convert(child, current.uid, zlvl)
+    # let chlvl = max(child.zlevel, zlvl)
+    let chlvl = child.zlevel
+    renders.convert(child, current.uid, chlvl)
 
 proc printRenders*(nodes: seq[Node],
                     idx = 0.NodeIdx, depth = 1) =
@@ -94,4 +96,4 @@ proc copyInto*(uis: Figuro): OrderedTable[ZLevel, seq[Node]] =
 
   result.sort(proc(x, y: (ZLevel, seq[Node])): int = cmp(x[0],y[0]))
   # echo "nodes:len: ", result.len()
-  printRenders(result)
+  # printRenders(result)

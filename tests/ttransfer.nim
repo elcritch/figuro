@@ -114,19 +114,11 @@ suite "test layers":
         rectangle "child12":
           discard
         rectangle "child13":
-          current.zlevel = 10
+          current.zlevel = -10
           rectangle "child131":
             discard
 
     emit self.doDraw()
-
-    proc printUiNodes(n: Figuro) =
-      print "\tuiNode: ", "uid:", n.uid, "pnt:", n.parent.getId, "zlvl:", n.zlevel
-      for c in n.children:
-        printUiNodes(c)
-
-    print "\nuinodes:"
-    printUiNodes(self)
 
     let renders = copyInto(self)
 
@@ -134,16 +126,21 @@ suite "test layers":
     for k, v in renders.pairs():
       print k
       for n in v:
-        print "\tnode: ", "uid:", n.uid, "child:", n.childCount, "chCnt:", n.childCount, "pnt:", n.parent, "zlvl:", n.zlevel
+        print "\tnode: ",
+          "uid:", n.uid,
+          "child:", n.childCount,
+          "chCnt:", n.childCount,
+          "pnt:", n.parent,
+          "zlvl:", n.zlevel
 
-    assert 10.ZLevel in renders
+    assert -10.ZLevel in renders
+    check renders[-10.ZLevel].len() == 2
     check renders[20.ZLevel].len() == 4
     check renders[30.ZLevel].len() == 3
-    check renders[10.ZLevel].len() == 2
 
     printRenders(renders[20.ZLevel], 0.NodeIdx)
     printRenders(renders[30.ZLevel], 0.NodeIdx)
-    printRenders(renders[10.ZLevel], 0.NodeIdx)
+    # printRenders(renders[10.ZLevel], 0.NodeIdx)
 
     # check uids1.repr == "@[8]"
     
