@@ -163,7 +163,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
   current.uid = current.agentId
   current.parent = parent
-  let name = $(id) & " " & repr(typeof(T))
+  let name = $(id)
   current.name.setLen(0)
   discard current.name.tryAdd(name)
   current.kind = kind

@@ -65,7 +65,6 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
         mainApp()
         app.frameCount.inc()
 
-
 proc init*(renderer: Renderer) =
   sendRoot = proc (nodes: sink OrderedTable[ZLevel, seq[render.Node]]) =
       renderer.nodes = nodes

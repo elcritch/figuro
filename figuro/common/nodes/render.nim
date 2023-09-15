@@ -1,3 +1,4 @@
+import pkg/stack_strings
 import basics
 
 export basics
@@ -8,6 +9,7 @@ type
 
   Node* = object
     uid*: NodeID
+    name*: StackString[16]
 
     childCount*: int
     parent*: NodeID

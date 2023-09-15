@@ -7,6 +7,7 @@ proc convert*(current: Figuro): render.Node =
   result = Node(kind: current.kind)
 
   result.uid = current.uid
+  result.name = current.name
 
   result.box = current.box.scaled
   result.orgBox = current.orgBox.scaled
@@ -70,22 +71,26 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
     let chlvl = max(child.zlevel, zlvl)
     renders.convert(child, current.uid, zlvl)
 
-proc printRenders*(nodes: seq[Node], idx = 0.NodeIdx, depth = 1) =
+proc printRenders*(nodes: seq[Node],
+                    idx = 0.NodeIdx, depth = 1) =
   let n = nodes[idx.int]
-  echo "  ".repeat(depth), "render: ", n.uid, " p: ", n.parent
+  echo "  ".repeat(depth), "render: ", n.uid,
+          " p: ", n.parent,
+          " name: ", $n.name,
+          " zlvl: ", $n.zlevel
   let childs = nodes.childIndex(idx)
   for ci in childs:
     printRenders(nodes, ci, depth+1)
 
-proc printRenders*(nodes: OrderedTable[ZLevel, seq[Node]]) =
+proc printRenders*(n: OrderedTable[ZLevel, seq[Node]]) =
   echo "\nprint renders: "
-  for k, v in nodes.pairs:
+  for k, v in n.pairs:
     echo "K: ", k
     printRenders(v, 0.NodeIdx)
 
-proc copyInto*(uiNodes: Figuro): OrderedTable[ZLevel, seq[Node]] =
+proc copyInto*(uis: Figuro): OrderedTable[ZLevel, seq[Node]] =
   result = initOrderedTable[ZLevel, seq[render.Node]]()
-  result.convert(uiNodes, -1.NodeID, 0.ZLevel)
+  result.convert(uis, -1.NodeID, 0.ZLevel)
 
   result.sort(proc(x, y: (ZLevel, seq[Node])): int = cmp(x[0],y[0]))
   # echo "nodes:len: ", result.len()
