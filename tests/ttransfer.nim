@@ -128,10 +128,10 @@ suite "test layers":
       for n in v:
         print "\tnode: ",
           "uid:", n.uid,
-          "child:", n.childCount,
+          " // ", n.parent,
           "chCnt:", n.childCount,
-          "pnt:", n.parent,
-          "zlvl:", n.zlevel
+          "zlvl:", n.zlevel,
+          "n:", $n.name
 
     assert -10.ZLevel in renders
     check renders[-10.ZLevel].len() == 2
