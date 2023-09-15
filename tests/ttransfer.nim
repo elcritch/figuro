@@ -126,7 +126,7 @@ suite "test layers":
     for k, v in renders.pairs():
       print k
       for n in v:
-        print "\tnode: ",
+        print "   node: ",
           "uid:", n.uid,
           " // ", n.parent,
           "chCnt:", n.childCount,
