@@ -19,7 +19,7 @@ proc draw*(self: Main) {.slot.} =
       fill "#D0D0D0"
       box 10'pw, 10'ph, 40'pw, 80'ph
       cornerRadius 10.0
-      # clipContent true
+      clipContent true
 
       button "btn":
         box 10'pw, 10'ph, 160'pw, 20'ph
