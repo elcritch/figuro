@@ -14,7 +14,6 @@ type
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    current.zlevel = 10.ZLevel
     box 0, 0, 100'vw, 100'vh
     rectangle "body":
       fill "#D0D0D0"
@@ -32,8 +31,8 @@ proc draw*(self: Main) {.slot.} =
 
       button "btn":
         box 10'pw, 60'ph, 160'pw, 20'ph
-        fill "#CB0F0A"
-        current.zlevel = 5.ZLevel
+        # fill "#CB0F0A"
+        current.zlevel = -5.ZLevel
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
