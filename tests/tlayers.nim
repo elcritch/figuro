@@ -4,6 +4,11 @@ import figuro/widgets/button
 import figuro/widget
 import figuro
 
+let
+  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  font = UiFont(typefaceId: typeface, size: 22'ui)
+  smallFont = UiFont(typefaceId: typeface, size: 12'ui)
+
 type
   Main* = ref object of Figuro
     value: float
@@ -20,6 +25,10 @@ proc draw*(self: Main) {.slot.} =
       box 3'pw, 10'ph, 30'pw, 80'ph
       cornerRadius 10.0
       clipContent true
+      text "text":
+        box 10'pw, 0, 70'pw, 22
+        fill blackColor
+        setText({font: "clipped"})
 
       button "btn":
         box 10'pw, 10'ph, 130'pw, 20'ph
@@ -34,6 +43,10 @@ proc draw*(self: Main) {.slot.} =
       box 50'pw, 10'ph, 30'pw, 80'ph
       cornerRadius 10.0
       # clipContent true
+      text "text":
+        box 10'pw, 0, 70'pw, 22
+        fill blackColor
+        setText({font: "not clipped"})
 
       button "btn":
         box 10'pw, 10'ph, 130'pw, 20'ph
