@@ -150,5 +150,5 @@ suite "test layers":
     print 20.Zlevel, lispRepr(renders[20.ZLevel])
     print 30.Zlevel, lispRepr(renders[30.ZLevel])
     # check uids1.repr == "@[8]"
-    
+
 

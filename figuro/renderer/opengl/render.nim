@@ -204,7 +204,7 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(nodes: var OrderedTable[ZLevel, seq[Node]]) {.forbids: [MainThreadEff].} =
+proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   # echo "drawRoot:nodes:count: ", nodes.len()

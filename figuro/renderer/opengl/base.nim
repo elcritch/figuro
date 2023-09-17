@@ -127,7 +127,7 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
   updateWindowSize(window)
 
-proc renderFrame*(nodes: var OrderedTable[ZLevel, seq[Node]]) =
+proc renderFrame*(nodes: var RenderNodes) =
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(app.windowRawSize)
   ctx.saveTransform()
@@ -148,7 +148,7 @@ proc renderFrame*(nodes: var OrderedTable[ZLevel, seq[Node]]) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap*(window: Window, nodes: var OrderedTable[ZLevel, seq[Node]]) =
+proc renderAndSwap*(window: Window, nodes: var RenderNodes) =
   ## Does drawing operations.
   app.tickCount.inc
 

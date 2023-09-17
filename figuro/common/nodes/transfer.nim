@@ -3,6 +3,9 @@ import ui as ui
 import render as render
 import ../../shared
 
+type
+  RenderNodes* = OrderedTable[ZLevel, seq[Node]]
+
 proc convert*(current: Figuro): render.Node =
   result = Node(kind: current.kind)
 
@@ -44,7 +47,7 @@ proc convert*(current: Figuro): render.Node =
   else:
     discard
 
-proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
+proc convert*(renders: var RenderNodes,
               current: Figuro,
               parent: NodeID,
               maxzlvl: ZLevel
@@ -87,13 +90,13 @@ proc printRenders*(nodes: seq[Node],
   for ci in nodes.childIndex(idx):
     printRenders(nodes, ci, depth+1)
 
-proc printRenders*(n: OrderedTable[ZLevel, seq[Node]]) =
+proc printRenders*(n: RenderNodes) =
   echo "\nprint renders: "
   for k, v in n.pairs:
     echo "K: ", k
     printRenders(v, 0.NodeIdx)
 
-proc copyInto*(uis: Figuro): OrderedTable[ZLevel, seq[Node]] =
+proc copyInto*(uis: Figuro): RenderNodes =
   result = initOrderedTable[ZLevel, seq[render.Node]]()
   result.convert(uis, -1.NodeID, 0.ZLevel)
 

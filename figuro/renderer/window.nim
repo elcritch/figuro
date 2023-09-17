@@ -9,7 +9,7 @@ import opengl/commons
 type
   Renderer* = ref object
     window: Window
-    nodes*: OrderedTable[ZLevel, seq[Node]]
+    nodes*: RenderNodes
 
 const
   openglMajor {.intdefine.} = 3
@@ -27,7 +27,7 @@ proc toUi(wbtn: windy.ButtonView): UiButtonView =
   else:
     copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
-proc renderLoop(window: Window, nodes: var OrderedTable[ZLevel, seq[Node]], poll = true) =
+proc renderLoop(window: Window, nodes: var RenderNodes, poll = true) =
   if window.closeRequested:
     app.running = false
     return
