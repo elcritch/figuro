@@ -148,7 +148,8 @@ proc renderFrame*(nodes: var RenderNodes) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap*(window: Window, nodes: var RenderNodes) =
+proc renderAndSwap*(window: Window,
+                    nodes: var RenderNodes) =
   ## Does drawing operations.
   app.tickCount.inc
 
