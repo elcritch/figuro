@@ -21,13 +21,13 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       # clipContent true
 
-      button "btn":
-        box 10'pw, 10'ph, 130'pw, 20'ph
-        current.zlevel = 20.ZLevel
+      # button "btn":
+      #   box 10'pw, 10'ph, 130'pw, 20'ph
+      #   current.zlevel = 20.ZLevel
 
-      button "btn":
-        box 10'pw, 60'ph, 130'pw, 20'ph
-        current.zlevel = -5.ZLevel
+      # button "btn":
+      #   box 10'pw, 60'ph, 130'pw, 20'ph
+      #   current.zlevel = -5.ZLevel
 
     rectangle "container":
       fill "#D0D0D0"
