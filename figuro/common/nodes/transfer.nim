@@ -67,11 +67,13 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
 
 type
   Renders* = ref object
-    node*: Node
+    node*: NodeID
+    name*: string
     children*: seq[Renders]
 
 proc lispRepr*(nodes: seq[Node], idx = 0.NodeIdx): Renders =
-  result = Renders(node: nodes[idx.int])
+  let n = nodes[idx.int]
+  result = Renders(node: n.uid, name: $n.name)
   for ci in nodes.childIndex(idx):
     result.children.add lispRepr(nodes, ci)
 

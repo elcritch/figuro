@@ -102,6 +102,7 @@ suite "test layers":
     echo "self: ", self.uid
     withDraw(self):
       current.zlevel = 20
+      discard current.name.tryAdd("root")
       rectangle "body":
         rectangle "child0":
           discard
@@ -145,6 +146,9 @@ suite "test layers":
     # printRenders(renders[30.ZLevel], 0.NodeIdx)
     # printRenders(renders[-10.ZLevel], 0.NodeIdx)
 
+    print -10.Zlevel, lispRepr(renders[-10.ZLevel])
+    print 20.Zlevel, lispRepr(renders[20.ZLevel])
+    print 30.Zlevel, lispRepr(renders[30.ZLevel])
     # check uids1.repr == "@[8]"
     
 
