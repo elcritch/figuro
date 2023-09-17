@@ -4,7 +4,27 @@ import render as render
 import ../../shared
 
 type
-  RenderNodes* = OrderedTable[ZLevel, seq[Node]]
+  RenderList* = object
+    nodes*: seq[Node]
+    roots*: seq[NodeIdx]
+  RenderNodes* = OrderedTable[ZLevel, RenderList]
+
+proc add*(list: var RenderList, node: Node) =
+  ## Adds a Node to the RenderList and possibly
+  ## to the roots seq if it's a root node.
+  ## 
+  ## New roots occur when nodes have different
+  ## zlevels and end up in a the RenderList
+  ## for that ZLevel without their logical parent. 
+  ## 
+  if list.roots.len() == 0:
+    list.roots.add(list.nodes.len().NodeIdx)
+  else:
+    let lastRoot = list.nodes[list.roots[^1].int]
+    if node.parent != lastRoot.uid and
+        node.parent != list.nodes[^1].uid:
+      list.roots.add(list.nodes.len().NodeIdx)
+  list.nodes.add(node)
 
 proc convert*(current: Figuro): render.Node =
   result = Node(kind: current.kind)
@@ -63,7 +83,7 @@ proc convert*(renders: var RenderNodes,
     if chlvl != zlvl:
       render.childCount.dec()
 
-  renders.mgetOrPut(zlvl, @[]).add(render)
+  renders.mgetOrPut(zlvl, RenderList()).add(render)
   for child in current.children:
     let chlvl = child.zlevel
     renders.convert(child, current.uid, chlvl)
@@ -94,12 +114,13 @@ proc printRenders*(n: RenderNodes) =
   echo "\nprint renders: "
   for k, v in n.pairs:
     echo "K: ", k
-    printRenders(v, 0.NodeIdx)
+    for rootIdx in v.roots:
+      printRenders(v.nodes, rootIdx)
 
 proc copyInto*(uis: Figuro): RenderNodes =
-  result = initOrderedTable[ZLevel, seq[render.Node]]()
+  result = initOrderedTable[ZLevel, RenderList]()
   result.convert(uis, -1.NodeID, 0.ZLevel)
 
-  result.sort(proc(x, y: (ZLevel, seq[Node])): int = cmp(x[0],y[0]))
+  result.sort(proc(x, y: auto): int = cmp(x[0],y[0]))
   # echo "nodes:len: ", result.len()
   # printRenders(result)
