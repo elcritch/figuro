@@ -35,7 +35,10 @@ proc draw*(self: Main) {.slot.} =
         current.zlevel = 20.ZLevel
 
       button "btn":
-        box 10'pw, 60'ph, 130'pw, 20'ph
+        box 10'pw, 40'ph, 130'pw, 20'ph
+
+      button "btn":
+        box 10'pw, 70'ph, 130'pw, 20'ph
         current.zlevel = -5.ZLevel
 
     rectangle "container":
@@ -53,7 +56,10 @@ proc draw*(self: Main) {.slot.} =
         current.zlevel = 20.ZLevel
 
       button "btn":
-        box 10'pw, 60'ph, 130'pw, 20'ph
+        box 10'pw, 40'ph, 130'pw, 20'ph
+
+      button "btn":
+        box 10'pw, 70'ph, 130'pw, 20'ph
         current.zlevel = -5.ZLevel
 
 var main = Main.new()
