@@ -159,14 +159,28 @@ suite "test layers":
     print res20
 
     check res20.name == "pseudoRoot"
+    check res20.children.len() == 1
+    check res20[0].children.len() == 2
+    check res20[0][0].children.len() == 1
+    check res20[0][0][0].children.len() == 1
+
     check res20[0].name == "root"
     check res20[0][0].name == "body"
     check res20[0][0][0].name == "child0"
     check res20[0][0][0][0].name == "child01"
     check res20[0][1].name == "body2"
 
-    # print "\nzlevel: ", 30.ZLevel
-    # print renders[30.ZLevel].toTree()
+    print "\nzlevel: ", 30.ZLevel
+    let res30 = renders[30.ZLevel].toTree()
+    print res30
+
+    check res30.name == "pseudoRoot"
+    check res30.children.len() == 1
+    check res30[0].children.len() == 2
+    check res30[0].name == "child1"
+    check res30[0][0].name == "child11"
+    check res30[0][1].name == "child12"
+
 
     # printRenders(renders[30.ZLevel], 0.NodeIdx)
     # printRenders(renders[-10.ZLevel], 0.NodeIdx)
