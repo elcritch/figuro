@@ -108,15 +108,15 @@ proc toTree*(nodes: seq[Node],
               depth = 1): RenderTree =
   let n = nodes[idx.int]
   result = RenderTree(name: $n.name)
-  echo "  ".repeat(depth), "toTree:idx: ", idx.int
+  # echo "  ".repeat(depth), "toTree:idx: ", idx.int
   for ci in nodes.childIndex(idx):
-    echo "  ".repeat(depth), "toTree:cidx: ", ci.int
+    # echo "  ".repeat(depth), "toTree:cidx: ", ci.int
     result.children.add toTree(nodes, ci, depth+1)
 
 proc toTree*(list: RenderList): RenderTree =
   result = RenderTree(name: "pseudoRoot")
   for rootIdx in list.roots:
-    echo "toTree:rootIdx: ", rootIdx.int
+    # echo "toTree:rootIdx: ", rootIdx.int
     result.children.add toTree(list.nodes, rootIdx)
 
 

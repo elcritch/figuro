@@ -141,21 +141,18 @@ suite "test layers":
           "zlvl:", n.zlevel,
           "n:", $n.name
 
-    # assert -10.ZLevel in renders
-    # check renders[-10.ZLevel].nodes.len() == 3
-    # check renders[20.ZLevel].nodes.len() == 5
-    # check renders[30.ZLevel].nodes.len() == 3
+    assert -10.ZLevel in renders
+    check renders[-10.ZLevel].nodes.len() == 3
+    check renders[20.ZLevel].nodes.len() == 5
+    check renders[30.ZLevel].nodes.len() == 3
 
-    # print "\nzlevel: ", -10.ZLevel
-    # print renders[-10.ZLevel].toTree()
-    # check renders[-10.ZLevel].toTree() == RenderTree(
-    #     name: "pseudoRoot",
-    #     children: @[
-    #       RenderTree(name: "child13", children: @[
-    #         RenderTree(name: "child131")
-    #       ]),
-    #       RenderTree(name: "child21")
-    # ])
+    print "\nzlevel: ", -10.ZLevel
+    print renders[-10.ZLevel].toTree()
+    let res10 = renders[-10.ZLevel].toTree()
+    check res10.name == "pseudoRoot"
+    check res10[0].name == "child13"
+    check res10[0][0].name == "child131"
+    check res10[1].name == "child21"
 
     print "\nzlevel: ", 20.ZLevel
     let res20 = renders[20.ZLevel].toTree()
