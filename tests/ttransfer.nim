@@ -142,16 +142,33 @@ suite "test layers":
     check renders[20.ZLevel].nodes.len() == 5
     check renders[30.ZLevel].nodes.len() == 3
 
-    printRenders(renders)
-
-    let rn10 = RenderTree(
+    print "\nzlevel: ", -10.ZLevel
+    print renders[-10.ZLevel].toTree()
+    check renders[-10.ZLevel].toTree() == RenderTree(
         name: "pseudoRoot",
         children: @[
-          RenderTree(name: "child13"),
+          RenderTree(name: "child13", children: @[
+            RenderTree(name: "child131")
+          ]),
           RenderTree(name: "child21")
-        ])
-    print renders[-10.ZLevel].toTree()
-    check renders[-10.ZLevel].toTree() == rn10
+    ])
+
+    print "\nzlevel: ", 20.ZLevel
+    print renders[20.ZLevel].toTree()
+    check renders[20.ZLevel].toTree() ==
+            RenderTree(name: "pseudoRoot",
+              children: @[
+                RenderTree(name: "root",
+                  children: @[
+                    RenderTree(name: "body"),
+                  ],
+                )
+              ]
+            )
+
+    print "\nzlevel: ", 30.ZLevel
+    print renders[30.ZLevel].toTree()
+
     # printRenders(renders[30.ZLevel], 0.NodeIdx)
     # printRenders(renders[-10.ZLevel], 0.NodeIdx)
 

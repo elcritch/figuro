@@ -102,32 +102,17 @@ proc toTree*(nodes: seq[Node],
               idx = 0.NodeIdx): RenderTree =
   let n = nodes[idx.int]
   result = RenderTree(name: $n.name)
+  # echo "toTree:idx: ", idx
   for ci in nodes.childIndex(idx):
+    # echo "toTree:cidx: ", idx
     result.children.add toTree(nodes, ci)
 
 proc toTree*(list: RenderList): RenderTree =
   result = RenderTree(name: "pseudoRoot")
   for rootIdx in list.roots:
+    # echo "toTree:rootIdx: ", rootIdx
     result.children.add toTree(list.nodes, rootIdx)
 
-proc printRenders*(nodes: seq[Node],
-                    idx: NodeIdx,
-                    depth = 1) =
-  let n = nodes[idx.int]
-  echo "  ".repeat(depth), "render: ", n.uid,
-          " p: ", n.parent,
-          " name: ", $n.name,
-          " zlvl: ", $n.zlevel
-  for ci in nodes.childIndex(idx):
-    printRenders(nodes, ci, depth+1)
-
-proc printRenders*(n: RenderNodes) =
-  echo "\nprint renders: "
-  for k, v in n.pairs:
-    echo "K: ", k, " roots: ", v.roots
-    for rootIdx in v.roots:
-      echo "\trootIdx: ", $rootIdx
-      printRenders(v.nodes, rootIdx)
 
 proc copyInto*(uis: Figuro): RenderNodes =
   result = initOrderedTable[ZLevel, RenderList]()

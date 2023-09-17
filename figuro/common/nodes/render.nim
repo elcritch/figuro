@@ -55,7 +55,7 @@ iterator childIndex*(nodes: seq[Node], current: NodeIdx): NodeIdx =
   let cnt = nodes[current.int].childCount
 
   var idx = current.int + 1
-  while idx < cnt:
+  while idx <= cnt:
     # print "childNodes: ", current, "(" & $nodes[idx].childCount & ")", idx, "parent:", id
     if nodes[idx.int].parent == id:
       yield idx.NodeIdx
