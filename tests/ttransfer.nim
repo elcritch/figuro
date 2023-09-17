@@ -138,11 +138,18 @@ suite "test layers":
           "n:", $n.name
 
     assert -10.ZLevel in renders
-    # check renders[-10.ZLevel].len() == 3
-    # check renders[20.ZLevel].len() == 5
-    # check renders[30.ZLevel].len() == 3
+    check renders[-10.ZLevel].nodes.len() == 3
+    check renders[20.ZLevel].nodes.len() == 5
+    check renders[30.ZLevel].nodes.len() == 3
 
     printRenders(renders)
+
+    let rn10 = RenderTree(name: "psuedoRoot",
+        children: @[
+          RenderTree(name: "child13"),
+          RenderTree(name: "child21")])
+    print renders[-10.ZLevel].toTree()
+    check renders[-10.ZLevel].toTree() == rn10
     # printRenders(renders[30.ZLevel], 0.NodeIdx)
     # printRenders(renders[-10.ZLevel], 0.NodeIdx)
 

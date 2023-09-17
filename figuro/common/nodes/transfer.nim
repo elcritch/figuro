@@ -89,19 +89,30 @@ proc convert*(renders: var RenderNodes,
     renders.convert(child, current.uid, chlvl)
 
 type
-  Renders* = ref object
-    node*: NodeID
+  RenderTree* = ref object
     name*: string
-    children*: seq[Renders]
+    children*: seq[RenderTree]
 
-proc lispRepr*(nodes: seq[Node], idx = 0.NodeIdx): Renders =
+func `==`*(a, b: RenderTree): bool =
+  if a.isNil or b.isNil:
+    return false
+  `==`(a[], b[])
+
+proc toTree*(nodes: seq[Node],
+              idx = 0.NodeIdx): RenderTree =
   let n = nodes[idx.int]
-  result = Renders(node: n.uid, name: $n.name)
+  result = RenderTree(name: $n.name)
   for ci in nodes.childIndex(idx):
-    result.children.add lispRepr(nodes, ci)
+    result.children.add toTree(nodes, ci)
+
+proc toTree*(list: RenderList): RenderTree =
+  result = RenderTree(name: "pseudoRoot")
+  for rootIdx in list.roots:
+    result.children.add toTree(list.nodes, rootIdx)
 
 proc printRenders*(nodes: seq[Node],
-                    idx = 0.NodeIdx, depth = 1) =
+                    idx: NodeIdx,
+                    depth = 1) =
   let n = nodes[idx.int]
   echo "  ".repeat(depth), "render: ", n.uid,
           " p: ", n.parent,
@@ -113,8 +124,9 @@ proc printRenders*(nodes: seq[Node],
 proc printRenders*(n: RenderNodes) =
   echo "\nprint renders: "
   for k, v in n.pairs:
-    echo "K: ", k
+    echo "K: ", k, " roots: ", v.roots
     for rootIdx in v.roots:
+      echo "\trootIdx: ", $rootIdx
       printRenders(v.nodes, rootIdx)
 
 proc copyInto*(uis: Figuro): RenderNodes =

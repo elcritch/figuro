@@ -43,7 +43,7 @@ type
 
 import pretty
 
-proc `$`*(id: NodeIdx): string = "NodeIdx(" & $id & ")"
+proc `$`*(id: NodeIdx): string = "NodeIdx(" & $(int(id)) & ")"
 proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 proc `<=`*(a, b: NodeIdx): bool {.borrow.}
 
