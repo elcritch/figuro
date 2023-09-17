@@ -65,6 +65,16 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
     let chlvl = child.zlevel
     renders.convert(child, current.uid, chlvl)
 
+type
+  Renders* = ref object
+    node*: Node
+    children*: seq[Renders]
+
+proc lispRepr*(nodes: seq[Node], idx = 0.NodeIdx): Renders =
+  result = Renders(node: nodes[idx.int])
+  for ci in nodes.childIndex(idx):
+    result.children.add lispRepr(nodes, ci)
+
 proc printRenders*(nodes: seq[Node],
                     idx = 0.NodeIdx, depth = 1) =
   let n = nodes[idx.int]
