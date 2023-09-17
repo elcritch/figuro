@@ -72,8 +72,7 @@ proc printRenders*(nodes: seq[Node],
           " p: ", n.parent,
           " name: ", $n.name,
           " zlvl: ", $n.zlevel
-  let childs = nodes.childIndex(idx)
-  for ci in childs:
+  for ci in nodes.childIndex(idx):
     printRenders(nodes, ci, depth+1)
 
 proc printRenders*(n: OrderedTable[ZLevel, seq[Node]]) =

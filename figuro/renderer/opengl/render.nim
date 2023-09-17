@@ -197,9 +197,8 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
   finally:
     ctx.restoreTransform()
 
-  let childIdxs = childIndex(nodes, nodeIdx)
   # echo "draw:children: ", repr childIdxs 
-  for childIdx in childIdxs:
+  for childIdx in childIndex(nodes, nodeIdx):
     render(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
