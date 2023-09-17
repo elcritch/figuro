@@ -307,6 +307,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   let
     mouseEvts = node.checkMouseEvents()
     buttons = mouseEvts.consumeMouseButtons()
+    nodeOvelaps = node.mouseOverlaps()
 
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
@@ -315,8 +316,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
                                 targets: toHashSet([node]))
 
     if clipContent in node.attrs and
-          # result.mouse[ek].zlvl <= node.zlevel and
-          not node.mouseOverlaps():
+          result.mouse[ek].zlvl <= node.zlevel and
+          not nodeOvelaps:
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result.mouse[ek] = captured
@@ -327,6 +328,16 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     else:
       result.mouse[ek] = maxEvt(captured, result.mouse[ek])
       # result.gesture = max(captured.gesture, result.gesture)
+
+    if nodeOvelaps and node.parent != nil and
+        result.mouse[ek].targets.anyIt(it.zlevel < node.zlevel):
+      # if a target node is a lower level, then ignore it
+      result.mouse[ek] = captured
+      let targets = result.mouse[ek].targets
+      result.mouse[ek].targets.clear()
+      for tgt in targets:
+        if tgt.zlevel >= node.zlevel:
+          result.mouse[ek].targets.incl(tgt)
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
@@ -344,6 +355,7 @@ proc computeEvents*(node: Figuro) =
       prevHovers.len == 0:
     return
 
+  # printFiguros(node)
   var captured: CapturedEvents = computeNodeEvents(node)
 
   uxInputs.windowSize = none Position
