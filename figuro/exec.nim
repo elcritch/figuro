@@ -12,8 +12,9 @@ else:
 import std/os
 import std/sets
 import shared, internal, ui/core
-import common/nodes/ui as ui
-import common/nodes/render as render
+import common/nodes/ui
+import common/nodes/render
+import common/nodes/transfer
 import widget
 import timers
 
@@ -28,7 +29,7 @@ var
   tickMain*: MainCallback
   eventMain*: MainCallback
   loadMain*: MainCallback
-  sendRoot*: proc (nodes: sink OrderedTable[ZLevel, seq[render.Node]]) {.closure.}
+  sendRoot*: proc (nodes: sink RenderNodes) {.closure.}
 
 const renderPeriodMs {.intdefine.} = 16
 const appPeriodMs {.intdefine.} = 16
@@ -66,12 +67,12 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
         app.frameCount.inc()
 
 proc init*(renderer: Renderer) =
-  sendRoot = proc (nodes: sink OrderedTable[ZLevel, seq[render.Node]]) =
+  sendRoot = proc (nodes: sink RenderNodes) =
       renderer.nodes = nodes
 
 proc run*(renderer: Renderer) =
 
-  sendRoot = proc (nodes: sink OrderedTable[ZLevel, seq[render.Node]]) =
+  sendRoot = proc (nodes: sink RenderNodes) =
       renderer.nodes = nodes
 
   uiRenderEvent = initUiEvent()

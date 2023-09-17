@@ -213,7 +213,7 @@ proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
     # echo "img: ", img
     ctx.putImage(img[0], img[1])
 
-  for zlvl, znodes in nodes.pairs():
-    if znodes.len() > 0:
-      render(znodes, 0.NodeIdx, -1.NodeIdx)
+  for zlvl, list in nodes.pairs():
+    for rootIdx in list.roots:
+      render(list.nodes, rootIdx, -1.NodeIdx)
 
