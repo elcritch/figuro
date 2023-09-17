@@ -93,6 +93,9 @@ type
     name*: string
     children*: seq[RenderTree]
 
+func `[]`*(a: RenderTree, idx: int): RenderTree =
+  a.children[idx]
+
 func `==`*(a, b: RenderTree): bool =
   if a.isNil and b.isNil: return true
   if a.isNil or b.isNil: return false

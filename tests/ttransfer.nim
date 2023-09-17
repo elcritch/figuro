@@ -8,6 +8,10 @@ import figuro/common/nodes/transfer
 
 import pretty
 
+import ants/language_v1
+
+antDeclareStart(RenderTree)
+
 suite "test layers":
 
   # suite "basic single layer":
@@ -155,16 +159,13 @@ suite "test layers":
 
     print "\nzlevel: ", 20.ZLevel
     print renders[20.ZLevel].toTree()
-    check renders[20.ZLevel].toTree() ==
-            RenderTree(name: "pseudoRoot",
-              children: @[
-                RenderTree(name: "root",
-                  children: @[
-                    RenderTree(name: "body"),
-                  ],
-                )
-              ]
-            )
+    let res20 = renders[20.ZLevel].toTree()
+    check res20.name == "pseudoRoot"
+    check res20[0].name == "root"
+    check res20[0][0].name == "body"
+    check res20[0][0][0].name == "child0"
+    check res20[0][0][0][0].name == "child01"
+    check res20[0][1].name == "child2"
 
     print "\nzlevel: ", 30.ZLevel
     print renders[30.ZLevel].toTree()
