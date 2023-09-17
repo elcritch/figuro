@@ -24,11 +24,11 @@ proc draw*(self: Main) {.slot.} =
       fill "#D0D0D0"
       box 3'pw, 10'ph, 30'pw, 80'ph
       cornerRadius 10.0
-      clipContent true
+      # clipContent true
       text "text":
-        box 10'pw, 0, 70'pw, 22
+        box 10'pw, 10, 70'pw, 22
         fill blackColor
-        setText({font: "clipped"})
+        setText({font: "not clipped"})
 
       button "btn":
         box 10'pw, 10'ph, 130'pw, 20'ph
@@ -42,19 +42,19 @@ proc draw*(self: Main) {.slot.} =
       fill "#D0D0D0"
       box 50'pw, 10'ph, 30'pw, 80'ph
       cornerRadius 10.0
-      # clipContent true
+      clipContent true
       text "text":
-        box 10'pw, 0, 70'pw, 22
+        box 10'pw, 10, 70'pw, 22
         fill blackColor
-        setText({font: "not clipped"})
+        setText({font: "clipped"})
 
       button "btn":
         box 10'pw, 10'ph, 130'pw, 20'ph
-        current.zlevel = 19.ZLevel
+        current.zlevel = 20.ZLevel
 
       button "btn":
         box 10'pw, 60'ph, 130'pw, 20'ph
-        current.zlevel = -6.ZLevel
+        current.zlevel = -5.ZLevel
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)

@@ -12,11 +12,11 @@ type
 proc add*(list: var RenderList, node: Node) =
   ## Adds a Node to the RenderList and possibly
   ## to the roots seq if it's a root node.
-  ## 
+  ##
   ## New roots occur when nodes have different
   ## zlevels and end up in a the RenderList
   ## for that ZLevel without their logical parent. 
-  ## 
+  ##
   if list.roots.len() == 0:
     list.roots.add(list.nodes.len().NodeIdx)
   else:
