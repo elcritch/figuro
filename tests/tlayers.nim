@@ -20,6 +20,16 @@ type
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     box 0, 0, 100'vw, 100'vh
+
+    template setLabel(zlvl; left=false) =
+      text "text":
+        if left:
+          box 3'pw, 10'ph, 30'pw, 22
+        else:
+          box 70'pw, 10, 30'pw, 22
+        fill blackColor
+        setText({font: "zlevel " & $zlvl})
+
     rectangle "container":
       fill "#D0D0D0"
       box 3'pw, 10'ph, 30'pw, 80'ph
@@ -31,15 +41,18 @@ proc draw*(self: Main) {.slot.} =
         setText({font: "not clipped"})
 
       button "btn":
-        box 10'pw, 10'ph, 130'pw, 20'ph
+        box 10'pw, 15'ph, 130'pw, 20'ph
         current.zlevel = 20.ZLevel
+        setLabel(current.zlevel)
 
       button "btn":
-        box 10'pw, 40'ph, 130'pw, 20'ph
+        box 10'pw, 45'ph, 130'pw, 20'ph
+        setLabel(current.zlevel)
 
       button "btn":
-        box 10'pw, 70'ph, 130'pw, 20'ph
+        box 10'pw, 75'ph, 130'pw, 20'ph
         current.zlevel = -5.ZLevel
+        setLabel(current.zlevel)
 
     rectangle "container":
       fill "#D0D0D0"
@@ -52,15 +65,18 @@ proc draw*(self: Main) {.slot.} =
         setText({font: "clipped"})
 
       button "btn":
-        box 10'pw, 10'ph, 130'pw, 20'ph
+        box 10'pw, 15'ph, 130'pw, 20'ph
         current.zlevel = 20.ZLevel
+        setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pw, 40'ph, 130'pw, 20'ph
+        box 10'pw, 45'ph, 130'pw, 20'ph
+        setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pw, 70'ph, 130'pw, 20'ph
+        box 10'pw, 75'ph, 130'pw, 20'ph
         current.zlevel = -5.ZLevel
+        setLabel(current.zlevel)
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
