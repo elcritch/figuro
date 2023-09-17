@@ -47,8 +47,6 @@ proc `$`*(id: NodeIdx): string = "NodeIdx(" & $(int(id)) & ")"
 proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 proc `<=`*(a, b: NodeIdx): bool {.borrow.}
 
-import std/sequtils
-
 iterator childIndex*(
     nodes: seq[Node],
     current: NodeIdx
