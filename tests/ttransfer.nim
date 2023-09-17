@@ -117,6 +117,9 @@ suite "test layers":
           current.zlevel = -10
           rectangle "child131":
             discard
+      rectangle "child2":
+        rectangle "child21":
+          current.zlevel = -10
 
     emit self.doDraw()
 
@@ -134,13 +137,13 @@ suite "test layers":
           "n:", $n.name
 
     assert -10.ZLevel in renders
-    check renders[-10.ZLevel].len() == 2
-    check renders[20.ZLevel].len() == 4
+    check renders[-10.ZLevel].len() == 3
+    check renders[20.ZLevel].len() == 5
     check renders[30.ZLevel].len() == 3
 
-    printRenders(renders[20.ZLevel], 0.NodeIdx)
-    printRenders(renders[30.ZLevel], 0.NodeIdx)
-    # printRenders(renders[10.ZLevel], 0.NodeIdx)
+    printRenders(renders)
+    # printRenders(renders[30.ZLevel], 0.NodeIdx)
+    # printRenders(renders[-10.ZLevel], 0.NodeIdx)
 
     # check uids1.repr == "@[8]"
     

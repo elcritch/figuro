@@ -53,18 +53,15 @@ proc convert*(renders: var OrderedTable[ZLevel, seq[Node]],
   var render = current.convert()
   render.parent = parent
   render.childCount = current.children.len()
-  # let zlvl = max(current.zlevel, maxzlvl)
   let zlvl = current.zlevel
 
   for child in current.children:
-    # let chlvl = max(child.zlevel, zlvl)
     let chlvl = child.zlevel
     if chlvl != zlvl:
       render.childCount.dec()
 
   renders.mgetOrPut(zlvl, @[]).add(render)
   for child in current.children:
-    # let chlvl = max(child.zlevel, zlvl)
     let chlvl = child.zlevel
     renders.convert(child, current.uid, chlvl)
 
