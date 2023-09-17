@@ -24,9 +24,9 @@ proc draw*(self: Main) {.slot.} =
     template setLabel(zlvl; left=false) =
       text "text":
         if left:
-          box 3'pw, 10'ph, 30'pw, 22
+          box 3'pw, 30'ph, 30'pw, 22
         else:
-          box 70'pw, 10, 30'pw, 22
+          box 70'pw, 30'ph, 30'pw, 22
         fill blackColor
         setText({font: "zlevel " & $zlvl})
 
@@ -34,7 +34,6 @@ proc draw*(self: Main) {.slot.} =
       fill "#D0D0D0"
       box 3'pw, 10'ph, 30'pw, 80'ph
       cornerRadius 10.0
-      # clipContent true
       text "text":
         box 10'pw, 10, 70'pw, 22
         fill blackColor
@@ -43,11 +42,11 @@ proc draw*(self: Main) {.slot.} =
       button "btn":
         box 10'pw, 15'ph, 130'pw, 20'ph
         current.zlevel = 20.ZLevel
-        setLabel(current.zlevel)
+        setLabel(current.zlevel, left=true)
 
       button "btn":
         box 10'pw, 45'ph, 130'pw, 20'ph
-        setLabel(current.zlevel)
+        setLabel(current.zlevel, left=true)
 
       button "btn":
         box 10'pw, 75'ph, 130'pw, 20'ph
