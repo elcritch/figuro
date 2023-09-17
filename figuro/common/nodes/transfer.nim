@@ -94,8 +94,8 @@ type
     children*: seq[RenderTree]
 
 func `==`*(a, b: RenderTree): bool =
-  if a.isNil or b.isNil:
-    return false
+  if a.isNil and b.isNil: return true
+  if a.isNil or b.isNil: return false
   `==`(a[], b[])
 
 proc toTree*(nodes: seq[Node],

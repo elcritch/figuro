@@ -144,10 +144,12 @@ suite "test layers":
 
     printRenders(renders)
 
-    let rn10 = RenderTree(name: "psuedoRoot",
+    let rn10 = RenderTree(
+        name: "pseudoRoot",
         children: @[
           RenderTree(name: "child13"),
-          RenderTree(name: "child21")])
+          RenderTree(name: "child21")
+        ])
     print renders[-10.ZLevel].toTree()
     check renders[-10.ZLevel].toTree() == rn10
     # printRenders(renders[30.ZLevel], 0.NodeIdx)
