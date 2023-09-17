@@ -94,6 +94,8 @@ type
     children*: seq[RenderTree]
 
 func `[]`*(a: RenderTree, idx: int): RenderTree =
+  if a.children.len() == 0:
+    return RenderTree(name: "Missing")
   a.children[idx]
 
 func `==`*(a, b: RenderTree): bool =
