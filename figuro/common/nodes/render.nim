@@ -49,14 +49,25 @@ proc `<=`*(a, b: NodeIdx): bool {.borrow.}
 
 import std/sequtils
 
-iterator childIndex*(nodes: seq[Node], current: NodeIdx): NodeIdx =
-  # print "\nchildIndex: ", current, "childCnt: ", nodes[current.int].childCount, " nodes: ", nodes.mapIt(it.uid)
+iterator childIndex*(
+    nodes: seq[Node],
+    current: NodeIdx
+): NodeIdx =
   let id = nodes[current.int].uid
-  let cnt = nodes[current.int].childCount
+  let childCnt = nodes[current.int].childCount
+  # print "\nchildIndex: ", current,
+  #           "childCnt: ", nodes[current.int].childCount,
+  #           "id: ", id.int
 
-  var idx = current.int + 1
-  while idx <= cnt:
-    # print "childNodes: ", current, "(" & $nodes[idx].childCount & ")", idx, "parent:", id
+  var idx = current.int
+  var cnt = 0
+  while cnt < childCnt:
+    # print "childNodes: ", nodes[idx].uid,
+    #         "#cnt:", nodes[idx].childCount,
+    #         "idx:", idx.int,
+    #         "myPnt:", nodes[idx.int].parent,
+    #         "pnt:", id.int
     if nodes[idx.int].parent == id:
+      cnt.inc()
       yield idx.NodeIdx
     idx.inc()

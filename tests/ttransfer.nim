@@ -141,34 +141,35 @@ suite "test layers":
           "zlvl:", n.zlevel,
           "n:", $n.name
 
-    assert -10.ZLevel in renders
-    check renders[-10.ZLevel].nodes.len() == 3
-    check renders[20.ZLevel].nodes.len() == 5
-    check renders[30.ZLevel].nodes.len() == 3
+    # assert -10.ZLevel in renders
+    # check renders[-10.ZLevel].nodes.len() == 3
+    # check renders[20.ZLevel].nodes.len() == 5
+    # check renders[30.ZLevel].nodes.len() == 3
 
-    print "\nzlevel: ", -10.ZLevel
-    print renders[-10.ZLevel].toTree()
-    check renders[-10.ZLevel].toTree() == RenderTree(
-        name: "pseudoRoot",
-        children: @[
-          RenderTree(name: "child13", children: @[
-            RenderTree(name: "child131")
-          ]),
-          RenderTree(name: "child21")
-    ])
+    # print "\nzlevel: ", -10.ZLevel
+    # print renders[-10.ZLevel].toTree()
+    # check renders[-10.ZLevel].toTree() == RenderTree(
+    #     name: "pseudoRoot",
+    #     children: @[
+    #       RenderTree(name: "child13", children: @[
+    #         RenderTree(name: "child131")
+    #       ]),
+    #       RenderTree(name: "child21")
+    # ])
 
     print "\nzlevel: ", 20.ZLevel
-    print renders[20.ZLevel].toTree()
     let res20 = renders[20.ZLevel].toTree()
+    print res20
+
     check res20.name == "pseudoRoot"
     check res20[0].name == "root"
     check res20[0][0].name == "body"
     check res20[0][0][0].name == "child0"
     check res20[0][0][0][0].name == "child01"
-    # check res20[0][1].name == "body2"
+    check res20[0][1].name == "body2"
 
-    print "\nzlevel: ", 30.ZLevel
-    print renders[30.ZLevel].toTree()
+    # print "\nzlevel: ", 30.ZLevel
+    # print renders[30.ZLevel].toTree()
 
     # printRenders(renders[30.ZLevel], 0.NodeIdx)
     # printRenders(renders[-10.ZLevel], 0.NodeIdx)

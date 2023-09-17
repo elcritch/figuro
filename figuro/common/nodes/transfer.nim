@@ -104,18 +104,19 @@ func `==`*(a, b: RenderTree): bool =
   `==`(a[], b[])
 
 proc toTree*(nodes: seq[Node],
-              idx = 0.NodeIdx): RenderTree =
+              idx = 0.NodeIdx,
+              depth = 1): RenderTree =
   let n = nodes[idx.int]
   result = RenderTree(name: $n.name)
-  # echo "toTree:idx: ", idx
+  echo "  ".repeat(depth), "toTree:idx: ", idx.int
   for ci in nodes.childIndex(idx):
-    # echo "toTree:cidx: ", idx
-    result.children.add toTree(nodes, ci)
+    echo "  ".repeat(depth), "toTree:cidx: ", ci.int
+    result.children.add toTree(nodes, ci, depth+1)
 
 proc toTree*(list: RenderList): RenderTree =
   result = RenderTree(name: "pseudoRoot")
   for rootIdx in list.roots:
-    # echo "toTree:rootIdx: ", rootIdx
+    echo "toTree:rootIdx: ", rootIdx.int
     result.children.add toTree(list.nodes, rootIdx)
 
 
