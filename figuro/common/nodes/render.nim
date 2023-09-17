@@ -1,13 +1,15 @@
+import pkg/stack_strings
 import basics
 
 export basics
 
 type
 
-  NodeIdx* = int
+  NodeIdx* = distinct int
 
   Node* = object
     uid*: NodeID
+    name*: StackString[16]
 
     childCount*: int
     parent*: NodeID
@@ -39,16 +41,31 @@ type
     else:
       discard
 
-proc childIndex*(nodes: var seq[Node], current: NodeIdx): seq[NodeIdx] =
-  let id = nodes[current].uid
-  let cnt = nodes[current].childCount
+import pretty
 
-  var
-    idx = current + 1
-  while result.len() < cnt:
-    # echo "childNodes: ", idx, " parent: ", id
-    if nodes[idx].parent == id:
-      result.add idx
+proc `$`*(id: NodeIdx): string = "NodeIdx(" & $(int(id)) & ")"
+proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
+proc `<=`*(a, b: NodeIdx): bool {.borrow.}
+
+iterator childIndex*(
+    nodes: seq[Node],
+    current: NodeIdx
+): NodeIdx =
+  let id = nodes[current.int].uid
+  let childCnt = nodes[current.int].childCount
+  # print "\nchildIndex: ", current,
+  #           "childCnt: ", nodes[current.int].childCount,
+  #           "id: ", id.int
+
+  var idx = current.int
+  var cnt = 0
+  while cnt < childCnt:
+    # print "childNodes: ", nodes[idx].uid,
+    #         "#cnt:", nodes[idx].childCount,
+    #         "idx:", idx.int,
+    #         "myPnt:", nodes[idx.int].parent,
+    #         "pnt:", id.int
+    if nodes[idx.int].parent == id:
+      cnt.inc()
+      yield idx.NodeIdx
     idx.inc()
-
-

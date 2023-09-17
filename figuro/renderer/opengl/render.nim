@@ -127,10 +127,10 @@ proc renderBoxes*(node: Node) =
                           weight = node.stroke.weight,
                           radius = node.cornerRadius)
 
-proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
+proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
 
-  template node(): auto = nodes[nodeIdx]
-  template parent(): auto = nodes[parentIdx]
+  template node(): auto = nodes[nodeIdx.int]
+  template parent(): auto = nodes[parentIdx.int]
 
   # echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
   # print node.uid
@@ -197,15 +197,14 @@ proc render*(nodes: var seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [Main
   finally:
     ctx.restoreTransform()
 
-  let childIdxs = childIndex(nodes, nodeIdx)
   # echo "draw:children: ", repr childIdxs 
-  for childIdx in childIdxs:
+  for childIdx in childIndex(nodes, nodeIdx):
     render(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(nodes: var seq[Node]) {.forbids: [MainThreadEff].} =
+proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   # echo "drawRoot:nodes:count: ", nodes.len()
@@ -214,6 +213,7 @@ proc renderRoot*(nodes: var seq[Node]) {.forbids: [MainThreadEff].} =
     # echo "img: ", img
     ctx.putImage(img[0], img[1])
 
-  if nodes.len() > 0:
-    render(nodes, 0.NodeIdx, -1.NodeIdx)
+  for zlvl, list in nodes.pairs():
+    for rootIdx in list.roots:
+      render(list.nodes, rootIdx, -1.NodeIdx)
 

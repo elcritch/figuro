@@ -76,6 +76,10 @@ type
     # else:
     #   discard
 
+proc new*[T: Figuro](tp: typedesc[T]): T =
+  result = T()
+  result.agentId = nextAgentId()
+  result.uid = result.agentId
 
 proc getName*(fig: Figuro): string =
   result = fig.name.toString()
@@ -139,4 +143,12 @@ template bubble*(signal: typed, parent: typed) =
 
 template bubble*(signal: typed) =
   connect(current, `signal`, current.parent, `signal Bubble`)
+
+proc printFiguros*(n: Figuro, depth = 0) =
+  echo "  ".repeat(depth), "render: ", n.getId,
+          " p: ", n.parent.getId,
+          " name: ", $n.name,
+          " zlvl: ", $n.zlevel
+  for ci in n.children:
+    printFiguros(ci, depth+1)
 

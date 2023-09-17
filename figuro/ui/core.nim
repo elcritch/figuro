@@ -61,7 +61,7 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   node.cornerRadius = 0'ui
   # node.shadow = Shadow.none()
   node.diffIndex = 0
-  node.zlevel = ZLevelDefault
+  node.zlevel = 0.ZLevel
   
 
 var nodeDepth = 0
@@ -132,9 +132,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     # parent = nodeStack[^1]
     # Create Figuro.
     current = T.new()
-    current.uid = current.agentId
     echo nd(), "create new node: ", id, " new: ", current.uid, " parent: ", parent.uid
-    current.agentId = current.uid
     parent.children.add(current)
     # current.parent = parent
     refresh(current)
@@ -163,8 +161,9 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
   # echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
 
+  current.uid = current.agentId
   current.parent = parent
-  let name = $(id) & " " & repr(typeof(T))
+  let name = $(id)
   current.name.setLen(0)
   discard current.name.tryAdd(name)
   current.kind = kind
@@ -308,6 +307,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   let
     mouseEvts = node.checkMouseEvents()
     buttons = mouseEvts.consumeMouseButtons()
+    nodeOvelaps = node.mouseOverlaps()
 
   for ek in MouseEventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
@@ -315,7 +315,9 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
                                 buttons: buttons[ek],
                                 targets: toHashSet([node]))
 
-    if clipContent in node.attrs and not node.mouseOverlaps():
+    if clipContent in node.attrs and
+          result.mouse[ek].zlvl <= node.zlevel and
+          not nodeOvelaps:
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result.mouse[ek] = captured
@@ -326,6 +328,16 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     else:
       result.mouse[ek] = maxEvt(captured, result.mouse[ek])
       # result.gesture = max(captured.gesture, result.gesture)
+
+    if nodeOvelaps and node.parent != nil and
+        result.mouse[ek].targets.anyIt(it.zlevel < node.zlevel):
+      # if a target node is a lower level, then ignore it
+      result.mouse[ek] = captured
+      let targets = result.mouse[ek].targets
+      result.mouse[ek].targets.clear()
+      for tgt in targets:
+        if tgt.zlevel >= node.zlevel:
+          result.mouse[ek].targets.incl(tgt)
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
@@ -343,6 +355,7 @@ proc computeEvents*(node: Figuro) =
       prevHovers.len == 0:
     return
 
+  # printFiguros(node)
   var captured: CapturedEvents = computeNodeEvents(node)
 
   uxInputs.windowSize = none Position
