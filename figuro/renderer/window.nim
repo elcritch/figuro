@@ -123,6 +123,8 @@ proc configureEvents(renderer: Renderer) =
 
   # window.onImeChange = proc () =
   #   var uxInput = window.copyInputs()
+  #   # uxInput.keyboard.ime = window.imeCompositionString()
+  #   echo "ime: ", window.imeCompositionString()
 
   # internal.getWindowTitle = proc (): string =
   #   window.title
