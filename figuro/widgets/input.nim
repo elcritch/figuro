@@ -29,6 +29,7 @@ proc keyInput*(self: Input,
   if not self.isActive:
     refresh(self)
   self.isActive = true
+  self.text.add(rune)
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!

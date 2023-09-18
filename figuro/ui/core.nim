@@ -370,9 +370,7 @@ proc computeEvents*(node: Figuro) =
     let rune = uxInputs.keyboard.rune.get()
     uxInputs.keyboard.rune = Rune.none
 
-    echo "keyboard input: ",
-            " rune: `", $rune, "`",
-            " tgts: ", $keys.targets
+    # echo "keyboard input: ", " rune: `", $rune, "`", " tgts: ", $keys.targets
     for target in keys.targets:
       emit target.doKeyInput(rune)
 
