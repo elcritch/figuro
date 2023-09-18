@@ -262,7 +262,7 @@ proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
-proc consumeButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonView] =
+proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonView] =
   ## Consume mouse buttons
   ## 
   if evPress in matchedEvents:
@@ -299,7 +299,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   let
     matchingEvts = node.checkAnyEvents()
-    buttons = matchingEvts.consumeButtons()
+    buttons = matchingEvts.consumeMouseButtons()
     nodeOvelaps = node.mouseOverlaps()
 
   for ek in EventKinds:
