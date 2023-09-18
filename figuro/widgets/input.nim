@@ -3,28 +3,23 @@ import commons
 import ../ui/utils
 
 type
-  Button*[T] = ref object of StatefulFiguro[T]
-    label*: string
+  Input*[T] = ref object of Figuro
     isActive*: bool
     disabled*: bool
+    text*: string
 
-proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
-  echo "button:hovered: ", kind, " :: ", self.getId,
-          " buttons: ", self.events.mouse
-  
-
-proc clicked*[T](self: Button[T],
+proc clicked*[T](self: Input,
                   kind: EventKind,
-                  buttons: UiButtonView) {.slot.} =
-  echo nd(), "button:clicked: ", buttons,
+                  Inputs: UiInputView) {.slot.} =
+  echo nd(), "Input:clicked: ", Inputs,
               " kind: ", kind, " :: ", self.getId
 
   if not self.isActive:
     refresh(self)
   self.isActive = true
 
-proc draw*[T](self: Button[T]) {.slot.} =
-  ## button widget!
+proc draw*[T](self: Input) {.slot.} =
+  ## Input widget!
   withDraw(self):
     
     clipContent true
@@ -38,4 +33,4 @@ proc draw*[T](self: Button[T]) {.slot.} =
         fill current.fill.spin(15)
         # this changes the color on hover!
 
-exportWidget(button, Button)
+exportWidget(Input, Input)
