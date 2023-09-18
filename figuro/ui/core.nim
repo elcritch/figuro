@@ -235,8 +235,10 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   if evt in node.listens.signals and res:
     result.incl(evt)
 
-proc checkMouseEvents*(node: Figuro): EventFlags =
+proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
+  node.checkEvent(evKeyboardInput, true)
+
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
     node.checkEvent(evPress, uxInputs.mouse.down())
@@ -260,19 +262,19 @@ proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
-proc consumeMouseButtons(mouseEvts: EventFlags): array[EventKinds, UiButtonView] =
+proc consumeButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonView] =
   ## Consume mouse buttons
   ## 
-  if evPress in mouseEvts:
+  if evPress in matchedEvents:
     result[evPress] = uxInputs.buttonPress * MouseButtons
     uxInputs.buttonPress.excl MouseButtons
-  if evDown in mouseEvts:
+  if evDown in matchedEvents:
     result[evDown] = uxInputs.buttonDown * MouseButtons
     uxInputs.buttonDown.excl MouseButtons
-  if evRelease in mouseEvts:
+  if evRelease in matchedEvents:
     result[evRelease] = uxInputs.buttonRelease * MouseButtons
     uxInputs.buttonRelease.excl MouseButtons
-  if evClick in mouseEvts:
+  if evClick in matchedEvents:
     when defined(clickOnDown):
       result[evPress] = uxInputs.buttonPress * MouseButtons
       result[evClick] = result[evRelease]
@@ -296,13 +298,13 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     # result.gesture = max(result.gesture, child.gesture)
 
   let
-    mouseEvts = node.checkMouseEvents()
-    buttons = mouseEvts.consumeMouseButtons()
+    matchingEvts = node.checkAnyEvents()
+    buttons = matchingEvts.consumeButtons()
     nodeOvelaps = node.mouseOverlaps()
 
   for ek in EventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
-                                flags: mouseEvts * {ek},
+                                flags: matchingEvts * {ek},
                                 buttons: buttons[ek],
                                 targets: toHashSet([node]))
 
@@ -312,7 +314,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result[ek] = captured
-    elif ek == evHover and evHover in mouseEvts:
+    elif ek == evHover and evHover in matchingEvts:
       result[ek].targets.incl(captured.targets)
       result[ek].targets.incl(result[ek].targets)
       result[ek].flags.incl(evHover)
