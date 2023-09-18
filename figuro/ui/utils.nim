@@ -99,12 +99,24 @@ proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
 
   # echo "Widget:result:\n", result.repr
 
-proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
+proc generateGenericBodies*(widget, kind: NimNode,
+                            wargs: WidgetArgs): NimNode {.compileTime.} =
+
+  # echo "generateGenericBodies:widget: ", widget.treeRepr
+  # echo "generateGenericBodies:widget: ", widget.getTypeImpl.treeRepr
+  # echo "generateGenericBodies:widget: ", widget.getTypeInst.treeRepr
+  # echo "generateGenericBodies:widget: ", widget.getImpl.treeRepr
+
+  let impl = widget.getImpl()
+  impl.expectKind(nnkTypeDef)
+  let hasGeneric = impl[1].len() > 0
+  echo "hasGeneric: ", hasGeneric
+
   let (id, stateArg, capturedVals, blk) = wargs
 
   let body = quote do:
       current.postDraw = proc (widget: Figuro) =
-        var current {.inject.}: `widget`[`stateArg`] = `widget`[`stateArg`](widget)
+        var current {.inject.} = `widget`[`stateArg`](widget)
         if postDrawReady in widget.attrs:
           widget.attrs.excl postDrawReady
           `blk`
@@ -131,11 +143,11 @@ proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
   # echo "Widget:result:\n", result.repr
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
-  ## exports a helper 
+  ## exports a template to use the widget
   macro `name`*(args: varargs[untyped]) =
-    let widget = ident(repr `class`)
+    let widget = class.getTypeInst()
     let wargs = args.parseWidgetArgs()
-    result = widget.generateGenericBodies(ident "nkRectangle", wargs)
+    result = generateGenericBodies(widget, ident "nkRectangle", wargs)
 
 import std/terminal
 

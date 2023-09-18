@@ -1,24 +1,33 @@
+import std/unicode
 
 import commons
 import ../ui/utils
 
 type
-  Input*[T] = ref object of Figuro
+  Input* = ref object of Figuro
     isActive*: bool
     disabled*: bool
     text*: string
 
 proc clicked*[T](self: Input,
                   kind: EventKind,
-                  Inputs: UiInputView) {.slot.} =
-  echo nd(), "Input:clicked: ", Inputs,
+                  buttons: UiButtonView) {.slot.} =
+  echo nd(), "button:clicked: ", buttons,
               " kind: ", kind, " :: ", self.getId
 
   if not self.isActive:
     refresh(self)
   self.isActive = true
 
-proc draw*[T](self: Input) {.slot.} =
+proc textInput*(self: Input,
+                rune: Rune) {.slot.} =
+  echo nd(), "Input:rune: ", $rune, " :: ", self.getId
+
+  if not self.isActive:
+    refresh(self)
+  self.isActive = true
+
+proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withDraw(self):
     
@@ -33,4 +42,4 @@ proc draw*[T](self: Input) {.slot.} =
         fill current.fill.spin(15)
         # this changes the color on hover!
 
-exportWidget(Input, Input)
+exportWidget(input, Input)
