@@ -23,6 +23,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Install Deps
       run: |
+        nim -v
+        nimble -v
         nimble install https://github.com/nim-lang/atlas
         atlas replay vendor/atlas.lock
 
