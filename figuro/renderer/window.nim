@@ -116,13 +116,13 @@ proc configureEvents(renderer: Renderer) =
     discard uxInputList.trySend(uxInput)
 
   window.onRune = proc (rune: Rune) =
-    var uxInput = AppInputs(mouse: lastMouse)
+    var uxInput = window.copyInputs()
     uxInput.keyboard.input.add rune
     echo "keyboard: ", uxInput.keyboard.input
     discard uxInputList.trySend(uxInput)
 
-  window.onImeChange = proc () =
-    echo "ime: ", window.imeCompositionString()
+  # window.onImeChange = proc () =
+  #   var uxInput = window.copyInputs()
 
   # internal.getWindowTitle = proc (): string =
   #   window.title
