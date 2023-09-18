@@ -107,11 +107,6 @@ proc generateGenericBodies*(widget, kind: NimNode,
   # echo "generateGenericBodies:widget: ", widget.getTypeInst.treeRepr
   # echo "generateGenericBodies:widget: ", widget.getImpl.treeRepr
 
-  let impl = widget.getImpl()
-  impl.expectKind(nnkTypeDef)
-  let hasGeneric = impl[1].len() > 0
-  echo "hasGeneric: ", hasGeneric
-
   let (id, stateArg, capturedVals, blk) = wargs
 
   let body = quote do:
@@ -147,7 +142,14 @@ template exportWidget*[T](name: untyped, class: typedesc[T]) =
   macro `name`*(args: varargs[untyped]) =
     let widget = class.getTypeInst()
     let wargs = args.parseWidgetArgs()
-    result = generateGenericBodies(widget, ident "nkRectangle", wargs)
+    let impl = widget.getImpl()
+    impl.expectKind(nnkTypeDef)
+    let hasGeneric = impl[1].len() > 0
+    echo "hasGeneric: ", hasGeneric
+    if hasGeneric:
+      result = generateGenericBodies(widget, ident "nkRectangle", wargs)
+    else:
+      result = generateBodies(widget, ident "nkRectangle", wargs)
 
 import std/terminal
 
