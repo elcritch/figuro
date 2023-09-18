@@ -373,6 +373,8 @@ proc computeEvents*(node: Figuro) =
     echo "keyboard input: ",
             " rune: `", $rune, "`",
             " tgts: ", $keys.targets
+    for target in keys.targets:
+      emit target.doKeyInput(rune)
 
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets

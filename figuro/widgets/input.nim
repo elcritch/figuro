@@ -22,7 +22,7 @@ proc clicked*(self: Input,
     self.listens.signals.excl {evKeyboardInput}
   refresh(self)
 
-proc textInput*(self: Input,
+proc keyInput*(self: Input,
                 rune: Rune) {.slot.} =
   echo nd(), "Input:rune: ", $rune, " :: ", self.getId
 
