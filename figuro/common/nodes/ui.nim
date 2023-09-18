@@ -1,3 +1,4 @@
+import std/unicode
 import basics
 import ../../meta
 import ../../inputs
@@ -5,6 +6,7 @@ import cssgrid
 import stack_strings
 
 export basics, meta, inputs, cssgrid, stack_strings
+export unicode
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -94,6 +96,7 @@ proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
 proc doClick*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.signal.}
+proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -104,10 +107,14 @@ proc draw*(fig: Figuro) {.slot.} =
 proc load*(fig: Figuro) {.slot.} =
   discard
 
+proc keyInput*(fig: Figuro, rune: Rune) {.slot.} =
+  discard
+
 proc clicked*(self: Figuro,
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
   discard
+  echo "CLICKED GENERIC "
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl postDrawReady

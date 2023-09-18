@@ -186,10 +186,12 @@ template printNewEventInfo*() =
         emsg.add ("pClick: ", $prevClicks.toString())
       if ek == evHover:
         emsg.add ("pHover: ", $prevHovers.toString())
+      if ek == evKeyboardInput:
+        emsg.add ("pKeyInput: ", $evts.rune)
 
       if emsg != evtMsg[ek]:
         evtMsg[ek] = emsg
-        stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
+        stdout.styledWrite({styleDim}, fgWhite, "events: ")
         for (n, v) in emsg.items():
           stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
         stdout.styledWriteLine(fgWhite, "")

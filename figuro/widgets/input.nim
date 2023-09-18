@@ -16,6 +16,10 @@ proc clicked*(self: Input,
               " kind: ", kind, " :: ", self.getId
 
   self.isActive = kind == Enter
+  if self.isActive:
+    self.listens.signals.incl {evKeyboardInput}
+  else:
+    self.listens.signals.excl {evKeyboardInput}
   refresh(self)
 
 proc textInput*(self: Input,
