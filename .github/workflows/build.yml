@@ -23,7 +23,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Install Deps
       run: |
-        nimble install https://github.com/nim-lang/atlas@\#head
+        nimble install https://github.com/nim-lang/atlas
         atlas replay vendor/atlas.lock
 
     - name: Build Tests
