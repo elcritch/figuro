@@ -15,12 +15,11 @@ else:
 type
 
   InputEvents* = object
-    mouse*: MouseEventFlags
-    keyboard*: KeyboardEventFlags
+    events*: EventFlags
 
   ListenEvents* = object
-    mouse*: MouseEventFlags
-    mouseSignals*: MouseEventFlags
+    events*: EventFlags
+    signals*: EventFlags
 
   Figuro* = ref object of Agent
     parent*: Figuro
@@ -41,7 +40,7 @@ type
     cxSize*: array[GridDir, Constraint]
     cxOffset*: array[GridDir, Constraint]
 
-    events*: InputEvents
+    events*: EventFlags
     listens*: ListenEvents
 
     zlevel*: ZLevel
@@ -133,9 +132,9 @@ template connect*(
     slot: typed
 ) =
   when signalName(signal) == "doClick":
-    a.listens.mouseSignals.incl {evClick, evClickOut}
+    a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
-    a.listens.mouseSignals.incl {evHover}
+    a.listens.signals.incl {evHover}
   signals.connect(a, signal, b, slot)
 
 template bubble*(signal: typed, parent: typed) =

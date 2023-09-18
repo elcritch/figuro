@@ -227,20 +227,20 @@ template fill*(node: Figuro) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  current.listens.mouse.incl(evHover)
-  if evHover in current.events.mouse:
+  current.listens.events.incl(evHover)
+  if evHover in current.events:
     inner
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  current.listens.mouse.incl(evClick)
+  current.listens.events.incl(evClick)
   if evClick in current.events.mouse and
       MouseLeft in uxInputs.buttonPress:
     inner
 
 template onClickOut*(inner: untyped) =
   ## On click event handler.
-  current.listens.mouse.incl(evClickOut)
+  current.listens.events.incl(evClickOut)
   if evClickOut in current.events.mouse and
       MouseLeft in uxInputs.buttonPress:
     inner

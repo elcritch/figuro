@@ -41,7 +41,7 @@ type
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
   
-  MouseEventKinds* {.size: sizeof(int8).} = enum
+  EventKinds* {.size: sizeof(int8).} = enum
     evClick
     evClickOut
     evHover
@@ -51,18 +51,13 @@ type
     evRelease
     evScroll
     evDrag
+    evKeyboardInput
 
   EventKind* = enum
     Enter
     Exit
 
-  KeyboardEventKinds* {.size: sizeof(int8).} = enum
-    evKeyboardInput
-    evKeyboardFocus
-    evKeyboardFocusOut
-
-  MouseEventFlags* = set[MouseEventKinds]
-  KeyboardEventFlags* = set[KeyboardEventKinds]
+  EventFlags* = set[EventKinds]
 
   UiButton* = enum
     ButtonUnknown

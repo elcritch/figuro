@@ -171,8 +171,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
 
-  current.listens.mouse = {}
-  # current.listens.gesture = {}
+  current.listens.events = {}
 
   nodeStack.add(current)
   inc parent.diffIndex
@@ -231,18 +230,12 @@ proc mouseOverlaps*(node: Figuro): bool =
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   let res = predicate
-  when ET is MouseEventKinds:
-    if evt in node.listens.mouse and res:
-      result.incl(evt)
-    if evt in node.listens.mouseSignals and res:
-      result.incl(evt)
-  elif ET is GestureEventType:
-    if evt in node.listens.gesture and res:
-      result.incl(evt)
-    if evt in node.listens.gestureSignals and res:
-      result.incl(evt)
+  if evt in node.listens.events and res:
+    result.incl(evt)
+  if evt in node.listens.signals and res:
+    result.incl(evt)
 
-proc checkMouseEvents*(node: Figuro): MouseEventFlags =
+proc checkMouseEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
@@ -254,22 +247,20 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
 type
   EventsCapture*[T: set] = object
     zlvl*: ZLevel
-    flags*: MouseEventFlags
+    flags*: T
     targets*: HashSet[Figuro]
     buttons*: UiButtonView
+    rune*: Rune
 
-  MouseCapture* = EventsCapture[MouseEventFlags]
-  KeyboardCapture* = EventsCapture[KeyboardEventFlags]
-  
-  CapturedEvents* = object
-    mouse*: array[MouseEventKinds, MouseCapture]
-    keyboard*: array[KeyboardEventKinds, KeyboardCapture]
+  MouseCapture* = EventsCapture[EventFlags]
+
+  CapturedEvents* = array[EventKinds, MouseCapture]
 
 proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
-proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiButtonView] =
+proc consumeMouseButtons(mouseEvts: EventFlags): array[EventKinds, UiButtonView] =
   ## Consume mouse buttons
   ## 
   if evPress in mouseEvts:
@@ -300,8 +291,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
-    for ek in MouseEventKinds:
-      result.mouse[ek] = maxEvt(result.mouse[ek], child.mouse[ek])
+    for ek in EventKinds:
+      result[ek] = maxEvt(result[ek], child[ek])
     # result.gesture = max(result.gesture, child.gesture)
 
   let
@@ -309,35 +300,35 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     buttons = mouseEvts.consumeMouseButtons()
     nodeOvelaps = node.mouseOverlaps()
 
-  for ek in MouseEventKinds:
+  for ek in EventKinds:
     let captured = MouseCapture(zlvl: node.zlevel,
                                 flags: mouseEvts * {ek},
                                 buttons: buttons[ek],
                                 targets: toHashSet([node]))
 
     if clipContent in node.attrs and
-          result.mouse[ek].zlvl <= node.zlevel and
+          result[ek].zlvl <= node.zlevel and
           not nodeOvelaps:
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
-      result.mouse[ek] = captured
+      result[ek] = captured
     elif ek == evHover and evHover in mouseEvts:
-      result.mouse[ek].targets.incl(captured.targets)
-      result.mouse[ek].targets.incl(result.mouse[ek].targets)
-      result.mouse[ek].flags.incl(evHover)
+      result[ek].targets.incl(captured.targets)
+      result[ek].targets.incl(result[ek].targets)
+      result[ek].flags.incl(evHover)
     else:
-      result.mouse[ek] = maxEvt(captured, result.mouse[ek])
+      result[ek] = maxEvt(captured, result[ek])
       # result.gesture = max(captured.gesture, result.gesture)
 
     if nodeOvelaps and node.parent != nil and
-        result.mouse[ek].targets.anyIt(it.zlevel < node.zlevel):
+        result[ek].targets.anyIt(it.zlevel < node.zlevel):
       # if a target node is a lower level, then ignore it
-      result.mouse[ek] = captured
-      let targets = result.mouse[ek].targets
-      result.mouse[ek].targets.clear()
+      result[ek] = captured
+      let targets = result[ek].targets
+      result[ek].targets.clear()
       for tgt in targets:
         if tgt.zlevel >= node.zlevel:
-          result.mouse[ek].targets.incl(tgt)
+          result[ek].targets.incl(tgt)
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
@@ -361,45 +352,45 @@ proc computeEvents*(node: Figuro) =
   uxInputs.windowSize = none Position
 
   # set mouse event flags in targets
-  for ek in MouseEventKinds:
-    let evts = captured.mouse[ek]
+  for ek in EventKinds:
+    let evts = captured[ek]
     for target in evts.targets:
       for target in evts.targets:
-        target.events.mouse.incl evts.flags
+        target.events.incl evts.flags
 
   # Mouse
   printNewEventInfo()
 
-  if captured.mouse[evHover].targets != prevHovers:
-    let hoverTargets = captured.mouse[evHover].targets
+  if captured[evHover].targets != prevHovers:
+    let hoverTargets = captured[evHover].targets
     let newHovers = hoverTargets - prevHovers
     let delHovers = prevHovers - hoverTargets
 
     for target in newHovers:
-      target.events.mouse.incl evHover
+      target.events.incl evHover
       emit target.doHover(Enter)
       target.refresh()
       prevHovers.incl target
 
     for target in delHovers:
-      target.events.mouse.excl evHover
+      target.events.excl evHover
       emit target.doHover(Exit)
       target.refresh()
       prevHovers.excl target
 
-  let click = captured.mouse[evClick]
+  let click = captured[evClick]
   if click.targets.len() > 0 and evClick in click.flags:
-    let clickTargets = captured.mouse[evClick].targets
+    let clickTargets = captured[evClick].targets
     let newClicks = clickTargets
     let delClicks = prevClicks - clickTargets
 
     for target in delClicks:
-        target.events.mouse.excl evClick
+        target.events.excl evClick
         emit target.doClick(Exit, click.buttons)
         prevClicks.excl target
 
     for target in newClicks:
-        target.events.mouse.incl evClick
+        target.events.incl evClick
         emit target.doClick(Enter, click.buttons)
         prevClicks.incl target
 

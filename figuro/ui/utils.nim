@@ -146,11 +146,11 @@ proc toString*(figs: HashSet[Figuro]): string =
     result.add ","
   result.add "]"
 
-var evtMsg: array[MouseEventKinds, seq[(string, string)]]
+var evtMsg: array[EventKinds, seq[(string, string)]]
 
 template printNewEventInfo*() =
-  for ek in MouseEventKinds:
-    let evts = captured.mouse[ek]
+  for ek in EventKinds:
+    let evts = captured[ek]
     let targets = evts.targets
 
     if evts.flags != {} and
