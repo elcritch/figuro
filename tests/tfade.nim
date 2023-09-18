@@ -38,15 +38,15 @@ proc draw*(self: Main) {.slot.} =
           box 10 + i * 120, 10, 100, 100
           # echo nd(), "btn: ", i
           # we need to connect it's onHover event
-          connect(current, onHover, self, Main.hover)
+          connect(current, doHover, self, Main.hover)
           # unfortunately, we have many hovers
           # so we need to give hover a type 
           # perfect, the slot pragma adds all this for
           # us
 
 var main = Main.new()
-connect(main, onDraw, main, Main.draw)
-connect(main, onTick, main, Main.tick)
+connect(main, doDraw, main, Main.draw)
+connect(main, doTick, main, Main.tick)
 
 echo "main: ", main.listeners
 

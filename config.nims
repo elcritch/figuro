@@ -42,3 +42,12 @@ elif defined(macosx):
   --d:kqueueUserEvent
   --threads:on
   # --passC:"-mfloat-abi=hard"
+
+import std/os
+import std/strutils
+
+task test, "compile tests":
+  for (k, f) in walkDir("tests"):
+    if k != pcDir and f.endsWith(".nim"):
+      # echo "F: ", f
+      exec "nim c " & f

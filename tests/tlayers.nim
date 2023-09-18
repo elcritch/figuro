@@ -16,7 +16,6 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     box 0, 0, 100'vw, 100'vh
