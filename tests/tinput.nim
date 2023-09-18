@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
       fill "#2A9EEA".parseHtmlColor * 0.7
       input "text":
         box 10, 10, 400, 100
-        fill blackColor
+        # fill blackColor
 
 var
   fig = Main.new()
