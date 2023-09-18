@@ -21,7 +21,11 @@ jobs:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Test
+    - name: Install Deps
       run: |
         nimble install https://github.com/nim-lang/atlas@\#head
-        atlas -v
+        atlas replay vendor/atlas.lock
+
+    - name: Build Tests
+      run: |
+        nim test
