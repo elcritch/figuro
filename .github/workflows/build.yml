@@ -29,6 +29,13 @@ jobs:
         cp vendor/atlas.lock ./atlas.lock
         atlas replay atlas.lock
 
+    - name: Cache packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          vendor/
+        key: ${{ runner.os }}-${{ hashFiles('vendor/atlas.lock') }}
+
     - name: Build Tests
       run: |
         nim test
