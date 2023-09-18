@@ -8,10 +8,6 @@ import figuro/common/nodes/transfer
 
 import pretty
 
-import ants/language_v1
-
-antDeclareStart(RenderTree)
-
 suite "test layers":
 
   # suite "basic single layer":
