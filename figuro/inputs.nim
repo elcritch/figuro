@@ -37,7 +37,7 @@ type
     # focusNode*: Node
     # onFocusNode*: Node
     # onUnFocusNode*: Node
-    input*: seq[Rune]
+    rune*: Rune
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
   

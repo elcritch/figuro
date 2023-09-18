@@ -247,18 +247,16 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evHover, true)
 
 type
-  EventsCapture*[T: set] = object
+  EventsCapture* = object
     zlvl*: ZLevel
-    flags*: T
+    flags*: EventFlags
     targets*: HashSet[Figuro]
     buttons*: UiButtonView
     rune*: Rune
 
-  MouseCapture* = EventsCapture[EventFlags]
+  CapturedEvents* = array[EventKinds, EventsCapture]
 
-  CapturedEvents* = array[EventKinds, MouseCapture]
-
-proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
+proc maxEvt(a, b: EventsCapture): EventsCapture =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
@@ -295,7 +293,6 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     let child = computeNodeEvents(n)
     for ek in EventKinds:
       result[ek] = maxEvt(result[ek], child[ek])
-    # result.gesture = max(result.gesture, child.gesture)
 
   let
     matchingEvts = node.checkAnyEvents()
@@ -303,10 +300,11 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     nodeOvelaps = node.mouseOverlaps()
 
   for ek in EventKinds:
-    let captured = MouseCapture(zlvl: node.zlevel,
-                                flags: matchingEvts * {ek},
-                                buttons: buttons[ek],
-                                targets: toHashSet([node]))
+    let captured = EventsCapture(zlvl: node.zlevel,
+                                  flags: matchingEvts * {ek},
+                                  buttons: buttons[ek],
+                                  rune: uxInputs.keyboard.rune,
+                                  targets: toHashSet([node]))
 
     if clipContent in node.attrs and
           result[ek].zlvl <= node.zlevel and

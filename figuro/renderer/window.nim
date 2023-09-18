@@ -117,8 +117,8 @@ proc configureEvents(renderer: Renderer) =
 
   window.onRune = proc (rune: Rune) =
     var uxInput = window.copyInputs()
-    uxInput.keyboard.input.add rune
-    echo "keyboard: ", uxInput.keyboard.input
+    uxInput.keyboard.rune = rune
+    echo "keyboard: ", uxInput.keyboard.rune
     discard uxInputList.trySend(uxInput)
 
   # window.onImeChange = proc () =
