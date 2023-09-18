@@ -9,6 +9,11 @@ type
     disabled*: bool
     text*: string
 
+let
+  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  font = UiFont(typefaceId: typeface, size: 22'ui)
+  smallFont = UiFont(typefaceId: typeface, size: 12'ui)
+
 proc clicked*(self: Input,
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
@@ -26,10 +31,8 @@ proc keyInput*(self: Input,
                 rune: Rune) {.slot.} =
   echo nd(), "Input:rune: ", $rune, " :: ", self.getId
 
-  if not self.isActive:
-    refresh(self)
-  self.isActive = true
-  self.text.add(rune)
+  self.text.add($rune)
+  refresh(self)
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
@@ -38,10 +41,10 @@ proc draw*(self: Input) {.slot.} =
     clipContent true
     cornerRadius 10.0
 
-    # text "text":
-    #   box 10, 10, 400, 100
-    #   fill blackColor
-    #   setText({font: "hello world!\n"})
+    text "text":
+      box 10, 10, 400, 100
+      fill blackColor
+      setText({font: self.text})
 
     if self.disabled:
       fill "#F0F0F0"
