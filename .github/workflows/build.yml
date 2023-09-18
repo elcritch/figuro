@@ -25,7 +25,7 @@ jobs:
       run: |
         nim -v
         nimble -v
-        nimble install https://github.com/nim-lang/atlas
+        nimble install 'https://github.com/nim-lang/atlas@head'
         atlas replay vendor/atlas.lock
 
     - name: Build Tests
