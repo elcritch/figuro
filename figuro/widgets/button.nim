@@ -13,6 +13,16 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
           " buttons: ", self.events.mouse
   
 
+proc clicked*[T](self: Button[T],
+                  kind: EventKind,
+                  buttons: UiButtonView) {.slot.} =
+  echo nd(), "button:clicked: ", buttons,
+              " kind: ", kind, " :: ", self.getId
+
+  if not self.isActive:
+    refresh(self)
+  self.isActive = true
+
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   withDraw(self):

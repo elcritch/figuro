@@ -118,7 +118,8 @@ proc configureEvents(renderer: Renderer) =
   window.onRune = proc (rune: Rune) =
     var uxInput = window.copyInputs()
     uxInput.keyboard.rune = rune
-    echo "keyboard: ", uxInput.keyboard.rune
+    stdout.styledWriteLine({styleDim}, fgWhite, "keyboardInput: ",
+                            {styleDim}, fgGreen, $rune)
     discard uxInputList.trySend(uxInput)
 
   # window.onImeChange = proc () =
