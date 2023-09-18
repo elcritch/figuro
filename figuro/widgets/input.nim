@@ -9,15 +9,14 @@ type
     disabled*: bool
     text*: string
 
-proc clicked*[T](self: Input,
+proc clicked*(self: Input,
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-  echo nd(), "button:clicked: ", buttons,
+  echo nd(), "input:clicked: ", buttons,
               " kind: ", kind, " :: ", self.getId
 
-  if not self.isActive:
-    refresh(self)
-  self.isActive = true
+  self.isActive = kind == Enter
+  refresh(self)
 
 proc textInput*(self: Input,
                 rune: Rune) {.slot.} =
@@ -34,11 +33,16 @@ proc draw*(self: Input) {.slot.} =
     clipContent true
     cornerRadius 10.0
 
+    # text "text":
+    #   box 10, 10, 400, 100
+    #   fill blackColor
+    #   setText({font: "hello world!\n"})
+
     if self.disabled:
       fill "#F0F0F0"
     else:
       fill "#2B9FEA"
-      onHover:
+      if self.isActive:
         fill current.fill.spin(15)
         # this changes the color on hover!
 

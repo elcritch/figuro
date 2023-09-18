@@ -104,6 +104,11 @@ proc draw*(fig: Figuro) {.slot.} =
 proc load*(fig: Figuro) {.slot.} =
   discard
 
+proc clicked*(self: Figuro,
+                  kind: EventKind,
+                  buttons: UiButtonView) {.slot.} =
+  discard
+
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl postDrawReady
   fig.diffIndex = 0

@@ -180,6 +180,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   connect(current, doDraw, current, Figuro.clearDraw())
   connect(current, doDraw, current, typeof(current).draw())
   connect(current, doDraw, current, Figuro.handlePostDraw())
+  connect(current, doClick, current, typeof(current).clicked())
   emit current.doDraw()
 
 proc postNode*(current: var Figuro) =
