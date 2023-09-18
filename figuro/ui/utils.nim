@@ -153,7 +153,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]) =
 
 import std/terminal
 
-proc toString*(figs: HashSet[Figuro]): string =
+proc `$`*(figs: HashSet[Figuro]): string =
   result.add "["
   for fig in figs:
     result.add $fig.getId
@@ -175,7 +175,7 @@ template printNewEventInfo*() =
       
       var emsg: seq[(string, string)] = @[
                   ("ek: ", $ek),
-                  ("tgt: ", targets.toString()),
+                  ("tgt: ", $targets),
                   # ("evts: ", $evts.flags),
                   ("btnsP: ", $uxInputs.buttonPress),
                   ("btnsR: ", $uxInputs.buttonRelease),
@@ -183,11 +183,11 @@ template printNewEventInfo*() =
                   # ( " ", $app.frameCount),
                   ]
       if ek == evClick:
-        emsg.add ("pClick: ", $prevClicks.toString())
+        emsg.add ("pClick: ", $prevClicks)
       if ek == evHover:
-        emsg.add ("pHover: ", $prevHovers.toString())
+        emsg.add ("pHover: ", $prevHovers)
       if ek == evKeyboardInput:
-        emsg.add ("pKeyInput: ", $evts.rune)
+        emsg.add ("pKeyInput: ", $uxInputs.keyboard.rune)
 
       if emsg != evtMsg[ek]:
         evtMsg[ek] = emsg

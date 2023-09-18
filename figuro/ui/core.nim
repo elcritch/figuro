@@ -241,7 +241,7 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 
 proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
-  node.checkEvent(evKeyboardInput, true)
+  node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
 
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
@@ -256,7 +256,6 @@ type
     flags*: EventFlags
     targets*: HashSet[Figuro]
     buttons*: UiButtonView
-    rune*: Rune
 
   CapturedEvents* = array[EventKinds, EventsCapture]
 
@@ -307,7 +306,6 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     let captured = EventsCapture(zlvl: node.zlevel,
                                   flags: matchingEvts * {ek},
                                   buttons: buttons[ek],
-                                  rune: uxInputs.keyboard.rune,
                                   targets: toHashSet([node]))
 
     if clipContent in node.attrs and
@@ -346,7 +344,7 @@ proc computeEvents*(node: Figuro) =
 
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
-      uxInputs.keyboard.consumed and
+      uxInputs.keyboard.rune.isNone and
       prevHovers.len == 0:
     return
 
@@ -364,6 +362,17 @@ proc computeEvents*(node: Figuro) =
 
   # Mouse
   printNewEventInfo()
+
+  let keys = captured[evKeyboardInput]
+  if keys.targets.len() > 0 and
+      evKeyboardInput in keys.flags and
+      uxInputs.keyboard.rune.isSome:
+    let rune = uxInputs.keyboard.rune.get()
+    uxInputs.keyboard.rune = Rune.none
+
+    echo "keyboard input: ",
+            " rune: `", $rune, "`",
+            " tgts: ", $keys.targets
 
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets
@@ -403,7 +412,6 @@ proc computeEvents*(node: Figuro) =
   uxInputs.buttonRelease.excl MouseButtons
 
   uxInputs.mouse.consumed = true
-  uxInputs.keyboard.consumed = true
 
 var gridChildren: seq[Figuro]
 

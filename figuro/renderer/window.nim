@@ -60,7 +60,6 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonPress = toUi window.buttonPressed()
   result.buttonDown = toUi window.buttonDown()
   result.buttonToggle = toUi window.buttonToggle()
-  result.keyboard.consumed = false
 
 proc configureEvents(renderer: Renderer) =
 
@@ -117,7 +116,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onRune = proc (rune: Rune) =
     var uxInput = window.copyInputs()
-    uxInput.keyboard.rune = rune
+    uxInput.keyboard.rune = some rune
     stdout.styledWriteLine({styleDim}, fgWhite, "keyboardInput: ",
                             {styleDim}, fgGreen, $rune)
     discard uxInputList.trySend(uxInput)
