@@ -57,8 +57,14 @@ proc draw*(self: Input) {.slot.} =
       setText({font: self.text})
 
       rectangle "cursor":
-        box 0, 0, font.size*0.04, font.size
-        fill blackColor
+        echo "cursor: ", self.selection
+        echo "cursor: ", current.parent.textLayout.repr
+        let sz = 0..current.parent.textLayout.selectionRects.high()
+        if self.selection.a in sz and self.selection.b in sz: 
+          let sr = current.parent.textLayout.selectionRects[self.selection.a]
+          box sr.descaled()
+          # box 0, 0, font.size*0.04, font.size
+          fill blackColor
 
     if self.disabled:
       fill "#F0F0F0"
