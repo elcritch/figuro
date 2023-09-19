@@ -88,11 +88,11 @@ proc draw*(self: Input) {.slot.} =
         current.fill.a = self.value.toFloat * 1.0
 
     if self.disabled:
-      fill "#F0F0F0"
+      fill whiteColor.darken(0.4)
     else:
-      fill "#2B9FEA"
+      fill whiteColor.darken(0.2)
       if self.isActive:
-        fill current.fill.spin(15)
+        fill current.fill.lighten(0.15)
         # this changes the color on hover!
 
 exportWidget(input, Input)
