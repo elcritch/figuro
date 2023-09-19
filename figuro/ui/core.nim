@@ -382,11 +382,12 @@ proc computeEvents*(node: Figuro) =
   let keyPress = captured[evKeyPress]
   if keyPress.targets.len() > 0 and
       evKeyPress in keyPress.flags and
+      uxInputs.buttonPress != {} and
       not uxInputs.keyboard.consumed:
     let pressed = uxInputs.buttonPress - MouseButtons
     let down = uxInputs.buttonDown - MouseButtons
 
-    # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
+    echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
     for target in keyPress.targets:
       emit target.doKeyPress(pressed, down)
 
@@ -423,9 +424,9 @@ proc computeEvents*(node: Figuro) =
         emit target.doClick(Enter, click.buttons)
         prevClicks.incl target
 
-  uxInputs.buttonPress.excl MouseButtons
-  uxInputs.buttonDown.excl MouseButtons
-  uxInputs.buttonRelease.excl MouseButtons
+  uxInputs.buttonPress = {}
+  uxInputs.buttonDown = {}
+  uxInputs.buttonRelease = {}
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true

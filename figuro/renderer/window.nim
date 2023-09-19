@@ -105,19 +105,30 @@ proc configureEvents(renderer: Renderer) =
     when defined(debugEvents):
       stdout.styledWriteLine({styleDim},
               fgWhite, "buttonPress ", {styleBright},
-              fgGreen, $uxInput.buttonPress)
+              fgGreen, $uxInput.buttonPress,
+              fgWhite, "buttonRelease ",
+              fgGreen, $uxInput.buttonRelease,
+              fgWhite, "buttonDown ", {styleBright},
+              fgGreen, $uxInput.buttonDown
+              )
               # fgBlue, " time: " & $(time - lastButtonRelease) )
     discard uxInputList.trySend(uxInput)
 
   window.onButtonRelease = proc (button: Button) =
     let uxInput = window.copyInputs()
     when defined(debugEvents):
-      stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ",
-                              {styleDim}, fgGreen, $uxInput.buttonRelease)
+      stdout.styledWriteLine({styleDim},
+              fgWhite, "buttonRelease ",
+              fgGreen, $uxInput.buttonRelease,
+              fgWhite, "buttonDown ", {styleBright},
+              fgGreen, $uxInput.buttonDown,
+              fgWhite, "buttonPress ", {styleBright},
+              fgGreen, $uxInput.buttonPress
+              )
     discard uxInputList.trySend(uxInput)
 
   window.onRune = proc (rune: Rune) =
-    var uxInput = window.copyInputs()
+    var uxInput = AppInputs(mouse: lastMouse)
     uxInput.keyboard.rune = some rune
     when defined(debugEvents):
       stdout.styledWriteLine({styleDim}, fgWhite, "keyboardInput: ",
