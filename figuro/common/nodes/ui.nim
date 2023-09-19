@@ -94,9 +94,14 @@ proc getId*(fig: Figuro): NodeID =
 proc doTick*(fig: Figuro) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
-proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
-proc doClick*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.signal.}
+proc doHover*(fig: Figuro,
+              kind: EventKind) {.signal.}
+proc doClick*(fig: Figuro,
+              kind: EventKind,
+              buttonPress: UiButtonView) {.signal.}
 proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
+proc doKeyPress*(fig: Figuro,
+                 buttonPress: UiButtonView) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard

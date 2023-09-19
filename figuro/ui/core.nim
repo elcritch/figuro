@@ -242,6 +242,7 @@ template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
 proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
+  node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
 
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
@@ -363,16 +364,28 @@ proc computeEvents*(node: Figuro) =
   # Mouse
   printNewEventInfo()
 
-  let keys = captured[evKeyboardInput]
-  if keys.targets.len() > 0 and
-      evKeyboardInput in keys.flags and
+  # handle keyboard inputs
+  let keyInput = captured[evKeyboardInput]
+  if keyInput .targets.len() > 0 and
+      evKeyboardInput in keyInput.flags and
       uxInputs.keyboard.rune.isSome:
     let rune = uxInputs.keyboard.rune.get()
     uxInputs.keyboard.rune = Rune.none
 
     # echo "keyboard input: ", " rune: `", $rune, "`", " tgts: ", $keys.targets
-    for target in keys.targets:
+    for target in keyInput.targets:
       emit target.doKeyInput(rune)
+
+  # handle keyboard presses
+  let keyPress = captured[evKeyPress]
+  if keyPress.targets.len() > 0 and
+      evKeyPress in keyPress.flags and
+      uxInputs.keyboard.rune.isSome:
+    let keys = uxInputs.buttonPress - MouseButtons
+
+    echo "keyboard input: ", " rune: `", $keys, "`", " tgts: ", $keyPress.targets
+    for target in keyPress.targets:
+      emit target.doKeyPress(keys)
 
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets

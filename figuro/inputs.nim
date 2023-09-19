@@ -51,6 +51,7 @@ type
     evScroll
     evDrag
     evKeyboardInput
+    evKeyPress
 
   EventKind* = enum
     Enter
