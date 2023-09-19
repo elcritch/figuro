@@ -29,21 +29,6 @@ proc openglDebug*() =
     echo "GL_SHADING_LANGUAGE_VERSION:",
       cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
 
-proc eventActions*() =
-  # these need reworked
-  when defined(inputDownEventExample):
-    let
-      setKey = action != 0
-      button = button + 1 # Fidget mouse buttons are +1 from windy
-    if button < window.buttonDown.len:
-      if buttonDown[button] == false and setKey == true:
-        buttonPress[button] = true
-      buttonDown[button] = setKey
-
-  when defined(inputReleaseEventExample):
-    if buttonDown[button] == false and setKey == false:
-      buttonRelease[button] = true
-
 proc setOpenGlHints*() =
   # these don't work in windy?
   when defined(setOpenGlHintsEnabled):

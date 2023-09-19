@@ -384,9 +384,9 @@ proc computeEvents*(node: Figuro) =
       evKeyPress in keyPress.flags and
       not uxInputs.keyboard.consumed:
     let pressed = uxInputs.buttonPress - MouseButtons
-    let down = uxInputs.buttonPress - MouseButtons
+    let down = uxInputs.buttonDown - MouseButtons
 
-    echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
+    # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
     for target in keyPress.targets:
       emit target.doKeyPress(pressed, down)
 
