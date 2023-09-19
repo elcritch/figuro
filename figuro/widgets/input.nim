@@ -19,7 +19,7 @@ let
 proc clicked*(self: Input,
               kind: EventKind,
               buttons: UiButtonView) {.slot.} =
-  echo nd(), "input:clicked: ", buttons,
+  echo "input:clicked: ", buttons,
               " kind: ", kind, " :: ", self.getId
 
   self.isActive = kind == Enter
@@ -39,11 +39,11 @@ proc keyInput*(self: Input,
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  echo nd(), "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
+  echo "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
   if pressed == {KeyBackspace} and self.selection != -1 .. -1:
     self.text.delete(self.selection)
     self.selection = self.text.len() - 1 .. self.text.len() - 1
-    refresh(self)
+  refresh(self)
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
