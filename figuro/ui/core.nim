@@ -131,10 +131,13 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   if parent.children.len <= parent.diffIndex:
     # parent = nodeStack[^1]
     # Create Figuro.
-    current = T.new()
-    echo nd(), "create new node: ", id, " new: ", current.uid, " parent: ", parent.uid
+    current = T()
+    current.agentId = nextAgentId()
+    current.uid = current.agentId
+    current.parent = parent
     parent.children.add(current)
     # current.parent = parent
+    echo nd(), "create new node: ", id, " new: ", current.getId, "/", current.parent.getId(), " n: ", current.name, " parent: ", parent.uid 
     refresh(current)
   else:
     # Reuse Figuro.
@@ -186,6 +189,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     connect(current, doKeyInput, current, T.keyInput())
   if T.keyPress().pointer != Figuro.keyPress().pointer:
     connect(current, doKeyPress, current, T.keyPress())
+  # if T.tick().pointer != Figuro.tick().pointer:
+  #   connect(current, doTick, current, T.tick())
   emit current.doDraw()
 
 proc postNode*(current: var Figuro) =

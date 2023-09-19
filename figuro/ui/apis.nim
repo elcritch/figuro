@@ -293,9 +293,12 @@ template setText*(spans: openArray[(UiFont, string)]) =
 
 proc findRoot*(node: Figuro): Figuro =
   result = node
-  while result.parent != nil:
-    result = node.parent
-  echo "findRoot: ", result.getId, " box: ", result.box
+  var cnt = 0
+  while result.parent != nil and result != result.parent:
+    result = result.parent
+    cnt.inc
+    if cnt > 10_000:
+      raise newException(IndexDefect, "error finding root")
 
 template Vw*(size: float32): UICoord =
   ## percentage of Viewport width

@@ -22,7 +22,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    rectangle "main":
+    rectangle "body":
       self.mainRect = current
       box 10, 10, 600, 120
       cornerRadius 10.0

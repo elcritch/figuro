@@ -10,11 +10,23 @@ type
     selection*: Slice[int]
     text*: string
     layout*: GlyphArrangement
+    value: int
+    cnt: int
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22'ui)
   smallFont = UiFont(typefaceId: typeface, size: 12'ui)
+
+proc tick*(self: Input) {.slot.} =
+  if self.isActive:
+    # self.value = 0.004 * (1+app.tickCount).toFloat
+    # self.value = clamp(self.value mod 1.0, 0, 1.0)
+    self.cnt.inc()
+    self.cnt = self.cnt mod 47
+    if self.cnt == 0:
+      self.value = (self.value + 1) mod 2
+      refresh(self)
 
 proc clicked*(self: Input,
               kind: EventKind,
@@ -51,6 +63,7 @@ proc draw*(self: Input) {.slot.} =
     
     clipContent true
     cornerRadius 10.0
+    connect(findRoot(self), doTick, self, Input.tick())
 
     text "text":
       box 10, 10, 400, 100
@@ -71,6 +84,8 @@ proc draw*(self: Input) {.slot.} =
         box sr.descaled()
         # box 0, 0, font.size*0.04, font.size
         fill blackColor
+        # echo "value: ", self.value
+        current.fill.a = self.value.toFloat * 1.0
 
     if self.disabled:
       fill "#F0F0F0"
