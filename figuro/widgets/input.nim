@@ -22,16 +22,21 @@ proc clicked*(self: Input,
 
   self.isActive = kind == Enter
   if self.isActive:
-    self.listens.signals.incl {evKeyboardInput}
+    self.listens.signals.incl {evKeyboardInput, evKeyPress}
   else:
-    self.listens.signals.excl {evKeyboardInput}
+    self.listens.signals.excl {evKeyboardInput, evKeyPress}
   refresh(self)
 
 proc keyInput*(self: Input,
                 rune: Rune) {.slot.} =
   echo nd(), "Input:rune: ", $rune, " :: ", self.getId
-
   self.text.add($rune)
+  refresh(self)
+
+proc keyPress*(self: Input,
+                keys: UiButtonView) {.slot.} =
+  echo nd(), "Input:keyPress: ", $keys, " :: ", self.getId
+  # self.text.add($keys)
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
