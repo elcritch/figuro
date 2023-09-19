@@ -32,10 +32,7 @@ type
     consumed*: bool ## Consumed - need to prevent default action.
 
   Keyboard* = object
-    # state*: KeyState
-    # focusNode*: Node
-    # onFocusNode*: Node
-    # onUnFocusNode*: Node
+    consumed*: bool ## Consumed - need to prevent default action.
     rune*: Option[Rune]
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to

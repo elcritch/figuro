@@ -382,7 +382,7 @@ proc computeEvents*(node: Figuro) =
   let keyPress = captured[evKeyPress]
   if keyPress.targets.len() > 0 and
       evKeyPress in keyPress.flags and
-      uxInputs.keyboard.rune.isSome:
+      not uxInputs.keyboard.consumed:
     let keys = uxInputs.buttonPress - MouseButtons
 
     echo "keyboard input: ", " rune: `", $keys, "`", " tgts: ", $keyPress.targets
@@ -427,6 +427,7 @@ proc computeEvents*(node: Figuro) =
   uxInputs.buttonRelease.excl MouseButtons
 
   uxInputs.mouse.consumed = true
+  uxInputs.keyboard.consumed = true
 
 var gridChildren: seq[Figuro]
 
