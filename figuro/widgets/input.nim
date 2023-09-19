@@ -39,7 +39,7 @@ proc keyInput*(self: Input,
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  # echo nd(), "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
+  echo nd(), "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
   if pressed == {KeyBackspace} and self.selection != -1 .. -1:
     self.text.delete(self.selection)
     self.selection = self.text.len() - 1 .. self.text.len() - 1
