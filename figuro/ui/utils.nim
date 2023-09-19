@@ -163,36 +163,37 @@ proc `$`*(figs: HashSet[Figuro]): string =
 var evtMsg: array[EventKinds, seq[(string, string)]]
 
 template printNewEventInfo*() =
-  for ek in EventKinds:
-    let evts = captured[ek]
-    let targets = evts.targets
+  when defined(debugEvents):
+    for ek in EventKinds:
+      let evts = captured[ek]
+      let targets = evts.targets
 
-    if evts.flags != {} and
-      ek in evts.flags and
-      # evts.flags != {evHover} and
-      # not uxInputs.keyboard.consumed and
-      true:
-      
-      var emsg: seq[(string, string)] = @[
-                  ("ek: ", $ek),
-                  ("tgt: ", $targets),
-                  # ("evts: ", $evts.flags),
-                  ("btnsP: ", $uxInputs.buttonPress),
-                  ("btnsR: ", $uxInputs.buttonRelease),
-                  # (" consumed: ", $uxInputs.mouse.consumed),
-                  # ( " ", $app.frameCount),
-                  ]
-      if ek == evClick:
-        emsg.add ("pClick: ", $prevClicks)
-      if ek == evHover:
-        emsg.add ("pHover: ", $prevHovers)
-      if ek == evKeyboardInput:
-        emsg.add ("pKeyInput: ", $uxInputs.keyboard.rune)
+      if evts.flags != {} and
+        ek in evts.flags and
+        # evts.flags != {evHover} and
+        # not uxInputs.keyboard.consumed and
+        true:
+        
+        var emsg: seq[(string, string)] = @[
+                    ("ek: ", $ek),
+                    ("tgt: ", $targets),
+                    # ("evts: ", $evts.flags),
+                    ("btnsP: ", $uxInputs.buttonPress),
+                    ("btnsR: ", $uxInputs.buttonRelease),
+                    # (" consumed: ", $uxInputs.mouse.consumed),
+                    # ( " ", $app.frameCount),
+                    ]
+        if ek == evClick:
+          emsg.add ("pClick: ", $prevClicks)
+        if ek == evHover:
+          emsg.add ("pHover: ", $prevHovers)
+        if ek == evKeyboardInput:
+          emsg.add ("pKeyInput: ", $uxInputs.keyboard.rune)
 
-      if emsg != evtMsg[ek]:
-        evtMsg[ek] = emsg
-        stdout.styledWrite({styleDim}, fgWhite, "events: ")
-        for (n, v) in emsg.items():
-          stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
-        stdout.styledWriteLine(fgWhite, "")
+        if emsg != evtMsg[ek]:
+          evtMsg[ek] = emsg
+          stdout.styledWrite({styleDim}, fgWhite, "events: ")
+          for (n, v) in emsg.items():
+            stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
+          stdout.styledWriteLine(fgWhite, "")
 

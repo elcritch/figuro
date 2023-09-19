@@ -102,23 +102,26 @@ proc configureEvents(renderer: Renderer) =
 
   window.onButtonPress = proc (button: windy.Button) =
     let uxInput = window.copyInputs()
-    stdout.styledWriteLine({styleDim},
-            fgWhite, "buttonPress ", {styleBright},
-            fgGreen, $uxInput.buttonPress)
-            # fgBlue, " time: " & $(time - lastButtonRelease) )
+    when defined(debugEvents):
+      stdout.styledWriteLine({styleDim},
+              fgWhite, "buttonPress ", {styleBright},
+              fgGreen, $uxInput.buttonPress)
+              # fgBlue, " time: " & $(time - lastButtonRelease) )
     discard uxInputList.trySend(uxInput)
 
   window.onButtonRelease = proc (button: Button) =
     let uxInput = window.copyInputs()
-    stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ",
-                            {styleDim}, fgGreen, $uxInput.buttonRelease)
+    when defined(debugEvents):
+      stdout.styledWriteLine({styleDim}, fgWhite, "buttonRelease ",
+                              {styleDim}, fgGreen, $uxInput.buttonRelease)
     discard uxInputList.trySend(uxInput)
 
   window.onRune = proc (rune: Rune) =
     var uxInput = window.copyInputs()
     uxInput.keyboard.rune = some rune
-    stdout.styledWriteLine({styleDim}, fgWhite, "keyboardInput: ",
-                            {styleDim}, fgGreen, $rune)
+    when defined(debugEvents):
+      stdout.styledWriteLine({styleDim}, fgWhite, "keyboardInput: ",
+                              {styleDim}, fgGreen, $rune)
     discard uxInputList.trySend(uxInput)
 
   # window.onImeChange = proc () =

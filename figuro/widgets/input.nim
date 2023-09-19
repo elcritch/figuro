@@ -62,6 +62,7 @@ proc draw*(self: Input) {.slot.} =
         let sz = 0..current.parent.textLayout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
           var sr = current.parent.textLayout.selectionRects[self.selection.b]
+          sr.x = sr.x + sr.w
           sr.w = 0.1 * font.size.scaled
           box sr.descaled()
           # box 0, 0, font.size*0.04, font.size
