@@ -63,10 +63,11 @@ proc draw*(self: Input) {.slot.} =
       # echo "cursor: ", current.parent.textLayout.repr
       let sz = 0..self.layout.selectionRects.high()
       if self.selection.a in sz and self.selection.b in sz: 
+        let fs = font.size.scaled
         var sr = self.layout.selectionRects[self.selection.b]
-        sr.x = sr.x + 1.5*sr.w
-        sr.y = sr.y + 0.25 * font.size.scaled
-        sr.w = 0.1 * font.size.scaled * 0.75
+        sr.x = sr.x + 1.0*sr.w + 0.5*fs
+        sr.y = sr.y + 0.25*fs
+        sr.w = 0.1*fs * 0.75
         box sr.descaled()
         # box 0, 0, font.size*0.04, font.size
         fill blackColor
