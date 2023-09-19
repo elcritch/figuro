@@ -56,6 +56,10 @@ proc draw*(self: Input) {.slot.} =
       fill blackColor
       setText({font: self.text})
 
+      rectangle "cursor":
+        box 0, 0, font.size*0.04, font.size
+        fill blackColor
+
     if self.disabled:
       fill "#F0F0F0"
     else:
