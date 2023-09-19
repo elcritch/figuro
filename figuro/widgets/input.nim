@@ -30,7 +30,7 @@ proc clicked*(self: Input,
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  echo nd(), "Input:rune: ", $rune, " :: ", self.getId
+  # echo nd(), "Input:rune: ", $rune, " :: ", self.getId
   self.selection = self.text.len() .. self.text.len()
   self.text.add($rune)
   refresh(self)
@@ -38,12 +38,10 @@ proc keyInput*(self: Input,
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  echo nd(), "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
+  # echo nd(), "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
   if pressed == {KeyBackspace}:
-    echo "self.selection: ", self.selection, " len: ", self.text.len()
     self.text.delete(self.selection)
     self.selection = self.text.len() - 1 .. self.text.len() - 1
-    echo "self.selection:post: ", self.selection, " len: ", self.text.len()
     refresh(self)
 
 proc draw*(self: Input) {.slot.} =
