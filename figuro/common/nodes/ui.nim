@@ -98,10 +98,10 @@ proc doHover*(fig: Figuro,
               kind: EventKind) {.signal.}
 proc doClick*(fig: Figuro,
               kind: EventKind,
-              buttonPress: UiButtonView) {.signal.}
+              keys: UiButtonView) {.signal.}
 proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 proc doKeyPress*(fig: Figuro,
-                 buttonPress: UiButtonView) {.signal.}
+                 keys: UiButtonView) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -113,6 +113,9 @@ proc load*(fig: Figuro) {.slot.} =
   discard
 
 proc keyInput*(fig: Figuro, rune: Rune) {.slot.} =
+  discard
+
+proc keyPress*(fig: Figuro, keys: UiButtonView) {.slot.} =
   discard
 
 proc clicked*(self: Figuro,
