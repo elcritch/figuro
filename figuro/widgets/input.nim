@@ -34,8 +34,9 @@ proc keyInput*(self: Input,
   refresh(self)
 
 proc keyPress*(self: Input,
-                keys: UiButtonView) {.slot.} =
-  echo nd(), "Input:keyPress: ", $keys, " :: ", self.getId
+               pressed: UiButtonView,
+               down: UiButtonView) {.slot.} =
+  echo nd(), "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
   # self.text.add($keys)
   refresh(self)
 

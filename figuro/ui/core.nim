@@ -383,11 +383,12 @@ proc computeEvents*(node: Figuro) =
   if keyPress.targets.len() > 0 and
       evKeyPress in keyPress.flags and
       not uxInputs.keyboard.consumed:
-    let keys = uxInputs.buttonPress - MouseButtons
+    let pressed = uxInputs.buttonPress - MouseButtons
+    let down = uxInputs.buttonPress - MouseButtons
 
-    echo "keyboard input: ", " rune: `", $keys, "`", " tgts: ", $keyPress.targets
+    echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
     for target in keyPress.targets:
-      emit target.doKeyPress(keys)
+      emit target.doKeyPress(pressed, down)
 
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets

@@ -117,13 +117,13 @@ proc keyInput*(fig: Figuro, rune: Rune) {.slot.} =
   discard
 
 proc keyPress*(fig: Figuro,
-                pressed: UiButtonView,
-                down: UiButtonView) {.slot.} =
+               pressed: UiButtonView,
+               down: UiButtonView) {.slot.} =
   discard
 
 proc clicked*(self: Figuro,
-                  kind: EventKind,
-                  buttons: UiButtonView) {.slot.} =
+              kind: EventKind,
+              buttons: UiButtonView) {.slot.} =
   discard
   echo "CLICKED GENERIC "
 
