@@ -39,7 +39,7 @@ proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
   # echo nd(), "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
-  if pressed == {KeyBackspace}:
+  if pressed == {KeyBackspace} and self.selection != -1 .. -1:
     self.text.delete(self.selection)
     self.selection = self.text.len() - 1 .. self.text.len() - 1
     refresh(self)
@@ -57,11 +57,12 @@ proc draw*(self: Input) {.slot.} =
       setText({font: self.text})
 
       rectangle "cursor":
-        echo "cursor: ", self.selection
-        echo "cursor: ", current.parent.textLayout.repr
+        # echo "cursor: ", self.selection
+        # echo "cursor: ", current.parent.textLayout.repr
         let sz = 0..current.parent.textLayout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
-          let sr = current.parent.textLayout.selectionRects[self.selection.a]
+          var sr = current.parent.textLayout.selectionRects[self.selection.a]
+          sr.w = 0.1 * font.size.scaled
           box sr.descaled()
           # box 0, 0, font.size*0.04, font.size
           fill blackColor
