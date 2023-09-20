@@ -89,9 +89,11 @@ proc draw*(self: Input) {.slot.} =
       if self.selection.a in sz and self.selection.b in sz: 
         let fs = font.size.scaled
         var sr = self.layout.selectionRects[self.selection.b]
+        ## this is gross but works for now
         sr.x = sr.x + 1.0*sr.w + 0.43*fs
-        sr.y = sr.y + 0.25*fs
+        sr.y = sr.y + 0.37*fs
         sr.w = max(0.1*fs * 0.75, 1.0)
+        sr.h = 0.94*fs
         box sr.descaled()
         # box 0, 0, font.size*0.04, font.size
         fill blackColor
