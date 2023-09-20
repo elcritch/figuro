@@ -7,6 +7,7 @@ type
   Input* = ref object of Figuro
     isActive*: bool
     disabled*: bool
+    init*: bool
     selection*: Slice[int]
     text*: string
     layout*: GlyphArrangement
@@ -45,19 +46,16 @@ proc clicked*(self: Input,
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  echo nd(), "Input:rune: ", $rune, " :: ", self.selection
-  if self.text.len() == 0:
-    self.text.insert($rune, 0)
-  else:
-    self.text.insert($rune, max(aa+1, 0))
+  echo nd(), "Input:rune: ", $rune, " :: ", self.selection, " text: ", self.text.repr
+  self.text.insert($rune, max(aa+1, 0))
   self.selection = aa+1 .. bb+1
   refresh(self)
 
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  # echo "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
-  let hasSelection = self.selection != -1 .. -1
+  echo "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.selection, " text: ", self.text.repr
+  let hasSelection = true
   if hasSelection:
     if pressed == {KeyBackspace}:
       self.text.delete(self.selection)
@@ -72,6 +70,9 @@ proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withDraw(self):
     
+    if not self.init:
+      self.selection = -1 .. -1
+      self.init = true
     clipContent true
     cornerRadius 10.0
     connect(findRoot(self), doTick, self, Input.tick())
