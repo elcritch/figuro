@@ -53,18 +53,19 @@ proc keyPress*(self: Input,
                down: UiButtonView) {.slot.} =
   echo "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
   let hasSelection = self.selection != -1 .. -1
-  if pressed == {KeyBackspace} and hasSelection:
-    self.text.delete(self.selection)
-    self.selection = self.text.len() - 1 .. self.text.len() - 1
-  elif pressed == {KeyLeft} and hasSelection:
-    let a = self.selection.a
-    let b = self.selection.b
-    self.selection = max(a-1, 0)..max(b-1, 0)
-  elif pressed == {KeyRight} and hasSelection:
-    let a = self.selection.a
-    let b = self.selection.b
-    let l = self.text.len() - 1
-    self.selection = min(a+1, l)..min(b+1, l)
+  if hasSelection:
+    if pressed == {KeyBackspace}:
+      self.text.delete(self.selection)
+      self.selection = self.text.len() - 1 .. self.text.len() - 1
+    elif pressed == {KeyLeft}:
+      let a = self.selection.a
+      let b = self.selection.b
+      self.selection = max(a-1, 0)..max(b-1, 0)
+    elif pressed == {KeyRight}:
+      let a = self.selection.a
+      let b = self.selection.b
+      let l = self.text.len() - 1
+      self.selection = min(a+1, l)..min(b+1, l)
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
@@ -90,7 +91,7 @@ proc draw*(self: Input) {.slot.} =
         var sr = self.layout.selectionRects[self.selection.b]
         sr.x = sr.x + 1.0*sr.w + 0.43*fs
         sr.y = sr.y + 0.25*fs
-        sr.w = 0.1*fs * 0.75
+        sr.w = max(0.1*fs * 0.75, 1.0)
         box sr.descaled()
         # box 0, 0, font.size*0.04, font.size
         fill blackColor
