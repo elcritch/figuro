@@ -82,23 +82,24 @@ proc draw*(self: Input) {.slot.} =
       setText({font: self.text})
       self.layout = current.textLayout
 
-    rectangle "cursor":
-      # echo "cursor: ", self.selection
-      # echo "cursor: ", current.parent.textLayout.repr
-      let sz = 0..self.layout.selectionRects.high()
-      if self.selection.a in sz and self.selection.b in sz: 
-        let fs = font.size.scaled
-        var sr = self.layout.selectionRects[self.selection.b]
-        ## this is gross but works for now
-        sr.x = sr.x + 1.0*sr.w + 0.43*fs
-        sr.y = sr.y + 0.37*fs
-        sr.w = max(0.1*fs * 0.75, 1.0)
-        sr.h = 0.94*fs
-        box sr.descaled()
-        # box 0, 0, font.size*0.04, font.size
-        fill blackColor
-        # echo "value: ", self.value
-        current.fill.a = self.value.toFloat * 1.0
+      rectangle "cursor":
+        # echo "cursor: ", self.selection
+        # echo "cursor: ", current.parent.textLayout.repr
+        let sz = 0..self.layout.selectionRects.high()
+        if self.selection.a in sz and self.selection.b in sz: 
+          let fs = font.size.scaled
+          var sr = self.layout.selectionRects[self.selection.b]
+          ## this is gross but works for now
+          let width = max(0.1*fs * 0.75, 1.0)
+          sr.x = sr.x + 1.0*sr.w - width/2.0
+          sr.y = sr.y - 0.07*fs
+          sr.w = width
+          sr.h = 0.9*fs
+          box sr.descaled()
+          # box 0, 0, font.size*0.04, font.size
+          fill blackColor
+          # echo "value: ", self.value
+          current.fill.a = self.value.toFloat * 1.0
 
     if self.disabled:
       fill whiteColor.darken(0.4)
