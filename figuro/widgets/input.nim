@@ -54,7 +54,7 @@ proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
   echo "\nInput:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.selection, " text: ", self.text.repr
-  if pressed == {KeyBackspace} and aa > 0:
+  if pressed == {KeyBackspace} and self.selection.b > 0:
     self.selection = max(aa-1, 0)..max(bb-1, 0)
     echo "delete 1"
     self.text.delete(self.selection)
