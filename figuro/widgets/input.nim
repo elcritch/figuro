@@ -45,9 +45,12 @@ proc clicked*(self: Input,
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  # echo nd(), "Input:rune: ", $rune, " :: ", self.getId
-  self.selection = self.text.len() .. self.text.len()
-  self.text.add($rune)
+  echo nd(), "Input:rune: ", $rune, " :: ", self.selection
+  if self.text.len() == 0:
+    self.text.insert($rune, 0)
+  else:
+    self.text.insert($rune, max(aa+1, 0))
+  self.selection = aa+1 .. bb+1
   refresh(self)
 
 proc keyPress*(self: Input,
