@@ -83,19 +83,17 @@ proc draw*(self: Input) {.slot.} =
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
-          ## set colors
-          current.fill.a = self.value.toFloat * 1.0
-          fill blackColor
-          ## compute bounds
           let fs = font.size.scaled
           var sr = self.layout.selectionRects[self.selection.b]
-          ## gross but works for now?
-          let width = max(0.1*fs * 0.75, 1.0)
+          ## this is gross but works for now
+          let width = max(0.08*fs, 2.0)
           sr.x = sr.x + 1.0*sr.w - width/2.0
-          sr.y = sr.y - 0.07*fs
+          sr.y = sr.y - 0.04*fs
           sr.w = width
           sr.h = 0.9*fs
           box sr.descaled()
+          fill blackColor
+          current.fill.a = self.value.toFloat * 1.0
 
     if self.disabled:
       fill whiteColor.darken(0.4)
