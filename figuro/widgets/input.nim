@@ -19,8 +19,6 @@ let
 
 proc tick*(self: Input) {.slot.} =
   if self.isActive:
-    # self.value = 0.004 * (1+app.tickCount).toFloat
-    # self.value = clamp(self.value mod 1.0, 0, 1.0)
     self.cnt.inc()
     self.cnt = self.cnt mod 47
     if self.cnt == 0:
@@ -83,8 +81,6 @@ proc draw*(self: Input) {.slot.} =
       self.layout = current.textLayout
 
       rectangle "cursor":
-        # echo "cursor: ", self.selection
-        # echo "cursor: ", current.parent.textLayout.repr
         let sz = 0..self.layout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
           ## set colors
