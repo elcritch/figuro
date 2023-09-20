@@ -7,7 +7,6 @@ type
   Input* = ref object of Figuro
     isActive*: bool
     disabled*: bool
-    init*: bool
     selection*: Slice[int]
     text*: string
     layout*: GlyphArrangement
@@ -47,7 +46,7 @@ proc clicked*(self: Input,
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
   echo nd(), "Input:rune: ", $rune, " :: ", self.selection, " text: ", self.text.repr
-  self.text.insert($rune, max(aa+1, 0))
+  self.text.insert($rune, max(aa, 0))
   self.selection = aa+1 .. bb+1
   refresh(self)
 
@@ -58,21 +57,19 @@ proc keyPress*(self: Input,
   let hasSelection = true
   if hasSelection:
     if pressed == {KeyBackspace}:
-      self.text.delete(self.selection)
-      self.selection = aa-1..bb-1
+      self.selection = max(aa-1, 0)..max(bb-1, 0)
+      if self.text.len() > 0:
+        self.text.delete(aa..bb)
     elif pressed == {KeyLeft}:
       self.selection = max(aa-1, 0)..max(bb-1, 0)
     elif pressed == {KeyRight}:
-      self.selection = min(aa+1, ll)..min(bb+1, ll)
+      self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withDraw(self):
     
-    if not self.init:
-      self.selection = -1 .. -1
-      self.init = true
     clipContent true
     cornerRadius 10.0
     connect(findRoot(self), doTick, self, Input.tick())
@@ -80,8 +77,10 @@ proc draw*(self: Input) {.slot.} =
     text "text":
       box 10, 10, 400, 100
       fill blackColor
-      setText({font: self.text})
+      setText({font: self.text, font: "*"})
       self.layout = current.textLayout
+      echo "RUNES: ", self.layout.runes.len()
+      self.layout.runes.setLen(self.layout.runes.len()-1)
 
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
@@ -90,7 +89,7 @@ proc draw*(self: Input) {.slot.} =
           var sr = self.layout.selectionRects[self.selection.b]
           ## this is gross but works for now
           let width = max(0.08*fs, 2.0)
-          sr.x = sr.x + 1.0*sr.w - width/2.0
+          sr.x = sr.x - width/2.0
           sr.y = sr.y - 0.04*fs
           sr.w = width
           sr.h = 0.9*fs
