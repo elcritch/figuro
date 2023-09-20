@@ -53,17 +53,15 @@ proc keyInput*(self: Input,
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  echo "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.selection, " text: ", self.text.repr
-  let hasSelection = true
-  if hasSelection:
-    if pressed == {KeyBackspace}:
-      self.selection = max(aa-1, 0)..max(bb-1, 0)
-      if self.text.len() > 0:
-        self.text.delete(aa..bb)
-    elif pressed == {KeyLeft}:
-      self.selection = max(aa-1, 0)..max(bb-1, 0)
-    elif pressed == {KeyRight}:
-      self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
+  echo "\nInput:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.selection, " text: ", self.text.repr
+  if pressed == {KeyBackspace} and aa > 0:
+    self.selection = max(aa-1, 0)..max(bb-1, 0)
+    echo "delete 1"
+    self.text.delete(self.selection)
+  elif pressed == {KeyLeft}:
+    self.selection = max(aa-1, 0)..max(bb-1, 0)
+  elif pressed == {KeyRight}:
+    self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
@@ -79,7 +77,6 @@ proc draw*(self: Input) {.slot.} =
       fill blackColor
       setText({font: self.text, font: "*"})
       self.layout = current.textLayout
-      echo "RUNES: ", self.layout.runes.len()
       self.layout.runes.setLen(self.layout.runes.len()-1)
 
       rectangle "cursor":

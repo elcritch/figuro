@@ -392,7 +392,7 @@ proc computeEvents*(node: Figuro) =
     let pressed = uxInputs.buttonPress - MouseButtons
     let down = uxInputs.buttonDown - MouseButtons
 
-    echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
+    # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
     for target in keyPress.targets:
       emit target.doKeyPress(pressed, down)
 
