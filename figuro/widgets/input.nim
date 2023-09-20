@@ -16,7 +16,6 @@ type
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22'ui)
-  smallFont = UiFont(typefaceId: typeface, size: 12'ui)
 
 proc tick*(self: Input) {.slot.} =
   if self.isActive:
@@ -39,6 +38,7 @@ proc clicked*(self: Input,
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
   else:
     self.listens.signals.excl {evKeyboardInput, evKeyPress}
+    self.value = 0
   refresh(self)
 
 proc keyInput*(self: Input,
