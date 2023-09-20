@@ -17,6 +17,10 @@ let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22'ui)
 
+template aa(): int = self.selection.a
+template bb(): int = self.selection.b
+template ll(): int = self.text.len() - 1
+
 proc tick*(self: Input) {.slot.} =
   if self.isActive:
     self.cnt.inc()
@@ -51,17 +55,14 @@ proc keyPress*(self: Input,
                down: UiButtonView) {.slot.} =
   # echo "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
   let hasSelection = self.selection != -1 .. -1
-  let a = self.selection.a
-  let b = self.selection.b
-  let ll = self.text.len() - 1
   if hasSelection:
     if pressed == {KeyBackspace}:
       self.text.delete(self.selection)
-      self.selection = ll..ll
+      self.selection = aa-1..bb-1
     elif pressed == {KeyLeft}:
-      self.selection = max(a-1, 0)..max(b-1, 0)
+      self.selection = max(aa-1, 0)..max(bb-1, 0)
     elif pressed == {KeyRight}:
-      self.selection = min(a+1, ll)..min(b+1, ll)
+      self.selection = min(aa+1, ll)..min(bb+1, ll)
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
