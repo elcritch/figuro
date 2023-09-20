@@ -51,19 +51,17 @@ proc keyPress*(self: Input,
                down: UiButtonView) {.slot.} =
   # echo "Input:keyPress: ", " pressed: ", $pressed, " down: ", $down, " :: ", self.getId
   let hasSelection = self.selection != -1 .. -1
+  let a = self.selection.a
+  let b = self.selection.b
+  let ll = self.text.len() - 1
   if hasSelection:
     if pressed == {KeyBackspace}:
       self.text.delete(self.selection)
-      self.selection = self.text.len() - 1 .. self.text.len() - 1
+      self.selection = ll..ll
     elif pressed == {KeyLeft}:
-      let a = self.selection.a
-      let b = self.selection.b
       self.selection = max(a-1, 0)..max(b-1, 0)
     elif pressed == {KeyRight}:
-      let a = self.selection.a
-      let b = self.selection.b
-      let l = self.text.len() - 1
-      self.selection = min(a+1, l)..min(b+1, l)
+      self.selection = min(a+1, ll)..min(b+1, ll)
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
