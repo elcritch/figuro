@@ -79,6 +79,7 @@ proc setupRoot*(widget: Figuro) =
   # current = root
   # current.parent = root
   root.diffIndex = 0
+  root.listens.signals.incl {evClick, evClickOut}
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
