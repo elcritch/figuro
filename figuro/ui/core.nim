@@ -79,7 +79,6 @@ proc setupRoot*(widget: Figuro) =
   # current = root
   # current.parent = root
   root.diffIndex = 0
-  root.listens.signals.incl {evClick, evClickOut}
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
@@ -350,6 +349,7 @@ var
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
+  root.listens.signals.incl {evClick, evClickOut}
 
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
