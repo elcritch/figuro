@@ -37,8 +37,8 @@ proc tick*(self: Input) {.slot.} =
 proc clicked*(self: Input,
               kind: EventKind,
               buttons: UiButtonView) {.slot.} =
-  echo "input:clicked: ", buttons,
-              " kind: ", kind, " :: ", self.getId
+  # echo "input:clicked: ", buttons,
+  #             " kind: ", kind, " :: ", self.getId
 
   self.isActive = kind == Enter
   if self.isActive:
@@ -50,9 +50,9 @@ proc clicked*(self: Input,
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  echo nd(), "Input:rune: ", $rune,
-              " :: ", self.selection,
-              " text: ", self.layout.runes
+  # echo nd(), "Input:rune: ", $rune,
+  #             " :: ", self.selection,
+  #             " text: ", self.layout.runes
   var runes = self.layout.runes
   runes.insert(rune, max(aa, 0))
   let spans = {font: $runes, font: "*"}
@@ -64,10 +64,9 @@ proc keyInput*(self: Input,
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  echo "\nInput:keyPress: ",
-            " pressed: ", $pressed,
-            " down: ", $down, " :: ", self.selection
-            # " text: ", self.text.repr
+  # echo "\nInput:keyPress: ",
+  #           " pressed: ", $pressed,
+  #           " down: ", $down, " :: ", self.selection
   if pressed == {KeyBackspace} and self.selection.b > 0:
     self.selection = max(aa-1, 0)..max(bb-1, 0)
     self.layout.runes.delete(self.selection)
