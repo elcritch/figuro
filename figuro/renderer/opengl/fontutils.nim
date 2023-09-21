@@ -112,12 +112,9 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
         )
       var
         snappedBounds = arrangement.computeBounds().snapToPixels()
-      # echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr
     
       let
         lh = font.defaultLineHeight()
-        # bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
-        #               snappedBounds.w, lh)
         bounds = rect(0, 0,
                       snappedBounds.w + snappedBounds.x, lh)
         image = newImage(bounds.w.int, bounds.h.int)
