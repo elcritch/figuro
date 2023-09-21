@@ -72,12 +72,6 @@ proc nd*(): string =
 proc setupRoot*(widget: Figuro) =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
-    # root = Figuro()
-    # root.zlevel = ZLevelDefault
-  # root = widget
-  # nodeStack = @[Figuro(root)]
-  # current = root
-  # current.parent = root
   root.diffIndex = 0
 
 proc disable(fig: Figuro) =
