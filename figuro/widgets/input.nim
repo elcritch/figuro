@@ -75,6 +75,8 @@ proc keyPress*(self: Input,
     self.selection = max(aa-1, 0)..max(bb-1, 0)
   elif pressed == {KeyRight}:
     self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
+  elif pressed == {KeyEscape}:
+    self.clicked(Exit, {})
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
