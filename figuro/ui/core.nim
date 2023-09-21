@@ -93,12 +93,10 @@ proc removeExtraChildren*(node: Figuro) =
 
 proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
-  # app.requestedFrame = max(1, app.requestedFrame)
   if node == nil:
     return
   app.requestedFrame.inc
   redrawNodes.incl(node)
-  # assert app.frameCount < 10 or node.uid != 0
 
 proc getTitle*(): string =
   ## Gets window title
