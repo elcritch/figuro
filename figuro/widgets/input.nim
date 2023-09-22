@@ -58,18 +58,27 @@ proc keyPress*(self: Input,
   echo "\nInput:keyPress: ",
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
-  if pressed == {KeyBackspace} and self.selection.b > 0:
-    self.selection = max(aa-1, 0)..max(bb-1, 0)
-    self.layout.runes.delete(self.selection)
-    self.updateLayout(self.layout.runes)
-  elif pressed == {KeyLeft}:
-    self.selection = max(aa-1, 0)..max(bb-1, 0)
-  elif pressed == {KeyRight}:
-    self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
-  elif pressed == {KeyEscape}:
-    self.clicked(Exit, {})
-  elif pressed == {KeyA} and combos(down) < keyConfig[KCommand]:
-    echo "select all"
+  if down == KNone:
+    if pressed == {KeyBackspace} and self.selection.b > 0:
+      self.selection = max(aa-1, 0)..max(bb-1, 0)
+      self.layout.runes.delete(self.selection)
+      self.updateLayout(self.layout.runes)
+    elif pressed == {KeyLeft}:
+      self.selection = max(aa-1, 0)..max(bb-1, 0)
+    elif pressed == {KeyRight}:
+      self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
+    elif pressed == {KeyEscape}:
+      self.clicked(Exit, {})
+  elif down == KCommand:
+    if pressed == {KeyA}:
+      echo "select all"
+    elif pressed == {KeyLeft}:
+      self.selection = 0..0
+    elif pressed == {KeyRight}:
+      self.selection = ll..ll
+  elif down == KAlt:
+    if pressed == {KeyLeft}:
+      self.selection = 0..0
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =

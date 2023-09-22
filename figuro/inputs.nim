@@ -1,4 +1,4 @@
-import std/[unicode]
+import std/[unicode, sequtils]
 import pkg/vmath
 
 import common/nodes/basics
@@ -187,7 +187,7 @@ const
     QuadrupleClick
   }
 
-  ComboButtons* = {
+  CommandButtons* = {
     KeyLeftControl,
     KeyRightControl,
     KeyLeftSuper,
@@ -221,26 +221,35 @@ when not defined(nimscript):
   var uxInputList*: Chan[AppInputs]
 
 type
-  Commands* = enum
+  CommandKeys* = enum
+    KNone
     KCommand
     KAlt
     KShift
     KMenu
 
-var keyConfig* {.runtimeVar.}: array[Commands, UiButtonView] = [
-      when defined(macosx):
-        {KeyLeftSuper, KeyRightSuper}
-      elif defined(linux):
-        {KeyLeftControl, KeyRightControl}
-      elif defined(windows):
-        {KeyLeftControl, KeyRightControl},
-      {KeyLeftAlt, KeyRightAlt},
-      {KeyLeftAlt, KeyRightAlt},
-      {KeyMenu}
-    ]
+proc defaultKeyConfigs(): array[CommandKeys, UiButtonView] =
+  result[KNone] = {}
+  result[KCommand] = 
+          when defined(macosx):
+            {KeyLeftSuper, KeyRightSuper}
+          elif defined(linux):
+            {KeyLeftControl, KeyRightControl}
+          elif defined(windows):
+            {KeyLeftControl, KeyRightControl}
+  result[KAlt] = 
+          {KeyLeftAlt, KeyRightAlt}
+  result[KShift] = 
+          {KeyLeftShift, KeyRightShift}
+  result[KMenu] = 
+          {KeyMenu}
 
-proc combos*(keys: UiButtonView): UiButtonView =
-  ComboButtons * keys
+var keyConfig* {.runtimeVar.}:
+  array[CommandKeys, UiButtonView] = defaultKeyConfigs()
+
+proc `==`*(keys: UiButtonView, commands: CommandKeys): bool =
+  let ck = keys * CommandButtons
+  ck != {} and ck < keyConfig[commands]
 
 proc click*(mouse: Mouse): bool =
   when defined(clickOnDown):
