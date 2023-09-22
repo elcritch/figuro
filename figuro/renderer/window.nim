@@ -80,8 +80,6 @@ proc configureEvents(renderer: Renderer) =
     app.focused = window.focused
     # appEvent.trigger()
 
-  window.onRune = keyboardInput
-
   window.onMouseMove = proc () =
     ## TODO: this is racey no?
     var uxInput = AppInputs()

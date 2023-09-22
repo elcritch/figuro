@@ -187,6 +187,19 @@ const
     QuadrupleClick
   }
 
+  ComboButtons* = {
+    KeyLeftControl,
+    KeyRightControl,
+    KeyLeftSuper,
+    KeyRightSuper,
+    KeyLeftAlt,
+    KeyRightAlt,
+    KeyLeftShift,
+    KeyRightShift,
+    KeyMenu,
+  }
+
+
 type
   AppInputs* = object
     mouse*: Mouse
@@ -207,7 +220,27 @@ when not defined(nimscript):
   export channels
   var uxInputList*: Chan[AppInputs]
 
-var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
+type
+  Commands* = enum
+    KCommand
+    KAlt
+    KShift
+    KMenu
+
+var keyConfig* {.runtimeVar.}: array[Commands, UiButtonView] = [
+      when defined(macosx):
+        {KeyLeftSuper, KeyRightSuper}
+      elif defined(linux):
+        {KeyLeftControl, KeyRightControl}
+      elif defined(windows):
+        {KeyLeftControl, KeyRightControl},
+      {KeyLeftAlt, KeyRightAlt},
+      {KeyLeftAlt, KeyRightAlt},
+      {KeyMenu}
+    ]
+
+proc combos*(keys: UiButtonView): UiButtonView =
+  ComboButtons * keys
 
 proc click*(mouse: Mouse): bool =
   when defined(clickOnDown):

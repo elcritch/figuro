@@ -68,8 +68,8 @@ proc keyPress*(self: Input,
     self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
   elif pressed == {KeyEscape}:
     self.clicked(Exit, {})
-  elif pressed == {KeyA, KeyLeftSuper}:
-    self.clicked(Exit, {})
+  elif pressed == {KeyA} and combos(down) < keyConfig[KCommand]:
+    echo "select all"
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
