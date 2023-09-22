@@ -70,7 +70,6 @@ proc keyPress*(self: Input,
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
   if down == KNone:
-    echo "DOWN NONE"
     if pressed == {KeyBackspace} and self.selection.b > 0:
       self.selection = max(aa-1, 0)..max(bb-1, 0)
       self.layout.runes.delete(self.selection)
@@ -83,7 +82,6 @@ proc keyPress*(self: Input,
       self.clicked(Exit, {})
   elif down == KCommand:
     if pressed == {KeyA}:
-      echo "select all"
   elif down == KControl:
     if pressed == {KeyLeft}:
       self.selection = 0..0
