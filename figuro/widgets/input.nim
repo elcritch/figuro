@@ -88,6 +88,7 @@ proc keyCommand*(self: Input,
   elif down == KCadet:
     if pressed == {KeyA}:
       echo "select all"
+      self.selection = 0..ll+1
   elif down == KControl:
     if pressed == {KeyLeft}:
       self.selection = 0..0
@@ -147,6 +148,19 @@ proc draw*(self: Input) {.slot.} =
           box sr.descaled()
           fill blackColor
           current.fill.a = self.value.toFloat * 1.0
+
+      rectangle "selection":
+        let sz = 0..self.layout.selectionRects.high()
+        if self.selection.a in sz and self.selection.b in sz: 
+          let fs = self.theme.font.size.scaled
+          let sa = self.layout.selectionRects[self.selection.a]
+          let sb = self.layout.selectionRects[self.selection.b]
+          var ss = sa
+          ss.y = ss.y - 0.1*fs
+          ss.w = sb.x - sa.x
+          ss.h = (sb.y + sb.h) - sa.y
+          box ss.descaled()
+          fill "#0000CC".parseHtmlColor * 0.2
 
     if self.disabled:
       fill whiteColor.darken(0.4)
