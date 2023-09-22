@@ -59,6 +59,7 @@ proc keyPress*(self: Input,
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
   if down == KNone:
+    echo "DOWN NONE"
     if pressed == {KeyBackspace} and self.selection.b > 0:
       self.selection = max(aa-1, 0)..max(bb-1, 0)
       self.layout.runes.delete(self.selection)

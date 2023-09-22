@@ -249,7 +249,11 @@ var keyConfig* {.runtimeVar.}:
 
 proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
   let ck = keys * ModifierButtons
-  ck != {} and ck < keyConfig[commands]
+  echo "CK: ", ck
+  if ck == {} and keyConfig[commands] == {}:
+    return true
+  else:
+    ck != {} and ck < keyConfig[commands]
 
 proc click*(mouse: Mouse): bool =
   when defined(clickOnDown):
