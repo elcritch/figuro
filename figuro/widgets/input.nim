@@ -45,7 +45,7 @@ proc findNextWord*(self: Input): int =
 proc tick*(self: Input) {.slot.} =
   if self.isActive:
     self.cnt.inc()
-    self.cnt = self.cnt mod 39
+    self.cnt = self.cnt mod 33
     if self.cnt == 0:
       self.value = (self.value + 1) mod 2
       refresh(self)
@@ -82,9 +82,9 @@ proc keyCommand*(self: Input,
       self.updateLayout()
       self.selection = max(aa-1, 0)..max(aa-1, 0)
     elif pressed == {KeyLeft}:
-      self.selection = max(aa-1, 0)..max(bb-1, 0)
+      self.selection = max(aa-1, 0)..max(aa-1, 0)
     elif pressed == {KeyRight}:
-      self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
+      self.selection = min(bb+1, ll+1)..min(bb+1, ll+1)
     elif pressed == {KeyEscape}:
       self.clicked(Exit, {})
     elif pressed == {KeyEnter}:
@@ -100,6 +100,11 @@ proc keyCommand*(self: Input,
       self.selection = 0..0
     elif pressed == {KeyRight}:
       self.selection = ll+1..ll+1
+  elif down == KShift:
+    if pressed == {KeyLeft}:
+      self.selection = max(aa-1, 0)..bb
+    elif pressed == {KeyRight}:
+      self.selection = aa..min(bb+1, ll+1)
   elif down == KAlt:
     if pressed == {KeyLeft}:
       let idx = findPrevWord(self)
