@@ -13,6 +13,10 @@ type
     value: int
     cnt: int
 
+proc doKeyCommand*(self: Input,
+                   pressed: UiButtonView,
+                   down: UiButtonView) {.signal.}
+
 template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
@@ -28,6 +32,7 @@ proc updateLayout*(self: Input, text = seq[Rune].none) =
 proc findPrevWord*(self: Input): int =
   result = -1
   for i in countdown(max(0,aa-2), 0):
+    echo "findPrevWord: ", i
     if self.layout.runes[i].isWhiteSpace():
       return i
 
@@ -63,9 +68,9 @@ proc keyInput*(self: Input,
   self.selection = aa+1 .. bb+1
   refresh(self)
 
-proc keyPress*(self: Input,
-               pressed: UiButtonView,
-               down: UiButtonView) {.slot.} =
+proc keyCommand*(self: Input,
+                 pressed: UiButtonView,
+                 down: UiButtonView) {.slot.} =
   echo "\nInput:keyPress: ",
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
@@ -95,17 +100,26 @@ proc keyPress*(self: Input,
     elif pressed == {KeyRight}:
       let idx = findNextWord(self)
       self.selection = idx..idx
-    elif pressed == {KeyBackspace}:
+    elif pressed == {KeyBackspace} and aa > 0:
+      echo "backspace: ", aa
       let idx = findPrevWord(self)
       self.layout.runes.delete(idx+1..aa-1)
       self.selection = idx+1..idx+1
       self.updateLayout()
   refresh(self)
 
+proc keyPress*(self: Input,
+               pressed: UiButtonView,
+               down: UiButtonView) {.slot.} =
+  echo "keypress"
+  emit self.doKeyCommand(pressed, down)
+
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   if self.layout.isNil:
     self.layout = GlyphArrangement()
+  
+  connect(self, doKeyCommand, self, Input.keyCommand)
 
   withDraw(self):
 
