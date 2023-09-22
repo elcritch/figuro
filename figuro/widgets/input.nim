@@ -17,7 +17,8 @@ template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
 
-proc updateLayout*(self: Input, runes: seq[Rune]) =
+proc updateLayout*(self: Input) =
+  let runes = self.layout.runes
   let spans = {self.theme.font: $runes, self.theme.font: "*"}
   self.layout = internal.getTypeset(self.box, spans)
   self.layout.runes.setLen(ll())
@@ -61,6 +62,7 @@ proc keyInput*(self: Input,
   self.layout = internal.getTypeset(self.box, spans)
   self.selection = aa+1 .. bb+1
   self.layout.runes.setLen(self.layout.runes.len()-1)
+  self.updateLayout()
   refresh(self)
 
 proc keyPress*(self: Input,
@@ -73,7 +75,7 @@ proc keyPress*(self: Input,
     if pressed == {KeyBackspace} and self.selection.b > 0:
       self.selection = max(aa-1, 0)..max(bb-1, 0)
       self.layout.runes.delete(self.selection)
-      self.updateLayout(self.layout.runes)
+      self.updateLayout()
     elif pressed == {KeyLeft}:
       self.selection = max(aa-1, 0)..max(bb-1, 0)
     elif pressed == {KeyRight}:
@@ -99,6 +101,7 @@ proc keyPress*(self: Input,
       let idx = findPrevWord(self)
       self.layout.runes.delete(idx+1..aa-1)
       self.selection = idx+1..idx+1
+      self.updateLayout()
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
