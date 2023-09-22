@@ -187,7 +187,7 @@ const
     QuadrupleClick
   }
 
-  CommandButtons* = {
+  ModifierButtons* = {
     KeyLeftControl,
     KeyRightControl,
     KeyLeftSuper,
@@ -221,14 +221,14 @@ when not defined(nimscript):
   var uxInputList*: Chan[AppInputs]
 
 type
-  CommandKeys* = enum
+  ModifierKeys* = enum
     KNone
     KCommand
     KAlt
     KShift
     KMenu
 
-proc defaultKeyConfigs(): array[CommandKeys, UiButtonView] =
+proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
   result[KNone] = {}
   result[KCommand] = 
           when defined(macosx):
@@ -245,10 +245,10 @@ proc defaultKeyConfigs(): array[CommandKeys, UiButtonView] =
           {KeyMenu}
 
 var keyConfig* {.runtimeVar.}:
-  array[CommandKeys, UiButtonView] = defaultKeyConfigs()
+  array[ModifierKeys, UiButtonView] = defaultKeyConfigs()
 
-proc `==`*(keys: UiButtonView, commands: CommandKeys): bool =
-  let ck = keys * CommandButtons
+proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
+  let ck = keys * ModifierButtons
   ck != {} and ck < keyConfig[commands]
 
 proc click*(mouse: Mouse): bool =
