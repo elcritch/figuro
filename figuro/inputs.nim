@@ -224,6 +224,7 @@ type
   ModifierKeys* = enum
     KNone
     KCommand
+    KControl
     KAlt
     KShift
     KMenu

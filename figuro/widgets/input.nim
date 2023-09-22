@@ -73,13 +73,16 @@ proc keyPress*(self: Input,
   elif down == KCommand:
     if pressed == {KeyA}:
       echo "select all"
-    elif pressed == {KeyLeft}:
+  elif down == KControl:
+    if pressed == {KeyLeft}:
       self.selection = 0..0
     elif pressed == {KeyRight}:
-      self.selection = ll..ll
+      self.selection = ll+1..ll+1
   elif down == KAlt:
     if pressed == {KeyLeft}:
       self.selection = 0..0
+    elif pressed == {KeyRight}:
+      self.selection = ll+1..ll+1
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
