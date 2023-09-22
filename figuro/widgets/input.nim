@@ -17,8 +17,10 @@ template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
 
-proc updateLayout*(self: Input) =
-  let runes = self.layout.runes
+proc updateLayout*(self: Input, text = seq[Rune].none) =
+  let runes =
+    if text.isSome: text.get()
+    else: self.layout.runes
   let spans = {self.theme.font: $runes, self.theme.font: "*"}
   self.layout = internal.getTypeset(self.box, spans)
   self.layout.runes.setLen(ll())
@@ -56,12 +58,8 @@ proc clicked*(self: Input,
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  var runes = self.layout.runes
-  runes.insert(rune, max(aa, 0))
-  let spans = {self.theme.font: $runes, self.theme.font: "*"}
-  self.layout = internal.getTypeset(self.box, spans)
+  self.layout.runes.insert(rune, max(aa, 0))
   self.selection = aa+1 .. bb+1
-  self.layout.runes.setLen(self.layout.runes.len()-1)
   self.updateLayout()
   refresh(self)
 
