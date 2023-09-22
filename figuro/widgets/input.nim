@@ -23,6 +23,18 @@ proc updateLayout*(self: Input, runes: seq[Rune]) =
   self.layout = internal.getTypeset(self.box, spans)
   self.layout.runes.setLen(ll())
 
+proc findPrevWord*(self: Input): int =
+  result = -1
+  for i in countdown(max(0,aa-2), 0):
+    if self.layout.runes[i].isWhiteSpace():
+      return i
+
+proc findNextWord*(self: Input): int =
+  result = self.layout.runes.len()
+  for i in countup(aa+1, self.layout.runes.len()-1):
+    if self.layout.runes[i].isWhiteSpace():
+      return i
+
 proc tick*(self: Input) {.slot.} =
   if self.isActive:
     self.cnt.inc()
@@ -80,9 +92,11 @@ proc keyPress*(self: Input,
       self.selection = ll+1..ll+1
   elif down == KAlt:
     if pressed == {KeyLeft}:
-      self.selection = 0..0
+      let idx = findPrevWord(self)
+      self.selection = idx+1..idx+1
     elif pressed == {KeyRight}:
-      self.selection = ll+1..ll+1
+      let idx = findNextWord(self)
+      self.selection = idx..idx
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
