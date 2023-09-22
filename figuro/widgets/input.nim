@@ -45,7 +45,7 @@ proc findNextWord*(self: Input): int =
 proc tick*(self: Input) {.slot.} =
   if self.isActive:
     self.cnt.inc()
-    self.cnt = self.cnt mod 47
+    self.cnt = self.cnt mod 39
     if self.cnt == 0:
       self.value = (self.value + 1) mod 2
       refresh(self)
@@ -65,7 +65,7 @@ proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
   self.layout.runes.insert(rune, max(aa, 0))
   self.updateLayout()
-  self.selection = aa+1 .. bb+1
+  self.selection = bb+1 .. bb+1
   refresh(self)
 
 proc keyCommand*(self: Input,
@@ -76,15 +76,21 @@ proc keyCommand*(self: Input,
             " down: ", $down, " :: ", self.selection
   if down == KNone:
     if pressed == {KeyBackspace} and self.selection.b > 0:
-      self.selection = max(aa-1, 0)..max(bb-1, 0)
-      self.layout.runes.delete(self.selection)
+      let selection = max(aa-1, 0)..max(bb-1, 0)
+      echo "delete: ", selection
+      self.layout.runes.delete(selection)
       self.updateLayout()
+      self.selection = max(aa-1, 0)..max(aa-1, 0)
     elif pressed == {KeyLeft}:
       self.selection = max(aa-1, 0)..max(bb-1, 0)
     elif pressed == {KeyRight}:
       self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
     elif pressed == {KeyEscape}:
       self.clicked(Exit, {})
+    elif pressed == {KeyEnter}:
+      self.layout.runes.add Rune '\n'
+      self.updateLayout()
+      self.selection = aa+1 .. bb+1
   elif down == KCadet:
     if pressed == {KeyA}:
       echo "select all"
