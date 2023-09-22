@@ -105,7 +105,7 @@
     "windy": {
       "dir": "$deps/windy.elcritch.github.com",
       "url": "https://github.com/elcritch/windy",
-      "commit": "89a9d2d14c0c203bed696097f1ceac02cac6b4c0",
+      "commit": "6cca277eebdafe651ef7a55c7e1de0df92bb14a4",
       "version": "0.0.0"
     },
     "asynctools": {
