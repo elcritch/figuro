@@ -78,7 +78,8 @@ proc configureEvents(renderer: Renderer) =
   
   window.onFocusChange = proc () =
     app.focused = window.focused
-    # appEvent.trigger()
+    let uxInput = window.copyInputs()
+    discard uxInputList.trySend(uxInput)
 
   window.onMouseMove = proc () =
     ## TODO: this is racey no?
@@ -116,6 +117,8 @@ proc configureEvents(renderer: Renderer) =
     let uxInput = window.copyInputs()
     when defined(debugEvents):
       stdout.styledWriteLine({styleDim},
+              fgWhite, "release ",
+              fgGreen, $button,
               fgWhite, "buttonRelease ",
               fgGreen, $uxInput.buttonRelease,
               fgWhite, "buttonDown ", {styleBright},
