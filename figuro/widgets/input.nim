@@ -13,16 +13,13 @@ type
     value: int
     cnt: int
 
-let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22'ui)
 
 template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
 
 proc updateLayout*(self: Input, runes: seq[Rune]) =
-  let spans = {font: $runes, font: "*"}
+  let spans = {self.theme.font: $runes, self.theme.font: "*"}
   self.layout = internal.getTypeset(self.box, spans)
   self.layout.runes.setLen(ll())
 
@@ -37,9 +34,6 @@ proc tick*(self: Input) {.slot.} =
 proc clicked*(self: Input,
               kind: EventKind,
               buttons: UiButtonView) {.slot.} =
-  # echo "input:clicked: ", buttons,
-  #             " kind: ", kind, " :: ", self.getId
-
   self.isActive = kind == Enter
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -50,12 +44,9 @@ proc clicked*(self: Input,
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  # echo nd(), "Input:rune: ", $rune,
-  #             " :: ", self.selection,
-  #             " text: ", self.layout.runes
   var runes = self.layout.runes
   runes.insert(rune, max(aa, 0))
-  let spans = {font: $runes, font: "*"}
+  let spans = {self.theme.font: $runes, self.theme.font: "*"}
   self.layout = internal.getTypeset(self.box, spans)
   self.selection = aa+1 .. bb+1
   self.layout.runes.setLen(self.layout.runes.len()-1)
@@ -64,9 +55,9 @@ proc keyInput*(self: Input,
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  # echo "\nInput:keyPress: ",
-  #           " pressed: ", $pressed,
-  #           " down: ", $down, " :: ", self.selection
+  echo "\nInput:keyPress: ",
+            " pressed: ", $pressed,
+            " down: ", $down, " :: ", self.selection
   if pressed == {KeyBackspace} and self.selection.b > 0:
     self.selection = max(aa-1, 0)..max(bb-1, 0)
     self.layout.runes.delete(self.selection)
@@ -76,6 +67,8 @@ proc keyPress*(self: Input,
   elif pressed == {KeyRight}:
     self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
   elif pressed == {KeyEscape}:
+    self.clicked(Exit, {})
+  elif pressed == {KeyA, KeyLeftSuper}:
     self.clicked(Exit, {})
   refresh(self)
 
@@ -99,7 +92,7 @@ proc draw*(self: Input) {.slot.} =
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
-          let fs = font.size.scaled
+          let fs = self.theme.font.size.scaled
           var sr = self.layout.selectionRects[self.selection.b]
           ## this is gross but works for now
           let width = max(0.08*fs, 2.0)

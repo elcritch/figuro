@@ -15,7 +15,6 @@ else:
 
 
 type
-
   InputEvents* = object
     events*: EventFlags
 
@@ -23,12 +22,14 @@ type
     events*: EventFlags
     signals*: EventFlags
 
+  Theme* = ref object
+    font*: UiFont
+
   Figuro* = ref object of Agent
     parent*: Figuro
-    name*: StackString[16]
     uid*: NodeID
+    name*: StackString[16]
     children*: seq[Figuro]
-    # parent*: Figuro
     nIndex*: int
     diffIndex*: int
 
@@ -44,6 +45,8 @@ type
 
     events*: EventFlags
     listens*: ListenEvents
+
+    theme*: Theme
 
     zlevel*: ZLevel
     rotation*: float32
@@ -63,19 +66,7 @@ type
     image*: ImageStyle
     textLayout*: GlyphArrangement
     points*: seq[Position]
-
-    # case kind*: NodeKind
-    # of nkRectangle:
-    #   shadow*: Option[Shadow]
-    #   cornerRadius*: UICoord
-    # of nkImage:
-    #   image*: ImageStyle
-    # of nkText:
-    #   textLayout*: GlyphArrangement
-    # of nkDrawable:
-    #   points*: seq[Position]
-    # else:
-    #   discard
+    
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()

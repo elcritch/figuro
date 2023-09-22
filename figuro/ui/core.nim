@@ -44,6 +44,9 @@ var
   scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color 
   scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
+var
+  defaultTypeface* {.runtimeVar.} = internal.getTypeface("IBMPlexSans-Regular.ttf")
+  defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
@@ -73,6 +76,8 @@ proc setupRoot*(widget: Figuro) =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
   root.diffIndex = 0
+  if root.theme.isNil:
+    root.theme = Theme(font: defaultFont)
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
@@ -165,6 +170,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.highlight = parent.highlight
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
+  current.theme = parent.theme
 
   current.listens.events = {}
 

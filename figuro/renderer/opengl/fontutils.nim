@@ -24,7 +24,6 @@ type
 
 
 var
-  typefaceChan* = newChan[string](100)
   glyphImageChan* = newChan[(Hash, Image)](1000)
   glyphImageCached*: HashSet[Hash]
 
@@ -140,7 +139,6 @@ proc getTypeface*(name: string): FontId =
     id = typeface.getId()
 
   typefaceTable[id] = typeface
-  typefaceChan.send(typefacePath)
   result = id
   # echo "typefaceTable:addr: ", getThreadId()
   # echo "getTypeFace: ", result
