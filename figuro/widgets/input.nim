@@ -59,8 +59,8 @@ proc clicked*(self: Input,
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
   self.layout.runes.insert(rune, max(aa, 0))
-  self.selection = aa+1 .. bb+1
   self.updateLayout()
+  self.selection = aa+1 .. bb+1
   refresh(self)
 
 proc keyPress*(self: Input,
