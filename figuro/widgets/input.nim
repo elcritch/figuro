@@ -13,7 +13,6 @@ type
     value: int
     cnt: int
 
-
 template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
