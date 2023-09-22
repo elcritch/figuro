@@ -95,6 +95,10 @@ proc keyPress*(self: Input,
     elif pressed == {KeyRight}:
       let idx = findNextWord(self)
       self.selection = idx..idx
+    elif pressed == {KeyBackspace}:
+      let idx = findPrevWord(self)
+      self.layout.runes.delete(idx+1..aa-1)
+      self.selection = idx+1..idx+1
   refresh(self)
 
 proc draw*(self: Input) {.slot.} =
