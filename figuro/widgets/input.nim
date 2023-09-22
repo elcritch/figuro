@@ -80,8 +80,9 @@ proc keyPress*(self: Input,
       self.selection = min(aa+1, ll+1)..min(bb+1, ll+1)
     elif pressed == {KeyEscape}:
       self.clicked(Exit, {})
-  elif down == KCommand:
+  elif down == KCadet:
     if pressed == {KeyA}:
+      echo "select all"
   elif down == KControl:
     if pressed == {KeyLeft}:
       self.selection = 0..0
