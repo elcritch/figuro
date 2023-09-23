@@ -34,7 +34,6 @@ proc updateSelectionBoxes*(self: Input) =
       sels.add sl.a..sl.a
 
   self.selectionRects.setLen(0)
-  echo ""
   for sl in sels:
     let ra = self.layout.selectionRects[sl.a]
     let rb = self.layout.selectionRects[sl.b]
@@ -43,7 +42,7 @@ proc updateSelectionBoxes*(self: Input) =
     rs.w = rb.x - ra.x
     rs.h = (rb.y + rb.h) - ra.y
     self.selectionRects.add rs.descaled()
-    echo "self.selectionRects: ", rs.descaled()
+    # echo "self.selectionRects: ", rs.descaled()
 
 proc updateLayout*(self: Input, text = seq[Rune].none) =
   let runes =
@@ -187,12 +186,6 @@ proc draw*(self: Input) {.slot.} =
           box sr.descaled()
           fill blackColor
           current.fill.a = self.value.toFloat * 1.0
-
-      # if aa != bb and self.selection.a in sz and self.selection.b in sz: 
-      var sels: seq[Slice[int]]
-      for sl in self.layout.lines:
-        if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
-          sels.add max(sl.a, aa)..min(sl.b, bb)
 
       for sl in self.selectionRects:
         rectangle "selection", captures(sl):

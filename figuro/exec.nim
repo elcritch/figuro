@@ -31,8 +31,8 @@ var
   loadMain*: MainCallback
   sendRoot*: proc (nodes: sink RenderNodes) {.closure.}
 
-const renderPeriodMs {.intdefine.} = 16
-const appPeriodMs {.intdefine.} = 16
+const renderPeriodMs {.intdefine.} = 8
+const appPeriodMs {.intdefine.} = 8
 
 var frameTickThread, appTickThread: Thread[void]
 var appThread, : Thread[MainCallback]
