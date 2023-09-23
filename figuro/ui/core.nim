@@ -327,10 +327,6 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       result[ek].targets.incl(captured.targets)
       result[ek].targets.incl(result[ek].targets)
       result[ek].flags.incl(evHover)
-    elif ek == evScroll and evScroll in matchingEvts:
-      result[ek].targets.incl(captured.targets)
-      result[ek].targets.incl(result[ek].targets)
-      result[ek].flags.incl(evScroll)
     else:
       result[ek] = maxEvt(captured, result[ek])
       # result.gesture = max(captured.gesture, result.gesture)
@@ -405,12 +401,10 @@ proc computeEvents*(node: Figuro) =
   let scroll = captured[evScroll]
   if scroll.targets.len() > 0 and
       not uxInputs.mouse.consumed:
-    let pressed = uxInputs.buttonPress - MouseButtons
-    let down = uxInputs.buttonDown - MouseButtons
 
     for target in scroll.targets:
-      echo "scroll input: ", $target.uid, " name: ", $target.name
-      # emit target.doKeyPress(pressed, down)
+      # echo "scroll input: ", $target.uid, " name: ", $target.name
+      emit target.doScoll(uxInputs.mouse.wheelDelta)
 
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets

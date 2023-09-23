@@ -94,6 +94,8 @@ proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 proc doKeyPress*(fig: Figuro,
                  pressed: UiButtonView,
                  down: UiButtonView) {.signal.}
+proc doScroll*(fig: Figuro,
+               wheelDelta: Position) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -115,6 +117,10 @@ proc keyPress*(fig: Figuro,
 proc clicked*(self: Figuro,
               kind: EventKind,
               buttons: UiButtonView) {.slot.} =
+  discard
+
+proc scroll*(fig: Figuro,
+             wheelDelta: Position) {.slot.} =
   discard
 
 proc clearDraw*(fig: Figuro) {.slot.} =

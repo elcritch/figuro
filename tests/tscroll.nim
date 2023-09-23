@@ -25,6 +25,9 @@ proc tick*(self: Main) {.slot.} =
 
 import pretty
 
+proc scroll*(fig: Main, wheelDelta: Position) {.slot.} =
+  echo "scroll: ", wheelDelta
+
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     rectangle "body":
