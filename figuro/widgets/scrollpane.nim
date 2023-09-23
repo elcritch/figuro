@@ -22,7 +22,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     box 20, 10, 80'vw, 300
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
-    rectangle "body":
+    rectangle "scrollBody":
       boxOf current.parent
       cornerRadius 10.0
       fill whiteColor.darken(0.1)
@@ -31,6 +31,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       current.attrs.incl scrollPanel
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
-  self.children[0] # "body"
+  # self.children[0] # "scrollBody"
+  self
 
 exportWidget(scroll, ScrollPane)
