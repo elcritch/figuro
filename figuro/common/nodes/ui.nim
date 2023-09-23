@@ -84,6 +84,9 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
+proc getWidgetParent*(self: Figuro): Figuro =
+  self
+
 proc doTick*(fig: Figuro) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}

@@ -30,4 +30,8 @@ proc draw*(self: ScrollPane) {.slot.} =
       current.offset = self.scrollby
       current.attrs.incl scrollPanel
 
+proc getWidgetParent*(self: ScrollPane): Figuro =
+  echo "SCROLL BODY"
+  self.children[0] # "body"
+
 exportWidget(scroll, ScrollPane)
