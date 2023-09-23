@@ -97,6 +97,12 @@ proc configureEvents(renderer: Renderer) =
   window.onScroll = proc () =
     var uxInput = AppInputs()
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
+    when defined(debugEvents):
+      stdout.styledWriteLine({styleDim},
+              fgWhite, "scroll ", {styleBright},
+              fgGreen, $uxInput.mouse.wheelDelta.repr,
+              )
+              # fgBlue, " time: " & $(time - lastButtonRelease) )
     discard uxInputList.trySend(uxInput)
 
   window.onButtonPress = proc (button: windy.Button) =
