@@ -8,6 +8,8 @@ switch("styleCheck", "hint")
 --d:windyNoHttp
 --d:printDebugTimings
 
+--hint:"ConvFromXtoItselfNotNeeded:off"
+
 if not defined(emscripten):
   --threads:on
 

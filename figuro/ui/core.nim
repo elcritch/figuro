@@ -139,6 +139,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   else:
     # Reuse Figuro.
     # echo nd(), "checking reuse node"
+    {.hint[CondTrue]:off.}
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
       current = T.new()
@@ -147,6 +148,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     else:
       # echo nd(), "reuse node: ", id, " new: ", current.getId, " parent: ", parent.uid
       current = T(parent.children[parent.diffIndex])
+    {.hint[CondTrue]:on.}
 
     if resetNodes == 0 and
         current.nIndex == parent.diffIndex and
