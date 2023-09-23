@@ -128,6 +128,8 @@ template exportWidget*[T](name: untyped, class: typedesc[T]) =
     let impl = widget.getImpl()
     impl.expectKind(nnkTypeDef)
     let hasGeneric = impl[1].len() > 0
+
+    # probably better ways to handle this, and it only works on 1 generic
     if hasGeneric:
       result = generateGenericBodies(widget, ident "nkRectangle", wargs)
     else:
