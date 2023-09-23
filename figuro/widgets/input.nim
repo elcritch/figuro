@@ -24,7 +24,6 @@ template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
 
 proc updateSelectionBoxes*(self: Input) =
-  let fs = self.theme.font.size.scaled
 
   var sels: seq[Slice[int]]
   for sl in self.layout.lines:
@@ -38,7 +37,6 @@ proc updateSelectionBoxes*(self: Input) =
     let ra = self.layout.selectionRects[sl.a]
     let rb = self.layout.selectionRects[sl.b]
     var rs = ra
-    rs.y = rs.y - 0.1*fs
     rs.w = rb.x - ra.x
     rs.h = (rb.y + rb.h) - ra.y
     self.selectionRects.add rs.descaled()
@@ -65,11 +63,9 @@ proc findNextWord*(self: Input): int =
       return i
 
 proc tick*(self: Input) {.slot.} =
-  return
   if self.isActive:
     self.cnt.inc()
-    # self.cnt = self.cnt mod 33
-    self.cnt = self.cnt mod 140
+    self.cnt = self.cnt mod 33
     if self.cnt == 0:
       self.value = (self.value + 1) mod 2
       refresh(self)
@@ -171,7 +167,6 @@ proc draw*(self: Input) {.slot.} =
       self.textNode = current
       current.textLayout = self.layout
 
-      echo ""
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
@@ -185,12 +180,15 @@ proc draw*(self: Input) {.slot.} =
           box sr.descaled()
           fill blackColor
           current.fill.a = self.value.toFloat * 1.0
-          echo "cursor ", app.frameCount
 
       for i, sl in self.selectionRects:
         rectangle "selection", captures(i):
-          box self.selectionRects[i]
-          fill "#0000CC".parseHtmlColor * 0.2
+          let fs = self.theme.font.size.scaled
+          var rs = self.selectionRects[i]
+          rs.y = rs.y - 0.1*fs
+          box rs
+          fill "#A0A0FF".parseHtmlColor 
+          current.fill.a = 0.2
 
     if self.disabled:
       fill whiteColor.darken(0.4)
