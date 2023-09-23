@@ -191,7 +191,7 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifrender scrollpane in node.attrs:
+  ifrender scrollPanel in node.attrs:
     # handles scrolling panel
     ctx.saveTransform()
     ctx.translate(-node.offset)

@@ -29,7 +29,7 @@ type
   Attributes* = enum
     clipContent
     disableRender
-    scrollpane
+    scrollPanel
     inactive
     postDrawReady
     clearHover
