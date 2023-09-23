@@ -36,7 +36,7 @@ proc draw*(self: Main) {.slot.} =
 
       for i in 0 .. 10:
         button "btn", captures(i):
-          box 10, 10 + i * 120, 90'vw, 100
+          box 10, 10 + i * 80, 90'vw, 70
           connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
