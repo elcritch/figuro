@@ -14,7 +14,7 @@ Note that you *have* to follow these instructions. Using the normal Atlas instal
 
 ```sh
 # recommended to install an up to date atlas
-nimble install https://github.com/elcritch/atlas@\#head
+nimble install https://github.com/nim-lang/atlas@\#head
 
 # new atlas workspace
 mkdir fig_ws && cd fig_ws
