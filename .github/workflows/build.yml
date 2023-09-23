@@ -31,7 +31,7 @@ jobs:
         nimble -v
         rm -Rf ~/.nimble/pkgs/atlas*
         rm -Rf ~/.nimble/pkgs2/atlas*
-        git clone 'https://github.com/elcritch/atlas'
+        nimble install https://github.com/elcritch/atlas@\#head
         cp vendor/atlas.lock ./atlas.lock
         atlas replay atlas.lock
 
