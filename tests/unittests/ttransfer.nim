@@ -10,33 +10,33 @@ import pretty
 
 suite "test layers":
 
-  # suite "basic single layer":
-  #   var self = Figuro.new()
-  #   withDraw(self):
-  #     rectangle "body":
-  #       rectangle "child1":
-  #         discard
-  #       rectangle "child2":
-  #         discard
-  #       rectangle "child3":
-  #         discard
-  #     rectangle "body":
-  #       discard
+  suite "basic single layer":
+    var self = Figuro.new()
+    withDraw(self):
+      rectangle "body":
+        rectangle "child1":
+          discard
+        rectangle "child2":
+          discard
+        rectangle "child3":
+          discard
+      rectangle "body2":
+        discard
 
-  #   emit self.doDraw()
+    emit self.doDraw()
 
-  #   let renders = copyInto(self)
-  #   # for k, v in renders.pairs():
-  #   #   print k
-  #   #   for n in v:
-  #   #     print "node: ", "uid:", n.uid, "child:", n.childCount, "parent:", n.parent
-  #   let n1 = renders[0.ZLevel].childIndex(0.NodeIdx)
-  #   let res1 = n1.mapIt(it+1.NodeIdx)
-  #   check res1.repr == "@[2, 6]"
+    let renders = copyInto(self)
+    # for k, v in renders.pairs():
+    #   print k
+    #   for n in v:
+    #     print "node: ", "uid:", n.uid, "child:", n.childCount, "parent:", n.parent
+    let n1 = renders[0.ZLevel].toTree()
+    print n1
+    let n2 = renders[0.ZLevel]
+    print n2.rootIds
 
-  #   let n2 = renders[0.ZLevel].childIndex(1.NodeIdx)
-  #   let res2 = n2.mapIt(it+1.NodeIdx)
-  #   check res2.repr == "@[3, 4, 5]"
+    # let res2 = n2.mapIt(it+1.NodeIdx)
+    # check res2.repr == "@[3, 4, 5]"
 
   # suite "basic two layer":
   #   var self = Figuro.new()
@@ -126,33 +126,33 @@ suite "test layers":
 
     let renders = copyInto(self)
 
-    echo "\n"
-    for k, v in renders.pairs():
-      print k, v.rootIds
-      for n in v.nodes:
-        print "   node: ",
-          "uid:", n.uid,
-          " // ", n.parent,
-          "chCnt:", n.childCount,
-          "zlvl:", n.zlevel,
-          "n:", $n.name
+    # echo "\n"
+    # for k, v in renders.pairs():
+    #   print k, v.rootIds
+    #   for n in v.nodes:
+    #     print "   node: ",
+    #       "uid:", n.uid,
+    #       " // ", n.parent,
+    #       "chCnt:", n.childCount,
+    #       "zlvl:", n.zlevel,
+    #       "n:", $n.name
 
     assert -10.ZLevel in renders
     check renders[-10.ZLevel].nodes.len() == 3
     check renders[20.ZLevel].nodes.len() == 5
     check renders[30.ZLevel].nodes.len() == 3
 
-    print "\nzlevel: ", -10.ZLevel
-    print renders[-10.ZLevel].toTree()
+    # print "\nzlevel: ", -10.ZLevel
+    # print renders[-10.ZLevel].toTree()
     let res10 = renders[-10.ZLevel].toTree()
     check res10.name == "pseudoRoot"
     check res10[0].name == "child13"
     check res10[0][0].name == "child131"
     check res10[1].name == "child21"
 
-    print "\nzlevel: ", 20.ZLevel
+    # print "\nzlevel: ", 20.ZLevel
     let res20 = renders[20.ZLevel].toTree()
-    print res20
+    # print res20
 
     check res20.name == "pseudoRoot"
     check res20.children.len() == 1
@@ -166,9 +166,9 @@ suite "test layers":
     check res20[0][0][0][0].name == "child01"
     check res20[0][1].name == "body2"
 
-    print "\nzlevel: ", 30.ZLevel
+    # print "\nzlevel: ", 30.ZLevel
     let res30 = renders[30.ZLevel].toTree()
-    print res30
+    # print res30
 
     check res30.name == "pseudoRoot"
     check res30.children.len() == 1
