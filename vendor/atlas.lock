@@ -104,8 +104,8 @@
     },
     "windy": {
       "dir": "$deps/windy.elcritch.github.com",
-      "url": "https://github.com/elcritch/windy",
-      "commit": "6cca277eebdafe651ef7a55c7e1de0df92bb14a4",
+      "url": "",
+      "commit": "9e3a30259f75c514d1b59963631825f8c74ae5fe",
       "version": "0.0.0"
     },
     "asynctools": {
@@ -218,7 +218,7 @@
       "requires \"cdecl >= 0.7.5\"",
       "requires \"asynctools >= 0.1.1\"",
       "requires \"nimsimd >= 1.2.5\"",
-      "requires \"https://github.com/elcritch/windy#http-cleanup\"",
+      "requires \"https://github.com/elcritch/windy#macos-keyinput-fixes\"",
       "requires \"threading\"",
       "requires \"nimscripter#dll\"",
       "requires \"msgpack4nim\"",
