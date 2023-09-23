@@ -39,6 +39,8 @@ jobs:
         # get deps
         atlas use file://figuro/figuro.nimble
 
+        pwd
+        find figuro/
         # sync deps
         cp figuro/vendor/atlas.lock atlas.lock
         atlas replay atlas.lock
