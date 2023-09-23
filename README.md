@@ -25,7 +25,7 @@ git clone https://github.com/elcritch/figuro.git
 
 # sync deps
 cp figuro/vendor/atlas.lock atlas.lock
-atlas replay figuro/vendor/atlas.lock
+atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
 nim c -r figuro/tests/tclick.nim
 ```
 
