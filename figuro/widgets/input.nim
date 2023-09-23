@@ -8,6 +8,7 @@ type
     isActive*: bool
     disabled*: bool
     selection*: Slice[int]
+    selHash*: Hash
     layout*: GlyphArrangement
     textNode*: Figuro
     value: int
@@ -71,7 +72,8 @@ proc keyInput*(self: Input,
 proc keyCommand*(self: Input,
                  pressed: UiButtonView,
                  down: UiButtonView) {.slot.} =
-  echo "\nInput:keyPress: ",
+  when defined(debugEvents):
+    echo "\nInput:keyPress: ",
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
   if down == KNone:
@@ -93,7 +95,6 @@ proc keyCommand*(self: Input,
       self.selection = aa+1 .. bb+1
   elif down == KCadet:
     if pressed == {KeyA}:
-      echo "select all"
       self.selection = 0..ll+1
   elif down == KControl:
     if pressed == {KeyLeft}:
@@ -113,17 +114,16 @@ proc keyCommand*(self: Input,
       let idx = findNextWord(self)
       self.selection = idx..idx
     elif pressed == {KeyBackspace} and aa > 0:
-      echo "backspace: ", aa
       let idx = findPrevWord(self)
       self.layout.runes.delete(idx+1..aa-1)
       self.selection = idx+1..idx+1
       self.updateLayout()
+  self.value = 1
   refresh(self)
 
 proc keyPress*(self: Input,
                pressed: UiButtonView,
                down: UiButtonView) {.slot.} =
-  echo "keypress"
   emit self.doKeyCommand(pressed, down)
 
 proc draw*(self: Input) {.slot.} =
@@ -133,6 +133,8 @@ proc draw*(self: Input) {.slot.} =
   
   connect(self, doKeyCommand, self, Input.keyCommand)
   let fs = self.theme.font.size.scaled
+  if self.selHash != self.selection.hash():
+    refresh(self)
 
   withDraw(self):
 
@@ -166,7 +168,6 @@ proc draw*(self: Input) {.slot.} =
         for sl in self.layout.lines:
           if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
             sels.add max(sl.a, aa)..min(sl.b, bb)
-        echo "sels: ", sels
         for sl in sels:
           rectangle "selection", captures(sl):
             let ra = self.layout.selectionRects[sl.a]

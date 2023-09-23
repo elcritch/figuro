@@ -250,7 +250,6 @@ var keyConfig* {.runtimeVar.}:
 
 proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
   let ck = keys * ModifierButtons
-  echo "CK: ", ck
   if ck == {} and keyConfig[commands] == {}:
     return true
   else:

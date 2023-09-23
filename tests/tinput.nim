@@ -22,6 +22,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
+    self.theme.font = UiFont(typefaceId: self.theme.font.typefaceId, size: 22)
     rectangle "body":
       self.mainRect = current
       box 10, 10, 600, 120
