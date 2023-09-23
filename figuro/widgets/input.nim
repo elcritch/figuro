@@ -42,7 +42,6 @@ proc updateSelectionBoxes*(self: Input) =
     rs.w = rb.x - ra.x
     rs.h = (rb.y + rb.h) - ra.y
     self.selectionRects.add rs.descaled()
-    echo "self.selectionRects: ", app.frameCount, " ", rs.descaled()
 
 proc updateLayout*(self: Input, text = seq[Rune].none) =
   let runes =
@@ -56,7 +55,6 @@ proc updateLayout*(self: Input, text = seq[Rune].none) =
 proc findPrevWord*(self: Input): int =
   result = -1
   for i in countdown(max(0,aa-2), 0):
-    echo "findPrevWord: ", i
     if self.layout.runes[i].isWhiteSpace():
       return i
 
@@ -97,7 +95,7 @@ proc keyInput*(self: Input,
 proc keyCommand*(self: Input,
                  pressed: UiButtonView,
                  down: UiButtonView) {.slot.} =
-  when defined(debugEvents) or true:
+  when defined(debugEvents):
     echo "\nInput:keyPress: ",
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
@@ -192,10 +190,7 @@ proc draw*(self: Input) {.slot.} =
       for i, sl in self.selectionRects:
         rectangle "selection", captures(i):
           box self.selectionRects[i]
-          fill blackColor * 0.1
-          echo "selection ", app.frameCount, " sl: ", sl
-          # fill "#0000CC".parseHtmlColor * 0.2
-      echo ""
+          fill "#0000CC".parseHtmlColor * 0.2
 
     if self.disabled:
       fill whiteColor.darken(0.4)
