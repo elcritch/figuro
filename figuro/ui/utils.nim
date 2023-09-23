@@ -98,6 +98,7 @@ proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
       postNode(Figuro(current))
 
   # echo "Widget:result:\n", result.repr
+
 template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
   when hasCaptures:
     capture `capturedVals`:
