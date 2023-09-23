@@ -21,28 +21,31 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "figuro-dev"
+        path: "figuro"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Install Deps
+    - name: Install Atlas
       run: |
         nim -v
         nimble -v
         nimble install https://github.com/elcritch/atlas@\#head
 
+    - name: Install Deps
+      run: |
+        cd ../
         # new atlas workspace
         atlas init --deps=vendor
 
         # get deps
-        atlas use file://figuro-dev/
+        atlas use file://figuro/
 
         pwd
         find .
         # sync deps
-        cp figuro-dev/vendor/atlas.lock atlas.lock
+        cp figuro/vendor/atlas.lock atlas.lock
         atlas replay atlas.lock
 
     - name: Cache packages
