@@ -20,6 +20,8 @@ jobs:
           - windows-latest
     steps:
     - uses: actions/checkout@v1
+      with:
+        path: "figuro"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
@@ -29,10 +31,17 @@ jobs:
       run: |
         nim -v
         nimble -v
-        rm -Rf ~/.nimble/pkgs/atlas*
-        rm -Rf ~/.nimble/pkgs2/atlas*
+        rm -Rf ~/.nimble/pkgs/atlas* ~/.nimble/pkgs2/atlas*
         nimble install https://github.com/elcritch/atlas@\#head
-        cp vendor/atlas.lock ./atlas.lock
+
+        # new atlas workspace
+        atlas init --deps=vendor
+
+        # get deps
+        atlas use figuro/figuro.nimble
+
+        # sync deps
+        cp figuro/vendor/atlas.lock atlas.lock
         atlas replay atlas.lock
 
     - name: Cache packages
