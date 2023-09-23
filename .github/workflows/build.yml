@@ -29,9 +29,7 @@ jobs:
       run: |
         nim -v
         nimble -v
-        git clone https://github.com/nim-lang/atlas
-        (cd atlas && nimble install)
-        pwd
+        nimble install 'https://github.com/elcritch/atlas@#head'
         cp vendor/atlas.lock ./atlas.lock
         atlas replay atlas.lock
 
