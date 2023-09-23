@@ -46,6 +46,7 @@ import pretty
 proc `$`*(id: NodeIdx): string = "NodeIdx(" & $(int(id)) & ")"
 proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 proc `<=`*(a, b: NodeIdx): bool {.borrow.}
+proc `==`*(a, b: NodeIdx): bool {.borrow.}
 
 iterator childIndex*(
     nodes: seq[Node],

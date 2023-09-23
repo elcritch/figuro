@@ -34,6 +34,8 @@ suite "test layers":
     print n1
     let n2 = renders[0.ZLevel]
     print n2.rootIds
+    check n2.rootIds.len() == 1
+    check n2.rootIds[0] == NodeIdx 0
 
     # let res2 = n2.mapIt(it+1.NodeIdx)
     # check res2.repr == "@[3, 4, 5]"
