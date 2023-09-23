@@ -38,6 +38,8 @@ type
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
+    scroll*: Position
+
     attrs*: set[Attributes]
 
     cxSize*: array[GridDir, Constraint]

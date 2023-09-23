@@ -17,6 +17,7 @@ type
     box*: Rect
     orgBox*: Rect
     screenBox*: Rect
+    scroll*: Vec2
     offset*: Vec2
     totalOffset*: Vec2
     attrs*: set[Attributes]

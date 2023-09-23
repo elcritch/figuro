@@ -9,6 +9,7 @@ type
     value: float
     hasHovered: bool
     hoveredAlpha: float
+    scrollY: UICoord
     mainRect: Figuro
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
@@ -25,8 +26,9 @@ proc tick*(self: Main) {.slot.} =
 
 import pretty
 
-proc scroll*(fig: Main, wheelDelta: Position) {.slot.} =
-  echo "scroll: ", wheelDelta.repr
+proc scroll*(self: Main, wheelDelta: Position) {.slot.} =
+  self.scrollY += wheelDelta.y * 10
+  refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
@@ -41,7 +43,7 @@ proc draw*(self: Main) {.slot.} =
 
       for i in 0 .. 10:
         button "btn", captures(i):
-          box 10, 10 + i * 80, 90'vw, 70
+          box 10, 10 + i * 80 + self.scrollY, 90'vw, 70
           connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
