@@ -27,6 +27,9 @@ var
   glyphImageChan* = newChan[(Hash, Image)](1000)
   glyphImageCached*: HashSet[Hash]
 
+proc toSlices*[T: SomeInteger](a: openArray[(T, T)]): seq[Slice[T]] =
+  a.mapIt(it[0]..it[1])
+
 proc hash*(tp: Typeface): Hash =
   var h = Hash(0)
   h = h !& hash tp.filePath
@@ -53,8 +56,8 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   if arrangement != nil:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
       # echo "span: ", span.repr
-      let
-        span = span[0] ..< span[1]
+      # let
+      #   span = span[0] ..< span[1]
 
       while idx < arrangement.runes.len():
         let
@@ -204,8 +207,8 @@ proc getTypeset*(
   # print arrangement
 
   result = GlyphArrangement(
-    lines: arrangement.lines,
-    spans: arrangement.spans,
+    lines: arrangement.lines.toSlices(),
+    spans: arrangement.spans.toSlices(),
     fonts: gfonts, ## FIXME
     runes: arrangement.runes,
     positions: arrangement.positions,

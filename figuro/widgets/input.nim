@@ -163,21 +163,21 @@ proc draw*(self: Input) {.slot.} =
       let sz = 0..self.layout.selectionRects.high()
       if self.selection.a in sz and self.selection.b in sz: 
         var sels: seq[Slice[int]]
-        for line in self.layout.lines:
-          let sl = line[0]..line[1]
+        for sl in self.layout.lines:
           if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
-            sels.add line[0]..line[1]
+            sels.add sl
         echo "sels: ", sels
-        rectangle "selection":
-          let fs = self.theme.font.size.scaled
-          let ra = self.layout.selectionRects[aa()]
-          let rb = self.layout.selectionRects[bb()]
-          var rs = ra
-          rs.y = rs.y - 0.1*fs
-          rs.w = rb.x - ra.x
-          rs.h = (rb.y + rb.h) - ra.y
-          box rs.descaled()
-          fill "#0000CC".parseHtmlColor * 0.2
+        for lineSel in sels:
+          rectangle "selection":
+            let fs = self.theme.font.size.scaled
+            let ra = self.layout.selectionRects[aa()]
+            let rb = self.layout.selectionRects[bb()]
+            var rs = ra
+            rs.y = rs.y - 0.1*fs
+            rs.w = rb.x - ra.x
+            rs.h = (rb.y + rb.h) - ra.y
+            box rs.descaled()
+            fill "#0000CC".parseHtmlColor * 0.2
 
     if self.disabled:
       fill whiteColor.darken(0.4)

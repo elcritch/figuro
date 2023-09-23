@@ -32,8 +32,8 @@ type
 
   GlyphArrangement* = ref object
     contentHash*: Hash
-    lines*: seq[(int, int)]    ## The (start, stop) of the lines of text.
-    spans*: seq[(int, int)]    ## The (start, stop) of the spans in the text.
+    lines*: seq[Slice[int]]    ## The (start, stop) of the lines of text.
+    spans*: seq[Slice[int]]    ## The (start, stop) of the spans in the text.
     fonts*: seq[GlyphFont]          ## The font for each span.
     runes*: seq[Rune]          ## The runes of the text.
     positions*: seq[Vec2]      ## The positions of the glyphs for each rune.
