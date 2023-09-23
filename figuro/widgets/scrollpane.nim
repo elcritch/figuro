@@ -14,7 +14,7 @@ import pretty
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   # self.scrollby.x -= wheelDelta.x * 10.0
   self.scrollby.y -= wheelDelta.y * 10.0
-  self.scrollby.y = self.scrollby.y.clamp(0.0, self.box.y)
+  # self.scrollby.y = self.scrollby.y.clamp(0.0, self.box.y)
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
@@ -31,7 +31,6 @@ proc draw*(self: ScrollPane) {.slot.} =
       current.attrs.incl scrollPanel
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
-  echo "SCROLL BODY"
   self.children[0] # "body"
 
 exportWidget(scroll, ScrollPane)
