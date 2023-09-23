@@ -189,6 +189,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     connect(current, doKeyInput, current, T.keyInput())
   if T.keyPress().pointer != Figuro.keyPress().pointer:
     connect(current, doKeyPress, current, T.keyPress())
+  if T.scroll().pointer != Figuro.scroll().pointer:
+    connect(current, doScroll, current, T.scroll())
   # if T.tick().pointer != Figuro.tick().pointer:
   #   connect(current, doTick, current, T.tick())
   emit current.doDraw()
@@ -404,7 +406,7 @@ proc computeEvents*(node: Figuro) =
 
     for target in scroll.targets:
       # echo "scroll input: ", $target.uid, " name: ", $target.name
-      emit target.doScoll(uxInputs.mouse.wheelDelta)
+      emit target.doScroll(uxInputs.mouse.wheelDelta)
 
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets

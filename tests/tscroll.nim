@@ -26,7 +26,7 @@ proc tick*(self: Main) {.slot.} =
 import pretty
 
 proc scroll*(fig: Main, wheelDelta: Position) {.slot.} =
-  echo "scroll: ", wheelDelta
+  echo "scroll: ", wheelDelta.repr
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
@@ -37,6 +37,7 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(0.1)
       clipContent true
       current.listens.events.incl evScroll
+      connect(current, doScroll, self, Main.scroll)
 
       for i in 0 .. 10:
         button "btn", captures(i):
