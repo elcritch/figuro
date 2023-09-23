@@ -37,7 +37,7 @@ jobs:
         atlas init --deps=vendor
 
         # get deps
-        atlas use figuro/figuro.nimble
+        atlas use file://figuro/figuro.nimble
 
         # sync deps
         cp figuro/vendor/atlas.lock atlas.lock
