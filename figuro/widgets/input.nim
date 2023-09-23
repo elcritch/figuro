@@ -102,7 +102,6 @@ proc keyCommand*(self: Input,
   if down == KNone:
     if pressed == {KeyBackspace} and self.selection.b > 0:
       let selection = max(aa-1, 0)..max(bb-1, 0)
-      echo "delete: ", selection
       self.layout.runes.delete(selection)
       self.updateLayout()
       self.selection = max(aa-1, 0)..max(aa-1, 0)
@@ -173,6 +172,7 @@ proc draw*(self: Input) {.slot.} =
       self.textNode = current
       current.textLayout = self.layout
 
+      echo ""
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
@@ -186,11 +186,13 @@ proc draw*(self: Input) {.slot.} =
           box sr.descaled()
           fill blackColor
           current.fill.a = self.value.toFloat * 1.0
+          echo "cursor ", app.frameCount
 
       for sl in self.selectionRects:
         rectangle "selection", captures(sl):
           box sl
           fill blackColor * 0.1
+          echo "selection ", app.frameCount
           # fill "#0000CC".parseHtmlColor * 0.2
 
     if self.disabled:
