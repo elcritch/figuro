@@ -1,4 +1,4 @@
-import std/[unicode]
+import std/[unicode, sequtils]
 import pkg/vmath
 
 import common/nodes/basics
@@ -32,16 +32,12 @@ type
     consumed*: bool ## Consumed - need to prevent default action.
 
   Keyboard* = object
-    state*: KeyState
     consumed*: bool ## Consumed - need to prevent default action.
-    # focusNode*: Node
-    # onFocusNode*: Node
-    # onUnFocusNode*: Node
-    input*: seq[Rune]
+    rune*: Option[Rune]
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
   
-  MouseEventKinds* {.size: sizeof(int8).} = enum
+  EventKinds* {.size: sizeof(int8).} = enum
     evClick
     evClickOut
     evHover
@@ -51,18 +47,14 @@ type
     evRelease
     evScroll
     evDrag
+    evKeyboardInput
+    evKeyPress
 
   EventKind* = enum
     Enter
     Exit
 
-  KeyboardEventKinds* {.size: sizeof(int8).} = enum
-    evKeyboardInput
-    evKeyboardFocus
-    evKeyboardFocusOut
-
-  MouseEventFlags* = set[MouseEventKinds]
-  KeyboardEventFlags* = set[KeyboardEventKinds]
+  EventFlags* = set[EventKinds]
 
   UiButton* = enum
     ButtonUnknown
@@ -195,6 +187,19 @@ const
     QuadrupleClick
   }
 
+  ModifierButtons* = {
+    KeyLeftControl,
+    KeyRightControl,
+    KeyLeftSuper,
+    KeyRightSuper,
+    KeyLeftAlt,
+    KeyRightAlt,
+    KeyLeftShift,
+    KeyRightShift,
+    KeyMenu,
+  }
+
+
 type
   AppInputs* = object
     mouse*: Mouse
@@ -215,7 +220,38 @@ when not defined(nimscript):
   export channels
   var uxInputList*: Chan[AppInputs]
 
-var keyboardInput* {.runtimeVar.}: proc (rune: Rune)
+type
+  ModifierKeys* = enum
+    KNone
+    KMeta
+    KControl
+    KAlt
+    KShift
+    KMenu
+
+proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
+  result[KNone] = {}
+  result[KMeta] = 
+          when defined(macosx):
+            {KeyLeftSuper, KeyRightSuper}
+          else:
+            {KeyLeftControl, KeyRightControl}
+  result[KAlt] = 
+          {KeyLeftAlt, KeyRightAlt}
+  result[KShift] = 
+          {KeyLeftShift, KeyRightShift}
+  result[KMenu] = 
+          {KeyMenu}
+
+var keyConfig* {.runtimeVar.}:
+  array[ModifierKeys, UiButtonView] = defaultKeyConfigs()
+
+proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
+  let ck = keys * ModifierButtons
+  if ck == {} and keyConfig[commands] == {}:
+    return true
+  else:
+    ck != {} and ck < keyConfig[commands]
 
 proc click*(mouse: Mouse): bool =
   when defined(clickOnDown):

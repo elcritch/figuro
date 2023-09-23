@@ -44,6 +44,9 @@ var
   scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color 
   scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
+var
+  defaultTypeface* {.runtimeVar.} = internal.getTypeface("IBMPlexSans-Regular.ttf")
+  defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
@@ -72,13 +75,9 @@ proc nd*(): string =
 proc setupRoot*(widget: Figuro) =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
-    # root = Figuro()
-    # root.zlevel = ZLevelDefault
-  # root = widget
-  # nodeStack = @[Figuro(root)]
-  # current = root
-  # current.parent = root
   root.diffIndex = 0
+  if root.theme.isNil:
+    root.theme = Theme(font: defaultFont)
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
@@ -99,12 +98,10 @@ proc removeExtraChildren*(node: Figuro) =
 
 proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
-  # app.requestedFrame = max(1, app.requestedFrame)
   if node == nil:
     return
   app.requestedFrame.inc
   redrawNodes.incl(node)
-  # assert app.frameCount < 10 or node.uid != 0
 
 proc getTitle*(): string =
   ## Gets window title
@@ -131,10 +128,13 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   if parent.children.len <= parent.diffIndex:
     # parent = nodeStack[^1]
     # Create Figuro.
-    current = T.new()
-    echo nd(), "create new node: ", id, " new: ", current.uid, " parent: ", parent.uid
+    current = T()
+    current.agentId = nextAgentId()
+    current.uid = current.agentId
+    current.parent = parent
     parent.children.add(current)
     # current.parent = parent
+    echo nd(), "create new node: ", id, " new: ", current.getId, "/", current.parent.getId(), " n: ", current.name, " parent: ", parent.uid 
     refresh(current)
   else:
     # Reuse Figuro.
@@ -170,9 +170,9 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.highlight = parent.highlight
   current.transparency = parent.transparency
   current.zlevel = parent.zlevel
+  current.theme = parent.theme
 
-  current.listens.mouse = {}
-  # current.listens.gesture = {}
+  current.listens.events = {}
 
   nodeStack.add(current)
   inc parent.diffIndex
@@ -181,6 +181,14 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   connect(current, doDraw, current, Figuro.clearDraw())
   connect(current, doDraw, current, typeof(current).draw())
   connect(current, doDraw, current, Figuro.handlePostDraw())
+  if T.clicked().pointer != Figuro.clicked().pointer:
+    connect(current, doClick, current, T.clicked())
+  if T.keyInput().pointer != Figuro.keyInput().pointer:
+    connect(current, doKeyInput, current, T.keyInput())
+  if T.keyPress().pointer != Figuro.keyPress().pointer:
+    connect(current, doKeyPress, current, T.keyPress())
+  # if T.tick().pointer != Figuro.tick().pointer:
+  #   connect(current, doTick, current, T.tick())
   emit current.doDraw()
 
 proc postNode*(current: var Figuro) =
@@ -231,19 +239,16 @@ proc mouseOverlaps*(node: Figuro): bool =
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   let res = predicate
-  when ET is MouseEventKinds:
-    if evt in node.listens.mouse and res:
-      result.incl(evt)
-    if evt in node.listens.mouseSignals and res:
-      result.incl(evt)
-  elif ET is GestureEventType:
-    if evt in node.listens.gesture and res:
-      result.incl(evt)
-    if evt in node.listens.gestureSignals and res:
-      result.incl(evt)
+  if evt in node.listens.events and res:
+    result.incl(evt)
+  if evt in node.listens.signals and res:
+    result.incl(evt)
 
-proc checkMouseEvents*(node: Figuro): MouseEventFlags =
+proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
+  node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
+  node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
+
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
     node.checkEvent(evPress, uxInputs.mouse.down())
@@ -252,36 +257,31 @@ proc checkMouseEvents*(node: Figuro): MouseEventFlags =
     node.checkEvent(evHover, true)
 
 type
-  EventsCapture*[T: set] = object
+  EventsCapture* = object
     zlvl*: ZLevel
-    flags*: MouseEventFlags
+    flags*: EventFlags
     targets*: HashSet[Figuro]
     buttons*: UiButtonView
 
-  MouseCapture* = EventsCapture[MouseEventFlags]
-  KeyboardCapture* = EventsCapture[KeyboardEventFlags]
-  
-  CapturedEvents* = object
-    mouse*: array[MouseEventKinds, MouseCapture]
-    keyboard*: array[KeyboardEventKinds, KeyboardCapture]
+  CapturedEvents* = array[EventKinds, EventsCapture]
 
-proc maxEvt[T](a, b: EventsCapture[T]): EventsCapture[T] =
+proc maxEvt(a, b: EventsCapture): EventsCapture =
   if b.zlvl >= a.zlvl and b.flags != {}: b
   else: a
 
-proc consumeMouseButtons(mouseEvts: MouseEventFlags): array[MouseEventKinds, UiButtonView] =
+proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonView] =
   ## Consume mouse buttons
   ## 
-  if evPress in mouseEvts:
+  if evPress in matchedEvents:
     result[evPress] = uxInputs.buttonPress * MouseButtons
     uxInputs.buttonPress.excl MouseButtons
-  if evDown in mouseEvts:
+  if evDown in matchedEvents:
     result[evDown] = uxInputs.buttonDown * MouseButtons
     uxInputs.buttonDown.excl MouseButtons
-  if evRelease in mouseEvts:
+  if evRelease in matchedEvents:
     result[evRelease] = uxInputs.buttonRelease * MouseButtons
     uxInputs.buttonRelease.excl MouseButtons
-  if evClick in mouseEvts:
+  if evClick in matchedEvents:
     when defined(clickOnDown):
       result[evPress] = uxInputs.buttonPress * MouseButtons
       result[evClick] = result[evRelease]
@@ -300,44 +300,43 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
-    for ek in MouseEventKinds:
-      result.mouse[ek] = maxEvt(result.mouse[ek], child.mouse[ek])
-    # result.gesture = max(result.gesture, child.gesture)
+    for ek in EventKinds:
+      result[ek] = maxEvt(result[ek], child[ek])
 
   let
-    mouseEvts = node.checkMouseEvents()
-    buttons = mouseEvts.consumeMouseButtons()
+    matchingEvts = node.checkAnyEvents()
+    buttons = matchingEvts.consumeMouseButtons()
     nodeOvelaps = node.mouseOverlaps()
 
-  for ek in MouseEventKinds:
-    let captured = MouseCapture(zlvl: node.zlevel,
-                                flags: mouseEvts * {ek},
-                                buttons: buttons[ek],
-                                targets: toHashSet([node]))
+  for ek in EventKinds:
+    let captured = EventsCapture(zlvl: node.zlevel,
+                                  flags: matchingEvts * {ek},
+                                  buttons: buttons[ek],
+                                  targets: toHashSet([node]))
 
     if clipContent in node.attrs and
-          result.mouse[ek].zlvl <= node.zlevel and
+          result[ek].zlvl <= node.zlevel and
           not nodeOvelaps:
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
-      result.mouse[ek] = captured
-    elif ek == evHover and evHover in mouseEvts:
-      result.mouse[ek].targets.incl(captured.targets)
-      result.mouse[ek].targets.incl(result.mouse[ek].targets)
-      result.mouse[ek].flags.incl(evHover)
+      result[ek] = captured
+    elif ek == evHover and evHover in matchingEvts:
+      result[ek].targets.incl(captured.targets)
+      result[ek].targets.incl(result[ek].targets)
+      result[ek].flags.incl(evHover)
     else:
-      result.mouse[ek] = maxEvt(captured, result.mouse[ek])
+      result[ek] = maxEvt(captured, result[ek])
       # result.gesture = max(captured.gesture, result.gesture)
 
     if nodeOvelaps and node.parent != nil and
-        result.mouse[ek].targets.anyIt(it.zlevel < node.zlevel):
+        result[ek].targets.anyIt(it.zlevel < node.zlevel):
       # if a target node is a lower level, then ignore it
-      result.mouse[ek] = captured
-      let targets = result.mouse[ek].targets
-      result.mouse[ek].targets.clear()
+      result[ek] = captured
+      let targets = result[ek].targets
+      result[ek].targets.clear()
       for tgt in targets:
         if tgt.zlevel >= node.zlevel:
-          result.mouse[ek].targets.incl(tgt)
+          result[ek].targets.incl(tgt)
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
@@ -348,10 +347,11 @@ var
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
+  root.listens.signals.incl {evClick, evClickOut}
 
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
-      uxInputs.keyboard.consumed and
+      uxInputs.keyboard.rune.isNone and
       prevHovers.len == 0:
     return
 
@@ -361,51 +361,76 @@ proc computeEvents*(node: Figuro) =
   uxInputs.windowSize = none Position
 
   # set mouse event flags in targets
-  for ek in MouseEventKinds:
-    let evts = captured.mouse[ek]
+  for ek in EventKinds:
+    let evts = captured[ek]
     for target in evts.targets:
       for target in evts.targets:
-        target.events.mouse.incl evts.flags
+        target.events.incl evts.flags
 
   # Mouse
   printNewEventInfo()
 
-  if captured.mouse[evHover].targets != prevHovers:
-    let hoverTargets = captured.mouse[evHover].targets
+  # handle keyboard inputs
+  let keyInput = captured[evKeyboardInput]
+  if keyInput .targets.len() > 0 and
+      evKeyboardInput in keyInput.flags and
+      uxInputs.keyboard.rune.isSome:
+    let rune = uxInputs.keyboard.rune.get()
+    uxInputs.keyboard.rune = Rune.none
+
+    # echo "keyboard input: ", " rune: `", $rune, "`", " tgts: ", $keys.targets
+    for target in keyInput.targets:
+      emit target.doKeyInput(rune)
+
+  # handle keyboard presses
+  let keyPress = captured[evKeyPress]
+  if keyPress.targets.len() > 0 and
+      evKeyPress in keyPress.flags and
+      uxInputs.buttonPress != {} and
+      not uxInputs.keyboard.consumed:
+    let pressed = uxInputs.buttonPress - MouseButtons
+    let down = uxInputs.buttonDown - MouseButtons
+
+    # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
+    for target in keyPress.targets:
+      emit target.doKeyPress(pressed, down)
+
+  if captured[evHover].targets != prevHovers:
+    let hoverTargets = captured[evHover].targets
     let newHovers = hoverTargets - prevHovers
     let delHovers = prevHovers - hoverTargets
 
     for target in newHovers:
-      target.events.mouse.incl evHover
+      target.events.incl evHover
       emit target.doHover(Enter)
       target.refresh()
       prevHovers.incl target
 
     for target in delHovers:
-      target.events.mouse.excl evHover
+      target.events.excl evHover
       emit target.doHover(Exit)
       target.refresh()
       prevHovers.excl target
 
-  let click = captured.mouse[evClick]
+  let click = captured[evClick]
   if click.targets.len() > 0 and evClick in click.flags:
-    let clickTargets = captured.mouse[evClick].targets
+    let clickTargets = captured[evClick].targets
     let newClicks = clickTargets
     let delClicks = prevClicks - clickTargets
 
     for target in delClicks:
-        target.events.mouse.excl evClick
+        target.events.excl evClick
         emit target.doClick(Exit, click.buttons)
         prevClicks.excl target
 
     for target in newClicks:
-        target.events.mouse.incl evClick
+        target.events.incl evClick
         emit target.doClick(Enter, click.buttons)
         prevClicks.incl target
 
-  uxInputs.buttonPress.excl MouseButtons
-  uxInputs.buttonDown.excl MouseButtons
-  uxInputs.buttonRelease.excl MouseButtons
+  uxInputs.buttonPress = {}
+  uxInputs.buttonDown = {}
+  uxInputs.buttonRelease = {}
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true
@@ -505,109 +530,3 @@ proc computeLayout*(node: Figuro) =
 
   for n in node.children:
     computeLayout(n)
-
-  # if node.layoutAlign == laIgnore:
-  #   return
-
-  # Constraints code.
-  # case node.constraintsVertical:
-  #   of cMin: discard
-  #   of cMax:
-  #     let rightSpace = parent.orgBox.w - node.box.x
-  #     # echo "rightSpace : ", rightSpace  
-  #     node.box.x = parent.box.w - rightSpace
-  #   of cScale:
-  #     let xScale = parent.box.w / parent.orgBox.w
-  #     # echo "xScale: ", xScale 
-  #     node.box.x *= xScale
-  #     node.box.w *= xScale
-  #   of cStretch:
-  #     let xDiff = parent.box.w - parent.orgBox.w
-  #     # echo "xDiff: ", xDiff   
-  #     node.box.w += xDiff
-  #   of cCenter:
-  #     let offset = floor((node.orgBox.w - parent.orgBox.w) / 2.0'ui + node.orgBox.x)
-  #     # echo "offset: ", offset   
-  #     node.box.x = floor((parent.box.w - node.box.w) / 2.0'ui) + offset
-
-  # case node.constraintsHorizontal:
-  #   of cMin: discard
-  #   of cMax:
-  #     let bottomSpace = parent.orgBox.h - node.box.y
-  #     # echo "bottomSpace  : ", bottomSpace   
-  #     node.box.y = parent.box.h - bottomSpace
-  #   of cScale:
-  #     let yScale = parent.box.h / parent.orgBox.h
-  #     # echo "yScale: ", yScale
-  #     node.box.y *= yScale
-  #     node.box.h *= yScale
-  #   of cStretch:
-  #     let yDiff = parent.box.h - parent.orgBox.h
-  #     # echo "yDiff: ", yDiff 
-  #     node.box.h += yDiff
-  #   of cCenter:
-  #     let offset = floor((node.orgBox.h - parent.orgBox.h) / 2.0'ui + node.orgBox.y)
-  #     node.box.y = floor((parent.box.h - node.box.h) / 2.0'ui) + offset
-
-  # # Typeset text
-  # if node.kind == nkText:
-  #   computeTextLayout(node)
-  #   case node.textStyle.autoResize:
-  #     of tsNone:
-  #       # Fixed sized text node.
-  #       discard
-  #     of tsHeight:
-  #       # Text will grow down.
-  #       node.box.h = node.textLayoutHeight
-  #     of tsWidthAndHeight:
-  #       # Text will grow down and wide.
-  #       node.box.w = node.textLayoutWidth
-  #       node.box.h = node.textLayoutHeight
-  #   # print "layout:nkText: ", node.id, node.box
-
-  # template compAutoLayoutNorm(field, fieldSz, padding: untyped;
-  #                             orth, orthSz, orthPadding: untyped) =
-  #   # echo "layoutMode : ", node.layoutMode 
-  #   if node.counterAxisSizingMode == csAuto:
-  #     # Resize to fit elements tightly.
-  #     var maxOrth = 0.0'ui
-  #     for n in node.nodes:
-  #       if n.layoutAlign != laStretch:
-  #         maxOrth = max(maxOrth, n.box.`orthSz`)
-  #     node.box.`orthSz` = maxOrth  + node.`orthPadding` * 2'ui
-
-  #   var at = 0.0'ui
-  #   at += node.`padding`
-  #   for i, n in node.nodes.pairs:
-  #     if n.layoutAlign == laIgnore:
-  #       continue
-  #     if i > 0:
-  #       at += node.itemSpacing
-
-  #     n.box.`field` = at
-
-  #     case n.layoutAlign:
-  #       of laMin:
-  #         n.box.`orth` = node.`orthPadding`
-  #       of laCenter:
-  #         n.box.`orth` = node.box.`orthSz`/2'ui - n.box.`orthSz`/2'ui
-  #       of laMax:
-  #         n.box.`orth` = node.box.`orthSz` - n.box.`orthSz` - node.`orthPadding`
-  #       of laStretch:
-  #         n.box.`orth` = node.`orthPadding`
-  #         n.box.`orthSz` = node.box.`orthSz` - node.`orthPadding` * 2'ui
-  #         # Redo the layout for child node.
-  #         computeLayout(node, n)
-  #       of laIgnore:
-  #         continue
-  #     at += n.box.`fieldSz`
-  #   at += node.`padding`
-  #   node.box.`fieldSz` = at
-
-  # # Auto-layout code.
-  # if node.layoutMode == lmVertical:
-  #   compAutoLayoutNorm(y, h, verticalPadding, x, w, horizontalPadding)
-
-  # if node.layoutMode == lmHorizontal:
-  #   # echo "layoutMode : ", node.layoutMode 
-  #   compAutoLayoutNorm(x, w, horizontalPadding, y, h, verticalPadding)

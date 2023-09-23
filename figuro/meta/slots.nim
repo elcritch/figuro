@@ -85,8 +85,9 @@ proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
   result = newStmtList()
   var varList = newSeq[NimNode]()
   for paramid, paramType in paramsIter(params):
-    varList.add quote do:
+    let vars = quote do:
       var `paramid`: `paramType` = `paramsIdent`.`paramid`
+    varList.add vars
   result.add varList
   # echo "paramsSetup return:\n", treeRepr result
 

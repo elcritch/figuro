@@ -227,20 +227,20 @@ template fill*(node: Figuro) =
 
 template onHover*(inner: untyped) =
   ## Code in the block will run when this box is hovered.
-  current.listens.mouse.incl(evHover)
-  if evHover in current.events.mouse:
+  current.listens.events.incl(evHover)
+  if evHover in current.events:
     inner
 
 template onClick*(inner: untyped) =
   ## On click event handler.
-  current.listens.mouse.incl(evClick)
+  current.listens.events.incl(evClick)
   if evClick in current.events.mouse and
       MouseLeft in uxInputs.buttonPress:
     inner
 
 template onClickOut*(inner: untyped) =
   ## On click event handler.
-  current.listens.mouse.incl(evClickOut)
+  current.listens.events.incl(evClickOut)
   if evClickOut in current.events.mouse and
       MouseLeft in uxInputs.buttonPress:
     inner
@@ -264,12 +264,14 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   # result.paint = newPaint(SolidPaint)
   # result.paint.color = color(0, 0, 0, 1)
 
+proc setText*(node: Figuro, spans: openArray[(UiFont, string)]) =
+  if node.textLayout.isNil:
+    node.textLayout = internal.getTypeset(node.box, spans)
 
 template setText*(spans: openArray[(UiFont, string)]) =
   let thash = spans.hash()
-  let box = current.box
   if current.textLayout.isNil or thash != current.textLayout.contentHash:
-    current.textLayout = internal.getTypeset(box, spans)
+    current.textLayout = internal.getTypeset(current.box, spans)
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -293,9 +295,12 @@ template setText*(spans: openArray[(UiFont, string)]) =
 
 proc findRoot*(node: Figuro): Figuro =
   result = node
-  while result.parent != nil:
-    result = node.parent
-  echo "findRoot: ", result.getId, " box: ", result.box
+  var cnt = 0
+  while result.parent != nil and result != result.parent:
+    result = result.parent
+    cnt.inc
+    if cnt > 10_000:
+      raise newException(IndexDefect, "error finding root")
 
 template Vw*(size: float32): UICoord =
   ## percentage of Viewport width

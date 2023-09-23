@@ -3,10 +3,7 @@ import commons
 import ../ui/utils
 
 type
-  StatefulWidget*[T] = ref object of Figuro
-    state*: T
-
-  Button*[T] = ref object of StatefulWidget[T]
+  Button*[T] = ref object of StatefulFiguro[T]
     label*: string
     isActive*: bool
     disabled*: bool

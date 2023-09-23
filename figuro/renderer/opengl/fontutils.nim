@@ -24,9 +24,11 @@ type
 
 
 var
-  typefaceChan* = newChan[string](100)
   glyphImageChan* = newChan[(Hash, Image)](1000)
   glyphImageCached*: HashSet[Hash]
+
+proc toSlices*[T: SomeInteger](a: openArray[(T, T)]): seq[Slice[T]] =
+  a.mapIt(it[0]..it[1])
 
 proc hash*(tp: Typeface): Hash =
   var h = Hash(0)
@@ -54,8 +56,8 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   if arrangement != nil:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
       # echo "span: ", span.repr
-      let
-        span = span[0] ..< span[1]
+      # let
+      #   span = span[0] ..< span[1]
 
       while idx < arrangement.runes.len():
         let
@@ -112,12 +114,9 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
         )
       var
         snappedBounds = arrangement.computeBounds().snapToPixels()
-      # echo "snappedBounds: ", glyph.rune, " ", glyph.rune.int, " box: ", snappedBounds.repr
     
       let
         lh = font.defaultLineHeight()
-        # bounds = rect(snappedBounds.x, snappedBounds.h + snappedBounds.y - lh,
-        #               snappedBounds.w, lh)
         bounds = rect(0, 0,
                       snappedBounds.w + snappedBounds.x, lh)
         image = newImage(bounds.w.int, bounds.h.int)
@@ -143,7 +142,6 @@ proc getTypeface*(name: string): FontId =
     id = typeface.getId()
 
   typefaceTable[id] = typeface
-  typefaceChan.send(typefacePath)
   result = id
   # echo "typefaceTable:addr: ", getThreadId()
   # echo "getTypeFace: ", result
@@ -209,8 +207,8 @@ proc getTypeset*(
   # print arrangement
 
   result = GlyphArrangement(
-    lines: arrangement.lines,
-    spans: arrangement.spans,
+    lines: arrangement.lines.toSlices(),
+    spans: arrangement.spans.toSlices(),
     fonts: gfonts, ## FIXME
     runes: arrangement.runes,
     positions: arrangement.positions,

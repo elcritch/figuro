@@ -1,3 +1,4 @@
+import std/unicode
 import basics
 import ../../meta
 import ../../inputs
@@ -5,6 +6,7 @@ import cssgrid
 import stack_strings
 
 export basics, meta, inputs, cssgrid, stack_strings
+export unicode
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -13,21 +15,21 @@ else:
 
 
 type
-
   InputEvents* = object
-    mouse*: MouseEventFlags
-    keyboard*: KeyboardEventFlags
+    events*: EventFlags
 
   ListenEvents* = object
-    mouse*: MouseEventFlags
-    mouseSignals*: MouseEventFlags
+    events*: EventFlags
+    signals*: EventFlags
+
+  Theme* = ref object
+    font*: UiFont
 
   Figuro* = ref object of Agent
     parent*: Figuro
-    name*: StackString[16]
     uid*: NodeID
+    name*: StackString[16]
     children*: seq[Figuro]
-    # parent*: Figuro
     nIndex*: int
     diffIndex*: int
 
@@ -41,8 +43,10 @@ type
     cxSize*: array[GridDir, Constraint]
     cxOffset*: array[GridDir, Constraint]
 
-    events*: InputEvents
+    events*: EventFlags
     listens*: ListenEvents
+
+    theme*: Theme
 
     zlevel*: ZLevel
     rotation*: float32
@@ -62,19 +66,7 @@ type
     image*: ImageStyle
     textLayout*: GlyphArrangement
     points*: seq[Position]
-
-    # case kind*: NodeKind
-    # of nkRectangle:
-    #   shadow*: Option[Shadow]
-    #   cornerRadius*: UICoord
-    # of nkImage:
-    #   image*: ImageStyle
-    # of nkText:
-    #   textLayout*: GlyphArrangement
-    # of nkDrawable:
-    #   points*: seq[Position]
-    # else:
-    #   discard
+    
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
@@ -93,8 +85,15 @@ proc getId*(fig: Figuro): NodeID =
 proc doTick*(fig: Figuro) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
-proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
-proc doClick*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.signal.}
+proc doHover*(fig: Figuro,
+              kind: EventKind) {.signal.}
+proc doClick*(fig: Figuro,
+              kind: EventKind,
+              keys: UiButtonView) {.signal.}
+proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
+proc doKeyPress*(fig: Figuro,
+                 pressed: UiButtonView,
+                 down: UiButtonView) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -103,6 +102,19 @@ proc draw*(fig: Figuro) {.slot.} =
   discard
 
 proc load*(fig: Figuro) {.slot.} =
+  discard
+
+proc keyInput*(fig: Figuro, rune: Rune) {.slot.} =
+  discard
+
+proc keyPress*(fig: Figuro,
+               pressed: UiButtonView,
+               down: UiButtonView) {.slot.} =
+  discard
+
+proc clicked*(self: Figuro,
+              kind: EventKind,
+              buttons: UiButtonView) {.slot.} =
   discard
 
 proc clearDraw*(fig: Figuro) {.slot.} =
@@ -133,9 +145,9 @@ template connect*(
     slot: typed
 ) =
   when signalName(signal) == "doClick":
-    a.listens.mouseSignals.incl {evClick, evClickOut}
+    a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
-    a.listens.mouseSignals.incl {evHover}
+    a.listens.signals.incl {evHover}
   signals.connect(a, signal, b, slot)
 
 template bubble*(signal: typed, parent: typed) =

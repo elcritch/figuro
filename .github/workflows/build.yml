@@ -1,6 +1,10 @@
 on:
   pull_request:
+    branches:
+    - "*"
   push:
+    branches:
+    - "main"
 
 jobs:
   tests:
@@ -16,18 +20,27 @@ jobs:
           - windows-latest
     steps:
     - uses: actions/checkout@v1
+      with:
+        path: "figuro"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Install Deps
+    - name: Install Atlas
       run: |
         nim -v
         nimble -v
-        nimble install 'https://github.com/nim-lang/atlas@#e9bb5d903f080a9a1a5b09268d8acd8e8d994f15'
-        cp vendor/atlas.lock ./atlas.lock
-        atlas replay atlas.lock
+        nimble install 'https://github.com/elcritch/atlas@#head'
+
+    - name: Install Deps
+      run: |
+        cd ../
+        # new atlas workspace
+        atlas init --deps=vendor
+
+        # sync deps
+        atlas replay --cfgHere --ignoreUrls figuro/vendor/atlas.lock
 
     - name: Cache packages
       uses: actions/cache@v3

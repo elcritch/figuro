@@ -99,12 +99,19 @@ proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
 
   # echo "Widget:result:\n", result.repr
 
-proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
+proc generateGenericBodies*(widget, kind: NimNode,
+                            wargs: WidgetArgs): NimNode {.compileTime.} =
+
+  # echo "generateGenericBodies:widget: ", widget.treeRepr
+  # echo "generateGenericBodies:widget: ", widget.getTypeImpl.treeRepr
+  # echo "generateGenericBodies:widget: ", widget.getTypeInst.treeRepr
+  # echo "generateGenericBodies:widget: ", widget.getImpl.treeRepr
+
   let (id, stateArg, capturedVals, blk) = wargs
 
   let body = quote do:
       current.postDraw = proc (widget: Figuro) =
-        var current {.inject.}: `widget`[`stateArg`] = `widget`[`stateArg`](widget)
+        var current {.inject.} = `widget`[`stateArg`](widget)
         if postDrawReady in widget.attrs:
           widget.attrs.excl postDrawReady
           `blk`
@@ -131,52 +138,62 @@ proc generateGenericBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
   # echo "Widget:result:\n", result.repr
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
-  ## exports a helper 
+  ## exports a template to use the widget
   macro `name`*(args: varargs[untyped]) =
-    let widget = ident(repr `class`)
+    let widget = class.getTypeInst()
     let wargs = args.parseWidgetArgs()
-    result = widget.generateGenericBodies(ident "nkRectangle", wargs)
+    let impl = widget.getImpl()
+    impl.expectKind(nnkTypeDef)
+    let hasGeneric = impl[1].len() > 0
+    echo "hasGeneric: ", hasGeneric
+    if hasGeneric:
+      result = generateGenericBodies(widget, ident "nkRectangle", wargs)
+    else:
+      result = generateBodies(widget, ident "nkRectangle", wargs)
 
 import std/terminal
 
-proc toString*(figs: HashSet[Figuro]): string =
+proc `$`*(figs: HashSet[Figuro]): string =
   result.add "["
   for fig in figs:
     result.add $fig.getId
     result.add ","
   result.add "]"
 
-var evtMsg: array[MouseEventKinds, seq[(string, string)]]
+var evtMsg: array[EventKinds, seq[(string, string)]]
 
 template printNewEventInfo*() =
-  for ek in MouseEventKinds:
-    let evts = captured.mouse[ek]
-    let targets = evts.targets
+  when defined(debugEvents):
+    for ek in EventKinds:
+      let evts = captured[ek]
+      let targets = evts.targets
 
-    if evts.flags != {} and
-      ek in evts.flags and
-      # evts.flags != {evHover} and
-      # not uxInputs.keyboard.consumed and
-      true:
-      
-      var emsg: seq[(string, string)] = @[
-                  ("ek: ", $ek),
-                  ("tgt: ", targets.toString()),
-                  # ("evts: ", $evts.flags),
-                  ("btnsP: ", $uxInputs.buttonPress),
-                  ("btnsR: ", $uxInputs.buttonRelease),
-                  # (" consumed: ", $uxInputs.mouse.consumed),
-                  # ( " ", $app.frameCount),
-                  ]
-      if ek == evClick:
-        emsg.add ("pClick: ", $prevClicks.toString())
-      if ek == evHover:
-        emsg.add ("pHover: ", $prevHovers.toString())
+      if evts.flags != {} and
+        ek in evts.flags and
+        # evts.flags != {evHover} and
+        # not uxInputs.keyboard.consumed and
+        true:
+        
+        var emsg: seq[(string, string)] = @[
+                    ("ek: ", $ek),
+                    ("tgt: ", $targets),
+                    # ("evts: ", $evts.flags),
+                    ("btnsP: ", $uxInputs.buttonPress),
+                    ("btnsR: ", $uxInputs.buttonRelease),
+                    # (" consumed: ", $uxInputs.mouse.consumed),
+                    # ( " ", $app.frameCount),
+                    ]
+        if ek == evClick:
+          emsg.add ("pClick: ", $prevClicks)
+        if ek == evHover:
+          emsg.add ("pHover: ", $prevHovers)
+        if ek == evKeyboardInput:
+          emsg.add ("pKeyInput: ", $uxInputs.keyboard.rune)
 
-      if emsg != evtMsg[ek]:
-        evtMsg[ek] = emsg
-        stdout.styledWrite({styleDim}, fgWhite, "mouse events: ")
-        for (n, v) in emsg.items():
-          stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
-        stdout.styledWriteLine(fgWhite, "")
+        if emsg != evtMsg[ek]:
+          evtMsg[ek] = emsg
+          stdout.styledWrite({styleDim}, fgWhite, "events: ")
+          for (n, v) in emsg.items():
+            stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
+          stdout.styledWriteLine(fgWhite, "")
 

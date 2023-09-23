@@ -47,7 +47,14 @@ import std/os
 import std/strutils
 
 task test, "compile tests":
+  # unit tests
+  for (k, f) in walkDir("tests/unittests/"):
+    if k != pcDir and f.startsWith("t") and f.endsWith(".nim"):
+      # echo "F: ", f
+      exec "nim c -r " & f
+  
+  # test compile widgets
   for (k, f) in walkDir("tests"):
-    if k != pcDir and f.endsWith(".nim"):
+    if k != pcDir and f.startsWith("t") and f.endsWith(".nim"):
       # echo "F: ", f
       exec "nim c " & f

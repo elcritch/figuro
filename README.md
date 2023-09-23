@@ -10,27 +10,28 @@ The core idea is to split it into two main pieces:
 
 ## Trying it out
 
+Note that you *have* to follow these instructions. Using the normal Atlas installation *won't* give you the correct packages.
+
 ```sh
+# recommended to install an up to date atlas
+nimble install https://github.com/elcritch/atlas@\#head
+
 # new atlas workspace
 mkdir fig_ws && cd fig_ws
-atlas init
+atlas init --deps=vendor
 
 # get deps
-atlas use https://github.com/elcritch/figuro.git
+git clone https://github.com/elcritch/figuro.git
 
 # sync deps
 cp figuro/vendor/atlas.lock atlas.lock
-atlas replay atlas.lock
+atlas replay figuro/vendor/atlas.lock
 nim c -r figuro/tests/tclick.nim
 ```
-
-(note there's a fix in the works for Atlas to simplify this a bit)
 
 ![Click Example](tests/tclick-screenshot.png)
 
 Currently during the early development only Atlas with `atlas.lock` files are intended to work. Nimble lock files are updated but may or may not work.
-
-Note using `atlas use figuro` or `atlas install figuro` likely won't grab the correct versions of things. You can do a `atlas replay atlas.lock` to setup your workspace. Then create your own project in the same workspace and set it up with `atlas use --cfgHere --keepCommits ../figuro/figuro.nimble`.
 
 Eventually these issues will be resolved.
 

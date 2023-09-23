@@ -80,7 +80,7 @@
     },
     "stack_strings": {
       "dir": "$deps/nim-stack-strings",
-      "url": "https://github.com/termermc/nim-stack-strings",
+      "url": "https://github.com/termermc/nim-stack-strings/",
       "commit": "98df4cefe32fc55cf02ca3895252b1951f16dfd5",
       "version": "1.1.0"
     },
@@ -99,13 +99,13 @@
     "threading": {
       "dir": "$deps/threading",
       "url": "https://github.com/nim-lang/threading",
-      "commit": "eddef1699968a60ae8b7200c2b3eba01a6239d89",
+      "commit": "bcc284991ba928d1ed299a81a93b7113cc7de04f",
       "version": "0.2.0"
     },
     "windy": {
       "dir": "$deps/windy.elcritch.github.com",
       "url": "https://github.com/elcritch/windy",
-      "commit": "89a9d2d14c0c203bed696097f1ceac02cac6b4c0",
+      "commit": "9e3a30259f75c514d1b59963631825f8c74ae5fe",
       "version": "0.0.0"
     },
     "asynctools": {
@@ -218,7 +218,7 @@
       "requires \"cdecl >= 0.7.5\"",
       "requires \"asynctools >= 0.1.1\"",
       "requires \"nimsimd >= 1.2.5\"",
-      "requires \"https://github.com/elcritch/windy#http-cleanup\"",
+      "requires \"https://github.com/elcritch/windy#macos-keyinput-fixes\"",
       "requires \"threading\"",
       "requires \"nimscripter#dll\"",
       "requires \"msgpack4nim\"",
