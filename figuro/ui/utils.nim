@@ -74,7 +74,8 @@ template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
     `body`
 
 proc generateBodies*(widget, kind: NimNode,
-                     wargs: WidgetArgs, hasGeneric: bool): NimNode {.compileTime.} =
+                     wargs: WidgetArgs,
+                     hasGeneric: bool): NimNode {.compileTime.} =
 
   let (id, stateArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
