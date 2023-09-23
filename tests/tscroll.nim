@@ -33,6 +33,7 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       fill whiteColor.darken(0.1)
       clipContent true
+      current.listens.events.incl evScroll
 
       for i in 0 .. 10:
         button "btn", captures(i):

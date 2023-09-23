@@ -257,6 +257,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
+    node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
 
 type
   EventsCapture* = object
@@ -326,6 +327,10 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       result[ek].targets.incl(captured.targets)
       result[ek].targets.incl(result[ek].targets)
       result[ek].flags.incl(evHover)
+    elif ek == evScroll and evScroll in matchingEvts:
+      result[ek].targets.incl(captured.targets)
+      result[ek].targets.incl(result[ek].targets)
+      result[ek].flags.incl(evScroll)
     else:
       result[ek] = maxEvt(captured, result[ek])
       # result.gesture = max(captured.gesture, result.gesture)
@@ -397,6 +402,16 @@ proc computeEvents*(node: Figuro) =
     for target in keyPress.targets:
       emit target.doKeyPress(pressed, down)
 
+  let scroll = captured[evScroll]
+  if scroll.targets.len() > 0 and
+      not uxInputs.mouse.consumed:
+    let pressed = uxInputs.buttonPress - MouseButtons
+    let down = uxInputs.buttonDown - MouseButtons
+
+    for target in scroll.targets:
+      echo "scroll input: ", $target.uid, " name: ", $target.name
+      # emit target.doKeyPress(pressed, down)
+
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets
     let newHovers = hoverTargets - prevHovers
@@ -436,6 +451,7 @@ proc computeEvents*(node: Figuro) =
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true
+  uxInputs.mouse.wheelDelta = initPosition(0, 0)
 
 var gridChildren: seq[Figuro]
 
