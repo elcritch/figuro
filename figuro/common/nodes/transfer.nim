@@ -100,6 +100,7 @@ proc convert*(current: Figuro): render.Node =
   result.screenBox = current.screenBox.scaled
   result.offset = current.offset.scaled
   result.totalOffset = current.totalOffset.scaled
+  result.scroll = current.scroll.scaled
   result.attrs = current.attrs
 
   result.zlevel = current.zlevel

@@ -27,7 +27,6 @@ var
   popupActive* {.runtimeVar.}: bool
   inPopup* {.runtimeVar.}: bool
   resetNodes* {.runtimeVar.}: int
-  popupBox* {.runtimeVar.}: Box
 
   # Used to check for duplicate ID paths.
   pathChecker* {.runtimeVar.}: Table[string, bool]
@@ -189,8 +188,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     connect(current, doKeyInput, current, T.keyInput())
   if T.keyPress().pointer != Figuro.keyPress().pointer:
     connect(current, doKeyPress, current, T.keyPress())
-  if T.scroll().pointer != Figuro.scroll().pointer:
-    connect(current, doScroll, current, T.scroll())
   # if T.tick().pointer != Figuro.tick().pointer:
   #   connect(current, doTick, current, T.tick())
   emit current.doDraw()
@@ -227,19 +224,16 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
 
-proc mouseOverlaps*(node: Figuro): bool =
+proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
-  let mpos = uxInputs.mouse.pos + node.totalOffset 
+  var mpos = uxInputs.mouse.pos 
+  if includeOffset:
+    mpos += node.totalOffset 
   let act = 
-    (not popupActive or inPopup) and
     node.screenBox.w > 0'ui and
     node.screenBox.h > 0'ui 
 
-  result =
-    act and
-    mpos.overlaps(node.screenBox) and
-    (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
-
+  result = act and mpos.overlaps(node.screenBox)
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   let res = predicate
@@ -311,7 +305,6 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   let
     matchingEvts = node.checkAnyEvents()
     buttons = matchingEvts.consumeMouseButtons()
-    nodeOvelaps = node.mouseOverlaps()
 
   for ek in EventKinds:
     let captured = EventsCapture(zlvl: node.zlevel,
@@ -321,7 +314,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
     if clipContent in node.attrs and
           result[ek].zlvl <= node.zlevel and
-          not nodeOvelaps:
+          not node.mouseOverlaps(false):
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result[ek] = captured
@@ -333,7 +326,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       result[ek] = maxEvt(captured, result[ek])
       # result.gesture = max(captured.gesture, result.gesture)
 
-    if nodeOvelaps and node.parent != nil and
+    if node.mouseOverlaps(false) and node.parent != nil and
         result[ek].targets.anyIt(it.zlevel < node.zlevel):
       # if a target node is a lower level, then ignore it
       result[ek] = captured

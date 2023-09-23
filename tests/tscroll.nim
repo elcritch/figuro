@@ -9,7 +9,7 @@ type
     value: float
     hasHovered: bool
     hoveredAlpha: float
-    scrollY: UICoord
+    scrollby: Position
     mainRect: Figuro
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
@@ -27,23 +27,28 @@ proc tick*(self: Main) {.slot.} =
 import pretty
 
 proc scroll*(self: Main, wheelDelta: Position) {.slot.} =
-  self.scrollY += wheelDelta.y * 10
+  # self.scrollby.x -= wheelDelta.x * 10.0
+  self.scrollby.y -= wheelDelta.y * 10.0
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
+    box 20, 10, 80'vw, 300
+    current.listens.events.incl evScroll
+    connect(current, doScroll, self, Main.scroll)
     rectangle "body":
       self.mainRect = current
-      box 20, 10, 80'vw, 300
+      # box 20, 10, 80'vw, 300
+      boxOf current.parent
       cornerRadius 10.0
       fill whiteColor.darken(0.1)
       clipContent true
-      current.listens.events.incl evScroll
-      connect(current, doScroll, self, Main.scroll)
+      current.offset = self.scrollby
+      current.attrs.incl scrollpane
 
       for i in 0 .. 10:
-        button "btn", captures(i):
-          box 10, 10 + i * 80 + self.scrollY, 90'vw, 70
+        button "button", captures(i):
+          box 10, 10 + i * 80, 90'vw, 70
           connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
