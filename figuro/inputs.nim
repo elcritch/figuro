@@ -234,9 +234,7 @@ proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
   result[KMeta] = 
           when defined(macosx):
             {KeyLeftSuper, KeyRightSuper}
-          elif defined(linux):
-            {KeyLeftControl, KeyRightControl}
-          elif defined(windows):
+          else:
             {KeyLeftControl, KeyRightControl}
   result[KAlt] = 
           {KeyLeftAlt, KeyRightAlt}
