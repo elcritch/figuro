@@ -38,9 +38,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   ## Parses widget args looking for options:
   ## - `state(int)` 
   ## - `captures(i, x)` 
-  ## 
   args.expectKind(nnkArgList)
-  # echo "parseWidgetArgs:args: ", args.treeRepr
 
   result.id = args[0]
   result.id.expectKind(nnkStrLit)
@@ -55,7 +53,6 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       if fname.repr == "state":
         if arg.len() != 2:
           error "only one type var allowed"
-        # arg[1].expectKind(nnkBracket)
         result.stateArg = arg[1]
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
@@ -63,12 +60,18 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       else:
         error("unexpected arguement: " & arg.repr, arg)
     else:
-      echo "UNEXPECTED"
       error("unexpected arguement: " & arg.repr, arg)
   
   if result.stateArg.isNil:
     result.stateArg = ident"void"
   # echo "parseWidgetArgs:res: ", result.repr
+
+template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
+  when hasCaptures:
+    capture `capturedVals`:
+      `body`
+  else:
+    `body`
 
 proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
   let (id, stateArg, capturedVals, blk) = wargs
@@ -80,40 +83,20 @@ proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
           widget.attrs.excl postDrawReady
           `blk`
 
-  let outer =
-    if capturedVals.isNil:
-      quote do:
-        `body`
-    else:
-      quote do:
-        capture `capturedVals`:
-          `body`
+  let hasCaptures = newLit(not capturedVals.isNil)
 
   result = quote do:
     block:
       var parent: Figuro = Figuro(current)
       var current {.inject.}: `widget` = nil
       preNode(`kind`, `id`, current, parent)
-      `outer`
+      wrapCaptures(`hasCaptures`, `capturedVals`):
+        `body`
       postNode(Figuro(current))
-
   # echo "Widget:result:\n", result.repr
-
-template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
-  when hasCaptures:
-    capture `capturedVals`:
-      `body`
-  else:
-    `body`
-
 
 proc generateGenericBodies*(widget, kind: NimNode,
                             wargs: WidgetArgs): NimNode {.compileTime.} =
-
-  # echo "generateGenericBodies:widget: ", widget.treeRepr
-  # echo "generateGenericBodies:widget: ", widget.getTypeImpl.treeRepr
-  # echo "generateGenericBodies:widget: ", widget.getTypeInst.treeRepr
-  # echo "generateGenericBodies:widget: ", widget.getImpl.treeRepr
 
   let (id, stateArg, capturedVals, blk) = wargs
 
@@ -136,8 +119,6 @@ proc generateGenericBodies*(widget, kind: NimNode,
       wrapCaptures(`hasCaptures`, `capturedVals`):
         `body`
       postNode(Figuro(current))
-
-  # echo "Widget:result:\n", result.repr
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
   ## exports a template to use the widget
