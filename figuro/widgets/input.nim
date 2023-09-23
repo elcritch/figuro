@@ -166,9 +166,14 @@ proc draw*(self: Input) {.slot.} =
           let fs = self.theme.font.size.scaled
           let sa = self.layout.selectionRects[self.selection.a]
           let sb = self.layout.selectionRects[self.selection.b]
+          var sx = 0.0
+          for line in self.layout.lines:
+            if line[1] in self.selection:
+              sx = max(sx, self.layout.selectionRects[line[1]].x)
+          echo "sc: ", sx
           var ss = sa
           ss.y = ss.y - 0.1*fs
-          ss.w = sb.x - sa.x
+          ss.w = sx - sa.x
           ss.h = (sb.y + sb.h) - sa.y
           box ss.descaled()
           fill "#0000CC".parseHtmlColor * 0.2
