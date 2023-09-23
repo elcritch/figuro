@@ -31,7 +31,7 @@ jobs:
       run: |
         nim -v
         nimble -v
-        nimble install https://github.com/elcritch/atlas@\#head
+        nimble install 'https://github.com/elcritch/atlas@#head'
 
     - name: Install Deps
       run: |
