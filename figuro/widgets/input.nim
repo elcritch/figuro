@@ -132,6 +132,7 @@ proc draw*(self: Input) {.slot.} =
     self.layout = GlyphArrangement()
   
   connect(self, doKeyCommand, self, Input.keyCommand)
+  let fs = self.theme.font.size.scaled
 
   withDraw(self):
 
@@ -148,7 +149,6 @@ proc draw*(self: Input) {.slot.} =
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
         if self.selection.a in sz and self.selection.b in sz: 
-          let fs = self.theme.font.size.scaled
           var sr = self.layout.selectionRects[self.selection.b]
           ## this is gross but works for now
           let width = max(0.08*fs, 2.0)
@@ -161,17 +161,16 @@ proc draw*(self: Input) {.slot.} =
           current.fill.a = self.value.toFloat * 1.0
 
       let sz = 0..self.layout.selectionRects.high()
-      if self.selection.a in sz and self.selection.b in sz: 
+      if aa != bb and self.selection.a in sz and self.selection.b in sz: 
         var sels: seq[Slice[int]]
         for sl in self.layout.lines:
           if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
-            sels.add sl
+            sels.add max(sl.a, aa)..min(sl.b, bb)
         echo "sels: ", sels
-        for lineSel in sels:
-          rectangle "selection":
-            let fs = self.theme.font.size.scaled
-            let ra = self.layout.selectionRects[aa()]
-            let rb = self.layout.selectionRects[bb()]
+        for sl in sels:
+          rectangle "selection", captures(sl):
+            let ra = self.layout.selectionRects[sl.a]
+            let rb = self.layout.selectionRects[sl.b]
             var rs = ra
             rs.y = rs.y - 0.1*fs
             rs.w = rb.x - ra.x
