@@ -160,22 +160,18 @@ proc draw*(self: Input) {.slot.} =
           fill blackColor
           current.fill.a = self.value.toFloat * 1.0
 
-      rectangle "selection":
-        let sz = 0..self.layout.selectionRects.high()
-        if self.selection.a in sz and self.selection.b in sz: 
+      let sz = 0..self.layout.selectionRects.high()
+      if self.selection.a in sz and self.selection.b in sz: 
+        let lines = self.layout.lines.filterIt(it[1] <= bb)
+        rectangle "selection":
           let fs = self.theme.font.size.scaled
-          let sa = self.layout.selectionRects[self.selection.a]
-          let sb = self.layout.selectionRects[self.selection.b]
-          var sx = 0.0
-          for line in self.layout.lines:
-            if line[1] in self.selection:
-              sx = max(sx, self.layout.selectionRects[line[1]].x)
-          echo "sc: ", sx
-          var ss = sa
-          ss.y = ss.y - 0.1*fs
-          ss.w = sx - sa.x
-          ss.h = (sb.y + sb.h) - sa.y
-          box ss.descaled()
+          let ra = self.layout.selectionRects[aa()]
+          let rb = self.layout.selectionRects[bb()]
+          var rs = ra
+          rs.y = rs.y - 0.1*fs
+          rs.w = rb.x - ra.x
+          rs.h = (rb.y + rb.h) - ra.y
+          box rs.descaled()
           fill "#0000CC".parseHtmlColor * 0.2
 
     if self.disabled:
