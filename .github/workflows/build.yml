@@ -21,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "figuro"
+        path: "figuro-dev"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
@@ -37,12 +37,12 @@ jobs:
         atlas init --deps=vendor
 
         # get deps
-        atlas use file://figuro/figuro.nimble
+        atlas use file://figuro-dev/
 
         pwd
-        find figuro/
+        find .
         # sync deps
-        cp figuro/vendor/atlas.lock atlas.lock
+        cp figuro-dev/vendor/atlas.lock atlas.lock
         atlas replay atlas.lock
 
     - name: Cache packages
