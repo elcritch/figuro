@@ -145,7 +145,6 @@ template exportWidget*[T](name: untyped, class: typedesc[T]) =
     let impl = widget.getImpl()
     impl.expectKind(nnkTypeDef)
     let hasGeneric = impl[1].len() > 0
-    echo "hasGeneric: ", hasGeneric
     if hasGeneric:
       result = generateGenericBodies(widget, ident "nkRectangle", wargs)
     else:

@@ -14,7 +14,7 @@ Note that you *have* to follow these instructions. Using the normal Atlas instal
 
 ```sh
 # recommended to install an up to date atlas
-nimble install https://github.com/elcritch/atlas@\#head
+nimble install https://github.com/nim-lang/atlas@\#head
 
 # new atlas workspace
 mkdir fig_ws && cd fig_ws
@@ -25,7 +25,7 @@ git clone https://github.com/elcritch/figuro.git
 
 # sync deps
 cp figuro/vendor/atlas.lock atlas.lock
-atlas replay figuro/vendor/atlas.lock
+atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
 nim c -r figuro/tests/tclick.nim
 ```
 
