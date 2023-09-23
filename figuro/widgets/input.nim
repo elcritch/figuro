@@ -162,7 +162,12 @@ proc draw*(self: Input) {.slot.} =
 
       let sz = 0..self.layout.selectionRects.high()
       if self.selection.a in sz and self.selection.b in sz: 
-        let lines = self.layout.lines.filterIt(it[1] <= bb)
+        var sels: seq[Slice[int]]
+        for line in self.layout.lines:
+          let sl = line[0]..line[1]
+          if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
+            sels.add line[0]..line[1]
+        echo "sels: ", sels
         rectangle "selection":
           let fs = self.theme.font.size.scaled
           let ra = self.layout.selectionRects[aa()]

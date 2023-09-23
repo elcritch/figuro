@@ -30,7 +30,6 @@ type
     strikethrough*: bool        ## Apply a strikethrough.
     noKerningAdjustments*: bool ## Optionally disable kerning pair adjustments
 
-
   GlyphArrangement* = ref object
     contentHash*: Hash
     lines*: seq[(int, int)]    ## The (start, stop) of the lines of text.
