@@ -73,41 +73,26 @@ template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
   else:
     `body`
 
-proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
-  let (id, _, capturedVals, blk) = wargs
-
-  let hasCaptures = newLit(not capturedVals.isNil)
-
-  result = quote do:
-    block:
-      var parent: Figuro = Figuro(current)
-      var current {.inject.}: `widget` = nil
-      preNode(`kind`, `id`, current, parent)
-      wrapCaptures(`hasCaptures`, `capturedVals`):
-        current.postDraw = proc (widget: Figuro) =
-          var current {.inject.}: `widget` = `widget`(widget)
-          if postDrawReady in widget.attrs:
-            widget.attrs.excl postDrawReady
-            `blk`
-      postNode(Figuro(current))
-  # echo "Widget:result:\n", result.repr
-
-proc generateGenericBodies*(widget, kind: NimNode,
-                            wargs: WidgetArgs): NimNode {.compileTime.} =
+proc generateBodies*(widget, kind: NimNode,
+                     wargs: WidgetArgs, hasGeneric: bool): NimNode {.compileTime.} =
 
   let (id, stateArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
+
+  let widgetType =
+    if not hasGeneric: quote do: `widget`
+    else: quote do: `widget`[`stateArg`]
 
   result = quote do:
     block:
       when not compiles(current.typeof):
         {.error: "missing `var current` in current scope!".}
       var parent {.inject.}: Figuro = Figuro(current)
-      var current {.inject.}: `widget`[`stateArg`] = nil
+      var current {.inject.}: `widgetType` = nil
       preNode(`kind`, `id`, current, parent)
       wrapCaptures(`hasCaptures`, `capturedVals`):
         current.postDraw = proc (widget: Figuro) =
-          var current {.inject.} = `widget`[`stateArg`](widget)
+          var current {.inject.} = `widgetType`(widget)
           if postDrawReady in widget.attrs:
             widget.attrs.excl postDrawReady
             `blk`
@@ -122,11 +107,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]) =
     impl.expectKind(nnkTypeDef)
     let hasGeneric = impl[1].len() > 0
 
-    # probably better ways to handle this, and it only works on 1 generic
-    if hasGeneric:
-      result = generateGenericBodies(widget, ident "nkRectangle", wargs)
-    else:
-      result = generateBodies(widget, ident "nkRectangle", wargs)
+    result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
 
 import std/terminal
 

@@ -205,7 +205,7 @@ macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
   let widget = ident("Figuro")
   let wargs = args.parseWidgetArgs()
-  result = widget.generateBodies(kind, wargs)
+  result = widget.generateBodies(kind, wargs, hasGeneric=false)
 
 # template node*(kind: NodeKind, id: string, blk: untyped): untyped =
 #   node(kind, id, void, blk)
