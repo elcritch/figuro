@@ -50,6 +50,12 @@ proc updateLayout*(self: Input, text = seq[Rune].none) =
   self.layout.runes.setLen(ll())
   self.updateSelectionBoxes()
 
+proc findLine*(self: Input): int =
+  result = -1
+  for idx, sl in self.layout.lines:
+    if aa in sl:
+      return idx
+
 proc findPrevWord*(self: Input): int =
   result = -1
   for i in countdown(max(0,aa-2), 0):
@@ -105,6 +111,18 @@ proc keyCommand*(self: Input,
       self.selection = max(aa-1, 0)..max(aa-1, 0)
     elif pressed == {KeyRight}:
       self.selection = min(bb+1, ll+1)..min(bb+1, ll+1)
+    elif pressed == {KeyUp}:
+      let li = self.findLine()
+      let lp = (li-1).max(0)
+      let ls = self.layout.lines[lp]
+      let ldiff = aa - self.layout.lines[li].a
+      self.selection = (ls.a+ldiff)..(ls.a+ldiff)
+    elif pressed == {KeyDown}:
+      let li = self.findLine()
+      let ln = (li+1).min(self.layout.lines.len()-1)
+      let ls = self.layout.lines[ln]
+      let ldiff = aa - self.layout.lines[li].a
+      self.selection = (ls.a+ldiff)..(ls.a+ldiff)
     elif pressed == {KeyEscape}:
       self.clicked(Exit, {})
     elif pressed == {KeyEnter}:
