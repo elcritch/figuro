@@ -31,7 +31,6 @@ jobs:
       run: |
         nim -v
         nimble -v
-        rm -Rf ~/.nimble/pkgs/atlas* ~/.nimble/pkgs2/atlas*
         nimble install https://github.com/elcritch/atlas@\#head
 
         # new atlas workspace
