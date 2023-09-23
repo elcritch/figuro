@@ -127,6 +127,9 @@ proc renderBoxes*(node: Node) =
                           weight = node.stroke.weight,
                           radius = node.cornerRadius)
 
+import strutils
+var depth = 0
+
 proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
 
   template node(): auto = nodes[nodeIdx.int]
@@ -149,6 +152,8 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
     return
   
   # setup the opengl context to match the current node size and position
+
+  echo " ".repeat(depth), "render node: ", node.uid
 
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
@@ -199,7 +204,9 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
 
   # echo "draw:children: ", repr childIdxs 
   for childIdx in childIndex(nodes, nodeIdx):
+    depth.inc()
     render(nodes, childIdx, nodeIdx)
+    depth.dec()
 
   # finally blocks will be run here, in reverse order
   postRender()
@@ -214,6 +221,10 @@ proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
     ctx.putImage(img[0], img[1])
 
   for zlvl, list in nodes.pairs():
+    echo "\nroot: ", list.roots
     for rootIdx in list.roots:
+      echo "root: ", rootIdx
+      depth.inc()
       render(list.nodes, rootIdx, -1.NodeIdx)
+      depth.dec()
 

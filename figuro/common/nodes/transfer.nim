@@ -6,7 +6,7 @@ import ../../shared
 type
   RenderList* = object
     nodes*: seq[Node]
-    roots*: seq[NodeIdx]
+    rootIds*: seq[NodeIdx]
   RenderNodes* = OrderedTable[ZLevel, RenderList]
 
 proc add*(list: var RenderList, node: Node) =
@@ -17,13 +17,13 @@ proc add*(list: var RenderList, node: Node) =
   ## zlevels and end up in a the RenderList
   ## for that ZLevel without their logical parent. 
   ##
-  if list.roots.len() == 0:
-    list.roots.add(list.nodes.len().NodeIdx)
+  if list.rootIds.len() == 0:
+    list.rootIds.add(list.nodes.len().NodeIdx)
   else:
-    let lastRoot = list.nodes[list.roots[^1].int]
+    let lastRoot = list.nodes[list.rootIds[^1].int]
     if node.parent != lastRoot.uid and
         node.parent != list.nodes[^1].uid:
-      list.roots.add(list.nodes.len().NodeIdx)
+      list.rootIds.add(list.nodes.len().NodeIdx)
   list.nodes.add(node)
 
 proc convert*(current: Figuro): render.Node =
@@ -115,7 +115,7 @@ proc toTree*(nodes: seq[Node],
 
 proc toTree*(list: RenderList): RenderTree =
   result = RenderTree(name: "pseudoRoot")
-  for rootIdx in list.roots:
+  for rootIdx in list.rootIds:
     # echo "toTree:rootIdx: ", rootIdx.int
     result.children.add toTree(list.nodes, rootIdx)
 

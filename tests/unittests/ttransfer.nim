@@ -128,7 +128,7 @@ suite "test layers":
 
     echo "\n"
     for k, v in renders.pairs():
-      print k, v.roots
+      print k, v.rootIds
       for n in v.nodes:
         print "   node: ",
           "uid:", n.uid,
