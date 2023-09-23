@@ -119,10 +119,12 @@ proc clicked*(self: Figuro,
   echo "CLICKED GENERIC "
 
 proc clearDraw*(fig: Figuro) {.slot.} =
+  echo "clear draw: ", $fig.name
   fig.attrs.incl postDrawReady
   fig.diffIndex = 0
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
+  echo "handle postDraw: ", $fig.name, " isnil: ", fig.postDraw.isNil
   if fig.postDraw != nil:
     fig.postDraw(fig)
 

@@ -42,7 +42,7 @@ proc updateSelectionBoxes*(self: Input) =
     rs.w = rb.x - ra.x
     rs.h = (rb.y + rb.h) - ra.y
     self.selectionRects.add rs.descaled()
-    # echo "self.selectionRects: ", rs.descaled()
+    echo "self.selectionRects: ", app.frameCount, " ", rs.descaled()
 
 proc updateLayout*(self: Input, text = seq[Rune].none) =
   let runes =
@@ -67,9 +67,11 @@ proc findNextWord*(self: Input): int =
       return i
 
 proc tick*(self: Input) {.slot.} =
+  return
   if self.isActive:
     self.cnt.inc()
-    self.cnt = self.cnt mod 33
+    # self.cnt = self.cnt mod 33
+    self.cnt = self.cnt mod 140
     if self.cnt == 0:
       self.value = (self.value + 1) mod 2
       refresh(self)
@@ -95,7 +97,7 @@ proc keyInput*(self: Input,
 proc keyCommand*(self: Input,
                  pressed: UiButtonView,
                  down: UiButtonView) {.slot.} =
-  when defined(debugEvents):
+  when defined(debugEvents) or true:
     echo "\nInput:keyPress: ",
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
@@ -143,8 +145,7 @@ proc keyCommand*(self: Input,
       self.selection = idx+1..idx+1
       self.updateLayout()
   self.value = 1
-  if self.selHash != self.selection.hash():
-    self.updateSelectionBoxes()
+  self.updateSelectionBoxes()
   refresh(self)
 
 proc keyPress*(self: Input,
@@ -188,12 +189,13 @@ proc draw*(self: Input) {.slot.} =
           current.fill.a = self.value.toFloat * 1.0
           echo "cursor ", app.frameCount
 
-      for sl in self.selectionRects:
-        rectangle "selection", captures(sl):
-          box sl
+      for i, sl in self.selectionRects:
+        rectangle "selection", captures(i):
+          box self.selectionRects[i]
           fill blackColor * 0.1
-          echo "selection ", app.frameCount
+          echo "selection ", app.frameCount, " sl: ", sl
           # fill "#0000CC".parseHtmlColor * 0.2
+      echo ""
 
     if self.disabled:
       fill whiteColor.darken(0.4)
