@@ -48,7 +48,6 @@ proc updateLayout*(self: Input, text = seq[Rune].none) =
   let spans = {self.theme.font: $runes, self.theme.font: "*"}
   self.layout = internal.getTypeset(self.box, spans)
   self.layout.runes.setLen(ll())
-  self.updateSelectionBoxes()
 
 proc findLine*(self: Input): int =
   result = -1
@@ -92,6 +91,7 @@ proc keyInput*(self: Input,
   self.layout.runes.insert(rune, max(aa, 0))
   self.updateLayout()
   self.selection = bb+1 .. bb+1
+  self.updateSelectionBoxes()
   refresh(self)
 
 proc keyCommand*(self: Input,
@@ -130,22 +130,24 @@ proc keyCommand*(self: Input,
     elif pressed == {KeyEnter}:
       self.layout.runes.add Rune '\n'
       self.updateLayout()
-      self.updateSelectionBoxes()
       self.selection = aa+1 .. bb+1
+
   elif down == KCadet:
     if pressed == {KeyA}:
       self.selection = 0..ll+1
-      self.updateSelectionBoxes()
+
   elif down == KControl:
     if pressed == {KeyLeft}:
       self.selection = 0..0
     elif pressed == {KeyRight}:
       self.selection = ll+1..ll+1
+
   elif down == KShift:
     if pressed == {KeyLeft}:
       self.selection = max(aa-1, 0)..bb
     elif pressed == {KeyRight}:
       self.selection = aa..min(bb+1, ll+1)
+
   elif down == KAlt:
     if pressed == {KeyLeft}:
       let idx = findPrevWord(self)
@@ -158,8 +160,10 @@ proc keyCommand*(self: Input,
       self.layout.runes.delete(idx+1..aa-1)
       self.selection = idx+1..idx+1
       self.updateLayout()
+
   self.value = 1
-  self.updateSelectionBoxes()
+  if self.selHash != self.selection.hash():
+    self.updateSelectionBoxes()
   refresh(self)
 
 proc keyPress*(self: Input,
