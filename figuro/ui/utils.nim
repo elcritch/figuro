@@ -98,6 +98,13 @@ proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
       postNode(Figuro(current))
 
   # echo "Widget:result:\n", result.repr
+template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
+  when hasCaptures:
+    capture `capturedVals`:
+      `body`
+  else:
+    `body`
+
 
 proc generateGenericBodies*(widget, kind: NimNode,
                             wargs: WidgetArgs): NimNode {.compileTime.} =
@@ -116,14 +123,7 @@ proc generateGenericBodies*(widget, kind: NimNode,
           widget.attrs.excl postDrawReady
           `blk`
 
-  let outer =
-    if capturedVals.isNil:
-      quote do:
-        `body`
-    else:
-      quote do:
-        capture `capturedVals`:
-          `body`
+  let hasCaptures = newLit(not capturedVals.isNil)
 
   result = quote do:
     block:
@@ -132,7 +132,8 @@ proc generateGenericBodies*(widget, kind: NimNode,
       var parent {.inject.}: Figuro = Figuro(current)
       var current {.inject.}: `widget`[`stateArg`] = nil
       preNode(`kind`, `id`, current, parent)
-      `outer`
+      wrapCaptures(`hasCaptures`, `capturedVals`):
+        `body`
       postNode(Figuro(current))
 
   # echo "Widget:result:\n", result.repr
