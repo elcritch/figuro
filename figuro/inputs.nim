@@ -223,7 +223,7 @@ when not defined(nimscript):
 type
   ModifierKeys* = enum
     KNone
-    KCadet ## main system command/ctrl key, homage to space-cadet keyboard
+    KMeta
     KControl
     KAlt
     KShift
@@ -231,7 +231,7 @@ type
 
 proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
   result[KNone] = {}
-  result[KCadet] = 
+  result[KMeta] = 
           when defined(macosx):
             {KeyLeftSuper, KeyRightSuper}
           elif defined(linux):

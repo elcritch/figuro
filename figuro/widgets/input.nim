@@ -19,11 +19,30 @@ proc doKeyCommand*(self: Input,
                    pressed: UiButtonView,
                    down: UiButtonView) {.signal.}
 
+proc tick*(self: Input) {.slot.} =
+  if self.isActive:
+    self.cnt.inc()
+    self.cnt = self.cnt mod 33
+    if self.cnt == 0:
+      self.value = (self.value + 1) mod 2
+      refresh(self)
+
+proc clicked*(self: Input,
+              kind: EventKind,
+              buttons: UiButtonView) {.slot.} =
+  self.isActive = kind == Enter
+  if self.isActive:
+    self.listens.signals.incl {evKeyboardInput, evKeyPress}
+  else:
+    self.listens.signals.excl {evKeyboardInput, evKeyPress}
+    self.value = 0
+  refresh(self)
+
 template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
 
-proc updateSelectionBoxes*(self: Input) =
+proc updateSelectionBoxes(self: Input) =
 
   var sels: seq[Slice[int]]
   for sl in self.layout.lines:
@@ -66,25 +85,6 @@ proc findNextWord*(self: Input): int =
   for i in countup(aa+1, self.layout.runes.len()-1):
     if self.layout.runes[i].isWhiteSpace():
       return i
-
-proc tick*(self: Input) {.slot.} =
-  if self.isActive:
-    self.cnt.inc()
-    self.cnt = self.cnt mod 33
-    if self.cnt == 0:
-      self.value = (self.value + 1) mod 2
-      refresh(self)
-
-proc clicked*(self: Input,
-              kind: EventKind,
-              buttons: UiButtonView) {.slot.} =
-  self.isActive = kind == Enter
-  if self.isActive:
-    self.listens.signals.incl {evKeyboardInput, evKeyPress}
-  else:
-    self.listens.signals.excl {evKeyboardInput, evKeyPress}
-    self.value = 0
-  refresh(self)
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
@@ -132,12 +132,11 @@ proc keyCommand*(self: Input,
       self.updateLayout()
       self.selection = aa+1 .. bb+1
 
-  elif down == KCadet:
+  elif down == KMeta:
     if pressed == {KeyA}:
       self.selection = 0..ll+1
 
-  elif down == KControl:
-    if pressed == {KeyLeft}:
+    elif pressed == {KeyLeft}:
       self.selection = 0..0
     elif pressed == {KeyRight}:
       self.selection = ll+1..ll+1
