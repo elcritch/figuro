@@ -190,7 +190,8 @@ proc draw*(self: Input) {.slot.} =
       for sl in self.selectionRects:
         rectangle "selection", captures(sl):
           box sl
-          fill "#0000CC".parseHtmlColor * 0.2
+          fill blackColor * 0.1
+          # fill "#0000CC".parseHtmlColor * 0.2
 
     if self.disabled:
       fill whiteColor.darken(0.4)
