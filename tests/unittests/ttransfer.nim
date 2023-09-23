@@ -100,8 +100,6 @@ suite "test layers":
 
   suite "three layer out of order":
     var self = Figuro.new()
-    echo "self: ", self.agentId
-    echo "self: ", self.uid
     withDraw(self):
       current.zlevel = 20
       discard current.name.tryAdd("root")

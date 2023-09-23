@@ -9,6 +9,17 @@ type
     rootIds*: seq[NodeIdx]
   RenderNodes* = OrderedTable[ZLevel, RenderList]
 
+proc findRoot*(list: RenderList, node: Node): Node =
+  result = node
+  var cnt = 0
+  # echo "FIND ROOT: "
+  while result.parent != -1.NodeID and result.uid != result.parent:
+    # echo "FIND ROOT: ", result.uid, " ", result.parent, " -> ", repr list.nodes.mapIt(it.uid.int)
+    result = list.nodes[result.parent-1]
+    cnt.inc
+    if cnt > 10_000:
+      raise newException(IndexDefect, "error finding root")
+
 proc add*(list: var RenderList, node: Node) =
   ## Adds a Node to the RenderList and possibly
   ## to the roots seq if it's a root node.
@@ -17,12 +28,18 @@ proc add*(list: var RenderList, node: Node) =
   ## zlevels and end up in a the RenderList
   ## for that ZLevel without their logical parent. 
   ##
+  echo ""
   if list.rootIds.len() == 0:
+    echo "rootIds: len == 0"
     list.rootIds.add(list.nodes.len().NodeIdx)
   else:
     let lastRoot = list.nodes[list.rootIds[^1].int]
-    if node.parent != lastRoot.uid and
-        node.parent != list.nodes[^1].uid:
+    echo "rootIds:lastRoot: ", lastRoot.uid, " ", lastRoot.name,
+            " node: ", node.uid, " ", node.name, " nodeRoot: ", findRoot(list, node).uid
+    let nr = findRoot(list, node)
+    if nr.uid != lastRoot.uid and
+        node.uid != list.nodes[^1].uid:
+      echo "rootIds:add: ", node.uid, " // ", node.parent, " ", node.name
       list.rootIds.add(list.nodes.len().NodeIdx)
   list.nodes.add(node)
 
@@ -90,6 +107,7 @@ proc convert*(renders: var RenderNodes,
 
 type
   RenderTree* = ref object
+    id*: int
     name*: string
     children*: seq[RenderTree]
 
@@ -107,7 +125,7 @@ proc toTree*(nodes: seq[Node],
               idx = 0.NodeIdx,
               depth = 1): RenderTree =
   let n = nodes[idx.int]
-  result = RenderTree(name: $n.name)
+  result = RenderTree(id: n.uid, name: $n.name)
   # echo "  ".repeat(depth), "toTree:idx: ", idx.int
   for ci in nodes.childIndex(idx):
     # echo "  ".repeat(depth), "toTree:cidx: ", ci.int
