@@ -18,14 +18,14 @@ nimble install https://github.com/elcritch/atlas@\#head
 
 # new atlas workspace
 mkdir fig_ws && cd fig_ws
-atlas init
+atlas init --deps=vendor
 
 # get deps
-atlas use https://github.com/elcritch/figuro.git
+git clone https://github.com/elcritch/figuro.git
 
 # sync deps
 cp figuro/vendor/atlas.lock atlas.lock
-atlas replay atlas.lock
+atlas replay figuro/vendor/atlas.lock
 nim c -r figuro/tests/tclick.nim
 ```
 

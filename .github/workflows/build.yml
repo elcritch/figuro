@@ -40,8 +40,7 @@ jobs:
         atlas init --deps=vendor
 
         # sync deps
-        cp figuro/vendor/atlas.lock atlas.lock
-        atlas replay --cfgHere atlas.lock
+        atlas replay --cfgHere figuro/vendor/atlas.lock
 
     - name: Cache packages
       uses: actions/cache@v3

@@ -80,7 +80,7 @@
     },
     "stack_strings": {
       "dir": "$deps/nim-stack-strings",
-      "url": "https://github.com/termermc/nim-stack-strings",
+      "url": "https://github.com/termermc/nim-stack-strings/",
       "commit": "98df4cefe32fc55cf02ca3895252b1951f16dfd5",
       "version": "1.1.0"
     },
@@ -104,7 +104,7 @@
     },
     "windy": {
       "dir": "$deps/windy.elcritch.github.com",
-      "url": "",
+      "url": "https://github.com/elcritch/windy",
       "commit": "9e3a30259f75c514d1b59963631825f8c74ae5fe",
       "version": "0.0.0"
     },
