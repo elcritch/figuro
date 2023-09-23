@@ -116,13 +116,15 @@ proc keyCommand*(self: Input,
       let lp = (li-1).max(0)
       let ls = self.layout.lines[lp]
       let ldiff = aa - self.layout.lines[li].a
-      self.selection = (ls.a+ldiff)..(ls.a+ldiff)
+      let currPos = (ls.a+ldiff).min(ls.b)
+      self.selection = currPos..currPos
     elif pressed == {KeyDown}:
       let li = self.findLine()
       let ln = (li+1).min(self.layout.lines.len()-1)
       let ls = self.layout.lines[ln]
       let ldiff = aa - self.layout.lines[li].a
-      self.selection = (ls.a+ldiff)..(ls.a+ldiff)
+      let currPos = (ls.a+ldiff).min(ls.b)
+      self.selection = currPos..currPos
     elif pressed == {KeyEscape}:
       self.clicked(Exit, {})
     elif pressed == {KeyEnter}:
