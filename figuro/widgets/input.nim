@@ -8,6 +8,7 @@ type
     isActive*: bool
     disabled*: bool
     selection*: Slice[int]
+    selectionRects*: seq[Box]
     selHash*: Hash
     layout*: GlyphArrangement
     textNode*: Figuro
@@ -22,6 +23,28 @@ template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.layout.runes.len() - 1
 
+proc updateSelectionBoxes*(self: Input) =
+  let fs = self.theme.font.size.scaled
+
+  var sels: seq[Slice[int]]
+  for sl in self.layout.lines:
+    if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
+      sels.add max(sl.a, aa)..min(sl.b, bb)
+    else:
+      sels.add sl.a..sl.a
+
+  self.selectionRects.setLen(0)
+  echo ""
+  for sl in sels:
+    let ra = self.layout.selectionRects[sl.a]
+    let rb = self.layout.selectionRects[sl.b]
+    var rs = ra
+    rs.y = rs.y - 0.1*fs
+    rs.w = rb.x - ra.x
+    rs.h = (rb.y + rb.h) - ra.y
+    self.selectionRects.add rs.descaled()
+    echo "self.selectionRects: ", rs.descaled()
+
 proc updateLayout*(self: Input, text = seq[Rune].none) =
   let runes =
     if text.isSome: text.get()
@@ -29,6 +52,7 @@ proc updateLayout*(self: Input, text = seq[Rune].none) =
   let spans = {self.theme.font: $runes, self.theme.font: "*"}
   self.layout = internal.getTypeset(self.box, spans)
   self.layout.runes.setLen(ll())
+  self.updateSelectionBoxes()
 
 proc findPrevWord*(self: Input): int =
   result = -1
@@ -92,10 +116,12 @@ proc keyCommand*(self: Input,
     elif pressed == {KeyEnter}:
       self.layout.runes.add Rune '\n'
       self.updateLayout()
+      self.updateSelectionBoxes()
       self.selection = aa+1 .. bb+1
   elif down == KCadet:
     if pressed == {KeyA}:
       self.selection = 0..ll+1
+      self.updateSelectionBoxes()
   elif down == KControl:
     if pressed == {KeyLeft}:
       self.selection = 0..0
@@ -119,6 +145,8 @@ proc keyCommand*(self: Input,
       self.selection = idx+1..idx+1
       self.updateLayout()
   self.value = 1
+  if self.selHash != self.selection.hash():
+    self.updateSelectionBoxes()
   refresh(self)
 
 proc keyPress*(self: Input,
@@ -133,8 +161,6 @@ proc draw*(self: Input) {.slot.} =
   
   connect(self, doKeyCommand, self, Input.keyCommand)
   let fs = self.theme.font.size.scaled
-  if self.selHash != self.selection.hash():
-    refresh(self)
 
   withDraw(self):
 
@@ -162,22 +188,16 @@ proc draw*(self: Input) {.slot.} =
           fill blackColor
           current.fill.a = self.value.toFloat * 1.0
 
-      let sz = 0..self.layout.selectionRects.high()
-      if aa != bb and self.selection.a in sz and self.selection.b in sz: 
-        var sels: seq[Slice[int]]
-        for sl in self.layout.lines:
-          if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
-            sels.add max(sl.a, aa)..min(sl.b, bb)
-        for sl in sels:
-          rectangle "selection", captures(sl):
-            let ra = self.layout.selectionRects[sl.a]
-            let rb = self.layout.selectionRects[sl.b]
-            var rs = ra
-            rs.y = rs.y - 0.1*fs
-            rs.w = rb.x - ra.x
-            rs.h = (rb.y + rb.h) - ra.y
-            box rs.descaled()
-            fill "#0000CC".parseHtmlColor * 0.2
+      # if aa != bb and self.selection.a in sz and self.selection.b in sz: 
+      var sels: seq[Slice[int]]
+      for sl in self.layout.lines:
+        if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
+          sels.add max(sl.a, aa)..min(sl.b, bb)
+
+      for sl in self.selectionRects:
+        rectangle "selection", captures(sl):
+          box sl
+          fill "#0000CC".parseHtmlColor * 0.2
 
     if self.disabled:
       fill whiteColor.darken(0.4)
