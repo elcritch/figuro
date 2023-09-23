@@ -99,7 +99,7 @@
     "threading": {
       "dir": "$deps/threading",
       "url": "https://github.com/nim-lang/threading",
-      "commit": "eddef1699968a60ae8b7200c2b3eba01a6239d89",
+      "commit": "bcc284991ba928d1ed299a81a93b7113cc7de04f",
       "version": "0.2.0"
     },
     "windy": {
