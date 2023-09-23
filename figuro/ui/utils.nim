@@ -74,14 +74,7 @@ template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
     `body`
 
 proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
-  let (id, stateArg, capturedVals, blk) = wargs
-
-  let body = quote do:
-      current.postDraw = proc (widget: Figuro) =
-        var current {.inject.}: `widget` = `widget`(widget)
-        if postDrawReady in widget.attrs:
-          widget.attrs.excl postDrawReady
-          `blk`
+  let (id, _, capturedVals, blk) = wargs
 
   let hasCaptures = newLit(not capturedVals.isNil)
 
@@ -91,7 +84,11 @@ proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
       var current {.inject.}: `widget` = nil
       preNode(`kind`, `id`, current, parent)
       wrapCaptures(`hasCaptures`, `capturedVals`):
-        `body`
+        current.postDraw = proc (widget: Figuro) =
+          var current {.inject.}: `widget` = `widget`(widget)
+          if postDrawReady in widget.attrs:
+            widget.attrs.excl postDrawReady
+            `blk`
       postNode(Figuro(current))
   # echo "Widget:result:\n", result.repr
 
@@ -99,14 +96,6 @@ proc generateGenericBodies*(widget, kind: NimNode,
                             wargs: WidgetArgs): NimNode {.compileTime.} =
 
   let (id, stateArg, capturedVals, blk) = wargs
-
-  let body = quote do:
-      current.postDraw = proc (widget: Figuro) =
-        var current {.inject.} = `widget`[`stateArg`](widget)
-        if postDrawReady in widget.attrs:
-          widget.attrs.excl postDrawReady
-          `blk`
-
   let hasCaptures = newLit(not capturedVals.isNil)
 
   result = quote do:
@@ -117,7 +106,11 @@ proc generateGenericBodies*(widget, kind: NimNode,
       var current {.inject.}: `widget`[`stateArg`] = nil
       preNode(`kind`, `id`, current, parent)
       wrapCaptures(`hasCaptures`, `capturedVals`):
-        `body`
+        current.postDraw = proc (widget: Figuro) =
+          var current {.inject.} = `widget`[`stateArg`](widget)
+          if postDrawReady in widget.attrs:
+            widget.attrs.excl postDrawReady
+            `blk`
       postNode(Figuro(current))
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
