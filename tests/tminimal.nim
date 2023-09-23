@@ -22,10 +22,11 @@ proc draw*(self: Main) {.slot.} =
 
       button "btn":
         box 10'pw, 10'ph, 80'pw, 10'ph
+        fill "#2B9FEA"
 
       button "btn":
         box 10'pw, 60'ph, 80'pw, 10'ph
-        fill "#CB0F0A"
+        fill "#2B9FEA"
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)

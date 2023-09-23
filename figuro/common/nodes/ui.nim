@@ -91,6 +91,7 @@ proc getWidgetParent*(self: Figuro): Figuro =
   ## 
   ## Think of this as sorta like `<template></template>` in HTML
   ## as it defines where the sub-nodes will be "placed"
+  echo "getWidgetParent:default: ", self.getId
   self
 
 proc doTick*(fig: Figuro) {.signal.}
