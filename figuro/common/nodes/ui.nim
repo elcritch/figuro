@@ -136,7 +136,6 @@ proc doLoadBubble*(fig: Figuro) {.slot.} =
 proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
 proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
-  echo "CLICK BUBBLE"
   emit fig.doClick(kind, buttonPress)
 
 template connect*(
