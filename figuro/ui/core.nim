@@ -221,6 +221,7 @@ proc generateBodies*(widget, kind: NimNode,
   ## callbacks for widgets.
   let (id, stateArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
+  let widgetId = ident( "widget" & id.strVal.capitalize )
 
   let widgetType =
     if not hasGeneric: quote do: `widget`
@@ -237,6 +238,7 @@ proc generateBodies*(widget, kind: NimNode,
         current.preDraw = proc (c: Figuro) =
           let current {.inject.} = `widgetType`(c)
           let widget {.inject.} = `widgetType`(c)
+          let `widgetId` {.inject.} = widget
           if preDrawReady in widget.attrs:
             widget.attrs.excl preDrawReady
             `blk`
@@ -271,6 +273,7 @@ macro contents*(args: varargs[untyped]): untyped =
   let wargs = args.parseWidgetArgs()
   let (id, stateArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
+  let widgetId = ident( "widget" & id.strVal.capitalize )
   # echo "id: ", id
   # echo "stateArg: ", stateArg.repr
   # echo "captured: ", capturedVals.repr
@@ -283,8 +286,9 @@ macro contents*(args: varargs[untyped]): untyped =
       let parentWidget = current
       wrapCaptures(`hasCaptures`, `capturedVals`):
         current.contentsDraw = proc (c, w: Figuro) =
-          var current {.inject.} = c
-          var widget {.inject.} = typeof(parentWidget)(w)
+          let current {.inject.} = c
+          let widget {.inject.} = typeof(parentWidget)(w)
+          let `widgetId` {.inject.} = widget
           if contentsDrawReady in widget.attrs:
             widget.attrs.excl contentsDrawReady
             `blk`
