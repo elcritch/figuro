@@ -242,7 +242,7 @@ proc generateBodies*(widget, kind: NimNode,
       postNode(Figuro(current))
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
-  ## exports a type as a widget by giving it a macro with `name`
+  ## exports a `class` as a widget by giving it a macro with `name`
   ## which handles parsing widget args like `state(type)` and
   ## `captures(...)`. It also generatres the proper pre- and
   ## post- callbacks that are called before and after `doDraw`, 
