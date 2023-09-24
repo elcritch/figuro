@@ -191,10 +191,12 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   inc parent.diffIndex
   current.diffIndex = 0
 
+  ## these define the default behaviors for Figuro widgets
   connect(current, doDraw, current, Figuro.clearDraw())
   connect(current, doDraw, current, Figuro.handlePreDraw())
   connect(current, doDraw, current, typeof(current).draw())
   connect(current, doDraw, current, Figuro.handlePostDraw())
+  ## only activate these if custom ones have been provided 
   if T.clicked().pointer != Figuro.clicked().pointer:
     connect(current, doClick, current, T.clicked())
   if T.keyInput().pointer != Figuro.keyInput().pointer:
