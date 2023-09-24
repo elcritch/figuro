@@ -28,14 +28,15 @@ proc draw*(self: Main) {.slot.} =
       fill "#9F2B00"
 
     button "btn", state(int):
-      echo nd(), "button:WIDGET: ", current.getId
+      echo nd(), "button:preDraw: ", current.getId, " pbox: ", parent.box
       # box 40, 40, 100, 100
+      box 10, 10, 80'ph, 80'pw
       fill "#2B9F2B"
 
       contents "child":
-        echo "child: ", widget.typeof, " ", widget.getId()
+        echo nd(), "button:contents: ", widget.typeof, " ", widget.getId()
         node nkText, "btnText":
-          echo nd(), "btnText:WIDGET: ", current.getId
+          echo nd(), "btnText:preDraw: ", current.getId
           box 10'pw, 10'pw, 80'pw, 80'ph
           fill blackColor
           setText({font: "hi"})

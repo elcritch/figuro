@@ -28,6 +28,7 @@ import macros
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   withDraw(self):
+    echo nd(), "button:draw: ", current.getId
     
     clipContent true
     cornerRadius 10.0
