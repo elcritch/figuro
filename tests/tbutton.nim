@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
 
     button "btn", state(int):
       echo nd(), "button:WIDGET: ", current.getId
-      box 40, 40, 100, 100
+      # box 40, 40, 100, 100
       fill "#2B9F2B"
 
       contents "child":
