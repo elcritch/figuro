@@ -230,12 +230,13 @@ proc generateBodies*(widget, kind: NimNode,
     block:
       when not compiles(current.typeof):
         {.error: "missing `var current` in current scope!".}
-      var parent {.inject.}: Figuro = current
+      let parent {.inject.}: Figuro = current
       var current {.inject.}: `widgetType` = nil
       preNode(`kind`, `id`, current, parent)
       wrapCaptures(`hasCaptures`, `capturedVals`):
-        current.preDraw = proc (widget: Figuro) =
-          var current {.inject.} = `widgetType`(widget)
+        current.preDraw = proc (c: Figuro) =
+          let current {.inject.} = `widgetType`(c)
+          let widget {.inject.} = `widgetType`(c)
           if preDrawReady in widget.attrs:
             widget.attrs.excl preDrawReady
             `blk`
