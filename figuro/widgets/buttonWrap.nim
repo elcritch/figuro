@@ -40,6 +40,8 @@ proc draw*[T](self: Button[T]) {.slot.} =
       onHover:
         fill current.fill.spin(15)
     rectangle "btnBody":
+      bubble(doClick)
+      boxSizeOf current.parent
       TemplateContents(self)
 
 

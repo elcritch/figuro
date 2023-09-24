@@ -83,9 +83,6 @@ proc draw*(self: Main) {.slot.} =
               box 10'pw, 10'pw, 80'pw, 80'ph
               fill blackColor
               setText({font: $(widgetBtn.state)})
-              connect(current, doClick, current, Figuro.txtClicked())
-              bubble(doClick)
-              connect(current, doHover, current, Figuro.txtHovered())
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())
