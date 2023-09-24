@@ -84,15 +84,6 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
-proc getWidgetParent*(self: Figuro): Figuro =
-  ## Used by widgets to control which of their
-  ## nodes are to be used as the parent for
-  ## new sub-nodes
-  ## 
-  ## Think of this as sorta like `<template></template>` in HTML
-  ## as it defines where the sub-nodes will be "placed"
-  echo "getWidgetParent:default: ", self.getId
-  self
 
 proc doTick*(fig: Figuro) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}

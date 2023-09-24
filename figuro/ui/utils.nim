@@ -89,7 +89,7 @@ proc generateBodies*(widget, kind: NimNode,
       mixin getWidgetParent
       when not compiles(current.typeof):
         {.error: "missing `var current` in current scope!".}
-      var parent {.inject.}: Figuro = getWidgetParent(current)
+      var parent {.inject.}: Figuro = current
       var current {.inject.}: `widgetType` = nil
       preNode(`kind`, `id`, current, parent)
       wrapCaptures(`hasCaptures`, `capturedVals`):
