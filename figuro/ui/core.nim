@@ -112,6 +112,18 @@ template setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
+proc clearDraw*(fig: Figuro) {.slot.} =
+  fig.attrs.incl postDrawReady
+  fig.diffIndex = 0
+
+proc handlePreDraw*(fig: Figuro) {.slot.} =
+  if fig.preDraw != nil:
+    fig.preDraw(fig)
+
+proc handlePostDraw*(fig: Figuro) {.slot.} =
+  if fig.postDraw != nil:
+    fig.postDraw(fig)
+
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Figuro) =
   ## Process the start of the node.
@@ -194,8 +206,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
 
 proc postNode*(current: var Figuro) =
   emit current.doDraw()
-  # if not current.postDraw.isNil:
-  #   current.postDraw(current)
 
   current.removeExtraChildren()
   nodeDepth.dec()

@@ -127,20 +127,6 @@ proc scroll*(fig: Figuro,
              wheelDelta: Position) {.slot.} =
   discard
 
-proc clearDraw*(fig: Figuro) {.slot.} =
-  fig.attrs.incl postDrawReady
-  fig.diffIndex = 0
-
-proc handlePreDraw*(fig: Figuro) {.slot.} =
-  echo "handlePreDraw: "
-  if fig.preDraw != nil:
-    echo "handlePreDraw:predraw: "
-    fig.preDraw(fig)
-
-proc handlePostDraw*(fig: Figuro) {.slot.} =
-  if fig.postDraw != nil:
-    fig.postDraw(fig)
-
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()
 proc doDrawBubble*(fig: Figuro) {.slot.} =
