@@ -173,7 +173,7 @@ type
     NumpadEqual     # =
 
   UiButtonView* = set[UiButton]
-
+  KeyRange* = KeyA .. NumpadEqual
 
 const
   MouseButtons* = {
