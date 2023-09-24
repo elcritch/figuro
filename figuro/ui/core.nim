@@ -258,6 +258,38 @@ template exportWidget*[T](name: untyped, class: typedesc[T]) =
 
     result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
 
+{.hint[Name]:off.}
+template TemplateContents*[T](fig: T): untyped =
+  ## marks where the widget will callback for any `contents`
+  ## useful
+  if fig.contentsDraw != nil:
+    fig.contentsDraw(current, Figuro(fig))
+{.hint[Name]:on.}
+
+macro contents*(args: varargs[untyped]): untyped =
+  # echo "contents:\n", args.treeRepr
+  let wargs = args.parseWidgetArgs()
+  let (id, stateArg, capturedVals, blk) = wargs
+  let hasCaptures = newLit(not capturedVals.isNil)
+  # echo "id: ", id
+  # echo "stateArg: ", stateArg.repr
+  # echo "captured: ", capturedVals.repr
+  # echo "blk: ", blk.repr
+
+  result = quote do:
+    block:
+      when not compiles(current.typeof):
+        {.error: "missing `var current` in current scope!".}
+      let parentWidget = current
+      wrapCaptures(`hasCaptures`, `capturedVals`):
+        current.contentsDraw = proc (c, w: Figuro) =
+          var current {.inject.} = c
+          var widget {.inject.} = typeof(parentWidget)(w)
+          if contentsDrawReady in widget.attrs:
+            widget.attrs.excl contentsDrawReady
+            `blk`
+  # echo "contents: ", result.repr
+
 macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
   let widget = ident("Figuro")
