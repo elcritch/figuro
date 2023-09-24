@@ -1,4 +1,4 @@
-import figuro/widgets/button
+import figuro/widgets/buttonWrap
 import figuro/widget
 import figuro
 
@@ -74,16 +74,19 @@ proc draw*(self: Main) {.slot.} =
 
           connect(current, doHover, self, Main.hover)
           connect(current, doClick, current, btnClicked)
-          if i == 0:
-            connect(self, update, current, btnTick)
+          # if i == 0:
+          #   connect(self, update, current, btnTick)
 
-          node nkText, "text":
-            box 10'pw, 10'pw, 80'pw, 80'ph
-            fill blackColor
-            setText({font: $(Button[int](current.parent).state)})
-            connect(current, doClick, current, Figuro.txtClicked())
-            bubble(doClick)
-            connect(current, doHover, current, Figuro.txtHovered())
+          contents "child":
+            let wchild = widget
+            echo nd(), "button:contents: ", widget.typeof, " ", widget.getId()
+            node nkText, "text":
+              box 10'pw, 10'pw, 80'pw, 80'ph
+              fill blackColor
+              setText({font: $(wchild.state)})
+              connect(current, doClick, current, Figuro.txtClicked())
+              bubble(doClick)
+              connect(current, doHover, current, Figuro.txtHovered())
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())
