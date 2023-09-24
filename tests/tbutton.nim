@@ -39,6 +39,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: "hi"})
 
+
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())
 connect(main, doTick, main, Main.tick())
