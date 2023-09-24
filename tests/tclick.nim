@@ -78,11 +78,11 @@ proc draw*(self: Main) {.slot.} =
           #   connect(self, update, current, btnTick)
 
           contents "child":
-            echo nd(), "button:contents: ", widgetChild.typeof, " ", widgetChild.getId, " widget: ", widget.typeof, " ", widget.getId()
+            echo nd(), "button:contents: ", widgetBtn.typeof, " ", widgetBtn.getId, " widget: ", widget.typeof, " ", widget.getId()
             node nkText, "text":
               box 10'pw, 10'pw, 80'pw, 80'ph
               fill blackColor
-              setText({font: $(widgetChild.state)})
+              setText({font: $(widgetBtn.state)})
               connect(current, doClick, current, Figuro.txtClicked())
               bubble(doClick)
               connect(current, doHover, current, Figuro.txtHovered())

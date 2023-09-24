@@ -273,7 +273,6 @@ macro contents*(args: varargs[untyped]): untyped =
   let wargs = args.parseWidgetArgs()
   let (id, stateArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
-  let widgetId = ident( "widget" & id.strVal.capitalize )
   # echo "id: ", id
   # echo "stateArg: ", stateArg.repr
   # echo "captured: ", capturedVals.repr
@@ -288,7 +287,6 @@ macro contents*(args: varargs[untyped]): untyped =
         current.contentsDraw = proc (c, w: Figuro) =
           let current {.inject.} = c
           let widget {.inject.} = typeof(parentWidget)(w)
-          let `widgetId` {.inject.} = widget
           if contentsDrawReady in widget.attrs:
             widget.attrs.excl contentsDrawReady
             `blk`
