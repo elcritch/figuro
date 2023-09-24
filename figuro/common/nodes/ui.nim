@@ -62,6 +62,7 @@ type
 
     preDraw*: proc (current: Figuro)
     postDraw*: proc (current: Figuro)
+    contentsDraw*: proc (current, widget: Figuro)
 
     kind*: NodeKind
     shadow*: Option[Shadow]

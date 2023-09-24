@@ -23,6 +23,17 @@ proc clicked*[T](self: Button[T],
     refresh(self)
   self.isActive = true
 
+import macros
+
+{.hint[Name]:off.}
+template TemplateContents*[T](fig: T): untyped =
+  if fig.contentsDraw != nil:
+    fig.contentsDraw(current, Figuro(fig))
+{.hint[Name]:on.}
+
+macro contents*(args: untyped): untyped =
+  echo "contents:\n", args.treeRepr
+
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   withDraw(self):
@@ -37,8 +48,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
       onHover:
         fill current.fill.spin(15)
     rectangle "btnBody":
-      discard
-      self.contents()
+      TemplateContents(self)
 
 
 exportWidget(button, Button)
