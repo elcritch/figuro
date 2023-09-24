@@ -73,44 +73,6 @@ template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
   else:
     `body`
 
-proc generateBodies*(widget, kind: NimNode,
-                     wargs: WidgetArgs,
-                     hasGeneric: bool): NimNode {.compileTime.} =
-
-  let (id, stateArg, capturedVals, blk) = wargs
-  let hasCaptures = newLit(not capturedVals.isNil)
-
-  let widgetType =
-    if not hasGeneric: quote do: `widget`
-    else: quote do: `widget`[`stateArg`]
-
-  result = quote do:
-    block:
-      mixin getWidgetParent
-      when not compiles(current.typeof):
-        {.error: "missing `var current` in current scope!".}
-      var parent {.inject.}: Figuro = current
-      var current {.inject.}: `widgetType` = nil
-      preNode(`kind`, `id`, current, parent)
-      wrapCaptures(`hasCaptures`, `capturedVals`):
-        current.postDraw = proc (widget: Figuro) =
-          var current {.inject.} = `widgetType`(widget)
-          if postDrawReady in widget.attrs:
-            widget.attrs.excl postDrawReady
-            `blk`
-      postNode(Figuro(current))
-
-template exportWidget*[T](name: untyped, class: typedesc[T]) =
-  ## exports a template to use the widget
-  macro `name`*(args: varargs[untyped]) =
-    let widget = class.getTypeInst()
-    let wargs = args.parseWidgetArgs()
-    let impl = widget.getImpl()
-    impl.expectKind(nnkTypeDef)
-    let hasGeneric = impl[1].len() > 0
-
-    result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
-
 import std/terminal
 
 proc `$`*(figs: HashSet[Figuro]): string =

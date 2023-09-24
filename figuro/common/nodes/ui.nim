@@ -60,6 +60,7 @@ type
     gridTemplate*: GridTemplate
     gridItem*: GridItem
 
+    preDraw*: proc (current: Figuro)
     postDraw*: proc (current: Figuro)
 
     kind*: NodeKind
@@ -130,10 +131,13 @@ proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl postDrawReady
   fig.diffIndex = 0
 
-proc handlePostDraw*(fig: Figuro) {.slot.} =
-  if fig.postDraw != nil:
-    fig.postDraw(fig)
+proc handlePreDraw*(fig: Figuro) {.slot.} =
+  if fig.preDraw != nil:
+    fig.preDraw(fig)
 
+proc handlePostDraw*(fig: Figuro) {.slot.} =
+  if fig.preDraw != nil:
+    fig.postDraw(fig)
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()
