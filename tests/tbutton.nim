@@ -1,4 +1,4 @@
-import figuro/widgets/buttonWrap
+import figuro/widgets/button
 import figuro/widget
 import figuro
 

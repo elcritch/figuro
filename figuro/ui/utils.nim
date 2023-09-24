@@ -66,7 +66,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
     result.stateArg = ident"void"
   # echo "parseWidgetArgs:res: ", result.repr
 
-template wrapCaptures(hasCaptures, capturedVals, body: untyped): untyped =
+template wrapCaptures*(hasCaptures, capturedVals, body: untyped): untyped =
   when hasCaptures:
     capture `capturedVals`:
       `body`

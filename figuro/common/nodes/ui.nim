@@ -132,11 +132,13 @@ proc clearDraw*(fig: Figuro) {.slot.} =
   fig.diffIndex = 0
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
+  echo "handlePreDraw: "
   if fig.preDraw != nil:
+    echo "handlePreDraw:predraw: "
     fig.preDraw(fig)
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
-  if fig.preDraw != nil:
+  if fig.postDraw != nil:
     fig.postDraw(fig)
 
 proc doTickBubble*(fig: Figuro) {.slot.} =

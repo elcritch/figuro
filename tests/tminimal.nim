@@ -21,10 +21,12 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
 
       button "btn":
+        echo "button"
         box 10'pw, 10'ph, 80'pw, 10'ph
         fill "#2B9FEA"
 
       button "btn":
+        echo "button2"
         box 10'pw, 60'ph, 80'pw, 10'ph
         fill "#2B9FEA"
 

@@ -191,11 +191,11 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     connect(current, doKeyPress, current, T.keyPress())
   # if T.tick().pointer != Figuro.tick().pointer:
   #   connect(current, doTick, current, T.tick())
-  emit current.doDraw()
 
 proc postNode*(current: var Figuro) =
-  if not current.postDraw.isNil:
-    current.postDraw(current)
+  emit current.doDraw()
+  # if not current.postDraw.isNil:
+  #   current.postDraw(current)
 
   current.removeExtraChildren()
   nodeDepth.dec()
@@ -222,7 +222,7 @@ proc generateBodies*(widget, kind: NimNode,
       var current {.inject.}: `widgetType` = nil
       preNode(`kind`, `id`, current, parent)
       wrapCaptures(`hasCaptures`, `capturedVals`):
-        current.postDraw = proc (widget: Figuro) =
+        current.preDraw = proc (widget: Figuro) =
           var current {.inject.} = `widgetType`(widget)
           if postDrawReady in widget.attrs:
             widget.attrs.excl postDrawReady
