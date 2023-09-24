@@ -113,7 +113,7 @@ template setTitle*(title: string) =
     refresh(current)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
-  fig.attrs.incl postDrawReady
+  fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
   fig.diffIndex = 0
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
@@ -236,8 +236,8 @@ proc generateBodies*(widget, kind: NimNode,
       wrapCaptures(`hasCaptures`, `capturedVals`):
         current.preDraw = proc (widget: Figuro) =
           var current {.inject.} = `widgetType`(widget)
-          if postDrawReady in widget.attrs:
-            widget.attrs.excl postDrawReady
+          if preDrawReady in widget.attrs:
+            widget.attrs.excl preDrawReady
             `blk`
       postNode(Figuro(current))
 

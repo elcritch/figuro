@@ -31,7 +31,9 @@ type
     disableRender
     scrollPanel
     inactive
+    preDrawReady
     postDrawReady
+    contentsDrawReady
     clearHover
     rxWindowResize
 

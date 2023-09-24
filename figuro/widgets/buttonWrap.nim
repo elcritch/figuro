@@ -31,8 +31,31 @@ template TemplateContents*[T](fig: T): untyped =
     fig.contentsDraw(current, Figuro(fig))
 {.hint[Name]:on.}
 
-macro contents*(args: untyped): untyped =
-  echo "contents:\n", args.treeRepr
+macro contents*(args: varargs[untyped]): untyped =
+  # echo "contents:\n", args.treeRepr
+  let wargs = args.parseWidgetArgs()
+  let (id, stateArg, capturedVals, blk) = wargs
+  let hasCaptures = newLit(not capturedVals.isNil)
+  echo "id: ", id
+  echo "stateArg: ", stateArg.repr
+  echo "captured: ", capturedVals.repr
+  echo "blk: ", blk.repr
+
+  result = quote do:
+    block:
+      when not compiles(current.typeof):
+        {.error: "missing `var current` in current scope!".}
+      let parentWidget = current
+      echo "contents DRAW: pwidget: ", parentWidget.typeof, " ", parentWidget.getId 
+      wrapCaptures(`hasCaptures`, `capturedVals`):
+        current.contentsDraw = proc (c, w: Figuro) =
+          var current {.inject.} = c
+          var widget {.inject.} = typeof(parentWidget)(w)
+          if contentsDrawReady in widget.attrs:
+            widget.attrs.excl contentsDrawReady
+            `blk`
+
+  echo "contents: ", result.repr
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
