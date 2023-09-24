@@ -217,7 +217,8 @@ import utils, macros
 proc generateBodies*(widget, kind: NimNode,
                      wargs: WidgetArgs,
                      hasGeneric: bool): NimNode {.compileTime.} =
-
+  ## core macro helper that generates the drawing
+  ## callbacks for widgets.
   let (id, stateArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
 
@@ -227,7 +228,6 @@ proc generateBodies*(widget, kind: NimNode,
 
   result = quote do:
     block:
-      mixin getWidgetParent
       when not compiles(current.typeof):
         {.error: "missing `var current` in current scope!".}
       var parent {.inject.}: Figuro = current
