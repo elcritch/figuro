@@ -32,11 +32,11 @@ proc draw*(self: Main) {.slot.} =
       box 40, 40, 100, 100
       fill "#2B9F2B"
 
-      # node nkText, "btnText":
-      #   echo nd(), "btnText:WIDGET: ", current.getId, " ", widget.getId
-      #   box 10'pw, 10'pw, 80'pw, 80'ph
-      #   fill blackColor
-      #   setText({font: "hi"})
+      node nkText, "btnText":
+        echo nd(), "btnText:WIDGET: ", current.getId
+        box 10'pw, 10'pw, 80'pw, 80'ph
+        fill blackColor
+        setText({font: "hi"})
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())

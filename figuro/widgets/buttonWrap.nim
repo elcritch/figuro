@@ -36,13 +36,9 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill "#2B9FEA"
       onHover:
         fill current.fill.spin(15)
-        # this changes the color on hover!
+    rectangle "btnBody":
+      discard
+      self.contents()
 
-# proc getWidgetParent*[T](self: Button[T]): Figuro =
-#   echo "getWidgetParent:button: ", self.getId, " chil: ", self.children.len()
-#   if self.children.len() > 0:
-#     self.children[0] # "btnBody"
-#   else:
-#     self
 
 exportWidget(button, Button)
