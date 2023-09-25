@@ -38,6 +38,6 @@ var
 connect(fig, doDraw, fig, Main.draw)
 
 app.width = 720
-app.height = 140
+app.height = 300
 
 startFiguro(fig)

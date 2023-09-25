@@ -11,12 +11,15 @@ else:
 
 import std/os
 import std/sets
-import shared, internal, ui/core
+import shared, internal
+import ui/[core, events]
 import common/nodes/ui
 import common/nodes/render
 import common/nodes/transfer
 import widget
 import timers
+
+export core, events
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}

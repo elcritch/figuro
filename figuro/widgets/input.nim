@@ -323,7 +323,7 @@ proc draw*(self: Input) {.slot.} =
           rs.y = rs.y - 0.1*fs
           box rs
           fill "#A0A0FF".parseHtmlColor 
-          current.fill.a = 0.2
+          current.fill.a = 0.4
 
     if self.disabled:
       fill whiteColor.darken(0.4)
