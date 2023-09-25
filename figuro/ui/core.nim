@@ -300,8 +300,8 @@ macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
-    node.box.w = app.windowSize.x
-    node.box.h = app.windowSize.y
+    # node.box.w = app.windowSize.x
+    # node.box.h = app.windowSize.y
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
@@ -326,7 +326,6 @@ template calcBasicConstraintImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  echo "computeLayout:calcBasicConstraintImpl: ", node.name
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
@@ -344,7 +343,7 @@ template calcBasicConstraintImpl(
                       elif astToStr(f) == "y": node.parent.box.h
                       else: node.parent.box.f
           res = perc.UICoord / 100.0.UICoord * ppval
-          echo "     :calcBasicCx: ", node.name, " perc: ", perc, " res: ", res
+          echo "     :calcBasicCx: ", node.name, " ", astToStr(f), " perc: ", perc, " ppval: ", ppval, " res: ", res
       res
   
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
@@ -358,22 +357,18 @@ template calcBasicConstraintImpl(
       else:
         discard
     UiSum(ls, rs):
-      echo "   :calcBasicCx: ", node.name, " sum "
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = lv + rv
     UiMin(ls, rs):
-      echo "   :calcBasicCx: ", node.name, " min "
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = min(lv, rv)
     UiMax(ls, rs):
-      echo "   :calcBasicCx: ", node.name, " max "
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = max(lv, rv)
     UiValue(value):
-      echo "   :calcBasicCx: ", node.name, " val ", astToStr(node.box.f)
       node.box.f = calcBasic(value)
     _:
       echo "   :calcBasicCx: ", node.name, " other: ", csValue
@@ -389,11 +384,14 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
-proc computeLayout*(node: Figuro) =
+proc printLayout*(node: Figuro, depth = 0) =
+  echo " ".repeat(depth), "node: ", node.name, " ", node.box.w, "x", node.box.h
+  for c in node.children:
+    printLayout(c, depth+2)
+
+proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
   
-  echo "computeLayout"
-
   # # simple constraints
   if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
@@ -414,9 +412,15 @@ proc computeLayout*(node: Figuro) =
     node.gridTemplate.computeNodeLayout(node, gridChildren)
 
     for n in node.children:
-      computeLayout(n)
+      computeLayout(n, depth+1)
 
     return
 
   for n in node.children:
-    computeLayout(n)
+    computeLayout(n, depth+1)
+
+proc computeLayout*(node: Figuro) =
+  echo "\ncomputeLayout: "
+  printLayout(node)
+  computeLayout(node, 0)
+  printLayout(node)
