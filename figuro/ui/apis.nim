@@ -297,18 +297,9 @@ proc findRoot*(node: Figuro): Figuro =
     if cnt > 10_000:
       raise newException(IndexDefect, "error finding root")
 
-proc printWS(fig: Figuro, l: string) =
-  var c = Figuro(fig)
-  while c.parent.getId != -1:
-    echo "  ", l & ": ", " ", c.box.w.float32, " n: ", c.name, " ", c.getId(), " / ", c.parent.getId
-    c = c.parent
-  echo ""
-
 template Vw*(size: float32): UICoord =
   ## percentage of Viewport width
   current.attrs.incl rxWindowResize
-  echo "vw:current: ", current.getId, " ", current.name, " aw: ", app.windowSize.x, " size: ", size
-  printWS(current, "vw")
   app.windowSize.x * size.UICoord / 100.0
 
 template Vh*(size: float32): UICoord =
@@ -326,8 +317,6 @@ template `'vh`*(n: string): UICoord =
 
 template WPerc*(n: SomeNumber): UICoord =
   ## numeric literal percent of parent width
-  echo "wp:current: ", current.getId, " ", current.name
-  printWS(current, "wp")
   UICoord(max(0'f32, current.parent.box.w.float32 * n.float32 / 100.0))
 
 template HPerc*(n: SomeNumber): UICoord =
