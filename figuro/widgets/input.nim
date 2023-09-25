@@ -207,13 +207,14 @@ proc keyCommand*(self: Input,
     else: discard
 
   elif down == KMeta:
-    if pressed == {KeyA}:
-      self.selection = 0..ll+1
-
-    elif pressed == {KeyLeft}:
+    case pressed.getKey
+    of KeyA:
+      self.selection = 0..self.runes.len
+    of KeyLeft:
       self.selection = 0..0
-    elif pressed == {KeyRight}:
+    of KeyRight:
       self.selection = ll+1..ll+1
+    else: discard
 
   elif down == KShift:
     case pressed.getKey
@@ -250,17 +251,20 @@ proc keyCommand*(self: Input,
     else: discard
 
   elif down == KAlt:
-    if pressed == {KeyLeft}:
+    case pressed.getKey
+    of KeyLeft:
       let idx = findPrevWord(self)
       self.selection = idx+1..idx+1
-    elif pressed == {KeyRight}:
+    of KeyRight:
       let idx = findNextWord(self)
       self.selection = idx..idx
-    elif pressed == {KeyBackspace} and aa > 0:
-      let idx = findPrevWord(self)
-      self.runes.delete(idx+1..aa-1)
-      self.selection = idx+1..idx+1
-      self.updateLayout()
+    of KeyBackspace:
+      if aa > 0:
+        let idx = findPrevWord(self)
+        self.runes.delete(idx+1..aa-1)
+        self.selection = idx+1..idx+1
+        self.updateLayout()
+    else: discard
 
   self.value = 1
   self.selection = self.clampedLeft() .. self.clampedRight()
