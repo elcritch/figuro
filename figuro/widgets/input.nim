@@ -8,12 +8,15 @@ type
     isActive*: bool
     disabled*: bool
     selection*: Slice[int]
+    isGrowingLeft*: bool # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
     selHash*: Hash
     layout*: GlyphArrangement
     textNode*: Figuro
     value: int
     cnt: int
+
+proc runes(self: Input): var seq[Rune] = self.layout.runes
 
 proc doKeyCommand*(self: Input,
                    pressed: UiButtonView,
@@ -38,9 +41,16 @@ proc clicked*(self: Input,
     self.value = 0
   refresh(self)
 
+proc sameSlice[T](a: T): Slice[T] = a..a # Shortcut 
+
+proc clampedLeft(self: Input, offset = 0): int = clamp(self.selection.a + offset, 0, self.runes.len)
+proc clampedRight(self: Input, offset = 0): int = clamp(self.selection.b + offset, 0, self.runes.len)
+
+proc deleteSelection(self: Input): Slice[int] = self.clampedLeft .. clamp(self.selection.b - 1, 0, self.runes.len)
+
 template aa(): int = self.selection.a
 template bb(): int = self.selection.b
-template ll(): int = self.layout.runes.len() - 1
+template ll(): int = self.runes.len() - 1
 
 proc updateSelectionBoxes(self: Input) =
 
@@ -63,36 +73,86 @@ proc updateSelectionBoxes(self: Input) =
 proc updateLayout*(self: Input, text = seq[Rune].none) =
   let runes =
     if text.isSome: text.get()
-    else: self.layout.runes
+    else: self.runes
   let spans = {self.theme.font: $runes, self.theme.font: "*"}
   self.layout = internal.getTypeset(self.box, spans)
-  self.layout.runes.setLen(ll())
+  self.runes.setLen(ll())
 
-proc findLine*(self: Input): int =
+proc findLine*(self: Input, down: bool, isGrowingSelection = false): int =
   result = -1
   for idx, sl in self.layout.lines:
-    if aa in sl:
-      return idx
+    if isGrowingSelection:
+      if (self.isGrowingLeft and self.selection.a in sl) or (not self.isGrowingLeft and self.selection.b in sl):
+        return idx
+    else:
+      if down:
+        if self.selection.b in sl:
+          return idx
+      elif self.selection.a in sl:
+        return idx
+
 
 proc findPrevWord*(self: Input): int =
   result = -1
   for i in countdown(max(0,aa-2), 0):
-    if self.layout.runes[i].isWhiteSpace():
+    if self.runes[i].isWhiteSpace():
       return i
 
 proc findNextWord*(self: Input): int =
-  result = self.layout.runes.len()
-  for i in countup(aa+1, self.layout.runes.len()-1):
-    if self.layout.runes[i].isWhiteSpace():
+  result = self.runes.len()
+  for i in countup(aa+1, self.runes.len()-1):
+    if self.runes[i].isWhiteSpace():
       return i
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  self.layout.runes.insert(rune, max(aa, 0))
+  if self.selection.len > 1:
+    self.runes.delete(self.deleteSelection())
+  self.runes.insert(rune, self.clampedLeft())
   self.updateLayout()
-  self.selection = bb+1 .. bb+1
+  self.selection = self.selection.a + 1 .. self.selection.a + 1
   self.updateSelectionBoxes()
   refresh(self)
+
+proc getKey(p: UiButtonView): UiButton =
+  for x in p:
+    if x.ord in KeyRange.low.ord .. KeyRange.high.ord:
+      return x
+
+proc lineOffset(self: Input, offset: int, isGrowingSelection = false): int =
+  # This is likely much more complicated than required...
+  let 
+    presentLine = self.findLine(offset > 0, isGrowingSelection)
+    nextLine = clamp(presentLine + offset, 0, self.layout.lines.high)
+    lineStart = self.layout.lines[nextLine]
+    lineDiff =
+      if offset > 0: # Moving down the page
+        if isGrowingSelection and self.isGrowingLeft:
+          self.clampedLeft() - self.layout.lines[presentLine].a
+        elif isGrowingSelection and not self.isGrowingLeft:
+          self.clampedRight() - self.layout.lines[presentLine].a
+        elif not isGrowingSelection:
+          self.clampedRight() - self.layout.lines[presentLine].a
+        else:
+          raiseAssert("How do we get here?!")
+      else: # Moving up the page
+        if isGrowingSelection and self.isGrowingLeft:
+          self.clampedLeft() - self.layout.lines[presentLine].a
+        elif isGrowingSelection and not self.isGrowingLeft:
+          self.clampedRight() - self.layout.lines[presentLine].a
+        elif not isGrowingSelection:
+          self.clampedLeft() - self.layout.lines[presentLine].a
+        else:
+          raiseAssert("How do we get here?!")
+  if presentLine == 0 and offset < 0:
+    0
+  elif presentLine == self.layout.lines.high and offset > 0:
+    self.layout.lines[^1].b
+  elif offset < 0 or offset > 0:
+    (lineStart.a + lineDiff).min(lineStart.b)
+  else:
+    raiseAssert("Offset cannot be 0, that's just the line.")
+
 
 proc keyCommand*(self: Input,
                  pressed: UiButtonView,
@@ -102,65 +162,113 @@ proc keyCommand*(self: Input,
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
   if down == KNone:
-    if pressed == {KeyBackspace} and self.selection.b > 0:
-      let selection = max(aa-1, 0)..max(bb-1, 0)
-      self.layout.runes.delete(selection)
-      self.updateLayout()
-      self.selection = max(aa-1, 0)..max(aa-1, 0)
-    elif pressed == {KeyLeft}:
-      self.selection = max(aa-1, 0)..max(aa-1, 0)
-    elif pressed == {KeyRight}:
-      self.selection = min(bb+1, ll+1)..min(bb+1, ll+1)
-    elif pressed == {KeyUp}:
-      let li = self.findLine()
-      let lp = (li-1).max(0)
-      let ls = self.layout.lines[lp]
-      let ldiff = aa - self.layout.lines[li].a
-      let currPos = (ls.a+ldiff).min(ls.b)
-      self.selection = currPos..currPos
-    elif pressed == {KeyDown}:
-      let li = self.findLine()
-      let ln = (li+1).min(self.layout.lines.len()-1)
-      let ls = self.layout.lines[ln]
-      let ldiff = aa - self.layout.lines[li].a
-      let currPos = (ls.a+ldiff).min(ls.b)
-      self.selection = currPos..currPos
-    elif pressed == {KeyEscape}:
+    case pressed.getKey
+    of KeyBackspace:
+      if self.runes.len != 0 and self.selection != 0..0:
+        if self.selection.a >= self.runes.len:
+          discard self.runes.pop()
+          self.selection = sameSlice(self.clampedLeft(-1))
+        elif self.selection.len == 1:
+          self.runes.delete(self.clampedLeft(-1))
+          self.selection = sameSlice(self.clampedLeft(-1))
+        else:
+          self.runes.delete(self.deleteSelection())
+          self.selection = sameSlice(self.clampedLeft())
+        self.updateLayout()
+    of KeyLeft:
+      if self.selection.len != 1 and not self.isGrowingLeft:
+        self.selection = sameSlice self.clampedRight(-1)
+      else:
+        self.selection = sameSlice self.clampedLeft(-1)
+    of KeyRight:
+      if self.selection.len != 1 and not self.isGrowingLeft:
+        self.selection = sameSlice self.clampedRight(1)
+      else:
+        self.selection = sameSlice self.clampedLeft(1)
+    of KeyHome:
+      self.selection = 0..0
+    of KeyEnd:
+      self.selection = sameSlice self.runes.len
+    of KeyUp:
+      if self.selection.len != 1:
+        self.selection = sameSlice self.lineOffset(-1, isGrowingSelection = true)
+      else:
+        self.selection = sameSlice self.lineOffset(-1)
+    of KeyDown:
+      if self.selection.len != 1:
+        self.selection = sameSlice self.lineOffset(1, isGrowingSelection = true)
+      else:
+        self.selection = sameSlice self.lineOffset(1)
+    of KeyEscape:
       self.clicked(Exit, {})
-    elif pressed == {KeyEnter}:
-      self.layout.runes.add Rune '\n'
-      self.updateLayout()
-      self.selection = aa+1 .. bb+1
+    of KeyEnter:
+      self.keyInput Rune '\n'
+
+    else: discard
 
   elif down == KMeta:
-    if pressed == {KeyA}:
-      self.selection = 0..ll+1
-
-    elif pressed == {KeyLeft}:
+    case pressed.getKey
+    of KeyA:
+      self.selection = 0..self.runes.len
+    of KeyLeft:
       self.selection = 0..0
-    elif pressed == {KeyRight}:
+    of KeyRight:
       self.selection = ll+1..ll+1
+    else: discard
 
   elif down == KShift:
-    if pressed == {KeyLeft}:
-      self.selection = max(aa-1, 0)..bb
-    elif pressed == {KeyRight}:
-      self.selection = aa..min(bb+1, ll+1)
+    case pressed.getKey
+    of KeyLeft:
+      self.isGrowingLeft = self.isGrowingLeft or self.selection.len == 1 # Perhaps we just always move b and then resolve the slice later
+      if self.isGrowingLeft:
+        self.selection.a = self.clampedLeft(-1)
+      else:
+        self.selection.b = self.clampedRight(-1)
+    of KeyRight:
+      self.isGrowingLeft = self.isGrowingLeft and self.selection.len > 1
+      if self.isGrowingLeft:
+        self.selection.a = self.clampedLeft(1)
+      else:
+        self.selection.b = self.clampedRight(1)
+    of KeyUp:
+      self.isGrowingLeft = self.isGrowingLeft or self.selection.len == 1
+      if self.isGrowingLeft:
+        self.selection.a = self.lineOffset(-1, isGrowingSelection = true)
+      else:
+        self.selection.b = self.lineOffset(-1, isGrowingSelection = true)
+    of KeyDown:
+      self.isGrowingLeft = self.isGrowingLeft and self.selection.len > 1
+      if self.isGrowingLeft:
+        self.selection.a = self.lineOffset(1, isGrowingSelection = true)
+      else:
+        self.selection.b = self.lineOffset(1, isGrowingSelection = true)
+    of KeyHome:
+      self.selection.a = 0
+      self.isGrowingLeft = true
+    of KeyEnd:
+      self.selection.b = self.runes.len
+      self.isGrowingLeft = false
+    else: discard
 
   elif down == KAlt:
-    if pressed == {KeyLeft}:
+    case pressed.getKey
+    of KeyLeft:
       let idx = findPrevWord(self)
       self.selection = idx+1..idx+1
-    elif pressed == {KeyRight}:
+    of KeyRight:
       let idx = findNextWord(self)
       self.selection = idx..idx
-    elif pressed == {KeyBackspace} and aa > 0:
-      let idx = findPrevWord(self)
-      self.layout.runes.delete(idx+1..aa-1)
-      self.selection = idx+1..idx+1
-      self.updateLayout()
+    of KeyBackspace:
+      if aa > 0:
+        let idx = findPrevWord(self)
+        self.runes.delete(idx+1..aa-1)
+        self.selection = idx+1..idx+1
+        self.updateLayout()
+    else: discard
 
   self.value = 1
+  self.selection = self.clampedLeft() .. self.clampedRight()
+
   if self.selHash != self.selection.hash():
     self.updateSelectionBoxes()
   refresh(self)
@@ -192,8 +300,12 @@ proc draw*(self: Input) {.slot.} =
 
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
-        if self.selection.a in sz and self.selection.b in sz: 
-          var sr = self.layout.selectionRects[self.selection.b]
+        if self.selection.a in sz and self.selection.b in sz:
+          var sr =
+            if self.isGrowingLeft:
+              self.layout.selectionRects[self.selection.a]
+            else:
+              self.layout.selectionRects[self.selection.b]
           ## this is gross but works for now
           let width = max(0.08*fs, 2.0)
           sr.x = sr.x - width/2.0

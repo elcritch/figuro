@@ -466,7 +466,8 @@ proc computeEvents*(node: Figuro) =
 
     # echo "keyboard input: ", " rune: `", $rune, "`", " tgts: ", $keys.targets
     for target in keyInput.targets:
-      emit target.doKeyInput(rune)
+      if rune.ord > 31 and rune.ord != 127: # No control and no 'del'
+        emit target.doKeyInput(rune)
 
   # handle keyboard presses
   let keyPress = captured[evKeyPress]
