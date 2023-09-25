@@ -21,12 +21,14 @@ proc draw*(self: Main) {.slot.} =
     box 20, 10, 80'vw, 300
 
     scroll "scroll":
-      box 20, 10, 80'vw, 300
+      # box 20, 10, 80'vw, 300
+      size csPerc(50), csPerc(80)
+      echo "cxScroll: ", current.cxSize
 
       contents "children":
-        for i in 0 .. 9:
+        for i in 0 .. 0:
           button "button", captures(i):
-            box 10, 10 + i * 80, 90'pw, 70
+            box 10, 10 + i * 80, 60, 70
             connect(current, doHover, self, Main.hover)
 
 var main = Main.new()

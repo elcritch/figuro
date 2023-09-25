@@ -326,13 +326,16 @@ template calcBasicConstraintImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
+  echo "computeLayout:calcBasicConstraintImpl: ", node.name
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
       match val:
         UiFixed(coord):
+          echo "     :calcBasicCx: ", node.name, " fixed: "
           res = coord.UICoord
         UiFrac(frac):
+          echo "     :calcBasicCx: ", node.name, " frac: "
           node.checkParent()
           res = frac.UICoord * node.parent.box.f
         UiPerc(perc):
@@ -341,32 +344,39 @@ template calcBasicConstraintImpl(
                       elif astToStr(f) == "y": node.parent.box.h
                       else: node.parent.box.f
           res = perc.UICoord / 100.0.UICoord * ppval
+          echo "     :calcBasicCx: ", node.name, " perc: ", perc, " res: ", res
       res
   
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
                 else: node.cxOffset[dir]
   match csValue:
     UiAuto():
+      echo "   :calcBasicCx: ", node.name, " auto "
       when astToStr(f) in ["w", "h"]:
         node.checkParent()
         node.box.f = node.parent.box.f
       else:
         discard
     UiSum(ls, rs):
+      echo "   :calcBasicCx: ", node.name, " sum "
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = lv + rv
     UiMin(ls, rs):
+      echo "   :calcBasicCx: ", node.name, " min "
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = min(lv, rv)
     UiMax(ls, rs):
+      echo "   :calcBasicCx: ", node.name, " max "
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = max(lv, rv)
     UiValue(value):
+      echo "   :calcBasicCx: ", node.name, " val ", astToStr(node.box.f)
       node.box.f = calcBasic(value)
     _:
+      echo "   :calcBasicCx: ", node.name, " other: ", csValue
       discard
 
 proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
@@ -382,13 +392,16 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
 proc computeLayout*(node: Figuro) =
   ## Computes constraints and auto-layout.
   
+  echo "computeLayout"
+
   # # simple constraints
   if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
-    calcBasicConstraint(node, dcol, true)
-    calcBasicConstraint(node, drow, true)
-    calcBasicConstraint(node, dcol, false)
-    calcBasicConstraint(node, drow, false)
+    echo "computeLayout:calcBasic: ", node.name
+    calcBasicConstraint(node, dcol, isXY=true)
+    calcBasicConstraint(node, drow, isXY=true)
+    calcBasicConstraint(node, dcol, isXY=false)
+    calcBasicConstraint(node, drow, isXY=false)
 
   # css grid impl
   if not node.gridTemplate.isNil:
