@@ -30,6 +30,8 @@ proc draw*(self: ScrollPane) {.slot.} =
       current.offset = self.scrollby
       current.attrs.incl scrollPanel
 
+      TemplateContents(self)
+
 proc getWidgetParent*(self: ScrollPane): Figuro =
   # self.children[0] # "scrollBody"
   self
