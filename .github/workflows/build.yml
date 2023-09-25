@@ -47,7 +47,7 @@ jobs:
       with:
         path: |
           vendor/
-        key: ${{ runner.os }}-${{ hashFiles('vendor/atlas.lock') }}
+        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Build Tests
       run: |
