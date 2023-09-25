@@ -19,15 +19,17 @@ import pretty
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     box 20, 10, 80'vw, 300
+    echo "self:vw: ", current.box.w, " aw: ", app.windowSize.x
 
-    scroll "body":
+    scroll "scroll":
       # box 20, 10, 80'vw, 300
-      boxOf current.parent
+      box 20, 10, 480, 300
+      echo "body:vw: ", current.box.w, " aw: ", app.windowSize.x
 
       contents "children":
-        for i in 0 .. 10:
+        for i in 0 .. 0:
           button "button", captures(i):
-            box 10, 10 + i * 80, 90'vw, 70
+            box 10, 10 + i * 80, 90'pw, 70
             connect(current, doHover, self, Main.hover)
 
 var main = Main.new()

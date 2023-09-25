@@ -19,11 +19,10 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
 
 proc draw*(self: ScrollPane) {.slot.} =
   withDraw(self):
-    box 20, 10, 80'vw, 300
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
     rectangle "scrollBody":
-      boxOf current.parent
+      boxSizeOf current.parent
       cornerRadius 10.0
       fill whiteColor.darken(0.1)
       clipContent true
