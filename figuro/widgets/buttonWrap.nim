@@ -23,9 +23,12 @@ proc clicked*[T](self: Button[T],
     refresh(self)
   self.isActive = true
 
+import macros
+
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   withDraw(self):
+    
     clipContent true
     cornerRadius 10.0
 
@@ -35,6 +38,10 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill "#2B9FEA"
       onHover:
         fill current.fill.spin(15)
-        # this changes the color on hover!
+    rectangle "btnBody":
+      bubble(doClick)
+      boxSizeOf current.parent
+      TemplateContents(self)
+
 
 exportWidget(button, Button)

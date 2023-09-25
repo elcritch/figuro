@@ -19,6 +19,7 @@ type
     screenBox*: Rect
     offset*: Vec2
     totalOffset*: Vec2
+    scroll*: Vec2
     attrs*: set[Attributes]
 
     zlevel*: ZLevel
@@ -46,6 +47,7 @@ import pretty
 proc `$`*(id: NodeIdx): string = "NodeIdx(" & $(int(id)) & ")"
 proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 proc `<=`*(a, b: NodeIdx): bool {.borrow.}
+proc `==`*(a, b: NodeIdx): bool {.borrow.}
 
 iterator childIndex*(
     nodes: seq[Node],

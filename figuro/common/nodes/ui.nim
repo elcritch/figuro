@@ -38,6 +38,8 @@ type
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
+    scroll*: Position
+
     attrs*: set[Attributes]
 
     cxSize*: array[GridDir, Constraint]
@@ -58,7 +60,9 @@ type
     gridTemplate*: GridTemplate
     gridItem*: GridItem
 
+    preDraw*: proc (current: Figuro)
     postDraw*: proc (current: Figuro)
+    contentsDraw*: proc (current, widget: Figuro)
 
     kind*: NodeKind
     shadow*: Option[Shadow]
@@ -82,6 +86,7 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
+
 proc doTick*(fig: Figuro) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
@@ -94,6 +99,8 @@ proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 proc doKeyPress*(fig: Figuro,
                  pressed: UiButtonView,
                  down: UiButtonView) {.signal.}
+proc doScroll*(fig: Figuro,
+               wheelDelta: Position) {.signal.}
 
 proc tick*(fig: Figuro) {.slot.} =
   discard
@@ -117,14 +124,9 @@ proc clicked*(self: Figuro,
               buttons: UiButtonView) {.slot.} =
   discard
 
-proc clearDraw*(fig: Figuro) {.slot.} =
-  fig.attrs.incl postDrawReady
-  fig.diffIndex = 0
-
-proc handlePostDraw*(fig: Figuro) {.slot.} =
-  if fig.postDraw != nil:
-    fig.postDraw(fig)
-
+proc scroll*(fig: Figuro,
+             wheelDelta: Position) {.slot.} =
+  discard
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()
@@ -135,7 +137,6 @@ proc doLoadBubble*(fig: Figuro) {.slot.} =
 proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
 proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
-  echo "CLICK BUBBLE"
   emit fig.doClick(kind, buttonPress)
 
 template connect*(

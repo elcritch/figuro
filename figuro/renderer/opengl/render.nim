@@ -127,6 +127,7 @@ proc renderBoxes*(node: Node) =
                           weight = node.stroke.weight,
                           radius = node.cornerRadius)
 
+
 proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
 
   template node(): auto = nodes[nodeIdx.int]
@@ -190,7 +191,7 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifrender scrollpane in node.attrs:
+  ifrender scrollPanel in node.attrs:
     # handles scrolling panel
     ctx.saveTransform()
     ctx.translate(-node.offset)
@@ -214,6 +215,6 @@ proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
     ctx.putImage(img[0], img[1])
 
   for zlvl, list in nodes.pairs():
-    for rootIdx in list.roots:
+    for rootIdx in list.rootIds:
       render(list.nodes, rootIdx, -1.NodeIdx)
 

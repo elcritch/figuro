@@ -38,9 +38,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   ## Parses widget args looking for options:
   ## - `state(int)` 
   ## - `captures(i, x)` 
-  ## 
   args.expectKind(nnkArgList)
-  # echo "parseWidgetArgs:args: ", args.treeRepr
 
   result.id = args[0]
   result.id.expectKind(nnkStrLit)
@@ -55,7 +53,6 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       if fname.repr == "state":
         if arg.len() != 2:
           error "only one type var allowed"
-        # arg[1].expectKind(nnkBracket)
         result.stateArg = arg[1]
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
@@ -63,92 +60,18 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
       else:
         error("unexpected arguement: " & arg.repr, arg)
     else:
-      echo "UNEXPECTED"
       error("unexpected arguement: " & arg.repr, arg)
   
   if result.stateArg.isNil:
     result.stateArg = ident"void"
   # echo "parseWidgetArgs:res: ", result.repr
 
-proc generateBodies*(widget, kind: NimNode, wargs: WidgetArgs): NimNode =
-  let (id, stateArg, capturedVals, blk) = wargs
-
-  let body = quote do:
-      current.postDraw = proc (widget: Figuro) =
-        var current {.inject.}: `widget` = `widget`(widget)
-        if postDrawReady in widget.attrs:
-          widget.attrs.excl postDrawReady
-          `blk`
-
-  let outer =
-    if capturedVals.isNil:
-      quote do:
-        `body`
-    else:
-      quote do:
-        capture `capturedVals`:
-          `body`
-
-  result = quote do:
-    block:
-      var parent: Figuro = Figuro(current)
-      var current {.inject.}: `widget` = nil
-      preNode(`kind`, `id`, current, parent)
-      `outer`
-      postNode(Figuro(current))
-
-  # echo "Widget:result:\n", result.repr
-
-proc generateGenericBodies*(widget, kind: NimNode,
-                            wargs: WidgetArgs): NimNode {.compileTime.} =
-
-  # echo "generateGenericBodies:widget: ", widget.treeRepr
-  # echo "generateGenericBodies:widget: ", widget.getTypeImpl.treeRepr
-  # echo "generateGenericBodies:widget: ", widget.getTypeInst.treeRepr
-  # echo "generateGenericBodies:widget: ", widget.getImpl.treeRepr
-
-  let (id, stateArg, capturedVals, blk) = wargs
-
-  let body = quote do:
-      current.postDraw = proc (widget: Figuro) =
-        var current {.inject.} = `widget`[`stateArg`](widget)
-        if postDrawReady in widget.attrs:
-          widget.attrs.excl postDrawReady
-          `blk`
-
-  let outer =
-    if capturedVals.isNil:
-      quote do:
-        `body`
-    else:
-      quote do:
-        capture `capturedVals`:
-          `body`
-
-  result = quote do:
-    block:
-      when not compiles(current.typeof):
-        {.error: "missing `var current` in current scope!".}
-      var parent {.inject.}: Figuro = Figuro(current)
-      var current {.inject.}: `widget`[`stateArg`] = nil
-      preNode(`kind`, `id`, current, parent)
-      `outer`
-      postNode(Figuro(current))
-
-  # echo "Widget:result:\n", result.repr
-
-template exportWidget*[T](name: untyped, class: typedesc[T]) =
-  ## exports a template to use the widget
-  macro `name`*(args: varargs[untyped]) =
-    let widget = class.getTypeInst()
-    let wargs = args.parseWidgetArgs()
-    let impl = widget.getImpl()
-    impl.expectKind(nnkTypeDef)
-    let hasGeneric = impl[1].len() > 0
-    if hasGeneric:
-      result = generateGenericBodies(widget, ident "nkRectangle", wargs)
-    else:
-      result = generateBodies(widget, ident "nkRectangle", wargs)
+template wrapCaptures*(hasCaptures, capturedVals, body: untyped): untyped =
+  when hasCaptures:
+    capture `capturedVals`:
+      `body`
+  else:
+    `body`
 
 import std/terminal
 

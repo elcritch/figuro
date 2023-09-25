@@ -1,4 +1,4 @@
-import figuro/widgets/button
+import figuro/widgets/buttonWrap
 import figuro/widget
 import figuro
 
@@ -77,13 +77,11 @@ proc draw*(self: Main) {.slot.} =
           if i == 0:
             connect(self, update, current, btnTick)
 
-          node nkText, "text":
-            box 10'pw, 10'pw, 80'pw, 80'ph
-            fill blackColor
-            setText({font: $(Button[int](current.parent).state)})
-            connect(current, doClick, current, Figuro.txtClicked())
-            bubble(doClick)
-            connect(current, doHover, current, Figuro.txtHovered())
+          contents "child":
+            node nkText, "text":
+              box 10'pw, 10'pw, 80'pw, 80'ph
+              fill blackColor
+              setText({font: $(widgetBtn.state)})
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())

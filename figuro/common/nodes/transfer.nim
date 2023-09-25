@@ -6,8 +6,62 @@ import ../../shared
 type
   RenderList* = object
     nodes*: seq[Node]
-    roots*: seq[NodeIdx]
+    rootIds*: seq[NodeIdx]
   RenderNodes* = OrderedTable[ZLevel, RenderList]
+
+type
+  RenderTree* = ref object
+    id*: int
+    name*: string
+    children*: seq[RenderTree]
+
+func `[]`*(a: RenderTree, idx: int): RenderTree =
+  if a.children.len() == 0:
+    return RenderTree(name: "Missing")
+  a.children[idx]
+
+func `==`*(a, b: RenderTree): bool =
+  if a.isNil and b.isNil: return true
+  if a.isNil or b.isNil: return false
+  `==`(a[], b[])
+
+proc toTree*(nodes: seq[Node],
+              idx = 0.NodeIdx,
+              depth = 1): RenderTree =
+  let n = nodes[idx.int]
+  result = RenderTree(id: n.uid, name: $n.name)
+  # echo "  ".repeat(depth), "toTree:idx: ", idx.int
+  for ci in nodes.childIndex(idx):
+    # echo "  ".repeat(depth), "toTree:cidx: ", ci.int
+    result.children.add toTree(nodes, ci, depth+1)
+
+proc toTree*(list: RenderList): RenderTree =
+  result = RenderTree(name: "pseudoRoot")
+  for rootIdx in list.rootIds:
+    # echo "toTree:rootIdx: ", rootIdx.int
+    result.children.add toTree(list.nodes, rootIdx)
+
+import pretty
+
+proc findRoot*(list: RenderList, node: Node): Node =
+  result = node
+  var cnt = 0
+  # print "FIND ROOT: list: ", list
+  var curr = result
+  while result.parent != -1.NodeID and result.uid != result.parent:
+    # echo "FIND ROOT: ", result.uid, " ", result.parent, " -> ", repr list.nodes.mapIt(it.uid.int)
+    var curr = result
+    for n in list.nodes:
+      if n.uid == result.parent:
+        result = n
+        break
+    
+    if curr.uid == result.uid:
+      return
+
+    cnt.inc
+    if cnt > 1_00:
+      raise newException(IndexDefect, "error finding root")
 
 proc add*(list: var RenderList, node: Node) =
   ## Adds a Node to the RenderList and possibly
@@ -17,13 +71,22 @@ proc add*(list: var RenderList, node: Node) =
   ## zlevels and end up in a the RenderList
   ## for that ZLevel without their logical parent. 
   ##
-  if list.roots.len() == 0:
-    list.roots.add(list.nodes.len().NodeIdx)
+  # echo ""
+  if list.rootIds.len() == 0:
+    # echo "rootIds: len == 0"
+    list.rootIds.add(list.nodes.len().NodeIdx)
+  elif node.parent == -1:
+    list.rootIds.add(list.nodes.len().NodeIdx)
   else:
-    let lastRoot = list.nodes[list.roots[^1].int]
-    if node.parent != lastRoot.uid and
-        node.parent != list.nodes[^1].uid:
-      list.roots.add(list.nodes.len().NodeIdx)
+    let lastRoot = list.nodes[list.rootIds[^1].int]
+    # echo "rootIds:lastRoot: ", lastRoot.uid, " `", lastRoot.name,
+    #         "` node: ", node.uid, " `", node.name, "` "
+    # echo " nodeRoot: ", findRoot(list, node).uid
+    let nr = findRoot(list, node)
+    if nr.uid != lastRoot.uid and
+        node.uid != list.nodes[^1].uid:
+      # echo "rootIds:add: ", node.uid, " // ", node.parent, " ", node.name
+      list.rootIds.add(list.nodes.len().NodeIdx)
   list.nodes.add(node)
 
 proc convert*(current: Figuro): render.Node =
@@ -37,6 +100,7 @@ proc convert*(current: Figuro): render.Node =
   result.screenBox = current.screenBox.scaled
   result.offset = current.offset.scaled
   result.totalOffset = current.totalOffset.scaled
+  result.scroll = current.scroll.scaled
   result.attrs = current.attrs
 
   result.zlevel = current.zlevel
@@ -87,37 +151,6 @@ proc convert*(renders: var RenderNodes,
   for child in current.children:
     let chlvl = child.zlevel
     renders.convert(child, current.uid, chlvl)
-
-type
-  RenderTree* = ref object
-    name*: string
-    children*: seq[RenderTree]
-
-func `[]`*(a: RenderTree, idx: int): RenderTree =
-  if a.children.len() == 0:
-    return RenderTree(name: "Missing")
-  a.children[idx]
-
-func `==`*(a, b: RenderTree): bool =
-  if a.isNil and b.isNil: return true
-  if a.isNil or b.isNil: return false
-  `==`(a[], b[])
-
-proc toTree*(nodes: seq[Node],
-              idx = 0.NodeIdx,
-              depth = 1): RenderTree =
-  let n = nodes[idx.int]
-  result = RenderTree(name: $n.name)
-  # echo "  ".repeat(depth), "toTree:idx: ", idx.int
-  for ci in nodes.childIndex(idx):
-    # echo "  ".repeat(depth), "toTree:cidx: ", ci.int
-    result.children.add toTree(nodes, ci, depth+1)
-
-proc toTree*(list: RenderList): RenderTree =
-  result = RenderTree(name: "pseudoRoot")
-  for rootIdx in list.roots:
-    # echo "toTree:rootIdx: ", rootIdx.int
-    result.children.add toTree(list.nodes, rootIdx)
 
 
 proc copyInto*(uis: Figuro): RenderNodes =

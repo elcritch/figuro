@@ -19,21 +19,16 @@ proc draw*(self: Main) {.slot.} =
       fill "#D0D0D0"
       box 10'pw, 10'ph, 80'pw, 80'ph
       cornerRadius 10.0
-      # clipContent true
-      current.zlevel = 5.ZLevel
 
       button "btn":
-        box 10'pw, 10'ph, 160'pw, 10'ph
-        # fill "#2B9FEA"
-        current.zlevel = 10.ZLevel
-        button "btn":
-          # fill "#2B9FEA".parseHtmlColor.darken(0.2)
-          box 10'pw, 10'ph, 80'pw, 60'ph
+        echo "button"
+        box 10'pw, 10'ph, 80'pw, 10'ph
+        fill "#2B9FEA"
 
       button "btn":
-        box 10'pw, 60'ph, 160'pw, 10'ph
-        fill "#CB0F0A"
-        current.zlevel = 1.ZLevel
+        echo "button2"
+        box 10'pw, 60'ph, 80'pw, 10'ph
+        fill "#2B9FEA"
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)

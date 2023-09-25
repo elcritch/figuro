@@ -193,6 +193,9 @@ proc overlaps*(a: Position, b: Box): bool = overlaps(Vec2(a), Rect(b))
 proc overlaps*(a: Box, b: Position): bool = overlaps(Rect(a), Vec2(b))
 proc overlaps*(a: Box, b: Box): bool = overlaps(Rect(a), Rect(b))
 
+proc sum*(rect: Position): UICoord =
+  result = rect.x + rect.y
+
 proc sum*(rect: Rect): float32 =
   result = rect.x + rect.y + rect.w + rect.h
 proc sum*(rect: (float32, float32, float32, float32)): float32 =

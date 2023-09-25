@@ -82,7 +82,6 @@ proc configureEvents(renderer: Renderer) =
     discard uxInputList.trySend(uxInput)
 
   window.onMouseMove = proc () =
-    ## TODO: this is racey no?
     var uxInput = AppInputs()
     let pos = vec2(window.mousePos())
     uxInput.mouse.pos = pos.descaled()
@@ -95,8 +94,14 @@ proc configureEvents(renderer: Renderer) =
       echo "warning: mouse event blocked!"
 
   window.onScroll = proc () =
-    var uxInput = AppInputs()
+    var uxInput = AppInputs(mouse: lastMouse)
+    uxInput.mouse.consumed = false
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
+    # when defined(debugEvents):
+    #   stdout.styledWriteLine({styleDim},
+    #           fgWhite, "scroll ", {styleBright},
+    #           fgGreen, $uxInput.mouse.wheelDelta.repr,
+    #           )
     discard uxInputList.trySend(uxInput)
 
   window.onButtonPress = proc (button: windy.Button) =

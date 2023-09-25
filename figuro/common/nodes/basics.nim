@@ -29,9 +29,11 @@ type
   Attributes* = enum
     clipContent
     disableRender
-    scrollpane
+    scrollPanel
     inactive
+    preDrawReady
     postDrawReady
+    contentsDrawReady
     clearHover
     rxWindowResize
 

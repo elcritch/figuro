@@ -10,33 +10,35 @@ import pretty
 
 suite "test layers":
 
-  # suite "basic single layer":
-  #   var self = Figuro.new()
-  #   withDraw(self):
-  #     rectangle "body":
-  #       rectangle "child1":
-  #         discard
-  #       rectangle "child2":
-  #         discard
-  #       rectangle "child3":
-  #         discard
-  #     rectangle "body":
-  #       discard
+  suite "basic single layer":
+    var self = Figuro.new()
+    withDraw(self):
+      rectangle "body":
+        rectangle "child1":
+          discard
+        rectangle "child2":
+          discard
+        rectangle "child3":
+          discard
+      rectangle "body2":
+        discard
 
-  #   emit self.doDraw()
+    emit self.doDraw()
 
-  #   let renders = copyInto(self)
-  #   # for k, v in renders.pairs():
-  #   #   print k
-  #   #   for n in v:
-  #   #     print "node: ", "uid:", n.uid, "child:", n.childCount, "parent:", n.parent
-  #   let n1 = renders[0.ZLevel].childIndex(0.NodeIdx)
-  #   let res1 = n1.mapIt(it+1.NodeIdx)
-  #   check res1.repr == "@[2, 6]"
+    let renders = copyInto(self)
+    # for k, v in renders.pairs():
+    #   print k
+    #   for n in v:
+    #     print "node: ", "uid:", n.uid, "child:", n.childCount, "parent:", n.parent
+    let n1 = renders[0.ZLevel].toTree()
+    # print n1
+    let n2 = renders[0.ZLevel]
+    # print n2.rootIds
+    check n2.rootIds.len() == 1
+    check n2.rootIds[0] == NodeIdx 0
 
-  #   let n2 = renders[0.ZLevel].childIndex(1.NodeIdx)
-  #   let res2 = n2.mapIt(it+1.NodeIdx)
-  #   check res2.repr == "@[3, 4, 5]"
+    # let res2 = n2.mapIt(it+1.NodeIdx)
+    # check res2.repr == "@[3, 4, 5]"
 
   # suite "basic two layer":
   #   var self = Figuro.new()
@@ -98,8 +100,6 @@ suite "test layers":
 
   suite "three layer out of order":
     var self = Figuro.new()
-    echo "self: ", self.agentId
-    echo "self: ", self.uid
     withDraw(self):
       current.zlevel = 20
       discard current.name.tryAdd("root")
@@ -126,16 +126,16 @@ suite "test layers":
 
     let renders = copyInto(self)
 
-    echo "\n"
-    for k, v in renders.pairs():
-      print k, v.roots
-      for n in v.nodes:
-        print "   node: ",
-          "uid:", n.uid,
-          " // ", n.parent,
-          "chCnt:", n.childCount,
-          "zlvl:", n.zlevel,
-          "n:", $n.name
+    # echo "\n"
+    # for k, v in renders.pairs():
+    #   print k, v.rootIds
+    #   for n in v.nodes:
+    #     print "   node: ",
+    #       "uid:", n.uid,
+    #       " // ", n.parent,
+    #       "chCnt:", n.childCount,
+    #       "zlvl:", n.zlevel,
+    #       "n:", $n.name
 
     assert -10.ZLevel in renders
     check renders[-10.ZLevel].nodes.len() == 3

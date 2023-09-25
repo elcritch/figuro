@@ -27,7 +27,6 @@ var
   popupActive* {.runtimeVar.}: bool
   inPopup* {.runtimeVar.}: bool
   resetNodes* {.runtimeVar.}: int
-  popupBox* {.runtimeVar.}: Box
 
   # Used to check for duplicate ID paths.
   pathChecker* {.runtimeVar.}: Table[string, bool]
@@ -113,6 +112,18 @@ template setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
+proc clearDraw*(fig: Figuro) {.slot.} =
+  fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
+  fig.diffIndex = 0
+
+proc handlePreDraw*(fig: Figuro) {.slot.} =
+  if fig.preDraw != nil:
+    fig.preDraw(fig)
+
+proc handlePostDraw*(fig: Figuro) {.slot.} =
+  if fig.postDraw != nil:
+    fig.postDraw(fig)
+
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Figuro) =
   ## Process the start of the node.
@@ -180,9 +191,12 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   inc parent.diffIndex
   current.diffIndex = 0
 
+  ## these define the default behaviors for Figuro widgets
   connect(current, doDraw, current, Figuro.clearDraw())
+  connect(current, doDraw, current, Figuro.handlePreDraw())
   connect(current, doDraw, current, typeof(current).draw())
   connect(current, doDraw, current, Figuro.handlePostDraw())
+  ## only activate these if custom ones have been provided 
   if T.clicked().pointer != Figuro.clicked().pointer:
     connect(current, doClick, current, T.clicked())
   if T.keyInput().pointer != Figuro.keyInput().pointer:
@@ -191,25 +205,98 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     connect(current, doKeyPress, current, T.keyPress())
   # if T.tick().pointer != Figuro.tick().pointer:
   #   connect(current, doTick, current, T.tick())
-  emit current.doDraw()
 
 proc postNode*(current: var Figuro) =
-  if not current.postDraw.isNil:
-    current.postDraw(current)
+  emit current.doDraw()
 
   current.removeExtraChildren()
   nodeDepth.dec()
 
 import utils, macros
 
+proc generateBodies*(widget, kind: NimNode,
+                     wargs: WidgetArgs,
+                     hasGeneric: bool): NimNode {.compileTime.} =
+  ## core macro helper that generates the drawing
+  ## callbacks for widgets.
+  let (id, stateArg, capturedVals, blk) = wargs
+  let hasCaptures = newLit(not capturedVals.isNil)
+  let widgetId = ident( "widget" & id.strVal.capitalize )
+
+  let widgetType =
+    if not hasGeneric: quote do: `widget`
+    else: quote do: `widget`[`stateArg`]
+
+  result = quote do:
+    block:
+      when not compiles(current.typeof):
+        {.error: "missing `var current` in current scope!".}
+      let parent {.inject.}: Figuro = current
+      var current {.inject.}: `widgetType` = nil
+      preNode(`kind`, `id`, current, parent)
+      wrapCaptures(`hasCaptures`, `capturedVals`):
+        current.preDraw = proc (c: Figuro) =
+          let current {.inject.} = `widgetType`(c)
+          let widget {.inject.} = `widgetType`(c)
+          let `widgetId` {.inject.} = widget
+          if preDrawReady in widget.attrs:
+            widget.attrs.excl preDrawReady
+            `blk`
+      postNode(Figuro(current))
+
+template exportWidget*[T](name: untyped, class: typedesc[T]) =
+  ## exports a `class` as a widget by giving it a macro with `name`
+  ## which handles parsing widget args like `state(type)` and
+  ## `captures(...)`. It also generatres the proper pre- and
+  ## post- callbacks that are called before and after `doDraw`, 
+  ## respectively.
+  ## 
+  macro `name`*(args: varargs[untyped]) =
+    let widget = class.getTypeInst()
+    let wargs = args.parseWidgetArgs()
+    let impl = widget.getImpl()
+    impl.expectKind(nnkTypeDef)
+    let hasGeneric = impl[1].len() > 0
+
+    result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
+
+{.hint[Name]:off.}
+template TemplateContents*[T](fig: T): untyped =
+  ## marks where the widget will callback for any `contents`
+  ## useful
+  if fig.contentsDraw != nil:
+    fig.contentsDraw(current, Figuro(fig))
+{.hint[Name]:on.}
+
+macro contents*(args: varargs[untyped]): untyped =
+  # echo "contents:\n", args.treeRepr
+  let wargs = args.parseWidgetArgs()
+  let (id, stateArg, capturedVals, blk) = wargs
+  let hasCaptures = newLit(not capturedVals.isNil)
+  # echo "id: ", id
+  # echo "stateArg: ", stateArg.repr
+  # echo "captured: ", capturedVals.repr
+  # echo "blk: ", blk.repr
+
+  result = quote do:
+    block:
+      when not compiles(current.typeof):
+        {.error: "missing `var current` in current scope!".}
+      let parentWidget = current
+      wrapCaptures(`hasCaptures`, `capturedVals`):
+        current.contentsDraw = proc (c, w: Figuro) =
+          let current {.inject.} = c
+          let widget {.inject.} = typeof(parentWidget)(w)
+          if contentsDrawReady in widget.attrs:
+            widget.attrs.excl contentsDrawReady
+            `blk`
+  # echo "contents: ", result.repr
+
 macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
   let widget = ident("Figuro")
   let wargs = args.parseWidgetArgs()
-  result = widget.generateBodies(kind, wargs)
-
-# template node*(kind: NodeKind, id: string, blk: untyped): untyped =
-#   node(kind, id, void, blk)
+  result = widget.generateBodies(kind, wargs, hasGeneric=false)
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
@@ -225,19 +312,16 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
 
-proc mouseOverlaps*(node: Figuro): bool =
+proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
-  let mpos = uxInputs.mouse.pos + node.totalOffset 
+  var mpos = uxInputs.mouse.pos 
+  if includeOffset:
+    mpos += node.totalOffset 
   let act = 
-    (not popupActive or inPopup) and
     node.screenBox.w > 0'ui and
     node.screenBox.h > 0'ui 
 
-  result =
-    act and
-    mpos.overlaps(node.screenBox) and
-    (if inPopup: uxInputs.mouse.pos.overlaps(popupBox) else: true)
-
+  result = act and mpos.overlaps(node.screenBox)
 
 template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
   let res = predicate
@@ -257,6 +341,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evRelease, uxInputs.mouse.release())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
+    node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
 
 type
   EventsCapture* = object
@@ -308,7 +393,6 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   let
     matchingEvts = node.checkAnyEvents()
     buttons = matchingEvts.consumeMouseButtons()
-    nodeOvelaps = node.mouseOverlaps()
 
   for ek in EventKinds:
     let captured = EventsCapture(zlvl: node.zlevel,
@@ -318,7 +402,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
     if clipContent in node.attrs and
           result[ek].zlvl <= node.zlevel and
-          not nodeOvelaps:
+          not node.mouseOverlaps(false):
       # this node clips events, so it must overlap child events, 
       # e.g. ignore child captures if this node isn't also overlapping 
       result[ek] = captured
@@ -330,7 +414,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       result[ek] = maxEvt(captured, result[ek])
       # result.gesture = max(captured.gesture, result.gesture)
 
-    if nodeOvelaps and node.parent != nil and
+    if node.mouseOverlaps(false) and node.parent != nil and
         result[ek].targets.anyIt(it.zlevel < node.zlevel):
       # if a target node is a lower level, then ignore it
       result[ek] = captured
@@ -397,6 +481,14 @@ proc computeEvents*(node: Figuro) =
     for target in keyPress.targets:
       emit target.doKeyPress(pressed, down)
 
+  let scroll = captured[evScroll]
+  if scroll.targets.len() > 0 and
+      not uxInputs.mouse.consumed:
+
+    for target in scroll.targets:
+      # echo "scroll input: ", $target.uid, " name: ", $target.name
+      emit target.doScroll(uxInputs.mouse.wheelDelta)
+
   if captured[evHover].targets != prevHovers:
     let hoverTargets = captured[evHover].targets
     let newHovers = hoverTargets - prevHovers
@@ -436,6 +528,7 @@ proc computeEvents*(node: Figuro) =
 
   uxInputs.mouse.consumed = true
   uxInputs.keyboard.consumed = true
+  uxInputs.mouse.wheelDelta = initPosition(0, 0)
 
 var gridChildren: seq[Figuro]
 
