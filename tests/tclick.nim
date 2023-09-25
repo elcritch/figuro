@@ -74,11 +74,10 @@ proc draw*(self: Main) {.slot.} =
 
           connect(current, doHover, self, Main.hover)
           connect(current, doClick, current, btnClicked)
-          # if i == 0:
-          #   connect(self, update, current, btnTick)
+          if i == 0:
+            connect(self, update, current, btnTick)
 
           contents "child":
-            echo nd(), "button:contents: ", widgetBtn.typeof, " ", widgetBtn.getId, " widget: ", widget.typeof, " ", widget.getId()
             node nkText, "text":
               box 10'pw, 10'pw, 80'pw, 80'ph
               fill blackColor
