@@ -8,7 +8,7 @@ type
     isActive*: bool
     disabled*: bool
     selection*: Slice[int]
-    isGrowingRight*: bool # Text editors store selection direction to control how keys behave
+    isGrowingLeft*: bool # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
     selHash*: Hash
     layout*: GlyphArrangement
@@ -78,14 +78,19 @@ proc updateLayout*(self: Input, text = seq[Rune].none) =
   self.layout = internal.getTypeset(self.box, spans)
   self.runes.setLen(ll())
 
-proc findLine*(self: Input, down: bool): int =
+proc findLine*(self: Input, down: bool, isGrowingSelection = false): int =
   result = -1
   for idx, sl in self.layout.lines:
-    if down:
-      if self.selection.b in sl:
+    if isGrowingSelection:
+      if (self.isGrowingLeft and self.selection.a in sl) or (not self.isGrowingLeft and self.selection.b in sl):
         return idx
-    elif self.selection.a in sl:
-      return idx
+    else:
+      if down:
+        if self.selection.b in sl:
+          return idx
+      elif self.selection.a in sl:
+        return idx
+
 
 proc findPrevWord*(self: Input): int =
   result = -1
@@ -114,19 +119,36 @@ proc getKey(p: UiButtonView): UiButton =
     if x.ord in KeyRange.low.ord .. KeyRange.high.ord:
       return x
 
-proc lineOffset(self: Input, offset: int): int =
+proc lineOffset(self: Input, offset: int, isGrowingSelection = false): int =
+  # This is likely much more complicated than required...
   let 
-    presentLine = self.findLine(offset > 0)
+    presentLine = self.findLine(offset > 0, isGrowingSelection)
     nextLine = clamp(presentLine + offset, 0, self.layout.lines.high)
     lineStart = self.layout.lines[nextLine]
     lineDiff =
-      if offset > 0:
-        self.clampedRight() - self.layout.lines[presentLine].a
-      else:
-        self.clampedLeft() - self.layout.lines[presentLine].a
-  if offset < 0:
-    (lineStart.a + lineDiff).min(lineStart.b)
-  elif offset > 0:
+      if offset > 0: # Moving down the page
+        if isGrowingSelection and self.isGrowingLeft:
+          self.clampedLeft() - self.layout.lines[presentLine].a
+        elif isGrowingSelection and not self.isGrowingLeft:
+          self.clampedRight() - self.layout.lines[presentLine].a
+        elif not isGrowingSelection:
+          self.clampedRight() - self.layout.lines[presentLine].a
+        else:
+          raiseAssert("How do we get here?!")
+      else: # Moving up the page
+        if isGrowingSelection and self.isGrowingLeft:
+          self.clampedLeft() - self.layout.lines[presentLine].a
+        elif isGrowingSelection and not self.isGrowingLeft:
+          self.clampedRight() - self.layout.lines[presentLine].a
+        elif not isGrowingSelection:
+          self.clampedLeft() - self.layout.lines[presentLine].a
+        else:
+          raiseAssert("How do we get here?!")
+  if presentLine == 0 and offset < 0:
+    0
+  elif presentLine == self.layout.lines.high and offset > 0:
+    self.layout.lines[^1].b
+  elif offset < 0 or offset > 0:
     (lineStart.a + lineDiff).min(lineStart.b)
   else:
     raiseAssert("Offset cannot be 0, that's just the line.")
@@ -154,17 +176,29 @@ proc keyCommand*(self: Input,
           self.selection = sameSlice(self.clampedLeft())
         self.updateLayout()
     of KeyLeft:
-      self.selection = sameSlice self.clampedLeft(-1)
+      if self.selection.len != 1 and not self.isGrowingLeft:
+        self.selection = sameSlice self.clampedRight(-1)
+      else:
+        self.selection = sameSlice self.clampedLeft(-1)
     of KeyRight:
-      self.selection = sameSlice self.clampedLeft(1)
+      if self.selection.len != 1 and not self.isGrowingLeft:
+        self.selection = sameSlice self.clampedRight(1)
+      else:
+        self.selection = sameSlice self.clampedLeft(1)
     of KeyHome:
       self.selection = 0..0
     of KeyEnd:
       self.selection = sameSlice self.runes.len
     of KeyUp:
-      self.selection = sameSlice self.lineOffset(-1)
+      if self.selection.len != 1:
+        self.selection = sameSlice self.lineOffset(-1, isGrowingSelection = true)
+      else:
+        self.selection = sameSlice self.lineOffset(-1)
     of KeyDown:
-      self.selection = sameSlice self.lineOffset(1)
+      if self.selection.len != 1:
+        self.selection = sameSlice self.lineOffset(1, isGrowingSelection = true)
+      else:
+        self.selection = sameSlice self.lineOffset(1)
     of KeyEscape:
       self.clicked(Exit, {})
     of KeyEnter:
@@ -184,17 +218,35 @@ proc keyCommand*(self: Input,
   elif down == KShift:
     case pressed.getKey
     of KeyLeft:
-      self.selection = max(aa-1, 0)..bb
+      self.isGrowingLeft = self.isGrowingLeft or self.selection.len == 1 # Perhaps we just always move b and then resolve the slice later
+      if self.isGrowingLeft:
+        self.selection.a = self.clampedLeft(-1)
+      else:
+        self.selection.b = self.clampedRight(-1)
     of KeyRight:
-      self.selection = aa..min(bb+1, ll+1)
+      self.isGrowingLeft = self.isGrowingLeft and self.selection.len > 1
+      if self.isGrowingLeft:
+        self.selection.a = self.clampedLeft(1)
+      else:
+        self.selection.b = self.clampedRight(1)
     of KeyUp:
-      self.selection.a = self.lineOffset(-1)
+      self.isGrowingLeft = self.isGrowingLeft or self.selection.len == 1
+      if self.isGrowingLeft:
+        self.selection.a = self.lineOffset(-1, isGrowingSelection = true)
+      else:
+        self.selection.b = self.lineOffset(-1, isGrowingSelection = true)
     of KeyDown:
-      self.selection.b = self.lineOffset(1)
+      self.isGrowingLeft = self.isGrowingLeft and self.selection.len > 1
+      if self.isGrowingLeft:
+        self.selection.a = self.lineOffset(1, isGrowingSelection = true)
+      else:
+        self.selection.b = self.lineOffset(1, isGrowingSelection = true)
     of KeyHome:
       self.selection.a = 0
+      self.isGrowingLeft = true
     of KeyEnd:
       self.selection.b = self.runes.len
+      self.isGrowingLeft = false
     else: discard
 
   elif down == KAlt:
@@ -244,8 +296,12 @@ proc draw*(self: Input) {.slot.} =
 
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
-        if self.selection.a in sz and self.selection.b in sz: 
-          var sr = self.layout.selectionRects[self.selection.b]
+        if self.selection.a in sz and self.selection.b in sz:
+          var sr =
+            if self.isGrowingLeft:
+              self.layout.selectionRects[self.selection.a]
+            else:
+              self.layout.selectionRects[self.selection.b]
           ## this is gross but works for now
           let width = max(0.08*fs, 2.0)
           sr.x = sr.x - width/2.0
