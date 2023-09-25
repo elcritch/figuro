@@ -2,9 +2,6 @@ on:
   pull_request:
     branches:
     - "*"
-  push:
-    branches:
-    - "main"
 
 jobs:
   tests:
@@ -13,11 +10,8 @@ jobs:
       matrix:
         nimversion:
           - '2.x'
-
         os:
           - ubuntu-latest
-          - macOS-latest
-          - windows-latest
     steps:
     - uses: actions/checkout@v1
       with:

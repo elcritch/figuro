@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+    - "main"
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        nimversion:
+          - '2.x'
+
+        os:
+          - ubuntu-latest
+          - macOS-latest
+          - windows-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        path: "figuro"
+    - uses: iffy/install-nim@v4
+      with:
+        version: ${{ matrix.nimversion }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Install Atlas
+      run: |
+        nim -v
+        nimble -v
+        nimble install 'https://github.com/nim-lang/atlas@#head'
+
+    - name: Install Deps
+      run: |
+        cd ../
+        # new atlas workspace
+        atlas init --deps=vendor
+
+        # sync deps
+        atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
+
+    - name: Cache packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          vendor/
+        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
+
+    - name: Build Tests
+      run: |
+        nim test
