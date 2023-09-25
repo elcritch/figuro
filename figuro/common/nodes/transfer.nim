@@ -96,7 +96,6 @@ proc convert*(current: Figuro): render.Node =
   result.name = current.name
 
   result.box = current.box.scaled
-  result.orgBox = current.orgBox.scaled
   result.screenBox = current.screenBox.scaled
   result.offset = current.offset.scaled
   result.totalOffset = current.totalOffset.scaled

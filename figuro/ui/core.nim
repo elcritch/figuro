@@ -51,7 +51,6 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
 
   node.box = initBox(0,0,0,0)
-  node.orgBox = initBox(0,0,0,0)
   node.rotation = 0
   # node.screenBox = rect(0,0,0,0)
   # node.offset = vec2(0, 0)

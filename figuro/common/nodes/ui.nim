@@ -34,7 +34,6 @@ type
     diffIndex*: int
 
     box*: Box
-    orgBox*: Box
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
