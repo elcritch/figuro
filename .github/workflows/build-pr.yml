@@ -36,7 +36,7 @@ jobs:
 
     - name: Files
       run: |
-        find -depth 3 -type d . | grep -v .git
+        find . -maxdepth 3 -type d | grep -v .git
 
     - name: Install Deps
       run: |
