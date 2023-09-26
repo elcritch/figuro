@@ -41,8 +41,7 @@ jobs:
     - name: Cache packages
       uses: actions/cache@v3
       with:
-        path: |
-          vendor/
+        path: vendor
         key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Install Deps
