@@ -15,9 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "figuro-dev"
-        repository: elcritch/figuro
-
+        path: "figuro/figuro"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
