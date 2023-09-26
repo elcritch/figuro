@@ -30,6 +30,13 @@ jobs:
         nimble -v
         nimble install 'https://github.com/nim-lang/atlas@#head'
 
+    - name: Cache packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ../vendor/
+        key: ${{ runner.os }}-${{ hashFiles('atlas.lock') }}
+
     - name: Install Deps
       run: |
         cd ../
@@ -38,13 +45,6 @@ jobs:
 
         # sync deps
         atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
-
-    - name: Cache packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          ../vendor/
-        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Build Tests
       run: |
