@@ -13,14 +13,15 @@ jobs:
         os:
           - ubuntu-latest
     steps:
-    # - uses: actions/checkout@v1
-    #   with:
-    #     path: "fig_ws/"
-    - name: Clone Figuro
+    - uses: actions/checkout@v1
+      with:
+        path: "fig_ws/"
+    - name: Move
       run: |
-        git clone https://github.com/elcritch/figuro.git figuro
-        cd figuro/
-        git checkout $GITHUB_SHA
+        cd ../
+        mv fig_ws/ figuro
+        mkdir fig_ws/
+        mv figuro/ fig_ws/figuro
 
     - uses: iffy/install-nim@v4
       with:
