@@ -27,7 +27,7 @@ jobs:
     - name: Install Atlas
       run: |
         mkdir figuro-dev
-        mv * .* figuro-dev/
+        mv * figuro-dev/
         nim -v
         nimble -v
         nimble install 'https://github.com/nim-lang/atlas@#head'
