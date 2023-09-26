@@ -52,7 +52,11 @@ jobs:
         # sync deps
         atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
 
-    - name: Build Tests
+    - name: Test build From fig_ws/
       run: |
         nim c figuro/tests/tclick.nim
+
+    - name: Build Tests
+      run: |
+        cd figuro/
         nim test
