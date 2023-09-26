@@ -35,7 +35,7 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('atlas.lock') }}
 
     - name: Files
-      working-directory: $GITHUB_WORKSPACE
+      working-directory: ${{ github.workspace }}
       run: |
         find . -maxdepth 3 -type d | grep -v .git
 
