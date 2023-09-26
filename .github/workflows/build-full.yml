@@ -43,7 +43,7 @@ jobs:
       with:
         path: |
           vendor/
-        key: ${{ runner.os }}-${{ hashFiles('atlas.lock') }}
+        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Install Deps
       run: |
@@ -53,10 +53,11 @@ jobs:
         # sync deps
         atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
 
-    - name: Files
+    - name: Test build From fig_ws/
       run: |
-        find . -depth 3 -type d | grep -v .git
+        nim c figuro/tests/tclick.nim
 
     - name: Build Tests
       run: |
+        cd figuro/
         nim test

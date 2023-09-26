@@ -24,7 +24,6 @@ jobs:
         mv figuro/ fig_ws/figuro
         pwd
         find . | grep -v .git
-
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
@@ -41,7 +40,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          vendor/
+          fig_ws/vendor/
         key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Install Deps
