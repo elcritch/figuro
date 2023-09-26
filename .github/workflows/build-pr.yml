@@ -54,7 +54,7 @@ jobs:
         atlas init --deps=vendor
 
         # sync deps
-        atlas replay --cfgHere --ignoreUrls figuro-dev/atlas.lock
+        atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
 
     - name: Build Tests
       run: |
