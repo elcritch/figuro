@@ -22,18 +22,14 @@ jobs:
         mv fig_ws/ figuro
         mkdir fig_ws/
         mv figuro/ fig_ws/figuro
+        pwd
+        find . | grep -v .git
 
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Files
-      run: |
-        pwd
-        find . -maxdepth 3 -type d | grep -v .git
-        find . | grep -v .git
 
     - name: Install Atlas
       run: |
@@ -58,4 +54,5 @@ jobs:
 
     - name: Build Tests
       run: |
+        cp figuro/config.nims ./config.nims
         nim test
