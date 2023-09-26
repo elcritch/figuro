@@ -34,17 +34,20 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ../vendor/
+          vendor/
         key: ${{ runner.os }}-${{ hashFiles('atlas.lock') }}
 
     - name: Install Deps
       run: |
-        cd ../
         # new atlas workspace
         atlas init --deps=vendor
 
         # sync deps
         atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
+
+    - name: Files
+      run: |
+        find . -depth 3 -type d | grep -v .git
 
     - name: Build Tests
       run: |
