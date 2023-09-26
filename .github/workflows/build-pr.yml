@@ -37,6 +37,8 @@ jobs:
     - name: Files
       working-directory: ${{ github.workspace }}
       run: |
+        pwd
+
         find . -maxdepth 3 -type d | grep -v .git
 
     - name: Install Deps
