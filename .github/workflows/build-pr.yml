@@ -39,8 +39,7 @@ jobs:
     - name: Cache packages
       uses: actions/cache@v3
       with:
-        path: |
-          fig_ws/vendor/
+        path: vendor
         key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Install Deps
@@ -53,6 +52,7 @@ jobs:
 
     - name: Test build From fig_ws/
       run: |
+        ls vendor/
         nim c figuro/tests/tclick.nim
 
     - name: Build Tests
