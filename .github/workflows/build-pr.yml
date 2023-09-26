@@ -23,6 +23,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Install Atlas
       run: |
+        echo WS: $GITHUB_WORKSPACE
         nim -v
         nimble -v
         nimble install 'https://github.com/nim-lang/atlas@#head'
