@@ -54,5 +54,5 @@ jobs:
 
     - name: Build Tests
       run: |
-        cp figuro/config.nims ./config.nims
+        nim c -r figuro/tests/tclick.nim
         nim test
