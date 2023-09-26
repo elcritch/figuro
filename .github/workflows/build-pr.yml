@@ -54,5 +54,5 @@ jobs:
 
     - name: Build Tests
       run: |
-        nim c -r figuro/tests/tclick.nim
+        nim c figuro/tests/tclick.nim
         nim test
