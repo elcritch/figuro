@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "fig_ws/figuro"
+        path: "fig_ws/"
     - name: Set WS
       run: |
         echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}/../"
@@ -26,7 +26,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Install Atlas
       run: |
-        echo WS: $GITHUB_WORKSPACE
+        mkdir figuro
+        mv * .* figuro/
         nim -v
         nimble -v
         nimble install 'https://github.com/nim-lang/atlas@#head'
