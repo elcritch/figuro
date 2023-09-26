@@ -15,14 +15,13 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "figuro"
+        path: "fig_ws/figuro"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Install Atlas
-      working-directory: ${{ github.workspace }}/
       run: |
         nim -v
         nimble -v
@@ -36,7 +35,6 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('atlas.lock') }}
 
     - name: Files
-      working-directory: ${{ github.workspace }}/
       run: |
         pwd
 
