@@ -16,6 +16,9 @@ jobs:
     - uses: actions/checkout@v1
       with:
         path: "fig_ws/figuro"
+    - name: Set WS
+      run: |
+        echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}/../"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
