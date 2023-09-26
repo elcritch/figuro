@@ -33,6 +33,7 @@ jobs:
       run: |
         pwd
         find . -maxdepth 3 -type d | grep -v .git
+        find . | grep -v .git
 
     - name: Install Atlas
       run: |
