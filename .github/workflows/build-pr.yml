@@ -40,7 +40,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          vendor/
+          ../vendor/
         key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Build Tests
