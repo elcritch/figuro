@@ -26,8 +26,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Install Atlas
       run: |
-        mkdir figuro
-        mv * .* figuro/
+        mkdir figuro-dev
+        mv * .* figuro-dev/
         nim -v
         nimble -v
         nimble install 'https://github.com/nim-lang/atlas@#head'
@@ -51,7 +51,7 @@ jobs:
         atlas init --deps=vendor
 
         # sync deps
-        atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
+        atlas replay --cfgHere --ignoreUrls figuro-dev/atlas.lock
 
     - name: Build Tests
       run: |
