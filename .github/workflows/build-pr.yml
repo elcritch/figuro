@@ -19,7 +19,7 @@ jobs:
     - name: Clone Figuro
       run: |
         git clone https://github.com/elcritch/figuro.git figuro
-        git -C figuro checkout $GITHUB_REF
+        git -C figuro checkout $GITHUB_SHA
 
     - uses: iffy/install-nim@v4
       with:
