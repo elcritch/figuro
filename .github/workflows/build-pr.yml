@@ -13,21 +13,27 @@ jobs:
         os:
           - ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-      with:
-        path: "fig_ws/"
-    - name: Set WS
+    # - uses: actions/checkout@v1
+    #   with:
+    #     path: "fig_ws/"
+    - name: Clone Figuro
       run: |
-        echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE}/../"
+        git clone https://github.com/elcritch/figuro.git figuro
+        git -C figuro checkout $GITHUB_REF
+
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Files
+      run: |
+        pwd
+        find . -maxdepth 3 -type d | grep -v .git
+
     - name: Install Atlas
       run: |
-        mkdir figuro-dev
-        mv * figuro-dev/
         nim -v
         nimble -v
         nimble install 'https://github.com/nim-lang/atlas@#head'
@@ -38,12 +44,6 @@ jobs:
         path: |
           vendor/
         key: ${{ runner.os }}-${{ hashFiles('atlas.lock') }}
-
-    - name: Files
-      run: |
-        pwd
-
-        find . -maxdepth 3 -type d | grep -v .git
 
     - name: Install Deps
       run: |
