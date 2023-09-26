@@ -42,7 +42,7 @@ jobs:
       with:
         path: |
           vendor/
-        key: ${{ runner.os }}-${{ hashFiles('atlas.lock') }}
+        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Install Deps
       run: |
