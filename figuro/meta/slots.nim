@@ -84,10 +84,13 @@ proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
 
   result = newStmtList()
   var varList = newSeq[NimNode]()
+  var cnt = 0
   for paramid, paramType in paramsIter(params):
+    let idx = newIntLitNode(cnt)
     let vars = quote do:
-      var `paramid`: `paramType` = `paramsIdent`.`paramid`
+      var `paramid`: `paramType` = `paramsIdent`[`idx`]
     varList.add vars
+    cnt.inc()
   result.add varList
   # echo "paramsSetup return:\n", treeRepr result
 
@@ -271,7 +274,9 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     # Create the rpc wrapper procs
     let objId = ident "obj"
     let objTp = ident "tp"
-    let tupTyp = paramTypes[0][^1]
+    var tupTyp = nnkTupleConstr.newTree()
+    for pt in paramTypes[0][^1]:
+      tupTyp.add pt[1]
     let mcall = nnkCall.newTree(rpcMethod)
     mcall.add(objId)
     for param in parameters[1..^1]:
