@@ -25,15 +25,12 @@ proc draw*(self: Main) {.slot.} =
     scroll "scroll":
       # box 20, 10, 80'vw, 300
       box 20'ux, 10'ux, 90'pp, 80'pp
-      echo "widget:scroll:name: ", current.name, " pn: ", current.parent.name
-      echo "widget:scroll:cb: ", current.box, " pb: ", current.parent.box
-      echo "cxScroll: ", current.cxSize
 
       contents "children":
         for i in 0 .. 9:
           button "button", captures(i):
             # box 10, 10 + i * 80, 40'vw, 70
-            box csFixed(10), csFixed(10 + i * 80), csPerc(90), csFixed(70)
+            box 10'ux, ux(10 + i * 80), 90'pp, 70'ux
             connect(current, doHover, self, Main.hover)
 
 var main = Main.new()

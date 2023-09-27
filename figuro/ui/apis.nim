@@ -289,6 +289,9 @@ template setText*(spans: openArray[(UiFont, string)]) =
 proc csFixed*(coord: UICoord): Constraint =
   csFixed(coord.UiScalar)
 
+proc ux*(coord: SomeNumber): Constraint =
+  csFixed(coord.UiScalar)
+
 {.hint[Name]:off.}
 
 proc findRoot*(node: Figuro): Figuro =
