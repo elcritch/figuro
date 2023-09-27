@@ -286,6 +286,9 @@ template setText*(spans: openArray[(UiFont, string)]) =
 #   ## numeric literal em unit
 #   result = Em(parseFloat(n))
 
+proc csFixed*(coord: UICoord): Constraint =
+  csFixed(coord.UiScalar)
+
 {.hint[Name]:off.}
 
 proc findRoot*(node: Figuro): Figuro =
@@ -314,25 +317,6 @@ template `'vw`*(n: string): UICoord =
 template `'vh`*(n: string): UICoord =
   ## numeric literal view height unit
   Vh(parseFloat(n))
-
-template WPerc*(n: SomeNumber): UICoord =
-  ## numeric literal percent of parent width
-  UICoord(max(0'f32, current.parent.box.w.float32 * n.float32 / 100.0))
-
-template HPerc*(n: SomeNumber): UICoord =
-  ## numeric literal percent of parent height
-  UICoord(max(0'f32, current.parent.box.h.float32 * n.float32 / 100.0))
-
-template `'pw`*(n: string): UICoord =
-  ## numeric literal view width unit
-  WPerc(parseFloat(n))
-
-template `'ph`*(n: string): UICoord =
-  ## numeric literal view height unit
-  HPerc(parseFloat(n))
-
-proc csFixed*(coord: UICoord): Constraint =
-  csFixed(coord.UiScalar)
 
 {.hint[Name]:on.}
 

@@ -420,7 +420,9 @@ proc computeLayout*(node: Figuro, depth: int) =
     computeLayout(n, depth+1)
 
 proc computeLayout*(node: Figuro) =
-  echo "\ncomputeLayout: "
-  printLayout(node)
+  when defined(figDebugLayout):
+    echo "\ncomputeLayout: "
+    printLayout(node)
   computeLayout(node, 0)
-  printLayout(node)
+  when defined(figDebugLayout):
+    printLayout(node)
