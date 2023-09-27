@@ -17,6 +17,7 @@ proc setValue*[T](self: Counter[T], value: T) {.slot.} =
     self.value = value
   emit self.valueChanged(value)
 
+
 proc value*(self: Counter): int =
   self.value
 

@@ -234,7 +234,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
                 elif body.kind == nnkEmpty: body
                 else: body.body
 
-  echo "PARAMTYPES: ", paramTypes[0][^1].treeRepr
   let
     contextType = firstType
     kd = ident "kd"
@@ -316,7 +315,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   elif isSignal:
     var construct = nnkTupleConstr.newTree()
     for param in parameters[1..^1]:
-      construct.add nnkExprColonExpr.newTree(param[0], param[0])
+      construct.add param[0]
 
     result.add quote do:
       proc `rpcMethod`(): (Agent, AgentRequest) =
