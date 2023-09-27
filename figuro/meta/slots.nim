@@ -276,6 +276,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     var tupTyp = nnkTupleConstr.newTree()
     for pt in paramTypes[0][^1]:
       tupTyp.add pt[1]
+    echo "tupTyp1: ", tupTyp.treeRepr, " ", tupTyp.len()
+    if tupTyp.len() == 0:
+      tupTyp = nnkTupleTy.newTree()
+    echo "tupTyp2: ", tupTyp.treeRepr, " ", tupTyp.len()
     let mcall = nnkCall.newTree(rpcMethod)
     mcall.add(objId)
     for param in parameters[1..^1]:
