@@ -331,10 +331,8 @@ template calcBasicConstraintImpl(
       var res: UICoord
       match val:
         UiFixed(coord):
-          echo "     :calcBasicCx: ", node.name, " fixed: "
           res = coord.UICoord
         UiFrac(frac):
-          echo "     :calcBasicCx: ", node.name, " frac: "
           node.checkParent()
           res = frac.UICoord * node.parent.box.f
         UiPerc(perc):
@@ -343,14 +341,12 @@ template calcBasicConstraintImpl(
                       elif astToStr(f) == "y": node.parent.box.h
                       else: node.parent.box.f
           res = perc.UICoord / 100.0.UICoord * ppval
-          echo "     :calcBasicCx: ", node.name, " ", astToStr(f), " perc: ", perc, " ppval: ", ppval, " res: ", res
       res
   
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
                 else: node.cxOffset[dir]
   match csValue:
     UiAuto():
-      echo "   :calcBasicCx: ", node.name, " auto "
       when astToStr(f) in ["w", "h"]:
         node.checkParent()
         node.box.f = node.parent.box.f
@@ -371,7 +367,6 @@ template calcBasicConstraintImpl(
     UiValue(value):
       node.box.f = calcBasic(value)
     _:
-      echo "   :calcBasicCx: ", node.name, " other: ", csValue
       discard
 
 proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
@@ -395,7 +390,6 @@ proc computeLayout*(node: Figuro, depth: int) =
   # # simple constraints
   if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
-    echo "computeLayout:calcBasic: ", node.name
     calcBasicConstraint(node, dcol, isXY=true)
     calcBasicConstraint(node, drow, isXY=true)
     calcBasicConstraint(node, dcol, isXY=false)
