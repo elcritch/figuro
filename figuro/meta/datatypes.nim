@@ -83,12 +83,11 @@ type
     # registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
 proc pack*[T](ss: var Variant, val: T) =
-  echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
+  # echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
   ss = newVariant(val)
 
 proc unpack*[T](ss: Variant, obj: var T) =
   # if ss.ofType(T):
-    echo "UNPACK: ", typeof(T)
     obj = ss.get(T)
   # else:
     # raise newException(ConversionError, "couldn't convert to: " & $(T))
@@ -131,7 +130,6 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
       obj.fromJson(ss.buf)
       discard
     else:
-      echo "RPC_UNPACK: ", obj.typeof()
       ss.buf.unpack(obj)
   # except ConversionError as err:
   #   raise newException(ConversionError,

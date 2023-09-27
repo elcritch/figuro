@@ -297,7 +297,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         if `objId` == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `tupTyp`
-        # echo "SLOT:RPC_UNPACK: ", typeof(distinctBase(`rpcType`))
         rpcUnpack(`paramsIdent`, params)
         `paramSetups`
         `mcall`
