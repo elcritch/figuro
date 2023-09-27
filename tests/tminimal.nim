@@ -14,20 +14,20 @@ type
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    box 0, 0, 100'vw, 100'vh
+    box 0'ux, 0'ux, 100'vw, 100'vh
     rectangle "body":
       fill "#D0D0D0"
-      box 10'pw, 10'ph, 80'pw, 80'ph
+      box 10'pp, 10'pp, 80'pp, 80'pp
       cornerRadius 10.0
 
       button "btn":
         echo "button"
-        box 10'pw, 10'ph, 80'pw, 10'ph
+        box 10'pp, 10'pp, 80'pp, 10'pp
         fill "#2B9FEA"
 
       button "btn":
         echo "button2"
-        box 10'pw, 60'ph, 80'pw, 10'ph
+        box 10'pp, 60'pp, 80'pp, 10'pp
         fill "#2B9FEA"
 
 var main = Main.new()

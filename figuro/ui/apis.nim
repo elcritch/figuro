@@ -129,10 +129,10 @@ proc csOrFixed*(x: int|float32|float64|UICoord|CSSConstraint): CSSConstraint =
   else: csFixed(x.UiScalar)
 
 template box*(
-  x: int|float32|float64|UICoord|CSSConstraint,
-  y: int|float32|float64|UICoord|CSSConstraint,
-  w: int|float32|float64|UICoord|CSSConstraint,
-  h: int|float32|float64|UICoord|CSSConstraint
+  x: UICoord|CSSConstraint,
+  y: UICoord|CSSConstraint,
+  w: UICoord|CSSConstraint,
+  h: UICoord|CSSConstraint
 ) =
   ## Sets the box dimensions with integers
   ## Always set box before orgBox when doing constraints.
