@@ -18,13 +18,13 @@ import pretty
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    box 20, 10, 100'vw, 100'vh
+    box 20'pp, 10'pp, 100'vw, 100'vh
     current.name.setLen(0)
     current.name.add("root")
 
     scroll "scroll":
       # box 20, 10, 80'vw, 300
-      box csFixed(20), csFixed(10), csPerc(90), csPerc(80)
+      box 20'ux, 10'ux, 90'pp, 80'pp
       echo "widget:scroll:name: ", current.name, " pn: ", current.parent.name
       echo "widget:scroll:cb: ", current.box, " pb: ", current.parent.box
       echo "cxScroll: ", current.cxSize
