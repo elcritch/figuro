@@ -64,13 +64,13 @@ proc draw*(self: Main) {.slot.} =
 
     rectangle "body":
       self.mainRect = current
-      box 10, 10, 600, 120
+      box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha).
                       spin(10*self.hoveredAlpha)
       for i in 0 .. 4:
         button "btn", state(int), captures(i):
-          box 10 + i*120, 10, 100, 100
+          box ux(10 + i*120), 10'ux, 100'ux, 100'ux
 
           connect(current, doHover, self, Main.hover)
           connect(current, doClick, current, btnClicked)
@@ -79,7 +79,7 @@ proc draw*(self: Main) {.slot.} =
 
           contents "child":
             node nkText, "text":
-              box 10'pw, 10'pw, 80'pw, 80'ph
+              box 10'ux, 10'ux, 80'pp, 80'pp
               fill blackColor
               setText({font: $(widgetBtn.state)})
 
