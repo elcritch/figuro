@@ -1,4 +1,4 @@
-import tables, strutils, macros
+import tables, strutils, typetraits, macros
 
 import datatypes
 
@@ -231,6 +231,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
                 elif body.kind == nnkEmpty: body
                 else: body.body
 
+  echo "PARAMTYPES: ", paramTypes[0][^1].treeRepr
   let
     contextType = firstType
     kd = ident "kd"
@@ -248,8 +249,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   # Create the proc's that hold the users code 
   if not isSignal:
 
-    result.add quote do:
-      `paramTypes`
+    # result.add quote do:
+    #   `paramTypes`
 
     let rmCall = nnkCall.newTree(rpcMethodGen)
     for param in parameters:
@@ -269,9 +270,12 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     # Create the rpc wrapper procs
     let objId = ident "obj"
+    let objTp = ident "tp"
+    let tupTyp = paramTypes[0][^1]
     let mcall = nnkCall.newTree(rpcMethod)
     mcall.add(objId)
     for param in parameters[1..^1]:
+      # echo "PARAMS: ", param.treeRepr
       mcall.add param[0]
 
     let agentSlotImpl = quote do:
@@ -284,7 +288,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         let `objId` = `contextType`(context)
         if `objId` == nil:
           raise newException(ConversionError, "bad cast")
-        var `paramsIdent`: `rpcType`
+        var `paramsIdent`: `tupTyp`
+        # echo "SLOT:RPC_UNPACK: ", typeof(distinctBase(`rpcType`))
         rpcUnpack(`paramsIdent`, params)
         `paramSetups`
         `mcall`
@@ -336,8 +341,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.lispRepr
-  # echo "slot:repr:"
-  # echo result.repr
+  echo "slot:repr:"
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)

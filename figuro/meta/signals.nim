@@ -83,27 +83,27 @@ proc callMethod*(
       let err = AgentError(code: METHOD_NOT_FOUND, msg: msg)
       result = wrapResponseError(req.id, err)
     else:
-      try:
+      # try:
         # Handle rpc request the `context` variable is different
         # based on whether the rpc request is a system/regular/subscription
         slot(ctx, req.params)
         let res = rpcPack(true)
 
         result = AgentResponse(kind: Response, id: req.id, result: res)
-      except ConversionError as err:
-        result = wrapResponseError(
-                    req.id,
-                    INVALID_PARAMS,
-                    req.procName & " raised an exception",
-                    err,
-                    true)
-      except CatchableError as err:
-        result = wrapResponseError(
-                    req.id,
-                    INTERNAL_ERROR,
-                    req.procName & " raised an exception: " & err.msg,
-                    err,
-                    true)
+      # except ConversionError as err:
+      #   result = wrapResponseError(
+      #               req.id,
+      #               INVALID_PARAMS,
+      #               req.procName & " raised an exception",
+      #               err,
+      #               true)
+      # except CatchableError as err:
+      #   result = wrapResponseError(
+      #               req.id,
+      #               INTERNAL_ERROR,
+      #               req.procName & " raised an exception: " & err.msg,
+      #               err,
+      #               true)
 
 template packResponse*(res: AgentResponse): Variant =
   var so = newVariant()

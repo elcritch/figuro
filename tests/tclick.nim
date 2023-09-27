@@ -77,6 +77,8 @@ proc draw*(self: Main) {.slot.} =
           if i == 0:
             connect(self, update, current, btnTick)
 
+
+
           contents "child":
             node nkText, "text":
               box 10'ux, 10'ux, 80'pp, 80'pp
