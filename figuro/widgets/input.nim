@@ -293,7 +293,7 @@ proc draw*(self: Input) {.slot.} =
     connect(findRoot(self), doTick, self, Input.tick())
 
     text "text":
-      box 10, 10, 400, 100
+      box 10'ux, 10'ux, 400'ux, 100'ux
       fill blackColor
       self.textNode = current
       current.textLayout = self.layout
