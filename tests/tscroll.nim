@@ -18,9 +18,8 @@ import pretty
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    offset 20'pp, 10'pp
-    # size ux(100'vw), ux(100'vh)
-    size 100'ux, 100'ux
+    offset 1'pp, 1'pp
+    size 100'pp, 100'pp
     current.name.setLen(0)
     current.name.add("root")
 
