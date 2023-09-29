@@ -243,7 +243,7 @@ proc computeEvents*(node: Figuro) =
     let drags = captured[evDrag]
     if evDrag in drags.flags:
       let newDrags = drags.targets + prevDrags
-      echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
+      # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
         target.events.incl evDrag
         emit target.doDrag(Enter, uxInputs.mouse.pos)
@@ -252,12 +252,12 @@ proc computeEvents*(node: Figuro) =
   block dragEndEvents:
     let dragens = captured[evDragEnd]
     if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
-      echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
+      # echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
       for target in prevDrags:
         emit target.doDrag(Exit, uxInputs.mouse.pos)
       prevDrags.clear()
       for target in dragens.targets:
-        echo "dragends:tgt: ", target.getId
+        # echo "dragends:tgt: ", target.getId
         if rootWindow notin target.attrs:
           target.events.excl evDragEnd
         emit target.doDrag(Exit, uxInputs.mouse.pos)
