@@ -69,6 +69,11 @@ when isMainModule:
     #   check valueChanged.signalType() is (int, )
     #   check Counter.setValue.signalType() is (int, )
 
+    test "signal connect in generic proc":
+      proc setup[T]() =
+        connect(a, valueChanged,
+                b, Counter[uint].setValue)
+        setup[uint]()
 
     test "signal connect":
       # TODO: how to do this?
