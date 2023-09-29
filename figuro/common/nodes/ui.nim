@@ -104,7 +104,7 @@ proc doScroll*(fig: Figuro,
 proc doDrag*(fig: Figuro,
              kind: EventKind,
              initial: Position,
-             cursor: Position) {.signal.}
+             latest: Position) {.signal.}
 
 proc tick*(fig: BasicFiguro) {.slot.} =
   discard
@@ -136,10 +136,19 @@ proc doDrawBubble*(fig: Figuro) {.slot.} =
   emit fig.doDraw()
 proc doLoadBubble*(fig: Figuro) {.slot.} =
   emit fig.doLoad()
-proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
+proc doHoverBubble*(fig: Figuro,
+                    kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
-proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+proc doClickBubble*(fig: Figuro,
+                    kind: EventKind,
+                    buttonPress: UiButtonView) {.slot.} =
   emit fig.doClick(kind, buttonPress)
+proc doDragBubble*(fig: Figuro,
+                   kind: EventKind,
+                   initial: Position,
+                   latest: Position) {.slot.} =
+  emit fig.doDrag(kind, initial, latest)
+
 
 template connect*(
     a: Figuro,
