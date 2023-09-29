@@ -243,7 +243,6 @@ proc computeEvents*(node: Figuro) =
       let newDrags = drags.targets + prevDrags
       echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
-        echo "drag:newTargets:addr ", target.getId
         target.events.incl evDrag
         emit target.doDrag(Enter, uxInputs.mouse.pos)
         prevDrags.incl target
