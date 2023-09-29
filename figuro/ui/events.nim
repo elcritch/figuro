@@ -45,6 +45,9 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
     node.checkEvent(evDrag, uxInputs.mouse.down())
     node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
+  
+  if rootWindow in node.attrs:
+    node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
 
   # if evDrag in result or evDragEnd in result:
   #   echo "checkAnyEvents: ", node.getId, " flags: ", result
