@@ -16,11 +16,11 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   withDraw(self):
-    box 0, 0, 100'vw, 100'vh
+    box 0'ux, 0'ux, 100'vw, 100'vh
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
       # box 0, 0, 100'vh, 100'vw
-      box 10'pw, 10'ph, 80'pw, 80'ph
+      box 10'pp, 10'pp, 80'pp, 80'pp
       fill rgb(224, 239, 255).to(Color)
 
       rectangle "css grid area":
@@ -28,7 +28,7 @@ proc draw*(self: GridApp) {.slot.} =
         #   echo "grid template: ", repr current.gridTemplate
         # setup frame for css grid
         # box 10, 10, 400, 240
-        box 0, 0, 100'pw, 100'ph
+        box 0'ux, 0'ux, 100'pp, 100'pp
         fill "#FFFFFF"
         cornerRadius 6
         clipContent true

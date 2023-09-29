@@ -18,61 +18,61 @@ type
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    box 0, 0, 100'vw, 100'vh
+    box 0'ux, 0'ux, 100'vw, 100'vh
 
     template setLabel(zlvl; left=false) =
       text "text":
         if left:
-          box 3'pw, 30'ph, 30'pw, 22
+          box 3'pp, 30'pp, 30'pp, 22
         else:
-          box 70'pw, 30'ph, 30'pw, 22
+          box 70'pp, 30'pp, 30'pp, 22
         fill blackColor
         setText({font: "zlevel " & $zlvl})
 
     rectangle "container":
       fill "#D0D0D0"
-      box 3'pw, 10'ph, 30'pw, 80'ph
+      box 3'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0
       text "text":
-        box 10'pw, 10, 70'pw, 22
+        box 10'pp, 10'ux, 70'pp, 22'ux
         fill blackColor
         setText({font: "not clipped"})
 
       button "btn":
-        box 10'pw, 15'ph, 130'pw, 20'ph
+        box 10'pp, 15'pp, 130'pp, 20'pp
         current.zlevel = 20.ZLevel
         setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pw, 45'ph, 130'pw, 20'ph
+        box 10'pp, 45'pp, 130'pp, 20'pp
         setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pw, 75'ph, 130'pw, 20'ph
+        box 10'pp, 75'pp, 130'pp, 20'pp
         current.zlevel = -5.ZLevel
         setLabel(current.zlevel)
 
     rectangle "container":
       fill "#D0D0D0"
-      box 50'pw, 10'ph, 30'pw, 80'ph
+      box 50'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0
       clipContent true
       text "text":
-        box 10'pw, 10, 70'pw, 22
+        box 10'pp, 10'ux, 70'pp, 22'ux
         fill blackColor
         setText({font: "clipped"})
 
       button "btn":
-        box 10'pw, 15'ph, 130'pw, 20'ph
+        box 10'pp, 15'pp, 130'pp, 20'pp
         current.zlevel = 20.ZLevel
         setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pw, 45'ph, 130'pw, 20'ph
+        box 10'pp, 45'pp, 130'pp, 20'pp
         setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pw, 75'ph, 130'pw, 20'ph
+        box 10'pp, 75'pp, 130'pp, 20'pp
         current.zlevel = -5.ZLevel
         setLabel(current.zlevel)
 

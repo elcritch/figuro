@@ -5,6 +5,7 @@ type
     value: int
     avg: int
 
+
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc someChange*(tp: Counter) {.signal.}

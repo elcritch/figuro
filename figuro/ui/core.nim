@@ -300,8 +300,8 @@ macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
-    node.box.w = app.windowSize.x
-    node.box.h = app.windowSize.y
+    # node.box.w = app.windowSize.x
+    # node.box.h = app.windowSize.y
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
@@ -379,16 +379,21 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
-proc computeLayout*(node: Figuro) =
+proc printLayout*(node: Figuro, depth = 0) =
+  echo " ".repeat(depth), "node: ", node.name, " ", node.box.w, "x", node.box.h
+  for c in node.children:
+    printLayout(c, depth+2)
+
+proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
   
   # # simple constraints
   if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
-    calcBasicConstraint(node, dcol, true)
-    calcBasicConstraint(node, drow, true)
-    calcBasicConstraint(node, dcol, false)
-    calcBasicConstraint(node, drow, false)
+    calcBasicConstraint(node, dcol, isXY=true)
+    calcBasicConstraint(node, drow, isXY=true)
+    calcBasicConstraint(node, dcol, isXY=false)
+    calcBasicConstraint(node, drow, isXY=false)
 
   # css grid impl
   if not node.gridTemplate.isNil:
@@ -401,9 +406,17 @@ proc computeLayout*(node: Figuro) =
     node.gridTemplate.computeNodeLayout(node, gridChildren)
 
     for n in node.children:
-      computeLayout(n)
+      computeLayout(n, depth+1)
 
     return
 
   for n in node.children:
-    computeLayout(n)
+    computeLayout(n, depth+1)
+
+proc computeLayout*(node: Figuro) =
+  when defined(figDebugLayout):
+    echo "\ncomputeLayout: "
+    printLayout(node)
+  computeLayout(node, 0)
+  when defined(figDebugLayout):
+    printLayout(node)

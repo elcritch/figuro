@@ -5,7 +5,6 @@ type
     value: T
     avg: int
 
-
 proc valueChanged*[T](tp: Counter[T], val: T) {.signal.}
 
 proc someChange*[T](tp: Counter[T]) {.signal.}
@@ -17,6 +16,7 @@ proc setValue*[T](self: Counter[T], value: T) {.slot.} =
   if self.value != value:
     self.value = value
   emit self.valueChanged(value)
+
 
 proc value*(self: Counter): int =
   self.value

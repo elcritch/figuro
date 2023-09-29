@@ -1,4 +1,4 @@
-import tables, strutils, macros
+import tables, strutils, typetraits, macros
 
 import datatypes
 
@@ -84,10 +84,13 @@ proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
 
   result = newStmtList()
   var varList = newSeq[NimNode]()
+  var cnt = 0
   for paramid, paramType in paramsIter(params):
+    let idx = newIntLitNode(cnt)
     let vars = quote do:
-      var `paramid`: `paramType` = `paramsIdent`.`paramid`
+      var `paramid`: `paramType` = `paramsIdent`[`idx`]
     varList.add vars
+    cnt.inc()
   result.add varList
   # echo "paramsSetup return:\n", treeRepr result
 
@@ -248,8 +251,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   # Create the proc's that hold the users code 
   if not isSignal:
 
-    result.add quote do:
-      `paramTypes`
+    # result.add quote do:
+    #   `paramTypes`
 
     let rmCall = nnkCall.newTree(rpcMethodGen)
     for param in parameters:
@@ -269,9 +272,15 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
     # Create the rpc wrapper procs
     let objId = ident "obj"
+    var tupTyp = nnkTupleConstr.newTree()
+    for pt in paramTypes[0][^1]:
+      tupTyp.add pt[1]
+    if tupTyp.len() == 0:
+      tupTyp = nnkTupleTy.newTree()
     let mcall = nnkCall.newTree(rpcMethod)
     mcall.add(objId)
     for param in parameters[1..^1]:
+      # echo "PARAMS: ", param.treeRepr
       mcall.add param[0]
 
     let agentSlotImpl = quote do:
@@ -284,7 +293,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         let `objId` = `contextType`(context)
         if `objId` == nil:
           raise newException(ConversionError, "bad cast")
-        var `paramsIdent`: `rpcType`
+        var `paramsIdent`: `tupTyp`
         rpcUnpack(`paramsIdent`, params)
         `paramSetups`
         `mcall`
@@ -306,7 +315,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
   elif isSignal:
     var construct = nnkTupleConstr.newTree()
     for param in parameters[1..^1]:
-      construct.add nnkExprColonExpr.newTree(param[0], param[0])
+      construct.add param[0]
 
     result.add quote do:
       proc `rpcMethod`(): (Agent, AgentRequest) =

@@ -15,34 +15,47 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "figuro"
+        path: "fig_ws/"
+    - name: Move
+      run: |
+        cd ../
+        mv fig_ws/ figuro
+        mkdir fig_ws/
+        mv figuro/ fig_ws/figuro
+        pwd
+        find . | grep -v .git
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Install Atlas
       run: |
         nim -v
         nimble -v
         nimble install 'https://github.com/nim-lang/atlas@#head'
 
+    - name: Cache packages
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
+
     - name: Install Deps
       run: |
-        cd ../
         # new atlas workspace
         atlas init --deps=vendor
 
         # sync deps
         atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
 
-    - name: Cache packages
-      uses: actions/cache@v3
-      with:
-        path: |
-          vendor/
-        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
+    - name: Test build From fig_ws/
+      run: |
+        ls vendor/
+        nim c figuro/tests/tclick.nim
 
     - name: Build Tests
       run: |
+        cd figuro/
         nim test

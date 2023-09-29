@@ -30,12 +30,12 @@ proc draw*(self: Main) {.slot.} =
   # current = self
   rectangle "body":
     self.mainRect = current
-    box 10, 10, 600, 120
+    box 10'ux, 10'ux, 600'ux, 120'ux
     cornerRadius 10.0
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
       button "btn", captures(i):
-          box 10 + i * 120, 10, 100, 100
+          box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
           # echo nd(), "btn: ", i
           # we need to connect it's onHover event
           connect(current, doHover, self, Main.hover)

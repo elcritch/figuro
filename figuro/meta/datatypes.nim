@@ -83,14 +83,14 @@ type
     # registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
 proc pack*[T](ss: var Variant, val: T) =
-  echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
+  # echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
   ss = newVariant(val)
 
 proc unpack*[T](ss: Variant, obj: var T) =
-  if ss.ofType(T):
+  # if ss.ofType(T):
     obj = ss.get(T)
-  else:
-    raise newException(ConversionError, "couldn't convert to: " & $(T))
+  # else:
+    # raise newException(ConversionError, "couldn't convert to: " & $(T))
 
 proc newAgentRouter*(
     inQueueSize = 2,
@@ -125,18 +125,18 @@ proc rpcPack*[T](res: T): RpcParams =
     result = RpcParams(buf: newVariant(res))
 
 proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
-  try:
+  # try:
     when defined(nimscript) or defined(useJsonSerde):
       obj.fromJson(ss.buf)
       discard
     else:
       ss.buf.unpack(obj)
-  except ConversionError as err:
-    raise newException(ConversionError,
-                       "unable to parse parameters: " & err.msg)
-  except AssertionDefect as err:
-    raise newException(ConversionError,
-                       "unable to parse parameters: " & err.msg)
+  # except ConversionError as err:
+  #   raise newException(ConversionError,
+  #                      "unable to parse parameters: " & err.msg & " res: " & $repr(ss.buf))
+  # except AssertionDefect as err:
+  #   raise newException(ConversionError,
+  #                      "unable to parse parameters: " & err.msg)
 
 proc initAgentRequest*[T](
   procName: string,
