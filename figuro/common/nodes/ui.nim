@@ -101,6 +101,9 @@ proc doKeyPress*(fig: Figuro,
                  down: UiButtonView) {.signal.}
 proc doScroll*(fig: Figuro,
                wheelDelta: Position) {.signal.}
+proc doDrag*(fig: Figuro,
+             kind: EventKind,
+             cursor: Position) {.signal.}
 
 proc tick*(fig: BasicFiguro) {.slot.} =
   discard
