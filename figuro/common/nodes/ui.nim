@@ -150,6 +150,8 @@ template connect*(
     a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
+  elif signalName(signal) == "doDrag":
+    a.listens.signals.incl {evDrag, evDragEnd}
   signals.connect(a, signal, b, slot)
 
 template bubble*(signal: typed, parent: typed) =

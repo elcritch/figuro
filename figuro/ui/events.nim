@@ -233,13 +233,14 @@ proc computeEvents*(node: Figuro) =
   block dragEvents:
     let drags = captured[evDrag]
     if drags.targets.len() > 0 and evDrag in drags.flags:
-      for target in drags.targets:
+      let newDrags = drags.targets + prevDrags
+      for target in newDrags:
           target.events.incl evDrag
           emit target.doDrag(Enter, uxInputs.mouse.pos)
           prevDrags.incl target
 
   block dragEndEvents:
-    let dragens = captured[evDrag]
+    let dragens = captured[evDragEnd]
     if dragens.targets.len() > 0 and evDrag in dragens.flags:
       for target in dragens.targets:
           target.events.excl evDragEnd

@@ -15,6 +15,10 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
+proc btnDrag*(self: Figuro,
+              kind: EventKind,
+              cursor: Position) {.slot.} =
+  echo "btnDrag: ", self.getId, " ", kind, " position: ", cursor
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
@@ -26,6 +30,7 @@ proc draw*(self: Main) {.slot.} =
     button "btn", state(int):
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill "#2B9F2B"
+      connect(current, doDrag, current, btnDrag)
 
       contents "child":
         node nkText, "btnText":
