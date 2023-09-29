@@ -72,6 +72,9 @@ type
 
   BasicFiguro* = ref object of Figuro
 
+  StatefulFiguro*[T] = ref object of Figuro
+    state*: T
+
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
   result.agentId = nextAgentId()
