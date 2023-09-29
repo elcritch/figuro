@@ -44,7 +44,11 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evHover, true)
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
     node.checkEvent(evDrag, uxInputs.mouse.down())
-    node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
+    node.checkEvent(evDragEnd, prevDrags.len() > 0)
+
+  # if evDrag in result or evDragEnd in result:
+  #   echo "checkAnyEvents: ", node.getId, " flags: ", result
+
 
 
 type
@@ -134,7 +138,6 @@ proc computeEvents*(node: Figuro) =
   ## node targets
   root.listens.signals.incl {evClick, evClickOut, evDragEnd}
 
-  # echo "prevDrags: ", prevDrags
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
       uxInputs.keyboard.rune.isNone and
@@ -234,12 +237,11 @@ proc computeEvents*(node: Figuro) =
   ## handle drag events
   block dragEvents:
     let drags = captured[evDrag]
-    if drags.targets.len() > 0 and evDrag in drags.flags:
-      let newDrags = drags.targets + prevDrags
-      for target in newDrags:
-          target.events.incl evDrag
-          emit target.doDrag(Enter, uxInputs.mouse.pos)
-          prevDrags.incl target
+    let newDrags = drags.targets + prevDrags
+    for target in newDrags:
+        target.events.incl evDrag
+        emit target.doDrag(Enter, uxInputs.mouse.pos)
+        prevDrags.incl target
 
   block dragEndEvents:
     let dragens = captured[evDragEnd]
