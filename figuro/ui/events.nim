@@ -141,7 +141,6 @@ proc computeEvents*(node: Figuro) =
   ## node targets
   root.listens.signals.incl {evClick, evClickOut, evDragEnd}
   root.attrs.incl rootWindow
-  echo ""
 
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
@@ -254,6 +253,8 @@ proc computeEvents*(node: Figuro) =
     let dragens = captured[evDragEnd]
     if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
       echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
+      for target in prevDrags:
+        emit target.doDrag(Exit, uxInputs.mouse.pos)
       prevDrags.clear()
       for target in dragens.targets:
         echo "dragends:tgt: ", target.getId

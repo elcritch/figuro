@@ -41,6 +41,7 @@ proc draw*(self: Main) {.slot.} =
     rectangle "btnBody":
       box 200'ux, 30'ux, 80'ux, 80'ux
       fill "#9F2B00"
+      connect(current, doDrag, current, btnDrag)
 
 
 var main = Main.new()
