@@ -23,12 +23,8 @@ proc draw*(self: Main) {.slot.} =
     fill "#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
 
-    rectangle "btnBody":
-      box 10'ux, 10'ux, 10'ux, 10'ux
-      fill "#9F2B00"
-
     button "btn", state(int):
-      box 10'ux, 10'ux, 80'pp, 80'pp
+      box 40'ux, 30'ux, 80'ux, 80'ux
       fill "#2B9F2B"
 
       contents "child":
@@ -37,10 +33,14 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: "hi"})
 
+    rectangle "btnBody":
+      box 200'ux, 30'ux, 80'ux, 80'ux
+      fill "#9F2B00"
+
+
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())
-connect(main, doTick, main, Main.tick())
 
-app.width = 720
+app.width = 400
 app.height = 140
 startFiguro(main)
