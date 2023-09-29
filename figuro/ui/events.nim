@@ -11,6 +11,7 @@ var
   prevHovers {.runtimeVar.}: HashSet[Figuro]
   prevClicks {.runtimeVar.}: HashSet[Figuro]
   prevDrags {.runtimeVar.}: HashSet[Figuro]
+  dragInitial {.runtimeVar.}: Position
 
 proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
@@ -243,10 +244,12 @@ proc computeEvents*(node: Figuro) =
     let drags = captured[evDrag]
     if evDrag in drags.flags:
       let newDrags = drags.targets + prevDrags
+      if prevDrags.len() == 0:
+        dragInitial = uxInputs.mouse.pos
       # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
         target.events.incl evDrag
-        emit target.doDrag(Enter, uxInputs.mouse.pos)
+        emit target.doDrag(Enter, dragInitial, uxInputs.mouse.pos)
         prevDrags.incl target
 
   block dragEndEvents:
@@ -254,13 +257,13 @@ proc computeEvents*(node: Figuro) =
     if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
       # echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
       for target in prevDrags:
-        emit target.doDrag(Exit, uxInputs.mouse.pos)
+        emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
       prevDrags.clear()
       for target in dragens.targets:
         # echo "dragends:tgt: ", target.getId
         if rootWindow notin target.attrs:
           target.events.excl evDragEnd
-        emit target.doDrag(Exit, uxInputs.mouse.pos)
+        emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
 
   uxInputs.buttonPress = {}
   uxInputs.buttonDown = {}

@@ -220,25 +220,22 @@ template fill*(node: Figuro) =
 #     `inner`
 #   root.connect(onHover, current, doHover)
 
-proc mouseRelativeDiff*(initial: Position, cursor: Position): Position =
+proc positionDiff*(initial: Position, point: Position): Position =
   ## computes relative position of the mouse to the node position
-  let x = uxInputs.mouse.pos.x - initial.x
-  let y = uxInputs.mouse.pos.y - initial.y
+  let x = point.x - initial.x
+  let y = point.y - initial.y
   result = initPosition(x.float32, y.float32)
 
-proc mouseRelative*(node: Figuro, cursor: Position): Position =
+proc positionRelative*(point: Position, node: Figuro): Position =
   ## computes relative position of the mouse to the node position
-  let x = cursor.x - node.screenBox.x
-  let y = cursor.y - node.screenBox.y
+  let x = point.x - node.screenBox.x
+  let y = point.y - node.screenBox.y
   result = initPosition(x.float32, y.float32)
 
-proc mouseRatio*(node: Figuro, cursor: Position, clamped = false): Position =
+proc positionRatio*(node: Figuro, point: Position, clamped = false): Position =
   ## computes relative fraction of the mouse's position to the node's area
-  let cursor =
-    when cursor is Position: cursor
-    else: initPosition(cursor.float32, cursor.float32)
-  let track = node.box.wh - cursor
-  result = (node.mouseRelative(cursor) - cursor/2)/track 
+  let track = node.box.wh - point
+  result = (point.positionRelative(node) - point/2)/track 
   if clamped:
     result.x = result.x.clamp(0'ui, 1'ui)
     result.y = result.y.clamp(0'ui, 1'ui)

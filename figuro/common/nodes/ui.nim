@@ -103,6 +103,7 @@ proc doScroll*(fig: Figuro,
                wheelDelta: Position) {.signal.}
 proc doDrag*(fig: Figuro,
              kind: EventKind,
+             initial: Position,
              cursor: Position) {.signal.}
 
 proc tick*(fig: BasicFiguro) {.slot.} =

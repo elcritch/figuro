@@ -15,10 +15,13 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc btnDrag*(self: Figuro,
+proc btnDrag*(node: Figuro,
               kind: EventKind,
+              initial: Position,
               cursor: Position) {.slot.} =
-  echo "btnDrag: ", self.getId, " ", kind, " position: ", cursor
+  echo "btnDrag: ", node.getId, " ", kind,
+          " change: ", initial.positionDiff(cursor),
+          " nodeRel: ", cursor.positionRelative(node)
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
