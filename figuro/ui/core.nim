@@ -204,6 +204,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
     connect(current, doKeyPress, current, T.keyPress())
   # if T.tick().pointer != Figuro.tick().pointer:
   #   connect(current, doTick, current, T.tick())
+  when compiles(T.hover()):
+    connect(current, doHover, current, T.hover())
 
 proc postNode*(current: var Figuro) =
   emit current.doDraw()
