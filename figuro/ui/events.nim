@@ -34,7 +34,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
   node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
-  node.checkEvent(evDrag, prevDrags.len() > 0 and uxInputs.mouse.down())
+  node.checkEvent(evDrag, prevDrags.len() > 0)
 
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
@@ -44,7 +44,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evHover, true)
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
     node.checkEvent(evDrag, uxInputs.mouse.down())
-    node.checkEvent(evDragEnd, prevDrags.len() > 0)
+    node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
 
   # if evDrag in result or evDragEnd in result:
   #   echo "checkAnyEvents: ", node.getId, " flags: ", result
@@ -137,6 +137,8 @@ proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
   root.listens.signals.incl {evClick, evClickOut, evDragEnd}
+  root.attrs.incl rootWindow
+  echo ""
 
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
@@ -237,19 +239,25 @@ proc computeEvents*(node: Figuro) =
   ## handle drag events
   block dragEvents:
     let drags = captured[evDrag]
-    let newDrags = drags.targets + prevDrags
-    for target in newDrags:
+    if evDrag in drags.flags:
+      let newDrags = drags.targets + prevDrags
+      echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
+      for target in newDrags:
+        echo "drag:newTargets:addr ", target.getId
         target.events.incl evDrag
         emit target.doDrag(Enter, uxInputs.mouse.pos)
         prevDrags.incl target
 
   block dragEndEvents:
     let dragens = captured[evDragEnd]
-    if dragens.targets.len() > 0 and evDrag in dragens.flags:
-      for target in dragens.targets:
-          target.events.excl evDragEnd
-          emit target.doDrag(Exit, uxInputs.mouse.pos)
+    if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
+      echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
       prevDrags.clear()
+      for target in dragens.targets:
+        echo "dragends:tgt: ", target.getId
+        if rootWindow notin target.attrs:
+          target.events.excl evDragEnd
+        emit target.doDrag(Exit, uxInputs.mouse.pos)
 
   uxInputs.buttonPress = {}
   uxInputs.buttonDown = {}
