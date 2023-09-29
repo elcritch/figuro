@@ -80,7 +80,6 @@ proc draw*(self: GridApp) {.slot.} =
 var fig = GridApp.new()
 
 connect(fig, doDraw, fig, GridApp.draw)
-connect(fig, doTick, fig, GridApp.tick)
 
 fig.cxSize[dcol] = csAuto()
 fig.cxSize[drow] = csAuto()

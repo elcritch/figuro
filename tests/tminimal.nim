@@ -32,7 +32,6 @@ proc draw*(self: Main) {.slot.} =
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
-connect(main, doTick, main, Main.tick)
 
 echo "main: ", main.listeners
 
