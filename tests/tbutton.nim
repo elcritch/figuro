@@ -4,7 +4,7 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22)
+  font = UiFont(typefaceId: typeface, size: 16)
 
 type
   Counter* = object
@@ -37,9 +37,9 @@ proc draw*(self: Main) {.slot.} =
 
       contents "child":
         node nkText, "btnText":
-          box 10'pp, 10'pp, 80'pp, 80'pp
+          box 10'ux, 10'ux, 80'pp, 80'pp
           fill blackColor
-          setText({font: "hi"})
+          setText({font: "drag me"})
 
     rectangle "btnBody":
       box 200'ux, 30'ux, 80'ux, 80'ux
