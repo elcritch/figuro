@@ -21,18 +21,15 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
 
       button "btn":
-        echo "button"
         box 10'pp, 10'pp, 80'pp, 10'pp
         fill "#2B9FEA"
 
       button "btn":
-        echo "button2"
         box 10'pp, 60'pp, 80'pp, 10'pp
         fill "#2B9FEA"
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
-connect(main, doTick, main, Main.tick)
 
 echo "main: ", main.listeners
 

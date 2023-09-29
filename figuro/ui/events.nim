@@ -7,6 +7,12 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
+var
+  prevHovers {.runtimeVar.}: HashSet[Figuro]
+  prevClicks {.runtimeVar.}: HashSet[Figuro]
+  prevDrags {.runtimeVar.}: HashSet[Figuro]
+  dragInitial {.runtimeVar.}: Position
+
 proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
   var mpos = uxInputs.mouse.pos 
@@ -29,6 +35,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
   node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
+  node.checkEvent(evDrag, prevDrags.len() > 0)
 
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
@@ -37,6 +44,12 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
+    node.checkEvent(evDrag, uxInputs.mouse.down())
+    node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
+  
+  if rootWindow in node.attrs:
+    node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
+
 
 type
   EventsCapture* = object
@@ -98,8 +111,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     if clipContent in node.attrs and
           result[ek].zlvl <= node.zlevel and
           not node.mouseOverlaps(false):
-      # this node clips events, so it must overlap child events, 
-      # e.g. ignore child captures if this node isn't also overlapping 
+      ## this node clips events, so it must overlap child events, 
+      ## e.g. ignore child captures if this node isn't also overlapping 
       result[ek] = captured
     elif ek == evHover and evHover in matchingEvts:
       result[ek].targets.incl(captured.targets)
@@ -107,11 +120,10 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       result[ek].flags.incl(evHover)
     else:
       result[ek] = maxEvt(captured, result[ek])
-      # result.gesture = max(captured.gesture, result.gesture)
 
     if node.mouseOverlaps(false) and node.parent != nil and
         result[ek].targets.anyIt(it.zlevel < node.zlevel):
-      # if a target node is a lower level, then ignore it
+      ## if a target node is a lower level, then ignore it
       result[ek] = captured
       let targets = result[ek].targets
       result[ek].targets.clear()
@@ -121,19 +133,17 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
-var
-  prevHovers {.runtimeVar.}: HashSet[Figuro]
-  prevClicks {.runtimeVar.}: HashSet[Figuro]
-
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
-  root.listens.signals.incl {evClick, evClickOut}
+  root.listens.signals.incl {evClick, evClickOut, evDragEnd}
+  root.attrs.incl rootWindow
 
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
       uxInputs.keyboard.rune.isNone and
-      prevHovers.len == 0:
+      prevHovers.len == 0 and
+      prevDrags.len == 0:
     return
 
   # printFiguros(node)
@@ -164,59 +174,92 @@ proc computeEvents*(node: Figuro) =
       if rune.ord > 31 and rune.ord != 127: # No control and no 'del'
         emit target.doKeyInput(rune)
 
-  # handle keyboard presses
-  let keyPress = captured[evKeyPress]
-  if keyPress.targets.len() > 0 and
-      evKeyPress in keyPress.flags and
-      uxInputs.buttonPress != {} and
-      not uxInputs.keyboard.consumed:
-    let pressed = uxInputs.buttonPress - MouseButtons
-    let down = uxInputs.buttonDown - MouseButtons
+  ## handle keyboard presses
+  block keyboardEvents:
+    let keyPress = captured[evKeyPress]
+    if keyPress.targets.len() > 0 and
+        evKeyPress in keyPress.flags and
+        uxInputs.buttonPress != {} and
+        not uxInputs.keyboard.consumed:
+      let pressed = uxInputs.buttonPress - MouseButtons
+      let down = uxInputs.buttonDown - MouseButtons
 
-    # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
-    for target in keyPress.targets:
-      emit target.doKeyPress(pressed, down)
+      # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
+      for target in keyPress.targets:
+        emit target.doKeyPress(pressed, down)
 
-  let scroll = captured[evScroll]
-  if scroll.targets.len() > 0 and
-      not uxInputs.mouse.consumed:
+  ## handle scroll events
+  block scrollEvents:
+    let scroll = captured[evScroll]
+    if scroll.targets.len() > 0 and
+        not uxInputs.mouse.consumed:
 
-    for target in scroll.targets:
-      # echo "scroll input: ", $target.uid, " name: ", $target.name
-      emit target.doScroll(uxInputs.mouse.wheelDelta)
+      for target in scroll.targets:
+        # echo "scroll input: ", $target.uid, " name: ", $target.name
+        emit target.doScroll(uxInputs.mouse.wheelDelta)
 
-  if captured[evHover].targets != prevHovers:
-    let hoverTargets = captured[evHover].targets
-    let newHovers = hoverTargets - prevHovers
-    let delHovers = prevHovers - hoverTargets
+  ## handle hover events
+  block hoverEvents:
+    if captured[evHover].targets != prevHovers:
+      let hoverTargets = captured[evHover].targets
+      let newHovers = hoverTargets - prevHovers
+      let delHovers = prevHovers - hoverTargets
 
-    for target in newHovers:
-      target.events.incl evHover
-      emit target.doHover(Enter)
-      target.refresh()
-      prevHovers.incl target
+      for target in newHovers:
+        target.events.incl evHover
+        emit target.doHover(Enter)
+        target.refresh()
+        prevHovers.incl target
 
-    for target in delHovers:
-      target.events.excl evHover
-      emit target.doHover(Exit)
-      target.refresh()
-      prevHovers.excl target
+      for target in delHovers:
+        target.events.excl evHover
+        emit target.doHover(Exit)
+        target.refresh()
+        prevHovers.excl target
 
-  let click = captured[evClick]
-  if click.targets.len() > 0 and evClick in click.flags:
-    let clickTargets = captured[evClick].targets
-    let newClicks = clickTargets
-    let delClicks = prevClicks - clickTargets
+  ## handle click events
+  block clickEvents:
+    let click = captured[evClick]
+    if click.targets.len() > 0 and evClick in click.flags:
+      let clickTargets = click.targets
+      let newClicks = clickTargets
+      let delClicks = prevClicks - clickTargets
 
-    for target in delClicks:
-        target.events.excl evClick
-        emit target.doClick(Exit, click.buttons)
-        prevClicks.excl target
+      for target in delClicks:
+          target.events.excl evClick
+          emit target.doClick(Exit, click.buttons)
+          prevClicks.excl target
 
-    for target in newClicks:
-        target.events.incl evClick
-        emit target.doClick(Enter, click.buttons)
-        prevClicks.incl target
+      for target in newClicks:
+          target.events.incl evClick
+          emit target.doClick(Enter, click.buttons)
+          prevClicks.incl target
+
+  ## handle drag events
+  block dragEvents:
+    let drags = captured[evDrag]
+    if evDrag in drags.flags:
+      let newDrags = drags.targets + prevDrags
+      if prevDrags.len() == 0:
+        dragInitial = uxInputs.mouse.pos
+      # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
+      for target in newDrags:
+        target.events.incl evDrag
+        emit target.doDrag(Enter, dragInitial, uxInputs.mouse.pos)
+        prevDrags.incl target
+
+  block dragEndEvents:
+    let dragens = captured[evDragEnd]
+    if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
+      # echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
+      for target in prevDrags:
+        emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
+      prevDrags.clear()
+      for target in dragens.targets:
+        # echo "dragends:tgt: ", target.getId
+        if rootWindow notin target.attrs:
+          target.events.excl evDragEnd
+        emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
 
   uxInputs.buttonPress = {}
   uxInputs.buttonDown = {}

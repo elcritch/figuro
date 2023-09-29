@@ -4,7 +4,7 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22)
+  font = UiFont(typefaceId: typeface, size: 16)
 
 type
   Counter* = object
@@ -15,6 +15,13 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
+proc btnDrag*(node: Figuro,
+              kind: EventKind,
+              initial: Position,
+              cursor: Position) {.slot.} =
+  echo "btnDrag: ", node.getId, " ", kind,
+          " change: ", initial.positionDiff(cursor),
+          " nodeRel: ", cursor.positionRelative(node)
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
@@ -23,24 +30,26 @@ proc draw*(self: Main) {.slot.} =
     fill "#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
 
-    rectangle "btnBody":
-      box 10'ux, 10'ux, 10'ux, 10'ux
-      fill "#9F2B00"
-
     button "btn", state(int):
-      box 10'ux, 10'ux, 80'pp, 80'pp
+      box 40'ux, 30'ux, 80'ux, 80'ux
       fill "#2B9F2B"
+      connect(current, doDrag, current, btnDrag)
 
       contents "child":
         node nkText, "btnText":
-          box 10'pp, 10'pp, 80'pp, 80'pp
+          box 10'ux, 10'ux, 80'pp, 80'pp
           fill blackColor
-          setText({font: "hi"})
+          setText({font: "drag me"})
+
+    rectangle "btnBody":
+      box 200'ux, 30'ux, 80'ux, 80'ux
+      fill "#9F2B00"
+      connect(current, doDrag, current, btnDrag)
+
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())
-connect(main, doTick, main, Main.tick())
 
-app.width = 720
+app.width = 400
 app.height = 140
 startFiguro(main)

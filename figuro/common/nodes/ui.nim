@@ -69,7 +69,8 @@ type
     image*: ImageStyle
     textLayout*: GlyphArrangement
     points*: seq[Position]
-    
+
+  BasicFiguro* = ref object of Figuro
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
@@ -100,31 +101,41 @@ proc doKeyPress*(fig: Figuro,
                  down: UiButtonView) {.signal.}
 proc doScroll*(fig: Figuro,
                wheelDelta: Position) {.signal.}
+proc doDrag*(fig: Figuro,
+             kind: EventKind,
+             initial: Position,
+             latest: Position) {.signal.}
 
-proc tick*(fig: Figuro) {.slot.} =
+## Standard slots that will be called for any widgets
+## 
+## These are empty for BasicFiguro (e.g. non-widgets)
+proc tick*(fig: BasicFiguro) {.slot.} =
   discard
 
-proc draw*(fig: Figuro) {.slot.} =
+proc draw*(fig: BasicFiguro) {.slot.} =
   discard
 
-proc load*(fig: Figuro) {.slot.} =
+proc keyInput*(fig: BasicFiguro, rune: Rune) {.slot.} =
   discard
 
-proc keyInput*(fig: Figuro, rune: Rune) {.slot.} =
+proc keyPress*(fig: BasicFiguro,
+              pressed: UiButtonView,
+              down: UiButtonView) {.slot.} =
   discard
 
-proc keyPress*(fig: Figuro,
-               pressed: UiButtonView,
-               down: UiButtonView) {.slot.} =
-  discard
-
-proc clicked*(self: Figuro,
+proc clicked*(self: BasicFiguro,
               kind: EventKind,
               buttons: UiButtonView) {.slot.} =
   discard
 
-proc scroll*(fig: Figuro,
+proc scroll*(fig: BasicFiguro,
              wheelDelta: Position) {.slot.} =
+  discard
+
+proc drag*(fig: BasicFiguro,
+           kind: EventKind,
+           initial: Position,
+           latest: Position) {.slot.} =
   discard
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
@@ -133,10 +144,19 @@ proc doDrawBubble*(fig: Figuro) {.slot.} =
   emit fig.doDraw()
 proc doLoadBubble*(fig: Figuro) {.slot.} =
   emit fig.doLoad()
-proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
+proc doHoverBubble*(fig: Figuro,
+                    kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
-proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+proc doClickBubble*(fig: Figuro,
+                    kind: EventKind,
+                    buttonPress: UiButtonView) {.slot.} =
   emit fig.doClick(kind, buttonPress)
+proc doDragBubble*(fig: Figuro,
+                   kind: EventKind,
+                   initial: Position,
+                   latest: Position) {.slot.} =
+  emit fig.doDrag(kind, initial, latest)
+
 
 template connect*(
     a: Figuro,
@@ -148,6 +168,8 @@ template connect*(
     a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
+  elif signalName(signal) == "doDrag":
+    a.listens.signals.incl {evDrag, evDragEnd}
   signals.connect(a, signal, b, slot)
 
 template bubble*(signal: typed, parent: typed) =

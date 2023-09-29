@@ -13,7 +13,6 @@ type
     value: int
     hasHovered: bool
     hoveredAlpha: float
-    mainRect: Figuro
 
 proc update*(fig: Main) {.signal.}
 
@@ -63,7 +62,6 @@ proc draw*(self: Main) {.slot.} =
     self.name.add "main"
 
     rectangle "body":
-      self.mainRect = current
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha).
@@ -76,8 +74,6 @@ proc draw*(self: Main) {.slot.} =
           connect(current, doClick, current, btnClicked)
           if i == 0:
             connect(self, update, current, btnTick)
-
-
 
           contents "child":
             node nkText, "text":

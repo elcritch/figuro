@@ -47,6 +47,7 @@ type
     evRelease
     evScroll
     evDrag
+    evDragEnd
     evKeyboardInput
     evKeyPress
 
@@ -267,3 +268,7 @@ proc release*(mouse: Mouse): bool =
 
 proc scrolled*(mouse: Mouse): bool =
   mouse.wheelDelta.x != 0.0'ui
+
+proc dragging*(mouse: Mouse): bool =
+  return MouseButtons * uxInputs.buttonDown != {}
+  return MouseButtons * uxInputs.buttonRelease != {}

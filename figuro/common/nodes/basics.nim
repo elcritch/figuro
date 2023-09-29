@@ -36,6 +36,7 @@ type
     contentsDrawReady
     clearHover
     rxWindowResize
+    rootWindow
 
   FidgetConstraint* = enum
     cMin
