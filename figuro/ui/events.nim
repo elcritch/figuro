@@ -34,6 +34,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
   node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
+  node.checkEvent(evDrag, prevDrags.len() > 0 and uxInputs.mouse.down())
 
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
@@ -45,7 +46,6 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evDrag, uxInputs.mouse.down())
     node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
 
-  node.checkEvent(evDrag, prevDrags.len() > 0 and uxInputs.mouse.down())
 
 type
   EventsCapture* = object
@@ -134,10 +134,12 @@ proc computeEvents*(node: Figuro) =
   ## node targets
   root.listens.signals.incl {evClick, evClickOut, evDragEnd}
 
+  # echo "prevDrags: ", prevDrags
   if redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
       uxInputs.keyboard.rune.isNone and
-      prevHovers.len == 0:
+      prevHovers.len == 0 and
+      prevDrags.len == 0:
     return
 
   # printFiguros(node)
