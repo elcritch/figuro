@@ -69,7 +69,8 @@ type
     image*: ImageStyle
     textLayout*: GlyphArrangement
     points*: seq[Position]
-    
+
+  BasicFiguro* = ref object of Figuro
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
@@ -101,31 +102,29 @@ proc doKeyPress*(fig: Figuro,
 proc doScroll*(fig: Figuro,
                wheelDelta: Position) {.signal.}
 
-proc tick*(fig: Figuro) {.slot.} =
+proc tick*(fig: BasicFiguro) {.slot.} =
   discard
 
-proc draw*(fig: Figuro) {.slot.} =
+proc draw*(fig: BasicFiguro) {.slot.} =
   discard
 
-proc load*(fig: Figuro) {.slot.} =
-  discard
+when false:
+  proc keyInput*(fig: BasicFiguro, rune: Rune) {.slot.} =
+    discard
 
-proc keyInput*(fig: Figuro, rune: Rune) {.slot.} =
-  discard
+  proc keyPress*(fig: Figuro,
+                pressed: UiButtonView,
+                down: UiButtonView) {.slot.} =
+    discard
 
-proc keyPress*(fig: Figuro,
-               pressed: UiButtonView,
-               down: UiButtonView) {.slot.} =
-  discard
+  proc clicked*(self: Figuro,
+                kind: EventKind,
+                buttons: UiButtonView) {.slot.} =
+    discard
 
-proc clicked*(self: Figuro,
-              kind: EventKind,
-              buttons: UiButtonView) {.slot.} =
-  discard
-
-proc scroll*(fig: Figuro,
-             wheelDelta: Position) {.slot.} =
-  discard
+  proc scroll*(fig: Figuro,
+              wheelDelta: Position) {.slot.} =
+    discard
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()

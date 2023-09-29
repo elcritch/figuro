@@ -193,14 +193,16 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   ## these define the default behaviors for Figuro widgets
   connect(current, doDraw, current, Figuro.clearDraw())
   connect(current, doDraw, current, Figuro.handlePreDraw())
-  connect(current, doDraw, current, typeof(current).draw())
+  static:
+    echo "CLICKED: ", typeof(T)
+  connect(current, doDraw, current, T.draw())
   connect(current, doDraw, current, Figuro.handlePostDraw())
   ## only activate these if custom ones have been provided 
-  if T.clicked().pointer != Figuro.clicked().pointer:
+  when compiles(T.clicked()):
     connect(current, doClick, current, T.clicked())
-  if T.keyInput().pointer != Figuro.keyInput().pointer:
+  when compiles(T.keyInput()):
     connect(current, doKeyInput, current, T.keyInput())
-  if T.keyPress().pointer != Figuro.keyPress().pointer:
+  when compiles(T.keyPress()):
     connect(current, doKeyPress, current, T.keyPress())
   # if T.tick().pointer != Figuro.tick().pointer:
   #   connect(current, doTick, current, T.tick())
@@ -295,7 +297,7 @@ macro contents*(args: varargs[untyped]): untyped =
 
 macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
-  let widget = ident("Figuro")
+  let widget = ident("BasicFiguro")
   let wargs = args.parseWidgetArgs()
   result = widget.generateBodies(kind, wargs, hasGeneric=false)
 
