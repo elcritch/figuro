@@ -193,18 +193,16 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   ## these define the default behaviors for Figuro widgets
   connect(current, doDraw, current, Figuro.clearDraw())
   connect(current, doDraw, current, Figuro.handlePreDraw())
-  static:
-    echo "CLICKED: ", typeof(T)
   connect(current, doDraw, current, T.draw())
   connect(current, doDraw, current, Figuro.handlePostDraw())
   ## only activate these if custom ones have been provided 
-  when compiles(T.clicked()):
+  when T isnot BasicFiguro and compiles(T.clicked()):
     connect(current, doClick, current, T.clicked())
-  when compiles(T.keyInput()):
+  when T isnot BasicFiguro and compiles(T.keyInput()):
     connect(current, doKeyInput, current, T.keyInput())
-  when compiles(T.keyPress()):
+  when T isnot BasicFiguro and compiles(T.keyPress()):
     connect(current, doKeyPress, current, T.keyPress())
-  when compiles(T.hover()):
+  when T isnot BasicFiguro and compiles(T.hover()):
     connect(current, doHover, current, T.hover())
 
 proc postNode*(current: var Figuro) =

@@ -106,29 +106,37 @@ proc doDrag*(fig: Figuro,
              initial: Position,
              latest: Position) {.signal.}
 
+## Standard slots that will be called for any widgets
+## 
+## These are empty for BasicFiguro (e.g. non-widgets)
 proc tick*(fig: BasicFiguro) {.slot.} =
   discard
 
 proc draw*(fig: BasicFiguro) {.slot.} =
   discard
 
-when false:
-  proc keyInput*(fig: BasicFiguro, rune: Rune) {.slot.} =
-    discard
+proc keyInput*(fig: BasicFiguro, rune: Rune) {.slot.} =
+  discard
 
-  proc keyPress*(fig: Figuro,
-                pressed: UiButtonView,
-                down: UiButtonView) {.slot.} =
-    discard
+proc keyPress*(fig: BasicFiguro,
+              pressed: UiButtonView,
+              down: UiButtonView) {.slot.} =
+  discard
 
-  proc clicked*(self: Figuro,
-                kind: EventKind,
-                buttons: UiButtonView) {.slot.} =
-    discard
+proc clicked*(self: BasicFiguro,
+              kind: EventKind,
+              buttons: UiButtonView) {.slot.} =
+  discard
 
-  proc scroll*(fig: Figuro,
-              wheelDelta: Position) {.slot.} =
-    discard
+proc scroll*(fig: BasicFiguro,
+             wheelDelta: Position) {.slot.} =
+  discard
+
+proc drag*(fig: BasicFiguro,
+           kind: EventKind,
+           initial: Position,
+           latest: Position) {.slot.} =
+  discard
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()
