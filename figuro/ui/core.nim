@@ -336,10 +336,12 @@ template calcBasicConstraintImpl(
           node.checkParent()
           res = frac.UICoord * node.parent.box.f
         UiPerc(perc):
-          node.checkParent()
-          let ppval = when astToStr(f) == "x": node.parent.box.w
-                      elif astToStr(f) == "y": node.parent.box.h
-                      else: node.parent.box.f
+          let parentBox =
+            if node.parent.isNil: app.windowSize
+            else: node.parent.box
+          let ppval = when astToStr(f) == "x": parentBox.w
+                      elif astToStr(f) == "y": parentBox.h
+                      else: parentBox.f
           res = perc.UICoord / 100.0.UICoord * ppval
       res
   

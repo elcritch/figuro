@@ -28,10 +28,9 @@ proc startFiguro*(
   app.fullscreen = fullscreen
 
   if not fullscreen:
-    let sz = Position vec2(app.uiScale * app.width.float32,
-                           app.uiScale * app.height.float32)
-    app.windowSize.w = sz.x
-    app.windowSize.h = sz.y
+    app.windowSize = initBox(0.0, 0.0,
+                             app.uiScale * app.width.float32,
+                             app.uiScale * app.height.float32)
 
   root = widget
   redrawNodes = initOrderedSet[Figuro]()
