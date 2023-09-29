@@ -18,15 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "fig_ws/"
-    - name: Move
-      run: |
-        cd ../
-        mv fig_ws/ figuro
-        mkdir fig_ws/
-        mv figuro/ fig_ws/figuro
-        pwd
-        find . | grep -v .git
+        path: "figuro/"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
@@ -46,17 +38,10 @@ jobs:
 
     - name: Install Deps
       run: |
-        # new atlas workspace
-        atlas init --deps=vendor
-
         # sync deps
-        atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
-
-    - name: Test build From fig_ws/
-      run: |
-        nim c figuro/tests/tclick.nim
+        atlas replay --cfgHere --ignoreUrls atlas.lock
+        cat nim.cfg
 
     - name: Build Tests
       run: |
-        cd figuro/
         nim test
