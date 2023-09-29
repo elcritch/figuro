@@ -388,12 +388,12 @@ proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
   
   # # simple constraints
-  if node.gridItem.isNil and node.parent != nil:
+  # if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
-    calcBasicConstraint(node, dcol, isXY=true)
-    calcBasicConstraint(node, drow, isXY=true)
-    calcBasicConstraint(node, dcol, isXY=false)
-    calcBasicConstraint(node, drow, isXY=false)
+  calcBasicConstraint(node, dcol, isXY=true)
+  calcBasicConstraint(node, drow, isXY=true)
+  calcBasicConstraint(node, dcol, isXY=false)
+  calcBasicConstraint(node, drow, isXY=false)
 
   # css grid impl
   if not node.gridTemplate.isNil:

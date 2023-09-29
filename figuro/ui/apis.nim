@@ -128,40 +128,33 @@ proc csOrFixed*(x: int|float32|float64|UICoord|CSSConstraint): CSSConstraint =
     x
   else: csFixed(x.UiScalar)
 
-template box*(
+# template box*(
+#   x: UICoord|CSSConstraint,
+#   y: UICoord|CSSConstraint,
+#   w: UICoord|CSSConstraint,
+#   h: UICoord|CSSConstraint
+# ) =
+#   ## Sets the box dimensions with integers
+#   ## Always set box before orgBox when doing constraints.
+#   boxFrom(fltOrZero x, fltOrZero y, fltOrZero w, fltOrZero h)
+#   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
+#   current.cxSize = [csOrFixed(w), csOrFixed(h)]
+
+# template box*(rect: Box) =
+#   ## Sets the box dimensions with integers
+#   box(rect.x, rect.y, rect.w, rect.h)
+
+template offset*(
   x: UICoord|CSSConstraint,
-  y: UICoord|CSSConstraint,
-  w: UICoord|CSSConstraint,
-  h: UICoord|CSSConstraint
+  y: UICoord|CSSConstraint
 ) =
-  ## Sets the box dimensions with integers
-  ## Always set box before orgBox when doing constraints.
-  boxFrom(fltOrZero x, fltOrZero y, fltOrZero w, fltOrZero h)
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
+
+template size*(
+  w: UICoord|CSSConstraint,
+  h: UICoord|CSSConstraint,
+) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
-
-template box*(rect: Box) =
-  ## Sets the box dimensions with integers
-  box(rect.x, rect.y, rect.w, rect.h)
-
-template size*(
-  w: int|float32|float64|UICoord,
-  h: int|float32|float64|UICoord,
-) =
-  ## Sets the box dimension width and height
-  current.cxSize[dcol] = csFixed(w.UiScalar)
-  current.box.w = w.UICoord
-  
-  current.cxSize[drow] = csFixed(h.UiScalar)
-  current.box.h = h.UICoord
-
-template size*(
-  w: CSSConstraint,
-  h: CSSConstraint,
-) =
-  ## Sets the box dimension width and height
-  current.cxSize[dcol] = w
-  current.cxSize[drow] = h
 
 template boxSizeOf*(node: Figuro) =
   ## Sets current node's box from another node
@@ -309,7 +302,7 @@ template setText*(spans: openArray[(UiFont, string)]) =
 proc csFixed*(coord: UICoord): Constraint =
   csFixed(coord.UiScalar)
 
-proc ux*(coord: SomeNumber): Constraint =
+proc ux*(coord: SomeNumber|UICoord): Constraint =
   csFixed(coord.UiScalar)
 
 {.hint[Name]:off.}

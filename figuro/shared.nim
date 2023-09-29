@@ -57,7 +57,7 @@ type
     frameCount*: int
     tickCount*: int
 
-    windowSize*: Position ## Screen size in logical coordinates.
+    windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
     # windowFrame*: Vec2   ## Pixel coordinates
 

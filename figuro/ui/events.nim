@@ -149,7 +149,7 @@ proc computeEvents*(node: Figuro) =
   # printFiguros(node)
   var captured: CapturedEvents = computeNodeEvents(node)
 
-  uxInputs.windowSize = none Position
+  uxInputs.windowSize = Box.none
 
   # set mouse event flags in targets
   for ek in EventKinds:
