@@ -66,7 +66,7 @@ proc draw*(self: Main) {.slot.} =
       proc decr(counter: Property[int], ek: EventKind, b: UiButtonView) {.slot.} =
         echo "decr"
         counter.update(counter.value-1)
-      connect(current, doClick, self.counter, decr)
+      connect(current, doClick, self.counter, Property[int].decr())
 
 
 var main = Main.new()
