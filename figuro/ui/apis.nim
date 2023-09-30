@@ -128,17 +128,15 @@ proc csOrFixed*(x: int|float32|float64|UICoord|CSSConstraint): CSSConstraint =
     x
   else: csFixed(x.UiScalar)
 
-# template box*(
-#   x: UICoord|CSSConstraint,
-#   y: UICoord|CSSConstraint,
-#   w: UICoord|CSSConstraint,
-#   h: UICoord|CSSConstraint
-# ) =
-#   ## Sets the box dimensions with integers
-#   ## Always set box before orgBox when doing constraints.
-#   boxFrom(fltOrZero x, fltOrZero y, fltOrZero w, fltOrZero h)
-#   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
-#   current.cxSize = [csOrFixed(w), csOrFixed(h)]
+template box*(
+  x: UICoord|CSSConstraint,
+  y: UICoord|CSSConstraint,
+  w: UICoord|CSSConstraint,
+  h: UICoord|CSSConstraint
+) =
+  ## Sets the size and offsets at the same time
+  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
+  current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
 # template box*(rect: Box) =
 #   ## Sets the box dimensions with integers
