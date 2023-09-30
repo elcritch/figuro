@@ -8,22 +8,9 @@ let
   largeFont = UiFont(typefaceId: typeface, size: 24)
 
 type
-  Counter* = object
-
   Main* = ref object of Figuro
     value: int
-    hasHovered: bool
-    hoveredAlpha: float
-    mainRect: Figuro
     counter = Property[int]()
-
-proc btnDrag*(node: Figuro,
-              kind: EventKind,
-              initial: Position,
-              cursor: Position) {.slot.} =
-  echo "btnDrag: ", node.getId, " ", kind,
-          " change: ", initial.positionDiff(cursor),
-          " nodeRel: ", cursor.positionRelative(node)
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
@@ -36,7 +23,6 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       box 40'ux, 30'ux, 80'ux, 40'ux
       fill "#8F2B8B"
-
       node nkText, "btnText":
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
@@ -50,7 +36,6 @@ proc draw*(self: Main) {.slot.} =
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
         setText({largeFont: "+"})
-
       ## something like this:
       onEvent(doClick, self.counter) do(counter: Property[int]):
         counter.update(counter.value+1)
@@ -62,12 +47,8 @@ proc draw*(self: Main) {.slot.} =
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
         setText({largeFont: "–"})
-
-      proc decr(counter: Property[int], ek: EventKind, b: UiButtonView) {.slot.} =
-        echo "decr: ", counter.value
-        if ek == Enter:
-          counter.update(counter.value-1)
-      connect(current, doClick, self.counter, Property[int].decr())
+      onEvent(doClick, self.counter) do(counter: Property[int]):
+        counter.update(counter.value-1)
 
 
 var main = Main.new()
