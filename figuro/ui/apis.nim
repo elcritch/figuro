@@ -157,7 +157,15 @@ template size*(
 template boxSizeOf*(node: Figuro) =
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
-  current.box = node.box.atXY(0, 0)
+  current.cxSize = [node.box.w, node.bx.h]
+
+template boxOf*(node: Figuro) =
+  current.cxOffset = [node.box.x, node.bx.y]
+  current.cxSize = [node.box.w, node.bx.h]
+
+template boxOf*(box: Box) =
+  current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
+  current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
 
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)

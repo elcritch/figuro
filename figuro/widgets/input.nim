@@ -312,7 +312,7 @@ proc draw*(self: Input) {.slot.} =
           sr.y = sr.y - 0.04*fs
           sr.w = width
           sr.h = 0.9*fs
-          box sr.descaled()
+          boxOf sr.descaled()
           fill blackColor
           current.fill.a = self.value.toFloat * 1.0
 
@@ -321,7 +321,7 @@ proc draw*(self: Input) {.slot.} =
           let fs = self.theme.font.size.scaled
           var rs = self.selectionRects[i]
           rs.y = rs.y - 0.1*fs
-          box rs
+          boxOf rs
           fill "#A0A0FF".parseHtmlColor 
           current.fill.a = 0.4
 
