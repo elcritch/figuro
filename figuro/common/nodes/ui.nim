@@ -113,6 +113,7 @@ proc doDrag*(fig: Figuro,
              latest: Position) {.signal.}
 
 proc doUpdate*[T](agent: Agent, value: T) {.signal.}
+proc doChanged*(agent: Agent) {.signal.}
 
 ## Standard slots that will be called for any widgets
 ## 
@@ -146,14 +147,6 @@ proc drag*(fig: BasicFiguro,
            latest: Position) {.slot.} =
   discard
 
-proc update*[T](self: Property[T], value: T) {.slot.} =
-  if self.value != value:
-    self.value = value
-    emit self.doUpdate(value)
-proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
-  if self.state != value:
-    self.state = value
-    emit self.doUpdate(value)
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()

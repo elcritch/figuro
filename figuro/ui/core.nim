@@ -101,12 +101,32 @@ proc refresh*(node: Figuro) =
   app.requestedFrame.inc
   redrawNodes.incl(node)
 
-proc refreshOnUpdate*[T](self: Figuro, value: T) {.slot.} =
+proc changed*(self: Figuro) {.slot.} =
   refresh(self)
 
-template bindProp*[T](prop: Property[T]) =
-  connect(prop, doUpdate, Figuro(current), refreshOnUpdate)
+proc update*[T](self: Property[T], value: T) {.slot.} =
+  if self.value != value:
+    self.value = value
+    emit self.doChanged()
 
+proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
+  if self.state != value:
+    self.state = value
+    emit self.doChanged()
+
+template bindProp*[T](prop: Property[T]) =
+  connect(prop, doChanged, Agent(current), Figuro.changed())
+
+proc sibling*(self: Figuro, name: string): Option[Figuro] =
+  ## finds first sibling with name
+  for sibling in self.parent.children:
+    if sibling.uid != self.uid and sibling.name == name:
+      return some sibling
+  return Figuro.none
+
+template sibling*(name: string): Option[Figuro] =
+  ## finds first sibling with name
+  current.sibling(name)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}

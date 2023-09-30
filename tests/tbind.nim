@@ -15,6 +15,7 @@ type
     hasHovered: bool
     hoveredAlpha: float
     mainRect: Figuro
+    counter = Property[int]()
 
 proc btnDrag*(node: Figuro,
               kind: EventKind,
@@ -30,7 +31,6 @@ proc draw*(self: Main) {.slot.} =
     self.name.add "main"
     fill "#9F2B00"
     size 100'pp, 100'pp
-    let counter = Property[int].new()
 
     rectangle "count":
       cornerRadius 10.0
@@ -40,8 +40,8 @@ proc draw*(self: Main) {.slot.} =
       node nkText, "btnText":
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
-        bindProp(counter)
-        setText({font: $counter.value})
+        bindProp(self.counter)
+        setText({font: $self.counter.value})
 
     button "btnAdd":
       box 160'ux, 30'ux, 80'ux, 40'ux
@@ -50,7 +50,7 @@ proc draw*(self: Main) {.slot.} =
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
         setText({largeFont: "+"})
-        counter.update(counter.value+1)
+        self.counter.update(self.counter.value+1)
 
     button "btnSub":
       box 240'ux, 30'ux, 80'ux, 40'ux
@@ -59,8 +59,7 @@ proc draw*(self: Main) {.slot.} =
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
         setText({largeFont: "–"})
-        counter.update(counter.value-1)
-
+        self.counter.update(self.counter.value-1)
 
 
 var main = Main.new()
