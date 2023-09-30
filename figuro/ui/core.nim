@@ -101,6 +101,12 @@ proc refresh*(node: Figuro) =
   app.requestedFrame.inc
   redrawNodes.incl(node)
 
+proc refreshOnUpdate*[T](self: Figuro, value: T) {.slot.} =
+  refresh(self)
+
+template bindProp*[T](prop: Property[T]) =
+  connect(prop, doUpdate, Figuro(current), refreshOnUpdate)
+
 proc getTitle*(): string =
   ## Gets window title
   getWindowTitle()

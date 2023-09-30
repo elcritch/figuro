@@ -147,9 +147,13 @@ proc drag*(fig: BasicFiguro,
   discard
 
 proc update*[T](self: Property[T], value: T) {.slot.} =
-  self.state = value
+  if self.value != value:
+    self.value = value
+    emit self.doUpdate(value)
 proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
-  self.state = value
+  if self.state != value:
+    self.state = value
+    emit self.doUpdate(value)
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()
