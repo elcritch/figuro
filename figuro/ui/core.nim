@@ -114,6 +114,14 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
+template onEvent*[T](signal: typed, obj: T,
+                               cb: proc(obj: T) {.nimcall.}) =
+  when signalName(signal) == "doClick":
+    proc handler(counter: T, ek: EventKind, b: UiButtonView) {.slot.} =
+      if ek == Enter: `cb`(counter)
+    connect(current, signal, obj, handler)
+
+
 template bindProp*[T](prop: Property[T]) =
   connect(prop, doChanged, Agent(current), Figuro.changed())
 

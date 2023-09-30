@@ -50,12 +50,10 @@ proc draw*(self: Main) {.slot.} =
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
         setText({largeFont: "+"})
-      proc incr(counter: Property[int]) =
+
+      ## something like this:
+      onEvent(doClick, self.counter) do(counter: Property[int]):
         counter.update(counter.value+1)
-      proc incr(counter: Property[int], ek: EventKind, b: UiButtonView) {.slot.} =
-        echo "incr: ", counter.value
-        if ek == Enter: incr(counter)
-      connect(current, doClick, self.counter, incr)
 
     button "btnSub":
       box 240'ux, 30'ux, 80'ux, 40'ux
