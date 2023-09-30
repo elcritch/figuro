@@ -50,7 +50,7 @@ proc draw*(self: Main) {.slot.} =
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
         setText({largeFont: "+"})
-      proc incr(counter: Property[int]) {.slot.} =
+      proc incr(counter: Property[int], ek: EventKind, b: UiButtonView) {.slot.} =
         echo "incr"
         counter.update(counter.value+1)
       connect(current, doClick, self.counter, incr)
@@ -63,10 +63,10 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({largeFont: "–"})
 
-      proc incr(counter: Property[int]) {.slot.} =
+      proc decr(counter: Property[int], ek: EventKind, b: UiButtonView) {.slot.} =
         echo "decr"
         counter.update(counter.value-1)
-      connect(current, doClick, self.counter, incr)
+      connect(current, doClick, self.counter, decr)
 
 
 var main = Main.new()
