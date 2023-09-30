@@ -51,8 +51,9 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({largeFont: "+"})
       proc incr(counter: Property[int], ek: EventKind, b: UiButtonView) {.slot.} =
-        echo "incr"
-        counter.update(counter.value+1)
+        echo "incr: ", counter.value
+        if ek == Enter:
+          counter.update(counter.value+1)
       connect(current, doClick, self.counter, incr)
 
     button "btnSub":
@@ -64,8 +65,9 @@ proc draw*(self: Main) {.slot.} =
         setText({largeFont: "–"})
 
       proc decr(counter: Property[int], ek: EventKind, b: UiButtonView) {.slot.} =
-        echo "decr"
-        counter.update(counter.value-1)
+        echo "decr: ", counter.value
+        if ek == Enter:
+          counter.update(counter.value-1)
       connect(current, doClick, self.counter, Property[int].decr())
 
 
