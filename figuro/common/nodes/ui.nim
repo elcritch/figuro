@@ -76,7 +76,7 @@ type
     state*: T
 
   Property*[T] = ref object of Agent
-    state*: T
+    value*: T
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
