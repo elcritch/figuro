@@ -157,11 +157,11 @@ template size*(
 template boxSizeOf*(node: Figuro) =
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
-  current.cxSize = [node.box.w, node.bx.h]
+  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
 
 template boxOf*(node: Figuro) =
-  current.cxOffset = [node.box.x, node.bx.y]
-  current.cxSize = [node.box.w, node.bx.h]
+  current.cxOffset = [csOrFixed(node.box.x), csOrFixed(node.box.y)]
+  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
 
 template boxOf*(box: Box) =
   current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
