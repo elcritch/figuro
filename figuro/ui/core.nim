@@ -107,15 +107,6 @@ proc refreshOnUpdate*[T](self: Figuro, value: T) {.slot.} =
 template bindProp*[T](prop: Property[T]) =
   connect(prop, doUpdate, Figuro(current), refreshOnUpdate)
 
-proc getTitle*(): string =
-  ## Gets window title
-  getWindowTitle()
-
-template setTitle*(title: string) =
-  ## Sets window title
-  if (getWindowTitle() != title):
-    setWindowTitle(title)
-    refresh(current)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}

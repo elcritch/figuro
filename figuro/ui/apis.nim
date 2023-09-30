@@ -259,6 +259,16 @@ template onClickOut*(inner: untyped) =
       MouseLeft in uxInputs.buttonPress:
     inner
 
+proc getTitle*(): string =
+  ## Gets window title
+  getWindowTitle()
+
+template setTitle*(title: string) =
+  ## Sets window title
+  if (getWindowTitle() != title):
+    setWindowTitle(title)
+    refresh(current)
+
 template cornerRadius*(radius: UICoord) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = UICoord radius
