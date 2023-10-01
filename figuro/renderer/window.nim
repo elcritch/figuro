@@ -36,10 +36,10 @@ proc renderLoop(window: Window, nodes: var RenderNodes, poll = true) =
     if poll:
       windy.pollEvents()
   
-  if app.requestedFrame <= 0 or app.minimized:
-    return
-  else:
-    app.requestedFrame.dec
+  # if app.requestedFrame <= 0 or app.minimized:
+  #   return
+  # else:
+  #   app.requestedFrame.dec
 
   # echo "renderLoop: ", app.requestedFrame
 
