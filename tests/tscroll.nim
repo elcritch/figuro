@@ -24,9 +24,23 @@ proc draw*(self: Main) {.slot.} =
       size 90'pp, 80'pp
 
       contents "children":
+        # Setup CSS Grid Template
+        setGridCols 1'fr 1'fr
+        setGridRows 1'fr  1'fr  1'fr  1'fr  1'fr
+        justifyContent CxCenter
+
+        rectangle "item a":
+          # Setup CSS Grid Template
+          cornerRadius 3
+          gridColumn 1 // 1
+          gridRow 1 // 1
+          # some color stuff
+          fill rgba(245, 129, 49, 123).to(Color)
+
         for i in 0 .. 9:
           button "button", captures(i):
             size 90'pp, 70'ux
+            fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
             connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
