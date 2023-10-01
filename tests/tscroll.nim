@@ -14,8 +14,6 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
-import pretty
-
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     offset 1'pp, 1'pp
@@ -24,15 +22,11 @@ proc draw*(self: Main) {.slot.} =
     current.name.add("root")
 
     scroll "scroll":
-      # box 20, 10, 80'vw, 300
-      # offset 20'ux, 10'ux
       size 90'pp, 80'pp
 
       contents "children":
         for i in 0 .. 9:
           button "button", captures(i):
-            # box 10, 10 + i * 80, 40'vw, 70
-            # offset 10'ux, ux(10 + i * 80)
             size 90'pp, 70'ux
             connect(current, doHover, self, Main.hover)
 

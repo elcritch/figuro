@@ -107,6 +107,11 @@ template blank*(): untyped =
 ## These APIs provide the APIs for Fidget nodes.
 ## 
 
+template `name=`*(n: string) =
+  ## sets current node name
+  current.name.setLen(0)
+  current.name.add(n)
+
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node User Interactions
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
