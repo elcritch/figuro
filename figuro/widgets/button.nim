@@ -21,7 +21,7 @@ proc doButton*[T](self: Button[T]) {.signal.}
 proc clicked*[T](self: Button[T],
                  kind: EventKind,
                  buttons: UiButtonView) {.slot.} =
-  echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickOn
+  # echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
 
   if kind == Exit:
     return
