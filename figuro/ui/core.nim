@@ -120,6 +120,10 @@ template onEvent*[T](signal: typed, obj: T,
     proc handler(counter: T, ek: EventKind, b: UiButtonView) {.slot.} =
       if ek == Enter: `cb`(counter)
     connect(current, signal, obj, handler)
+  when signalName(signal) == "doButton":
+    proc handler(counter: T) {.slot.} =
+      `cb`(counter)
+    connect(current, signal, obj, handler)
 
 
 template bindProp*[T](prop: Property[T]) =
