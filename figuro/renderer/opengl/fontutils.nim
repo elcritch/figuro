@@ -194,7 +194,7 @@ proc getTypeset*(
     sz = uiSpans.mapIt(it[0].size.float)
     minSz = sz.foldl(max(a,b), 0.0)
   
-  wh.y = wh.y + minSz/2.0 # why?
+  wh.y = wh.y + minSz * 0.9 # why this?
 
   var spans: seq[Span]
   var pfs: seq[Font]
@@ -222,8 +222,8 @@ proc getTypeset*(
   let arrangement =
     pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va)
 
-  echo "getTypeset:"
-  echo "getTypeset:wh: ", wh
+  # echo "getTypeset:"
+  # echo "getTypeset:wh: ", wh
   # print arrangement
 
   result = GlyphArrangement(

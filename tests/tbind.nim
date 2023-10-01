@@ -5,8 +5,8 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 16)
-  largeFont = UiFont(typefaceId: typeface, size: 18)
+  font = UiFont(typefaceId: typeface, size: 22)
+  largeFont = UiFont(typefaceId: typeface, size: 28)
 
 type
   Main* = ref object of Figuro
@@ -25,19 +25,18 @@ proc draw*(self: Main) {.slot.} =
       box 40'ux, 30'ux, 80'ux, 40'ux
       fill "#BF4BAB"
       node nkText, "btnText":
-        box 40'pp, 10'ux, 100'pp, 100'pp
+        box 0'pp, 0'pp, 100'pp, 100'pp
         fill blackColor
         bindProp(self.counter)
-        setText({font: $self.counter.value & " ₿" })
+        setText({font: $self.counter.value & " ₿" }, Center, Middle)
 
     button "btnAdd":
       box 160'ux, 30'ux, 80'ux, 40'ux
       fill "#9F2B00"
       node nkText, "btnText":
         size 100'pp, 100'pp
-        echo "btnText: ", current.box
         fill blackColor
-        setText({largeFont: "+_y|"}, Center, Bottom)
+        setText({largeFont: "+"}, Center, Middle)
       ## something like this:
       onEvent(doButton, self.counter) do(counter: Property[int]):
         counter.update(counter.value+1)
@@ -46,9 +45,9 @@ proc draw*(self: Main) {.slot.} =
       box 240'ux, 30'ux, 80'ux, 40'ux
       fill "#9F2B00"
       node nkText, "btnText":
-        box 40'pp, 10'ux, 100'pp, 100'pp
+        size 100'pp, 100'pp
         fill blackColor
-        setText({largeFont: "–"})
+        setText({largeFont: "–"}, Center, Middle)
       onEvent(doButton, self.counter) do(counter: Property[int]):
         counter.update(counter.value-1)
 
