@@ -11,7 +11,7 @@ type
   Button*[T] = ref object of StatefulFiguro[T]
     label*: string
     disabled*: bool
-    clickOn*: set[ButtonClicks] = {Single}
+    clickMode*: set[ButtonClicks] = {Single}
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   echo "button:hovered: ", kind, " :: ", self.getId
@@ -23,9 +23,11 @@ proc clicked*[T](self: Button[T],
                  buttons: UiButtonView) {.slot.} =
   echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickOn
 
-  if self.clickOn == {Single} and buttons == {MouseLeft}:
+  if kind == Exit:
+    return
+  elif self.clickMode == {Single} and MouseLeft in buttons:
     discard
-  elif self.clickOn == {Double} and buttons == {MouseLeft, DoubleClick}:
+  elif self.clickMode == {Double} and buttons == {MouseLeft, DoubleClick}:
     discard
   else:
     return
