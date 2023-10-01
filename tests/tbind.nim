@@ -36,7 +36,7 @@ proc draw*(self: Main) {.slot.} =
       node nkText, "btnText":
         box 40'pp, 10'ux, 80'pp, 80'pp
         fill blackColor
-        setText({largeFont: "+"})
+        setText({largeFont: "+₿"})
       ## something like this:
       onEvent(doButton, self.counter) do(counter: Property[int]):
         counter.update(counter.value+1)

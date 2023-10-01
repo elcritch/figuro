@@ -25,12 +25,9 @@ proc clicked*[T](self: Button[T],
 
   if self.clickOn == {Single} and buttons == {MouseLeft}:
     discard
-    echo "1"
   elif self.clickOn == {Double} and buttons == {MouseLeft, DoubleClick}:
     discard
-    echo "2"
   else:
-    echo "3"
     return
 
   refresh(self)
