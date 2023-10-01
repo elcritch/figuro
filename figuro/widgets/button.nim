@@ -14,7 +14,8 @@ type
     clickMode*: set[ButtonClicks] = {Single}
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
-  echo "button:hovered: ", kind, " :: ", self.getId
+  # echo "button:hovered: ", kind, " :: ", self.getId
+  discard
 
 proc doButton*[T](self: Button[T]) {.signal.}
 
