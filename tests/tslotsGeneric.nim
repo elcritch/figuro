@@ -49,9 +49,9 @@ when isMainModule:
       # echo "check:AGENT: ", agentSlotsetValue(Counter[uint]).typeof.repr
 
       connect(a, valueChanged,
-              b, Counter[uint].setValue)
+              b, Counter[uint].setValue())
       connect(a, valueChanged,
-              c, Counter[uint].setValue)
+              c, Counter[uint].setValue())
       check b.value == 0
       check c.value == 0
       check d.value == 0

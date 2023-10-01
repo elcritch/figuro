@@ -1,6 +1,7 @@
-import figuro/widgets/buttonWrap
+import figuro/widgets/button
 import figuro/widget
 import figuro
+
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
@@ -49,6 +50,7 @@ proc draw*(self: Main) {.slot.} =
         setText({largeFont: "–"})
       onEvent(doClick, self.counter) do(counter: Property[int]):
         counter.update(counter.value-1)
+
 
 
 var main = Main.new()
