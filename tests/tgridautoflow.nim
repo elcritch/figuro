@@ -46,7 +46,6 @@ proc draw*(self: GridApp) {.slot.} =
           gridRow 1 // 3
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
-          boxSizeOf current.parent
 
         for i in 1..4:
           rectangle "items b", captures(i):
@@ -58,7 +57,6 @@ proc draw*(self: GridApp) {.slot.} =
 
         rectangle "item e":
           # Setup CSS Grid Template
-          size 20'pp, 20'pp
           cornerRadius 6
           gridColumn 5 // 6
           gridRow 1 // 3
