@@ -288,14 +288,21 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   # result.paint = newPaint(SolidPaint)
   # result.paint.color = color(0, 0, 0, 1)
 
-proc setText*(node: Figuro, spans: openArray[(UiFont, string)]) =
+proc setText*(node: Figuro,
+              spans: openArray[(UiFont, string)],
+              hAlign = FontHorizontal.Left,
+              vAlign = FontVertical.Top) =
   if node.textLayout.isNil:
-    node.textLayout = internal.getTypeset(node.box, spans)
+    node.textLayout = internal.getTypeset(node.box,
+                                          spans, hAlign, vAlign)
 
-template setText*(spans: openArray[(UiFont, string)]) =
+template setText*(spans: openArray[(UiFont, string)],
+                  hAlign = FontHorizontal.Left,
+                  vAlign = FontVertical.Top) =
   let thash = spans.hash()
   if current.textLayout.isNil or thash != current.textLayout.contentHash:
-    current.textLayout = internal.getTypeset(current.box, spans)
+    current.textLayout = internal.getTypeset(current.box,
+                                             spans, hAlign, vAlign)
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

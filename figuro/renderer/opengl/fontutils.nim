@@ -182,6 +182,8 @@ proc convertFont*(font: UiFont): (FontId, Font) =
 proc getTypeset*(
     box: Box,
     uiSpans: openArray[(UiFont, string)],
+    hAlign = FontHorizontal.Left,
+    vAlign = FontVertical.Top
 ): GlyphArrangement =
   threads: MainThread
 
@@ -200,7 +202,22 @@ proc getTypeset*(
     gfonts.add GlyphFont(fontId: uiFont.getId(),
                           lineHeight: pf.lineHeight)
 
-  let arrangement = pixie.typeset(spans, bounds = rect.wh, vAlign = TopAlign)
+  var ha: HorizontalAlignment
+  case hAlign:
+  of Left: ha = LeftAlign
+  of Center: ha = CenterAlign
+  of Right: ha = RightAlign
+
+  var va: VerticalAlignment
+  case vAlign:
+  of Top: va = TopAlign
+  of Middle: va = MiddleAlign
+  of Bottom: va = BottomAlign
+
+  let arrangement = pixie.typeset(spans,
+                                  bounds = rect.wh,
+                                  hAlign = ha,
+                                  vAlign = va)
 
   # echo "getTypeset:"
   # echo "snappedBounds: ", snappedBounds

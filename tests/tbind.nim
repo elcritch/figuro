@@ -23,20 +23,20 @@ proc draw*(self: Main) {.slot.} =
     rectangle "count":
       cornerRadius 10.0
       box 40'ux, 30'ux, 80'ux, 40'ux
-      fill "#8F2B8B"
+      fill "#BF4BAB"
       node nkText, "btnText":
-        box 40'pp, 10'ux, 80'pp, 80'pp
+        box 40'pp, 10'ux, 100'pp, 100'pp
         fill blackColor
         bindProp(self.counter)
-        setText({font: $self.counter.value})
+        setText({font: $self.counter.value & " ₿" })
 
     button "btnAdd":
       box 160'ux, 30'ux, 80'ux, 40'ux
       fill "#9F2B00"
       node nkText, "btnText":
-        box 40'pp, 10'ux, 80'pp, 80'pp
+        box 0'pp, 0'ux, 100'pp, 100'pp
         fill blackColor
-        setText({largeFont: "+₿"})
+        setText({largeFont: "+"}, Center, Middle)
       ## something like this:
       onEvent(doButton, self.counter) do(counter: Property[int]):
         counter.update(counter.value+1)
@@ -45,7 +45,7 @@ proc draw*(self: Main) {.slot.} =
       box 240'ux, 30'ux, 80'ux, 40'ux
       fill "#9F2B00"
       node nkText, "btnText":
-        box 40'pp, 10'ux, 80'pp, 80'pp
+        box 40'pp, 10'ux, 100'pp, 100'pp
         fill blackColor
         setText({largeFont: "–"})
       onEvent(doButton, self.counter) do(counter: Property[int]):

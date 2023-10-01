@@ -16,6 +16,16 @@ type
     LowerCase
     TitleCase
 
+  FontHorizontal* = enum
+    Left
+    Center
+    Right
+
+  FontVertical* = enum
+    Top
+    Middle
+    Bottom
+
   GlyphFont* = object
     fontId*: FontId
     size*: float32              ## Font size in pixels.
