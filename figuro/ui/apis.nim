@@ -1,4 +1,4 @@
-import chroma, bumpy
+import chroma, bumpy, stack_strings
 import std/[algorithm, macros, tables, os]
 import cssgrid
 
@@ -6,7 +6,7 @@ import std/[hashes]
 
 import commons, core
 
-export core, cssgrid
+export core, cssgrid, stack_strings
 
 
 proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
@@ -107,7 +107,7 @@ template blank*(): untyped =
 ## These APIs provide the APIs for Fidget nodes.
 ## 
 
-template `name=`*(n: string) =
+template `name`*(n: string) =
   ## sets current node name
   current.name.setLen(0)
   current.name.add(n)

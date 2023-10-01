@@ -18,8 +18,7 @@ proc draw*(self: Main) {.slot.} =
   withDraw(self):
     offset 1'pp, 1'pp
     size 100'pp, 100'pp
-    current.name.setLen(0)
-    current.name.add("root")
+    name "root"
 
     scroll "scroll":
       size 90'pp, 80'pp
