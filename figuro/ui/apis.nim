@@ -487,6 +487,10 @@ template placeItems*(con: ConstraintBehavior) =
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
 
+template gridAutoFlow*(item: GridFlow) =
+  defaultGridTemplate()
+  current.gridTemplate.autoFlow = item
+
 template gridAutoColumns*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item

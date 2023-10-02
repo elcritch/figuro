@@ -438,7 +438,8 @@ proc computeLayout*(node: Figuro, depth: int) =
     for n in node.children:
       # if n.layoutAlign != laIgnore:
       gridChildren.add(n)
-    node.gridTemplate.computeNodeLayout(node, gridChildren)
+    # echo "computeNodeLayout: "
+    node.box = node.gridTemplate.computeNodeLayout(node, gridChildren)
 
     for n in node.children:
       computeLayout(n, depth+1)
