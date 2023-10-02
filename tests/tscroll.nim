@@ -17,13 +17,13 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     offset 10'ux, 10'ux
-    size 100'pp, 100'pp
+    size 90'pp, 90'pp
     name "root"
     fill "#0000AA"
 
     scroll "scroll":
-      size 90'pp, 80'pp
-      # offset 10'ux, 10'ux
+      size 100'pp, 80'pp
+      offset 10'ux, 10'ux
       clipContent true
       cornerRadius 10.0
       contents "children":
@@ -38,7 +38,7 @@ proc draw*(self: Main) {.slot.} =
         for i in 0 .. 15:
           button "button", captures(i):
             # current.gridItem = nil
-            size 0.9'fr, 50'ux
+            size 1'fr, 50'ux
             if i == 3:
               size 0.9'fr, 120'ux
             fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
