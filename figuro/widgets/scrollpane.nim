@@ -24,7 +24,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     rectangle "scrollBody":
       size 100'pp, 100'pp
       # cornerRadius 10.0
-      fill whiteColor.darken(0.1)
+      fill whiteColor.darken(0.2)
       clipContent true
       current.offset = self.scrollby
       current.attrs.incl scrollPanel
