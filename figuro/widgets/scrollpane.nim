@@ -22,8 +22,8 @@ proc draw*(self: ScrollPane) {.slot.} =
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
     rectangle "scrollBody":
-      size csAuto(), csAuto()
-      cornerRadius 10.0
+      size 100'pp, 100'pp
+      # cornerRadius 10.0
       fill whiteColor.darken(0.1)
       clipContent true
       current.offset = self.scrollby

@@ -22,17 +22,19 @@ proc draw*(self: Main) {.slot.} =
 
     scroll "scroll":
       size 90'pp, 80'pp
+      offset 10'ux, 10'ux
       clipContent true
+      cornerRadius 10.0
       contents "children":
         # Setup CSS Grid Template
-        offset 4'pp, 4'pp
+        # offset 10'ux, 10'ux
         setGridCols 1'fr
         setGridRows csNone()
         gridAutoRows csContentMax()
         gridAutoFlow grRow
         justifyContent CxCenter
 
-        for i in 0 .. 9:
+        for i in 0 .. 15:
           button "button", captures(i):
             # current.gridItem = nil
             size 0.9'fr, 50'ux
