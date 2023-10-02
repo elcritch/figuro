@@ -134,7 +134,6 @@ proc startFiguroRuntime() =
   scriptUpdate()
   # invokeVmInit()
   shared.app = invokeVmGetAppState()
-  app.requestedFrame = 5
 
   if not app.fullscreen:
     app.windowSize = Position vec2(app.uiScale * app.width.float32,

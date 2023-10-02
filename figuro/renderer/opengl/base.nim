@@ -56,7 +56,10 @@ proc updateWindowSize*(window: Window) =
   if app.autoUiScale:
     app.uiScale = min(scale.x, scale.y)
 
-  app.windowSize = app.windowRawSize.descaled()
+  let sz = app.windowRawSize.descaled()
+  # TODO: set screen logical offset too?
+  app.windowSize.w = sz.x
+  app.windowSize.h = sz.y
 
 proc preInput*() =
   # var x, y: float64
@@ -96,7 +99,7 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
     window.fullscreen = app.fullscreen
   else:
 
-    app.windowRawSize = app.windowSize.scaled()
+    app.windowRawSize = app.windowSize.wh.scaled()
     window.size = ivec2(app.windowRawSize)
 
   if window.isNil:

@@ -14,23 +14,34 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
-import pretty
-
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    box 20'pp, 10'pp, 100'vw, 100'vh
-    current.name.setLen(0)
-    current.name.add("root")
+    offset 10'ux, 10'ux
+    size 100'pp, 100'pp
+    name "root"
+    fill "#0000AA"
 
     scroll "scroll":
-      # box 20, 10, 80'vw, 300
-      box 20'ux, 10'ux, 90'pp, 80'pp
-
+      size 90'pp, 80'pp
+      # offset 10'ux, 10'ux
+      clipContent true
+      cornerRadius 10.0
       contents "children":
-        for i in 0 .. 9:
+        # Setup CSS Grid Template
+        # offset 10'ux, 10'ux
+        setGridCols 1'fr
+        setGridRows csNone()
+        gridAutoRows csContentMax()
+        gridAutoFlow grRow
+        justifyContent CxCenter
+
+        for i in 0 .. 15:
           button "button", captures(i):
-            # box 10, 10 + i * 80, 40'vw, 70
-            box 10'ux, ux(10 + i * 80), 90'pp, 70'ux
+            # current.gridItem = nil
+            size 0.9'fr, 50'ux
+            if i == 3:
+              size 0.9'fr, 120'ux
+            fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
             connect(current, doHover, self, Main.hover)
 
 var main = Main.new()

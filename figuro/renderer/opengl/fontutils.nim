@@ -179,16 +179,23 @@ proc convertFont*(font: UiFont): (FontId, Font) =
   else:
     result = (id, fontTable[id])
 
+import sugar
+
 proc getTypeset*(
     box: Box,
     uiSpans: openArray[(UiFont, string)],
+    hAlign = FontHorizontal.Left,
+    vAlign = FontVertical.Top
 ): GlyphArrangement =
   threads: MainThread
 
-  let
-    rect = box.scaled()
-    wh = rect.wh
+  var
+    wh = box.scaled().wh
+    sz = uiSpans.mapIt(it[0].size.float)
+    minSz = sz.foldl(max(a,b), 0.0)
   
+  wh.y = wh.y + minSz * 0.9 # why this?
+
   var spans: seq[Span]
   var pfs: seq[Font]
   var gfonts: seq[GlyphFont]
@@ -200,10 +207,23 @@ proc getTypeset*(
     gfonts.add GlyphFont(fontId: uiFont.getId(),
                           lineHeight: pf.lineHeight)
 
-  let arrangement = pixie.typeset(spans, bounds = rect.wh, vAlign = TopAlign)
+  var ha: HorizontalAlignment
+  case hAlign:
+  of Left: ha = LeftAlign
+  of Center: ha = CenterAlign
+  of Right: ha = RightAlign
+
+  var va: VerticalAlignment
+  case vAlign:
+  of Top: va = TopAlign
+  of Middle: va = MiddleAlign
+  of Bottom: va = BottomAlign
+
+  let arrangement =
+    pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va)
 
   # echo "getTypeset:"
-  # echo "snappedBounds: ", snappedBounds
+  # echo "getTypeset:wh: ", wh
   # print arrangement
 
   result = GlyphArrangement(

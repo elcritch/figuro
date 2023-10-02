@@ -72,6 +72,12 @@ type
 
   BasicFiguro* = ref object of Figuro
 
+  StatefulFiguro*[T] = ref object of Figuro
+    state*: T
+
+  Property*[T] = ref object of Agent
+    value*: T
+
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
   result.agentId = nextAgentId()
@@ -106,6 +112,9 @@ proc doDrag*(fig: Figuro,
              initial: Position,
              latest: Position) {.signal.}
 
+proc doUpdate*[T](agent: Agent, value: T) {.signal.}
+proc doChanged*(agent: Agent) {.signal.}
+
 ## Standard slots that will be called for any widgets
 ## 
 ## These are empty for BasicFiguro (e.g. non-widgets)
@@ -137,6 +146,7 @@ proc drag*(fig: BasicFiguro,
            initial: Position,
            latest: Position) {.slot.} =
   discard
+
 
 proc doTickBubble*(fig: Figuro) {.slot.} =
   emit fig.doTick()

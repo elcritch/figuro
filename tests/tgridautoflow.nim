@@ -16,10 +16,9 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   withDraw(self):
-    box 0'ux, 0'ux, 100'vw, 100'vh
+    box 0'pp, 0'pp, 100'pp, 100'pp
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
-      # box 0, 0, 100'vh, 100'vw
       box 10'pp, 10'pp, 80'pp, 80'pp
       fill rgb(224, 239, 255).to(Color)
 
@@ -27,8 +26,8 @@ proc draw*(self: GridApp) {.slot.} =
         # if current.gridTemplate != nil:
         #   echo "grid template: ", repr current.gridTemplate
         # setup frame for css grid
-        # box 10, 10, 400, 240
-        box 0'ux, 0'ux, 100'pp, 100'pp
+        box 5'pp, 5'pp, 90'pp, 90'pp
+        # size 100'pp, 100'pp
         fill "#FFFFFF"
         cornerRadius 6
         clipContent true
@@ -47,7 +46,6 @@ proc draw*(self: GridApp) {.slot.} =
           gridRow 1 // 3
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
-          boxSizeOf current.parent
 
         for i in 1..4:
           rectangle "items b", captures(i):
@@ -59,7 +57,6 @@ proc draw*(self: GridApp) {.slot.} =
 
         rectangle "item e":
           # Setup CSS Grid Template
-          size 20'pp, 20'pp
           cornerRadius 6
           gridColumn 5 // 6
           gridRow 1 // 3

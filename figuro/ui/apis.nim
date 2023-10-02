@@ -1,4 +1,4 @@
-import chroma, bumpy
+import chroma, bumpy, stack_strings
 import std/[algorithm, macros, tables, os]
 import cssgrid
 
@@ -6,7 +6,7 @@ import std/[hashes]
 
 import commons, core
 
-export core, cssgrid
+export core, cssgrid, stack_strings
 
 
 proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
@@ -107,6 +107,11 @@ template blank*(): untyped =
 ## These APIs provide the APIs for Fidget nodes.
 ## 
 
+template `name`*(n: string) =
+  ## sets current node name
+  current.name.setLen(0)
+  current.name.add(n)
+
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node User Interactions
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -134,39 +139,38 @@ template box*(
   w: UICoord|CSSConstraint,
   h: UICoord|CSSConstraint
 ) =
-  ## Sets the box dimensions with integers
-  ## Always set box before orgBox when doing constraints.
-  boxFrom(fltOrZero x, fltOrZero y, fltOrZero w, fltOrZero h)
+  ## Sets the size and offsets at the same time
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
-template box*(rect: Box) =
-  ## Sets the box dimensions with integers
-  box(rect.x, rect.y, rect.w, rect.h)
+# template box*(rect: Box) =
+#   ## Sets the box dimensions with integers
+#   box(rect.x, rect.y, rect.w, rect.h)
+
+template offset*(
+  x: UICoord|CSSConstraint,
+  y: UICoord|CSSConstraint
+) =
+  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
 
 template size*(
-  w: int|float32|float64|UICoord,
-  h: int|float32|float64|UICoord,
+  w: UICoord|CSSConstraint,
+  h: UICoord|CSSConstraint,
 ) =
-  ## Sets the box dimension width and height
-  current.cxSize[dcol] = csFixed(w.UiScalar)
-  current.box.w = w.UICoord
-  
-  current.cxSize[drow] = csFixed(h.UiScalar)
-  current.box.h = h.UICoord
-
-template size*(
-  w: CSSConstraint,
-  h: CSSConstraint,
-) =
-  ## Sets the box dimension width and height
-  current.cxSize[dcol] = w
-  current.cxSize[drow] = h
+  current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
 template boxSizeOf*(node: Figuro) =
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
-  current.box = node.box.atXY(0, 0)
+  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
+
+template boxOf*(node: Figuro) =
+  current.cxOffset = [csOrFixed(node.box.x), csOrFixed(node.box.y)]
+  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
+
+template boxOf*(box: Box) =
+  current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
+  current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
 
 # proc setWindowBounds*(min, max: Vec2) =
 #   base.setWindowBounds(min, max)
@@ -260,6 +264,16 @@ template onClickOut*(inner: untyped) =
       MouseLeft in uxInputs.buttonPress:
     inner
 
+proc getTitle*(): string =
+  ## Gets window title
+  getWindowTitle()
+
+template setTitle*(title: string) =
+  ## Sets window title
+  if (getWindowTitle() != title):
+    setWindowTitle(title)
+    refresh(current)
+
 template cornerRadius*(radius: UICoord) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = UICoord radius
@@ -279,14 +293,21 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   # result.paint = newPaint(SolidPaint)
   # result.paint.color = color(0, 0, 0, 1)
 
-proc setText*(node: Figuro, spans: openArray[(UiFont, string)]) =
+proc setText*(node: Figuro,
+              spans: openArray[(UiFont, string)],
+              hAlign = FontHorizontal.Left,
+              vAlign = FontVertical.Top) =
   if node.textLayout.isNil:
-    node.textLayout = internal.getTypeset(node.box, spans)
+    node.textLayout = internal.getTypeset(node.box,
+                                          spans, hAlign, vAlign)
 
-template setText*(spans: openArray[(UiFont, string)]) =
+template setText*(spans: openArray[(UiFont, string)],
+                  hAlign = FontHorizontal.Left,
+                  vAlign = FontVertical.Top) =
   let thash = spans.hash()
   if current.textLayout.isNil or thash != current.textLayout.contentHash:
-    current.textLayout = internal.getTypeset(current.box, spans)
+    current.textLayout = internal.getTypeset(current.box,
+                                             spans, hAlign, vAlign)
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -309,7 +330,7 @@ template setText*(spans: openArray[(UiFont, string)]) =
 proc csFixed*(coord: UICoord): Constraint =
   csFixed(coord.UiScalar)
 
-proc ux*(coord: SomeNumber): Constraint =
+proc ux*(coord: SomeNumber|UICoord): Constraint =
   csFixed(coord.UiScalar)
 
 {.hint[Name]:off.}
@@ -465,6 +486,10 @@ template placeItems*(con: ConstraintBehavior) =
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
+
+template gridAutoFlow*(item: GridFlow) =
+  defaultGridTemplate()
+  current.gridTemplate.autoFlow = item
 
 template gridAutoColumns*(item: Constraint) =
   defaultGridTemplate()

@@ -98,18 +98,47 @@ proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
   if node == nil:
     return
-  app.requestedFrame.inc
+  # app.requestedFrame.inc
   redrawNodes.incl(node)
 
-proc getTitle*(): string =
-  ## Gets window title
-  getWindowTitle()
+proc changed*(self: Figuro) {.slot.} =
+  refresh(self)
 
-template setTitle*(title: string) =
-  ## Sets window title
-  if (getWindowTitle() != title):
-    setWindowTitle(title)
-    refresh(current)
+proc update*[T](self: Property[T], value: T) {.slot.} =
+  if self.value != value:
+    self.value = value
+    emit self.doChanged()
+
+proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
+  if self.state != value:
+    self.state = value
+    emit self.doChanged()
+
+template onEvent*[T](signal: typed, obj: T,
+                               cb: proc(obj: T) {.nimcall.}) =
+  when signalName(signal) == "doClick":
+    proc handler(counter: T, ek: EventKind, b: UiButtonView) {.slot.} =
+      if ek == Enter: `cb`(counter)
+    connect(current, signal, obj, handler)
+  when signalName(signal) == "doButton":
+    proc handler(counter: T) {.slot.} =
+      `cb`(counter)
+    connect(current, signal, obj, handler)
+
+
+template bindProp*[T](prop: Property[T]) =
+  connect(prop, doChanged, Agent(current), Figuro.changed())
+
+proc sibling*(self: Figuro, name: string): Option[Figuro] =
+  ## finds first sibling with name
+  for sibling in self.parent.children:
+    if sibling.uid != self.uid and sibling.name == name:
+      return some sibling
+  return Figuro.none
+
+template sibling*(name: string): Option[Figuro] =
+  ## finds first sibling with name
+  current.sibling(name)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
@@ -196,13 +225,17 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   connect(current, doDraw, current, T.draw())
   connect(current, doDraw, current, Figuro.handlePostDraw())
   ## only activate these if custom ones have been provided 
-  when T isnot BasicFiguro and compiles(T.clicked()):
+  # static:
+  #   echo "T is ", repr(typeof(T))
+  #   echo "T compiles: SignalT: ", compiles(SignalTypes.clicked(T))
+  #   echo "T compiles T.clicked(): ", compiles(T.clicked())
+  when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
     connect(current, doClick, current, T.clicked())
-  when T isnot BasicFiguro and compiles(T.keyInput()):
+  when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
     connect(current, doKeyInput, current, T.keyInput())
-  when T isnot BasicFiguro and compiles(T.keyPress()):
+  when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
     connect(current, doKeyPress, current, T.keyPress())
-  when T isnot BasicFiguro and compiles(T.hover()):
+  when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
     connect(current, doHover, current, T.hover())
 
 proc postNode*(current: var Figuro) =
@@ -336,11 +369,17 @@ template calcBasicConstraintImpl(
           node.checkParent()
           res = frac.UICoord * node.parent.box.f
         UiPerc(perc):
-          node.checkParent()
-          let ppval = when astToStr(f) == "x": node.parent.box.w
-                      elif astToStr(f) == "y": node.parent.box.h
-                      else: node.parent.box.f
+          let parentBox =
+            if node.parent.isNil: app.windowSize
+            else: node.parent.box
+          let ppval = when astToStr(f) == "x": parentBox.w
+                      elif astToStr(f) == "y": parentBox.h
+                      else: parentBox.f
           res = perc.UICoord / 100.0.UICoord * ppval
+        UiContentMin(cmins):
+          res = cmins.UICoord
+        UiContentMax(cmaxs):
+          res = cmaxs.UICoord
       res
   
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
@@ -388,12 +427,12 @@ proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
   
   # # simple constraints
-  if node.gridItem.isNil and node.parent != nil:
+  # if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
-    calcBasicConstraint(node, dcol, isXY=true)
-    calcBasicConstraint(node, drow, isXY=true)
-    calcBasicConstraint(node, dcol, isXY=false)
-    calcBasicConstraint(node, drow, isXY=false)
+  calcBasicConstraint(node, dcol, isXY=true)
+  calcBasicConstraint(node, drow, isXY=true)
+  calcBasicConstraint(node, dcol, isXY=false)
+  calcBasicConstraint(node, drow, isXY=false)
 
   # css grid impl
   if not node.gridTemplate.isNil:
@@ -403,7 +442,8 @@ proc computeLayout*(node: Figuro, depth: int) =
     for n in node.children:
       # if n.layoutAlign != laIgnore:
       gridChildren.add(n)
-    node.gridTemplate.computeNodeLayout(node, gridChildren)
+    # echo "computeNodeLayout: "
+    node.box = node.gridTemplate.computeNodeLayout(node, gridChildren)
 
     for n in node.children:
       computeLayout(n, depth+1)

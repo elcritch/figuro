@@ -28,8 +28,9 @@ proc startFiguro*(
   app.fullscreen = fullscreen
 
   if not fullscreen:
-    app.windowSize = Position vec2(app.uiScale * app.width.float32,
-                                   app.uiScale * app.height.float32)
+    app.windowSize = initBox(0.0, 0.0,
+                             app.uiScale * app.width.float32,
+                             app.uiScale * app.height.float32)
 
   root = widget
   redrawNodes = initOrderedSet[Figuro]()
@@ -47,9 +48,13 @@ proc startFiguro*(
     while uxInputList.tryRecv(input) and cnt > 0:
       uxInputs = input
       computeEvents(root)
-      cnt.dec
+      cnt.dec()
   mainApp = proc () =
     root.diffIndex = 0
+    if app.requestedFrame > 0:
+      refresh(root)
+      app.requestedFrame.dec()
+
     if redrawNodes.len() > 0:
       # echo "\nredraw: ", redrawNodes.len
       computeEvents(root)
