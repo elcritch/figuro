@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
         # Setup CSS Grid Template
         offset 4'pp, 4'pp
         setGridCols 1'fr
-        setGridRows 70'ux
+        setGridRows csContentMax()
         gridAutoRows 70'ux
         gridAutoFlow grRow
         justifyContent CxCenter
