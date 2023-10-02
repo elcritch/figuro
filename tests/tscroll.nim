@@ -26,18 +26,17 @@ proc draw*(self: Main) {.slot.} =
         # Setup CSS Grid Template
         offset 4'pp, 4'pp
         setGridCols 1'fr
-        setGridRows csContentMax()
+        setGridRows csNone()
         gridAutoRows csContentMax()
         gridAutoFlow grRow
         justifyContent CxCenter
 
-
         for i in 0 .. 9:
           button "button", captures(i):
             # current.gridItem = nil
-            size 90'pp, 70'ux
+            size 1'fr, 70'ux
             if i == 3:
-              size 90'pp, 120'ux
+              size 1'fr, 120'ux
             fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
             connect(current, doHover, self, Main.hover)
 
