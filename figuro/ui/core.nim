@@ -376,6 +376,10 @@ template calcBasicConstraintImpl(
                       elif astToStr(f) == "y": parentBox.h
                       else: parentBox.f
           res = perc.UICoord / 100.0.UICoord * ppval
+        UiContentMin(cmins):
+          res = cmins.UICoord
+        UiContentMax(cmaxs):
+          res = cmaxs.UICoord
       res
   
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
