@@ -24,9 +24,10 @@ proc draw*(self: Main) {.slot.} =
       size 90'pp, 80'pp
       contents "children":
         # Setup CSS Grid Template
+        offset 4'pp, 4'pp
         setGridCols 1'fr
-        setGridRows 50'ux
-        gridAutoRows 50'ux
+        setGridRows 70'ux
+        gridAutoRows 70'ux
         gridAutoFlow grRow
         justifyContent CxCenter
 
@@ -34,7 +35,7 @@ proc draw*(self: Main) {.slot.} =
           button "button", captures(i):
             # current.gridItem = nil
             size 90'pp, 70'ux
-            fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
+            fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
             connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
