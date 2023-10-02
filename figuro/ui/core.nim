@@ -419,7 +419,7 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
     calcBasicConstraintImpl(node, dir, h)
 
 proc printLayout*(node: Figuro, depth = 0) =
-  echo " ".repeat(depth), "node: ", node.name, " ", node.box.w, "x", node.box.h
+  echo " ".repeat(depth), "node: ", node.name, " [", node.box.x, ";", node.box.y, "] ", node.box.w, "x", node.box.h
   for c in node.children:
     printLayout(c, depth+2)
 
@@ -454,7 +454,7 @@ proc computeLayout*(node: Figuro, depth: int) =
     computeLayout(n, depth+1)
 
 proc computeLayout*(node: Figuro) =
-  when defined(figDebugLayout):
+  when defined(debugLayout):
     echo "\ncomputeLayout: "
     printLayout(node)
   computeLayout(node, 0)
