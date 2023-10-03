@@ -400,6 +400,11 @@ template calcBasicConstraintImpl(
           node.box.f = parentBox.f - parentBox.y - node.box.y
         else:
           discard
+      else:
+        when astToStr(f) in ["w"]:
+          node.box.f = parentBox.f
+        elif astToStr(f) in ["h"]:
+          node.box.f = parentBox.f
     UiSum(ls, rs):
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
