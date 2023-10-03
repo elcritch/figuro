@@ -393,7 +393,6 @@ template calcBasicConstraintImpl(
   match csValue:
     UiNone:
       if not node.parent.isNil:
-        echo "UiNone: ", node.name, " node.box: ", node.box.xy, " parent: ", parentBox.xy
         when astToStr(f) in ["w"]:
           node.box.f = parentBox.f - parentBox.x - node.box.x
         elif astToStr(f) in ["h"]:
@@ -401,7 +400,6 @@ template calcBasicConstraintImpl(
         else:
           discard
       else:
-        echo "UiNone:root: ", node.name, " node.box: ", node.box.xy, " parent: ", parentBox.xy
         when astToStr(f) in ["w"]:
           node.box.f = parentBox.f - node.box.x
         elif astToStr(f) in ["h"]:
