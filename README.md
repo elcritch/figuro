@@ -142,10 +142,23 @@ assert a.value == 42
 assert b.value == 42
 ```
 
-## Docs
-
-Well you can write some! Or not, but eventually I'll try to add some. First we need to actually have a widget and event system.
-
 ## Goal
 
 Massive profits and world domination of course. ;) Failing that the ability to write cool UI apps easily, in pure Nim.
+
+## Docs
+
+Initial docs section.
+
+### Drawing model
+
+Each widget must inherit from the `Fidget` type. `Fidget` itself inherits from `Agent` which means it can work with signals and slots.
+
+Each widget is composed of a `draw` slot and a widget-macro which is exported using `exportWidget`. Draw slots expect the widget object to already be created.
+
+The purpose of the widget macro which sets up a new block, calls `preNode()` and `postNode()` with the user code inserted into a anonymous callback. This callback is called by the `postNode()` proc by emitting a `doDraw` signal.
+
+Each `doDraw` signal on a widget is connected to multiple slots which ready a widget for drawing, runs pre-draw callbacks, run any widget draw slot, and runs post-draw callbacks. User code passed to the widget-macros become the pre-draw callback for that widget instance. For advanced needs, a post-draw callback can be manually supplied.  
+
+### Layout
+
