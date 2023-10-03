@@ -149,13 +149,17 @@ The purpose of the widget macro which sets up a new block, calls `preNode()` and
 
 Each `doDraw` signal on a widget is connected to multiple slots which ready a widget for drawing, runs pre-draw callbacks, run any widget draw slot, and runs post-draw callbacks. User code passed to the widget-macros become the pre-draw callback for that widget instance. For advanced needs, a post-draw callback can be manually supplied.  
 
-### Layout
+### Layout and Controlling Widget Size and Position
 
-There are two modes of layout: basic and grid. Both of these use the same core set of layout constraints which can be used to configued the width & height or the offset in x & y. The basic APIs are `box`, `size`, and `offset` which all set layout constraints. Each widget has a `box` which can manually set the position, but can be overwritten by the layout system. It's recommended to avoid directly modifying it. Instead set `cxOffset` and `cxSize`.
+There are two modes of layout: basic and grid. Both of these use the same core set of layout constraints which can be used to configued the width & height or the offset in x & y. Normally layout constraints are referred to as just constraints for brevity. The basic APIs are `box`, `size`, and `offset` which all set layout constraints. Each widget has a `box` which can manually set the position, but can be overwritten by the layout system. It's recommended to avoid directly modifying it. Instead set `cxOffset` and `cxSize`.
 
 The core constraints are modeled on [CSS Grid](https://css-tricks.com/snippets/css/complete-guide-grid/) and for more advanced layouts understanding CSS Grid will be helpful. The reason for this is that CSS Grid is one of the most flexible layout systems avaialable on the web and yet remains simple to use once you understand the basics, unlike alternatives like flexbox or even raw table layouts.
 
-A layout constraint, normally shorted to just constraint, has the following definitions:
+Note that the easiest way to set layout constraint values are to use their numeric literal types. They are `1'fr` for fraction, `1'ux` for fixed ui coordinate, and `100'pp` for percentage. Note that `1'ux` is equivalent to `1'ui`. If you need to conver the result of an expression you can use the `ux` proc like `ux(1+4)`. There are helper proc's for non-value constraints which are `csNone()`, `csAuto()`, `csFixed(x)`, `csMin(x,y)`, `csMax(x,y)`, `csMinMax(x,y)`, and `csMinMax(x,y)`. The multi-argued constraints are still a WIP and don't work currently.
+
+A layout constraint, normally shorted to just constraint, are broken into two pieces: the `Constraint` container object and a `ConstraintSize` object. 
+
+Here's the full list of options (see CSS Grid for more details): 
 
 ```nim
 type
@@ -177,4 +181,3 @@ type
     UiEnd ## marks end track of a CSS Grid layout
 ```
 
-Note that there are numeric literal types for several of the `ConstraintSizes`. They are `1'fr` for fraction, `1'ux` for fixed ui coordinate, and `100'pp` for percentage. Note that `1'ux` is equivalent to `1'ui`.
