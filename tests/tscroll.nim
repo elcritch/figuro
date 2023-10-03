@@ -25,7 +25,7 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       contents "children":
         # Setup CSS Grid Template
-        # offset 10'ux, 10'ux
+        offset 10'ux, 10'ux
         setGridCols 1'fr
         setGridRows csNone()
         gridAutoRows csContentMax()
