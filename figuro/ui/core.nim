@@ -252,26 +252,31 @@ proc generateBodies*(widget, kind: NimNode,
                      hasGeneric: bool): NimNode {.compileTime.} =
   ## core macro helper that generates the drawing
   ## callbacks for widgets.
-  let (id, stateArg, capturedVals, blk) = wargs
+  let (id, stateArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
+  let hasBinds = newLit(not bindsArg.isNil)
   let widgetId = ident( "widget" & id.strVal.capitalize )
 
+  echo "BINDS: ", bindsArg.treeRepr
   let widgetType =
     if not hasGeneric: quote do: `widget`
     else: quote do: `widget`[`stateArg`]
 
   result = quote do:
+    when `hasBinds`:
+      var `bindsArg` {.inject.}: `widgetType`
     block:
       when not compiles(current.typeof):
         {.error: "missing `var current` in current scope!".}
       let parent {.inject.}: Figuro = current
       var current {.inject.}: `widgetType` = nil
       preNode(`kind`, `id`, current, parent)
+      when `hasBinds`:
+        `bindsArg` = current
       wrapCaptures(`hasCaptures`, `capturedVals`):
         current.preDraw = proc (c: Figuro) =
           let current {.inject.} = `widgetType`(c)
           let widget {.inject.} = `widgetType`(c)
-          let `widgetId` {.inject.} = widget
           if preDrawReady in widget.attrs:
             widget.attrs.excl preDrawReady
             `blk`
@@ -304,7 +309,7 @@ template TemplateContents*[T](fig: T): untyped =
 macro contents*(args: varargs[untyped]): untyped =
   # echo "contents:\n", args.treeRepr
   let wargs = args.parseWidgetArgs()
-  let (id, stateArg, capturedVals, blk) = wargs
+  let (id, stateArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
   # echo "id: ", id
   # echo "stateArg: ", stateArg.repr

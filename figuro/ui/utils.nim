@@ -32,6 +32,7 @@ type
   WidgetArgs* = tuple[
     id: NimNode,
     stateArg: NimNode,
+    bindsArg: NimNode,
     capturedVals: NimNode,
     blk: NimNode
   ]
@@ -56,6 +57,10 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         if arg.len() != 2:
           error "only one type var allowed"
         result.stateArg = arg[1]
+      if fname.repr == "binds":
+        if arg.len() != 2:
+          error "only one name export allowed"
+        result.bindsArg = arg[1]
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]
