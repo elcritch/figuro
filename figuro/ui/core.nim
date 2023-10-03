@@ -257,21 +257,19 @@ proc generateBodies*(widget, kind: NimNode,
   let hasBinds = newLit(not bindsArg.isNil)
   let widgetId = ident( "widget" & id.strVal.capitalize )
 
-  let widgetType =
-    if not hasGeneric: quote do: `widget`
-    else: quote do: `widget`[`stateArg`]
+  let
+    widgetSetup = genSym(nskProc, "widgetSetup")
+    widgetType =
+      if not hasGeneric: quote do: `widget`
+      else: quote do: `widget`[`stateArg`]
 
   result = quote do:
-    when `hasBinds`:
-      var `bindsArg` {.inject.}: `widgetType`
-    block:
+    proc `widgetSetup`(): `widgetType` {.discardable.} =
       when not compiles(current.typeof):
         {.error: "missing `var current` in current scope!".}
       let parent {.inject.}: Figuro = current
       var current {.inject.}: `widgetType` = nil
       preNode(`kind`, `id`, current, parent)
-      when `hasBinds`:
-        `bindsArg` = current
       wrapCaptures(`hasCaptures`, `capturedVals`):
         current.preDraw = proc (c: Figuro) =
           let current {.inject.} = `widgetType`(c)
@@ -280,6 +278,8 @@ proc generateBodies*(widget, kind: NimNode,
             widget.attrs.excl preDrawReady
             `blk`
       postNode(Figuro(current))
+      current
+    `widgetSetup`()
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
   ## exports a `class` as a widget by giving it a macro with `name`

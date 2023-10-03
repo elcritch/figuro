@@ -43,6 +43,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   ## - `captures(i, x)` 
   args.expectKind(nnkArgList)
 
+  echo "parseWidgetArgs: ", args.treeRepr
   result.id = args[0]
   result.id.expectKind(nnkStrLit)
   result.blk = args[^1]
@@ -57,10 +58,10 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         if arg.len() != 2:
           error "only one type var allowed"
         result.stateArg = arg[1]
-      if fname.repr == "bindAs":
-        if arg.len() != 2:
-          error "only one name export allowed"
-        result.bindsArg = arg[1]
+      if fname.repr in ["expose", "withResult"]:
+        # if arg.len() != 2:
+          # error "only one name export allowed"
+        result.bindsArg = newLit(true)
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]
