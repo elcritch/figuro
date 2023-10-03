@@ -22,9 +22,9 @@ proc draw*(self: Main) {.slot.} =
       # offset 20'ux, 20'ux
       # size 90'pp, 80'pp
       clipContent true
-      cornerRadius 10.0
       contents "children":
         # Setup CSS Grid Template
+        cornerRadius 10.0
         offset 10'ux, 10'ux
         setGridCols 1'fr
         setGridRows csNone()
