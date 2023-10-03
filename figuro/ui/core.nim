@@ -401,10 +401,11 @@ template calcBasicConstraintImpl(
         else:
           discard
       else:
+        echo "UiNone:root: ", node.name, " node.box: ", node.box.xy, " parent: ", parentBox.xy
         when astToStr(f) in ["w"]:
-          node.box.f = parentBox.f
+          node.box.f = parentBox.f - node.box.x
         elif astToStr(f) in ["h"]:
-          node.box.f = parentBox.f
+          node.box.f = parentBox.f - node.box.y
     UiSum(ls, rs):
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
