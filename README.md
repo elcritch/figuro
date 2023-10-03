@@ -169,7 +169,7 @@ type
     UiFixed ## represents fixed coordinate size
     UiContentMin ## represents layout to use min-content, `cmin` is calculated internally
     UiContentMax ## represents layout to use max-content, `cmax` is calculated internally
-    UiAuto ## represents layout to auto which is similar to a fraction but lower precedance down to min-content
+    UiAuto ## represents layout to auto which is similar to a fraction but lower precedance down to it's min-content
 
   Constraints* = enum
     UiNone ## default, which is parent width/height less the x/y positions of the node and it's parents
