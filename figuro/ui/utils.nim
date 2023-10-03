@@ -3,6 +3,8 @@ import macros
 import commons
 
 template withDraw*[T](fig: T, blk: untyped): untyped =
+  ## setup the draw method for a widget by setting
+  ## the `current` and `parent` variables
   block:
     var parent {.inject, used.} = fig.parent
     var current {.inject, used.} = fig
