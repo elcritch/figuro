@@ -19,8 +19,8 @@ proc draw*(self: Main) {.slot.} =
     fill "#0000AA"
 
     scroll "scroll":
-      offset 20'ux, 20'ux
-      size 90'pp, 80'pp
+      # offset 20'ux, 20'ux
+      # size 90'pp, 80'pp
       clipContent true
       cornerRadius 10.0
       contents "children":

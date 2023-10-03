@@ -1,4 +1,5 @@
-import std/[tables, unicode]
+import std/[tables, unicode, strformat, ]
+import std/terminal
 # import cssgrid
 
 import commons
@@ -391,8 +392,8 @@ template calcBasicConstraintImpl(
                 else: node.cxOffset[dir]
   match csValue:
     UiNone:
-      if node.parent.isNil:
-        # echo "UiNone: ", node.name, " node.box: ", node.box.xy, " parent: ", parentBox.xy
+      if not node.parent.isNil:
+        echo "UiNone: ", node.name, " node.box: ", node.box.xy, " parent: ", parentBox.xy
         when astToStr(f) in ["w"]:
           node.box.f = parentBox.f - parentBox.x - node.box.x
         elif astToStr(f) in ["h"]:
@@ -430,11 +431,6 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
-proc printLayout*(node: Figuro, depth = 0) =
-  echo " ".repeat(depth), "node: ", node.name, " [", node.box.x, ",", node.box.y, "; ", node.box.w, "x", node.box.h, "]"
-  for c in node.children:
-    printLayout(c, depth+2)
-
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
   
@@ -465,12 +461,26 @@ proc computeLayout*(node: Figuro, depth: int) =
   for n in node.children:
     computeLayout(n, depth+1)
 
+proc printLayout*(node: Figuro, depth = 0) =
+  stdout.styledWriteLine(" ".repeat(depth),
+                          {styleDim}, fgWhite, "node: ",
+                          resetStyle,
+                          fgWhite, $node.name, "[xy: ",
+                          fgGreen, $node.box.x, "x", $node.box.y,
+                          fgWhite, "; wh:",
+                          fgYellow, $node.box.w, "x", $node.box.h,
+                          fgWhite, "]")
+  for c in node.children:
+    printLayout(c, depth+2)
+
 proc computeLayout*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):
-    echo "\ncomputeLayout:pre "
+    stdout.styledWriteLine({styleDim}, fgWhite, "computeLayout:pre ",
+                            {styleDim}, fgGreen, "")
     printLayout(node)
   computeLayout(node, 0)
   when defined(debugLayout) or defined(figuroDebugLayout):
-    echo "computeLayout:post: "
+    stdout.styledWriteLine({styleDim}, fgWhite, "computeLayout:post ",
+                            {styleDim}, fgGreen, "")
     printLayout(node)
     echo ""
