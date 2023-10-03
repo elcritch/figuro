@@ -15,10 +15,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
-    offset 10'ux, 10'ux
-    size 90'pp, 90'pp
-    name "root"
+  withDraw self:
     fill "#0000AA"
 
     scroll "scroll":

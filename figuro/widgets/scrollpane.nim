@@ -18,7 +18,7 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
-  withDraw(self):
+  withDraw self:
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
     rectangle "scrollBody":

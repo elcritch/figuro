@@ -359,6 +359,8 @@ template calcBasicConstraintImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
+  let parentBox = if node.parent.isNil: app.windowSize
+                  else: node.parent.box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
@@ -369,9 +371,6 @@ template calcBasicConstraintImpl(
           node.checkParent()
           res = frac.UICoord * node.parent.box.f
         UiPerc(perc):
-          let parentBox =
-            if node.parent.isNil: app.windowSize
-            else: node.parent.box
           let ppval = when astToStr(f) == "x": parentBox.w
                       elif astToStr(f) == "y": parentBox.h
                       else: parentBox.f
@@ -380,17 +379,26 @@ template calcBasicConstraintImpl(
           res = cmins.UICoord
         UiContentMax(cmaxs):
           res = cmaxs.UICoord
+        UiAuto(_):
+          when astToStr(f) in ["w", "h"]:
+            node.checkParent()
+            node.box.f = node.parent.box.f
+          else:
+            discard
       res
   
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
                 else: node.cxOffset[dir]
   match csValue:
-    UiAuto():
-      when astToStr(f) in ["w", "h"]:
-        node.checkParent()
-        node.box.f = node.parent.box.f
-      else:
-        discard
+    UiNone:
+      if node.parent.isNil:
+        # echo "UiNone: ", node.name, " node.box: ", node.box.xy, " parent: ", parentBox.xy
+        when astToStr(f) in ["w"]:
+          node.box.f = parentBox.f - parentBox.x - node.box.x
+        elif astToStr(f) in ["h"]:
+          node.box.f = parentBox.f - parentBox.y - node.box.y
+        else:
+          discard
     UiSum(ls, rs):
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
@@ -403,23 +411,27 @@ template calcBasicConstraintImpl(
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = max(lv, rv)
+    UiMinMax(ls, rs):
+      discard
     UiValue(value):
       node.box.f = calcBasic(value)
-    _:
+    UiEnd():
       discard
 
 proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
+  ## calcuate sizes of basic constraints per field x/y/w/h for each node
   when isXY == true and dir == dcol: 
     calcBasicConstraintImpl(node, dir, x)
   elif isXY == true and dir == drow: 
     calcBasicConstraintImpl(node, dir, y)
+  # w & h need to run after x & y
   elif isXY == false and dir == dcol: 
     calcBasicConstraintImpl(node, dir, w)
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
 proc printLayout*(node: Figuro, depth = 0) =
-  echo " ".repeat(depth), "node: ", node.name, " [", node.box.x, ";", node.box.y, "] ", node.box.w, "x", node.box.h
+  echo " ".repeat(depth), "node: ", node.name, " [", node.box.x, ",", node.box.y, "; ", node.box.w, "x", node.box.h, "]"
   for c in node.children:
     printLayout(c, depth+2)
 
@@ -454,9 +466,11 @@ proc computeLayout*(node: Figuro, depth: int) =
     computeLayout(n, depth+1)
 
 proc computeLayout*(node: Figuro) =
-  when defined(debugLayout):
-    echo "\ncomputeLayout: "
+  when defined(debugLayout) or defined(figuroDebugLayout):
+    echo "\ncomputeLayout:pre "
     printLayout(node)
   computeLayout(node, 0)
-  when defined(figDebugLayout):
+  when defined(debugLayout) or defined(figuroDebugLayout):
+    echo "computeLayout:post: "
     printLayout(node)
+    echo ""
