@@ -439,7 +439,8 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
-  
+  echo "computeLayout: ", node.name
+
   # # simple constraints
   # if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
@@ -450,8 +451,6 @@ proc computeLayout*(node: Figuro, depth: int) =
 
   # css grid impl
   if not node.gridTemplate.isNil:
-    # echo "calc grid!"
-    
     gridChildren.setLen(0)
     for n in node.children:
       gridChildren.add(n)
@@ -459,12 +458,8 @@ proc computeLayout*(node: Figuro, depth: int) =
     var box = node.box
     box.w = box.w - box.x
     box.h = box.h - box.y
+    echo "compute grid ", node.name
     node.box = node.gridTemplate.computeNodeLayout(box, gridChildren).Box
-
-    for n in node.children:
-      computeLayout(n, depth+1)
-
-    return
 
   for n in node.children:
     computeLayout(n, depth+1)
