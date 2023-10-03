@@ -34,17 +34,6 @@ Currently during the early development only Atlas with `atlas.lock` files are in
 
 Eventually these issues will be resolved.
 
-## Updates
-
-Note much of the below has been completed in some form, but the descriptions likely aren't 100% accurate anymore.
-
-
-## Widget and Application Layer
-
-The UI Application side will draw UI Nodes using widgets. Widgets will comprise of objects with base set of proc's and various signals / slots. Each widget will then use a Fidget-like API to draw themselves.
-
-All of the widgets will share the same UI Node roots, similar to Fidget. However, events will be handled using slots and signals. Ideally this gives us the best of both worlds: immediate mode like drawing, with traditional event systems, and out-of-order drawing. This should resolve the ordering issues with Fidget / Fidgetty when dealing with overlapping widgets.
-
 ## Render Engine
 
 Once the UI Application has finished drawing, it "serializes" the UI Figuro Nodes into a flattened list of Render Nodes. These Render Nodes are designed to be fast to copy by reducing allocations.
@@ -152,7 +141,7 @@ Initial docs section.
 
 ### Drawing model
 
-Each widget must inherit from the `Fidget` type. `Fidget` itself inherits from `Agent` which means it can work with signals and slots.
+Each widget must inherit from the `Fidget` type. `Fidget` itself inherits from `Agent` which means it can work with signals & slots.
 
 Each widget is composed of a `draw` slot and a widget-macro which is exported using `exportWidget`. Draw slots expect the widget object to already be created.
 
@@ -162,3 +151,30 @@ Each `doDraw` signal on a widget is connected to multiple slots which ready a wi
 
 ### Layout
 
+There are two modes of layout: basic and grid. Both of these use the same core set of layout constraints which can be used to configued the width & height or the offset in x & y. The basic APIs are `box`, `size`, and `offset` which all set layout constraints. Each widget has a `box` which can manually set the position, but can be overwritten by the layout system. It's recommended to avoid directly modifying it. Instead set `cxOffset` and `cxSize`.
+
+The core constraints are modeled on [CSS Grid](https://css-tricks.com/snippets/css/complete-guide-grid/) and for more advanced layouts understanding CSS Grid will be helpful. The reason for this is that CSS Grid is one of the most flexible layout systems avaialable on the web and yet remains simple to use once you understand the basics, unlike alternatives like flexbox or even raw table layouts.
+
+A layout constraint, normally shorted to just constraint, has the following definitions:
+
+```nim
+type
+  ConstraintSizes* = enum
+    UiFrac ## represents `fr` aka CSS Grid fractions
+    UiPerc ## represents percentage of parent box or grid
+    UiFixed ## represents fixed coordinate size
+    UiContentMin ## represents layout to use min-content, `cmin` is calculated internally
+    UiContentMax ## represents layout to use max-content, `cmax` is calculated internally
+    UiAuto ## represents layout to auto which is similar to a fraction but lower precedance down to min-content
+
+  Constraints* = enum
+    UiNone ## default, which is parent width/height less the x/y positions of the node and it's parents
+    UiValue ## holds a single `ConstraintSize`
+    UiMin ## minimum of lhs and rhs (partially supported)
+    UiMax ## maximum of lhs and rhs (partially supported)
+    UiSum ## sum of lhs and rhs (partially supported)
+    UiMinMax ## min-max of lhs and rhs (partially supported)
+    UiEnd ## marks end track of a CSS Grid layout
+```
+
+Note that there are numeric literal types for several of the `ConstraintSizes`. They are `1'fr` for fraction, `1'ux` for fixed ui coordinate, and `100'pp` for percentage. Note that `1'ux` is equivalent to `1'ui`.
