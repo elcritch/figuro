@@ -176,11 +176,12 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       text "val":
         ## No size or position given defaults to `UiNone`. This defaults
-        ## to the free size of it's parent after offsets
+        ## to the free size of it's parent after offsets are subtracted
+        setText({font: "hello world!"}, Center, Middle)
 
 ```
 
-The core constraints are modeled on [CSS Grid](https://css-tricks.com/snippets/css/complete-guide-grid/) and for more advanced layouts understanding CSS Grid will be helpful. The reason for this is that CSS Grid is one of the most flexible layout systems avaialable on the web and yet remains simple to use once you understand the basics, unlike alternatives like flexbox or even raw table layouts.
+The layout constraints are modeled on [CSS Grid](https://css-tricks.com/snippets/css/complete-guide-grid/) and for more advanced layouts understanding CSS Grid will be helpful. The reason for this is that CSS Grid is one of the most flexible layout systems avaialable on the web and yet remains simple to use once you understand the basics, unlike alternatives like flexbox or even raw table layouts.
 
 Note that the easiest way to set layout constraint values are to use their numeric literal types. They are `1'fr` for fraction, `1'ux` for fixed ui coordinate, and `100'pp` for percentage. Note that `1'ux` is equivalent to `1'ui`. If you need to conver the result of an expression you can use the `ux` proc like `ux(1+4)`. There are helper proc's for non-value constraints which are `csNone()`, `csAuto()`, `csFixed(x)`, `csMin(x,y)`, `csMax(x,y)`, `csMinMax(x,y)`, and `csMinMax(x,y)`. The multi-argued constraints are still a WIP and don't work currently.
 
