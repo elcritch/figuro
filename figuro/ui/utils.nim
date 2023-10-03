@@ -57,7 +57,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         if arg.len() != 2:
           error "only one type var allowed"
         result.stateArg = arg[1]
-      if fname.repr == "binds":
+      if fname.repr == "bindAs":
         if arg.len() != 2:
           error "only one name export allowed"
         result.bindsArg = arg[1]

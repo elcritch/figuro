@@ -257,7 +257,6 @@ proc generateBodies*(widget, kind: NimNode,
   let hasBinds = newLit(not bindsArg.isNil)
   let widgetId = ident( "widget" & id.strVal.capitalize )
 
-  echo "BINDS: ", bindsArg.treeRepr
   let widgetType =
     if not hasGeneric: quote do: `widget`
     else: quote do: `widget`[`stateArg`]
