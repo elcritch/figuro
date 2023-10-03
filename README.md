@@ -139,6 +139,11 @@ Massive profits and world domination of course. ;) Failing that the ability to w
 
 Initial docs section.
 
+### Useful Compilation Flags
+
+- `-d:debugLayout` prints a node tree with the layout of each node before and after computing a layout
+- `-d:debugEvents` prints the events received from Windy and which nodes got the events
+
 ### Drawing model
 
 Each widget must inherit from the `Fidget` type. `Fidget` itself inherits from `Agent` which means it can work with signals & slots.
