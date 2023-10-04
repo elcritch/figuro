@@ -31,7 +31,7 @@ proc draw*(self: Main) {.slot.} =
         offset 10'ux, 10'ux
 
         setGridCols 1'fr
-        gridAutoRows csContentMax()
+        gridAutoRows cx"max-content"
         gridAutoFlow grRow
         justifyContent CxCenter
 
