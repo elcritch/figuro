@@ -27,9 +27,9 @@ proc draw*(self: GridApp) {.slot.} =
       setGridRows ["edge-t"] 1'fr \
                   ["header"] 70'ux \
                   ["top"]    70'ux \
-                  ["middle-top"] 30'ux \ 
-                  ["middle"] 30'ux \ 
-                  ["bottom"] 2'fr \ 
+                  ["middle-top"] 30'ux \
+                  ["middle"] 30'ux \
+                  ["bottom"] 2'fr \
                   ["footer"] auto \
                   ["edge-b"]
 
