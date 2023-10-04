@@ -37,7 +37,7 @@ proc draw*(self: GridApp) {.slot.} =
         # setGridCols 20'pp 20'pp 20'pp 20'pp 20'pp
         setGridRows 1'fr 1'fr
         # setGridRows 40'pp 40'pp
-        justifyContent CxCenter
+        justifyItems CxCenter
 
         rectangle "item a":
           # Setup CSS Grid Template
