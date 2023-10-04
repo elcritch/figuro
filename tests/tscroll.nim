@@ -30,7 +30,6 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius 10.0
         offset 10'ux, 10'ux
         setGridCols 1'fr
-        setGridRows csAuto()
         gridAutoRows csContentMax()
         gridAutoFlow grRow
         justifyContent CxCenter

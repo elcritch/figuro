@@ -449,14 +449,17 @@ proc computeLayout*(node: Figuro, depth: int) =
   # # simple constraints
   # if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
-  if node.gridTemplate.isNil:
-    calcBasicConstraint(node, dcol, isXY=true)
-    calcBasicConstraint(node, drow, isXY=true)
-    calcBasicConstraint(node, dcol, isXY=false)
-    calcBasicConstraint(node, drow, isXY=false)
+  calcBasicConstraint(node, dcol, isXY=true)
+  calcBasicConstraint(node, drow, isXY=true)
+  calcBasicConstraint(node, dcol, isXY=false)
+  calcBasicConstraint(node, drow, isXY=false)
+
 
   # css grid impl
-  else:
+  if not node.gridTemplate.isNil:
+    for n in node.children:
+      computeLayout(n, depth+1)
+
     gridChildren.setLen(0)
     for n in node.children:
       gridChildren.add(n)
@@ -467,8 +470,10 @@ proc computeLayout*(node: Figuro, depth: int) =
     echo "compute grid ", node.name
     node.box = node.gridTemplate.computeNodeLayout(box, gridChildren).Box
 
-  for n in node.children:
-    computeLayout(n, depth+1)
+  else:
+    for n in node.children:
+      computeLayout(n, depth+1)
+
 
 proc printLayout*(node: Figuro, depth = 0) =
   stdout.styledWriteLine(" ".repeat(depth),
