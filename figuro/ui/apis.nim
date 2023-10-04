@@ -344,23 +344,23 @@ proc findRoot*(node: Figuro): Figuro =
     if cnt > 10_000:
       raise newException(IndexDefect, "error finding root")
 
-template Vw*(size: float32): UICoord =
-  ## percentage of Viewport width
-  current.attrs.incl rxWindowResize
-  app.windowSize.x * size.UICoord / 100.0
+# template Vw*(size: float32): UICoord =
+#   ## percentage of Viewport width
+#   current.attrs.incl rxWindowResize
+#   app.windowSize.x * size.UICoord / 100.0
 
-template Vh*(size: float32): UICoord =
-  ## percentage of Viewport height
-  current.attrs.incl rxWindowResize
-  app.windowSize.y * size.UICoord / 100.0
+# template Vh*(size: float32): UICoord =
+#   ## percentage of Viewport height
+#   current.attrs.incl rxWindowResize
+#   app.windowSize.y * size.UICoord / 100.0
 
-template `'vw`*(n: string): UICoord =
-  ## numeric literal view width unit
-  Vw(parseFloat(n))
+# template `'vw`*(n: string): UICoord =
+#   ## numeric literal view width unit
+#   Vw(parseFloat(n))
 
-template `'vh`*(n: string): UICoord =
-  ## numeric literal view height unit
-  Vh(parseFloat(n))
+# template `'vh`*(n: string): UICoord =
+#   ## numeric literal view height unit
+#   Vh(parseFloat(n))
 
 {.hint[Name]:on.}
 

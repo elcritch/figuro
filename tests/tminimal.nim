@@ -14,7 +14,6 @@ type
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    box 0'ux, 0'ux, 100'vw, 100'vh
     rectangle "body":
       fill "#D0D0D0"
       box 10'pp, 10'pp, 80'pp, 80'pp
