@@ -368,6 +368,24 @@ template calcBasicConstraintImpl(
     block:
       var res: UICoord
       match val:
+        UiAuto(_):
+          if not node.parent.isNil:
+            when astToStr(f) in ["w"]:
+              node.box.f = parentBox.f - parentBox.x - node.box.x
+            elif astToStr(f) in ["h"]:
+              node.box.f = parentBox.f - parentBox.y - node.box.y
+            else:
+              discard
+          else:
+            when astToStr(f) in ["w"]:
+              node.box.f = parentBox.f - node.box.x
+            elif astToStr(f) in ["h"]:
+              node.box.f = parentBox.f - node.box.y
+          # when astToStr(f) in ["w", "h"]:
+          #   node.checkParent()
+          #   node.box.f = node.parent.box.f
+          # else:
+          #   discard
         UiFixed(coord):
           res = coord.UICoord
         UiFrac(frac):
@@ -382,30 +400,25 @@ template calcBasicConstraintImpl(
           res = cmins.UICoord
         UiContentMax(cmaxs):
           res = cmaxs.UICoord
-        UiAuto(_):
-          when astToStr(f) in ["w", "h"]:
-            node.checkParent()
-            node.box.f = node.parent.box.f
-          else:
-            discard
       res
   
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
                 else: node.cxOffset[dir]
   match csValue:
     UiNone:
-      if not node.parent.isNil:
-        when astToStr(f) in ["w"]:
-          node.box.f = parentBox.f - parentBox.x - node.box.x
-        elif astToStr(f) in ["h"]:
-          node.box.f = parentBox.f - parentBox.y - node.box.y
-        else:
-          discard
-      else:
-        when astToStr(f) in ["w"]:
-          node.box.f = parentBox.f - node.box.x
-        elif astToStr(f) in ["h"]:
-          node.box.f = parentBox.f - node.box.y
+      discard
+      # if not node.parent.isNil:
+      #   when astToStr(f) in ["w"]:
+      #     node.box.f = parentBox.f - parentBox.x - node.box.x
+      #   elif astToStr(f) in ["h"]:
+      #     node.box.f = parentBox.f - parentBox.y - node.box.y
+      #   else:
+      #     discard
+      # else:
+      #   when astToStr(f) in ["w"]:
+      #     node.box.f = parentBox.f - node.box.x
+      #   elif astToStr(f) in ["h"]:
+      #     node.box.f = parentBox.f - node.box.y
     UiSum(ls, rs):
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
@@ -439,7 +452,6 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
-  echo "computeLayout: ", node.name
 
   # # simple constraints
   # if node.gridItem.isNil and node.parent != nil:
