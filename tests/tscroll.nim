@@ -17,6 +17,9 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withDraw self:
     fill "#0000AA"
+    name "root"
+
+    echo "tscroll: ", current.cxSize
 
     scroll "scroll":
       # offset 20'ux, 20'ux

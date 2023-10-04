@@ -371,16 +371,16 @@ template calcBasicConstraintImpl(
         UiAuto(_):
           if not node.parent.isNil:
             when astToStr(f) in ["w"]:
-              node.box.f = parentBox.f - parentBox.x - node.box.x
+              res = parentBox.f - parentBox.x - node.box.x
             elif astToStr(f) in ["h"]:
-              node.box.f = parentBox.f - parentBox.y - node.box.y
+              res = parentBox.f - parentBox.y - node.box.y
             else:
               discard
           else:
             when astToStr(f) in ["w"]:
-              node.box.f = parentBox.f - node.box.x
+              res = parentBox.f - node.box.x
             elif astToStr(f) in ["h"]:
-              node.box.f = parentBox.f - node.box.y
+              res = parentBox.f - node.box.y
           # when astToStr(f) in ["w", "h"]:
           #   node.checkParent()
           #   node.box.f = node.parent.box.f
