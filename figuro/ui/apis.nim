@@ -194,9 +194,9 @@ template boxOf*(box: Box) =
 template clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
-    current.attrs.incl clipContent
+    current.attrs.excl noClipContent
   else:
-    current.attrs.excl clipContent
+    current.attrs.incl noClipContent
 
 
 template fill*(color: Color) =

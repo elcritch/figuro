@@ -19,8 +19,6 @@ proc draw*(self: Main) {.slot.} =
     fill "#0000AA"
     name "root"
 
-    echo "tscroll: ", current.cxSize
-
     scroll "scroll":
       # offset 20'ux, 20'ux
       # size 90'pp, 80'pp

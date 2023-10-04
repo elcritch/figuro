@@ -169,7 +169,7 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
     ctx.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
-  ifrender clipContent in node.attrs:
+  ifrender noClipContent notin node.attrs:
     ctx.beginMask()
     node.drawMasks()
     ctx.endMask()
