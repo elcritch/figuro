@@ -449,13 +449,14 @@ proc computeLayout*(node: Figuro, depth: int) =
   # # simple constraints
   # if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
-  calcBasicConstraint(node, dcol, isXY=true)
-  calcBasicConstraint(node, drow, isXY=true)
-  calcBasicConstraint(node, dcol, isXY=false)
-  calcBasicConstraint(node, drow, isXY=false)
+  if node.gridTemplate.isNil:
+    calcBasicConstraint(node, dcol, isXY=true)
+    calcBasicConstraint(node, drow, isXY=true)
+    calcBasicConstraint(node, dcol, isXY=false)
+    calcBasicConstraint(node, drow, isXY=false)
 
   # css grid impl
-  if not node.gridTemplate.isNil:
+  else:
     gridChildren.setLen(0)
     for n in node.children:
       gridChildren.add(n)
