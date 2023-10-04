@@ -38,15 +38,15 @@ proc draw*(self: Main) {.slot.} =
 
     rectangle "main":
       fill whiteColor.darken(0.5)
-      offset 30'ux, 30'ux
+      offset 30'ux, 10'ux
       size 400'ux, 120'ux
 
       setGridCols 1'fr
-      setGridRows cx"min-content"
-      gridAutoRows cx"min-content"
+      setGridRows 60'ux
+      gridAutoRows 60'ux
       gridAutoFlow grRow
       justifyItems CxCenter
-      alignItems CxCenter
+      alignItems CxStart
       echo "TEXAMPLE: ", current.gridTemplate
       fill blackColor
 
