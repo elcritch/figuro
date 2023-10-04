@@ -188,9 +188,9 @@ Note that the easiest way to set layout constraint values are to use their numer
 - `1'fr` for fraction
 - `1'ux` for fixed ui coordinates
 - `100'pp` for percentage
+- `cx"auto"` or `csAuto()` is the default and uses the full available size of it's parent size (current.wh = parent.wh - current.xy)
 - `1'ux` is equivalent to `1'ui` which is just a UICoord scalar
 - `ux(1+i*2)` to convert expressions to fixed ui coordinates
-- `cx"auto"` or `csAuto()` is the default and is the full available size of it's parent (current.wh = parent.wh - current.xy)
 - `cs"min-content"` minimum content size (currently grid layout only)
 - `cs"max-content"` minimum content size (currently grid layout only)
 
