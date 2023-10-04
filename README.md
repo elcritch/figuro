@@ -183,13 +183,18 @@ proc draw*(self: Main) {.slot.} =
 
 The layout constraints are modeled on [CSS Grid](https://css-tricks.com/snippets/css/complete-guide-grid/) and for more advanced layouts understanding CSS Grid will be helpful. The reason for this is that CSS Grid is one of the most flexible layout systems avaialable on the web and yet remains simple to use once you understand the basics, unlike alternatives like flexbox or even raw table layouts.
 
-Note that the easiest way to set layout constraint values are to use their numeric literal types.
-They are `1'fr` for fraction, `1'ux` for fixed ui coordinate, and `100'pp` for percentage.
-Note that `1'ux` is equivalent to `1'ui`.
-If you need to convert the result of an expression you can use the `ux` proc like `ux(1+4)`.
-There are a few contant constraint sizes: `cs"auto"`, `cs"min-content"`, and `cs"max-conent` along with the proc counterparts `csAuto()`, `csContentMin()`, and `csContentMax()`.
+Note that the easiest way to set layout constraint values are to use their numeric literal types. These are:
 
-Helper proc's for non-value constraints are `csFixed(x)`, `csMin(x,y)`, `csMax(x,y)`, `csMinMax(x,y)`, and `csMinMax(x,y)`. Note that the multi-argued constraints are still a WIP and don't work currently.
+- `1'fr` for fraction
+- `1'ux` for fixed ui coordinates
+- `100'pp` for percentage
+- `1'ux` is equivalent to `1'ui` which is just a UICoord scalar
+- `ux(1+i*2)` to convert expressions to fixed ui coordinates
+- `cx"auto"` or `csAuto()` is the default and is the full available size of it's parent (parent.wh - current.xy)
+- `cs"min-content"` minimum content size (currently grid layout only)
+- `cs"max-content"` minimum content size (currently grid layout only)
+
+Helper proc's for formula based constraints are `csFixed(x)`, `csMin(x,y)`, `csMax(x,y)`, `csMinMax(x,y)`, and `csMinMax(x,y)`. Note that the multi-argued constraints are still a WIP and don't work currently.
 
 A layout constraint, normally shorted to just constraint, are broken into two pieces: the `Constraint` container object and a `ConstraintSize` object. 
 
@@ -200,7 +205,7 @@ type
   ConstraintSizes* = enum
     UiAuto ## default size option for nodes
            ## it's the size of the parent width/height 
-           ## minux the x/y positions of the node
+           ## minus the x/y positions of the node
     UiFrac ## represents `fr` aka CSS Grid fractions
     UiPerc ## represents percentage of parent box or grid
     UiFixed ## represents fixed coordinate size
