@@ -28,30 +28,28 @@ proc draw*(self: GridApp) {.slot.} =
         box 5'pp, 5'pp, 90'pp, 90'pp
         # size 100'pp, 100'pp
         fill "#FFFFFF"
-        cornerRadius 6
+        cornerRadius 10
         clipContent true
         
         # Setup CSS Grid Template
         setGridCols 1'fr  1'fr  1'fr  1'fr  1'fr
-        # setGridCols 20'pp 20'pp 20'pp 20'pp 20'pp
         setGridRows 1'fr 1'fr
-        # setGridRows 40'pp 40'pp
-        justifyItems CxCenter
+        justifyItems CxStart
 
         rectangle "item a":
           # Setup CSS Grid Template
-          cornerRadius 3
+          cornerRadius 10
           gridColumn 1 // 2
           gridRow 1 // 3
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
 
-        # for i in 1..4:
-        #   rectangle "items b", captures(i):
-        #     # Setup CSS Grid Template
-        #     cornerRadius 6
-        #     # some color stuff
-        #     fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
+        for i in 1..4:
+          rectangle "items b", captures(i):
+            # Setup CSS Grid Template
+            cornerRadius 6
+            # some color stuff
+            fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
 
         rectangle "item e":
           # Setup CSS Grid Template
