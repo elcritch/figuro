@@ -327,6 +327,16 @@ macro contents*(args: varargs[untyped]): untyped =
             `blk`
   # echo "contents: ", result.repr
 
+macro expose*(args: untyped): untyped =
+  if args.kind == nnkLetSection and 
+      args[0].kind == nnkIdentDefs and
+      args[0][2].kind == nnkCall:
+        echo "WID: args:", "MATCH"
+        result = args
+        result[0][2].insert(2, nnkCall.newTree(ident "expose"))
+  else:
+    result = args
+
 macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
   let widget = ident("BasicFiguro")
@@ -400,18 +410,6 @@ template calcBasicConstraintImpl(
   match csValue:
     UiNone:
       discard
-      # if not node.parent.isNil:
-      #   when astToStr(f) in ["w"]:
-      #     node.box.f = parentBox.f - parentBox.x - node.box.x
-      #   elif astToStr(f) in ["h"]:
-      #     node.box.f = parentBox.f - parentBox.y - node.box.y
-      #   else:
-      #     discard
-      # else:
-      #   when astToStr(f) in ["w"]:
-      #     node.box.f = parentBox.f - node.box.x
-      #   elif astToStr(f) in ["h"]:
-      #     node.box.f = parentBox.f - node.box.y
     UiSum(ls, rs):
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()

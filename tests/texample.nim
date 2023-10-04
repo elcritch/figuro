@@ -12,16 +12,6 @@ type
 
 import macros
 
-macro expose(args: untyped): untyped =
-  if args.kind == nnkLetSection and 
-      args[0].kind == nnkIdentDefs and
-      args[0][2].kind == nnkCall:
-        echo "WID: args:", "MATCH"
-        result = args
-        result[0][2].insert(2, nnkCall.newTree(ident "expose"))
-  else:
-    result = args
-
 
 proc drag(
   main: Main;

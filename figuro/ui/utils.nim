@@ -58,9 +58,9 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         if arg.len() != 2:
           error "only one type var allowed"
         result.stateArg = arg[1]
-      if fname.repr == "expose":
-        if arg.len() != 1:
-          error "no export name allowed"
+      elif fname.repr == "expose":
+        if arg.len() > 2:
+          error "only no arg or a single name allowed"
         result.bindsArg = newLit(true)
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
