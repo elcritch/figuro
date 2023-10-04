@@ -473,14 +473,14 @@ template alignItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignItems = con
-template justifyContent*(con: ConstraintBehavior) =
-  ## justify items on css grid (horizontal)
-  defaultGridTemplate()
-  current.gridTemplate.justifyContent = con
-template alignContent*(con: ConstraintBehavior) =
-  ## align items on css grid (vertical)
-  defaultGridTemplate()
-  current.gridTemplate.alignContent = con
+# template justify*(con: ConstraintBehavior) =
+#   ## justify items on css grid (horizontal)
+#   defaultGridTemplate()
+#   current.gridItem.justify = con
+# template align*(con: ConstraintBehavior) =
+#   ## align items on css grid (vertical)
+#   defaultGridTemplate()
+#   current.gridItem.align = con
 template placeItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()

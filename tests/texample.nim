@@ -34,18 +34,21 @@ proc drag(
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     name "root"
+    fill blackColor
 
     rectangle "main":
-      # fill "#AA00AA"
-      size 80'pp, 100'pp
+      fill whiteColor.darken(0.5)
+      offset 30'ux, 30'ux
+      size 400'ux, 120'ux
 
       setGridCols 1'fr
       setGridRows cx"min-content"
       gridAutoRows cx"min-content"
       gridAutoFlow grRow
-      justifyContent CxEnd
-      alignContent CxCenter
+      justifyItems CxCenter
+      alignItems CxCenter
       echo "TEXAMPLE: ", current.gridTemplate
+      fill blackColor
 
       let i = 3
       let slider1 {.expose.} = rectangle("slider"):

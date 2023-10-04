@@ -443,6 +443,18 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
+proc printLayout*(node: Figuro, depth = 0) =
+  stdout.styledWriteLine(" ".repeat(depth),
+                          {styleDim}, fgWhite, "node: ",
+                          resetStyle,
+                          fgWhite, $node.name, "[xy: ",
+                          fgGreen, $node.box.x, "x", $node.box.y,
+                          fgWhite, "; wh:",
+                          fgYellow, $node.box.w, "x", $node.box.h,
+                          fgWhite, "]")
+  for c in node.children:
+    printLayout(c, depth+2)
+
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
 
@@ -457,39 +469,35 @@ proc computeLayout*(node: Figuro, depth: int) =
 
   # css grid impl
   if not node.gridTemplate.isNil:
+    echo "grid children:pre:"
+    printLayout(node)
     for n in node.children:
       computeLayout(n, depth+1)
+    echo "grid children:post:"
+    printLayout(node)
 
-    gridChildren.setLen(0)
-    for n in node.children:
-      gridChildren.add(n)
+    # gridChildren.setLen(0)
+    # for n in node.children:
+    #   gridChildren.add(n)
     # adjust box to not include offset in wh
     var box = node.box
     box.w = box.w - box.x
     box.h = box.h - box.y
     echo "compute grid ", node.name
-    node.box = node.gridTemplate.computeNodeLayout(box, gridChildren).Box
+    let res = node.gridTemplate.computeNodeLayout(box, node.children).Box
+    echo "node.box: ", node.box, " res: ", res
+    node.box = res
 
-    for n in node.children:
-      calcBasicConstraint(n, dcol, isXY=false)
-      calcBasicConstraint(n, drow, isXY=false)
+    echo "grid children:after:"
+    printLayout(node)
+    # for n in node.children:
+    #   calcBasicConstraint(n, dcol, isXY=false)
+    #   calcBasicConstraint(n, drow, isXY=false)
 
   else:
     for n in node.children:
       computeLayout(n, depth+1)
 
-
-proc printLayout*(node: Figuro, depth = 0) =
-  stdout.styledWriteLine(" ".repeat(depth),
-                          {styleDim}, fgWhite, "node: ",
-                          resetStyle,
-                          fgWhite, $node.name, "[xy: ",
-                          fgGreen, $node.box.x, "x", $node.box.y,
-                          fgWhite, "; wh:",
-                          fgYellow, $node.box.w, "x", $node.box.h,
-                          fgWhite, "]")
-  for c in node.children:
-    printLayout(c, depth+2)
 
 proc computeLayout*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):
