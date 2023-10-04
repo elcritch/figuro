@@ -1,4 +1,5 @@
-import std/[tables, unicode]
+import std/[tables, unicode, strformat, ]
+import std/terminal
 # import cssgrid
 
 import commons
@@ -251,8 +252,9 @@ proc generateBodies*(widget, kind: NimNode,
                      hasGeneric: bool): NimNode {.compileTime.} =
   ## core macro helper that generates the drawing
   ## callbacks for widgets.
-  let (id, stateArg, capturedVals, blk) = wargs
+  let (id, stateArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
+  let hasBinds = newLit(not bindsArg.isNil)
   let widgetId = ident( "widget" & id.strVal.capitalize )
 
   let widgetType =
@@ -270,11 +272,12 @@ proc generateBodies*(widget, kind: NimNode,
         current.preDraw = proc (c: Figuro) =
           let current {.inject.} = `widgetType`(c)
           let widget {.inject.} = `widgetType`(c)
-          let `widgetId` {.inject.} = widget
           if preDrawReady in widget.attrs:
             widget.attrs.excl preDrawReady
             `blk`
       postNode(Figuro(current))
+      when `hasBinds`:
+        current
 
 template exportWidget*[T](name: untyped, class: typedesc[T]) =
   ## exports a `class` as a widget by giving it a macro with `name`
@@ -303,7 +306,7 @@ template TemplateContents*[T](fig: T): untyped =
 macro contents*(args: varargs[untyped]): untyped =
   # echo "contents:\n", args.treeRepr
   let wargs = args.parseWidgetArgs()
-  let (id, stateArg, capturedVals, blk) = wargs
+  let (id, stateArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
   # echo "id: ", id
   # echo "stateArg: ", stateArg.repr
@@ -323,6 +326,16 @@ macro contents*(args: varargs[untyped]): untyped =
             widget.attrs.excl contentsDrawReady
             `blk`
   # echo "contents: ", result.repr
+
+macro expose*(args: untyped): untyped =
+  if args.kind == nnkLetSection and 
+      args[0].kind == nnkIdentDefs and
+      args[0][2].kind == nnkCall:
+        echo "WID: args:", "MATCH"
+        result = args
+        result[0][2].insert(2, nnkCall.newTree(ident "expose"))
+  else:
+    result = args
 
 macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
@@ -359,19 +372,29 @@ template calcBasicConstraintImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
+  let parentBox = if node.parent.isNil: app.windowSize
+                  else: node.parent.box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
       match val:
+        UiAuto(_):
+          if not node.parent.isNil:
+            when astToStr(f) in ["w"]:
+              res = parentBox.f - parentBox.x - node.box.x
+            elif astToStr(f) in ["h"]:
+              res = parentBox.f - parentBox.y - node.box.y
+          else:
+            when astToStr(f) in ["w"]:
+              res = parentBox.f - node.box.x
+            elif astToStr(f) in ["h"]:
+              res = parentBox.f - node.box.y
         UiFixed(coord):
           res = coord.UICoord
         UiFrac(frac):
           node.checkParent()
           res = frac.UICoord * node.parent.box.f
         UiPerc(perc):
-          let parentBox =
-            if node.parent.isNil: app.windowSize
-            else: node.parent.box
           let ppval = when astToStr(f) == "x": parentBox.w
                       elif astToStr(f) == "y": parentBox.h
                       else: parentBox.f
@@ -385,12 +408,8 @@ template calcBasicConstraintImpl(
   let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
                 else: node.cxOffset[dir]
   match csValue:
-    UiAuto():
-      when astToStr(f) in ["w", "h"]:
-        node.checkParent()
-        node.box.f = node.parent.box.f
-      else:
-        discard
+    UiNone:
+      discard
     UiSum(ls, rs):
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
@@ -403,29 +422,43 @@ template calcBasicConstraintImpl(
       let lv = ls.calcBasic()
       let rv = rs.calcBasic()
       node.box.f = max(lv, rv)
+    UiMinMax(ls, rs):
+      discard
     UiValue(value):
       node.box.f = calcBasic(value)
-    _:
+    UiEnd():
       discard
 
 proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
+  ## calcuate sizes of basic constraints per field x/y/w/h for each node
   when isXY == true and dir == dcol: 
     calcBasicConstraintImpl(node, dir, x)
   elif isXY == true and dir == drow: 
     calcBasicConstraintImpl(node, dir, y)
+  # w & h need to run after x & y
   elif isXY == false and dir == dcol: 
     calcBasicConstraintImpl(node, dir, w)
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
 proc printLayout*(node: Figuro, depth = 0) =
-  echo " ".repeat(depth), "node: ", node.name, " ", node.box.w, "x", node.box.h
+  stdout.styledWriteLine(
+            " ".repeat(depth),
+            {styleDim}, fgWhite, "node: ",
+            resetStyle,
+            fgWhite, $node.name, "[xy: ",
+            fgGreen, $node.box.x.float.round(2),
+              "x", $node.box.y.float.round(2),
+            fgWhite, "; wh:",
+            fgYellow, $node.box.w.float.round(2),
+              "x", $node.box.h.float.round(2),
+            fgWhite, "]")
   for c in node.children:
     printLayout(c, depth+2)
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
-  
+
   # # simple constraints
   # if node.gridItem.isNil and node.parent != nil:
     # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
@@ -434,29 +467,39 @@ proc computeLayout*(node: Figuro, depth: int) =
   calcBasicConstraint(node, dcol, isXY=false)
   calcBasicConstraint(node, drow, isXY=false)
 
+
   # css grid impl
   if not node.gridTemplate.isNil:
-    # echo "calc grid!"
-    
-    gridChildren.setLen(0)
-    for n in node.children:
-      # if n.layoutAlign != laIgnore:
-      gridChildren.add(n)
-    # echo "computeNodeLayout: "
-    node.box = node.gridTemplate.computeNodeLayout(node, gridChildren)
-
+    # compute children first, then lay them out in grid
     for n in node.children:
       computeLayout(n, depth+1)
 
-    return
+    # adjust box to not include offset in wh
+    var box = node.box
+    box.w = box.w - box.x
+    box.h = box.h - box.y
+    let res = node.gridTemplate.computeNodeLayout(box, node.children).Box
+    # echo "gridTemplate: ", node.gridTemplate
+    # echo "computeLayout:grid:\n\tnode.box: ", node.box, "\n\tbox: ", box, "\n\tres: ", res, "\n\toverflows: ", node.gridTemplate.overflowSizes
+    node.box = res
 
-  for n in node.children:
-    computeLayout(n, depth+1)
+    # for n in node.children:
+    #   calcBasicConstraint(n, dcol, isXY=false)
+    #   calcBasicConstraint(n, drow, isXY=false)
+
+  else:
+    for n in node.children:
+      computeLayout(n, depth+1)
+
 
 proc computeLayout*(node: Figuro) =
-  when defined(figDebugLayout):
-    echo "\ncomputeLayout: "
+  when defined(debugLayout) or defined(figuroDebugLayout):
+    stdout.styledWriteLine({styleDim}, fgWhite, "computeLayout:pre ",
+                            {styleDim}, fgGreen, "")
     printLayout(node)
   computeLayout(node, 0)
-  when defined(figDebugLayout):
+  when defined(debugLayout) or defined(figuroDebugLayout):
+    stdout.styledWriteLine({styleDim}, fgWhite, "computeLayout:post ",
+                            {styleDim}, fgGreen, "")
     printLayout(node)
+    echo ""

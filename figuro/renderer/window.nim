@@ -1,4 +1,6 @@
 import std/[os, hashes, strformat, strutils, tables, times]
+import std/terminal
+
 import pkg/pixie
 import pkg/windy
 
@@ -51,8 +53,6 @@ var lastMouse = Mouse()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
   renderLoop(renderer.window, renderer.nodes)
-
-import std/terminal
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)

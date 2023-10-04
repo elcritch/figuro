@@ -18,7 +18,6 @@ type
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    box 0'ux, 0'ux, 100'vw, 100'vh
 
     template setLabel(zlvl; left=false) =
       text "text":

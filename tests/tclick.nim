@@ -67,7 +67,8 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(self.hoveredAlpha).
                       spin(10*self.hoveredAlpha)
       for i in 0 .. 4:
-        button "btn", state(int), captures(i):
+        button("btn", state(int), captures(i)):
+          let btn = current
           box ux(10 + i*120), 10'ux, 100'ux, 100'ux
 
           connect(current, doHover, self, Main.hover)
@@ -79,7 +80,7 @@ proc draw*(self: Main) {.slot.} =
             node nkText, "text":
               box 10'ux, 10'ux, 80'pp, 80'pp
               fill blackColor
-              setText({font: $(widgetBtn.state)})
+              setText({font: $(btn.state)})
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw())

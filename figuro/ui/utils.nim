@@ -3,6 +3,8 @@ import macros
 import commons
 
 template withDraw*[T](fig: T, blk: untyped): untyped =
+  ## setup the draw method for a widget by setting
+  ## the `current` and `parent` variables
   block:
     var parent {.inject, used.} = fig.parent
     var current {.inject, used.} = fig
@@ -30,6 +32,7 @@ type
   WidgetArgs* = tuple[
     id: NimNode,
     stateArg: NimNode,
+    bindsArg: NimNode,
     capturedVals: NimNode,
     blk: NimNode
   ]
@@ -40,6 +43,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   ## - `captures(i, x)` 
   args.expectKind(nnkArgList)
 
+  # echo "parseWidgetArgs: ", args.treeRepr
   result.id = args[0]
   result.id.expectKind(nnkStrLit)
   result.blk = args[^1]
@@ -54,6 +58,10 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         if arg.len() != 2:
           error "only one type var allowed"
         result.stateArg = arg[1]
+      elif fname.repr == "expose":
+        if arg.len() > 2:
+          error "only no arg or a single name allowed"
+        result.bindsArg = newLit(true)
       elif fname.repr == "captures":
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]

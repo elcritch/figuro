@@ -20,17 +20,16 @@ proc draw*(self: GridApp) {.slot.} =
       # setWindowBounds(vec2(400, 200), vec2(800, 600))
       fill "#D7D7D9"
       cornerRadius 10
-      # box 10, 10, 460, 280
-      box 10'vw, 10'vh, 80'vw, 80'vh
+      box 10'pp, 10'pp, 80'pp, 80'pp
       echo "windowSize: ", app.windowSize
 
       # Setup CSS Grid Template
-      setGridRows ["edge-t"] auto \
+      setGridRows ["edge-t"] 1'fr \
                   ["header"] 70'ux \
                   ["top"]    70'ux \
-                  ["middle-top"] 30'ux \ 
-                  ["middle"] 30'ux \ 
-                  ["bottom"] 1'fr \ 
+                  ["middle-top"] 30'ux \
+                  ["middle"] 30'ux \
+                  ["bottom"] 2'fr \
                   ["footer"] auto \
                   ["edge-b"]
 
@@ -58,7 +57,6 @@ proc draw*(self: GridApp) {.slot.} =
         gridColumn "button-la" // "button-lb"
 
         button "btn":
-          # box 10, 10, 40, 40
           # label fmt"Clicked1: {self.count:4d}"
           size csAuto(), csAuto()
           fill "#A00000"
@@ -68,7 +66,6 @@ proc draw*(self: GridApp) {.slot.} =
           #   self.count.inc()
 
       button "grid":
-        # box 10, 10, 40, 40
         gridRow "middle" // "bottom"
         gridColumn "button-ra" // "button-rb"
         fill "#00D000"

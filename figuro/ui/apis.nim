@@ -194,9 +194,9 @@ template boxOf*(box: Box) =
 template clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
-    current.attrs.incl clipContent
+    current.attrs.excl noClipContent
   else:
-    current.attrs.excl clipContent
+    current.attrs.incl noClipContent
 
 
 template fill*(color: Color) =
@@ -344,23 +344,23 @@ proc findRoot*(node: Figuro): Figuro =
     if cnt > 10_000:
       raise newException(IndexDefect, "error finding root")
 
-template Vw*(size: float32): UICoord =
-  ## percentage of Viewport width
-  current.attrs.incl rxWindowResize
-  app.windowSize.x * size.UICoord / 100.0
+# template Vw*(size: float32): UICoord =
+#   ## percentage of Viewport width
+#   current.attrs.incl rxWindowResize
+#   app.windowSize.x * size.UICoord / 100.0
 
-template Vh*(size: float32): UICoord =
-  ## percentage of Viewport height
-  current.attrs.incl rxWindowResize
-  app.windowSize.y * size.UICoord / 100.0
+# template Vh*(size: float32): UICoord =
+#   ## percentage of Viewport height
+#   current.attrs.incl rxWindowResize
+#   app.windowSize.y * size.UICoord / 100.0
 
-template `'vw`*(n: string): UICoord =
-  ## numeric literal view width unit
-  Vw(parseFloat(n))
+# template `'vw`*(n: string): UICoord =
+#   ## numeric literal view width unit
+#   Vw(parseFloat(n))
 
-template `'vh`*(n: string): UICoord =
-  ## numeric literal view height unit
-  Vh(parseFloat(n))
+# template `'vh`*(n: string): UICoord =
+#   ## numeric literal view height unit
+#   Vh(parseFloat(n))
 
 {.hint[Name]:on.}
 
@@ -473,14 +473,14 @@ template alignItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignItems = con
-template justifyContent*(con: ConstraintBehavior) =
-  ## justify items on css grid (horizontal)
-  defaultGridTemplate()
-  current.gridTemplate.justifyContent = con
-template alignContent*(con: ConstraintBehavior) =
-  ## align items on css grid (vertical)
-  defaultGridTemplate()
-  current.gridTemplate.alignContent = con
+# template justify*(con: ConstraintBehavior) =
+#   ## justify items on css grid (horizontal)
+#   defaultGridTemplate()
+#   current.gridItem.justify = con
+# template align*(con: ConstraintBehavior) =
+#   ## align items on css grid (vertical)
+#   defaultGridTemplate()
+#   current.gridItem.align = con
 template placeItems*(con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
