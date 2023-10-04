@@ -202,6 +202,8 @@ Internally a layout constraint, normally shortened to just *constraint*, is form
 
 A CSS Grid layout allows you to create either a fixed pre-sized grid or a dynamically expandable grid.
 
+##### CSS Grid Automatic Vertical Layout
+
 This example shows how to setup a *vertical group* using a CSS Grid with one full width column (set by `setGridCols 1'fr`). It grows by adding new rows with a height of `60ux` (set by `gridAutoRows 60ux`) whenver more child widgets are added. Items are vertically aligned (`alignItems CxStart`) and horizontally justified (`justifyItems CxCenter`). The child widgets have their sizes set to `size 60'ux, 40'ux`. Alternatively `CxStretch` could be used to force the child widgets to take up a whole column and row.
 
 ```nim
