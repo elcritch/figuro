@@ -37,13 +37,14 @@ proc draw*(self: Main) {.slot.} =
 
     rectangle "main":
       # fill "#AA00AA"
-      size 40'pp, 100'pp
+      size 80'pp, 100'pp
 
       setGridCols 1'fr
-      setGridRows csContentMin()
-      gridAutoRows csContentMin()
+      setGridRows cx"min-content"
+      gridAutoRows cx"min-content"
       gridAutoFlow grRow
-      justifyContent CxCenter
+      justifyContent CxEnd
+      alignContent CxCenter
       echo "TEXAMPLE: ", current.gridTemplate
 
       let i = 3

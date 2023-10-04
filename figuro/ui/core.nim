@@ -470,6 +470,10 @@ proc computeLayout*(node: Figuro, depth: int) =
     echo "compute grid ", node.name
     node.box = node.gridTemplate.computeNodeLayout(box, gridChildren).Box
 
+    for n in node.children:
+      calcBasicConstraint(n, dcol, isXY=false)
+      calcBasicConstraint(n, drow, isXY=false)
+
   else:
     for n in node.children:
       computeLayout(n, depth+1)
