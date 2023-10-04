@@ -153,8 +153,8 @@
     "cssgrid": {
       "dir": "$deps/cssgrid",
       "url": "https://github.com/elcritch/cssgrid",
-      "commit": "5d9026410f3272ca8eb01e716ad173db31a01033",
-      "version": "0.5.9"
+      "commit": "30ba2fd4f98397cbb580b2abfffdf9a5c23addca",
+      "version": "0.5.10"
     }
   },
   "nimcfg": [
