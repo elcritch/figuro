@@ -374,18 +374,11 @@ template calcBasicConstraintImpl(
               res = parentBox.f - parentBox.x - node.box.x
             elif astToStr(f) in ["h"]:
               res = parentBox.f - parentBox.y - node.box.y
-            else:
-              discard
           else:
             when astToStr(f) in ["w"]:
               res = parentBox.f - node.box.x
             elif astToStr(f) in ["h"]:
               res = parentBox.f - node.box.y
-          # when astToStr(f) in ["w", "h"]:
-          #   node.checkParent()
-          #   node.box.f = node.parent.box.f
-          # else:
-          #   discard
         UiFixed(coord):
           res = coord.UICoord
         UiFrac(frac):
