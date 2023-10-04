@@ -16,7 +16,6 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   withDraw(self):
-    box 0'pp, 0'pp, 100'pp, 100'pp
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
       box 10'pp, 10'pp, 80'pp, 80'pp
@@ -47,13 +46,12 @@ proc draw*(self: GridApp) {.slot.} =
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
 
-        for i in 1..4:
-          rectangle "items b", captures(i):
-            # Setup CSS Grid Template
-            cornerRadius 6
-
-            # some color stuff
-            fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
+        # for i in 1..4:
+        #   rectangle "items b", captures(i):
+        #     # Setup CSS Grid Template
+        #     cornerRadius 6
+        #     # some color stuff
+        #     fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
 
         rectangle "item e":
           # Setup CSS Grid Template

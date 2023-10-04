@@ -442,14 +442,17 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
     calcBasicConstraintImpl(node, dir, h)
 
 proc printLayout*(node: Figuro, depth = 0) =
-  stdout.styledWriteLine(" ".repeat(depth),
-                          {styleDim}, fgWhite, "node: ",
-                          resetStyle,
-                          fgWhite, $node.name, "[xy: ",
-                          fgGreen, $node.box.x, "x", $node.box.y,
-                          fgWhite, "; wh:",
-                          fgYellow, $node.box.w, "x", $node.box.h,
-                          fgWhite, "]")
+  stdout.styledWriteLine(
+            " ".repeat(depth),
+            {styleDim}, fgWhite, "node: ",
+            resetStyle,
+            fgWhite, $node.name, "[xy: ",
+            fgGreen, $node.box.x.float.round(2),
+              "x", $node.box.y.float.round(2),
+            fgWhite, "; wh:",
+            fgYellow, $node.box.w.float.round(2),
+              "x", $node.box.h.float.round(2),
+            fgWhite, "]")
   for c in node.children:
     printLayout(c, depth+2)
 
@@ -476,6 +479,7 @@ proc computeLayout*(node: Figuro, depth: int) =
     box.w = box.w - box.x
     box.h = box.h - box.y
     let res = node.gridTemplate.computeNodeLayout(box, node.children).Box
+    echo "computeLayout:grid:\n\tnode.box: ", node.box, "\n\tbox: ", box, "\n\tres: ", res, "\n\toverflows: ", node.gridTemplate.overflowSizes
     node.box = res
 
     # for n in node.children:
