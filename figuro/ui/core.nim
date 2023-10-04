@@ -479,8 +479,8 @@ proc computeLayout*(node: Figuro, depth: int) =
     box.w = box.w - box.x
     box.h = box.h - box.y
     let res = node.gridTemplate.computeNodeLayout(box, node.children).Box
-    echo "gridTemplate: ", node.gridTemplate
-    echo "computeLayout:grid:\n\tnode.box: ", node.box, "\n\tbox: ", box, "\n\tres: ", res, "\n\toverflows: ", node.gridTemplate.overflowSizes
+    # echo "gridTemplate: ", node.gridTemplate
+    # echo "computeLayout:grid:\n\tnode.box: ", node.box, "\n\tbox: ", box, "\n\tres: ", res, "\n\toverflows: ", node.gridTemplate.overflowSizes
     node.box = res
 
     # for n in node.children:
