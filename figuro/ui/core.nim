@@ -469,27 +469,17 @@ proc computeLayout*(node: Figuro, depth: int) =
 
   # css grid impl
   if not node.gridTemplate.isNil:
-    echo "grid children:pre:"
-    printLayout(node)
+    # compute children first, then lay them out in grid
     for n in node.children:
       computeLayout(n, depth+1)
-    echo "grid children:post:"
-    printLayout(node)
 
-    # gridChildren.setLen(0)
-    # for n in node.children:
-    #   gridChildren.add(n)
     # adjust box to not include offset in wh
     var box = node.box
     box.w = box.w - box.x
     box.h = box.h - box.y
-    echo "compute grid ", node.name
     let res = node.gridTemplate.computeNodeLayout(box, node.children).Box
-    echo "node.box: ", node.box, " res: ", res
     node.box = res
 
-    echo "grid children:after:"
-    printLayout(node)
     # for n in node.children:
     #   calcBasicConstraint(n, dcol, isXY=false)
     #   calcBasicConstraint(n, drow, isXY=false)

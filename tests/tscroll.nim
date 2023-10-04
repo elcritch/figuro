@@ -33,7 +33,7 @@ proc draw*(self: Main) {.slot.} =
         setGridCols 1'fr
         gridAutoRows cx"max-content"
         gridAutoFlow grRow
-        justifyContent CxCenter
+        justifyItems CxCenter
 
         for i in 0 .. 15:
           button "button", captures(i):
