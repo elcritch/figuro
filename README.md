@@ -196,7 +196,36 @@ Note that the easiest way to set layout constraint values are to use their numer
 
 Helper proc's for formula based constraints are `csFixed(x)`, `csMin(x,y)`, `csMax(x,y)`, `csMinMax(x,y)`, and `csMinMax(x,y)`. Note that the multi-argued constraints are still a WIP and don't work currently.
 
-A layout constraint, normally shorted to just constraint, are broken into two pieces: the `Constraint` container object and a `ConstraintSize` object. 
+Internally a layout constraint, normally shortened to just *constraint*, is formed from two pieces: the `Constraint` container object and an optional inner `ConstraintSize` object. 
+
+#### CSS Grid Layout
+
+A CSS Grid layout allows you to create either a fixed pre-sized grid or a dynamically expandable grid.
+
+This example shows how to setup a *vertical group* using a CSS Grid with one full width column (set by `setGridCols 1'fr`). It grows by adding new rows with a height of `60ux` (set by `gridAutoRows 60ux`) whenver more child widgets are added. Items are vertically aligned (`alignItems CxStart`) and horizontally justified (`justifyItems CxCenter`). The child widgets have their sizes set to `size 60'ux, 40'ux`. Alternatively `CxStretch` could be used to force the child widgets to take up a whole column and row.
+
+```nim
+    rectangle "main":
+      fill whiteColor
+      offset 30'ux, 10'ux
+      size 400'ux, 120'ux
+
+      setGridCols 1'fr
+      setGridRows 60'ux
+      gridAutoRows 60'ux
+      gridAutoFlow grRow
+      justifyItems CxCenter
+      alignItems CxStart
+
+      rectangle("slider"):
+        size 60'ux, 40'ux
+        fill "#00A0AA"
+      rectangle "slider":
+        size 60'ux, 40'ux
+        fill "#A000AA"
+```
+
+#### Constraint Reference Table
 
 Here's the full list of options (see CSS Grid for more details): 
 
