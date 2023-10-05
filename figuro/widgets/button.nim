@@ -43,10 +43,10 @@ proc draw*[T](self: Button[T]) {.slot.} =
 
     if self.disabled:
       if notAttr fillSet:
-        fill "#F0F0F0"
+        fill css"#F0F0F0"
     else:
       if notAttr fillSet:
-        fill "#2B9FEA"
+        fill css"#2B9FEA"
       onHover:
         if notAttr fillHoverSet:
           fill current.fill.lighten(0.2)

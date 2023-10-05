@@ -191,6 +191,10 @@ template boxOf*(box: Box) =
 #   ## Loads the font from the dataDir.
 #   loadFontAbsolute(name, dataDir / pathOrUrl)
 
+template css*(color: static string): Color =
+  const c = parseHtmlColor(color)
+  c
+
 template hasAttr*(attr: Attributes): bool =
   attr in current.attrs 
 

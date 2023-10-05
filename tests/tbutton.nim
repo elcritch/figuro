@@ -27,12 +27,12 @@ proc draw*(self: Main) {.slot.} =
   withDraw(self):
     self.name.setLen(0)
     self.name.add "main"
-    fill "#9F2B00"
+    fill css"#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
 
     button "btn", state(int):
       box 40'ux, 30'ux, 80'ux, 80'ux
-      fill "#2B9F2B"
+      fill css"#2B9F2B"
       connect(current, doDrag, current, btnDrag)
 
       contents "child":
@@ -43,7 +43,7 @@ proc draw*(self: Main) {.slot.} =
 
     rectangle "btnBody":
       box 200'ux, 30'ux, 80'ux, 80'ux
-      fill "#9F2B00"
+      fill css"#9F2B00"
       connect(current, doDrag, current, btnDrag)
 
 
