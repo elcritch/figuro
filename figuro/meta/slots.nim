@@ -294,7 +294,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         if `objId` == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `tupTyp`
-        rpcUnpack(`paramsIdent`, params)
+        when `tupTyp` isnot tuple[]:
+          rpcUnpack(`paramsIdent`, params)
         `paramSetups`
         `mcall`
 

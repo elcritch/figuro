@@ -112,3 +112,10 @@ when isMainModule:
               b, setSomeValue)
       )
 
+    test "empty signal conversion":
+      # TODO: how to do this?
+
+      connect(a, valueChanged,
+              c, someAction)
+
+      a.setValue(42)
