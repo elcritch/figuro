@@ -191,6 +191,12 @@ template boxOf*(box: Box) =
 #   ## Loads the font from the dataDir.
 #   loadFontAbsolute(name, dataDir / pathOrUrl)
 
+template hasAttr*(attr: Attributes): bool =
+  attr in current.attrs 
+
+template notAttr*(attr: Attributes): bool =
+  attr notin current.attrs 
+
 template clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
@@ -202,20 +208,24 @@ template clipContent*(clip: bool) =
 template fill*(color: Color) =
   ## Sets background color.
   current.fill = color
+  current.attrs.incl fillSet
 
 template fill*(color: Color, alpha: float32) =
   ## Sets background color.
   current.fill = color
   current.fill.a = alpha
+  current.attrs.incl fillSet
 
 template fill*(color: string, alpha: float32 = 1.0) =
   ## Sets background color.
   current.fill = parseHtmlColor(color)
   current.fill.a = alpha
+  current.attrs.incl fillSet
 
 template fill*(node: Figuro) =
   ## Sets background color.
   current.fill = node.fill
+  current.attrs.incl fillSet
 
 # template callHover*(inner: untyped) =
 #   ## Code in the block will run when this box is hovered.

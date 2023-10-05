@@ -42,13 +42,14 @@ proc draw*[T](self: Button[T]) {.slot.} =
     cornerRadius 10.0
 
     if self.disabled:
-      if current.fill == clearColor:
+      if notAttr fillSet:
         fill "#F0F0F0"
     else:
-      if current.fill == clearColor:
+      if notAttr fillSet:
         fill "#2B9FEA"
       onHover:
-        fill current.fill.spin(15)
+        if notAttr fillHoverSet:
+          fill current.fill.lighten(0.2)
         # this changes the color on hover!
 
 exportWidget(button, Button)

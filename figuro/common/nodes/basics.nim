@@ -37,6 +37,16 @@ type
     clearHover
     rxWindowResize
     rootWindow
+    # style attributes
+    zLevelSet
+    rotationSet
+    fillSet
+    fillHoverSet
+    highlightSet
+    transparencySet
+    strokeSet
+    imageSet
+    shadowSet
 
   FidgetConstraint* = enum
     cMin
