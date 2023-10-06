@@ -181,25 +181,12 @@ template connect*[T](
     b: Agent,
     slot: AgentProcTy[T]
 ) =
-  # when st is 
-  #       tryGetTypeAgentProc(slot).typeof:
-  #   typeMismatchError(signal, slot)
   let agentSlot = slot
   static:
+    ## statically verify signal / slot types match
     var signalType {.inject.}: typeof(SignalTypes.`signal`(typeof(a)))
     var slotType {.inject.}: typeof(getAgentProcTy(slot))
-    slotType = signalType
-
-
-  # var st: genericParams(typeof(SignalTypes.`signal`(typeof(a))))
-  # st = default(genericParams(agentSlot.typeof))
-  # static:
-  #   echo "TYPE CONNECT:slot: ", typeof(SignalTypes.`signal`(typeof(a)))
-  #   echo "TYPE CONNECT:slot: ", slot.getAgentProcTy().typeof.repr # " ", genericParams(slot.typeof)
-  #   echo "TYPE CONNECT:st: ", agentSlot.typeof.repr, " ", repr typeof(SignalTypes.`signal`(typeof(a)))
-  #   # echo "TYPE CONNECT:var: ", " sigtp: ", typeof(sigtp), " sltp: ", typeof(sltp)
-  #   echo ""
-
+    signalType = slotType
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
 template connect*(
@@ -208,18 +195,12 @@ template connect*(
     b: Agent,
     slot: typed
 ) =
-  # when st is 
-  #       tryGetTypeAgentProc(slot).typeof:
-  #   typeMismatchError(signal, slot)
-
-  # let agentSlot = slot
   let agentSlot = `slot`(typeof(b))
   static:
+    ## statically verify signal / slot types match
     var signalType {.inject.}: typeof(SignalTypes.`signal`(typeof(a)))
     var slotType {.inject.}: typeof(getAgentProcTy(agentSlot))
-    slotType = signalType
-  # var st: genericParams(typeof(SignalTypes.`signal`(typeof(a))))
-  # st = default(genericParams(agentSlot.typeof))
+    signalType = slotType
   static:
     echo "TYPE CONNECT:slot: ", typeof(SignalTypes.`signal`(typeof(a)))
     echo "TYPE CONNECT:st: ", agentSlot.typeof.repr, " " , repr getAgentProcTy(agentSlot).typeof
