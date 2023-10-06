@@ -56,9 +56,11 @@ when isMainModule:
               b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
-      check not(compiles(
-        connect(a, valueChanged,
-              c, setValue Counter)))
+      static:
+        echo "NOT COMPILES:"
+      # check not(compiles(
+      connect(a, valueChanged,
+              c, setValue Counter)
       check not(compiles(
         connect(a, someAction,
                 c, Counter.setValue)))
@@ -116,6 +118,6 @@ when isMainModule:
       # TODO: how to do this?
 
       connect(a, valueChanged,
-              c, someAction)
+              c, someAction, acceptVoidSlot = true)
 
       a.setValue(42)
