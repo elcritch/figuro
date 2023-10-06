@@ -307,7 +307,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       proc `rpcMethod`(`kd`: typedesc[SignalTypes],
                        `tp`: typedesc[`contextType`]): `signalTyp` =
         discard
-      proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
+      proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProcTy[`signalTyp`] =
         `agentSlotImpl`
         slot
 
