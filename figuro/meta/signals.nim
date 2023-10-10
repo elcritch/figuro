@@ -183,8 +183,10 @@ template connect*[T](
     acceptVoidSlot: static bool = false,
 ) =
   let agentSlot = slot
-  static:
+  # static:
+  block:
     ## statically verify signal / slot types match
+    # echo "TYP: ", repr typeof(SignalTypes.`signal`(typeof(a)))
     var signalType {.used, inject.}: typeof(SignalTypes.`signal`(typeof(a)))
     var slotType {.used, inject.}: typeof(getAgentProcTy(slot))
     when acceptVoidSlot and slotType is tuple[]:
@@ -201,7 +203,7 @@ template connect*(
     acceptVoidSlot: static bool = false,
 ) =
   let agentSlot = `slot`(typeof(b))
-  static:
+  block:
     ## statically verify signal / slot types match
     var signalType {.used, inject.}: typeof(SignalTypes.`signal`(typeof(a)))
     var slotType {.used, inject.}: typeof(getAgentProcTy(agentSlot))
