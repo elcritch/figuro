@@ -1,4 +1,4 @@
-import figuro/widget
+import figuro/widgets/vertical
 import figuro
 
 let
@@ -9,9 +9,6 @@ type
   Main* = ref object of Figuro
     mainRect: Figuro
     fVal: float32
-
-import macros
-
 
 proc drag(
   main: Main;
@@ -26,32 +23,26 @@ proc draw*(self: Main) {.slot.} =
     name "root"
     fill blackColor
 
-    rectangle "main":
+    vertical "vert":
       fill whiteColor.darken(0.5)
       offset 30'ux, 10'ux
       size 400'ux, 120'ux
 
-      setGridCols 1'fr
-      setGridRows 60'ux
-      gridAutoRows 60'ux
-      gridAutoFlow grRow
-      justifyItems CxCenter
-      alignItems CxStart
-      echo "TEXAMPLE: ", current.gridTemplate
+      # echo "TEXAMPLE: ", current.gridTemplate
       fill blackColor
 
       let i = 3
       let slider1 {.expose.} = rectangle("slider"):
           # var theSlider: Slider[float32]
-          size 60'ux, 40'ux
+          size 0.5'fr, 0.5'fr
           fill "#00A0AA"
           text "val":
             setText({font: "test1"}, Center, Middle)
             fill parseHtmlColor"#FFFFFF"
       rectangle "slider":
-        echo "slider1: ", slider1.getId
-        # var theSlider: Slider[int]
-        size 60'ux, 40'ux
+        # echo "slider1: ", slider1.getId
+        size 0.5'fr, 0.5'fr
+        # size 60'ux, 40'ux
         fill "#A000AA"
         text "val":
           setText({font: "test2"}, Center, Middle)
@@ -61,5 +52,5 @@ var main = Main.new()
 connect(main, doDraw, main, Main.draw)
 
 app.width = 720
-app.height = 140
+app.height = 240
 startFiguro(main)

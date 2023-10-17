@@ -1,16 +1,18 @@
 
 import commons
 import ../ui/utils
+import ../widget
+export widget
 
 type
   Vertical* = ref object of Figuro
 
-proc draw*[T](self: Vertical) {.slot.} =
+proc draw*(self: Vertical) {.slot.} =
   ## button widget!
   withDraw(self):
     setGridCols 1'fr
-    setGridRows 60'ux
-    gridAutoRows 60'ux
+    setGridRows 90'ux
+    gridAutoRows 90'ux
     gridAutoFlow grRow
     justifyItems CxCenter
     alignItems CxStart
