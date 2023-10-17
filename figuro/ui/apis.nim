@@ -231,6 +231,17 @@ template fill*(node: Figuro) =
   current.fill = node.fill
   current.attrs.incl fillSet
 
+template fillHover*(color: Color) =
+  ## Sets background color.
+  current.fill = color
+  current.attrs.incl {fillSet, fillHoverSet}
+
+template fillHover*(color: Color, alpha: float32) =
+  ## Sets background color.
+  current.fill = color
+  current.fill.a = alpha
+  current.attrs.incl {fillSet, fillHoverSet}
+
 # template callHover*(inner: untyped) =
 #   ## Code in the block will run when this box is hovered.
 #   proc doHover(obj: Figuro) {.slot.} =

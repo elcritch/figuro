@@ -34,7 +34,7 @@ type
     preDrawReady
     postDrawReady
     contentsDrawReady
-    clearHover
+    # clearHover
     rxWindowResize
     rootWindow
     # style attributes

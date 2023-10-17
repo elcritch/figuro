@@ -49,7 +49,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
         fill css"#2B9FEA"
       onHover:
         if notAttr fillHoverSet:
-          fill current.fill.lighten(0.2)
+          fillHover current.fill.lighten(0.2)
         # this changes the color on hover!
 
 exportWidget(button, Button)

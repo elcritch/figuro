@@ -64,6 +64,7 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.shadow = Shadow.none()
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
+  node.attrs = {}
   
 
 var nodeDepth = 0
@@ -143,6 +144,9 @@ template sibling*(name: string): Option[Figuro] =
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
+  fig.attrs.excl {zLevelSet, rotationSet, fillSet, fillHoverSet,
+                  highlightSet, transparencySet, strokeSet,
+                  imageSet, shadowSet}
   fig.diffIndex = 0
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
