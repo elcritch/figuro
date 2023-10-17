@@ -76,26 +76,6 @@ type
     # color*: Color
     width*: float32
 
-  LayoutAlign* = enum
-    ## Applicable only inside auto-layout frames.
-    laMin
-    laCenter
-    laMax
-    laStretch
-    laIgnore
-
-  LayoutMode* = enum
-    ## The auto-layout mode on a frame.
-    lmNone
-    lmVertical
-    lmHorizontal
-    lmGrid
-
-  CounterAxisSizingMode* = enum
-    ## How to deal with the opposite side of an auto-layout frame.
-    csAuto
-    csFixed
-
   ShadowStyle* = enum
     ## Supports drop and inner shadows.
     DropShadow
