@@ -45,10 +45,6 @@ proc draw*(self: Main) {.slot.} =
           # var theSlider: Slider[float32]
           size 60'ux, 40'ux
           fill "#00A0AA"
-          # slider "floatSlider", state(float32):
-          #   widget.valueRange = 0f..10f
-          #   theSlider = widget
-          #   connect(current, doDrag, self, Main.drag)
           text "val":
             setText({font: "test1"}, Center, Middle)
             fill parseHtmlColor"#FFFFFF"
@@ -57,10 +53,6 @@ proc draw*(self: Main) {.slot.} =
         # var theSlider: Slider[int]
         size 60'ux, 40'ux
         fill "#A000AA"
-        # slider "intSlider", state(int):
-        #   widget.valueRange = 0..10
-        #   theSlider = widget
-        #   connect(current, doDrag, self, Main.drag)
         text "val":
           setText({font: "test2"}, Center, Middle)
           fill parseHtmlColor"#FFFFFF"

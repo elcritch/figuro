@@ -308,12 +308,14 @@ template setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
-template cornerRadius*(radius: UICoord) =
+template cornerRadius*(radius: UICoord, optional=true) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = UICoord radius
+  if not optional or cornerRadiusSet notin current.attrs:
+    current.cornerRadius = UICoord radius
 
-template cornerRadius*(radius: float|float32) =
-  cornerRadius(UICoord radius)
+template cornerRadius*(radius: float|float32, optional=true) =
+  if not optional or cornerRadiusSet notin current.attrs:
+    cornerRadius(UICoord radius)
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.

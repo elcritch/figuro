@@ -40,6 +40,7 @@ type
     # style attributes
     zLevelSet
     rotationSet
+    cornerRadiusSet
     fillSet
     fillHoverSet
     highlightSet
