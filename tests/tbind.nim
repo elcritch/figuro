@@ -32,7 +32,6 @@ proc draw*(self: Main) {.slot.} =
 
     button "btnAdd":
       box 160'ux, 30'ux, 80'ux, 40'ux
-      fill css"#5B70DF"
       node nkText, "btnText":
         size 100'pp, 100'pp
         fill blackColor
@@ -43,7 +42,6 @@ proc draw*(self: Main) {.slot.} =
 
     button "btnSub":
       box 240'ux, 30'ux, 80'ux, 40'ux
-      fill css"#5B70DF"
       node nkText, "btnText":
         size 100'pp, 100'pp
         fill blackColor
