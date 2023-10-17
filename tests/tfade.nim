@@ -36,8 +36,6 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 4:
       button "btn", captures(i):
         box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
-        if i == 4:
-          echo nd(), "btn: ", i
         # fill css"#2B9FEA"
         # we need to connect it's onHover event
         connect(current, doHover, self, Main.hover)

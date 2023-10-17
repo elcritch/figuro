@@ -191,6 +191,10 @@ template boxOf*(box: Box) =
 #   ## Loads the font from the dataDir.
 #   loadFontAbsolute(name, dataDir / pathOrUrl)
 
+type
+  ApiOptions* = enum
+    optional
+
 template css*(color: static string): Color =
   const c = parseHtmlColor(color)
   c
@@ -208,39 +212,44 @@ template clipContent*(clip: bool) =
   else:
     current.attrs.incl noClipContent
 
-
-template fill*(color: Color) =
+template fill*(color: Color, optional=false) =
   ## Sets background color.
-  current.fill = color
-  current.attrs.incl fillSet
+  if not optional or fillSet notin current.attrs:
+    current.fill = color
+    current.attrs.incl fillSet
 
-template fill*(color: Color, alpha: float32) =
+template fill*(color: Color, alpha: float32, optional=false) =
   ## Sets background color.
-  current.fill = color
-  current.fill.a = alpha
-  current.attrs.incl fillSet
+  if not optional or fillSet notin current.attrs:
+    current.fill = color
+    current.fill.a = alpha
+    current.attrs.incl fillSet
 
-template fill*(color: string, alpha: float32 = 1.0) =
+template fill*(color: string, alpha: float32 = 1.0, optional=false) =
   ## Sets background color.
-  current.fill = parseHtmlColor(color)
-  current.fill.a = alpha
-  current.attrs.incl fillSet
+  if not optional or fillSet notin current.attrs:
+    current.fill = parseHtmlColor(color)
+    current.fill.a = alpha
+    current.attrs.incl fillSet
 
-template fill*(node: Figuro) =
+template fill*(node: Figuro, optional=true) =
   ## Sets background color.
-  current.fill = node.fill
-  current.attrs.incl fillSet
+  if not optional or fillSet notin current.attrs:
+    current.fill = node.fill
+    current.attrs.incl fillSet
 
-template fillHover*(color: Color) =
+template fillHover*(color: Color, optional=true) =
   ## Sets background color.
-  current.fill = color
-  current.attrs.incl {fillSet, fillHoverSet}
+  if not optional or fillHoverSet notin current.attrs:
+    current.fill = color
+    current.attrs.incl {fillSet, fillHoverSet}
 
-template fillHover*(color: Color, alpha: float32) =
+template fillHover*(color: Color, alpha: float32, optional=true) =
   ## Sets background color.
-  current.fill = color
-  current.fill.a = alpha
-  current.attrs.incl {fillSet, fillHoverSet}
+  if not optional or fillHoverSet notin current.attrs:
+    current.fill = color
+    current.fill.a = alpha
+    current.attrs.incl {fillSet, fillHoverSet}
 
 # template callHover*(inner: untyped) =
 #   ## Code in the block will run when this box is hovered.
