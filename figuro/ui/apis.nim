@@ -561,3 +561,24 @@ template gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
             fill color
             box 0, row.start.UICoord - wd, w.UICoord, wd
 
+proc gridTemplateDebugLines*(current: Figuro, draw: bool, color: Color = blackColor) =
+  ## helper that draws css grid lines. great for debugging layouts.
+  if draw:
+    # draw debug lines
+    if not current.gridTemplate.isNil:
+      # computeLayout(nil, current)
+      echo "grid template post: ", current.gridTemplate
+      let cg = current.gridTemplate.gaps[dcol]
+      let wd = 1'ui
+      let w = current.gridTemplate.columns[^1].start.UICoord
+      let h = current.gridTemplate.rows[^1].start.UICoord
+      # echo "size: ", (w, h)
+      for col in current.gridTemplate.columns[1..^2]:
+        rectangle "column", captures(col):
+          fill color
+          box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
+      for row in current.gridTemplate.rows[1..^2]:
+        rectangle "row", captures(row):
+          fill color
+          box 0, row.start.UICoord - wd, w.UICoord, wd
+

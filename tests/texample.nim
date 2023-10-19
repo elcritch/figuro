@@ -23,30 +23,31 @@ proc draw*(self: Main) {.slot.} =
     name "root"
 
     let vert {.expose.} = vertical "vert":
-        fill whiteColor.darken(0.5)
-        offset 30'ux, 10'ux
-        size 400'ux, 120'ux
+      fill whiteColor.darken(0.5)
+      offset 30'ux, 10'ux
+      size 400'ux, 120'ux
 
-        # echo "TEXAMPLE: ", current.gridTemplate
-        fill blackColor * 0.1
-        cornerRadius 20
+      # echo "TEXAMPLE: ", current.gridTemplate
+      fill blackColor * 0.1
+      cornerRadius 20
 
-        let i = 3
-        let slider1 {.expose.} = rectangle "slider":
-            # var theSlider: Slider[float32]
-            size 0.5'fr, 0.5'fr
-            fill "#00A0AA"
-            text "val":
-              setText({font: "test1"}, Center, Middle)
-              fill parseHtmlColor"#FFFFFF"
-        rectangle "slider":
-          # echo "slider1: ", slider1.getId
+      let i = 3
+      let slider1 {.expose.} = rectangle "slider":
+          # var theSlider: Slider[float32]
           size 0.5'fr, 0.5'fr
-          # size 60'ux, 40'ux
-          fill "#A000AA"
+          fill "#00A0AA"
           text "val":
-            setText({font: "test2"}, Center, Middle)
+            setText({font: "test1"}, Center, Middle)
             fill parseHtmlColor"#FFFFFF"
+      rectangle "slider":
+        # echo "slider1: ", slider1.getId
+        size 0.5'fr, 0.5'fr
+        # size 60'ux, 40'ux
+        fill "#A000AA"
+        text "val":
+          setText({font: "test2"}, Center, Middle)
+          fill parseHtmlColor"#FFFFFF"
+    gridTemplateDebugLines Figuro(vert), true
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
