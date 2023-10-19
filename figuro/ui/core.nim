@@ -281,14 +281,14 @@ proc generateBodies*(widget, kind: NimNode,
       when `hasBinds`:
         current
 
-template exportWidget*[T](name: untyped, class: typedesc[T]) =
+template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports a `class` as a widget by giving it a macro with `name`
   ## which handles parsing widget args like `state(type)` and
   ## `captures(...)`. It also generatres the proper pre- and
   ## post- callbacks that are called before and after `doDraw`, 
   ## respectively.
   ## 
-  macro `name`*(args: varargs[untyped]) =
+  macro `name`*(args: varargs[untyped]): auto =
     let widget = class.getTypeInst()
     let wargs = args.parseWidgetArgs()
     let impl = widget.getImpl()
@@ -330,13 +330,18 @@ macro contents*(args: varargs[untyped]): untyped =
   # echo "contents: ", result.repr
 
 macro expose*(args: untyped): untyped =
+  echo "EXPOSE:\n", args.treeRepr
+  echo "EXPOSE:\n", args.repr
   if args.kind == nnkLetSection and 
       args[0].kind == nnkIdentDefs and
-      args[0][2].kind == nnkCall:
+      args[0][2].kind in [nnkCall, nnkCommand]:
         echo "WID: args:", "MATCH"
         result = args
         result[0][2].insert(2, nnkCall.newTree(ident "expose"))
+        # echo "WID: args:post:\n", result.treeRepr
+        # echo "WID: args:post:\n", result.repr
   else:
+    echo "WID: args:", "NO MATCH"
     result = args
 
 macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
