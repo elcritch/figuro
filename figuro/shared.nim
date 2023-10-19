@@ -33,6 +33,7 @@ const
   clearColor* = color(0, 0, 0, 0)
   whiteColor* = color(1, 1, 1, 1)
   blackColor* = color(0, 0, 0, 1)
+  blueColor* = color(0, 0, 1, 1)
 
 const
   DataDirPath* {.strdefine.} = Path(currentSourcePath()).splitPath().head /../ "data".Path

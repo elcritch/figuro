@@ -25,13 +25,18 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style
   result = ImageStyle(name: name, color: color)
 
+template strokeLine*(weight: UICoord, color: Color, alpha = 1.0'f32) =
+  ## Sets stroke/border color.
+  current.stroke.color = color
+  current.stroke.color.a = alpha
+  current.stroke.weight = weight.float32
 
 # when not defined(js):
 #   func hAlignMode*(align: HAlign): HAlignMode =
 #     case align:
 #       of hLeft: HAlignMode.Left
 #       of hCenter: Center
-#       of hRight: HAlignMode.Right
+#       of hRight: HAlignMod.Right
 
 #   func vAlignMode*(align: VAlign): VAlignMode =
 #     case align:
@@ -536,49 +541,31 @@ template gridAutoRows*(item: Constraint) =
 
 from sugar import capture
 
-template gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
+template gridTemplateDebugLines*(grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.
-  if draw:
+  rectangle "grid-debug":
+    # strokeLine 3'ui, css"#0000CC"
     # draw debug lines
-    if not current.gridTemplate.isNil:
-      # computeLayout(nil, current)
-      # echo "grid template post: ", repr current.gridTemplate
-      let cg = current.gridTemplate.gaps[dcol]
-      let wd = max(10, cg.UICoord)
-      let w = current.gridTemplate.columns[^1].start
-      let h = current.gridTemplate.rows[^1].start
-      # echo "size: ", (w, h)
-      for col in current.gridTemplate.columns[1..^2]:
-        capture col:
-          rectangle "column":
-            # layoutAlign laIgnore
-            fill color
-            box col.start.UICoord - wd, 0.UICoord, wd, h.UICoord
-      for row in current.gridTemplate.rows[1..^2]:
-        capture row:
-          rectangle "row":
-            # layoutAlign laIgnore
-            fill color
-            box 0, row.start.UICoord - wd, w.UICoord, wd
-
-proc gridTemplateDebugLines*(current: Figuro, draw: bool, color: Color = blackColor) =
-  ## helper that draws css grid lines. great for debugging layouts.
-  if draw:
-    # draw debug lines
-    if not current.gridTemplate.isNil:
-      # computeLayout(nil, current)
-      echo "grid template post: ", current.gridTemplate
-      let cg = current.gridTemplate.gaps[dcol]
+    boxOf grid.box
+    if not grid.gridTemplate.isNil:
+      computeLayout(grid, 0)
+      echo "grid template post: ", grid.gridTemplate
+      let cg = grid.gridTemplate.gaps[dcol]
       let wd = 1'ui
-      let w = current.gridTemplate.columns[^1].start.UICoord
-      let h = current.gridTemplate.rows[^1].start.UICoord
-      # echo "size: ", (w, h)
-      for col in current.gridTemplate.columns[1..^2]:
+      let w = grid.gridTemplate.columns[^1].start.UICoord
+      let h = grid.gridTemplate.rows[^1].start.UICoord
+      echo "size: ", (w, h)
+      for col in grid.gridTemplate.columns[1..^2]:
         rectangle "column", captures(col):
           fill color
           box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
-      for row in current.gridTemplate.rows[1..^2]:
+      for row in grid.gridTemplate.rows[1..^2]:
         rectangle "row", captures(row):
           fill color
           box 0, row.start.UICoord - wd, w.UICoord, wd
-
+      rectangle "edge":
+        fill blackColor
+        box 0'ux, 0'ux, w, 3'ux
+      rectangle "edge":
+        fill blackColor
+        box 0'ux, ux(h - 3), w, 3'ux
