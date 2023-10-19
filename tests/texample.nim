@@ -21,7 +21,6 @@ proc drag(
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     name "root"
-    fill blackColor
 
     vertical "vert":
       fill whiteColor.darken(0.5)
@@ -29,7 +28,8 @@ proc draw*(self: Main) {.slot.} =
       size 400'ux, 120'ux
 
       # echo "TEXAMPLE: ", current.gridTemplate
-      fill blackColor
+      fill blackColor * 0.1
+      cornerRadius 20
 
       let i = 3
       let slider1 {.expose.} = rectangle("slider"):

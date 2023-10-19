@@ -11,7 +11,7 @@ proc draw*(self: Vertical) {.slot.} =
   ## button widget!
   withDraw(self):
     setGridCols 1'fr
-    setGridRows 90'ux
+    # setGridRows 90'ux
     gridAutoRows 90'ux
     gridAutoFlow grRow
     justifyItems CxCenter
