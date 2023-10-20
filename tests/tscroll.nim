@@ -26,8 +26,7 @@ proc draw*(self: Main) {.slot.} =
       contents "children":
         vertical "":
           # Setup CSS Grid Template
-          cornerRadius 10.0'ux
-          # offset 10'ux, 10'ux
+          offset 10'ux, 10'ux
           itemHeight cx"max-content"
 
           for i in 0 .. 15:
