@@ -18,11 +18,9 @@ proc draw*(self: Main) {.slot.} =
   withDraw self:
     fill "#0000AA"
     name "root"
-
     scroll "scroll":
-      # offset 20'ux, 20'ux
-      # size 90'pp, 80'pp
-      clipContent true
+      offset 1'pp, 0'pp
+      size 96'pp, 90'pp
       contents "children":
         # Setup CSS Grid Template
         cornerRadius 10.0
