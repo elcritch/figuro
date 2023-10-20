@@ -374,8 +374,6 @@ proc csFixed*(coord: UICoord): Constraint =
 proc ux*(coord: SomeNumber|UICoord): Constraint =
   csFixed(coord.UiScalar)
 
-{.hint[Name]:off.}
-
 proc findRoot*(node: Figuro): Figuro =
   result = node
   var cnt = 0
@@ -384,26 +382,6 @@ proc findRoot*(node: Figuro): Figuro =
     cnt.inc
     if cnt > 10_000:
       raise newException(IndexDefect, "error finding root")
-
-# template Vw*(size: float32): UICoord =
-#   ## percentage of Viewport width
-#   current.attrs.incl rxWindowResize
-#   app.windowSize.x * size.UICoord / 100.0
-
-# template Vh*(size: float32): UICoord =
-#   ## percentage of Viewport height
-#   current.attrs.incl rxWindowResize
-#   app.windowSize.y * size.UICoord / 100.0
-
-# template `'vw`*(n: string): UICoord =
-#   ## numeric literal view width unit
-#   Vw(parseFloat(n))
-
-# template `'vh`*(n: string): UICoord =
-#   ## numeric literal view height unit
-#   Vh(parseFloat(n))
-
-{.hint[Name]:on.}
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
@@ -538,8 +516,6 @@ template gridAutoColumns*(item: Constraint) =
 template gridAutoRows*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
-
-from sugar import capture
 
 template gridTemplateDebugLines*(grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.

@@ -10,12 +10,8 @@ type
     mainRect: Figuro
     fVal: float32
 
-proc drag(
-  main: Main;
-  kind: EventKind,
-  initial: Position;
-  current: Position;
-) {.slot.} =
+proc drag(main: Main; kind: EventKind,
+          initial: Position, current: Position) {.slot.} =
   refresh(main)
 
 proc draw*(self: Main) {.slot.} =
