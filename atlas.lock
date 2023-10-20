@@ -153,8 +153,8 @@
     "cssgrid": {
       "dir": "$deps/cssgrid",
       "url": "https://github.com/elcritch/cssgrid",
-      "commit": "569e66486f0d9a3bf072e8244c14683fa8268b4b",
-      "version": "0.5.12"
+      "commit": "50eefeb787fb09ba8fa7ef1de9616dac2dae102b",
+      "version": "0.5.15"
     }
   },
   "nimcfg": [
@@ -226,7 +226,7 @@
   },
   "hostOS": "macosx",
   "hostCPU": "arm64",
-  "nimVersion": "2.0.0 a488067a4130f029000be4550a0fb1b39e0e9e7c",
+  "nimVersion": "2.0.1 d30565f810ba5165ea2e5bcd91ea3dee9950051f",
   "gccVersion": "",
   "clangVersion": ""
 }
