@@ -42,9 +42,11 @@ proc draw*[T](self: Button[T]) {.slot.} =
     cornerRadius 10.0
 
     if self.disabled:
-      fill css"#F0F0F0"
+      optionals:
+        fill css"#F0F0F0"
     else:
-      fill css"#2B9FEA"
+      optionals:
+        fill css"#2B9FEA"
       onHover:
         optionals:
           fillHover current.fill.lighten(0.14)

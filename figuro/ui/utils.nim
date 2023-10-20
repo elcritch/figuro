@@ -132,7 +132,8 @@ const fieldSetNames = block:
     var names: HashSet[string]
     for item in FieldSet:
       let name = $item
-      names.incl name[2..^1]
+      names.incl name[2..^1].toLowerAscii()
+    echo "FSN: ", names
     names
 
 macro optionals*(blk: untyped) =
@@ -140,7 +141,7 @@ macro optionals*(blk: untyped) =
   for st in blk:
     if st.kind in [nnkCommand, nnkCall] and
         st[0].kind == nnkIdent and
-        st[0].strVal in fieldSetNames:
+        st[0].strVal.toLowerAscii() in fieldSetNames:
       let fsName = ident "fs" & st[0].strVal
       result.add quote do:
         if `fsName` notin current.userSetFields:
