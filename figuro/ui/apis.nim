@@ -276,9 +276,12 @@ template cornerRadius*(radius: UICoord, optional=true) =
   current.cornerRadius = radius
   current.userSetFields.incl fsCornerRadius
 
+template cornerRadius*(radius: Constraint, optional=true) =
+  ## Sets all radius of all 4 corners.
+  cornerRadius(UICoord radius.value.coord)
+
 template cornerRadius*(radius: float|float32, optional=true) =
   cornerRadius(UICoord radius)
-  current.userSetFields.incl fsCornerRadius
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
