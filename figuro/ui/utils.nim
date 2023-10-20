@@ -137,6 +137,16 @@ const fieldSetNames = block:
     names
 
 macro optionals*(blk: untyped) =
+  ## Optionally sets any fields in `SetField` enum such as
+  ## `fill` and `cornerRadius`.
+  ## 
+  ## Use this in reusable widgets to enable setting "default"
+  ## fields which only get set if the user hasn't already 
+  ## set the value. 
+  ## 
+  ## This is required because the user supplied actions
+  ## run *before* the widget draw slot.
+  ## 
   result = newStmtList()
   for st in blk:
     if st.kind in [nnkCommand, nnkCall] and
