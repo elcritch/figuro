@@ -24,8 +24,6 @@ proc tick*(self: Main) {.slot.} =
     self.hoveredAlpha -= 0.005
     refresh(self)
 
-import pretty
-
 proc draw*(self: Main) {.slot.} =
   var current = self
   # current = self

@@ -11,7 +11,6 @@ type
 # proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
 #   echo "button:hovered: ", kind, " :: ", self.getId,
 #           " buttons: ", self.events.mouse
-  
 
 proc clicked*[T](self: Button[T],
                   kind: EventKind,

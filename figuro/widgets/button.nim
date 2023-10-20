@@ -42,12 +42,12 @@ proc draw*[T](self: Button[T]) {.slot.} =
     cornerRadius 10.0
 
     if self.disabled:
-      optionals:
-        fill css"#F0F0F0"
+      fill css"#F0F0F0"
     else:
-      optionals:
-        fill css"#2B9FEA"
-        fillHover current.fill.lighten(0.2)
-        # this changes the color on hover!
+      fill css"#2B9FEA"
+      onHover:
+        optionals:
+          fillHover current.fill.lighten(0.14)
+          # this changes the color on hover!
 
 exportWidget(button, Button)

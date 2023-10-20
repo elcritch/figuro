@@ -130,7 +130,9 @@ template printNewEventInfo*() =
 
 const fieldSetNames = block:
     var names: HashSet[string]
-    for item in FieldSet: names.incl $item
+    for item in FieldSet:
+      let name = $item
+      names.incl name[2..^1]
     names
 
 macro optionals*(blk: untyped) =
@@ -140,8 +142,9 @@ macro optionals*(blk: untyped) =
         st[0].kind == nnkIdent and
         st[0].strVal in fieldSetNames:
       let fsName = ident "fs" & st[0].strVal
-      result = quote do:
-        if not optional or `fsName` notin current.attrs:
+      result.add quote do:
+        if `fsName` notin current.userSetFields:
           `st`
     else:
       result.add st
+  echo "OPTIONALS:\n", result.repr
