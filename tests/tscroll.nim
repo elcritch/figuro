@@ -23,7 +23,7 @@ proc draw*(self: Main) {.slot.} =
       size 96'pp, 90'pp
       contents "children":
         # Setup CSS Grid Template
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         offset 10'ux, 10'ux
 
         setGridCols 1'fr

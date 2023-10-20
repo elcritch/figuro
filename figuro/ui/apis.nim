@@ -273,7 +273,7 @@ template setTitle*(title: string) =
 
 template cornerRadius*(radius: UICoord, optional=true) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = UICoord radius
+  current.cornerRadius = radius
   current.userSetFields.incl fsCornerRadius
 
 template cornerRadius*(radius: float|float32, optional=true) =
