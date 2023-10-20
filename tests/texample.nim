@@ -26,21 +26,19 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(0.5)
       offset 30'ux, 10'ux
       size 400'ux, 120'ux
-      # setGridRows 90'ux
-      gridAutoRows 120'ux
+      itemHeight 90'ux
 
       # echo "TEXAMPLE: ", current.gridTemplate
       fill blackColor * 0.1
       cornerRadius 20
 
-      let i = 3
       let slider1 {.expose.} = rectangle "slider":
-          # var theSlider: Slider[float32]
-          size 200'ux, 45'ux
-          fill "#00A0AA"
-          text "val":
-            setText({font: "test1"}, Center, Middle)
-            fill css"#FFFFFF"
+        # var theSlider: Slider[float32]
+        size 200'ux, 45'ux
+        fill "#00A0AA"
+        text "val":
+          setText({font: "test1"}, Center, Middle)
+          fill css"#FFFFFF"
       rectangle "slider":
         # echo "slider1: ", slider1.getId
         size 0.5'fr, 0.5'fr
