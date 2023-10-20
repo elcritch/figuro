@@ -34,9 +34,27 @@ type
     preDrawReady
     postDrawReady
     contentsDrawReady
-    clearHover
     rxWindowResize
     rootWindow
+
+  FieldSet* = enum
+    # style attributes
+    # todo: this is hacky, but efficient
+    fsZLevel
+    fsRotation
+    fsCornerRadius
+    fsFill
+    fsFillHover
+    fsHighlight
+    fsTransparency
+    fsStroke
+    fsImage
+    fsShadow
+    fsSetGridCols
+    fsSetGridRows
+    fsGridAutoFlow
+    fsJustifyItems
+    fsAlignItems
 
   FidgetConstraint* = enum
     cMin
@@ -65,26 +83,6 @@ type
     ## What kind of border.
     # color*: Color
     width*: float32
-
-  LayoutAlign* = enum
-    ## Applicable only inside auto-layout frames.
-    laMin
-    laCenter
-    laMax
-    laStretch
-    laIgnore
-
-  LayoutMode* = enum
-    ## The auto-layout mode on a frame.
-    lmNone
-    lmVertical
-    lmHorizontal
-    lmGrid
-
-  CounterAxisSizingMode* = enum
-    ## How to deal with the opposite side of an auto-layout frame.
-    csAuto
-    csFixed
 
   ShadowStyle* = enum
     ## Supports drop and inner shadows.

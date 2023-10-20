@@ -25,13 +25,18 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style
   result = ImageStyle(name: name, color: color)
 
+template strokeLine*(weight: UICoord, color: Color, alpha = 1.0'f32) =
+  ## Sets stroke/border color.
+  current.stroke.color = color
+  current.stroke.color.a = alpha
+  current.stroke.weight = weight.float32
 
 # when not defined(js):
 #   func hAlignMode*(align: HAlign): HAlignMode =
 #     case align:
 #       of hLeft: HAlignMode.Left
 #       of hCenter: Center
-#       of hRight: HAlignMode.Right
+#       of hRight: HAlignMod.Right
 
 #   func vAlignMode*(align: VAlign): VAlignMode =
 #     case align:
@@ -172,24 +177,9 @@ template boxOf*(box: Box) =
   current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
   current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
 
-# proc setWindowBounds*(min, max: Vec2) =
-#   base.setWindowBounds(min, max)
-
-# proc loadFontAbsolute*(name: string, pathOrUrl: string) =
-#   ## Loads fonts anywhere in the system.
-#   ## Not supported on js, emscripten, ios or android.
-#   if pathOrUrl.endsWith(".svg"):
-#     fonts[name] = readFontSvg(pathOrUrl)
-#   elif pathOrUrl.endsWith(".ttf"):
-#     fonts[name] = readFontTtf(pathOrUrl)
-#   elif pathOrUrl.endsWith(".otf"):
-#     fonts[name] = readFontOtf(pathOrUrl)
-#   else:
-#     raise newException(Exception, "Unsupported font format")
-
-# proc loadFont*(name: string, pathOrUrl: string) =
-#   ## Loads the font from the dataDir.
-#   loadFontAbsolute(name, dataDir / pathOrUrl)
+template css*(color: static string): Color =
+  const c = parseHtmlColor(color)
+  c
 
 template clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
@@ -198,31 +188,38 @@ template clipContent*(clip: bool) =
   else:
     current.attrs.incl noClipContent
 
-
 template fill*(color: Color) =
   ## Sets background color.
   current.fill = color
+  current.userSetFields.incl fsFill
 
 template fill*(color: Color, alpha: float32) =
   ## Sets background color.
   current.fill = color
   current.fill.a = alpha
+  current.userSetFields.incl fsFill
 
 template fill*(color: string, alpha: float32 = 1.0) =
   ## Sets background color.
   current.fill = parseHtmlColor(color)
   current.fill.a = alpha
+  current.userSetFields.incl fsFill
 
 template fill*(node: Figuro) =
   ## Sets background color.
   current.fill = node.fill
+  current.userSetFields.incl fsFill
 
-# template callHover*(inner: untyped) =
-#   ## Code in the block will run when this box is hovered.
-#   proc doHover(obj: Figuro) {.slot.} =
-#     echo "hi"
-#     `inner`
-#   root.connect(onHover, current, doHover)
+template fillHover*(color: Color) =
+  ## Sets background color.
+  current.fill = color
+  current.userSetFields.incl {fsFill, fsFillHover}
+
+template fillHover*(color: Color, alpha: float32) =
+  ## Sets background color.
+  current.fill = color
+  current.fill.a = alpha
+  current.userSetFields.incl {fsFill, fsFillHover}
 
 proc positionDiff*(initial: Position, point: Position): Position =
   ## computes relative position of the mouse to the node position
@@ -274,11 +271,16 @@ template setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
-template cornerRadius*(radius: UICoord) =
+template cornerRadius*(radius: UICoord, optional=true) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = UICoord radius
+  current.cornerRadius = radius
+  current.userSetFields.incl fsCornerRadius
 
-template cornerRadius*(radius: float|float32) =
+template cornerRadius*(radius: Constraint, optional=true) =
+  ## Sets all radius of all 4 corners.
+  cornerRadius(UICoord radius.value.coord)
+
+template cornerRadius*(radius: float|float32, optional=true) =
   cornerRadius(UICoord radius)
 
 proc loadTypeFace*(name: string): TypefaceId =
@@ -319,21 +321,11 @@ template setText*(spans: openArray[(UiFont, string)],
 ## specify details like: "set node width to 100% of it's parents size."
 ## 
 
-# template Em*(size: float32): UICoord =
-#   ## unit size relative to current font size
-#   current.textStyle.fontSize * size.UICoord
-
-# proc `'em`*(n: string): UICoord =
-#   ## numeric literal em unit
-#   result = Em(parseFloat(n))
-
 proc csFixed*(coord: UICoord): Constraint =
   csFixed(coord.UiScalar)
 
 proc ux*(coord: SomeNumber|UICoord): Constraint =
   csFixed(coord.UiScalar)
-
-{.hint[Name]:off.}
 
 proc findRoot*(node: Figuro): Figuro =
   result = node
@@ -343,26 +335,6 @@ proc findRoot*(node: Figuro): Figuro =
     cnt.inc
     if cnt > 10_000:
       raise newException(IndexDefect, "error finding root")
-
-# template Vw*(size: float32): UICoord =
-#   ## percentage of Viewport width
-#   current.attrs.incl rxWindowResize
-#   app.windowSize.x * size.UICoord / 100.0
-
-# template Vh*(size: float32): UICoord =
-#   ## percentage of Viewport height
-#   current.attrs.incl rxWindowResize
-#   app.windowSize.y * size.UICoord / 100.0
-
-# template `'vw`*(n: string): UICoord =
-#   ## numeric literal view width unit
-#   Vw(parseFloat(n))
-
-# template `'vh`*(n: string): UICoord =
-#   ## numeric literal view height unit
-#   Vh(parseFloat(n))
-
-{.hint[Name]:on.}
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
@@ -498,30 +470,31 @@ template gridAutoRows*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
 
-from sugar import capture
-
-template gridTemplateDebugLines*(draw: bool, color: Color = blackColor) =
+template gridTemplateDebugLines*(grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.
-  if draw:
+  rectangle "grid-debug":
+    # strokeLine 3'ui, css"#0000CC"
     # draw debug lines
-    if not current.gridTemplate.isNil:
-      # computeLayout(nil, current)
-      # echo "grid template post: ", repr current.gridTemplate
-      let cg = current.gridTemplate.gaps[dcol]
-      let wd = max(10, cg.UICoord)
-      let w = current.gridTemplate.columns[^1].start
-      let h = current.gridTemplate.rows[^1].start
-      # echo "size: ", (w, h)
-      for col in current.gridTemplate.columns[1..^2]:
-        capture col:
-          rectangle "column":
-            # layoutAlign laIgnore
-            fill color
-            box col.start.UICoord - wd, 0.UICoord, wd, h.UICoord
-      for row in current.gridTemplate.rows[1..^2]:
-        capture row:
-          rectangle "row":
-            # layoutAlign laIgnore
-            fill color
-            box 0, row.start.UICoord - wd, w.UICoord, wd
-
+    boxOf grid.box
+    if not grid.gridTemplate.isNil:
+      computeLayout(grid, 0)
+      # echo "grid template post: ", grid.gridTemplate
+      let cg = grid.gridTemplate.gaps[dcol]
+      let wd = 1'ui
+      let w = grid.gridTemplate.columns[^1].start.UICoord
+      let h = grid.gridTemplate.rows[^1].start.UICoord
+      echo "size: ", (w, h)
+      for col in grid.gridTemplate.columns[1..^2]:
+        rectangle "column", captures(col):
+          fill color
+          box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
+      for row in grid.gridTemplate.rows[1..^2]:
+        rectangle "row", captures(row):
+          fill color
+          box 0, row.start.UICoord - wd, w.UICoord, wd
+      rectangle "edge":
+        fill color.darken(0.5)
+        box 0'ux, 0'ux, w, 3'ux
+      rectangle "edge":
+        fill color.darken(0.5)
+        box 0'ux, ux(h - 3), w, 3'ux

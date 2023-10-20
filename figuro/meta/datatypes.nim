@@ -36,6 +36,8 @@ type
                     params: RpcParams,
                     ) {.nimcall.}
 
+  AgentProcTy*[S] = AgentProc
+
   SignalTypes* = distinct object
 
 when defined(nimscript):

@@ -294,7 +294,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         if `objId` == nil:
           raise newException(ConversionError, "bad cast")
         var `paramsIdent`: `tupTyp`
-        rpcUnpack(`paramsIdent`, params)
+        when `tupTyp` isnot tuple[]:
+          rpcUnpack(`paramsIdent`, params)
         `paramSetups`
         `mcall`
 
@@ -306,7 +307,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
       proc `rpcMethod`(`kd`: typedesc[SignalTypes],
                        `tp`: typedesc[`contextType`]): `signalTyp` =
         discard
-      proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProc =
+      proc `rpcMethod`(`tp`: typedesc[`contextType`]): AgentProcTy[`signalTyp`] =
         `agentSlotImpl`
         slot
 
@@ -345,8 +346,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.lispRepr
-  echo "slot:repr:"
-  echo result.repr
+  # echo "slot:repr:"
+  # echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)

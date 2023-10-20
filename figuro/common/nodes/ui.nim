@@ -40,6 +40,7 @@ type
     scroll*: Position
 
     attrs*: set[Attributes]
+    userSetFields*: set[FieldSet]
 
     cxSize*: array[GridDir, Constraint]
     cxOffset*: array[GridDir, Constraint]

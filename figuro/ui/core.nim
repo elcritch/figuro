@@ -64,6 +64,7 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.shadow = Shadow.none()
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
+  node.attrs = {}
   
 
 var nodeDepth = 0
@@ -115,16 +116,14 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
-template onEvent*[T](signal: typed, obj: T,
-                               cb: proc(obj: T) {.nimcall.}) =
-  when signalName(signal) == "doClick":
-    proc handler(counter: T, ek: EventKind, b: UiButtonView) {.slot.} =
-      if ek == Enter: `cb`(counter)
-    connect(current, signal, obj, handler)
-  when signalName(signal) == "doButton":
-    proc handler(counter: T) {.slot.} =
-      `cb`(counter)
-    connect(current, signal, obj, handler)
+template onSignal*[T](
+    obj: T,
+    signal: typed,
+    cb: proc(obj: T) {.nimcall.},
+) =
+  proc handler(self: T) {.slot.} =
+    `cb`(self)
+  connect(current, signal, obj, handler, acceptVoidSlot=true)
 
 
 template bindProp*[T](prop: Property[T]) =
@@ -143,6 +142,7 @@ template sibling*(name: string): Option[Figuro] =
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
+  fig.userSetFields = {}
   fig.diffIndex = 0
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
@@ -279,14 +279,14 @@ proc generateBodies*(widget, kind: NimNode,
       when `hasBinds`:
         current
 
-template exportWidget*[T](name: untyped, class: typedesc[T]) =
+template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports a `class` as a widget by giving it a macro with `name`
   ## which handles parsing widget args like `state(type)` and
   ## `captures(...)`. It also generatres the proper pre- and
   ## post- callbacks that are called before and after `doDraw`, 
   ## respectively.
   ## 
-  macro `name`*(args: varargs[untyped]) =
+  macro `name`*(args: varargs[untyped]): auto =
     let widget = class.getTypeInst()
     let wargs = args.parseWidgetArgs()
     let impl = widget.getImpl()
@@ -330,10 +330,11 @@ macro contents*(args: varargs[untyped]): untyped =
 macro expose*(args: untyped): untyped =
   if args.kind == nnkLetSection and 
       args[0].kind == nnkIdentDefs and
-      args[0][2].kind == nnkCall:
-        echo "WID: args:", "MATCH"
+      args[0][2].kind in [nnkCall, nnkCommand]:
         result = args
         result[0][2].insert(2, nnkCall.newTree(ident "expose"))
+        # echo "WID: args:post:\n", result.treeRepr
+        # echo "WID: args:post:\n", result.repr
   else:
     result = args
 
@@ -356,9 +357,6 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
 
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
-
-
-var gridChildren: seq[Figuro]
 
 proc checkParent(node: Figuro) =
   if node.parent.isNil:
@@ -460,8 +458,6 @@ proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
 
   # # simple constraints
-  # if node.gridItem.isNil and node.parent != nil:
-    # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
   calcBasicConstraint(node, dcol, isXY=true)
   calcBasicConstraint(node, drow, isXY=true)
   calcBasicConstraint(node, dcol, isXY=false)
