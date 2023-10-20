@@ -564,8 +564,8 @@ template gridTemplateDebugLines*(grid: Figuro, color: Color = blueColor) =
           fill color
           box 0, row.start.UICoord - wd, w.UICoord, wd
       rectangle "edge":
-        fill blackColor
+        fill color.darken(0.5)
         box 0'ux, 0'ux, w, 3'ux
       rectangle "edge":
-        fill blackColor
+        fill color.darken(0.5)
         box 0'ux, ux(h - 3), w, 3'ux
