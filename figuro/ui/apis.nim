@@ -188,44 +188,38 @@ template clipContent*(clip: bool) =
   else:
     current.attrs.incl noClipContent
 
-template fill*(color: Color, optional=false) =
+template fill*(color: Color) =
   ## Sets background color.
-  if not optional or fillSet notin current.attrs:
-    current.fill = color
-    current.attrs.incl fillSet
+  current.fill = color
+  current.userSetFields.incl fsFill
 
-template fill*(color: Color, alpha: float32, optional=false) =
+template fill*(color: Color, alpha: float32) =
   ## Sets background color.
-  if not optional or fillSet notin current.attrs:
-    current.fill = color
-    current.fill.a = alpha
-    current.attrs.incl fillSet
+  current.fill = color
+  current.fill.a = alpha
+  current.userSetFields.incl fsFill
 
-template fill*(color: string, alpha: float32 = 1.0, optional=false) =
+template fill*(color: string, alpha: float32 = 1.0) =
   ## Sets background color.
-  if not optional or fillSet notin current.attrs:
-    current.fill = parseHtmlColor(color)
-    current.fill.a = alpha
-    current.attrs.incl fillSet
+  current.fill = parseHtmlColor(color)
+  current.fill.a = alpha
+  current.userSetFields.incl fsFill
 
-template fill*(node: Figuro, optional=true) =
+template fill*(node: Figuro) =
   ## Sets background color.
-  if not optional or fillSet notin current.attrs:
-    current.fill = node.fill
-    current.attrs.incl fillSet
+  current.fill = node.fill
+  current.userSetFields.incl fsFill
 
-template fillHover*(color: Color, optional=true) =
+template fillHover*(color: Color) =
   ## Sets background color.
-  if not optional or fillHoverSet notin current.attrs:
-    current.fill = color
-    current.attrs.incl {fillSet, fillHoverSet}
+  current.fill = color
+  current.userSetFields.incl {fsFill, fsFillHover}
 
-template fillHover*(color: Color, alpha: float32, optional=true) =
+template fillHover*(color: Color, alpha: float32) =
   ## Sets background color.
-  if not optional or fillHoverSet notin current.attrs:
-    current.fill = color
-    current.fill.a = alpha
-    current.attrs.incl {fillSet, fillHoverSet}
+  current.fill = color
+  current.fill.a = alpha
+  current.userSetFields.incl {fsFill, fsFillHover}
 
 proc positionDiff*(initial: Position, point: Position): Position =
   ## computes relative position of the mouse to the node position
@@ -279,12 +273,12 @@ template setTitle*(title: string) =
 
 template cornerRadius*(radius: UICoord, optional=true) =
   ## Sets all radius of all 4 corners.
-  if not optional or cornerRadiusSet notin current.attrs:
-    current.cornerRadius = UICoord radius
+  current.cornerRadius = UICoord radius
+  current.userSetFields.incl fsCornerRadius
 
 template cornerRadius*(radius: float|float32, optional=true) =
-  if not optional or cornerRadiusSet notin current.attrs:
-    cornerRadius(UICoord radius)
+  cornerRadius(UICoord radius)
+  current.userSetFields.incl fsCornerRadius
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.

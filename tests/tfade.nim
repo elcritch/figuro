@@ -15,6 +15,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
+
 proc tick*(self: Main) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
     self.hoveredAlpha += 0.010

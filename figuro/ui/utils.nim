@@ -1,4 +1,5 @@
 from sugar import capture
+import std/sets
 import macros
 import commons
 
@@ -69,7 +70,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         error("unexpected arguement: " & arg.repr, arg)
     else:
       error("unexpected arguement: " & arg.repr, arg)
-  
+
   if result.stateArg.isNil:
     result.stateArg = ident"void"
   # echo "parseWidgetArgs:res: ", result.repr
@@ -127,3 +128,20 @@ template printNewEventInfo*() =
             stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
           stdout.styledWriteLine(fgWhite, "")
 
+const fieldSetNames = block:
+    var names: HashSet[string]
+    for item in FieldSet: names.incl $item
+    names
+
+macro optionals*(blk: untyped) =
+  result = newStmtList()
+  for st in blk:
+    if st.kind in [nnkCommand, nnkCall] and
+        st[0].kind == nnkIdent and
+        st[0].strVal in fieldSetNames:
+      let fsName = ident "fs" & st[0].strVal
+      result = quote do:
+        if not optional or `fsName` notin current.attrs:
+          `st`
+    else:
+      result.add st

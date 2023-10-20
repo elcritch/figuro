@@ -34,20 +34,27 @@ type
     preDrawReady
     postDrawReady
     contentsDrawReady
-    # clearHover
     rxWindowResize
     rootWindow
+
+  FieldSet* = enum
     # style attributes
-    zLevelSet
-    rotationSet
-    cornerRadiusSet
-    fillSet
-    fillHoverSet
-    highlightSet
-    transparencySet
-    strokeSet
-    imageSet
-    shadowSet
+    # todo: this is hacky, but efficient
+    fsZLevel
+    fsRotation
+    fsCornerRadius
+    fsFill
+    fsFillHover
+    fsHighlight
+    fsTransparency
+    fsStroke
+    fsImage
+    fsShadow
+    fsSetGridCols
+    fsSetGridRows
+    fsGridAutoFlow
+    fsJustifyItems
+    fsAlignItems
 
   FidgetConstraint* = enum
     cMin

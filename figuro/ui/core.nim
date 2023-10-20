@@ -142,9 +142,7 @@ template sibling*(name: string): Option[Figuro] =
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
-  fig.attrs.excl {zLevelSet, rotationSet, fillSet, fillHoverSet,
-                  highlightSet, transparencySet, strokeSet,
-                  imageSet, shadowSet}
+  fig.userSetFields = {}
   fig.diffIndex = 0
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
@@ -360,9 +358,6 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
 
-
-var gridChildren: seq[Figuro]
-
 proc checkParent(node: Figuro) =
   if node.parent.isNil:
     raise newException(FiguroError, "cannot calculate exception: current: " & $node.getId & " parent: " & $node.parent.getId)
@@ -463,8 +458,6 @@ proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
 
   # # simple constraints
-  # if node.gridItem.isNil and node.parent != nil:
-    # assert node.parent != nil, "check parent isn't nil: " & $node.parent.getId & " curr: " & $node.getId
   calcBasicConstraint(node, dcol, isXY=true)
   calcBasicConstraint(node, drow, isXY=true)
   calcBasicConstraint(node, dcol, isXY=false)
