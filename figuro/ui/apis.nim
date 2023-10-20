@@ -549,7 +549,7 @@ template gridTemplateDebugLines*(grid: Figuro, color: Color = blueColor) =
     boxOf grid.box
     if not grid.gridTemplate.isNil:
       computeLayout(grid, 0)
-      echo "grid template post: ", grid.gridTemplate
+      # echo "grid template post: ", grid.gridTemplate
       let cg = grid.gridTemplate.gaps[dcol]
       let wd = 1'ui
       let w = grid.gridTemplate.columns[^1].start.UICoord
