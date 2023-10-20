@@ -177,38 +177,9 @@ template boxOf*(box: Box) =
   current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
   current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
 
-# proc setWindowBounds*(min, max: Vec2) =
-#   base.setWindowBounds(min, max)
-
-# proc loadFontAbsolute*(name: string, pathOrUrl: string) =
-#   ## Loads fonts anywhere in the system.
-#   ## Not supported on js, emscripten, ios or android.
-#   if pathOrUrl.endsWith(".svg"):
-#     fonts[name] = readFontSvg(pathOrUrl)
-#   elif pathOrUrl.endsWith(".ttf"):
-#     fonts[name] = readFontTtf(pathOrUrl)
-#   elif pathOrUrl.endsWith(".otf"):
-#     fonts[name] = readFontOtf(pathOrUrl)
-#   else:
-#     raise newException(Exception, "Unsupported font format")
-
-# proc loadFont*(name: string, pathOrUrl: string) =
-#   ## Loads the font from the dataDir.
-#   loadFontAbsolute(name, dataDir / pathOrUrl)
-
-type
-  ApiOptions* = enum
-    optional
-
 template css*(color: static string): Color =
   const c = parseHtmlColor(color)
   c
-
-template hasAttr*(attr: Attributes): bool =
-  attr in current.attrs 
-
-template notAttr*(attr: Attributes): bool =
-  attr notin current.attrs 
 
 template clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
@@ -255,13 +226,6 @@ template fillHover*(color: Color, alpha: float32, optional=true) =
     current.fill = color
     current.fill.a = alpha
     current.attrs.incl {fillSet, fillHoverSet}
-
-# template callHover*(inner: untyped) =
-#   ## Code in the block will run when this box is hovered.
-#   proc doHover(obj: Figuro) {.slot.} =
-#     echo "hi"
-#     `inner`
-#   root.connect(onHover, current, doHover)
 
 proc positionDiff*(initial: Position, point: Position): Position =
   ## computes relative position of the mouse to the node position
@@ -359,14 +323,6 @@ template setText*(spans: openArray[(UiFont, string)],
 ## similar to those available in HTML. They help
 ## specify details like: "set node width to 100% of it's parents size."
 ## 
-
-# template Em*(size: float32): UICoord =
-#   ## unit size relative to current font size
-#   current.textStyle.fontSize * size.UICoord
-
-# proc `'em`*(n: string): UICoord =
-#   ## numeric literal em unit
-#   result = Em(parseFloat(n))
 
 proc csFixed*(coord: UICoord): Constraint =
   csFixed(coord.UiScalar)
