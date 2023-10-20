@@ -32,6 +32,7 @@ proc draw*(self: Main) {.slot.} =
       fill "#D0D0D0"
       box 3'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0
+      clipContent false
       text "text":
         box 10'pp, 10'ux, 70'pp, 22'ux
         fill blackColor
@@ -55,7 +56,6 @@ proc draw*(self: Main) {.slot.} =
       fill "#D0D0D0"
       box 50'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0
-      clipContent true
       text "text":
         box 10'pp, 10'ux, 70'pp, 22'ux
         fill blackColor
