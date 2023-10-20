@@ -26,6 +26,8 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(0.5)
       offset 30'ux, 10'ux
       size 400'ux, 120'ux
+      # setGridRows 90'ux
+      gridAutoRows 120'ux
 
       # echo "TEXAMPLE: ", current.gridTemplate
       fill blackColor * 0.1
@@ -38,7 +40,7 @@ proc draw*(self: Main) {.slot.} =
           fill "#00A0AA"
           text "val":
             setText({font: "test1"}, Center, Middle)
-            fill parseHtmlColor"#FFFFFF"
+            fill css"#FFFFFF"
       rectangle "slider":
         # echo "slider1: ", slider1.getId
         size 0.5'fr, 0.5'fr

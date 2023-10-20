@@ -12,7 +12,7 @@ proc draw*(self: Vertical) {.slot.} =
   withDraw(self):
     setGridCols 1'fr
     # setGridRows 90'ux
-    gridAutoRows 1'fr
+    # gridAutoRows 1'fr
     gridAutoFlow grRow
     justifyItems CxCenter
     alignItems CxStart
