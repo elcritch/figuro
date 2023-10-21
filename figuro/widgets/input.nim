@@ -22,7 +22,7 @@ proc doKeyCommand*(self: Input,
                    pressed: UiButtonView,
                    down: UiButtonView) {.signal.}
 
-proc tick*(self: Input) {.slot.} =
+proc tick*(self: Input, tick: int, now: MonoTime) {.slot.} =
   if self.isActive:
     self.cnt.inc()
     self.cnt = self.cnt mod 33

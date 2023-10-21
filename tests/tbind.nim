@@ -24,7 +24,7 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       box 40'ux, 30'ux, 80'ux, 40'ux
       fill css"#3B70DF"
-      node nkText, "btnText":
+      text "btnText":
         box 0'pp, 0'pp, 100'pp, 100'pp
         fill blackColor
         bindProp(self.counter)
@@ -32,7 +32,7 @@ proc draw*(self: Main) {.slot.} =
 
     button "btnAdd":
       box 160'ux, 30'ux, 80'ux, 40'ux
-      node nkText, "btnText":
+      text "btnText":
         size 100'pp, 100'pp
         fill blackColor
         setText({largeFont: "–"}, Center, Middle)
@@ -42,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
 
     button "btnSub":
       box 240'ux, 30'ux, 80'ux, 40'ux
-      node nkText, "btnText":
+      text "btnText":
         size 100'pp, 100'pp
         fill blackColor
         setText({largeFont: "+"}, Center, Middle)

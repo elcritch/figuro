@@ -7,11 +7,11 @@ import figuro
 type
   Main* = ref object of Figuro
     value: float
-    hasHovered: bool
-    hoveredAlpha: float
+    hasHovered: bool = false
+    hoveredAlpha: float = 0.0
     mainRect: Figuro
 
-proc hover*(self: Main, kind: EventKind) {.slot.} =
+proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
@@ -36,15 +36,13 @@ proc draw*(self: Main) {.slot.} =
         box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
         # fill css"#2B9FEA"
         # we need to connect it's onHover event
-        connect(current, doHover, self, Main.hover)
+        connect(current, doHover, self, Main.buttonHover)
         # unfortunately, we have many hovers
         # so we need to give hover a type 
         # perfect, the slot pragma adds all this for
         # us
 
 var main = Main.new()
-# connect(main, doDraw, main, Main.draw)
-# connect(main, doTick, main, Main.tick)
 
 echo "main: ", main.listeners
 
