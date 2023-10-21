@@ -1,4 +1,5 @@
 from sugar import capture
+import std/sets
 import macros
 import commons
 
@@ -69,7 +70,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         error("unexpected arguement: " & arg.repr, arg)
     else:
       error("unexpected arguement: " & arg.repr, arg)
-  
+
   if result.stateArg.isNil:
     result.stateArg = ident"void"
   # echo "parseWidgetArgs:res: ", result.repr
@@ -127,3 +128,34 @@ template printNewEventInfo*() =
             stdout.styledWrite({styleBright}, " ", fgBlue, n, fgGreen, v)
           stdout.styledWriteLine(fgWhite, "")
 
+const fieldSetNames = block:
+    var names: HashSet[string]
+    for item in FieldSet:
+      let name = $item
+      names.incl name[2..^1].toLowerAscii()
+    echo "FSN: ", names
+    names
+
+macro optionals*(blk: untyped) =
+  ## Optionally sets any fields in `SetField` enum such as
+  ## `fill` and `cornerRadius`.
+  ## 
+  ## Use this in reusable widgets to enable setting "default"
+  ## fields which only get set if the user hasn't already 
+  ## set the value. 
+  ## 
+  ## This is required because the user supplied actions
+  ## run *before* the widget draw slot.
+  ## 
+  result = newStmtList()
+  for st in blk:
+    if st.kind in [nnkCommand, nnkCall] and
+        st[0].kind == nnkIdent and
+        st[0].strVal.toLowerAscii() in fieldSetNames:
+      let fsName = ident "fs" & st[0].strVal
+      result.add quote do:
+        if `fsName` notin current.userSetFields:
+          `st`
+    else:
+      result.add st
+  echo "OPTIONALS:\n", result.repr

@@ -172,20 +172,70 @@ macro tryGetTypeAgentProc(slot: untyped): untyped =
 macro typeMismatchError(signal, slot: typed): untyped =
   error("mismatched signal and slot type: " & repr(signal) & " != " & repr(slot), slot)
 
+proc getAgentProcTy[T](tp: AgentProcTy[T]): T =
+  discard
+
+template connect*[T](
+    a: Agent,
+    signal: typed,
+    b: Agent,
+    slot: AgentProcTy[T],
+    acceptVoidSlot: static bool = false,
+) =
+  let agentSlot = slot
+  # static:
+  block:
+    ## statically verify signal / slot types match
+    # echo "TYP: ", repr typeof(SignalTypes.`signal`(typeof(a)))
+    var signalType {.used, inject.}: typeof(SignalTypes.`signal`(typeof(a)))
+    var slotType {.used, inject.}: typeof(getAgentProcTy(slot))
+    when acceptVoidSlot and slotType is tuple[]:
+      discard
+    else:
+      signalType = slotType
+  a.addAgentListeners(signalName(signal), b, agentSlot)
+
 template connect*(
     a: Agent,
     signal: typed,
     b: Agent,
-    slot: untyped
+    slot: typed,
+    acceptVoidSlot: static bool = false,
 ) =
-  when slot is AgentProc:
-    when SignalTypes.`signal`(typeof(a)).typeof isnot
-          tryGetTypeAgentProc(slot).typeof:
-      typeMismatchError(signal, slot)
-    let agentSlot: AgentProc = slot
-  else:
-    let agentSlot: AgentProc = `slot`(typeof(b))
+  let agentSlot = `slot`(typeof(b))
+  block:
+    ## statically verify signal / slot types match
+    var signalType {.used, inject.}: typeof(SignalTypes.`signal`(typeof(a)))
+    var slotType {.used, inject.}: typeof(getAgentProcTy(agentSlot))
+    when acceptVoidSlot and slotType is tuple[]:
+      discard
+    else:
+      signalType = slotType
+  static:
+    echo "TYPE CONNECT:slot: ", typeof(SignalTypes.`signal`(typeof(a)))
+    echo "TYPE CONNECT:st: ", agentSlot.typeof.repr, " " , repr getAgentProcTy(agentSlot).typeof
+    echo ""
+
   a.addAgentListeners(signalName(signal), b, agentSlot)
+
+
+
+# template connect*(
+#     a: Agent,
+#     signal: typed,
+#     b: Agent,
+#     slot: untyped
+# ) =
+#   when slot is AgentProc:
+#     static:
+#       echo "TYPE CONNECT: ", slot.typeof.repr, " ", genericParams(slot.typeof)
+#     when SignalTypes.`signal`(typeof(a)).typeof isnot
+#           tryGetTypeAgentProc(slot).typeof:
+#       typeMismatchError(signal, slot)
+#     let agentSlot: AgentProc = slot
+#   else:
+#     let agentSlot: AgentProc = `slot`(typeof(b))
+#   a.addAgentListeners(signalName(signal), b, agentSlot)
 
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:

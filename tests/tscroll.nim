@@ -2,6 +2,7 @@
 ## This minimal example shows 5 blue squares.
 import figuro/widgets/button
 import figuro/widgets/scrollpane
+import figuro/widgets/vertical
 import figuro/widget
 import figuro
 
@@ -18,29 +19,24 @@ proc draw*(self: Main) {.slot.} =
   withDraw self:
     fill "#0000AA"
     name "root"
-
     scroll "scroll":
-      # offset 20'ux, 20'ux
-      # size 90'pp, 80'pp
-      clipContent true
+      offset 2'pp, 2'pp
+      cornerRadius 7.0'ux
+      size 96'pp, 90'pp
       contents "children":
-        # Setup CSS Grid Template
-        cornerRadius 10.0
-        offset 10'ux, 10'ux
+        vertical "":
+          # Setup CSS Grid Template
+          offset 10'ux, 10'ux
+          itemHeight cx"max-content"
 
-        setGridCols 1'fr
-        gridAutoRows cx"max-content"
-        gridAutoFlow grRow
-        justifyItems CxCenter
-
-        for i in 0 .. 15:
-          button "button", captures(i):
-            # current.gridItem = nil
-            size 1'fr, 50'ux
-            if i == 3:
-              size 0.9'fr, 120'ux
-            fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
-            connect(current, doHover, self, Main.hover)
+          for i in 0 .. 15:
+            button "button", captures(i):
+              # current.gridItem = nil
+              size 1'fr, 50'ux
+              if i in [3, 7]:
+                size 0.9'fr, 120'ux
+              fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
+              connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)

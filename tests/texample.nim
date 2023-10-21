@@ -1,4 +1,4 @@
-import figuro/widget
+import figuro/widgets/vertical
 import figuro
 
 let
@@ -10,64 +10,44 @@ type
     mainRect: Figuro
     fVal: float32
 
-import macros
-
-
-proc drag(
-  main: Main;
-  kind: EventKind,
-  initial: Position;
-  current: Position;
-) {.slot.} =
+proc drag(main: Main; kind: EventKind,
+          initial: Position, current: Position) {.slot.} =
   refresh(main)
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
     name "root"
-    fill blackColor
 
-    rectangle "main":
+    let vert {.expose.} = vertical "vert":
       fill whiteColor.darken(0.5)
       offset 30'ux, 10'ux
       size 400'ux, 120'ux
+      itemHeight 90'ux
 
-      setGridCols 1'fr
-      setGridRows 60'ux
-      gridAutoRows 60'ux
-      gridAutoFlow grRow
-      justifyItems CxCenter
-      alignItems CxStart
-      echo "TEXAMPLE: ", current.gridTemplate
-      fill blackColor
+      # echo "TEXAMPLE: ", current.gridTemplate
+      fill blackColor * 0.1
+      cornerRadius 20
 
-      let i = 3
-      let slider1 {.expose.} = rectangle("slider"):
-          # var theSlider: Slider[float32]
-          size 60'ux, 40'ux
-          fill "#00A0AA"
-          # slider "floatSlider", state(float32):
-          #   widget.valueRange = 0f..10f
-          #   theSlider = widget
-          #   connect(current, doDrag, self, Main.drag)
-          text "val":
-            setText({font: "test1"}, Center, Middle)
-            fill parseHtmlColor"#FFFFFF"
+      let slider1 {.expose.} = rectangle "slider":
+        # var theSlider: Slider[float32]
+        size 200'ux, 45'ux
+        fill "#00A0AA"
+        text "val":
+          setText({font: "test1"}, Center, Middle)
+          fill css"#FFFFFF"
       rectangle "slider":
-        echo "slider1: ", slider1.getId
-        # var theSlider: Slider[int]
-        size 60'ux, 40'ux
+        # echo "slider1: ", slider1.getId
+        size 0.5'fr, 0.5'fr
+        # size 60'ux, 40'ux
         fill "#A000AA"
-        # slider "intSlider", state(int):
-        #   widget.valueRange = 0..10
-        #   theSlider = widget
-        #   connect(current, doDrag, self, Main.drag)
         text "val":
           setText({font: "test2"}, Center, Middle)
-          fill parseHtmlColor"#FFFFFF"
+          fill css"#FFFFFF"
+    gridTemplateDebugLines Figuro(vert)
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
 
-app.width = 720
-app.height = 140
+app.width = 440
+app.height = 440
 startFiguro(main)

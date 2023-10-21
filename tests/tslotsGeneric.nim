@@ -95,4 +95,7 @@ when isMainModule:
     test "connect type errors":
       check not compiles(
         connect(a, avgChanged,
-                c, Counter.setValue))
+                c, Counter[uint].setValue))
+
+      # connect(a, avgChanged,
+      #         c, Counter[uint].setValue)

@@ -15,6 +15,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
+
 proc tick*(self: Main) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
     self.hoveredAlpha += 0.010
@@ -22,8 +23,6 @@ proc tick*(self: Main) {.slot.} =
   elif self.hoveredAlpha > 0.00 and not self.hasHovered:
     self.hoveredAlpha -= 0.005
     refresh(self)
-
-import pretty
 
 proc draw*(self: Main) {.slot.} =
   var current = self
@@ -35,14 +34,14 @@ proc draw*(self: Main) {.slot.} =
     fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
     for i in 0 .. 4:
       button "btn", captures(i):
-          box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
-          # echo nd(), "btn: ", i
-          # we need to connect it's onHover event
-          connect(current, doHover, self, Main.hover)
-          # unfortunately, we have many hovers
-          # so we need to give hover a type 
-          # perfect, the slot pragma adds all this for
-          # us
+        box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
+        # fill css"#2B9FEA"
+        # we need to connect it's onHover event
+        connect(current, doHover, self, Main.hover)
+        # unfortunately, we have many hovers
+        # so we need to give hover a type 
+        # perfect, the slot pragma adds all this for
+        # us
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)

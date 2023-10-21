@@ -56,9 +56,11 @@ when isMainModule:
               b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
-      check not(compiles(
-        connect(a, valueChanged,
-              c, setValue Counter)))
+      static:
+        echo "NOT COMPILES:"
+      # check not(compiles(
+      connect(a, valueChanged,
+              c, setValue Counter)
       check not(compiles(
         connect(a, someAction,
                 c, Counter.setValue)))
@@ -98,9 +100,9 @@ when isMainModule:
       check c.value == 42
 
     test "connect type errors":
-      # check not compiles(
-      connect(a, avgChanged,
-              c, setValue)
+      check not compiles(
+        connect(a, avgChanged,
+                c, setValue))
 
     test "signal connect reg proc":
       # TODO: how to do this?
@@ -116,6 +118,6 @@ when isMainModule:
       # TODO: how to do this?
 
       connect(a, valueChanged,
-              c, someAction)
+              c, someAction, acceptVoidSlot = true)
 
       a.setValue(42)
