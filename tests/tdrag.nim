@@ -36,7 +36,7 @@ proc draw*(self: Main) {.slot.} =
       connect(current, doDrag, current, btnDrag)
 
       contents "child":
-        node nkText, "btnText":
+        text "btnText":
           box 10'ux, 10'ux, 80'pp, 80'pp
           fill blackColor
           setText({font: "drag me"})
