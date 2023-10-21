@@ -178,7 +178,8 @@ template connect*(
     a: Figuro,
     signal: typed,
     b: Figuro,
-    slot: typed
+    slot: typed,
+    acceptVoidSlot: static bool = false,
 ) =
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}
@@ -186,7 +187,7 @@ template connect*(
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":
     a.listens.signals.incl {evDrag, evDragEnd}
-  signals.connect(a, signal, b, slot)
+  signals.connect(a, signal, b, slot, acceptVoidSlot)
 
 template bubble*(signal: typed, parent: typed) =
   connect(current, `signal`, parent, `signal Bubble`)
