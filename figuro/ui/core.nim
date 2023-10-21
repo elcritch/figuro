@@ -271,9 +271,9 @@ proc generateBodies*(widget, kind: NimNode,
       wrapCaptures(`hasCaptures`, `capturedVals`):
         current.preDraw = proc (c: Figuro) =
           let current {.inject.} = `widgetType`(c)
-          let widget {.inject.} = `widgetType`(c)
-          if preDrawReady in widget.attrs:
-            widget.attrs.excl preDrawReady
+          let node {.inject.} = `widgetType`(c)
+          if preDrawReady in current.attrs:
+            current.attrs.excl preDrawReady
             `blk`
       postNode(Figuro(current))
       when `hasBinds`:
