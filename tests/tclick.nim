@@ -16,7 +16,7 @@ type
 
 proc update*(fig: Main) {.signal.}
 
-proc btnTick*(self: Button[int]) {.slot.} =
+proc btnTick*(self: Button[int], tick: int, now: MonoTime) {.slot.} =
   self.state.inc
   # echo "btnTick: ", self.getid
   refresh(self)
@@ -42,7 +42,7 @@ proc txtClicked*(self: Figuro,
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   echo "button:hovered: ", kind, " :: ", self.getId
 
-proc tick*(self: Main) {.slot.} =
+proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
     self.hoveredAlpha += 0.010
     refresh(self)
@@ -73,18 +73,16 @@ proc draw*(self: Main) {.slot.} =
 
           connect(current, doHover, self, Main.hover)
           connect(current, doClick, current, btnClicked)
-          if i == 0:
-            connect(self, update, current, btnTick)
+          # if i == 0:
+          #   connect(self, update, current, btnTick)
 
           contents "child":
-            node nkText, "text":
+            text "text":
               box 10'ux, 10'ux, 80'pp, 80'pp
               fill blackColor
               setText({font: $(btn.state)})
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw())
-connect(main, doTick, main, Main.tick())
 
 app.width = 720
 app.height = 140
