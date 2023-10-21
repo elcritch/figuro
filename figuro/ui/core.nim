@@ -153,6 +153,22 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
 
+proc connectDefaults*[T](current: T) {.slot.} =
+  ## only activate these if custom ones have been provided 
+  connect(current, doDraw, current, Figuro.clearDraw())
+  connect(current, doDraw, current, Figuro.handlePreDraw())
+  connect(current, doDraw, current, T.draw())
+  connect(current, doDraw, current, Figuro.handlePostDraw())
+  when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
+    connect(current, doClick, current, T.clicked())
+  when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
+    connect(current, doKeyInput, current, T.keyInput())
+  when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
+    connect(current, doKeyPress, current, T.keyPress())
+  when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
+    connect(current, doHover, current, T.hover())
+  when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
+    connect(current, doTick, current, T.tick())
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Figuro) =
   ## Process the start of the node.
@@ -221,23 +237,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.diffIndex = 0
 
   ## these define the default behaviors for Figuro widgets
-  connect(current, doDraw, current, Figuro.clearDraw())
-  connect(current, doDraw, current, Figuro.handlePreDraw())
-  connect(current, doDraw, current, T.draw())
-  connect(current, doDraw, current, Figuro.handlePostDraw())
-  ## only activate these if custom ones have been provided 
-  # static:
-  #   echo "T is ", repr(typeof(T))
-  #   echo "T compiles: SignalT: ", compiles(SignalTypes.clicked(T))
-  #   echo "T compiles T.clicked(): ", compiles(T.clicked())
-  when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
-    connect(current, doClick, current, T.clicked())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
-    connect(current, doKeyInput, current, T.keyInput())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
-    connect(current, doKeyPress, current, T.keyPress())
-  when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
-    connect(current, doHover, current, T.hover())
+  connectDefaults[T](current)
 
 proc postNode*(current: var Figuro) =
   emit current.doDraw()

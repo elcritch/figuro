@@ -15,7 +15,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
-proc tick*(self: Main) {.slot.} =
+proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
     self.hoveredAlpha += 0.010
     refresh(self)
@@ -43,8 +43,8 @@ proc draw*(self: Main) {.slot.} =
         # us
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw)
-connect(main, doTick, main, Main.tick)
+# connect(main, doDraw, main, Main.draw)
+# connect(main, doTick, main, Main.tick)
 
 echo "main: ", main.listeners
 
