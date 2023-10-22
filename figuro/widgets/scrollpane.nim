@@ -28,23 +28,23 @@ type
 proc calculateScroll*(self: ScrollPane,
                       viewBox, childBox: Box,
                       wheelDelta: Position) =
-  # self.scrollby.x -= wheelDelta.x * 10.0
-  let yoffset = wheelDelta.y * 10.0
   let
     viewHeight = viewBox.h
     contentHeight = childBox.h
     contentViewRatio = (viewHeight/contentHeight).clamp(0.0'ui, 1.0'ui)
     contentOverflow = (contentHeight - viewHeight).clamp(0'ui, contentHeight)
 
-  echo "SCROLL: ph: ", viewHeight, " ch: ", contentOverflow, " ratio: ", contentViewRatio
-  self.window.scrollby.y -= yoffset
+  echo "SCROLL: pre: ", " delta: ", wheelDelta.y * 10.0,  " scrollBy: ", self.window.scrollby.y, " after: ", self.window.scrollby.y - wheelDelta.y * 10.0
+  self.window.scrollby.y -= wheelDelta.y * 10.0
   self.window.scrollby.y = self.window.scrollby.y.clamp(0'ui, contentOverflow)
+  echo "SCROLL: ph: ", viewHeight, " ch: ", contentOverflow, " ratio: ", contentViewRatio, " scrollBy: ", self.window.scrollby.y
+  echo ""
 
   let
     scrollBarSize = contentViewRatio * viewHeight
     sizePercent = clamp(self.window.scrollby.y/contentOverflow, 0'ui, 1'ui)
     barX = if self.props.barLeft: 0'ui
-           else: self.screenBox.w - self.props.width
+           else: viewBox.w - self.props.width
     barY = sizePercent*(viewHeight - scrollBarSize)
     barStart = initPosition(barX.float, barY.float)
 
@@ -53,6 +53,7 @@ proc calculateScroll*(self: ScrollPane,
     contentHeight: contentHeight,
     contentViewRatio: contentViewRatio,
     contentOverflow: contentOverflow,
+    scrollBy: self.window.scrollby,
   )
   self.bar = ScrollBar(
     size: scrollBarSize,
