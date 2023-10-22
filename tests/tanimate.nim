@@ -11,17 +11,12 @@ type
 
 proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   refresh(self)
-  # if self.mainRect != nil:
-  #   echo "tick main: ", self.mainRect.uid
   self.value = 0.004 * (1+tick).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
   withDraw(self):
-    # echo "draw widget!"
     rectangle "main":
-      # echo "draw mainRect"
-      # connect(current, onDraw, self, Main.draw)
       box 0'ui, 0'ui, 620'ui, 140'ui
       for i in 0 .. 5:
         button "btn", captures(i):
