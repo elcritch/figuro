@@ -2,17 +2,13 @@ import std/unicode
 
 import commons
 import ../ui/utils
+import ../ui/textutils
 
 type
   Input* = ref object of Figuro
     isActive*: bool
     disabled*: bool
-    selection*: Slice[int]
-    isGrowingLeft*: bool # Text editors store selection direction to control how keys behave
-    selectionRects*: seq[Box]
-    selHash*: Hash
-    layout*: GlyphArrangement
-    textNode*: Figuro
+    text*: TextBox
     value: int
     cnt: int
 
@@ -52,24 +48,6 @@ template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.runes.len() - 1
 
-proc updateSelectionBoxes(self: Input) =
-
-  var sels: seq[Slice[int]]
-  for sl in self.layout.lines:
-    if aa in sl or bb in sl or (aa < sl.a and sl.b < bb):
-      sels.add max(sl.a, aa)..min(sl.b, bb)
-    else:
-      sels.add sl.a..sl.a
-
-  self.selectionRects.setLen(0)
-  for sl in sels:
-    let ra = self.layout.selectionRects[sl.a]
-    let rb = self.layout.selectionRects[sl.b]
-    var rs = ra
-    rs.w = rb.x - ra.x
-    rs.h = (rb.y + rb.h) - ra.y
-    self.selectionRects.add rs.descaled()
-
 proc updateLayout*(self: Input, text = seq[Rune].none) =
   let runes =
     if text.isSome: text.get()
@@ -90,7 +68,6 @@ proc findLine*(self: Input, down: bool, isGrowingSelection = false): int =
           return idx
       elif self.selection.a in sl:
         return idx
-
 
 proc findPrevWord*(self: Input): int =
   result = -1
@@ -294,26 +271,24 @@ proc draw*(self: Input) {.slot.} =
     text "text":
       box 10'ux, 10'ux, 400'ux, 100'ux
       fill blackColor
-      self.textNode = current
       current.textLayout = self.layout
 
       rectangle "cursor":
         let sz = 0..self.layout.selectionRects.high()
-        if self.selection.a in sz and self.selection.b in sz:
-          var sr =
-            if self.isGrowingLeft:
-              self.layout.selectionRects[self.selection.a]
-            else:
-              self.layout.selectionRects[self.selection.b]
-          ## this is gross but works for now
-          let width = max(0.08*fs, 2.0)
-          sr.x = sr.x - width/2.0
-          sr.y = sr.y - 0.04*fs
-          sr.w = width
-          sr.h = 0.9*fs
-          boxOf sr.descaled()
-          fill blackColor
-          current.fill.a = self.value.toFloat * 1.0
+        var sr =
+          if self.isGrowingLeft:
+            self.layout.selectionRects[self.selection.a]
+          else:
+            self.layout.selectionRects[self.selection.b]
+        ## this is gross but works for now
+        let width = max(0.08*fs, 2.0)
+        sr.x = sr.x - width/2.0
+        sr.y = sr.y - 0.04*fs
+        sr.w = width
+        sr.h = 0.9*fs
+        boxOf sr.descaled()
+        fill blackColor
+        current.fill.a = self.value.toFloat * 1.0
 
       for i, sl in self.selectionRects:
         rectangle "selection", captures(i):
