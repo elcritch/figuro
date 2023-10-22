@@ -23,12 +23,12 @@ proc draw*(self: Main) {.slot.} =
       offset 2'pp, 2'pp
       cornerRadius 7.0'ux
       size 96'pp, 90'pp
+      fig.settings.size.y = 20'ui
       contents "children":
         vertical "":
           # Setup CSS Grid Template
           offset 10'ux, 10'ux
           itemHeight cx"max-content"
-
           for i in 0 .. 15:
             button "button", captures(i):
               # current.gridItem = nil
@@ -39,9 +39,6 @@ proc draw*(self: Main) {.slot.} =
               connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw)
-
-echo "main: ", main.listeners
 
 app.width = 600
 app.height = 480

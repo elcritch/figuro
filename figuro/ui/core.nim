@@ -153,6 +153,22 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
 
+proc connectDefaults*[T](current: T) {.slot.} =
+  ## only activate these if custom ones have been provided 
+  connect(current, doDraw, current, Figuro.clearDraw())
+  connect(current, doDraw, current, Figuro.handlePreDraw())
+  connect(current, doDraw, current, T.draw())
+  connect(current, doDraw, current, Figuro.handlePostDraw())
+  when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
+    connect(current, doClick, current, T.clicked())
+  when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
+    connect(current, doKeyInput, current, T.keyInput())
+  when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
+    connect(current, doKeyPress, current, T.keyPress())
+  when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
+    connect(current, doHover, current, T.hover())
+  when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
+    connect(root, doTick, current, T.tick(), acceptVoidSlot=true)
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Figuro) =
   ## Process the start of the node.
@@ -221,23 +237,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Fig
   current.diffIndex = 0
 
   ## these define the default behaviors for Figuro widgets
-  connect(current, doDraw, current, Figuro.clearDraw())
-  connect(current, doDraw, current, Figuro.handlePreDraw())
-  connect(current, doDraw, current, T.draw())
-  connect(current, doDraw, current, Figuro.handlePostDraw())
-  ## only activate these if custom ones have been provided 
-  # static:
-  #   echo "T is ", repr(typeof(T))
-  #   echo "T compiles: SignalT: ", compiles(SignalTypes.clicked(T))
-  #   echo "T compiles T.clicked(): ", compiles(T.clicked())
-  when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
-    connect(current, doClick, current, T.clicked())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
-    connect(current, doKeyInput, current, T.keyInput())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
-    connect(current, doKeyPress, current, T.keyPress())
-  when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
-    connect(current, doHover, current, T.hover())
+  connectDefaults[T](current)
 
 proc postNode*(current: var Figuro) =
   emit current.doDraw()
@@ -271,9 +271,9 @@ proc generateBodies*(widget, kind: NimNode,
       wrapCaptures(`hasCaptures`, `capturedVals`):
         current.preDraw = proc (c: Figuro) =
           let current {.inject.} = `widgetType`(c)
-          let widget {.inject.} = `widgetType`(c)
-          if preDrawReady in widget.attrs:
-            widget.attrs.excl preDrawReady
+          let fig {.inject, used.} = current
+          if preDrawReady in current.attrs:
+            current.attrs.excl preDrawReady
             `blk`
       postNode(Figuro(current))
       when `hasBinds`:
@@ -439,6 +439,73 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
+template calcBasicConstraintPostImpl(
+    node: Figuro,
+    dir: static GridDir,
+    f: untyped
+) =
+  ## computes basic constraints for box'es when set
+  ## this let's the use do things like set 90'pp (90 percent)
+  ## of the box width post css grid or auto constraints layout
+  let parentBox = if node.parent.isNil: app.windowSize
+                  else: node.parent.box
+  template calcBasic(val: untyped): untyped =
+    block:
+      var res: UICoord
+      match val:
+        UiContentMin(cmins):
+          for n in node.children:
+            when astToStr(f) in ["w"]:
+              res = min(n.box.w + n.box.y, res)
+            when astToStr(f) in ["h"]:
+              res = min(n.box.h + n.box.y, res)
+        UiContentMax(cmaxs):
+          # res = cmaxs.UICoord
+          for n in node.children:
+            when astToStr(f) in ["w"]:
+              res = max(n.box.w + n.box.x, res)
+            when astToStr(f) in ["h"]:
+              res = max(n.box.h + n.box.y, res)
+        _:
+          res = node.box.f
+      res
+  
+  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
+                else: node.cxOffset[dir]
+  match csValue:
+    UiNone:
+      discard
+    UiSum(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = lv + rv
+    UiMin(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = min(lv, rv)
+    UiMax(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = max(lv, rv)
+    UiMinMax(ls, rs):
+      discard
+    UiValue(value):
+      node.box.f = calcBasic(value)
+    UiEnd():
+      discard
+
+proc calcBasicConstraintPost(node: Figuro, dir: static GridDir, isXY: static bool) =
+  ## calcuate sizes of basic constraints per field x/y/w/h for each node
+  when isXY == true and dir == dcol: 
+    calcBasicConstraintPostImpl(node, dir, x)
+  elif isXY == true and dir == drow: 
+    calcBasicConstraintPostImpl(node, dir, y)
+  # w & h need to run after x & y
+  elif isXY == false and dir == dcol: 
+    calcBasicConstraintPostImpl(node, dir, w)
+  elif isXY == false and dir == drow: 
+    calcBasicConstraintPostImpl(node, dir, h)
+
 proc printLayout*(node: Figuro, depth = 0) =
   stdout.styledWriteLine(
             " ".repeat(depth),
@@ -486,6 +553,14 @@ proc computeLayout*(node: Figuro, depth: int) =
   else:
     for n in node.children:
       computeLayout(n, depth+1)
+
+    # update childrens
+    for n in node.children:
+      calcBasicConstraintPost(n, dcol, isXY=true)
+      calcBasicConstraintPost(n, drow, isXY=true)
+      calcBasicConstraintPost(n, dcol, isXY=false)
+      calcBasicConstraintPost(n, drow, isXY=false)
+
 
 
 proc computeLayout*(node: Figuro) =

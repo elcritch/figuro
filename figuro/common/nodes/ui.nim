@@ -1,4 +1,5 @@
 import std/unicode
+import std/monotimes
 import basics
 import ../../meta
 import ../../inputs
@@ -6,7 +7,7 @@ import cssgrid
 import stack_strings
 
 export basics, meta, inputs, cssgrid, stack_strings
-export unicode
+export unicode, monotimes
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -94,7 +95,9 @@ proc getId*(fig: Figuro): NodeID =
   else: fig.uid
 
 
-proc doTick*(fig: Figuro) {.signal.}
+proc doTick*(fig: Figuro,
+             tickCount: int,
+             now: MonoTime) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro,
@@ -149,8 +152,10 @@ proc drag*(fig: BasicFiguro,
   discard
 
 
-proc doTickBubble*(fig: Figuro) {.slot.} =
-  emit fig.doTick()
+proc doTickBubble*(fig: Figuro,
+                   tickCount: int,
+                   now: MonoTime) {.slot.} =
+  emit fig.doTick(tickCount, now)
 proc doDrawBubble*(fig: Figuro) {.slot.} =
   emit fig.doDraw()
 proc doLoadBubble*(fig: Figuro) {.slot.} =
@@ -173,7 +178,8 @@ template connect*(
     a: Figuro,
     signal: typed,
     b: Figuro,
-    slot: typed
+    slot: typed,
+    acceptVoidSlot: static bool = false,
 ) =
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}
@@ -181,7 +187,7 @@ template connect*(
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":
     a.listens.signals.incl {evDrag, evDragEnd}
-  signals.connect(a, signal, b, slot)
+  signals.connect(a, signal, b, slot, acceptVoidSlot)
 
 template bubble*(signal: typed, parent: typed) =
   connect(current, `signal`, parent, `signal Bubble`)

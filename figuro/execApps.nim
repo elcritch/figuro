@@ -14,8 +14,8 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
-proc startFiguro*(
-    widget: Figuro,
+proc startFiguro*[T](
+    widget: T,
     setup: proc() = nil,
     fullscreen = false,
     pixelate = false,
@@ -34,13 +34,14 @@ proc startFiguro*(
 
   root = widget
   redrawNodes = initOrderedSet[Figuro]()
+  connectDefaults[T](widget)
   refresh(root)
   setupRoot(root)
 
   loadMain = proc () =
     emit root.doLoad()
   tickMain = proc () =
-    emit root.doTick()
+    emit root.doTick(app.tickCount, getMonoTime())
   eventMain = proc () =
     var input: AppInputs
     ## only process up to ~10 events at a time

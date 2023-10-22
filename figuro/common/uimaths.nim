@@ -111,6 +111,7 @@ type
   Position* = distinct Vec2
 
 proc initPosition*(x, y: float32): Position = Position(vec2(x, y))
+proc initPosition*(x, y: UICoord): Position = Position(vec2(x.float32, y.float32))
 genBoolOp[Position, Vec2](`==`)
 genBoolOp[Position, Vec2](`!=`)
 genBoolOp[Position, Vec2](`~=`)
@@ -204,6 +205,19 @@ proc sum*(rect: Box): UICoord =
   result = rect.x + rect.y + rect.w + rect.h
 proc sum*(rect: (UICoord, UICoord, UICoord, UICoord)): UICoord =
   result = rect[0] + rect[1] + rect[2] + rect[3]
+
+proc clamp*(v: Position, a, b: Position): Position =
+  initPosition(
+    v.x.clamp(a.x, b.x).float32,
+    v.y.clamp(a.y, b.y).float32,
+  )
+
+proc clamp*[U,V](v: Position, a: U, b: V): Position =
+  when U isnot Position:
+    let a = initPosition(a,a)
+  when V isnot Position:
+    let b = initPosition(b,b)
+  v.clamp(a, b)
 
 proc `$`*(a: Position): string =
   &"Position<{a.x:2.2s}, {a.y:2.2s}>"

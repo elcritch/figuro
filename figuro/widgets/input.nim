@@ -22,7 +22,7 @@ proc doKeyCommand*(self: Input,
                    pressed: UiButtonView,
                    down: UiButtonView) {.signal.}
 
-proc tick*(self: Input) {.slot.} =
+proc tick*(self: Input, tick: int, now: MonoTime) {.slot.} =
   if self.isActive:
     self.cnt.inc()
     self.cnt = self.cnt mod 33
@@ -290,7 +290,6 @@ proc draw*(self: Input) {.slot.} =
 
     clipContent true
     cornerRadius 10.0
-    connect(findRoot(self), doTick, self, Input.tick())
 
     text "text":
       box 10'ux, 10'ux, 400'ux, 100'ux

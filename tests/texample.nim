@@ -28,18 +28,16 @@ proc draw*(self: Main) {.slot.} =
       fill blackColor * 0.1
       cornerRadius 20
 
-      let slider1 {.expose.} = rectangle "slider":
-        # var theSlider: Slider[float32]
-        size 200'ux, 45'ux
-        fill "#00A0AA"
-        text "val":
-          setText({font: "test1"}, Center, Middle)
-          fill css"#FFFFFF"
+      let slider1 {.expose.} =
+        rectangle "slider":
+          size 200'ux, 45'ux
+          fill "#00A0AA"
+          text "val":
+            setText({font: "test1"}, Center, Middle)
+            fill css"#FFFFFF"
       rectangle "slider":
-        # echo "slider1: ", slider1.getId
         size 0.5'fr, 0.5'fr
-        # size 60'ux, 40'ux
-        fill "#A000AA"
+        fig.fill = css"#A000AA"
         text "val":
           setText({font: "test2"}, Center, Middle)
           fill css"#FFFFFF"
