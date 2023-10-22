@@ -39,47 +39,9 @@ proc clicked*(self: Input,
 
 proc sameSlice[T](a: T): Slice[T] = a..a # Shortcut 
 
-proc clampedLeft(self: Input, offset = 0): int = clamp(self.selection.a + offset, 0, self.runes.len)
-proc clampedRight(self: Input, offset = 0): int = clamp(self.selection.b + offset, 0, self.runes.len)
-
-proc deleteSelection(self: Input): Slice[int] = self.clampedLeft .. clamp(self.selection.b - 1, 0, self.runes.len)
-
 template aa(): int = self.selection.a
 template bb(): int = self.selection.b
 template ll(): int = self.runes.len() - 1
-
-proc updateLayout*(self: Input, text = seq[Rune].none) =
-  let runes =
-    if text.isSome: text.get()
-    else: self.runes
-  let spans = {self.theme.font: $runes, self.theme.font: "*"}
-  self.layout = internal.getTypeset(self.box, spans)
-  self.runes.setLen(ll())
-
-proc findLine*(self: Input, down: bool, isGrowingSelection = false): int =
-  result = -1
-  for idx, sl in self.layout.lines:
-    if isGrowingSelection:
-      if (self.isGrowingLeft and self.selection.a in sl) or (not self.isGrowingLeft and self.selection.b in sl):
-        return idx
-    else:
-      if down:
-        if self.selection.b in sl:
-          return idx
-      elif self.selection.a in sl:
-        return idx
-
-proc findPrevWord*(self: Input): int =
-  result = -1
-  for i in countdown(max(0,aa-2), 0):
-    if self.runes[i].isWhiteSpace():
-      return i
-
-proc findNextWord*(self: Input): int =
-  result = self.runes.len()
-  for i in countup(aa+1, self.runes.len()-1):
-    if self.runes[i].isWhiteSpace():
-      return i
 
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =

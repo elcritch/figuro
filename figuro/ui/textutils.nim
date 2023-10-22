@@ -4,25 +4,39 @@ import commons
 import utils
 
 type
+  TextDirection* = enum
+    left
+    right
+
   TextBox* = object
     selection*: Slice[int]
-    isGrowingLeft*: bool # Text editors store selection direction to control how keys behave
+    growing*: TextDirection # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
     selHash: Hash
     layout*: GlyphArrangement
+    font*: UiFont
+    box*: Box
 
-# proc runes(self: TextBox): var seq[Rune] = self.layout.runes
+proc runes*(self: TextBox): var seq[Rune] = self.runes()
+proc toSlice[T](a: T): Slice[T] = a..a # Shortcut 
 
-proc updateLayout*(self: var TextBox, theme: Theme, box: Box) =
+proc initTextBox*(box: Box, font: UiFont): TextBox =
+  result = TextBox()
+  result.box = box
+  result.font = font
+
+proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
   ## Update layout from runes.
   ## 
   ## This appends an extra character at the end to get the cursor
   ## position at the end, which depends on the next character.
   ## Otherwise, this character is ignored.
-  let spans = {theme.font: $self.layout.runes,
-               theme.font: "."}
-  self.layout = internal.getTypeset(box, spans)
-  self.layout.runes.setLen(self.layout.runes.len() - 1)
+  self.box = box
+  self.font = font
+  let spans = {self.font: $self.runes(),
+               self.font: "."}
+  self.layout = internal.getTypeset(self.box, spans)
+  self.runes().setLen(self.runes().len() - 1)
 
 iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
   ## get the slices for each line given a `selection`
@@ -48,14 +62,54 @@ proc updateSelectionBoxes*(self: var TextBox) =
     rect.h = (rhs.y + rhs.h) - lhs.y
     self.selectionRects.add rect.descaled()
 
-proc clamp*(self: TextBox, offset = 0, left = false): int =
-  if left:
-    clamp(self.selection.a + offset, 0, self.layout.runes.len)
-  else:
-    clamp(self.selection.b + offset, 0, self.layout.runes.len)
+proc clamp*(self: TextBox, dir = right, offset = 0): int =
+  case dir
+  of left:
+    clamp(self.selection.a + offset, 0, self.runes().len)
+  of right:
+    clamp(self.selection.b + offset, 0, self.runes().len)
 
-proc clampedLeft*(self: TextBox, offset = 0): int = self.clamp(left=true)
-proc clampedRight*(self: TextBox, offset = 0): int = self.clamp(left=false)
+proc clampedLeft*(self: TextBox, offset = 0): int = self.clamp(left, offset)
+proc clampedRight*(self: TextBox, offset = 0): int = self.clamp(right, offset)
 
-proc deleteSelected*(self: TextBox): Slice[int] =
-  self.clamp(left=true) .. clamp(self.selection.b - 1, 0, self.layout.runes.len())
+proc deleteSelection*(self: var TextBox) =
+  if self.selection.len() > 1:
+    let delSlice = self.clamp(left) .. self.clamp(right, -1)
+    self.runes().delete(delSlice)
+    self.selection = self.clamp(left).toSlice()
+
+proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
+  result = -1
+  let lhs = self.selection.a
+  let rhs = self.selection.b
+  for idx, line in self.layout.lines:
+    if isGrowingSelection:
+      if self.growing == left and lhs in line:
+        return idx
+      if self.growing == right and rhs in line:
+        return idx
+    else:
+      if down:
+        if rhs in line:
+          return idx
+      elif lhs in line:
+        return idx
+
+proc findPrevWord*(self: TextBox): int =
+  result = -1
+  for i in countdown(max(0,self.selection.a-2), 0):
+    if self.runes()[i].isWhiteSpace():
+      return i
+
+proc findNextWord*(self: TextBox): int =
+  result = self.runes().len()
+  for i in countup(self.selection.a+1, self.runes().len()-1):
+    if self.runes()[i].isWhiteSpace():
+      return i
+
+proc insert*(self: var TextBox, rune: Rune) =
+  self.deleteSelection()
+  self.runes.insert(rune, self.clampedLeft())
+  self.updateLayout()
+  self.selection = self.selection.a + 1 .. self.selection.a + 1
+  self.updateSelectionBoxes()
