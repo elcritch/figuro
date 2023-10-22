@@ -48,7 +48,7 @@ proc calculateWindow*(scrollby: Position,
 proc calculateScroll*(window: var ScrollWindow,
                       delta: Position, isAbsolute = false) =
   if isAbsolute:
-    window.scrollby = delta * -1'ui
+    window.scrollby = delta * 1'ui
   else:
     window.scrollby -= delta
   window.scrollby = window.scrollby.clamp(0'ui, window.contentOverflow)
@@ -94,7 +94,7 @@ proc scrollBarDrag*(self: ScrollPane,
   let delta = initial.positionDiff(cursor)
   echo "scrollBarDrag: ", kind, " change: ", delta
   self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-  self.window.calculateScroll(delta)
+  self.window.calculateScroll(delta, isAbsolute=true)
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.window, isY=true)
   if self.settings.horizontal:
