@@ -45,8 +45,7 @@ proc calculateScroll*(self: ScrollPane,
   )
 
 proc calculateBar*(props: ScrollProperties,
-                   window: ScrollWindow,
-                   wheelDelta: Position) =
+                   window: ScrollWindow): ScrollBar =
   let
     scrollBarSize = window.contentViewRatio * window.viewSize.y
     sizePercent = clamp(window.scrollby.y/window.contentOverflow, 0'ui, 1'ui)
@@ -55,7 +54,7 @@ proc calculateBar*(props: ScrollProperties,
     barY = sizePercent*(window.viewSize.y - scrollBarSize)
     barStart = initPosition(barX.float, barY.float)
 
-  self.bar = ScrollBar(
+  ScrollBar(
     size: scrollBarSize,
     start: barStart,
   )
@@ -64,6 +63,7 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   assert child.name == "scrollBody"
   calculateScroll(self, self.screenBox, child.screenBox, wheelDelta)
+  self.bar = calculateBar(self.props, self.window)
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
