@@ -55,25 +55,20 @@ proc calculateBar*(settings: ScrollSettings,
   let
     sizePercent = clamp(window.scrollby/window.contentOverflow, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio * window.viewSize
-
   if isY:
     let
       barX = if settings.barLeft: 0'ui
              else: window.viewSize.x - settings.size.y
       barY = sizePercent.y*(window.viewSize.y - scrollBarSize.y)
-    ScrollBar(
-      size: initPosition(settings.size.y, scrollBarSize.y),
-      start: initPosition(barX, barY),
-    )
+    ScrollBar(size: initPosition(settings.size.y, scrollBarSize.y),
+              start: initPosition(barX, barY))
   else:
     let
       barX = sizePercent.x*(window.viewSize.x - scrollBarSize.x)
       barY = if settings.barTop: 0'ui
              else: window.viewSize.y - settings.size.x
-    ScrollBar(
-      size: initPosition(scrollBarSize.x, settings.size.x),
-      start: initPosition(barX, barY),
-    )
+    ScrollBar(size: initPosition(scrollBarSize.x, settings.size.x),
+              start: initPosition(barX, barY))
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
