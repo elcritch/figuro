@@ -205,6 +205,12 @@ proc sum*(rect: Box): UICoord =
 proc sum*(rect: (UICoord, UICoord, UICoord, UICoord)): UICoord =
   result = rect[0] + rect[1] + rect[2] + rect[3]
 
+proc clamp*(v: Position, a, b: UICoord): Position =
+  initPosition(
+    v.x.clamp(a, b).float32,
+    v.y.clamp(a, b).float32,
+  )
+
 proc `$`*(a: Position): string =
   &"Position<{a.x:2.2s}, {a.y:2.2s}>"
 proc `$`*(b: Box): string =
