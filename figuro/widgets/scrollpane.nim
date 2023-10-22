@@ -6,53 +6,63 @@ type
   ScrollPane* = ref object of Figuro
     isActive*: bool
     disabled*: bool
-    scrollby: Position
+    props*: ScrollProperties
+    window*: ScrollWindow
+    bar*: ScrollBar
+
+  ScrollProperties* = object
     width*: UICoord = 20.0'ui
     barLeft: bool
-    bar*: ScrollBar
   
-  ScrollBar* = object
+  ScrollWindow* = object
+    scrollby: Position
     viewHeight: UICoord
     contentHeight: UICoord
     contentOverflow: UICoord
     contentViewRatio: UICoord
+
+  ScrollBar* = object
     size: UICoord
-    sizePercent: UICoord
     start: Position
 
-proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
+proc calculateScroll*(self: ScrollPane,
+                      viewBox, childBox: Box,
+                      wheelDelta: Position) =
   # self.scrollby.x -= wheelDelta.x * 10.0
   let yoffset = wheelDelta.y * 10.0
-  let current = self.children[0]
-  assert current.name == "scrollBody"
   let
-    viewHeight = self.screenBox.h
-    contentHeight = current.screenBox.h
+    viewHeight = viewBox.h
+    contentHeight = childBox.h
     contentViewRatio = (viewHeight/contentHeight).clamp(0.0'ui, 1.0'ui)
-    contentOverflow = (contentHeight - viewHeight).clamp(0'ui, current.screenBox.h)
+    contentOverflow = (contentHeight - viewHeight).clamp(0'ui, contentHeight)
 
   echo "SCROLL: ph: ", viewHeight, " ch: ", contentOverflow, " ratio: ", contentViewRatio
-  self.scrollby.y -= yoffset
-  self.scrollby.y = self.scrollby.y.clamp(0'ui, contentOverflow)
+  self.window.scrollby.y -= yoffset
+  self.window.scrollby.y = self.window.scrollby.y.clamp(0'ui, contentOverflow)
 
   let
     scrollBarSize = contentViewRatio * viewHeight
-    sizePercent = clamp(self.scrollby.y/contentOverflow, 0'ui, 1'ui)
-    barX = if self.barLeft: 0'ui
-                   else: self.screenBox.w - self.width
+    sizePercent = clamp(self.window.scrollby.y/contentOverflow, 0'ui, 1'ui)
+    barX = if self.props.barLeft: 0'ui
+           else: self.screenBox.w - self.props.width
     barY = sizePercent*(viewHeight - scrollBarSize)
     barStart = initPosition(barX.float, barY.float)
 
-  self.bar = ScrollBar(
+  self.window = ScrollWindow(
     viewHeight: viewHeight,
     contentHeight: contentHeight,
     contentViewRatio: contentViewRatio,
     contentOverflow: contentOverflow,
+  )
+  self.bar = ScrollBar(
     size: scrollBarSize,
-    sizePercent: sizePercent,
     start: barStart,
   )
 
+proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
+  let child = self.children[0]
+  assert child.name == "scrollBody"
+  calculateScroll(self, self.screenBox, child.screenBox, wheelDelta)
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
@@ -65,14 +75,14 @@ proc draw*(self: ScrollPane) {.slot.} =
       size 100'pp, cx"max-content"
       fill whiteColor.darken(0.2)
       clipContent true
-      current.offset = self.scrollby
+      current.offset = self.window.scrollby
       current.attrs.incl scrollPanel
       TemplateContents(self)
 
       # echo "SCROLL BODY: ", node.box, " => ", node.children[0].box
       # boxSizeOf node.children[0]
     rectangle "scrollBody":
-      box self.bar.start.x, self.bar.start.y, self.width, self.bar.size
+      box self.bar.start.x, self.bar.start.y, self.props.width, self.bar.size
       fill blackColor
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
