@@ -16,7 +16,7 @@ type
   
   ScrollWindow* = object
     scrollby: Position
-    viewHeight: UICoord
+    viewSize: Position
     contentHeight: UICoord
     contentOverflow: UICoord
     contentViewRatio: UICoord
@@ -29,32 +29,32 @@ proc calculateScroll*(self: ScrollPane,
                       viewBox, childBox: Box,
                       wheelDelta: Position) =
   let
-    viewHeight = viewBox.h
+    viewSize = viewBox.wh
     contentHeight = childBox.h
-    contentViewRatio = (viewHeight/contentHeight).clamp(0.0'ui, 1.0'ui)
-    contentOverflow = (contentHeight - viewHeight).clamp(0'ui, contentHeight)
+    contentViewRatio = (viewSize.y/contentHeight).clamp(0.0'ui, 1.0'ui)
+    contentOverflow = (contentHeight - viewSize.y).clamp(0'ui, contentHeight)
 
-  echo "SCROLL: pre: ", " delta: ", wheelDelta.y * 10.0,  " scrollBy: ", self.window.scrollby.y, " after: ", self.window.scrollby.y - wheelDelta.y * 10.0
   self.window.scrollby.y -= wheelDelta.y * 10.0
   self.window.scrollby.y = self.window.scrollby.y.clamp(0'ui, contentOverflow)
-  echo "SCROLL: ph: ", viewHeight, " ch: ", contentOverflow, " ratio: ", contentViewRatio, " scrollBy: ", self.window.scrollby.y
-  echo ""
-
-  let
-    scrollBarSize = contentViewRatio * viewHeight
-    sizePercent = clamp(self.window.scrollby.y/contentOverflow, 0'ui, 1'ui)
-    barX = if self.props.barLeft: 0'ui
-           else: viewBox.w - self.props.width
-    barY = sizePercent*(viewHeight - scrollBarSize)
-    barStart = initPosition(barX.float, barY.float)
-
   self.window = ScrollWindow(
-    viewHeight: viewHeight,
+    viewSize: viewSize,
     contentHeight: contentHeight,
     contentViewRatio: contentViewRatio,
     contentOverflow: contentOverflow,
     scrollBy: self.window.scrollby,
   )
+
+proc calculateBar*(props: ScrollProperties,
+                   window: ScrollWindow,
+                   wheelDelta: Position) =
+  let
+    scrollBarSize = window.contentViewRatio * window.viewSize.y
+    sizePercent = clamp(window.scrollby.y/window.contentOverflow, 0'ui, 1'ui)
+    barX = if props.barLeft: 0'ui
+           else: window.viewSize.x - props.width
+    barY = sizePercent*(window.viewSize.y - scrollBarSize)
+    barStart = initPosition(barX.float, barY.float)
+
   self.bar = ScrollBar(
     size: scrollBarSize,
     start: barStart,
