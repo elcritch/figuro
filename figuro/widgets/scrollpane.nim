@@ -10,6 +10,7 @@ type
     window*: ScrollWindow
     barx*: ScrollBar
     bary*: ScrollBar
+    dragStart*: Option[Position]
 
   ScrollSettings* = object
     size* = initPosition(10'ui, 10.0'ui)
@@ -92,14 +93,20 @@ proc scrollBarDrag*(self: ScrollPane,
   let child = self.children[0]
   assert child.name == "scrollBody"
   let delta = initial.positionDiff(cursor)
-  # echo "scrollBarDrag: ", kind, " change: ", delta
-  self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-  self.window.updateScroll(delta, isAbsolute=true)
-  if self.settings.vertical:
-    self.bary = calculateBar(self.settings, self.window, isY=true)
-  if self.settings.horizontal:
-    self.barx = calculateBar(self.settings, self.window, isY=false)
-  refresh(self)
+  if kind == Exit:
+    self.dragStart = Position.none
+  else:
+    if self.dragStart.isNone:
+      self.dragStart = some self.window.scrollby
+
+    echo "scrollBarDrag: ", kind, " change: ", delta, " dragStart: ", self.dragStart
+    self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
+    self.window.updateScroll(delta + self.dragStart.get(), isAbsolute=true)
+    if self.settings.vertical:
+      self.bary = calculateBar(self.settings, self.window, isY=true)
+    if self.settings.horizontal:
+      self.barx = calculateBar(self.settings, self.window, isY=false)
+    refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
   withDraw self:
