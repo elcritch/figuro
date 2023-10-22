@@ -20,7 +20,7 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let
     viewHeight = self.screenBox.h
     contentOverflow = (current.screenBox.h - viewHeight).clamp(0'ui, current.screenBox.h)
-  echo "SCROLL: ph: ", viewHeight, " ch: ", contentOverflow
+  # echo "SCROLL: ph: ", viewHeight, " ch: ", contentOverflow
   self.scrollby.y -= yoffset
   self.scrollby.y = self.scrollby.y.clamp(0'ui, contentOverflow)
 
