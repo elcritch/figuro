@@ -95,7 +95,6 @@ proc draw*(self: ScrollPane) {.slot.} =
         current.cxSize[dcol] = cx"max-content"
 
       fill whiteColor.darken(0.2)
-      clipContent true
       current.offset = self.window.scrollby
       current.attrs.incl scrollPanel
       TemplateContents(self)
