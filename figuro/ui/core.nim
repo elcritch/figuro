@@ -455,11 +455,17 @@ template calcBasicConstraintPostImpl(
       match val:
         UiContentMin(cmins):
           for n in node.children:
-            res = min(n.box.f, res)
+            when astToStr(f) in ["w"]:
+              res = min(n.box.w + n.box.y, res)
+            when astToStr(f) in ["h"]:
+              res = min(n.box.h + n.box.y, res)
         UiContentMax(cmaxs):
           # res = cmaxs.UICoord
           for n in node.children:
-            res = max(n.box.f, res)
+            when astToStr(f) in ["w"]:
+              res = max(n.box.w + n.box.x, res)
+            when astToStr(f) in ["h"]:
+              res = max(n.box.h + n.box.y, res)
         _:
           res = node.box.f
       res

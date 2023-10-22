@@ -14,17 +14,15 @@ import pretty
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   # self.scrollby.x -= wheelDelta.x * 10.0
   let yoffset = wheelDelta.y * 10.0
-  self.scrollby.y -= yoffset
-
   let current = self.children[0]
   assert current.name == "scrollBody"
 
   let
-    viewHeight = current.screenBox.h
-    contentHeight = (current.screenBox.h - viewHeight).clamp(0'ui, current.screenBox.h)
-  echo "SCROLL: ph: ", viewHeight, " ch: ", contentHeight
-  # self.offset.y -= yoffset
-  # self.offset.y = current.offset.y.clamp(0'ui, ch)
+    viewHeight = self.screenBox.h
+    contentOverflow = (current.screenBox.h - viewHeight).clamp(0'ui, current.screenBox.h)
+  echo "SCROLL: ph: ", viewHeight, " ch: ", contentOverflow
+  self.scrollby.y -= yoffset
+  self.scrollby.y = self.scrollby.y.clamp(0'ui, contentOverflow)
 
   refresh(self)
 
