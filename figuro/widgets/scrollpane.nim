@@ -8,7 +8,8 @@ type
     disabled*: bool
     settings*: ScrollSettings
     window*: ScrollWindow
-    bar*: ScrollBar
+    barx*: ScrollBar
+    bary*: ScrollBar
 
   ScrollSettings* = object
     size* = initPosition(10'ui, 10.0'ui)
@@ -55,7 +56,7 @@ proc calculateBar*(settings: ScrollSettings,
     sizePercent = clamp(window.scrollby/window.contentOverflow, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio * window.viewSize
 
-  if not isY:
+  if isY:
     let
       barX = if settings.barLeft: 0'ui
              else: window.viewSize.x - settings.size.y
@@ -78,7 +79,10 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   assert child.name == "scrollBody"
   calculateScroll(self, self.screenBox, child.screenBox, wheelDelta)
-  self.bar = calculateBar(self.settings, self.window, false)
+  if self.settings.vertical:
+    self.bary = calculateBar(self.settings, self.window, isY=true)
+  if self.settings.horizontal:
+    self.barx = calculateBar(self.settings, self.window, isY=false)
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
@@ -101,12 +105,12 @@ proc draw*(self: ScrollPane) {.slot.} =
 
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
-        box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
+        box self.bary.start.x, self.bary.start.y, self.bary.size.x, self.bary.size.y
         fill css"#0000ff" * 0.4
         cornerRadius 4'ui
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
-        box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
+        box self.barx.start.x, self.barx.start.y, self.barx.size.x, self.barx.size.y
         fill css"#0000ff" * 0.4
         cornerRadius 4'ui
 
