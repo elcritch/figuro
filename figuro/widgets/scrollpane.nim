@@ -17,7 +17,7 @@ type
   ScrollWindow* = object
     scrollby: Position
     viewSize: Position
-    contentHeight: UICoord
+    contentSize: Position
     contentOverflow: UICoord
     contentViewRatio: UICoord
 
@@ -30,15 +30,15 @@ proc calculateScroll*(self: ScrollPane,
                       wheelDelta: Position) =
   let
     viewSize = viewBox.wh
-    contentHeight = childBox.h
-    contentViewRatio = (viewSize.y/contentHeight).clamp(0.0'ui, 1.0'ui)
-    contentOverflow = (contentHeight - viewSize.y).clamp(0'ui, contentHeight)
+    contentSize = childBox.wh
+    contentViewRatio = (viewSize.y/contentSize.y).clamp(0.0'ui, 1.0'ui)
+    contentOverflow = (contentSize.y - viewSize.y).clamp(0'ui, contentSize.y)
 
   self.window.scrollby.y -= wheelDelta.y * 10.0
   self.window.scrollby.y = self.window.scrollby.y.clamp(0'ui, contentOverflow)
   self.window = ScrollWindow(
     viewSize: viewSize,
-    contentHeight: contentHeight,
+    contentSize: contentSize,
     contentViewRatio: contentViewRatio,
     contentOverflow: contentOverflow,
     scrollBy: self.window.scrollby,
