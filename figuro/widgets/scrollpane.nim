@@ -103,7 +103,8 @@ proc draw*(self: ScrollPane) {.slot.} =
 
     rectangle "scrollBody":
       box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
-      fill blackColor
+      fill css"#0000ff" * 0.4
+      cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   # self.children[0] # "scrollBody"
