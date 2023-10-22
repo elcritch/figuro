@@ -11,7 +11,7 @@ type
     bar*: ScrollBar
 
   ScrollProperties* = object
-    width*: UICoord = 20.0'ui
+    size* = initPosition(10'ui, 10.0'ui)
     barLeft: bool
   
   ScrollWindow* = object
@@ -22,7 +22,7 @@ type
     contentViewRatio: Position
 
   ScrollBar* = object
-    size: UICoord
+    size: Position
     start: Position
 
 proc calculateScroll*(self: ScrollPane,
@@ -45,17 +45,22 @@ proc calculateScroll*(self: ScrollPane,
   )
 
 proc calculateBar*(props: ScrollProperties,
-                   window: ScrollWindow): ScrollBar =
+                   window: ScrollWindow,
+                   isY: bool,
+                   ): ScrollBar =
+
   let
     sizePercent = clamp(window.scrollby/window.contentOverflow, 0'ui, 1'ui)
-    scrollBarSize = window.contentViewRatio.y * window.viewSize.y
+    scrollBarSize = window.contentViewRatio * window.viewSize
+
+  let
     barX = if props.barLeft: 0'ui
-           else: window.viewSize.x - props.width
-    barY = sizePercent.y*(window.viewSize.y - scrollBarSize)
+           else: window.viewSize.x - props.size.y
+    barY = sizePercent.y*(window.viewSize.y - scrollBarSize.y)
     barStart = initPosition(barX, barY)
 
   ScrollBar(
-    size: scrollBarSize,
+    size: initPosition(props.size.y, scrollBarSize.y),
     start: barStart,
   )
 
@@ -63,7 +68,7 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   assert child.name == "scrollBody"
   calculateScroll(self, self.screenBox, child.screenBox, wheelDelta)
-  self.bar = calculateBar(self.props, self.window)
+  self.bar = calculateBar(self.props, self.window, false)
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
@@ -83,7 +88,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       # echo "SCROLL BODY: ", node.box, " => ", node.children[0].box
       # boxSizeOf node.children[0]
     rectangle "scrollBody":
-      box self.bar.start.x, self.bar.start.y, self.props.width, self.bar.size
+      box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
       fill blackColor
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
