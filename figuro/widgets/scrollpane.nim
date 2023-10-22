@@ -6,27 +6,27 @@ type
   ScrollPane* = ref object of Figuro
     isActive*: bool
     disabled*: bool
-    props*: ScrollProperties
+    settings*: ScrollSettings
     window*: ScrollWindow
     bar*: ScrollBar
 
-  ScrollProperties* = object
+  ScrollSettings* = object
     size* = initPosition(10'ui, 10.0'ui)
-    horizontal: bool = false
-    vertical: bool = true
-    barLeft: bool
-    barTop: bool
+    horizontal*: bool = false
+    vertical*: bool = true
+    barLeft*: bool
+    barTop*: bool
   
   ScrollWindow* = object
-    scrollby: Position
-    viewSize: Position
-    contentSize: Position
-    contentOverflow: Position
-    contentViewRatio: Position
+    scrollby*: Position
+    viewSize*: Position
+    contentSize*: Position
+    contentOverflow*: Position
+    contentViewRatio*: Position
 
   ScrollBar* = object
-    size: Position
-    start: Position
+    size*: Position
+    start*: Position
 
 proc calculateScroll*(self: ScrollPane,
                       viewBox, childBox: Box,
@@ -47,31 +47,30 @@ proc calculateScroll*(self: ScrollPane,
     scrollBy: self.window.scrollby,
   )
 
-proc calculateBar*(props: ScrollProperties,
+proc calculateBar*(settings: ScrollSettings,
                    window: ScrollWindow,
                    isY: bool,
                    ): ScrollBar =
-
   let
     sizePercent = clamp(window.scrollby/window.contentOverflow, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio * window.viewSize
 
   if not isY:
     let
-      barX = if props.barLeft: 0'ui
-             else: window.viewSize.x - props.size.y
+      barX = if settings.barLeft: 0'ui
+             else: window.viewSize.x - settings.size.y
       barY = sizePercent.y*(window.viewSize.y - scrollBarSize.y)
     ScrollBar(
-      size: initPosition(props.size.y, scrollBarSize.y),
+      size: initPosition(settings.size.y, scrollBarSize.y),
       start: initPosition(barX, barY),
     )
   else:
     let
       barX = sizePercent.x*(window.viewSize.x - scrollBarSize.x)
-      barY = if props.barTop: 0'ui
-             else: window.viewSize.y - props.size.x
+      barY = if settings.barTop: 0'ui
+             else: window.viewSize.y - settings.size.x
     ScrollBar(
-      size: initPosition(scrollBarSize.x, props.size.x),
+      size: initPosition(scrollBarSize.x, settings.size.x),
       start: initPosition(barX, barY),
     )
 
@@ -79,7 +78,7 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   assert child.name == "scrollBody"
   calculateScroll(self, self.screenBox, child.screenBox, wheelDelta)
-  self.bar = calculateBar(self.props, self.window, false)
+  self.bar = calculateBar(self.settings, self.window, false)
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
@@ -90,9 +89,9 @@ proc draw*(self: ScrollPane) {.slot.} =
       ## max-content is important here
       ## todo: do the same for horiz?
       size 100'pp, 100'pp
-      if self.props.vertical:
+      if self.settings.vertical:
         current.cxSize[drow] = cx"max-content"
-      if self.props.horizontal:
+      if self.settings.horizontal:
         current.cxSize[dcol] = cx"max-content"
 
       fill whiteColor.darken(0.2)
