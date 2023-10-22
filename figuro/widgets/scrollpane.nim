@@ -99,9 +99,10 @@ proc scrollBarDrag*(self: ScrollPane,
     if self.dragStart.isNone:
       self.dragStart = some self.window.scrollby
 
-    echo "scrollBarDrag: ", kind, " change: ", delta, " dragStart: ", self.dragStart
     self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-    self.window.updateScroll(delta + self.dragStart.get(), isAbsolute=true)
+    let offset = (self.dragStart.get() + delta / self.window.contentViewRatio)
+    self.window.updateScroll(offset, isAbsolute=true)
+
     if self.settings.vertical:
       self.bary = calculateBar(self.settings, self.window, isY=true)
     if self.settings.horizontal:
