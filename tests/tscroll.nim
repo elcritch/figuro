@@ -29,7 +29,6 @@ proc draw*(self: Main) {.slot.} =
           # Setup CSS Grid Template
           offset 10'ux, 10'ux
           itemHeight cx"max-content"
-
           for i in 0 .. 15:
             button "button", captures(i):
               # current.gridItem = nil

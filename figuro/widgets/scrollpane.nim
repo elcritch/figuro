@@ -29,24 +29,29 @@ type
     size*: Position
     start*: Position
 
-proc calculateScroll*(self: ScrollPane,
-                      viewBox, childBox: Box,
-                      wheelDelta: Position) =
+proc calculateWindow*(scrollby: Position,
+                      viewBox, childBox: Box): ScrollWindow =
   let
     viewSize = viewBox.wh
     contentSize = childBox.wh
     contentViewRatio = (viewSize/contentSize).clamp(0.0'ui, 1.0'ui)
     contentOverflow = (contentSize - viewSize).clamp(0'ui, contentSize.y)
 
-  self.window.scrollby -= wheelDelta * 10.0'ui
-  self.window.scrollby = self.window.scrollby.clamp(0'ui, contentOverflow)
-  self.window = ScrollWindow(
+  ScrollWindow(
     viewSize: viewSize,
     contentSize: contentSize,
     contentViewRatio: contentViewRatio,
     contentOverflow: contentOverflow,
-    scrollBy: self.window.scrollby,
+    scrollBy: scrollby,
   )
+
+proc calculateScroll*(window: var ScrollWindow,
+                      delta: Position, isAbsolute = false) =
+  if isAbsolute:
+    window.scrollby = delta * -1'ui
+  else:
+    window.scrollby -= delta
+  window.scrollby = window.scrollby.clamp(0'ui, window.contentOverflow)
 
 proc calculateBar*(settings: ScrollSettings,
                    window: ScrollWindow,
@@ -72,7 +77,24 @@ proc calculateBar*(settings: ScrollSettings,
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   assert child.name == "scrollBody"
-  calculateScroll(self, self.screenBox, child.screenBox, wheelDelta)
+  self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
+  self.window.calculateScroll(wheelDelta * 10'ui)
+  if self.settings.vertical:
+    self.bary = calculateBar(self.settings, self.window, isY=true)
+  if self.settings.horizontal:
+    self.barx = calculateBar(self.settings, self.window, isY=false)
+  refresh(self)
+
+proc scrollBarDrag*(self: ScrollPane,
+                    kind: EventKind,
+                    initial: Position,
+                    cursor: Position) {.slot.} =
+  let child = self.children[0]
+  assert child.name == "scrollBody"
+  let delta = initial.positionDiff(cursor)
+  echo "scrollBarDrag: ", kind, " change: ", delta
+  self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
+  self.window.calculateScroll(delta)
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.window, isY=true)
   if self.settings.horizontal:
@@ -96,6 +118,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       current.offset = self.window.scrollby
       current.attrs.incl scrollPanel
       TemplateContents(self)
+      scroll(self, initPosition(0, 0))
 
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
@@ -103,6 +126,7 @@ proc draw*(self: ScrollPane) {.slot.} =
             self.bary.size.x, self.bary.size.y
         fill css"#0000ff" * 0.4
         cornerRadius 4'ui
+        connect(current, doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
         box self.barx.start.x, self.barx.start.y,
