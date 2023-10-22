@@ -99,10 +99,16 @@ proc draw*(self: ScrollPane) {.slot.} =
       current.attrs.incl scrollPanel
       TemplateContents(self)
 
-    rectangle "scrollBody":
-      box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
-      fill css"#0000ff" * 0.4
-      cornerRadius 4'ui
+    if self.settings.vertical:
+      rectangle "scrollbar-vertical":
+        box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
+        fill css"#0000ff" * 0.4
+        cornerRadius 4'ui
+    if self.settings.horizontal:
+      rectangle "scrollbar-horizontal":
+        box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
+        fill css"#0000ff" * 0.4
+        cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   # self.children[0] # "scrollBody"
