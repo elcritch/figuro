@@ -50,8 +50,7 @@ proc calculateScroll*(self: ScrollPane,
 
 proc calculateBar*(settings: ScrollSettings,
                    window: ScrollWindow,
-                   isY: bool,
-                   ): ScrollBar =
+                   isY: bool): ScrollBar =
   let
     sizePercent = clamp(window.scrollby/window.contentOverflow, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio * window.viewSize
@@ -100,12 +99,14 @@ proc draw*(self: ScrollPane) {.slot.} =
 
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
-        box self.bary.start.x, self.bary.start.y, self.bary.size.x, self.bary.size.y
+        box self.bary.start.x, self.bary.start.y,
+            self.bary.size.x, self.bary.size.y
         fill css"#0000ff" * 0.4
         cornerRadius 4'ui
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
-        box self.barx.start.x, self.barx.start.y, self.barx.size.x, self.barx.size.y
+        box self.barx.start.x, self.barx.start.y,
+            self.barx.size.x, self.barx.size.y
         fill css"#0000ff" * 0.4
         cornerRadius 4'ui
 
