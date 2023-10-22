@@ -45,10 +45,10 @@ proc calculateWindow*(scrollby: Position,
     scrollBy: scrollby,
   )
 
-proc calculateScroll*(window: var ScrollWindow,
+proc updateScroll*(window: var ScrollWindow,
                       delta: Position, isAbsolute = false) =
   if isAbsolute:
-    window.scrollby = delta * 1'ui
+    window.scrollby = delta
   else:
     window.scrollby -= delta
   window.scrollby = window.scrollby.clamp(0'ui, window.contentOverflow)
@@ -78,7 +78,7 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   assert child.name == "scrollBody"
   self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-  self.window.calculateScroll(wheelDelta * 10'ui)
+  self.window.updateScroll(wheelDelta * 10'ui)
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.window, isY=true)
   if self.settings.horizontal:
@@ -94,7 +94,7 @@ proc scrollBarDrag*(self: ScrollPane,
   let delta = initial.positionDiff(cursor)
   echo "scrollBarDrag: ", kind, " change: ", delta
   self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-  self.window.calculateScroll(delta, isAbsolute=true)
+  self.window.updateScroll(delta, isAbsolute=true)
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.window, isY=true)
   if self.settings.horizontal:
