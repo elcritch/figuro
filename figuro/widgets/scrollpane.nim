@@ -12,6 +12,8 @@ type
 
   ScrollProperties* = object
     size* = initPosition(10'ui, 10.0'ui)
+    horizontal: bool = false
+    vertical: bool = true
     barLeft: bool
     barTop: bool
   
@@ -87,7 +89,12 @@ proc draw*(self: ScrollPane) {.slot.} =
     rectangle "scrollBody":
       ## max-content is important here
       ## todo: do the same for horiz?
-      size 100'pp, cx"max-content"
+      size 100'pp, 100'pp
+      if self.props.vertical:
+        current.cxSize[drow] = cx"max-content"
+      if self.props.horizontal:
+        current.cxSize[dcol] = cx"max-content"
+
       fill whiteColor.darken(0.2)
       clipContent true
       current.offset = self.window.scrollby
