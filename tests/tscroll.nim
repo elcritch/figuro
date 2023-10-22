@@ -39,9 +39,6 @@ proc draw*(self: Main) {.slot.} =
               connect(current, doHover, self, Main.hover)
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw)
-
-echo "main: ", main.listeners
 
 app.width = 600
 app.height = 480

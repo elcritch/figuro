@@ -439,6 +439,67 @@ proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   elif isXY == false and dir == drow: 
     calcBasicConstraintImpl(node, dir, h)
 
+template calcBasicConstraintPostImpl(
+    node: Figuro,
+    dir: static GridDir,
+    f: untyped
+) =
+  ## computes basic constraints for box'es when set
+  ## this let's the use do things like set 90'pp (90 percent)
+  ## of the box width post css grid or auto constraints layout
+  let parentBox = if node.parent.isNil: app.windowSize
+                  else: node.parent.box
+  template calcBasic(val: untyped): untyped =
+    block:
+      var res: UICoord
+      match val:
+        UiContentMin(cmins):
+          for n in node.children:
+            res = min(n.box.f, res)
+        UiContentMax(cmaxs):
+          # res = cmaxs.UICoord
+          for n in node.children:
+            res = max(n.box.f, res)
+        _:
+          res = node.box.f
+      res
+  
+  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
+                else: node.cxOffset[dir]
+  match csValue:
+    UiNone:
+      discard
+    UiSum(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = lv + rv
+    UiMin(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = min(lv, rv)
+    UiMax(ls, rs):
+      let lv = ls.calcBasic()
+      let rv = rs.calcBasic()
+      node.box.f = max(lv, rv)
+    UiMinMax(ls, rs):
+      discard
+    UiValue(value):
+      node.box.f = calcBasic(value)
+    UiEnd():
+      discard
+
+proc calcBasicConstraintPost(node: Figuro, dir: static GridDir, isXY: static bool) =
+  ## calcuate sizes of basic constraints per field x/y/w/h for each node
+  when isXY == true and dir == dcol: 
+    calcBasicConstraintPostImpl(node, dir, x)
+  elif isXY == true and dir == drow: 
+    calcBasicConstraintPostImpl(node, dir, y)
+  # w & h need to run after x & y
+  elif isXY == false and dir == dcol: 
+    calcBasicConstraintPostImpl(node, dir, w)
+  elif isXY == false and dir == drow: 
+    calcBasicConstraintPostImpl(node, dir, h)
+
 proc printLayout*(node: Figuro, depth = 0) =
   stdout.styledWriteLine(
             " ".repeat(depth),
@@ -486,6 +547,14 @@ proc computeLayout*(node: Figuro, depth: int) =
   else:
     for n in node.children:
       computeLayout(n, depth+1)
+
+    # update childrens
+    for n in node.children:
+      calcBasicConstraintPost(n, dcol, isXY=true)
+      calcBasicConstraintPost(n, drow, isXY=true)
+      calcBasicConstraintPost(n, dcol, isXY=false)
+      calcBasicConstraintPost(n, drow, isXY=false)
+
 
 
 proc computeLayout*(node: Figuro) =

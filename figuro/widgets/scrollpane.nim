@@ -13,8 +13,19 @@ import pretty
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   # self.scrollby.x -= wheelDelta.x * 10.0
-  self.scrollby.y -= wheelDelta.y * 10.0
-  # self.scrollby.y = self.scrollby.y.clamp(0.0, self.box.y)
+  let yoffset = wheelDelta.y * 10.0
+  self.scrollby.y -= yoffset
+
+  let current = self.children[0]
+  assert current.name == "scrollBody"
+
+  let
+    viewHeight = current.screenBox.h
+    contentHeight = (current.screenBox.h - viewHeight).clamp(0'ui, current.screenBox.h)
+  echo "SCROLL: ph: ", viewHeight, " ch: ", contentHeight
+  # self.offset.y -= yoffset
+  # self.offset.y = current.offset.y.clamp(0'ui, ch)
+
   refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
@@ -22,14 +33,16 @@ proc draw*(self: ScrollPane) {.slot.} =
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
     rectangle "scrollBody":
-      size 100'pp, 100'pp
+      size 100'pp, cx"max-content"
       # cornerRadius 10.0
       fill whiteColor.darken(0.2)
       clipContent true
       current.offset = self.scrollby
       current.attrs.incl scrollPanel
-
       TemplateContents(self)
+
+      # echo "SCROLL BODY: ", node.box, " => ", node.children[0].box
+      # boxSizeOf node.children[0]
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   # self.children[0] # "scrollBody"
