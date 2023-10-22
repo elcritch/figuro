@@ -94,8 +94,6 @@ proc draw*(self: ScrollPane) {.slot.} =
       current.attrs.incl scrollPanel
       TemplateContents(self)
 
-      # echo "SCROLL BODY: ", node.box, " => ", node.children[0].box
-      # boxSizeOf node.children[0]
     rectangle "scrollBody":
       box self.bar.start.x, self.bar.start.y, self.bar.size.x, self.bar.size.y
       fill blackColor
