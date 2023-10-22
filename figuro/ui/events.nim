@@ -37,9 +37,6 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
   node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
   node.checkEvent(evDrag, prevDrags.len() > 0)
-  # if prevDrags.len() > 0 and (evDrag in node.listens.events or evDrag in node.listens.signals):
-  if node.getId == 21:
-    echo "prevDrag! node: ", node.getId, " ", result, " evts: ", node.listens.events, " sig: ", node.listens.signals
 
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
