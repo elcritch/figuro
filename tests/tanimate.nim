@@ -9,11 +9,11 @@ type
   Main* = ref object of Figuro
     value: float
 
-proc tick*(self: Main) {.slot.} =
+proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   refresh(self)
   # if self.mainRect != nil:
   #   echo "tick main: ", self.mainRect.uid
-  self.value = 0.004 * (1+app.tickCount).toFloat
+  self.value = 0.004 * (1+tick).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
