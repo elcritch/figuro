@@ -23,7 +23,7 @@ proc draw*(self: Main) {.slot.} =
       offset 2'pp, 2'pp
       cornerRadius 7.0'ux
       size 96'pp, 90'pp
-      widget.settings.size.y = 20'ui
+      fig.settings.size.y = 20'ui
       contents "children":
         vertical "":
           # Setup CSS Grid Template

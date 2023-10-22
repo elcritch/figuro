@@ -37,7 +37,7 @@ proc draw*(self: Main) {.slot.} =
             fill css"#FFFFFF"
       rectangle "slider":
         size 0.5'fr, 0.5'fr
-        node.fill = css"#A000AA"
+        fig.fill = css"#A000AA"
         text "val":
           setText({font: "test2"}, Center, Middle)
           fill css"#FFFFFF"
