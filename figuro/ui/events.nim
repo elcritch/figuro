@@ -12,6 +12,7 @@ var
   prevClicks {.runtimeVar.}: HashSet[Figuro]
   prevDrags {.runtimeVar.}: HashSet[Figuro]
   dragInitial {.runtimeVar.}: Position
+  dragReleased {.runtimeVar.}: bool
 
 proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
@@ -45,11 +46,10 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evHover, true)
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
     node.checkEvent(evDrag, uxInputs.mouse.down())
-    node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
+    node.checkEvent(evDragEnd, dragReleased)
   
   if rootWindow in node.attrs:
-    node.checkEvent(evDragEnd, prevDrags.len() > 0 and uxInputs.mouse.release())
-
+    node.checkEvent(evDragEnd, dragReleased)
 
 type
   EventsCapture* = object
@@ -147,6 +147,8 @@ proc computeEvents*(node: Figuro) =
     return
 
   # printFiguros(node)
+  dragReleased = prevDrags.len() > 0 and uxInputs.mouse.release()
+
   var captured: CapturedEvents = computeNodeEvents(node)
 
   uxInputs.windowSize = Box.none
