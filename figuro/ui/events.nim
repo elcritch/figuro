@@ -25,18 +25,21 @@ proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
 
   result = act and mpos.overlaps(node.screenBox)
 
-template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
-  let res = predicate
-  if evt in node.listens.events and res:
-    result.incl(evt)
-  if evt in node.listens.signals and res:
-    result.incl(evt)
-
 proc checkAnyEvents*(node: Figuro): EventFlags =
   ## Compute mouse events
+  template checkEvent[ET](node: typed, evt: ET, predicate: typed) =
+    let res = predicate
+    if evt in node.listens.events and res:
+      result.incl(evt)
+    if evt in node.listens.signals and res:
+      result.incl(evt)
+
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
   node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
   node.checkEvent(evDrag, prevDrags.len() > 0)
+  # if prevDrags.len() > 0 and (evDrag in node.listens.events or evDrag in node.listens.signals):
+  if node.getId == 21:
+    echo "prevDrag! node: ", node.getId, " ", result, " evts: ", node.listens.events, " sig: ", node.listens.signals
 
   if node.mouseOverlaps():
     node.checkEvent(evClick, uxInputs.mouse.click())
@@ -110,6 +113,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
     if noClipContent notin node.attrs and
           result[ek].zlvl <= node.zlevel and
+          ek != evDrag and
           not node.mouseOverlaps(false):
       ## this node clips events, so it must overlap child events, 
       ## e.g. ignore child captures if this node isn't also overlapping 
@@ -136,6 +140,18 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 proc computeEvents*(node: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
+  ## 
+  ## It'd be nice to re-write this whole design. It sorta evolved
+  ## from previous setup which was more immediate mode based. 
+  ## There may be ways to simplify this by moving to a more 
+  ## event-object based design. This is already sorta done
+  ## now that each evKind has it's own target list, but the
+  ## `for ek in EventKinds` still persists since it'd require
+  ## refactoring this all. :/
+  ## 
+  ## However, first tests would need to be written to ensure the
+  ## behavior is kept. Events like drag, hover, clicks all
+  ## behave pretty differently.
   root.listens.signals.incl {evClick, evClickOut, evDragEnd}
   root.attrs.incl rootWindow
 
