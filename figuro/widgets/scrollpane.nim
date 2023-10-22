@@ -13,6 +13,7 @@ type
   ScrollProperties* = object
     size* = initPosition(10'ui, 10.0'ui)
     barLeft: bool
+    barTop: bool
   
   ScrollWindow* = object
     scrollby: Position
@@ -53,16 +54,24 @@ proc calculateBar*(props: ScrollProperties,
     sizePercent = clamp(window.scrollby/window.contentOverflow, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio * window.viewSize
 
-  let
-    barX = if props.barLeft: 0'ui
-           else: window.viewSize.x - props.size.y
-    barY = sizePercent.y*(window.viewSize.y - scrollBarSize.y)
-    barStart = initPosition(barX, barY)
-
-  ScrollBar(
-    size: initPosition(props.size.y, scrollBarSize.y),
-    start: barStart,
-  )
+  if not isY:
+    let
+      barX = if props.barLeft: 0'ui
+             else: window.viewSize.x - props.size.y
+      barY = sizePercent.y*(window.viewSize.y - scrollBarSize.y)
+    ScrollBar(
+      size: initPosition(props.size.y, scrollBarSize.y),
+      start: initPosition(barX, barY),
+    )
+  else:
+    let
+      barX = sizePercent.x*(window.viewSize.x - scrollBarSize.x)
+      barY = if props.barTop: 0'ui
+             else: window.viewSize.y - props.size.x
+    ScrollBar(
+      size: initPosition(scrollBarSize.x, props.size.x),
+      start: initPosition(barX, barY),
+    )
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
