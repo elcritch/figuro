@@ -92,7 +92,7 @@ proc scrollBarDrag*(self: ScrollPane,
   let child = self.children[0]
   assert child.name == "scrollBody"
   let delta = initial.positionDiff(cursor)
-  echo "scrollBarDrag: ", kind, " change: ", delta
+  # echo "scrollBarDrag: ", kind, " change: ", delta
   self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
   self.window.updateScroll(delta, isAbsolute=true)
   if self.settings.vertical:
