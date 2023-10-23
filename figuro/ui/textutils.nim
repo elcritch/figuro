@@ -62,21 +62,12 @@ proc updateSelectionBoxes*(self: var TextBox) =
     rect.h = (rhs.y + rhs.h) - lhs.y
     self.selectionRects.add rect.descaled()
 
-proc clamp*(self: TextBox, dir = right, offset = 0): int =
+proc clamped*(self: TextBox, dir = right, offset = 0): int =
   case dir
   of left:
     clamp(self.selection.a + offset, 0, self.runes().len)
   of right:
     clamp(self.selection.b + offset, 0, self.runes().len)
-
-proc clampedLeft*(self: TextBox, offset = 0): int = self.clamp(left, offset)
-proc clampedRight*(self: TextBox, offset = 0): int = self.clamp(right, offset)
-
-proc deleteSelection*(self: var TextBox) =
-  if self.selection.len() > 1:
-    let delSlice = self.clamp(left) .. self.clamp(right, -1)
-    self.runes().delete(delSlice)
-    self.selection = self.clamp(left).toSlice()
 
 proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
   result = -1
@@ -107,9 +98,18 @@ proc findNextWord*(self: TextBox): int =
     if self.runes()[i].isWhiteSpace():
       return i
 
+proc delete*(self: var TextBox) =
+  if self.selection.len() > 1:
+    let delSlice = self.clamped(left) .. self.clamped(right, offset = -1)
+    self.runes().delete(delSlice)
+    self.selection = self.clamped(left).toSlice()
+  elif self.selection.len() == 1:
+    self.runes.delete(self.clamped(left, offset = -1))
+    self.selection = toSlice(self.clamped(left, offset = -1))
+
 proc insert*(self: var TextBox, rune: Rune) =
-  self.deleteSelection()
-  self.runes.insert(rune, self.clampedLeft())
+  self.delete()
+  self.runes.insert(rune, self.clamped(left))
   self.updateLayout()
   self.selection = toSlice(self.selection.a + 1)
   self.updateSelectionBoxes()
@@ -128,9 +128,9 @@ proc cursorDown*(self: var TextBox, growSelection = false) =
   else:
     let lineDiff = 
       if growSelection:
-        self.clamp(dir=self.growing) - startCurrLine
+        self.clamped(dir=self.growing) - startCurrLine
       else:
-        self.clamp(right) - startCurrLine
+        self.clamped(right) - startCurrLine
     self.selection = toSlice(min(lineStart.a + lineDiff, lineStart.b))
   # textBox.adjustScroll()
 
@@ -148,9 +148,9 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
   else:
     let lineDiff = 
       if growSelection:
-        self.clamp(dir=self.growing) - startCurrLine
+        self.clamped(dir=self.growing) - startCurrLine
       else:
-        self.clamp(left) - startCurrLine
+        self.clamped(left) - startCurrLine
     self.selection = toSlice(min(lineStart.a + lineDiff, lineStart.b))
   # textBox.adjustScroll()
 

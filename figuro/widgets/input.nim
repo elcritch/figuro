@@ -47,41 +47,6 @@ proc getKey(p: UiButtonView): UiButton =
     if x.ord in KeyRange.low.ord .. KeyRange.high.ord:
       return x
 
-proc lineOffset(self: Input, offset: int, isGrowingSelection = false): int =
-  # This is likely much more complicated than required...
-  let 
-    presentLine = self.findLine(offset > 0, isGrowingSelection)
-    nextLine = clamp(presentLine + offset, 0, self.layout.lines.high)
-    lineStart = self.layout.lines[nextLine]
-    lineDiff =
-      if offset > 0: # Moving down the page
-        if isGrowingSelection and self.isGrowingLeft:
-          self.clampedLeft() - self.layout.lines[presentLine].a
-        elif isGrowingSelection and not self.isGrowingLeft:
-          self.clampedRight() - self.layout.lines[presentLine].a
-        elif not isGrowingSelection:
-          self.clampedRight() - self.layout.lines[presentLine].a
-        else:
-          raiseAssert("How do we get here?!")
-      else: # Moving up the page
-        if isGrowingSelection and self.isGrowingLeft:
-          self.clampedLeft() - self.layout.lines[presentLine].a
-        elif isGrowingSelection and not self.isGrowingLeft:
-          self.clampedRight() - self.layout.lines[presentLine].a
-        elif not isGrowingSelection:
-          self.clampedLeft() - self.layout.lines[presentLine].a
-        else:
-          raiseAssert("How do we get here?!")
-  if presentLine == 0 and offset < 0:
-    0
-  elif presentLine == self.layout.lines.high and offset > 0:
-    self.layout.lines[^1].b
-  elif offset < 0 or offset > 0:
-    (lineStart.a + lineDiff).min(lineStart.b)
-  else:
-    raiseAssert("Offset cannot be 0, that's just the line.")
-
-
 proc keyCommand*(self: Input,
                  pressed: UiButtonView,
                  down: UiButtonView) {.slot.} =
