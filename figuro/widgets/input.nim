@@ -12,8 +12,6 @@ type
     value: int
     cnt: int
 
-proc runes(self: Input): var seq[Rune] = self.layout.runes
-
 proc doKeyCommand*(self: Input,
                    pressed: UiButtonView,
                    down: UiButtonView) {.signal.}
@@ -39,18 +37,9 @@ proc clicked*(self: Input,
 
 proc sameSlice[T](a: T): Slice[T] = a..a # Shortcut 
 
-template aa(): int = self.selection.a
-template bb(): int = self.selection.b
-template ll(): int = self.runes.len() - 1
-
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
-  if self.selection.len > 1:
-    self.runes.delete(self.deleteSelection())
-  self.runes.insert(rune, self.clampedLeft())
-  self.updateLayout()
-  self.selection = self.selection.a + 1 .. self.selection.a + 1
-  self.updateSelectionBoxes()
+  self.text.insert(rune)
   refresh(self)
 
 proc getKey(p: UiButtonView): UiButton =
