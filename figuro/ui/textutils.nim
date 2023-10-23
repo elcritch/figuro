@@ -19,15 +19,17 @@ type
     box*: Box
 
 proc runes*(self: TextBox): var seq[Rune] = self.layout.runes
+
 proc toSlice[T](a: T): Slice[T] = a..a # Shortcut 
 proc hasSelection*(self: TextBox): bool =
   self.selection != 0..0 and self.layout.runes.len() > 0
 proc clamped*(self: TextBox, dir = right, offset = 0): int =
+  let ln = self.layout.runes.len()
   case dir
   of left:
-    clamp(self.selection.a + offset, 0, self.runes().len)
+    result = clamp(self.selection.a + offset, 0, ln)
   of right:
-    clamp(self.selection.b + offset, 0, self.runes().len)
+    result = clamp(self.selection.b + offset, 0, ln)
 
 proc newTextBox*(box: Box, font: UiFont): TextBox =
   result = TextBox()
@@ -59,7 +61,13 @@ iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
     else: # handle full lines
       yield line.a..line.a
 
+import pretty
+
 proc updateCursor(self: var TextBox) =
+  print "updateCursor:sel: ", self.selection
+  print "updateCursor:selRect: ", self.selectionRects
+  print "updateCursor:layout: ", self.layout
+
   var cursor: Rect
   case self.growing:
   of left:
@@ -130,10 +138,12 @@ proc findNextWord*(self: TextBox): int =
 proc delete*(self: var TextBox) =
   if self.selection.len() > 1:
     let delSlice = self.clamped(left) .. self.clamped(right, offset = -1)
-    self.runes().delete(delSlice)
+    if self.runes().len() > 1:
+      self.runes().delete(delSlice)
     self.selection = self.clamped(left).toSlice()
   elif self.selection.len() == 1:
-    self.runes.delete(self.clamped(left, offset = -1))
+    if self.runes().len() > 1:
+      self.layout.runes.delete(self.clamped(left, offset = -1))
     self.selection = toSlice(self.clamped(left, offset = -1))
 
 proc insert*(self: var TextBox, rune: Rune) =

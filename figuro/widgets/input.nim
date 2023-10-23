@@ -54,6 +54,7 @@ proc keyCommand*(self: Input,
             " pressed: ", $pressed,
             " down: ", $down, " :: ", self.selection
   if down == KNone:
+    var update = true
     case pressed.getKey
     of KeyBackspace:
       if self.text.hasSelection():
@@ -76,8 +77,9 @@ proc keyCommand*(self: Input,
     of KeyEnter:
       self.keyInput Rune '\n'
     else:
-      discard
-    self.text.updateSelection()
+      update = false
+    if update:
+      self.text.updateSelection()
 
   elif down == KMeta:
     case pressed.getKey
@@ -127,7 +129,7 @@ proc keyCommand*(self: Input,
   #   else: discard
 
   self.value = 1
-  self.text.updateSelection()
+  # self.text.updateSelection()
   refresh(self)
 
 proc keyPress*(self: Input,
@@ -147,10 +149,7 @@ proc draw*(self: Input) {.slot.} =
     cornerRadius 10.0
 
     text "text":
-      # box 10'ux, 10'ux, 400'ux, 100'ux
       fill blackColor
-      # current.textLayout = self.layout
-
       rectangle "cursor":
         boxOf self.text.cursorRect
         fill blackColor
