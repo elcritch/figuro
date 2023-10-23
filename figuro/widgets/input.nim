@@ -137,19 +137,17 @@ proc keyPress*(self: Input,
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
-  # if self.layout.isNil:
-  #   self.layout = GlyphArrangement()
-  
   connect(self, doKeyCommand, self, Input.keyCommand)
-  let fs = self.theme.font.size.scaled
 
   withDraw(self):
+    if self.text.isNil:
+      self.text = newTextBox(self.box, self.theme.font)
 
     clipContent true
     cornerRadius 10.0
 
     text "text":
-      box 10'ux, 10'ux, 400'ux, 100'ux
+      # box 10'ux, 10'ux, 400'ux, 100'ux
       fill blackColor
       # current.textLayout = self.layout
 

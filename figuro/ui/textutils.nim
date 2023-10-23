@@ -8,7 +8,7 @@ type
     left
     right
 
-  TextBox* = object
+  TextBox* = ref object
     selection*: Slice[int]
     growing*: TextDirection # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
@@ -18,7 +18,7 @@ type
     font*: UiFont
     box*: Box
 
-proc runes*(self: TextBox): var seq[Rune] = self.runes()
+proc runes*(self: TextBox): var seq[Rune] = self.layout.runes
 proc toSlice[T](a: T): Slice[T] = a..a # Shortcut 
 proc hasSelection*(self: TextBox): bool =
   self.selection != 0..0 and self.layout.runes.len() > 0
@@ -29,10 +29,11 @@ proc clamped*(self: TextBox, dir = right, offset = 0): int =
   of right:
     clamp(self.selection.b + offset, 0, self.runes().len)
 
-proc initTextBox*(box: Box, font: UiFont): TextBox =
+proc newTextBox*(box: Box, font: UiFont): TextBox =
   result = TextBox()
   result.box = box
   result.font = font
+  result.layout = GlyphArrangement()
 
 proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
   ## Update layout from runes.
