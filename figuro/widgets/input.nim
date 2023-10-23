@@ -40,6 +40,7 @@ proc sameSlice[T](a: T): Slice[T] = a..a # Shortcut
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
   self.text.insert(rune)
+  self.text.update()
   refresh(self)
 
 proc getKey(p: UiButtonView): UiButton =

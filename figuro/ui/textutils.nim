@@ -62,6 +62,10 @@ proc updateSelectionBoxes*(self: var TextBox) =
     rect.h = (rhs.y + rhs.h) - lhs.y
     self.selectionRects.add rect.descaled()
 
+proc update*(self: var TextBox) =
+  self.updateLayout()
+  self.updateSelectionBoxes()
+
 proc clamped*(self: TextBox, dir = right, offset = 0): int =
   case dir
   of left:
@@ -110,9 +114,7 @@ proc delete*(self: var TextBox) =
 proc insert*(self: var TextBox, rune: Rune) =
   self.delete()
   self.runes.insert(rune, self.clamped(left))
-  self.updateLayout()
   self.selection = toSlice(self.selection.a + 1)
-  self.updateSelectionBoxes()
 
 proc cursorDown*(self: var TextBox, growSelection = false) =
   ## Move cursor or selection down
