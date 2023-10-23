@@ -35,8 +35,6 @@ proc clicked*(self: Input,
     self.value = 0
   refresh(self)
 
-proc sameSlice[T](a: T): Slice[T] = a..a # Shortcut 
-
 proc keyInput*(self: Input,
                rune: Rune) {.slot.} =
   self.text.insert(rune)
@@ -62,101 +60,74 @@ proc keyCommand*(self: Input,
         self.text.delete()
         self.text.update()
     of KeyLeft:
-      if self.selection.len != 1 and growing == right:
-        self.selection = sameSlice self.clampedRight(-1)
-      else:
-        self.selection = sameSlice self.clampedLeft(-1)
+      self.text.cursorLeft()
     of KeyRight:
-      if self.selection.len != 1 and growing == right:
-        self.selection = sameSlice self.clampedRight(1)
-      else:
-        self.selection = sameSlice self.clampedLeft(1)
+      self.text.cursorRight()
     of KeyHome:
-      self.selection = 0..0
+      self.text.cursorStart()
     of KeyEnd:
-      self.selection = sameSlice self.runes.len
+      self.text.cursorEnd()
     of KeyUp:
-      if self.selection.len != 1:
-        self.selection = sameSlice self.lineOffset(-1, isGrowingSelection = true)
-      else:
-        self.selection = sameSlice self.lineOffset(-1)
+      self.text.cursorUp()
     of KeyDown:
-      if self.selection.len != 1:
-        self.selection = sameSlice self.lineOffset(1, isGrowingSelection = true)
-      else:
-        self.selection = sameSlice self.lineOffset(1)
+      self.text.cursorDown()
     of KeyEscape:
       self.clicked(Exit, {})
     of KeyEnter:
       self.keyInput Rune '\n'
-
-    else: discard
+    else:
+      discard
+    self.text.updateSelection()
 
   elif down == KMeta:
     case pressed.getKey
     of KeyA:
-      self.selection = 0..self.runes.len
+      self.text.cursorSelectAll()
     of KeyLeft:
-      self.selection = 0..0
+      self.text.cursorStart()
     of KeyRight:
-      self.selection = ll+1..ll+1
-    else: discard
+      self.text.cursorEnd()
+    else:
+      discard
+    self.text.updateSelection()
 
   elif down == KShift:
     case pressed.getKey
     of KeyLeft:
-      self.isGrowingLeft = self.isGrowingLeft or self.selection.len == 1 # Perhaps we just always move b and then resolve the slice later
-      if self.isGrowingLeft:
-        self.selection.a = self.clampedLeft(-1)
-      else:
-        self.selection.b = self.clampedRight(-1)
+      self.text.cursorLeft(growSelection=true)
     of KeyRight:
-      self.isGrowingLeft = self.isGrowingLeft and self.selection.len > 1
-      if self.isGrowingLeft:
-        self.selection.a = self.clampedLeft(1)
-      else:
-        self.selection.b = self.clampedRight(1)
+      self.text.cursorRight(growSelection=true)
     of KeyUp:
-      self.isGrowingLeft = self.isGrowingLeft or self.selection.len == 1
-      if self.isGrowingLeft:
-        self.selection.a = self.lineOffset(-1, isGrowingSelection = true)
-      else:
-        self.selection.b = self.lineOffset(-1, isGrowingSelection = true)
+      self.text.cursorUp(growSelection=true)
     of KeyDown:
-      self.isGrowingLeft = self.isGrowingLeft and self.selection.len > 1
-      if self.isGrowingLeft:
-        self.selection.a = self.lineOffset(1, isGrowingSelection = true)
-      else:
-        self.selection.b = self.lineOffset(1, isGrowingSelection = true)
+      self.text.cursorDown(growSelection=true)
     of KeyHome:
-      self.selection.a = 0
-      self.isGrowingLeft = true
+      self.text.cursorStart(growSelection=true)
     of KeyEnd:
-      self.selection.b = self.runes.len
-      self.isGrowingLeft = false
-    else: discard
+      self.text.cursorEnd(growSelection=true)
+    else:
+      discard
+    self.text.updateSelection()
 
-  elif down == KAlt:
-    case pressed.getKey
-    of KeyLeft:
-      let idx = findPrevWord(self)
-      self.selection = idx+1..idx+1
-    of KeyRight:
-      let idx = findNextWord(self)
-      self.selection = idx..idx
-    of KeyBackspace:
-      if aa > 0:
-        let idx = findPrevWord(self)
-        self.runes.delete(idx+1..aa-1)
-        self.selection = idx+1..idx+1
-        self.updateLayout()
-    else: discard
+  ## todo
+  # elif down == KAlt:
+  #   case pressed.getKey
+  #   of KeyLeft:
+  #     let idx = findPrevWord(self)
+  #     self.selection = idx+1..idx+1
+  #   of KeyRight:
+  #     let idx = findNextWord(self)
+  #     self.selection = idx..idx
+  #   of KeyBackspace:
+  #     if aa > 0:
+  #       let idx = findPrevWord(self)
+  #       self.runes.delete(idx+1..aa-1)
+  #       self.selection = idx+1..idx+1
+  #       self.updateLayout()
+  #   else: discard
 
   self.value = 1
-  self.selection = self.clampedLeft() .. self.clampedRight()
-
-  if self.selHash != self.selection.hash():
-    self.updateSelectionBoxes()
+  self.text.updateSelection()
   refresh(self)
 
 proc keyPress*(self: Input,
@@ -166,8 +137,8 @@ proc keyPress*(self: Input,
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
-  if self.layout.isNil:
-    self.layout = GlyphArrangement()
+  # if self.layout.isNil:
+  #   self.layout = GlyphArrangement()
   
   connect(self, doKeyCommand, self, Input.keyCommand)
   let fs = self.theme.font.size.scaled
@@ -180,31 +151,16 @@ proc draw*(self: Input) {.slot.} =
     text "text":
       box 10'ux, 10'ux, 400'ux, 100'ux
       fill blackColor
-      current.textLayout = self.layout
+      # current.textLayout = self.layout
 
       rectangle "cursor":
-        let sz = 0..self.layout.selectionRects.high()
-        var sr =
-          if self.isGrowingLeft:
-            self.layout.selectionRects[self.selection.a]
-          else:
-            self.layout.selectionRects[self.selection.b]
-        ## this is gross but works for now
-        let width = max(0.08*fs, 2.0)
-        sr.x = sr.x - width/2.0
-        sr.y = sr.y - 0.04*fs
-        sr.w = width
-        sr.h = 0.9*fs
-        boxOf sr.descaled()
+        boxOf self.text.cursorRect
         fill blackColor
         current.fill.a = self.value.toFloat * 1.0
 
-      for i, sl in self.selectionRects:
+      for i, selRect in self.text.selectionRects:
         rectangle "selection", captures(i):
-          let fs = self.theme.font.size.scaled
-          var rs = self.selectionRects[i]
-          rs.y = rs.y - 0.1*fs
-          boxOf rs
+          boxOf self.text.selectionRects[i]
           fill "#A0A0FF".parseHtmlColor 
           current.fill.a = 0.4
 
