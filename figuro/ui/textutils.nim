@@ -114,7 +114,7 @@ proc insert*(self: var TextBox, rune: Rune) =
   self.selection = toSlice(self.selection.a + 1)
   self.updateSelectionBoxes()
 
-proc down*(self: var TextBox, growSelection = false) =
+proc cursorDown*(self: var TextBox, growSelection = false) =
   ## Move cursor or selection down
   let
     presentLine = self.findLine(true, growSelection)
@@ -133,4 +133,25 @@ proc down*(self: var TextBox, growSelection = false) =
         self.clamp(right) - startCurrLine
     self.selection = toSlice(min(lineStart.a + lineDiff, lineStart.b))
   # textBox.adjustScroll()
+
+proc cursorUp*(self: var TextBox, growSelection = false) =
+  ## Move cursor or selection up
+  let
+    presentLine = self.findLine(true, growSelection)
+    startCurrLine = self.layout.lines[presentLine].a
+    nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
+    lineStart = self.layout.lines[nextLine]
+
+  if presentLine == 0:
+    # if first line, goto start
+    self.selection = toSlice(0)
+  else:
+    let lineDiff = 
+      if growSelection:
+        self.clamp(dir=self.growing) - startCurrLine
+      else:
+        self.clamp(left) - startCurrLine
+    self.selection = toSlice(min(lineStart.a + lineDiff, lineStart.b))
+  # textBox.adjustScroll()
+
 
