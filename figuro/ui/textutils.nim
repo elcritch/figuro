@@ -20,6 +20,9 @@ type
 proc runes*(self: TextBox): var seq[Rune] = self.runes()
 proc toSlice[T](a: T): Slice[T] = a..a # Shortcut 
 
+proc hasSelection*(self: TextBox): bool =
+  self.selection != 0..0 and self.layout.runes.len() > 0
+
 proc initTextBox*(box: Box, font: UiFont): TextBox =
   result = TextBox()
   result.box = box
@@ -115,6 +118,28 @@ proc insert*(self: var TextBox, rune: Rune) =
   self.delete()
   self.runes.insert(rune, self.clamped(left))
   self.selection = toSlice(self.selection.a + 1)
+
+proc cursorLeft*(self: var TextBox, growSelection = false) =
+  if growSelection:
+    if self.selection.len() == 1: self.growing = left
+    case self.growing:
+    of left:
+      self.selection.a = self.clamped(left, offset = -1)
+    of right:
+      self.selection.b = self.clamped(right, offset = -1)
+  else:
+    self.selection = toSlice self.clamped(self.growing, offset = -1)
+
+proc cursorRight*(self: var TextBox, growSelection = false) =
+  if growSelection:
+    if self.selection.len() > 1: self.growing = left
+    case self.growing:
+    of left:
+      self.selection.a = self.clamped(left, offset = 1)
+    of right:
+      self.selection.b = self.clamped(right, offset = 1)
+  else:
+    self.selection = toSlice self.clamped(self.growing, offset = -1)
 
 proc cursorDown*(self: var TextBox, growSelection = false) =
   ## Move cursor or selection down

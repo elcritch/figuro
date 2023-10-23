@@ -58,24 +58,16 @@ proc keyCommand*(self: Input,
   if down == KNone:
     case pressed.getKey
     of KeyBackspace:
-      if self.runes.len != 0 and self.selection != 0..0:
-        if self.selection.a >= self.runes.len:
-          discard self.runes.pop()
-          self.selection = sameSlice(self.clampedLeft(-1))
-        elif self.selection.len == 1:
-          self.runes.delete(self.clampedLeft(-1))
-          self.selection = sameSlice(self.clampedLeft(-1))
-        else:
-          self.runes.delete(self.deleteSelection())
-          self.selection = sameSlice(self.clampedLeft())
-        self.updateLayout()
+      if self.text.hasSelection():
+        self.text.delete()
+        self.text.update()
     of KeyLeft:
-      if self.selection.len != 1 and not self.isGrowingLeft:
+      if self.selection.len != 1 and growing == right:
         self.selection = sameSlice self.clampedRight(-1)
       else:
         self.selection = sameSlice self.clampedLeft(-1)
     of KeyRight:
-      if self.selection.len != 1 and not self.isGrowingLeft:
+      if self.selection.len != 1 and growing == right:
         self.selection = sameSlice self.clampedRight(1)
       else:
         self.selection = sameSlice self.clampedLeft(1)
