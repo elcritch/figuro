@@ -79,9 +79,9 @@ proc updateCursor(self: var TextBox) =
   let fontSize = self.font.size.scaled()
   let width = max(0.08*fontSize, 2.0)
   cursor.x = cursor.x - width/2.0
-  cursor.y = cursor.y - 0.04*fontSize
+  cursor.y = cursor.y - 0.05*fontSize
   cursor.w = width
-  cursor.h = 0.9*fontSize
+  cursor.h = 1.0*fontSize
   self.cursorRect = cursor.descaled()
 
 proc updateSelection*(self: var TextBox) =
