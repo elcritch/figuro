@@ -7,6 +7,7 @@ switch("styleCheck", "hint")
 
 --d:windyNoHttp
 --d:printDebugTimings
+--d:nimStrictDelete
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 

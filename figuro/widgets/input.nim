@@ -150,6 +150,7 @@ proc draw*(self: Input) {.slot.} =
 
     text "text":
       fill blackColor
+      fig.textLayout = self.text.layout
       rectangle "cursor":
         boxOf self.text.cursorRect
         fill blackColor

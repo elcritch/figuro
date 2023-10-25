@@ -64,9 +64,9 @@ iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
 import pretty
 
 proc updateCursor(self: var TextBox) =
-  print "updateCursor:sel: ", self.selection
-  print "updateCursor:selRect: ", self.selectionRects
-  print "updateCursor:layout: ", self.layout
+  # print "updateCursor:sel: ", self.selection
+  # print "updateCursor:selRect: ", self.selectionRects
+  # print "updateCursor:layout: ", self.layout
 
   var cursor: Rect
   case self.growing:
