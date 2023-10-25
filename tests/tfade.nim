@@ -9,7 +9,6 @@ type
     value: float
     hasHovered: bool = false
     hoveredAlpha: float = 0.0
-    mainRect: Figuro
 
 proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
@@ -24,23 +23,16 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  var current = self
-  # current = self
-  rectangle "body":
-    self.mainRect = current
-    box 10'ux, 10'ux, 600'ux, 120'ux
-    cornerRadius 10.0
-    fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
-    for i in 0 .. 4:
-      button "btn", captures(i):
-        box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
-        # fill css"#2B9FEA"
-        # we need to connect it's onHover event
-        connect(current, doHover, self, Main.buttonHover)
-        # unfortunately, we have many hovers
-        # so we need to give hover a type 
-        # perfect, the slot pragma adds all this for
-        # us
+  withDraw(self):
+    rectangle "body":
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0
+      fill whiteColor.darken(self.hoveredAlpha)
+      for i in 0 .. 4:
+        button "btn", captures(i):
+          box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
+          # we need to connect it's onHover event
+          connect(current, doHover, self, buttonHover)
 
 var main = Main.new()
 
