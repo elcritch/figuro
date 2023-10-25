@@ -46,7 +46,6 @@ suite "textboxes":
     text.selection = 1..2
     text.insert(Rune('B'))
     text.update()
-    check text.selection == 1..1
     check text.selection == 2..2
     check text.runes == "aBcd".toRunes()
 
@@ -56,3 +55,10 @@ suite "textboxes":
     text.update()
     check text.selection == 5..5
     check text.runes == "abcdE".toRunes()
+
+  test "double-insert":
+    text.selection = 1..3
+    text.insert(Rune('B'))
+    text.update()
+    check text.selection == 2..2
+    check text.runes == "aBd".toRunes()
