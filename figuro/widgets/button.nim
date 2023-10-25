@@ -35,6 +35,10 @@ proc clicked*[T](self: Button[T],
   refresh(self)
   emit self.doButton()
 
+# proc tick*[T](self: Button[T], tick: int, now: MonoTime) {.slot.} =
+#   # echo "button:tick: ", tick
+#   discard
+
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   withDraw(self):

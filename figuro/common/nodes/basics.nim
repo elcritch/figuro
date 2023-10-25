@@ -27,7 +27,7 @@ type
     nkImage
 
   Attributes* = enum
-    noClipContent
+    clipContent
     disableRender
     scrollPanel
     inactive

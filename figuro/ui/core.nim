@@ -167,8 +167,8 @@ proc connectDefaults*[T](current: T) {.slot.} =
     connect(current, doKeyPress, current, T.keyPress())
   when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
     connect(current, doHover, current, T.hover())
-  when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
-    connect(root, doTick, current, T.tick(), acceptVoidSlot=true)
+  # when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
+  #   connect(root, doTick, current, T.tick(), acceptVoidSlot=true)
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Figuro) =
   ## Process the start of the node.

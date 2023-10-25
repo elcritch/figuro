@@ -108,7 +108,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
                                   buttons: buttons[ek],
                                   targets: toHashSet([node]))
 
-    if noClipContent notin node.attrs and
+    if clipContent in node.attrs and
           result[ek].zlvl <= node.zlevel and
           ek != evDrag and
           not node.mouseOverlaps(false):

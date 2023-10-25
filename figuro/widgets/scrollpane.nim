@@ -113,6 +113,7 @@ proc draw*(self: ScrollPane) {.slot.} =
   withDraw self:
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
+    clipContent true
     rectangle "scrollBody":
       ## max-content is important here
       ## todo: do the same for horiz?

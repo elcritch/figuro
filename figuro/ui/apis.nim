@@ -194,9 +194,9 @@ template notAttr*(attr: Attributes): bool =
 template clipContent*(clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
-    current.attrs.excl noClipContent
+    current.attrs.incl clipContent
   else:
-    current.attrs.incl noClipContent
+    current.attrs.excl clipContent
 
 template fill*(color: Color) =
   ## Sets background color.
