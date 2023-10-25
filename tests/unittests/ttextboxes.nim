@@ -28,9 +28,31 @@ suite "textboxes":
     check text.runes == "abcdefghi".toRunes()
     check text.selection == 9..9
 
-  test "insert and re-insert":
+  test "insert at beginning":
     text.selection = 0..0
     text.insert(Rune('A'))
+    text.update()
     check text.selection == 1..1
     check text.runes == "Aabcd".toRunes()
-    print text
+
+  test "re-insert selected":
+    text.selection = 0..1
+    text.insert(Rune('A'))
+    text.update()
+    check text.selection == 1..1
+    check text.runes == "Abcd".toRunes()
+
+  test "re-insert selected offset":
+    text.selection = 1..2
+    text.insert(Rune('B'))
+    text.update()
+    check text.selection == 1..1
+    check text.selection == 2..2
+    check text.runes == "aBcd".toRunes()
+
+  test "re-insert at end":
+    text.selection = 4..4
+    text.insert(Rune('E'))
+    text.update()
+    check text.selection == 5..5
+    check text.runes == "abcdE".toRunes()
