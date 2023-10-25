@@ -2,7 +2,7 @@ import std/unicode
 
 import commons
 import ../ui/utils
-import ../ui/textutils
+import ../ui/textboxes
 
 type
   Input* = ref object of Figuro
@@ -111,7 +111,7 @@ proc keyCommand*(self: Input,
       discard
     self.text.updateSelection()
 
-  ## todo
+  ## todo finish moving to 
   # elif down == KAlt:
   #   case pressed.getKey
   #   of KeyLeft:
