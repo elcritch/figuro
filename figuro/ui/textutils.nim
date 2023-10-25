@@ -147,7 +147,8 @@ proc delete*(self: var TextBox) =
     self.selection = toSlice(self.clamped(left, offset = -1))
 
 proc insert*(self: var TextBox, rune: Rune) =
-  self.delete()
+  if self.selection.len() > 1:
+    self.delete()
   self.runes.insert(rune, self.clamped(left))
   self.selection = toSlice(self.selection.a + 1)
 
