@@ -152,7 +152,8 @@ proc renderFrame*(nodes: var RenderNodes) =
     quit()
 
 proc renderAndSwap*(window: Window,
-                    nodes: var RenderNodes) =
+                    nodes: var RenderNodes,
+                    updated: bool) =
   ## Does drawing operations.
   app.tickCount.inc
 

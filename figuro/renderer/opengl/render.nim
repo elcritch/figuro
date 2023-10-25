@@ -208,7 +208,6 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
 proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
-  # echo "drawRoot:nodes:count: ", nodes.len()
   var img: (Hash, Image)
   while glyphImageChan.tryRecv(img):
     # echo "img: ", img
