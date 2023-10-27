@@ -10,7 +10,7 @@ let
 
 import pretty
 
-suite "textboxes":
+suite "text boxes (single line)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)
     for i in 1..4:
@@ -67,6 +67,16 @@ suite "textboxes":
     check text.selection == 2..2
     check text.runes == "aBd".toRunes()
 
+  test "cursor right":
+    text.selection = 0..0
+    for i in 1..4:
+      text.cursorRight()
+      check text.selection == i..i
+    # extra should clamp
+    text.cursorRight()
+    check text.selection == 4..4
+    check text.runes == "abcd".toRunes()
+
   test "cursor grow right":
     text.selection = 0..0
     for i in 1..4:
@@ -75,6 +85,16 @@ suite "textboxes":
     # extra should clamp
     text.cursorRight(growSelection=true)
     check text.selection == 0..4
+    check text.runes == "abcd".toRunes()
+
+  test "cursor left":
+    text.selection = 4..4
+    for i in countdown(3,0):
+      text.cursorLeft()
+      check text.selection == i..i
+    # extra should clamp
+    text.cursorLeft()
+    check text.selection == 0..0
     check text.runes == "abcd".toRunes()
 
   test "cursor grow left":
@@ -86,3 +106,15 @@ suite "textboxes":
     text.cursorLeft(growSelection=true)
     check text.selection == 0..4
     check text.runes == "abcd".toRunes()
+
+  # test "cursor up":
+  #   text.selection = 2..2
+  #   text.cursorLeft(growSelection=true)
+  #   check text.selection == 0..4
+  #   check text.runes == "abcd".toRunes()
+
+suite "textboxes (multiline)":
+  setup:
+    var text = newTextBox(initBox(0,0,100,100), font)
+    for i in 1..4:
+      text.insert(Rune(96+i))
