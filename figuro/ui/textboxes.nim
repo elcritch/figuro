@@ -180,11 +180,7 @@ proc cursorEnd*(self: var TextBox, growSelection = false) =
 proc cursorRight*(self: var TextBox, growSelection = false) =
   if growSelection:
     if self.selection.len() > 1: self.growing = left
-    case self.growing:
-    of left:
-      self.selection.a = self.clamped(left, offset = 1)
-    of right:
-      self.selection.b = self.clamped(right, offset = 1)
+    self.selection.b = self.clamped(right, offset = 1)
   else:
     # if self.selection.len != 1 and growing == right:
     self.selection = toSlice self.clamped(self.growing, offset = 1)
