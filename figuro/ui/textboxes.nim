@@ -142,7 +142,7 @@ proc delete*(self: var TextBox) =
       self.runes().delete(delSlice)
     self.selection = self.clamped(left).toSlice()
   elif self.selection.len() == 1:
-    if self.runes().len() > 1:
+    if self.runes().len() >= 1:
       self.layout.runes.delete(self.clamped(left, offset = -1))
     self.selection = toSlice(self.clamped(left, offset = -1))
 

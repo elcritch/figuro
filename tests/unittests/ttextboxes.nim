@@ -28,6 +28,15 @@ suite "textboxes":
     check text.runes == "abcdefghi".toRunes()
     check text.selection == 9..9
 
+  test "basic deletes":
+    check text.selection == 4..4
+    for i in countdown(3,0):
+      text.delete()
+      check text.selection == i..i
+      check text.runes == "abcdefghi".toRunes()[0..<i]
+    check text.runes == "".toRunes()
+    check text.selection == 0..0
+
   test "insert at beginning":
     text.selection = 0..0
     text.insert(Rune('A'))
