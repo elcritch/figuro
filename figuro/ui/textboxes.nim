@@ -266,3 +266,10 @@ proc cursorWordRight*(self: var TextBox, growSelection = false) =
     self.selection.b = idx
   else:
     self.selection = toSlice(idx)
+
+proc deleteWord*(self: var TextBox, growSelection = false) =
+  if self.selection.a > 0:
+    let idx = findPrevWord(self)
+    self.runes.delete(idx+1..self.selection.a-1)
+    self.selection = idx+1..idx+1
+    self.updateLayout()

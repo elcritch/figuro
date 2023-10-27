@@ -303,3 +303,21 @@ suite "textbox move words":
     text.cursorWordLeft()
     check text.selection == 0..0
     check text.runes == "one twos threes".toRunes()
+
+  test "delete word":
+    text.selection = 8..8
+    text.deleteWord()
+    check text.selection == 4..4
+    check text.runes == "one  threes".toRunes()
+
+  test "delete word partial":
+    text.selection = 6..6
+    text.deleteWord()
+    check text.selection == 4..4
+    check text.runes == "one os threes".toRunes()
+
+  test "delete word and space":
+    text.selection = 9..9
+    text.deleteWord()
+    check text.selection == 4..4
+    check text.runes == "one threes".toRunes()

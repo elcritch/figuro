@@ -111,22 +111,16 @@ proc keyCommand*(self: Input,
       discard
     self.text.updateSelection()
 
-  ## todo finish moving to 
-  # elif down == KAlt:
-  #   case pressed.getKey
-  #   of KeyLeft:
-  #     let idx = findPrevWord(self)
-  #     self.selection = idx+1..idx+1
-  #   of KeyRight:
-  #     let idx = findNextWord(self)
-  #     self.selection = idx..idx
-  #   of KeyBackspace:
-  #     if aa > 0:
-  #       let idx = findPrevWord(self)
-  #       self.runes.delete(idx+1..aa-1)
-  #       self.selection = idx+1..idx+1
-  #       self.updateLayout()
-  #   else: discard
+  # todo finish moving to 
+  elif down == KAlt:
+    case pressed.getKey
+    of KeyLeft:
+      self.text.cursorWordLeft()
+    of KeyRight:
+      self.text.cursorWordRight()
+    of KeyBackspace:
+    else: discard
+    self.text.updateSelection()
 
   self.value = 1
   # self.text.updateSelection()
