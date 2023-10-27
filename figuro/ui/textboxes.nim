@@ -206,7 +206,7 @@ proc cursorDown*(self: var TextBox, growSelection = false) =
     nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
     lineStart = self.layout.lines[nextLine]
 
-  echo "cursorDown: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
+  # echo "cursorDown: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
   if presentLine == self.layout.lines.high:
     # if last line, goto end
     let b = self.layout.lines[^1].b
@@ -232,7 +232,7 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
     nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
     lineStart = self.layout.lines[nextLine]
 
-  echo "cursorUp: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
+  # echo "cursorUp: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
   if presentLine == 0:
     # if first line, goto start
     if growSelection:
