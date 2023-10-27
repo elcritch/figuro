@@ -285,6 +285,16 @@ suite "textbox move words":
     check text.selection == 8..8
     check text.runes == "one twos threes".toRunes()
 
+  test "cursor word right grow":
+    text.selection = 0..0
+    text.cursorWordRight()
+    check text.selection == 3..3
+
+    text.selection = 5..5
+    text.cursorWordRight()
+    check text.selection == 8..8
+    check text.runes == "one twos threes".toRunes()
+
   test "cursor word left":
     text.selection = 5..5
     text.cursorWordLeft()

@@ -253,12 +253,10 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
 proc cursorSelectAll*(self: var TextBox) =
   self.selection = 0..self.runes.len
 
-proc cursorWordLeft*(self: var TextBox) =
+proc cursorWordLeft*(self: var TextBox, growSelection = false) =
   let idx = findPrevWord(self)
   self.selection = idx+1..idx+1
 
-proc cursorWordRight*(self: var TextBox) =
+proc cursorWordRight*(self: var TextBox, growSelection = false) =
   let idx = findNextWord(self)
   self.selection = idx..idx
-
-
