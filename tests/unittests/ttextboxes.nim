@@ -120,6 +120,18 @@ suite "text boxes (single line)":
     check text.selection == 0..2
     check text.runes == "abcd".toRunes()
 
+  test "cursor down":
+    text.selection = 2..2
+    text.cursorDown()
+    check text.selection == 4..4
+    check text.runes == "abcd".toRunes()
+
+  test "cursor down grow":
+    text.selection = 2..2
+    text.cursorDown(growSelection=true)
+    check text.selection == 2..4
+    check text.runes == "abcd".toRunes()
+
 suite "textboxes (multiline)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)
