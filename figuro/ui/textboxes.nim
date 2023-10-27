@@ -191,7 +191,7 @@ proc cursorRight*(self: var TextBox, growSelection = false) =
 
     case self.growing:
     of left:
-      self.selection.a = self.clamped(left, offset = -1)
+      self.selection.a = self.clamped(left, offset = 1)
     of right:
       self.selection.b = self.clamped(right, offset = 1)
   else:
