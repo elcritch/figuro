@@ -119,6 +119,7 @@ proc keyCommand*(self: Input,
     of KeyRight:
       self.text.cursorWordRight()
     of KeyBackspace:
+      self.text.deleteWord()
     else: discard
     self.text.updateSelection()
 
