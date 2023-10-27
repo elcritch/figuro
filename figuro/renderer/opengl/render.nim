@@ -169,7 +169,7 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
     ctx.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
-  ifrender noClipContent notin node.attrs:
+  ifrender clipContent in node.attrs:
     ctx.beginMask()
     node.drawMasks()
     ctx.endMask()
@@ -208,7 +208,6 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
 proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
-  # echo "drawRoot:nodes:count: ", nodes.len()
   var img: (Hash, Image)
   while glyphImageChan.tryRecv(img):
     # echo "img: ", img

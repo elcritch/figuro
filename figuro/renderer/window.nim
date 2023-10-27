@@ -12,6 +12,7 @@ type
   Renderer* = ref object
     window: Window
     nodes*: RenderNodes
+    updated*: bool
 
 const
   openglMajor {.intdefine.} = 3
@@ -29,7 +30,10 @@ proc toUi(wbtn: windy.ButtonView): UiButtonView =
   else:
     copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
-proc renderLoop(window: Window, nodes: var RenderNodes, poll = true) =
+proc renderLoop(window: Window,
+                nodes: var RenderNodes,
+                updated: bool,
+                poll = true) =
   if window.closeRequested:
     app.running = false
     return
@@ -46,13 +50,16 @@ proc renderLoop(window: Window, nodes: var RenderNodes, poll = true) =
   # echo "renderLoop: ", app.requestedFrame
 
   preInput()
-  renderAndSwap(window, nodes)
+  if updated:
+    renderAndSwap(window, nodes, updated)
   postInput()
 
 var lastMouse = Mouse()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
-  renderLoop(renderer.window, renderer.nodes)
+  let update = renderer.updated
+  renderer.updated = false
+  renderLoop(renderer.window, renderer.nodes, update)
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
@@ -71,7 +78,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(window, renderer.nodes, poll = false)
+    renderLoop(window, renderer.nodes, true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
     discard uxInputList.trySend(uxInput)

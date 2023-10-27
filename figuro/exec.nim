@@ -71,11 +71,13 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
 
 proc init*(renderer: Renderer) =
   sendRoot = proc (nodes: sink RenderNodes) =
+      renderer.updated = true
       renderer.nodes = nodes
 
 proc run*(renderer: Renderer) =
 
   sendRoot = proc (nodes: sink RenderNodes) =
+      renderer.updated = true
       renderer.nodes = nodes
 
   uiRenderEvent = initUiEvent()
