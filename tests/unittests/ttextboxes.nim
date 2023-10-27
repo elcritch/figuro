@@ -132,8 +132,17 @@ suite "text boxes (single line)":
     check text.selection == 2..4
     check text.runes == "abcd".toRunes()
 
+  test "inserts":
+    var tx = newTextBox(initBox(0,0,100,100), font)
+    tx.insert("one".toRunes)
+    check tx.selection == 3..3
+    check tx.runes == "one".toRunes()
+
 suite "textboxes (multiline)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)
-    for i in 1..4:
-      text.insert(Rune(96+i))
+    text.insert("hello\nworld".toRunes)
+
+  test "basic":
+    check text.runes == "hello\nworld".toRunes()
+    check text.selection == 11..11
