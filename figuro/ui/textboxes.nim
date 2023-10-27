@@ -213,15 +213,20 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
     nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
     lineStart = self.layout.lines[nextLine]
 
+  echo "cursorUp: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
   if presentLine == 0:
     # if first line, goto start
-    self.selection = toSlice(0)
+    if growSelection:
+      self.selection.a = 0
+    else:
+      self.selection = toSlice(0)
   else:
     let lineDiff = 
       if growSelection:
         self.clamped(dir=self.growing) - startCurrLine
       else:
         self.clamped(left) - startCurrLine
+    echo "lineDiff: ", lineDiff, " line "
     self.selection = toSlice(min(lineStart.a + lineDiff, lineStart.b))
   # textBox.adjustScroll()
 

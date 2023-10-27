@@ -15,6 +15,7 @@ suite "text boxes (single line)":
     var text = newTextBox(initBox(0,0,100,100), font)
     for i in 1..4:
       text.insert(Rune(96+i))
+    text.update()
 
   test "basic setup":
     check text.runes == "abcd".toRunes()
@@ -107,11 +108,17 @@ suite "text boxes (single line)":
     check text.selection == 0..4
     check text.runes == "abcd".toRunes()
 
-  # test "cursor up":
-  #   text.selection = 2..2
-  #   text.cursorLeft(growSelection=true)
-  #   check text.selection == 0..4
-  #   check text.runes == "abcd".toRunes()
+  test "cursor up":
+    text.selection = 2..2
+    text.cursorUp()
+    check text.selection == 0..0
+    check text.runes == "abcd".toRunes()
+
+  test "cursor up grow":
+    text.selection = 2..2
+    text.cursorUp(growSelection=true)
+    check text.selection == 0..2
+    check text.runes == "abcd".toRunes()
 
 suite "textboxes (multiline)":
   setup:
