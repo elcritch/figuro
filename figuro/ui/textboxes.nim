@@ -255,8 +255,14 @@ proc cursorSelectAll*(self: var TextBox) =
 
 proc cursorWordLeft*(self: var TextBox, growSelection = false) =
   let idx = findPrevWord(self)
-  self.selection = idx+1..idx+1
+  if growSelection:
+    self.selection.a = idx+1
+  else:
+    self.selection = toSlice(idx+1)
 
 proc cursorWordRight*(self: var TextBox, growSelection = false) =
   let idx = findNextWord(self)
-  self.selection = idx..idx
+  if growSelection:
+    self.selection.b = idx
+  else:
+    self.selection = toSlice(idx)
