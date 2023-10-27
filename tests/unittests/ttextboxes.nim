@@ -162,7 +162,58 @@ suite "text boxes (single line)":
     check text.selection == 2..2
     check text.runes == "abcd".toRunes()
 
-suite "textboxes (multiline)":
+suite "textboxes (two line)":
+  setup:
+    var text = newTextBox(initBox(0,0,100,100), font)
+    text.insert("one\ntwos".toRunes)
+    text.update()
+
+  test "basic":
+    check text.runes == "one\ntwos".toRunes()
+    check text.selection == 8..8
+
+  test "cursor up":
+    text.selection = 6..6
+    text.cursorUp()
+    check text.selection == 2..2
+
+    text.selection = 5..5
+    text.cursorUp()
+    check text.selection == 1..1
+
+    text.selection = 7..7
+    text.cursorUp()
+    check text.selection == 3..3
+
+    text.selection = 8..8
+    text.cursorUp()
+    check text.selection == 3..3
+    check text.runes == "one\ntwos".toRunes()
+
+  test "cursor up grow":
+    text.selection = 6..6
+    text.cursorUp(growSelection=true)
+    check text.selection == 2..6
+    text.cursorUp(growSelection=true)
+    check text.selection == 0..6
+    check text.runes == "one\ntwos".toRunes()
+
+  test "cursor down":
+    text.selection = 2..2
+    text.cursorDown()
+    check text.selection == 6..6
+    text.selection = 3..3
+    text.cursorDown()
+    check text.selection == 7..7
+    check text.runes == "one\ntwos".toRunes()
+
+  test "cursor down grow":
+    text.selection = 2..2
+    text.cursorDown(growSelection=true)
+    check text.selection == 2..6
+    check text.runes == "one\ntwos".toRunes()
+
+suite "textboxes (three line)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)
     text.insert("one\ntwos".toRunes)
