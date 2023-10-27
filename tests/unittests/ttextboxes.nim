@@ -216,30 +216,35 @@ suite "textboxes (two line)":
 suite "textboxes (three line)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)
-    text.insert("one\ntwos".toRunes)
+    text.insert("one\ntwos\nthrees".toRunes)
     text.update()
 
   test "basic":
-    check text.runes == "one\ntwos".toRunes()
-    check text.selection == 8..8
+    check text.runes == "one\ntwos\nthrees".toRunes()
+    check text.selection == 15..15
 
   test "cursor up":
-    text.selection = 6..6
+    text.selection = 10..10
     text.cursorUp()
-    check text.selection == 2..2
+    check text.selection == 5..5
 
-    text.selection = 5..5
+    text.selection = 11..11
     text.cursorUp()
-    check text.selection == 1..1
+    check text.selection == 6..6
 
-    text.selection = 7..7
+    text.selection = 12..12
     text.cursorUp()
-    check text.selection == 3..3
+    check text.selection == 7..7
 
-    text.selection = 8..8
+    text.selection = 14..14
     text.cursorUp()
-    check text.selection == 3..3
-    check text.runes == "one\ntwos".toRunes()
+    check text.selection == 8..8
+
+    text.selection = 15..15
+    text.cursorUp()
+    check text.selection == 8..8
+
+    check text.runes == "one\ntwos\nthrees".toRunes()
 
   test "cursor up grow":
     text.selection = 6..6
@@ -247,7 +252,7 @@ suite "textboxes (three line)":
     check text.selection == 2..6
     text.cursorUp(growSelection=true)
     check text.selection == 0..6
-    check text.runes == "one\ntwos".toRunes()
+    check text.runes == "one\ntwos\nthrees".toRunes()
 
   test "cursor down":
     text.selection = 2..2
@@ -256,10 +261,10 @@ suite "textboxes (three line)":
     text.selection = 3..3
     text.cursorDown()
     check text.selection == 7..7
-    check text.runes == "one\ntwos".toRunes()
+    check text.runes == "one\ntwos\nthrees".toRunes()
 
   test "cursor down grow":
     text.selection = 2..2
     text.cursorDown(growSelection=true)
     check text.selection == 2..6
-    check text.runes == "one\ntwos".toRunes()
+    check text.runes == "one\ntwos\nthrees".toRunes()
