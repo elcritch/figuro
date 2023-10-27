@@ -208,9 +208,9 @@ proc cursorDown*(self: var TextBox, growSelection = false) =
     else:
       self.selection = toSlice(b)
   else:
-    let lineDiff = 
-        self.clamped(right) - startCurrLine
-    let sel = min(lineStart.a + lineDiff, lineStart.b)
+    let
+      lineDiff = self.clamped(right) - startCurrLine
+      sel = min(lineStart.a + lineDiff, lineStart.b)
     if growSelection:
       self.selection.b = sel
     else:
@@ -233,12 +233,12 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
     else:
       self.selection = toSlice(0)
   else:
-    let lineDiff = 
-      if growSelection:
-        self.clamped(dir=self.growing) - startCurrLine
-      else:
-        self.clamped(left) - startCurrLine
-    self.selection = toSlice(min(lineStart.a + lineDiff, lineStart.b))
+    let lineDiff = self.clamped(left) - startCurrLine
+    let sel = min(lineStart.a + lineDiff, lineStart.b)
+    if growSelection:
+      self.selection.a = sel
+    else:
+      self.selection = toSlice(sel)
   # textBox.adjustScroll()
 
 proc cursorSelectAll*(self: var TextBox) =
