@@ -71,3 +71,19 @@ suite "textboxes":
     text.update()
     check text.selection == 2..2
     check text.runes == "aBd".toRunes()
+
+  test "cursor grow right":
+    text.selection = 0..0
+    text.update()
+    text.cursorRight(growSelection=true)
+    check text.selection == 0..1
+    check text.runes == "abcd".toRunes()
+
+  test "cursor grow left":
+    text.selection = 2..2
+    text.update()
+    text.cursorLeft(growSelection=true)
+    check text.selection == 1..2
+    text.cursorLeft(growSelection=true)
+    check text.selection == 0..2
+    check text.runes == "abcd".toRunes()
