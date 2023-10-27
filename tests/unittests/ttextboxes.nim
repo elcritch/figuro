@@ -176,8 +176,14 @@ suite "textboxes (multiline)":
     text.selection = 6..6
     text.cursorUp()
     check text.selection == 2..2
+
+    text.selection = 5..5
     text.cursorUp()
-    check text.selection == 0..0
+    check text.selection == 1..1
+
+    text.selection = 7..7
+    text.cursorUp()
+    check text.selection == 3..3
     check text.runes == "one\ntwos".toRunes()
 
   test "cursor up grow":

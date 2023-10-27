@@ -232,7 +232,7 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
     nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
     lineStart = self.layout.lines[nextLine]
 
-  # echo "cursorUp: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
+  echo "cursorUp: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
   if presentLine == 0:
     # if first line, goto start
     if growSelection:
@@ -241,7 +241,8 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
       self.selection = toSlice(0)
   else:
     let lineDiff = self.clamped(left) - startCurrLine
-    let sel = min(lineStart.a - lineDiff, lineStart.b)
+    let sel = min(lineDiff, lineStart.b)
+    echo "lineDiff:alt: ", startCurrLine - self.clamped(left), " sel: ", lineStart.a + lineDiff
     echo "lineDiff: ", lineDiff, " sel: ", lineStart.a, " b: ", lineStart.b
     if growSelection:
       self.selection.a = sel
