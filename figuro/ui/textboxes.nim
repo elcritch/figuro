@@ -229,10 +229,10 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
   let
     presentLine = self.findLine(true, growSelection)
     startCurrLine = self.layout.lines[presentLine].a
-    nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
+    nextLine = clamp(presentLine - 1, 0, self.layout.lines.high)
     lineStart = self.layout.lines[nextLine]
 
-  echo "cursorUp: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
+  echo "cursorUp: ", " present: ", presentLine, " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
   if presentLine == 0:
     # if first line, goto start
     if growSelection:
