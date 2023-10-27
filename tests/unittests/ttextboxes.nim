@@ -142,7 +142,32 @@ suite "textboxes (multiline)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)
     text.insert("one\ntwo".toRunes)
+    text.update()
 
   test "basic":
     check text.runes == "one\ntwo".toRunes()
     check text.selection == 7..7
+
+  test "cursor up":
+    text.selection = 2..2
+    text.cursorUp()
+    check text.selection == 0..0
+    check text.runes == "one\ntwo".toRunes()
+
+  test "cursor up grow":
+    text.selection = 2..2
+    text.cursorUp(growSelection=true)
+    check text.selection == 0..2
+    check text.runes == "one\ntwo".toRunes()
+
+  test "cursor down":
+    text.selection = 2..2
+    text.cursorDown()
+    check text.selection == 6..6
+    check text.runes == "one\ntwo".toRunes()
+
+  test "cursor down grow":
+    text.selection = 2..2
+    text.cursorDown(growSelection=true)
+    check text.selection == 2..6
+    check text.runes == "one\ntwo".toRunes()

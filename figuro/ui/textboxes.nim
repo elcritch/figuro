@@ -199,7 +199,7 @@ proc cursorDown*(self: var TextBox, growSelection = false) =
     nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
     lineStart = self.layout.lines[nextLine]
 
-  # echo "cursorDown: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
+  echo "cursorDown: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
   if presentLine == self.layout.lines.high:
     # if last line, goto end
     let b = self.layout.lines[^1].b
@@ -209,11 +209,12 @@ proc cursorDown*(self: var TextBox, growSelection = false) =
       self.selection = toSlice(b)
   else:
     let lineDiff = 
-      if growSelection:
-        self.clamped(dir=self.growing) - startCurrLine
-      else:
         self.clamped(right) - startCurrLine
-    self.selection = toSlice(min(lineStart.a + lineDiff, lineStart.b))
+    let sel = min(lineStart.a + lineDiff, lineStart.b)
+    if growSelection:
+      self.selection.b = sel
+    else:
+      self.selection = toSlice(sel)
   # textBox.adjustScroll()
 
 proc cursorUp*(self: var TextBox, growSelection = false) =
