@@ -160,7 +160,8 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
 
 proc cursorLeft*(self: var TextBox, growSelection = false) =
   if growSelection:
-    if self.selection.len() == 1: self.growing = left
+    if self.selection.len() == 1:
+      self.growing = left
     case self.growing:
     of left:
       self.selection.a = self.clamped(left, offset = -1)
