@@ -40,41 +40,35 @@ suite "textboxes":
   test "insert at beginning":
     text.selection = 0..0
     text.insert(Rune('A'))
-    text.update()
     check text.selection == 1..1
     check text.runes == "Aabcd".toRunes()
 
   test "re-insert selected":
     text.selection = 0..1
     text.insert(Rune('A'))
-    text.update()
     check text.selection == 1..1
     check text.runes == "Abcd".toRunes()
 
   test "re-insert selected offset":
     text.selection = 1..2
     text.insert(Rune('B'))
-    text.update()
     check text.selection == 2..2
     check text.runes == "aBcd".toRunes()
 
   test "re-insert at end":
     text.selection = 4..4
     text.insert(Rune('E'))
-    text.update()
     check text.selection == 5..5
     check text.runes == "abcdE".toRunes()
 
   test "double-insert":
     text.selection = 1..3
     text.insert(Rune('B'))
-    text.update()
     check text.selection == 2..2
     check text.runes == "aBd".toRunes()
 
   test "cursor grow right":
     text.selection = 0..0
-    text.update()
     text.cursorRight(growSelection=true)
     check text.selection == 0..1
     text.cursorRight(growSelection=true)
@@ -83,7 +77,6 @@ suite "textboxes":
 
   test "cursor grow left":
     text.selection = 2..2
-    text.update()
     text.cursorLeft(growSelection=true)
     check text.selection == 1..2
     text.cursorLeft(growSelection=true)
