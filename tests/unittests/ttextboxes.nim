@@ -138,6 +138,18 @@ suite "text boxes (single line)":
     check tx.selection == 3..3
     check tx.runes == "one".toRunes()
 
+  test "cursor grow direction handling (right)":
+    text.selection = 0..0
+    text.cursorRight(growSelection=true)
+    check text.selection == 0..1
+    text.cursorRight(growSelection=true)
+    check text.selection == 0..2
+    text.cursorLeft(growSelection=true)
+    check text.selection == 0..1
+    text.cursorLeft(growSelection=true)
+    check text.selection == 0..0
+    check text.runes == "abcd".toRunes()
+
 suite "textboxes (multiline)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)

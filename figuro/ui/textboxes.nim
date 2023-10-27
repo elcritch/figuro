@@ -158,18 +158,6 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
   self.runes.insert(runes, self.clamped(left))
   self.selection = toSlice(self.selection.a + runes.len())
 
-proc cursorLeft*(self: var TextBox, growSelection = false) =
-  if growSelection:
-    if self.selection.len() == 1:
-      self.growing = left
-    case self.growing:
-    of left:
-      self.selection.a = self.clamped(left, offset = -1)
-    of right:
-      self.selection.b = self.clamped(right, offset = -1)
-  else:
-    self.selection = toSlice self.clamped(self.growing, offset = -1)
-
 proc cursorStart*(self: var TextBox, growSelection = false) =
   if growSelection:
     self.selection.a = 0
@@ -184,10 +172,28 @@ proc cursorEnd*(self: var TextBox, growSelection = false) =
   else:
     self.selection = toSlice self.runes.len()
 
+proc cursorLeft*(self: var TextBox, growSelection = false) =
+  if growSelection:
+    if self.selection.len() == 1:
+      self.growing = left
+    case self.growing:
+    of left:
+      self.selection.a = self.clamped(left, offset = -1)
+    of right:
+      self.selection.b = self.clamped(right, offset = -1)
+  else:
+    self.selection = toSlice self.clamped(self.growing, offset = -1)
+
 proc cursorRight*(self: var TextBox, growSelection = false) =
   if growSelection:
-    if self.selection.len() > 1: self.growing = left
-    self.selection.b = self.clamped(right, offset = 1)
+    if self.selection.len() == 1:
+      self.growing = right
+
+    case self.growing:
+    of left:
+      self.selection.a = self.clamped(left, offset = -1)
+    of right:
+      self.selection.b = self.clamped(right, offset = 1)
   else:
     # if self.selection.len != 1 and growing == right:
     self.selection = toSlice self.clamped(self.growing, offset = 1)
