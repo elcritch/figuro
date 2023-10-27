@@ -141,8 +141,8 @@ suite "text boxes (single line)":
 suite "textboxes (multiline)":
   setup:
     var text = newTextBox(initBox(0,0,100,100), font)
-    text.insert("hello\nworld".toRunes)
+    text.insert("one\ntwo".toRunes)
 
   test "basic":
-    check text.runes == "hello\nworld".toRunes()
-    check text.selection == 11..11
+    check text.runes == "one\ntwo".toRunes()
+    check text.selection == 7..7
