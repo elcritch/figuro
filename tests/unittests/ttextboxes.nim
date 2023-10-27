@@ -69,16 +69,20 @@ suite "textboxes":
 
   test "cursor grow right":
     text.selection = 0..0
+    for i in 1..4:
+      text.cursorRight(growSelection=true)
+      check text.selection == 0..i
+    # extra should clamp
     text.cursorRight(growSelection=true)
-    check text.selection == 0..1
-    text.cursorRight(growSelection=true)
-    check text.selection == 0..2
+    check text.selection == 0..4
     check text.runes == "abcd".toRunes()
 
   test "cursor grow left":
-    text.selection = 2..2
+    text.selection = 4..4
+    for i in countdown(3,0):
+      text.cursorLeft(growSelection=true)
+      check text.selection == i..4
+    # extra should clamp
     text.cursorLeft(growSelection=true)
-    check text.selection == 1..2
-    text.cursorLeft(growSelection=true)
-    check text.selection == 0..2
+    check text.selection == 0..4
     check text.runes == "abcd".toRunes()
