@@ -268,3 +268,28 @@ suite "textboxes (three line)":
     text.cursorDown(growSelection=true)
     check text.selection == 2..6
     check text.runes == "one\ntwos\nthrees".toRunes()
+
+suite "textbox move words":
+  setup:
+    var text = newTextBox(initBox(0,0,100,100), font)
+    text.insert("one twos threes".toRunes)
+    text.update()
+
+  test "cursor word right":
+    text.selection = 0..0
+    text.cursorWordRight()
+    check text.selection == 3..3
+
+    text.selection = 5..5
+    text.cursorWordRight()
+    check text.selection == 8..8
+    check text.runes == "one twos threes".toRunes()
+
+  test "cursor word left":
+    text.selection = 5..5
+    text.cursorWordLeft()
+    check text.selection == 4..4
+
+    text.cursorWordLeft()
+    check text.selection == 0..0
+    check text.runes == "one twos threes".toRunes()
