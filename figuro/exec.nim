@@ -9,6 +9,7 @@ else:
   import renderer/window
   export window
 
+import std/locks
 import std/os
 import std/sets
 import shared, internal
@@ -72,6 +73,7 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
 proc run*(renderer: Renderer) =
 
   sendRoot = proc (nodes: sink RenderNodes) =
+    withLock(renderer.lock):
       renderer.updated = true
       renderer.nodes = nodes
 

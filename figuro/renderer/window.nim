@@ -1,5 +1,6 @@
 import std/[os, hashes, strformat, strutils, tables, times]
 import std/terminal
+import std/locks
 
 import pkg/pixie
 import pkg/windy
@@ -13,6 +14,7 @@ type
     window: Window
     nodes*: RenderNodes
     updated*: bool
+    lock*: Lock
 
 const
   openglMajor {.intdefine.} = 3
@@ -52,7 +54,10 @@ var lastMouse = Mouse()
 proc renderLoop*(renderer: Renderer, poll = true) =
   let update = renderer.updated
   renderer.updated = false
-  renderLoop(renderer.window, renderer.nodes, update)
+  var nodes: RenderNodes
+  withLock(renderer.lock):
+    nodes = move renderer.nodes
+  renderLoop(renderer.window, nodes, update)
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
@@ -165,6 +170,7 @@ proc setupRenderer*(
 
   let renderer =
     Renderer(window: newWindow("", ivec2(1280, 800)))
+  renderer.lock.initLock()
 
   renderer.window.startOpenGL(openglVersion)
   renderer.configureEvents()
