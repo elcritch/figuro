@@ -16,7 +16,7 @@ type
 
 proc update*(fig: Main) {.signal.}
 
-proc btnTick*(self: Button[int], tick: int, now: MonoTime) {.slot.} =
+proc btnTick*(self: Button[int]) {.slot.} =
   self.state.inc
   # echo "btnTick: ", self.getid
   refresh(self)
@@ -73,8 +73,8 @@ proc draw*(self: Main) {.slot.} =
 
           connect(current, doHover, self, Main.hover)
           connect(current, doClick, current, btnClicked)
-          # if i == 0:
-          #   connect(self, update, current, btnTick)
+          if i == 0:
+            connect(self, update, current, btnTick)
 
           contents "child":
             text "text":

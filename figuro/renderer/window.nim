@@ -42,13 +42,6 @@ proc renderLoop(window: Window,
     if poll:
       windy.pollEvents()
   
-  # if app.requestedFrame <= 0 or app.minimized:
-  #   return
-  # else:
-  #   app.requestedFrame.dec
-
-  # echo "renderLoop: ", app.requestedFrame
-
   preInput()
   if updated:
     renderAndSwap(window, nodes, updated)
