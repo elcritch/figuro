@@ -53,7 +53,8 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   # threads: RenderThread
 
   var idx = 0
-  if arrangement != nil:
+  # if arrangement != nil:
+  block:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
       # echo "span: ", span.repr
       # let
@@ -226,13 +227,25 @@ proc getTypeset*(
   # echo "getTypeset:wh: ", wh
   # print arrangement
 
+  var
+    lines = newSeqOfCap[Slice[int]](arrangement.lines.len())
+    spanSlices = newSeqOfCap[Slice[int]](arrangement.spans.len())
+    selectionRects = newSeqOfCap[Rect](arrangement.selectionRects.len())
+    # a.mapIt(it[0]..it[1])
+  for line in arrangement.lines:
+    lines.add line[0]..line[1]
+  for span in arrangement.spans:
+    spanSlices.add span[0]..span[1]
+  for rect in arrangement.selectionRects:
+    selectionRects.add rect
+
   result = GlyphArrangement(
-    lines: arrangement.lines.toSlices(),
-    spans: arrangement.spans.toSlices(),
+    lines: lines, # arrangement.lines.toSlices(),
+    spans: spanSlices, # arrangement.spans.toSlices(),
     fonts: gfonts, ## FIXME
     runes: arrangement.runes,
     positions: arrangement.positions,
-    selectionRects: arrangement.selectionRects,
+    selectionRects: selectionRects,
   )
   # echo "arrangement:\n", result.repr
   # print result

@@ -26,8 +26,8 @@ proc renderDrawable*(node: Node) =
 
 proc renderText(node: Node) {.forbids: [MainThreadEff].} =
   # draw characters
-  if node.textLayout == nil:
-    return
+  # if node.textLayout == nil:
+    # return
 
   for glyph in node.textLayout.glyphs():
 
