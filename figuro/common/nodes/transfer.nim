@@ -124,7 +124,10 @@ proc convert*(current: Figuro): render.Node =
   of nkImage:
     result.image = current.image
   of nkText:
-    result.textLayout = current.textLayout
+    # result.textLayout = current.textLayout
+    result.textLayout = GlyphArrangement()
+    for n, f1, f2 in fieldPairs(result.textLayout[], current.textLayout[]):
+      f1 = f2
   of nkDrawable:
     result.points = current.points.mapIt(it.scaled)
   else:
