@@ -40,7 +40,7 @@ type
     strikethrough*: bool        ## Apply a strikethrough.
     noKerningAdjustments*: bool ## Optionally disable kerning pair adjustments
 
-  GlyphArrangement* = ref object
+  GlyphArrangement* = object
     contentHash*: Hash
     lines*: seq[Slice[int]]    ## The (start, stop) of the lines of text.
     spans*: seq[Slice[int]]    ## The (start, stop) of the spans in the text.

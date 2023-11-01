@@ -309,15 +309,15 @@ proc setText*(node: Figuro,
               spans: openArray[(UiFont, string)],
               hAlign = FontHorizontal.Left,
               vAlign = FontVertical.Top) =
-  if node.textLayout.isNil:
-    node.textLayout = internal.getTypeset(node.box,
+  # if node.textLayout.isNil:
+  node.textLayout = internal.getTypeset(node.box,
                                           spans, hAlign, vAlign)
 
 template setText*(spans: openArray[(UiFont, string)],
                   hAlign = FontHorizontal.Left,
                   vAlign = FontVertical.Top) =
   let thash = spans.hash()
-  if current.textLayout.isNil or thash != current.textLayout.contentHash:
+  if thash != current.textLayout.contentHash:
     current.textLayout = internal.getTypeset(current.box,
                                              spans, hAlign, vAlign)
 

@@ -26,8 +26,8 @@ proc renderDrawable*(node: Node) =
 
 proc renderText(node: Node) {.forbids: [MainThreadEff].} =
   # draw characters
-  if node.textLayout == nil:
-    return
+  # if node.textLayout == nil:
+    # return
 
   for glyph in node.textLayout.glyphs():
 
@@ -41,7 +41,7 @@ proc renderText(node: Node) {.forbids: [MainThreadEff].} =
       charPos = vec2(glyph.pos.x ,
                       glyph.pos.y - glyph.descent)
     if glyphId notin ctx.entries:
-      echo "no glyph in context"
+      echo "no glyph in context: ", glyphId, " glyph: `", glyph.rune, "`", " (", repr(glyph.rune), ")"
       continue
     ctx.drawImage(glyphId, charPos, node.fill)
 
