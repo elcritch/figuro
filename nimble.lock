@@ -46,16 +46,6 @@
         "sha1": "3c479da133f14626f5703d3a6d8949f84aef5087"
       }
     },
-    "print": {
-      "version": "1.0.2",
-      "vcsRevision": "159e540f0686efdd1c8f30ad7b4225a6aa2a5ab9",
-      "url": "https://github.com/treeform/print",
-      "downloadMethod": "git",
-      "dependencies": [],
-      "checksums": {
-        "sha1": "98bf8a86fb9613e107b97929ab041d146060f96d"
-      }
-    },
     "macroutils": {
       "version": "1.1.0",
       "vcsRevision": "4f178a21e57cb842f112a965d25cda93ac4d68e5",
@@ -99,13 +89,13 @@
       }
     },
     "nimsimd": {
-      "version": "1.2.5",
-      "vcsRevision": "1d75f15c8bb8df9c1d4779072bbfc8a7e3e84c98",
+      "version": "1.2.6",
+      "vcsRevision": "156e424306756a106442aca985eed61a8d12097b",
       "url": "https://github.com/guzba/nimsimd",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "9f919415ad69edb599c3362b0cc0fe0b044097c9"
+        "sha1": "a371cce59834c8d56091f5c891fd182e2eb9b3c4"
       }
     },
     "flatty": {
@@ -151,7 +141,7 @@
     "stack_strings": {
       "version": "1.1.0",
       "vcsRevision": "98df4cefe32fc55cf02ca3895252b1951f16dfd5",
-      "url": "https://github.com/termermc/nim-stack-strings",
+      "url": "https://github.com/termermc/nim-stack-strings/",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
@@ -181,18 +171,18 @@
       }
     },
     "threading": {
-      "version": "0.1.0",
-      "vcsRevision": "ba2aef9cc333774680b95a999d04ebb4709fc17a",
+      "version": "0.2.0",
+      "vcsRevision": "bcc284991ba928d1ed299a81a93b7113cc7de04f",
       "url": "https://github.com/nim-lang/threading",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "26326c9485f4ec81278fbce1603f9ac2a4d623fd"
+        "sha1": "08dfc46cedc3fc202e5de6ef80a655598331eb89"
       }
     },
     "windy": {
       "version": "0.0.0",
-      "vcsRevision": "89a9d2d14c0c203bed696097f1ceac02cac6b4c0",
+      "vcsRevision": "9e3a30259f75c514d1b59963631825f8c74ae5fe",
       "url": "https://github.com/elcritch/windy",
       "downloadMethod": "git",
       "dependencies": [
@@ -202,7 +192,7 @@
         "ws"
       ],
       "checksums": {
-        "sha1": "8e58900d728a0f2132030ba937b678ccf504e5e5"
+        "sha1": "d69bb0923dc08c7bcb9176e00b4dd15bebf59188"
       }
     },
     "asynctools": {
@@ -246,25 +236,13 @@
       }
     },
     "variant": {
-      "version": "0.2.13",
-      "vcsRevision": "4934aa62d135eeda49fdb3967ffe8116811ef904",
+      "version": "0.3.0",
+      "vcsRevision": "59caff018ed3b8b04c0e45ac260b4dc8fdef6ac3",
       "url": "https://github.com/yglukhov/variant",
       "downloadMethod": "git",
       "dependencies": [],
       "checksums": {
-        "sha1": "c3cd26970a754280634b6b5f7bfddae17eb22395"
-      }
-    },
-    "typography": {
-      "version": "0.7.14",
-      "vcsRevision": "a2a5165c36e0098dea526712890fb7e988ba27f2",
-      "url": "https://github.com/treeform/typography",
-      "downloadMethod": "git",
-      "dependencies": [
-        "print"
-      ],
-      "checksums": {
-        "sha1": "d6f6e69141b1f62fef42ea2f90eefb894399d4f8"
+        "sha1": "c1f9d32282caa2321cfd78cc7e0a41f9d28a52bb"
       }
     },
     "supersnappy": {
@@ -288,8 +266,8 @@
       }
     },
     "cssgrid": {
-      "version": "0.4.0",
-      "vcsRevision": "ace74ae7000060ef10898cb94691ab8e929fc39b",
+      "version": "0.6.0",
+      "vcsRevision": "a0010a6a28eb033678efb7aa05a2dfb6df97bd5d",
       "url": "https://github.com/elcritch/cssgrid",
       "downloadMethod": "git",
       "dependencies": [
@@ -301,7 +279,7 @@
         "macroutils"
       ],
       "checksums": {
-        "sha1": "da14146c39376933f424fa6e74a828650c279648"
+        "sha1": "e947532e059e1463f2eb36da2b38855a801d02e2"
       }
     }
   },
