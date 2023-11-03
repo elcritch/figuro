@@ -69,8 +69,7 @@ proc draw*(self: Main) {.slot.} =
                       spin(10*self.hoveredAlpha)
       horizontal "horiz":
         box 10'ux, 0'ux, 100'pp, 100'pp
-        itemWidth 100'ux
-        columnGap 20'ui
+        itemWidth 100'ux, gap = 20'ui
         justifyItems CxCenter
         alignItems CxCenter
 
