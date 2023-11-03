@@ -1,4 +1,5 @@
-import figuro/widgets/buttonWrap
+import figuro/widgets/button
+import figuro/widgets/horizontal
 import figuro/widget
 import figuro
 
@@ -66,21 +67,26 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha).
                       spin(10*self.hoveredAlpha)
-      for i in 0 .. 4:
-        button("btn", state(int), captures(i)):
-          let btn = current
-          box ux(10 + i*120), 10'ux, 100'ux, 100'ux
+      horizontal "horiz":
+        box 10'ux, 0'ux, 100'pp, 100'pp
+        itemWidth 100'ux
+        columnGap 20'ui
+        justifyItems CxCenter
+        alignItems CxCenter
 
-          connect(current, doHover, self, Main.hover)
-          connect(current, doClick, current, btnClicked)
-          if i == 0:
-            connect(self, update, current, btnTick)
+        for i in 0 .. 4:
+          button("btn", state(int), captures(i)):
+            let btn = current
+            size 100'ux, 100'ux
 
-          contents "child":
+            connect(current, doHover, self, Main.hover)
+            connect(current, doClick, current, btnClicked)
+            if i == 0:
+              connect(self, update, current, btnTick)
+
             text "text":
-              box 10'ux, 10'ux, 80'pp, 80'pp
               fill blackColor
-              setText({font: $(btn.state)})
+              setText({font: $(btn.state)}, Center, Middle)
 
 var main = Main.new()
 
