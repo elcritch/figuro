@@ -318,6 +318,7 @@ template setText*(spans: openArray[(UiFont, string)],
                   vAlign = FontVertical.Top) =
   let thash = spans.hash()
   if thash != current.textLayout.contentHash:
+    echo "setText:box: ", current.name, " box: ", current.box
     current.textLayout = internal.getTypeset(current.box,
                                              spans, hAlign, vAlign)
 

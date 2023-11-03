@@ -377,16 +377,10 @@ template calcBasicConstraintImpl(
       var res: UICoord
       match val:
         UiAuto(_):
-          if not node.parent.isNil:
-            when astToStr(f) in ["w"]:
-              res = parentBox.f - parentBox.x - node.box.x
-            elif astToStr(f) in ["h"]:
-              res = parentBox.f - parentBox.y - node.box.y
-          else:
-            when astToStr(f) in ["w"]:
-              res = parentBox.f - node.box.x
-            elif astToStr(f) in ["h"]:
-              res = parentBox.f - node.box.y
+          when astToStr(f) in ["w"]:
+            res = parentBox.f -  node.box.x
+          elif astToStr(f) in ["h"]:
+            res = parentBox.f -  node.box.y
         UiFixed(coord):
           res = coord.UICoord
         UiFrac(frac):
@@ -546,9 +540,10 @@ proc computeLayout*(node: Figuro, depth: int) =
     # echo "computeLayout:grid:\n\tnode.box: ", node.box, "\n\tbox: ", box, "\n\tres: ", res, "\n\toverflows: ", node.gridTemplate.overflowSizes
     node.box = res
 
-    # for n in node.children:
-    #   calcBasicConstraint(n, dcol, isXY=false)
-    #   calcBasicConstraint(n, drow, isXY=false)
+    for n in node.children:
+      for c in n.children:
+        calcBasicConstraint(c, dcol, isXY=false)
+        calcBasicConstraint(c, drow, isXY=false)
 
   else:
     for n in node.children:
