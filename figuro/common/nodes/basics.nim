@@ -63,6 +63,8 @@ type
     fsSetGridCols
     fsSetGridRows
     fsGridAutoFlow
+    fsGridAutoRows
+    fsGridAutoColumns
     fsJustifyItems
     fsAlignItems
 

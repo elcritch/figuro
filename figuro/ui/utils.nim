@@ -136,7 +136,7 @@ const fieldSetNames = block:
     echo "FSN: ", names
     names
 
-macro optionals*(blk: untyped) =
+macro optionally*(blk: untyped) =
   ## Optionally sets any fields in `SetField` enum such as
   ## `fill` and `cornerRadius`.
   ## 

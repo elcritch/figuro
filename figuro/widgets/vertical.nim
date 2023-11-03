@@ -21,7 +21,7 @@ proc draw*(self: Vertical) {.slot.} =
     gridAutoFlow grRow
     justifyItems CxCenter
     alignItems CxStart
-    optionals:
+    optionally:
       gridAutoRows 1'fr
 
 exportWidget(vertical, Vertical)

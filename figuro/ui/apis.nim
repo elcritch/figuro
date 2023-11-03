@@ -468,23 +468,28 @@ template layoutItems*(con: ConstraintBehavior) =
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
+  current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
 template layoutItems*(justify, align: ConstraintBehavior) =
   ## set justification and alignment on child items
   defaultGridTemplate()
   current.gridTemplate.justifyItems = justify
   current.gridTemplate.alignItems = align
+  current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
 template gridAutoFlow*(item: GridFlow) =
   defaultGridTemplate()
   current.gridTemplate.autoFlow = item
+  current.userSetFields.incl fsGridAutoFlow
 
 template gridAutoColumns*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
+  current.userSetFields.incl fsGridAutoColumns
 template gridAutoRows*(item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
+  current.userSetFields.incl fsGridAutoRows
 
 template gridTemplateDebugLines*(grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.
