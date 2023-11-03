@@ -70,8 +70,7 @@ proc draw*(self: Main) {.slot.} =
       horizontal "horiz":
         box 10'ux, 0'ux, 100'pp, 100'pp
         itemWidth 100'ux, gap = 20'ui
-        justifyItems CxCenter
-        alignItems CxCenter
+        layoutItems justify=CxCenter, align=CxCenter
 
         for i in 0 .. 4:
           button("btn", state(int), captures(i)):

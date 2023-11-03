@@ -463,11 +463,17 @@ template alignItems*(con: ConstraintBehavior) =
 #   ## align items on css grid (vertical)
 #   defaultGridTemplate()
 #   current.gridItem.align = con
-template placeItems*(con: ConstraintBehavior) =
-  ## align items on css grid (vertical)
+template layoutItems*(con: ConstraintBehavior) =
+  ## set justification and alignment on child items
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
+
+template layoutItems*(justify, align: ConstraintBehavior) =
+  ## set justification and alignment on child items
+  defaultGridTemplate()
+  current.gridTemplate.justifyItems = justify
+  current.gridTemplate.alignItems = align
 
 template gridAutoFlow*(item: GridFlow) =
   defaultGridTemplate()
