@@ -58,7 +58,8 @@ proc draw*(self: GridApp) {.slot.} =
 
         button "btn":
           # label fmt"Clicked1: {self.count:4d}"
-          size csAuto(), csAuto()
+          # size 100'ux, 30'ux
+          size 50'pp, 100'pp
           fill "#A00000"
           echo "cssize: ", current.cxSize.repr
 

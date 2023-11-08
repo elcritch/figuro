@@ -32,13 +32,14 @@ proc draw*(self: Main) {.slot.} =
         rectangle "slider":
           size 200'ux, 45'ux
           fill "#00A0AA"
-          text "val":
+          text "txt1":
             setText({font: "test1"}, Center, Middle)
             fill css"#FFFFFF"
       rectangle "slider":
         size 0.5'fr, 0.5'fr
         fig.fill = css"#A000AA"
-        text "val":
+        text "txt2":
+          # size 100'pp, 100'pp
           setText({font: "test2"}, Center, Middle)
           fill css"#FFFFFF"
     gridTemplateDebugLines Figuro(vert)
