@@ -13,7 +13,7 @@ import opengl/commons
 type
   Renderer* = ref object
     window: Window
-    boxy: Boxy
+    ctx: RContext
     nodes*: RenderNodes
     updated*: bool
 
@@ -33,7 +33,8 @@ proc toUi(wbtn: windy.ButtonView): UiButtonView =
   else:
     copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
-proc renderLoop(window: Window,
+proc renderLoop(ctx: RContext,
+                window: Window,
                 nodes: var RenderNodes,
                 updated: bool,
                 poll = true) =
@@ -54,15 +55,15 @@ proc renderLoop(window: Window,
 
   preInput()
   if updated:
-    renderAndSwap(window, nodes, updated)
+    renderAndSwap(ctx, window, nodes, updated)
   postInput()
 
 var lastMouse = Mouse()
 
-proc renderLoop*(renderer: Renderer, poll = true) =
+proc renderLoop*(ctx: RContext, renderer: Renderer, poll = true) =
   let update = renderer.updated
   renderer.updated = false
-  renderLoop(renderer.window, renderer.nodes, update)
+  renderLoop(renderer.ctx, renderer.window, renderer.nodes, update)
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
@@ -176,13 +177,11 @@ proc setupRenderer*(
   renderer.window = newWindow("", ivec2(1280, 800))
   renderer.window.makeContextCurrent()
   loadExtensions()
-  renderer.boxy = newBoxy()
+  renderer.ctx.entries = newTable[Hash, string]()
+  renderer.ctx.boxy = newBoxy()
 
   renderer.configureEvents()
 
-  ctx = newContext(atlasSize = atlasSize,
-                    pixelate = pixelate,
-                    pixelScale = app.pixelScale)
   app.requestedFrame.inc
 
   useDepthBuffer(false)

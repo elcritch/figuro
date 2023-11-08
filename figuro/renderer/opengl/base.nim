@@ -3,6 +3,7 @@ import std/[strformat, times, strutils]
 import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windy
+import pkg/boxy
 
 import utils, context, render
 import commons
@@ -121,17 +122,18 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
 proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(app.windowRawSize)
-  ctx.saveTransform()
-  ctx.scale(ctx.pixelScale)
+  let size = ivec2(app.windowRawSize.x.toInt.int32, app.windowRawSize.y.toInt.int32)
+  ctx.boxy.beginFrame(size)
+  ctx.boxy.saveTransform()
+  ctx.boxy.scale(vec2(app.pixelScale, app.pixelScale))
 
   # uxInputs.mouse.cursorStyle = Default
 
   # Only draw the root after everything was done:
-  renderRoot(nodes)
+  ctx.renderRoot(nodes)
 
-  ctx.restoreTransform()
-  ctx.endFrame()
+  ctx.boxy.restoreTransform()
+  ctx.boxy.endFrame()
 
   when defined(testOneFrame):
     ## This is used for test only
@@ -140,14 +142,15 @@ proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap*(window: Window,
+proc renderAndSwap*(ctx: RContext,
+                    window: Window,
                     nodes: var RenderNodes,
                     updated: bool) =
   ## Does drawing operations.
   app.tickCount.inc
 
   timeIt(drawFrame):
-    renderFrame(nodes)
+    ctx.renderFrame(nodes)
 
   frameTime = cpuTime()
   dt = frameTime - prevFrameTime
