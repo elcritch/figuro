@@ -17,10 +17,6 @@ type
     nodes*: RenderNodes
     updated*: bool
 
-const
-  openglMajor {.intdefine.} = 3
-  openglMinor {.intdefine.} = 3
-
 static:
   ## compile check to ensure windy buttons don't change on us
   for i in 0..windy.Button.high().int:
