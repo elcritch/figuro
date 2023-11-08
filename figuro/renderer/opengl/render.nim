@@ -1,6 +1,6 @@
 import std/[hashes, os, strformat, tables, times, unicode]
 
-import pixie, boxy, chroma
+import pixie, windy, boxy, chroma
 
 import fontutils
 import context, formatflippy
@@ -219,3 +219,38 @@ proc renderRoot*(ctx: RContext, nodes: var RenderNodes) {.forbids: [MainThreadEf
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
+proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
+  # clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+  let size = ivec2(app.windowRawSize.x.toInt.int32, app.windowRawSize.y.toInt.int32)
+  ctx.boxy.beginFrame(size)
+  ctx.boxy.saveTransform()
+  ctx.boxy.scale(vec2(app.pixelScale, app.pixelScale))
+
+  ctx.renderRoot(nodes)
+
+  ctx.boxy.restoreTransform()
+  ctx.boxy.endFrame()
+
+  when defined(testOneFrame):
+    ## This is used for test only
+    ## Take a screen shot of the first frame and exit.
+    var img = takeScreenshot()
+    img.writeFile("screenshot.png")
+    quit()
+
+  # var error: GLenum
+  # while (error = glGetError(); error != GL_NO_ERROR):
+  #   echo "gl error: " & $error.uint32
+
+proc render*(ctx: RContext,
+                    window: Window,
+                    nodes: var RenderNodes,
+                    updated: bool) =
+  ## Does drawing operations.
+  app.tickCount.inc
+
+  timeIt(drawFrame):
+    ctx.renderFrame(nodes)
+
+  timeIt(drawFrameSwap):
+    window.swapBuffers()
