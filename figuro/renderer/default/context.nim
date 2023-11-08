@@ -20,6 +20,7 @@ proc putImage*(ctx: RContext, hash: Hash, img: Image) =
   let hkey = $hash
   ctx.entries[hash] = hkey
   ctx.boxy.addImage(hkey, img)
+  echo "image:added: ", hkey
 
 proc drawImage*(ctx: RContext, key: Hash | string, pos: Rect | Vec2, color: Color) =
   ctx.boxy.drawImage(ctx.imgKey(key), pos, color)
@@ -138,8 +139,8 @@ proc fillRoundedRect*(
     for corner in 0..3:
       let
         pt = xy + offsets[corner]
-        cr = rect(xy.x, xy.y, pt.x, pt.y) 
-      ctx.boxy.drawImage(ctx.imgKey(hashes[corner]), cr)
+        cr = rect(pt.x, pt.y, rw, rw) 
+      ctx.drawImage(hashes[corner], cr, color)
       # let
       #   uvRect = ctx.entries[hashes[corner]]
       #   wh = rect.wh * ctx.atlasSize.float32
