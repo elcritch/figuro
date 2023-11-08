@@ -22,12 +22,6 @@ proc updateWindowSize*(window: Window) =
   if app.autoUiScale:
     app.uiScale = min(scale.x, scale.y)
 
-  if app.fullscreen:
-    window.fullscreen = app.fullscreen
-  else:
-    app.windowRawSize = app.windowSize.wh.scaled()
-    window.size = ivec2(app.windowRawSize)
-
   let size = window.size()
   app.windowRawSize.x = size.x.toFloat
   app.windowRawSize.y = size.y.toFloat
@@ -176,5 +170,12 @@ proc setupRenderer*(
   app.requestedFrame.inc
 
   renderer.window.updateWindowSize()
+
+  if app.fullscreen:
+    renderer.window.fullscreen = app.fullscreen
+  else:
+    app.windowRawSize = app.windowSize.wh.scaled()
+    renderer.window.size = ivec2(app.windowRawSize)
+
   return renderer
   
