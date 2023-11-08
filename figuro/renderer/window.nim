@@ -46,17 +46,8 @@ proc renderLoop(ctx: RContext,
     if poll:
       windy.pollEvents()
   
-  # if app.requestedFrame <= 0 or app.minimized:
-  #   return
-  # else:
-  #   app.requestedFrame.dec
-
-  # echo "renderLoop: ", app.requestedFrame
-
-  preInput()
   if updated:
-    renderAndSwap(ctx, window, nodes, updated)
-  postInput()
+    render(ctx, window, nodes, updated)
 
 var lastMouse = Mouse()
 
@@ -181,10 +172,7 @@ proc setupRenderer*(
   renderer.ctx.boxy = newBoxy()
 
   renderer.configureEvents()
-
   app.requestedFrame.inc
-
-  useDepthBuffer(false)
 
   return renderer
   

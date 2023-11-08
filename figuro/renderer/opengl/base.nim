@@ -13,18 +13,6 @@ import commons
 when defined(glDebugMessageCallback):
   import strformat, strutils
 
-const
-  deltaTick: int64 = 1_000_000_000 div 240
-
-var
-  dpi*: float32
-  programStartTime* = epochTime()
-  # fpsTimeSeries = newTimeSeries()
-  # tpsTimeSeries = newTimeSeries()
-  prevFrameTime* = programStartTime
-  frameTime* = prevFrameTime
-  dt*, dtAvg*, fps*, tps*, avgFrameTime*: float64
-
 var
   cursorDefault*: Cursor
   cursorPointer*: Cursor
@@ -43,7 +31,6 @@ proc getScaleInfo*(window: Window): ScaleInfo =
 proc updateWindowSize*(window: Window) =
   app.requestedFrame.inc
 
-  var cwidth, cheight: cint
   let size = window.size()
   app.windowRawSize.x = size.x.toFloat
   app.windowRawSize.y = size.y.toFloat
@@ -59,15 +46,6 @@ proc updateWindowSize*(window: Window) =
   # TODO: set screen logical offset too?
   app.windowSize.w = sz.x
   app.windowSize.h = sz.y
-
-proc preInput*() =
-  # var x, y: float64
-  # window.getCursorPos(addr x, addr y)
-  # mouse.setMousePos(x, y)
-  discard
-
-proc postInput*() =
-  discard
 
 proc startRender*(window: Window, openglVersion: (int, int)) =
 
