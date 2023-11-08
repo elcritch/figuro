@@ -242,15 +242,20 @@ proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
   # while (error = glGetError(); error != GL_NO_ERROR):
   #   echo "gl error: " & $error.uint32
 
-proc renderWindow*(ctx: RContext,
-                    window: Window,
-                    nodes: var RenderNodes,
-                    updated: bool) =
-  ## Does drawing operations.
-  app.tickCount.inc
+proc renderLoop*(ctx: RContext,
+                window: Window,
+                nodes: var RenderNodes,
+                updated: bool,
+                poll = true) =
+  if window.closeRequested:
+    app.running = false
+    return
 
-  timeIt(drawFrame):
-    ctx.renderFrame(nodes)
+  if updated:
+    app.tickCount.inc
 
-  timeIt(drawFrameSwap):
-    window.swapBuffers()
+    timeIt(drawFrame):
+      ctx.renderFrame(nodes)
+
+    timeIt(drawFrameSwap):
+      window.swapBuffers()

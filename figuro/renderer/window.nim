@@ -29,18 +29,6 @@ proc toUi(wbtn: windy.ButtonView): UiButtonView =
   else:
     copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
-proc renderLoop(ctx: RContext,
-                window: Window,
-                nodes: var RenderNodes,
-                updated: bool,
-                poll = true) =
-  if window.closeRequested:
-    app.running = false
-    return
-
-  if updated:
-    renderWindow(ctx, window, nodes, updated)
-
 var lastMouse = Mouse()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
@@ -67,6 +55,7 @@ proc configureEvents(renderer: Renderer) =
     renderLoop(renderer, poll = false)
   window.onResize = proc () =
     updateWindowSize(window)
+    renderer.updated = true
     renderLoop(renderer, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
