@@ -57,7 +57,7 @@ proc configureEvents(renderer: Renderer) =
   window.onResize = proc () =
     updateWindowSize(window)
     renderer.updated = true
-    render(renderer, poll = false)
+    renderer.render(poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
     discard uxInputList.trySend(uxInput)

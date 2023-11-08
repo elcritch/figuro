@@ -251,10 +251,13 @@ proc renderLoop*(ctx: RContext,
     app.running = false
     return
 
+  timeIt(eventPolling):
+    if poll:
+      windy.pollEvents()
+  
   if updated:
     app.tickCount.inc
 
-    echo "render"
     timeIt(drawFrame):
       ctx.renderFrame(nodes)
 
