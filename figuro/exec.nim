@@ -53,7 +53,7 @@ proc runRenderer(renderer: Renderer) =
   while app.running:
     wait(uiRenderEvent)
     timeIt(renderAvgTime):
-      renderLoop(renderer, true)
+      renderer.render(true)
 
 proc appTicker() {.thread.} =
   while app.running:
@@ -93,6 +93,6 @@ proc run*(renderer: Renderer) =
     app.running = false
   setControlCHook(ctrlc)
 
-  # runRenderer(renderer)
-  while not renderer.window.closeRequested:
-    pollEvents()
+  runRenderer(renderer)
+  # while not renderer.window.closeRequested:
+  #   pollEvents()

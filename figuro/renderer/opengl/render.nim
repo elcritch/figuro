@@ -254,6 +254,7 @@ proc renderLoop*(ctx: RContext,
   if updated:
     app.tickCount.inc
 
+    echo "render"
     timeIt(drawFrame):
       ctx.renderFrame(nodes)
 

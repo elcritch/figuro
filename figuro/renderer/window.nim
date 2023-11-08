@@ -31,7 +31,7 @@ proc toUi(wbtn: windy.ButtonView): UiButtonView =
 
 var lastMouse = Mouse()
 
-proc renderLoop*(renderer: Renderer, poll = true) =
+proc render*(renderer: Renderer, poll = true) =
   let update = renderer.updated
   renderer.updated = false
   renderLoop(renderer.ctx, renderer.window, renderer.nodes, update, poll)
@@ -51,16 +51,17 @@ proc configureEvents(renderer: Renderer) =
 
   window.runeInputEnabled = true
 
-  window.onFrame = proc () =
-    renderLoop(renderer, poll = false)
+  # window.onFrame = proc () =
+  #   renderLoop(renderer, poll = false)
+
   window.onResize = proc () =
     updateWindowSize(window)
     renderer.updated = true
-    renderLoop(renderer, poll = false)
+    render(renderer, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
     discard uxInputList.trySend(uxInput)
-  
+
   window.onFocusChange = proc () =
     app.focused = window.focused
     let uxInput = window.copyInputs()
