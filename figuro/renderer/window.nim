@@ -60,7 +60,7 @@ proc renderLoop(ctx: RContext,
 
 var lastMouse = Mouse()
 
-proc renderLoop*(ctx: RContext, renderer: Renderer, poll = true) =
+proc renderLoop*(renderer: Renderer, poll = true) =
   let update = renderer.updated
   renderer.updated = false
   renderLoop(renderer.ctx, renderer.window, renderer.nodes, update)
@@ -82,7 +82,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(window, renderer.nodes, true, poll = false)
+    renderLoop(renderer.ctx, window, renderer.nodes, true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
     discard uxInputList.trySend(uxInput)
