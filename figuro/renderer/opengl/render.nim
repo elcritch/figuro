@@ -242,7 +242,7 @@ proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
   # while (error = glGetError(); error != GL_NO_ERROR):
   #   echo "gl error: " & $error.uint32
 
-proc render*(ctx: RContext,
+proc renderWindow*(ctx: RContext,
                     window: Window,
                     nodes: var RenderNodes,
                     updated: bool) =

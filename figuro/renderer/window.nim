@@ -12,8 +12,8 @@ import opengl/commons
 
 type
   Renderer* = ref object
-    window: Window
-    ctx: RContext
+    window*: Window
+    ctx*: RContext
     nodes*: RenderNodes
     updated*: bool
 
@@ -38,19 +38,15 @@ proc renderLoop(ctx: RContext,
     app.running = false
     return
 
-  timeIt(eventPolling):
-    if poll:
-      windy.pollEvents()
-  
   if updated:
-    render(ctx, window, nodes, updated)
+    renderWindow(ctx, window, nodes, updated)
 
 var lastMouse = Mouse()
 
 proc renderLoop*(renderer: Renderer, poll = true) =
   let update = renderer.updated
   renderer.updated = false
-  renderLoop(renderer.ctx, renderer.window, renderer.nodes, update)
+  renderLoop(renderer.ctx, renderer.window, renderer.nodes, update, poll)
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
@@ -67,9 +63,11 @@ proc configureEvents(renderer: Renderer) =
 
   window.runeInputEnabled = true
 
+  window.onFrame = proc () =
+    renderLoop(renderer, poll = false)
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(renderer.ctx, window, renderer.nodes, true, poll = false)
+    renderLoop(renderer, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
     discard uxInputList.trySend(uxInput)

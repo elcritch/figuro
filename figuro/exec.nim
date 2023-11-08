@@ -7,6 +7,7 @@ elif defined(blank):
   export blank
 else:
   import renderer/window
+  import windy
   export window
 
 import std/os
@@ -92,4 +93,6 @@ proc run*(renderer: Renderer) =
     app.running = false
   setControlCHook(ctrlc)
 
-  runRenderer(renderer)
+  # runRenderer(renderer)
+  while not renderer.window.closeRequested:
+    pollEvents()
