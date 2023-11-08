@@ -52,7 +52,7 @@ proc configureEvents(renderer: Renderer) =
   window.runeInputEnabled = true
 
   # window.onFrame = proc () =
-  #   renderLoop(renderer, poll = false)
+  #   renderer.render(poll = false)
 
   window.onResize = proc () =
     updateWindowSize(window)
