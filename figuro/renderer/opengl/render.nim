@@ -11,11 +11,9 @@ export getTypeface, getTypeset
 type
   Context = context.Context
 
-var ctx*: Context
+proc renderBoxes*(ctx: Context, node: Node)
 
-proc renderBoxes*(node: Node)
-
-proc renderDrawable*(node: Node) =
+proc renderDrawable*(ctx: Context, node: Node) =
   # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
@@ -24,7 +22,7 @@ proc renderDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-proc renderText(node: Node) {.forbids: [MainThreadEff].} =
+proc renderText(ctx: Context, node: Node) {.forbids: [MainThreadEff].} =
   # draw characters
   # if node.textLayout == nil:
     # return
@@ -41,6 +39,8 @@ proc renderText(node: Node) {.forbids: [MainThreadEff].} =
       charPos = vec2(glyph.pos.x ,
                       glyph.pos.y - glyph.descent)
     if glyphId notin ctx.entries:
+      let hkey = $glyphId
+      ctx.entries[glyphId] = hkey
       echo "no glyph in context: ", glyphId, " glyph: `", glyph.rune, "`", " (", repr(glyph.rune), ")"
       continue
     ctx.drawImage(glyphId, charPos, node.fill)

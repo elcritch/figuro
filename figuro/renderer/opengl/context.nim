@@ -11,6 +11,14 @@ type
 func `*`*(m: Mat4, v: Vec2): Vec2 =
   (m * vec3(v.x, v.y, 0.0)).xy
 
+template imgKey*(ctx: Context, hash: Hash): string =
+  ctx.entries[hash]
+
+proc putImage*(ctx: Context, hash: Hash, img: Image) =
+  let hkey = $hash
+  ctx.entries[hash] = hkey
+  ctx.boxy.addImage(hkey, img)
+
 proc generateCorner(
     radius: int,
     quadrant: range[1..4],
@@ -115,17 +123,18 @@ proc fillRoundedRect*(
       let qhash = hash !& quadrant
       hashes[quadrant-1] = qhash
       if qhash notin ctx.entries:
-        let hkey = $qhash
-        ctx.entries[qhash] = hkey
         let img = generateCorner(radius.int, quadrant, false, 0.0, rgba(255, 255, 255, 255))
-        ctx.boxy.addImage(hkey, img)
+        ctx.putImage(qhash, img)
 
     let
       xy = rect.xy 
       offsets = [vec2(w-rw, 0), vec2(0, 0), vec2(0, h-rh), vec2(w-rw, h-rh)]
 
     for corner in 0..3:
-      ctx.boxy.drawRect(rect, color)
+      let
+        pt = xy + offsets[corner]
+        cr = rect(xy.x, xy.y, pt.x, pt.y) 
+      ctx.boxy.drawImage(ctx.imgKey(hashes[corner]), cr)
       # let
       #   uvRect = ctx.entries[hashes[corner]]
       #   wh = rect.wh * ctx.atlasSize.float32
@@ -185,17 +194,18 @@ proc strokeRoundedRect*(
       let qhash = hash !& quadrant
       hashes[quadrant-1] = qhash
       if qhash notin ctx.entries:
-        let hkey = $qhash
-        ctx.entries[qhash] = hkey
         let img = generateCorner(radius.int, quadrant, true, weight, fillStyle)
-        ctx.boxy.addImage(hkey, img)
+        ctx.putImage(qhash, img)
 
     let
-      xy = rect.xy 
+      xy = rect.xy
       offsets = [vec2(w-rw, 0), vec2(0, 0), vec2(0, h-rh), vec2(w-rw, h-rh)]
 
     for corner in 0..3:
-      ctx.boxy.drawRect(rect, color)
+      let
+        pt = xy + offsets[corner]
+        cr = rect(xy.x, xy.y, pt.x, pt.y) 
+      ctx.boxy.drawImage(ctx.imgKey(hashes[corner]), cr)
       # let
       #   uvRect = ctx.entries[hashes[corner]]
       #   wh = rect.wh * ctx.atlasSize.float32
