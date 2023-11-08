@@ -119,7 +119,7 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
 
   updateWindowSize(window)
 
-proc renderFrame*(nodes: var RenderNodes) =
+proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(app.windowRawSize)
   ctx.saveTransform()
