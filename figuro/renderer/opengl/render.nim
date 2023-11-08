@@ -124,7 +124,7 @@ proc renderBoxes*(ctx: RContext, node: Node) =
                           radius = node.cornerRadius)
 
 
-proc render*(ctx: RContext, boxy: Boxy, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
+proc render*(ctx: RContext, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
 
   template node(): auto = nodes[nodeIdx.int]
   template parent(): auto = nodes[parentIdx.int]
@@ -147,30 +147,31 @@ proc render*(ctx: RContext, boxy: Boxy, nodes: seq[Node], nodeIdx, parentIdx: No
   
   # setup the opengl context to match the current node size and position
 
-  boxy.saveTransform()
-  boxy.translate(node.screenBox.xy)
+  ctx.boxy.saveTransform()
+  ctx.boxy.translate(node.screenBox.xy)
 
   # handles setting up scrollbar region
   ifrender node.kind == nkScrollBar:
-    boxy.saveTransform()
+    ctx.boxy.saveTransform()
     let offset = parent.offset
-    boxy.translate(offset)
+    ctx.boxy.translate(offset)
   finally:
-    boxy.restoreTransform()
+    ctx.boxy.restoreTransform()
 
   # handle node rotation
   ifrender node.rotation != 0:
-    boxy.translate(node.screenBox.wh/2)
-    boxy.rotate(node.rotation/180*PI)
-    boxy.translate(-node.screenBox.wh/2)
+    ctx.boxy.translate(node.screenBox.wh/2)
+    ctx.boxy.rotate(node.rotation/180*PI)
+    ctx.boxy.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
   ifrender clipContent in node.attrs:
-    boxy.pushLayer()
+    ctx.boxy.pushLayer()
     ctx.drawMasks(node)
-    boxy.popLayer()
+    ctx.boxy.pushLayer()
   finally:
-    boxy.popLayer()
+    ctx.boxy.popLayer()
+    ctx.boxy.popLayer()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
   ifrender node.kind == nkRectangle and node.shadow.isSome():
@@ -186,14 +187,14 @@ proc render*(ctx: RContext, boxy: Boxy, nodes: seq[Node], nodeIdx, parentIdx: No
       ctx.renderBoxes(node)
 
   # restores the opengl context back to the parent node's (see above)
-  boxy.restoreTransform()
+  ctx.boxy.restoreTransform()
 
   ifrender scrollPanel in node.attrs:
     # handles scrolling panel
-    boxy.saveTransform()
-    boxy.translate(-node.offset)
+    ctx.boxy.saveTransform()
+    ctx.boxy.translate(-node.offset)
   finally:
-    boxy.restoreTransform()
+    ctx.boxy.restoreTransform()
 
   # echo "draw:children: ", repr childIdxs 
   for childIdx in childIndex(nodes, nodeIdx):

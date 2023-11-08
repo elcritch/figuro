@@ -22,7 +22,7 @@ proc putImage*(ctx: RContext, hash: Hash, img: Image) =
   ctx.boxy.addImage(hkey, img)
 
 proc drawImage*(ctx: RContext, key: Hash | string, pos: Rect | Vec2, color: Color) =
-  ctx.boxy.drawImage(ctx.imgKey(hash), pos, color)
+  ctx.boxy.drawImage(ctx.imgKey(key), pos, color)
 
 proc generateCorner(
     radius: int,
