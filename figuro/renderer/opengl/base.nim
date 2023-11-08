@@ -121,7 +121,7 @@ proc startOpenGL*(window: Window, openglVersion: (int, int)) =
   updateWindowSize(window)
 
 proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
-  clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+  # clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   let size = ivec2(app.windowRawSize.x.toInt.int32, app.windowRawSize.y.toInt.int32)
   ctx.boxy.beginFrame(size)
   ctx.boxy.saveTransform()
