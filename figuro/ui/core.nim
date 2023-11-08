@@ -100,7 +100,6 @@ proc refresh*(node: Figuro) =
   ## Request the screen be redrawn
   if node == nil:
     return
-  # app.requestedFrame.inc
   redrawNodes.incl(node)
 
 proc changed*(self: Figuro) {.slot.} =

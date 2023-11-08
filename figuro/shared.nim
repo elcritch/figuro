@@ -54,7 +54,7 @@ type
     uiScale*: float32
     autoUiScale*: bool
 
-    requestedFrame*: int = 2
+    requestedFrame*: int = 3
     frameCount*: int
     tickCount*: int
 
