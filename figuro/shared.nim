@@ -6,7 +6,7 @@ import pkg/[variant]
 import common/[extras, uimaths]
 import inputs
 
-export sequtils, strformat, tables, hashes
+export sequtils, strformat, tables, hashes, options
 export variant
 export extras, uimaths
 export inputs

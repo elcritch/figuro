@@ -6,9 +6,8 @@ elif defined(blank):
   import engine/blank
   export blank
 else:
-  import renderer/window
-  import windy
-  export window
+  import renderer/default
+  export default
 
 import std/os
 import std/sets

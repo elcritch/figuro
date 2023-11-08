@@ -1,4 +1,4 @@
-import std/[os, unicode, strutils, sets, hashes]
+import std/[os, unicode, sequtils, strutils, sets, hashes]
 import std/isolation
 
 import pkg/vmath
@@ -7,9 +7,8 @@ import pkg/pixie/fonts
 import pkg/windy
 import pkg/threading/channels
 
-import commons
-
-import pretty
+import ../shared
+import ../common/glyphs
 
 type
 

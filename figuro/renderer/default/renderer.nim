@@ -1,12 +1,24 @@
 import std/[hashes, os, strformat, tables, times, unicode]
 
-import pixie, windy, boxy, chroma
+import pixie, windy, opengl, boxy, chroma
 
-import fontutils
+import ../../shared
+import ../../common/nodes/render
+import ../../common/nodes/transfer
+import ../../timers
+import ../../common/glyphs
+import ../fontutils
+
 import context
-import commons
 export tables
 export getTypeface, getTypeset
+
+type
+  Renderer* = ref object
+    window*: Window
+    ctx*: RContext
+    nodes*: RenderNodes
+    updated*: bool
 
 proc renderDrawable*(ctx: RContext, node: Node) =
   # ctx: RContext, poly: seq[Vec2], weight: float32, color: Color
@@ -263,3 +275,11 @@ proc renderLoop*(ctx: RContext,
 
     timeIt(drawFrameSwap):
       window.swapBuffers()
+
+proc render*(renderer: Renderer, updated = false, poll = true) =
+  let update = renderer.updated or updated
+  renderer.updated = false
+  renderLoop(renderer.ctx,
+             renderer.window,
+             renderer.nodes,
+             update, poll)

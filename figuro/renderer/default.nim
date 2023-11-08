@@ -1,21 +1,69 @@
-import std/[os, hashes, strformat, strutils, tables, times]
-import std/terminal
+import std/hashes
 
-import pkg/pixie
 import pkg/windy
-import pkg/boxy
 import pkg/opengl
+import pkg/boxy
 
-import ../inputs
-import opengl/[base, context, renderer]
-import opengl/commons
+import ../shared
+import ./default/renderer
 
-type
-  Renderer* = ref object
-    window*: Window
-    ctx*: RContext
-    nodes*: RenderNodes
-    updated*: bool
+export shared
+export render, Renderer
+
+proc getScaleInfo*(window: Window): ScaleInfo =
+  let scale = window.contentScale()
+  result.x = scale
+  result.y = scale
+
+proc updateWindowSize*(window: Window) =
+  app.requestedFrame.inc
+
+  let size = window.size()
+  app.windowRawSize.x = size.x.toFloat
+  app.windowRawSize.y = size.y.toFloat
+
+  app.minimized = window.minimized()
+  app.pixelRatio = window.contentScale()
+
+  let scale = window.getScaleInfo()
+  if app.autoUiScale:
+    app.uiScale = min(scale.x, scale.y)
+
+  let sz = app.windowRawSize.descaled()
+  # TODO: set screen logical offset too?
+  app.windowSize.w = sz.x
+  app.windowSize.h = sz.y
+
+proc startRender*(window: Window, openglVersion: (int, int)) =
+
+  let scale = window.getScaleInfo()
+  
+  if app.autoUiScale:
+    app.uiScale = min(scale.x, scale.y)
+
+  if app.fullscreen:
+    window.fullscreen = app.fullscreen
+  else:
+
+    app.windowRawSize = app.windowSize.wh.scaled()
+    window.size = ivec2(app.windowRawSize)
+
+  if window.isNil:
+    quit(
+      "Failed to open window. GL version:" &
+      &"{openglVersion[0]}.{$openglVersion[1]}"
+    )
+
+  window.makeContextCurrent()
+
+  when not defined(emscripten):
+    loadExtensions()
+
+  # app.lastDraw = getTicks()
+  # app.lastTick = app.lastDraw
+  app.focused = true
+
+  updateWindowSize(window)
 
 static:
   ## compile check to ensure windy buttons don't change on us
@@ -30,11 +78,6 @@ proc toUi(wbtn: windy.ButtonView): UiButtonView =
     copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
 var lastMouse = Mouse()
-
-proc render*(renderer: Renderer, poll = true) =
-  let update = renderer.updated
-  renderer.updated = false
-  renderLoop(renderer.ctx, renderer.window, renderer.nodes, update, poll)
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
@@ -56,8 +99,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderer.updated = true
-    renderer.render(poll = false)
+    renderer.render(updated = true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
     discard uxInputList.trySend(uxInput)
@@ -160,4 +202,3 @@ proc setupRenderer*(
 
   return renderer
   
-
