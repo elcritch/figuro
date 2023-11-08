@@ -3,6 +3,8 @@ import std/terminal
 
 import pkg/pixie
 import pkg/windy
+import pkg/boxy
+import pkg/opengl
 
 import ../inputs
 import opengl/[base, context, render]
@@ -11,6 +13,7 @@ import opengl/commons
 type
   Renderer* = ref object
     window: Window
+    boxy: Boxy
     nodes*: RenderNodes
     updated*: bool
 
@@ -167,13 +170,14 @@ proc setupRenderer*(
     atlasSize: int = 1024
 ): Renderer =
 
-  let openglVersion = (openglMajor, openglMinor)
   app.pixelScale = forcePixelScale
 
-  let renderer =
-    Renderer(window: newWindow("", ivec2(1280, 800)))
+  let renderer = Renderer()
+  renderer.window = newWindow("", ivec2(1280, 800))
+  renderer.window.makeContextCurrent()
+  loadExtensions()
+  renderer.boxy = newBoxy()
 
-  renderer.window.startOpenGL(openglVersion)
   renderer.configureEvents()
 
   ctx = newContext(atlasSize = atlasSize,

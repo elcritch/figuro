@@ -27,3 +27,5 @@ requires "nimscripter#dll"
 requires "msgpack4nim"
 requires "stack_strings"
 requires "micros"
+requires "boxy"
+
