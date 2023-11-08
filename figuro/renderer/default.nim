@@ -18,6 +18,16 @@ proc getScaleInfo*(window: Window): ScaleInfo =
 proc updateWindowSize*(window: Window) =
   app.requestedFrame.inc
 
+  let scale = window.getScaleInfo()
+  if app.autoUiScale:
+    app.uiScale = min(scale.x, scale.y)
+
+  if app.fullscreen:
+    window.fullscreen = app.fullscreen
+  else:
+    app.windowRawSize = app.windowSize.wh.scaled()
+    window.size = ivec2(app.windowRawSize)
+
   let size = window.size()
   app.windowRawSize.x = size.x.toFloat
   app.windowRawSize.y = size.y.toFloat
@@ -25,45 +35,10 @@ proc updateWindowSize*(window: Window) =
   app.minimized = window.minimized()
   app.pixelRatio = window.contentScale()
 
-  let scale = window.getScaleInfo()
-  if app.autoUiScale:
-    app.uiScale = min(scale.x, scale.y)
-
   let sz = app.windowRawSize.descaled()
   # TODO: set screen logical offset too?
   app.windowSize.w = sz.x
   app.windowSize.h = sz.y
-
-proc startRender*(window: Window, openglVersion: (int, int)) =
-
-  let scale = window.getScaleInfo()
-  
-  if app.autoUiScale:
-    app.uiScale = min(scale.x, scale.y)
-
-  if app.fullscreen:
-    window.fullscreen = app.fullscreen
-  else:
-
-    app.windowRawSize = app.windowSize.wh.scaled()
-    window.size = ivec2(app.windowRawSize)
-
-  if window.isNil:
-    quit(
-      "Failed to open window. GL version:" &
-      &"{openglVersion[0]}.{$openglVersion[1]}"
-    )
-
-  window.makeContextCurrent()
-
-  when not defined(emscripten):
-    loadExtensions()
-
-  # app.lastDraw = getTicks()
-  # app.lastTick = app.lastDraw
-  app.focused = true
-
-  updateWindowSize(window)
 
 static:
   ## compile check to ensure windy buttons don't change on us
@@ -200,5 +175,6 @@ proc setupRenderer*(
   renderer.configureEvents()
   app.requestedFrame.inc
 
+  renderer.window.updateWindowSize()
   return renderer
   
