@@ -5,7 +5,7 @@ import pkg/opengl
 import pkg/windy
 import pkg/boxy
 
-import utils, context, render
+import context, renderer
 import commons
 
 # import ../patches/textboxes 
@@ -18,6 +18,7 @@ var
   cursorPointer*: Cursor
   cursorGrab*: Cursor
   cursorNSResize*: Cursor
+
 
 var
   eventTimePre* = epochTime()

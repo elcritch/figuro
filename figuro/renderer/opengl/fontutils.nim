@@ -35,7 +35,6 @@ proc hash*(tp: Typeface): Hash =
   h = h !& hash tp.filePath
   result = !$h
 
-
 proc hash*(glyph: GlyphPosition): Hash {.inline.} =
   result = hash((
     2344,

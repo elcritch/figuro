@@ -7,7 +7,7 @@ import pkg/boxy
 import pkg/opengl
 
 import ../inputs
-import opengl/[base, context, render]
+import opengl/[base, context, renderer]
 import opengl/commons
 
 type
