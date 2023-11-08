@@ -234,6 +234,7 @@ proc renderRoot*(ctx: RContext, nodes: var RenderNodes) {.forbids: [MainThreadEf
 proc renderFrame*(ctx: RContext, nodes: var RenderNodes) =
   # clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   let size = ivec2(app.windowRawSize.x.toInt.int32, app.windowRawSize.y.toInt.int32)
+  echo "size: ", size
   ctx.boxy.beginFrame(size)
   ctx.boxy.saveTransform()
   ctx.boxy.scale(vec2(app.pixelScale, app.pixelScale))
