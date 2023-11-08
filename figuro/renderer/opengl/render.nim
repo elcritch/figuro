@@ -1,6 +1,6 @@
 import std/[hashes, os, strformat, tables, times, unicode]
 
-import pixie, chroma
+import pixie, boxy, chroma
 
 import fontutils
 import context, formatflippy
@@ -8,13 +8,8 @@ import commons
 export tables
 export getTypeface, getTypeset
 
-type
-  Context = context.Context
-
-proc renderBoxes*(ctx: Context, node: Node)
-
-proc renderDrawable*(ctx: Context, node: Node) =
-  # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
+proc renderDrawable*(ctx: RContext, node: Node) =
+  # ctx: RContext, poly: seq[Vec2], weight: float32, color: Color
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
     let
@@ -22,7 +17,7 @@ proc renderDrawable*(ctx: Context, node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-proc renderText(ctx: Context, node: Node) {.forbids: [MainThreadEff].} =
+proc renderText(ctx: RContext, node: Node) {.forbids: [MainThreadEff].} =
   # draw characters
   # if node.textLayout == nil:
     # return
@@ -71,7 +66,7 @@ macro postRender() =
   while postRenderImpl.len() > 0:
     result.add postRenderImpl.pop()
 
-proc drawMasks*(node: Node) =
+proc drawMasks*(ctx: RContext, node: Node) =
   if node.cornerRadius != 0:
     ctx.fillRoundedRect(rect(
       0, 0,
@@ -83,7 +78,7 @@ proc drawMasks*(node: Node) =
       node.screenBox.w, node.screenBox.h
     ), rgba(255, 0, 0, 255).color)
 
-proc renderShadows*(node: Node) =
+proc renderShadows*(ctx: RContext, node: Node) =
   ## drawing shadows
   let shadow = node.shadow.get()
   let blurAmt = shadow.blur / 7.0
@@ -95,7 +90,7 @@ proc renderShadows*(node: Node) =
                         color = shadow.color,
                         radius = node.cornerRadius)
 
-proc renderBoxes*(node: Node) =
+proc renderBoxes*(ctx: RContext, node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
     if node.cornerRadius > 0:
@@ -114,12 +109,13 @@ proc renderBoxes*(node: Node) =
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
   if node.kind == nkImage and node.image.name != "":
-    let path = dataDir / node.image.name
-    let size = vec2(node.screenBox.w, node.screenBox.h)
-    ctx.drawImage(path,
-                  pos = vec2(0, 0),
-                  color = node.image.color,
-                  size = size)
+    assert false, "TODO"
+  #   let path = dataDir / node.image.name
+  #   let size = vec2(node.screenBox.w, node.screenBox.h)
+  #   ctx.drawImage(path,
+  #                 pos = vec2(0, 0),
+  #                 color = node.image.color,
+  #                 size = size)
   
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.strokeRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
@@ -128,7 +124,7 @@ proc renderBoxes*(node: Node) =
                           radius = node.cornerRadius)
 
 
-proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
+proc render*(ctx: RContext, boxy: Boxy, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
 
   template node(): auto = nodes[nodeIdx.int]
   template parent(): auto = nodes[parentIdx.int]
@@ -151,61 +147,62 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
   
   # setup the opengl context to match the current node size and position
 
-  ctx.saveTransform()
-  ctx.translate(node.screenBox.xy)
+  boxy.saveTransform()
+  boxy.translate(node.screenBox.xy)
 
   # handles setting up scrollbar region
   ifrender node.kind == nkScrollBar:
-    ctx.saveTransform()
+    boxy.saveTransform()
     let offset = parent.offset
-    ctx.translate(offset)
+    boxy.translate(offset)
   finally:
-    ctx.restoreTransform()
+    boxy.restoreTransform()
 
   # handle node rotation
   ifrender node.rotation != 0:
-    ctx.translate(node.screenBox.wh/2)
-    ctx.rotate(node.rotation/180*PI)
-    ctx.translate(-node.screenBox.wh/2)
+    boxy.translate(node.screenBox.wh/2)
+    boxy.rotate(node.rotation/180*PI)
+    boxy.translate(-node.screenBox.wh/2)
 
   # handle clipping children content based on this node
   ifrender clipContent in node.attrs:
-    ctx.beginMask()
-    node.drawMasks()
-    ctx.endMask()
+    boxy.pushLayer()
+    ctx.drawMasks(node)
+    boxy.popLayer()
   finally:
-    ctx.popMask()
+    boxy.popLayer()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
   ifrender node.kind == nkRectangle and node.shadow.isSome():
-    node.renderShadows()
+    # boxy.renderShadows()
+    assert false, "TODO"
 
   ifrender true:
     if node.kind == nkText:
-      node.renderText()
+      ctx.renderText(node)
     elif node.kind == nkDrawable:
-      node.renderDrawable()
+      ctx.renderDrawable(node)
     elif node.kind == nkRectangle:
-      node.renderBoxes()
+      ctx.renderBoxes(node)
 
   # restores the opengl context back to the parent node's (see above)
-  ctx.restoreTransform()
+  boxy.restoreTransform()
 
   ifrender scrollPanel in node.attrs:
     # handles scrolling panel
-    ctx.saveTransform()
-    ctx.translate(-node.offset)
+    boxy.saveTransform()
+    boxy.translate(-node.offset)
   finally:
-    ctx.restoreTransform()
+    boxy.restoreTransform()
 
   # echo "draw:children: ", repr childIdxs 
   for childIdx in childIndex(nodes, nodeIdx):
-    render(nodes, childIdx, nodeIdx)
+    ctx.render(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
+proc renderRoot*(ctx: RContext, nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   var img: (Hash, Image)
@@ -215,5 +212,5 @@ proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
 
   for zlvl, list in nodes.pairs():
     for rootIdx in list.rootIds:
-      render(list.nodes, rootIdx, -1.NodeIdx)
+      ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 

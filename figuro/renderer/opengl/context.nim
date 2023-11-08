@@ -4,20 +4,25 @@ import pkg/pixie
 import pkg/boxy
 
 type
-  Context* = object
+  RContext* = object
     boxy*: Boxy
     entries*: TableRef[Hash, string]
 
 func `*`*(m: Mat4, v: Vec2): Vec2 =
   (m * vec3(v.x, v.y, 0.0)).xy
 
-template imgKey*(ctx: Context, hash: Hash): string =
+template imgKey*(ctx: RContext, hash: Hash): string =
   ctx.entries[hash]
+template imgKey*(ctx: RContext, key: string): string =
+  key
 
-proc putImage*(ctx: Context, hash: Hash, img: Image) =
+proc putImage*(ctx: RContext, hash: Hash, img: Image) =
   let hkey = $hash
   ctx.entries[hash] = hkey
   ctx.boxy.addImage(hkey, img)
+
+proc drawImage*(ctx: RContext, key: Hash | string, pos: Rect | Vec2, color: Color) =
+  ctx.boxy.drawImage(ctx.imgKey(hash), pos, color)
 
 proc generateCorner(
     radius: int,
@@ -86,14 +91,14 @@ proc generateCorner(
   result = image
 
 proc fillRect*(
-    ctx: Context,
+    ctx: RContext,
     rect: Rect,
     color: Color,
 ) =
   ctx.boxy.drawRect(rect, color)
 
 proc fillRoundedRect*(
-    ctx: Context,
+    ctx: RContext,
     rect: Rect,
     color: Color,
     radius: float32
@@ -159,7 +164,7 @@ proc fillRoundedRect*(
   fillRect(ctx, rect(rect.x+rrw, rect.y+rh, rw, hrh), color)
 
 proc strokeRoundedRect*(
-    ctx: Context,
+    ctx: RContext,
     rect: Rect,
     color: Color,
     weight: float32,
@@ -231,7 +236,7 @@ proc strokeRoundedRect*(
 
 when false:
   proc strokeRoundedRect*(
-    ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
+    ctx: RContext, rect: Rect, color: Color, weight: float32, radius: float32
   ) =
       if rect.w <= 0 or rect.h <= -0:
         when defined(fidgetExtraDebugLogging): echo "strokeRoundedRect: too small: ", rect
@@ -253,7 +258,7 @@ when false:
       if hash notin ctx.entries:
         let
           image = newImage(w, h)
-          c = newContext(image)
+          c = newRContext(image)
         c.fillStyle = rgba(255, 255, 255, 255)
         c.lineWidth = weight
         c.strokeStyle = color
@@ -275,7 +280,7 @@ when false:
       )
 
 # proc line*(
-#   ctx: Context, a: Vec2, b: Vec2, weight: float32, color: Color
+#   ctx: RContext, a: Vec2, b: Vec2, weight: float32, color: Color
 # ) =
 #   let hash = hash((
 #     2345,
@@ -296,7 +301,7 @@ when false:
 #   if hash notin ctx.entries:
 #     let
 #       image = newImage(w, h)
-#       c = newContext(image)
+#       c = newRContext(image)
 #     c.fillStyle = rgba(255, 255, 255, 255)
 #     c.lineWidth = weight
 #     c.strokeSegment(segment(a - pos, b - pos))
@@ -314,17 +319,17 @@ when false:
 #   )
 
 # proc linePolygon*(
-#   ctx: Context, poly: seq[Vec2], weight: float32, color: Color
+#   ctx: RContext, poly: seq[Vec2], weight: float32, color: Color
 # ) =
 #   for i in 0 ..< poly.len:
 #     ctx.line(poly[i], poly[(i+1) mod poly.len], weight, color)
 
 
-# proc fromScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
+# proc fromScreen*(ctx: RContext, windowFrame: Vec2, v: Vec2): Vec2 =
 #   ## Takes a point from screen and translates it to point inside the current transform.
 #   (ctx.mat.inverse() * vec3(v.x, windowFrame.y - v.y, 0)).xy
 
-# proc toScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
+# proc toScreen*(ctx: RContext, windowFrame: Vec2, v: Vec2): Vec2 =
 #   ## Takes a point from current transform and translates it to screen.
 #   result = (ctx.mat * vec3(v.x, v.y, 1)).xy
 #   result.y = -result.y + windowFrame.y
