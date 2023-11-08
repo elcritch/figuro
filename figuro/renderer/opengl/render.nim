@@ -164,14 +164,14 @@ proc render*(ctx: RContext, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.for
     ctx.boxy.rotate(node.rotation/180*PI)
     ctx.boxy.translate(-node.screenBox.wh/2)
 
-  # handle clipping children content based on this node
-  ifrender clipContent in node.attrs:
-    ctx.boxy.pushLayer()
-    ctx.drawMasks(node)
-    ctx.boxy.pushLayer()
-  finally:
-    ctx.boxy.popLayer()
-    ctx.boxy.popLayer()
+  # # handle clipping children content based on this node
+  # ifrender clipContent in node.attrs:
+  #   ctx.boxy.pushLayer()
+  #   ctx.drawMasks(node)
+  #   ctx.boxy.pushLayer()
+  # finally:
+  #   ctx.boxy.popLayer()
+  #   ctx.boxy.popLayer()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
   ifrender node.kind == nkRectangle and node.shadow.isSome():
