@@ -302,6 +302,9 @@ template widget*[T](args: varargs[untyped]): auto =
   ##
   widgetImpl(T, args)
 
+template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
+  widgetImpl(F,args)
+
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,
   ## which in turn calls `widget[T](args): blk`
