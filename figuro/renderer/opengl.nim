@@ -1,65 +1,18 @@
-import std/[os, hashes, strformat, strutils, tables, times]
+import std/[options, unicode, hashes, strformat, strutils, tables, times]
 import std/terminal
 
 import pkg/pixie
 import pkg/windy
 
+import ../shared
 import ../inputs
-import opengl/[base, context, render]
-import opengl/commons
+import ./opengl/utils
+import ./opengl/window
+import ./opengl/renderer
 
-type
-  Renderer* = ref object
-    window: Window
-    nodes*: RenderNodes
-    updated*: bool
-
-const
-  openglMajor {.intdefine.} = 3
-  openglMinor {.intdefine.} = 3
-
-static:
-  ## compile check to ensure windy buttons don't change on us
-  for i in 0..windy.Button.high().int:
-    assert $Button(i) == $UiButton(i)
-
-proc toUi(wbtn: windy.ButtonView): UiButtonView =
-  when defined(nimscript):
-    for b in set[Button](wbtn):
-      result.incl UiButton(b.int)
-  else:
-    copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
-
-proc renderLoop(window: Window,
-                nodes: var RenderNodes,
-                updated: bool,
-                poll = true) =
-  if window.closeRequested:
-    app.running = false
-    return
-
-  timeIt(eventPolling):
-    if poll:
-      windy.pollEvents()
-  
-  # if app.requestedFrame <= 0 or app.minimized:
-  #   return
-  # else:
-  #   app.requestedFrame.dec
-
-  # echo "renderLoop: ", app.requestedFrame
-
-  preInput()
-  if updated:
-    renderAndSwap(window, nodes, updated)
-  postInput()
+export Renderer, render
 
 var lastMouse = Mouse()
-
-proc renderLoop*(renderer: Renderer, poll = true) =
-  let update = renderer.updated
-  renderer.updated = false
-  renderLoop(renderer.window, renderer.nodes, update)
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
@@ -68,7 +21,7 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonDown = toUi window.buttonDown()
   result.buttonToggle = toUi window.buttonToggle()
 
-proc configureEvents(renderer: Renderer) =
+proc configureWindowEvents(renderer: Renderer) =
 
   uxInputList = newChan[AppInputs](40)
 
@@ -78,7 +31,7 @@ proc configureEvents(renderer: Renderer) =
 
   window.onResize = proc () =
     updateWindowSize(window)
-    renderLoop(window, renderer.nodes, true, poll = false)
+    renderer.render(updated = true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
     discard uxInputList.trySend(uxInput)
@@ -104,11 +57,6 @@ proc configureEvents(renderer: Renderer) =
     var uxInput = AppInputs(mouse: lastMouse)
     uxInput.mouse.consumed = false
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
-    # when defined(debugEvents):
-    #   stdout.styledWriteLine({styleDim},
-    #           fgWhite, "scroll ", {styleBright},
-    #           fgGreen, $uxInput.mouse.wheelDelta.repr,
-    #           )
     discard uxInputList.trySend(uxInput)
 
   window.onButtonPress = proc (button: windy.Button) =
@@ -148,17 +96,6 @@ proc configureEvents(renderer: Renderer) =
                               {styleDim}, fgGreen, $rune)
     discard uxInputList.trySend(uxInput)
 
-  # window.onImeChange = proc () =
-  #   var uxInput = window.copyInputs()
-  #   # uxInput.keyboard.ime = window.imeCompositionString()
-  #   echo "ime: ", window.imeCompositionString()
-
-  # internal.getWindowTitle = proc (): string =
-  #   window.title
-  # internal.setWindowTitle = proc (title: string) =
-  #   if window != nil:
-  #     window.title = title
-
   app.running = true
 
 proc setupRenderer*(
@@ -166,23 +103,13 @@ proc setupRenderer*(
     forcePixelScale: float32,
     atlasSize: int = 1024
 ): Renderer =
+  let window = newWindow("", ivec2(1280, 800))
+  window.startOpenGL(openglVersion)
 
-  let openglVersion = (openglMajor, openglMinor)
-  app.pixelScale = forcePixelScale
-
-  let renderer =
-    Renderer(window: newWindow("", ivec2(1280, 800)))
-
-  renderer.window.startOpenGL(openglVersion)
-  renderer.configureEvents()
-
-  ctx = newContext(atlasSize = atlasSize,
-                    pixelate = pixelate,
-                    pixelScale = app.pixelScale)
+  let renderer = newRenderer(window, pixelate, forcePixelScale, atlasSize)
+  renderer.configureWindowEvents()
   app.requestedFrame.inc
 
-  useDepthBuffer(false)
-
   return renderer
-  
+
 

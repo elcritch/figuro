@@ -1,21 +1,41 @@
 import std/[hashes, os, strformat, tables, times, unicode]
 
-import pixie, chroma
+import pkg/chroma
+import pkg/windy
+import pkg/opengl
+from pixie import Image
 
-import fontutils
-import context, formatflippy
-import commons
+import commons, fontutils, context, formatflippy, utils
+
 export tables
 export getTypeface, getTypeset
 
 type
-  Context = context.Context
+  Renderer* = ref object
+    ctx*: Context
+    window*: Window
+    nodes*: RenderNodes
+    updated*: bool
 
-var ctx*: Context
 
-proc renderBoxes*(node: Node)
+proc newRenderer*(
+    window: Window,
+    pixelate: bool,
+    forcePixelScale: float32,
+    atlasSize: int
+): Renderer =
 
-proc renderDrawable*(node: Node) =
+  app.pixelScale = forcePixelScale
+
+  let renderer = Renderer(window: window)
+
+  renderer.ctx = newContext(atlasSize = atlasSize,
+                    pixelate = pixelate,
+                    pixelScale = app.pixelScale)
+
+  return renderer
+
+proc renderDrawable*(ctx: Context, node: Node) =
   # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
@@ -24,7 +44,7 @@ proc renderDrawable*(node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-proc renderText(node: Node) {.forbids: [MainThreadEff].} =
+proc renderText(ctx: Context, node: Node) {.forbids: [MainThreadEff].} =
   # draw characters
   # if node.textLayout == nil:
     # return
@@ -45,7 +65,7 @@ proc renderText(node: Node) {.forbids: [MainThreadEff].} =
       continue
     ctx.drawImage(glyphId, charPos, node.fill)
 
-import macros
+import macros except `$`
 
 var postRenderImpl {.compileTime.}: seq[NimNode]
 
@@ -71,7 +91,7 @@ macro postRender() =
   while postRenderImpl.len() > 0:
     result.add postRenderImpl.pop()
 
-proc drawMasks*(node: Node) =
+proc drawMasks(ctx: Context, node: Node) =
   if node.cornerRadius != 0:
     ctx.fillRoundedRect(rect(
       0, 0,
@@ -83,7 +103,7 @@ proc drawMasks*(node: Node) =
       node.screenBox.w, node.screenBox.h
     ), rgba(255, 0, 0, 255).color)
 
-proc renderShadows*(node: Node) =
+proc renderShadows(ctx: Context, node: Node) =
   ## drawing shadows
   let shadow = node.shadow.get()
   let blurAmt = shadow.blur / 7.0
@@ -95,7 +115,7 @@ proc renderShadows*(node: Node) =
                         color = shadow.color,
                         radius = node.cornerRadius)
 
-proc renderBoxes*(node: Node) =
+proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
     if node.cornerRadius > 0:
@@ -128,7 +148,7 @@ proc renderBoxes*(node: Node) =
                           radius = node.cornerRadius)
 
 
-proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
+proc render(ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
 
   template node(): auto = nodes[nodeIdx.int]
   template parent(): auto = nodes[parentIdx.int]
@@ -171,22 +191,22 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
   # handle clipping children content based on this node
   ifrender clipContent in node.attrs:
     ctx.beginMask()
-    node.drawMasks()
+    ctx.drawMasks(node)
     ctx.endMask()
   finally:
     ctx.popMask()
 
   # hacky method to draw drop shadows... should probably be done in opengl sharders
   ifrender node.kind == nkRectangle and node.shadow.isSome():
-    node.renderShadows()
+    ctx.renderShadows(node)
 
   ifrender true:
     if node.kind == nkText:
-      node.renderText()
+      ctx.renderText(node)
     elif node.kind == nkDrawable:
-      node.renderDrawable()
+      ctx.renderDrawable(node)
     elif node.kind == nkRectangle:
-      node.renderBoxes()
+      ctx.renderBoxes(node)
 
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
@@ -200,12 +220,12 @@ proc render*(nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThre
 
   # echo "draw:children: ", repr childIdxs 
   for childIdx in childIndex(nodes, nodeIdx):
-    render(nodes, childIdx, nodeIdx)
+    ctx.render(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
+proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   var img: (Hash, Image)
@@ -215,5 +235,61 @@ proc renderRoot*(nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
 
   for zlvl, list in nodes.pairs():
     for rootIdx in list.rootIds:
-      render(list.nodes, rootIdx, -1.NodeIdx)
+      ctx.render(list.nodes, rootIdx, -1.NodeIdx)
+
+proc renderFrame*(ctx: Context, nodes: var RenderNodes) =
+  clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+  ctx.beginFrame(app.windowRawSize)
+  ctx.saveTransform()
+  ctx.scale(ctx.pixelScale)
+
+  # draw root
+  ctx.renderRoot(nodes)
+
+  ctx.restoreTransform()
+  ctx.endFrame()
+
+  when defined(testOneFrame):
+    ## This is used for test only
+    ## Take a screen shot of the first frame and exit.
+    var img = takeScreenshot()
+    img.writeFile("screenshot.png")
+    quit()
+
+proc renderAndSwap(ctx: Context, 
+                   window: Window,
+                   nodes: var RenderNodes,
+                   updated: bool) =
+  ## Does drawing operations.
+  app.tickCount.inc
+
+  timeIt(drawFrame):
+    ctx.renderFrame(nodes)
+
+  var error: GLenum
+  while (error = glGetError(); error != GL_NO_ERROR):
+    echo "gl error: " & $error.uint32
+
+  timeIt(drawFrameSwap):
+    window.swapBuffers()
+
+proc render*(renderer: Renderer, updated = false, poll = true) =
+  ## renders and draws a window given set of nodes passed
+  ## in via the Renderer object
+  let update = renderer.updated or updated
+  renderer.updated = false
+
+  if renderer.window.closeRequested:
+    app.running = false
+    return
+
+  timeIt(eventPolling):
+    if poll:
+      windy.pollEvents()
+  
+  if updated:
+    renderAndSwap(renderer.ctx,
+                  renderer.window,
+                  renderer.nodes,
+                  update)
 
