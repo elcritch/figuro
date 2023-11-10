@@ -324,14 +324,19 @@ template widget*[T, U](args: varargs[untyped]): auto =
   widgetImpl(T, U, args)
 
 template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
-  when F.hasGenericTypes():
+  when t.hasGenericTypes():
     widget[F, ()](args)
   else:
     widget[F, nil](args)
 
 macro hasGenericTypes*(n: typed): bool =
-  let impl = n.getImpl()
-  let hasGenerics = impl[1].len() > 0
+  echo "hasGenericTypes: ", n.lispRepr
+  var hasGenerics = true
+  if n.kind == nnkBracketExpr:
+    hasGenerics = true
+  else:
+    let impl = n.getImpl()
+    hasGenerics = impl[1].len() > 0
   return newLit(hasGenerics)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
