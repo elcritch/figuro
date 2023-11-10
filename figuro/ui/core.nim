@@ -324,7 +324,10 @@ template widget*[T, U](args: varargs[untyped]): auto =
   widgetImpl(T, U, args)
 
 template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
-  widgetImpl(F,nil,args)
+  when F.hasGenericTypes():
+    widget[F, ()](args)
+  else:
+    widget[F, nil](args)
 
 macro hasGenericTypes*(n: typed): bool =
   let impl = n.getImpl()
