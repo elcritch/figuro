@@ -3,13 +3,18 @@ import std/sets
 import macros
 import commons
 
+template nodes*[T](fig: T, blk: untyped): untyped =
+  ## begin drawing nodes
+  ## 
+  ## sets up the required `current` variable to `fig`
+  ## so that the methods from `ui/apis.nim` can 
+  ## be used.
+  var current {.inject, used.} = fig
+  `blk`
+
 template withDraw*[T](fig: T, blk: untyped): untyped =
-  ## setup the draw method for a widget by setting
-  ## the `current` and `parent` variables
-  block:
-    var parent {.inject, used.} = fig.parent
-    var current {.inject, used.} = fig
-    `blk`
+  ## alias for `nodes`
+  nodes[T](fig, blk)
 
 type
   State*[T] = object

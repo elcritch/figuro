@@ -23,7 +23,7 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     rectangle "body":
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0

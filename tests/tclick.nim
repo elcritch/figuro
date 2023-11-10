@@ -58,7 +58,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     self.name.setLen(0)
     self.name.add "main"
 
