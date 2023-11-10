@@ -295,7 +295,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports a `class` as a widget by giving it a macro with `name`
   ## which handles parsing widget args like `state(type)` and
   ## `captures(...)`. It also generates the proper pre- and
-  ## post- callbacks that are called before and after `doDraw`, 
+  ## post- callbacks that are called before and after `doDraw`,
   ## respectively.
   ##
   template `name`*(args: varargs[untyped]): auto =
