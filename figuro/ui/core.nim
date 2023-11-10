@@ -287,8 +287,13 @@ proc generateBodies*(widget, kind: NimNode,
 macro widgetImpl(class: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
   let widget = class.getTypeInst()
+  echo "widgetImpl: ", widget.treeRepr
   let wargs = args.parseWidgetArgs()
-  let impl = widget.getImpl()
+  let impl =
+    if widget.kind == nnkBracketExpr:
+      widget[0].getImpl()
+    else:
+      widget.getImpl()
   impl.expectKind(nnkTypeDef)
   let hasGeneric = impl[1].len() > 0
   result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
