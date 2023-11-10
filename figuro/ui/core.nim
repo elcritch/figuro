@@ -279,21 +279,29 @@ proc generateBodies*(widget, kind: NimNode,
       when `hasBinds`:
         current
 
-template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
-  ## exports a `class` as a widget by giving it a macro with `name`
-  ## which handles parsing widget args like `state(type)` and
-  ## `captures(...)`. It also generatres the proper pre- and
-  ## post- callbacks that are called before and after `doDraw`, 
-  ## respectively.
-  ## 
-  macro `name`*(args: varargs[untyped]): auto =
+macro widgetImpl(class: untyped, args: varargs[untyped]): auto =
+    ## creates a widget block for a given widget
     let widget = class.getTypeInst()
     let wargs = args.parseWidgetArgs()
     let impl = widget.getImpl()
     impl.expectKind(nnkTypeDef)
     let hasGeneric = impl[1].len() > 0
-
     result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
+
+template widget*[T](args: varargs[untyped]): auto =
+  widgetImpl(T, args)
+
+template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
+  ## exports a `class` as a widget by giving it a macro with `name`
+  ## which handles parsing widget args like `state(type)` and
+  ## `captures(...)`. It also generates the proper pre- and
+  ## post- callbacks that are called before and after `doDraw`, 
+  ## respectively.
+  ##
+  template `name`*(args: varargs[untyped]): auto =
+    ## instantiate a widget block for a given widget `T`
+    widgetImpl(T, args)
+    
 
 {.hint[Name]:off.}
 template TemplateContents*[T](fig: T): untyped =
