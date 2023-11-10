@@ -163,4 +163,4 @@ macro optionally*(blk: untyped) =
           `st`
     else:
       result.add st
-  echo "OPTIONALS:\n", result.repr
+  # echo "OPTIONALS:\n", result.repr

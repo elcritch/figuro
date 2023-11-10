@@ -245,7 +245,7 @@ proc postNode*(current: var Figuro) =
   current.removeExtraChildren()
   nodeDepth.dec()
 
-import utils, macros
+import utils, macros, typetraits
 
 template setupWidget(
     `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `blk`
@@ -284,41 +284,52 @@ proc generateBodies*(widget, kind, gtype: NimNode,
   let widgetType =
     if not hasGeneric: quote do: `widget`
     else: quote do: `widget`[`stateArg`]
+  echo "widgetType: ", widgetType.treeRepr
 
   result = quote do:
     setupWidget(`widgetType`, `kind`, `id`,
                 `hasCaptures`, `hasBinds`,
                 `capturedVals`, `blk`)
 
-macro widgetImpl(class: untyped, args: varargs[untyped]): auto =
+macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
   let widget = class.getTypeInst()
-  echo "class: ", class.treeRepr
-  echo "widgetImpl: ", widget.treeRepr
+  echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
+  echo "gclass: ", gclass.treeRepr, " " # , gclass.getTypeImpl().treeRepr
   let wargs = args.parseWidgetArgs()
-  var hasGeneric = false
+  var hasGeneric = true
   let (wtype, gtype) =
     if widget.kind == nnkBracketExpr:
-      hasGeneric = true
+      echo "WBRACKET: "
       (widget[0].getTypeInst(), widget[1].getTypeInst())
+    elif gclass != nil and gclass.getTypeInst().kind == nnkTupleConstr:
+      echo "GCLASS: "
+      (widget.getTypeInst(), gclass)
     else:
-      (widget[0].getTypeInst(), nil)
+      hasGeneric = false
+      echo "W NOGEN: "
+      (widget.getTypeInst(), nil)
   # impl.expectKind(nnkTypeDef)
   # let hasGeneric = impl[1].len() > 0
   result = generateBodies(wtype, ident "nkRectangle", gtype,
                           wargs, hasGeneric)
 
-template widget*[T](args: varargs[untyped]): auto =
+template widget*[T, U](args: varargs[untyped]): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
   ## The args can include:
   ## - `captures(...)` captures a variable similar to the stdlib `capture` macro
   ## - `state(U)` sets state type for Stateful widgets
   ##
-  widgetImpl(T, args)
+  widgetImpl(T, U, args)
 
 template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
-  widgetImpl(F,args)
+  widgetImpl(F,nil,args)
+
+macro hasGenericTypes*(n: typed): bool =
+  let impl = n.getImpl()
+  let hasGenerics = impl[1].len() > 0
+  return newLit(hasGenerics)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,
@@ -327,15 +338,35 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## the exported widget template can take standard widget args
   ## that `widget` can.
   ##
-  template `name`*[U](args: varargs[untyped]): auto =
-    ## Instantiate a widget block for a given widget `T`
-    ## creating a new Figuro node.
-    ## 
-    ## Behind the scenes this creates a new block
-    ## with new `current` and `parent` variables.
-    ## The `current` variable becomes the new widget
-    ## instance.
-    widget[T](U, args)
+  when class.hasGenericTypes():
+    template `name`*(args: varargs[untyped]): auto =
+      ## Instantiate a widget block for a given widget `T`
+      ## creating a new Figuro node.
+      ## 
+      ## Behind the scenes this creates a new block
+      ## with new `current` and `parent` variables.
+      ## The `current` variable becomes the new widget
+      ## instance.
+      widget[T, ()](args)
+    template `name`*[U](args: varargs[untyped]): auto =
+      ## Instantiate a widget block for a given widget `T`
+      ## creating a new Figuro node.
+      ## 
+      ## Behind the scenes this creates a new block
+      ## with new `current` and `parent` variables.
+      ## The `current` variable becomes the new widget
+      ## instance.
+      widget[T, U](args)
+  else:
+    template `name`*(args: varargs[untyped]): auto =
+      ## Instantiate a widget block for a given widget `T`
+      ## creating a new Figuro node.
+      ##
+      ## Behind the scenes this creates a new block
+      ## with new `current` and `parent` variables.
+      ## The `current` variable becomes the new widget
+      ## instance.
+      widget[T, nil](args)
 
 
 {.hint[Name]:off.}
