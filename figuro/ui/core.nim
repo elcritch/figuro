@@ -300,7 +300,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ##
   template `name`*(args: varargs[untyped]): auto =
     ## instantiate a widget block for a given widget `T`
-    widgetImpl(T, args)
+    widget[T](args)
     
 
 {.hint[Name]:off.}
