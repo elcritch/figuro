@@ -247,6 +247,27 @@ proc postNode*(current: var Figuro) =
 
 import utils, macros
 
+template setupWidget(
+    `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `blk`
+): auto =
+  ## sets up a new instance of a widget
+  block:
+    when not compiles(current.typeof):
+      {.error: "missing `var current` in current scope!".}
+    let parent {.inject.}: Figuro = current
+    var current {.inject.}: `widgetType` = nil
+    preNode(`kind`, `id`, current, parent)
+    wrapCaptures(`hasCaptures`, `capturedVals`):
+      current.preDraw = proc (c: Figuro) =
+        let current {.inject.} = `widgetType`(c)
+        let fig {.inject, used.} = current
+        if preDrawReady in current.attrs:
+          current.attrs.excl preDrawReady
+          `blk`
+    postNode(Figuro(current))
+    when `hasBinds`:
+      current
+
 proc generateBodies*(widget, kind: NimNode,
                      wargs: WidgetArgs,
                      hasGeneric: bool): NimNode {.compileTime.} =
@@ -255,29 +276,13 @@ proc generateBodies*(widget, kind: NimNode,
   let (id, stateArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
   let hasBinds = newLit(not bindsArg.isNil)
-  let widgetId = ident( "widget" & id.strVal.capitalize )
 
   let widgetType =
     if not hasGeneric: quote do: `widget`
     else: quote do: `widget`[`stateArg`]
 
   result = quote do:
-    block:
-      when not compiles(current.typeof):
-        {.error: "missing `var current` in current scope!".}
-      let parent {.inject.}: Figuro = current
-      var current {.inject.}: `widgetType` = nil
-      preNode(`kind`, `id`, current, parent)
-      wrapCaptures(`hasCaptures`, `capturedVals`):
-        current.preDraw = proc (c: Figuro) =
-          let current {.inject.} = `widgetType`(c)
-          let fig {.inject, used.} = current
-          if preDrawReady in current.attrs:
-            current.attrs.excl preDrawReady
-            `blk`
-      postNode(Figuro(current))
-      when `hasBinds`:
-        current
+    setupWidget(`widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `blk`)
 
 macro widgetImpl(class: untyped, args: varargs[untyped]): auto =
     ## creates a widget block for a given widget
@@ -289,19 +294,31 @@ macro widgetImpl(class: untyped, args: varargs[untyped]): auto =
     result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
 
 template widget*[T](args: varargs[untyped]): auto =
+  ## sets up a new instance of a widget of type `T`.
+  ##
+  ## The args can include:
+  ## - `captures(...)` captures a variable similar to the stdlib `capture` macro
+  ## - `state(U)` sets state type for Stateful widgets
+  ##
   widgetImpl(T, args)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
-  ## exports a `class` as a widget by giving it a macro with `name`
-  ## which handles parsing widget args like `state(type)` and
-  ## `captures(...)`. It also generates the proper pre- and
-  ## post- callbacks that are called before and after `doDraw`,
-  ## respectively.
+  ## exports `class` as a template `name`,
+  ## which in turn calls `widget[T](args): blk`
+  ## 
+  ## the exported widget template can take standard widget args
+  ## that `widget` can.
   ##
   template `name`*(args: varargs[untyped]): auto =
-    ## instantiate a widget block for a given widget `T`
+    ## Instantiate a widget block for a given widget `T`
+    ## creating a new Figuro node.
+    ## 
+    ## Behind the scenes this creates a new block
+    ## with new `current` and `parent` variables.
+    ## The `current` variable becomes the new widget
+    ## instance.
     widget[T](args)
-    
+
 
 {.hint[Name]:off.}
 template TemplateContents*[T](fig: T): untyped =
