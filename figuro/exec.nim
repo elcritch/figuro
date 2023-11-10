@@ -6,8 +6,8 @@ elif defined(blank):
   import engine/blank
   export blank
 else:
-  import renderer/window
-  export window
+  import renderer/opengl
+  export opengl
 
 import std/os
 import std/sets
@@ -52,7 +52,7 @@ proc runRenderer(renderer: Renderer) =
   while app.running:
     wait(uiRenderEvent)
     timeIt(renderAvgTime):
-      renderLoop(renderer, true)
+      renderer.render(true)
 
 proc appTicker() {.thread.} =
   while app.running:
@@ -68,11 +68,6 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
         eventMain()
         mainApp()
         app.frameCount.inc()
-
-proc init*(renderer: Renderer) =
-  sendRoot = proc (nodes: sink RenderNodes) =
-      renderer.updated = true
-      renderer.nodes = nodes
 
 proc run*(renderer: Renderer) =
 

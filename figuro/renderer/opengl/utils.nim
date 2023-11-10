@@ -1,6 +1,11 @@
 
 import pkg/opengl
-import pkg/windy
+import pkg/chroma
+
+const
+  openglMajor {.intdefine.} = 3
+  openglMinor {.intdefine.} = 3
+  openglVersion* = (openglMajor, openglMinor)
 
 proc openglDebug*() =
   when defined(glDebugMessageCallback):
@@ -38,3 +43,19 @@ proc setOpenGlHints*() =
     windowHint(OPENGL_PROFILE, OPENGL_CORE_PROFILE)
     windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
     windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)
+
+proc clearDepthBuffer*() =
+  glClear(GL_DEPTH_BUFFER_BIT)
+
+proc clearColorBuffer*(color: Color) =
+  glClearColor(color.r, color.g, color.b, color.a)
+  glClear(GL_COLOR_BUFFER_BIT)
+
+proc useDepthBuffer*(on: bool) =
+  if on:
+    glDepthMask(GL_TRUE)
+    glEnable(GL_DEPTH_TEST)
+    glDepthFunc(GL_LEQUAL)
+  else:
+    glDepthMask(GL_FALSE)
+    glDisable(GL_DEPTH_TEST)
