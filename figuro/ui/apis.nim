@@ -24,7 +24,7 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style
   result = ImageStyle(name: name, color: color)
 
-template strokeLine*(weight: UICoord, color: Color, alpha = 1.0'f32) =
+proc strokeLine*(current: Figuro, weight: UICoord, color: Color, alpha = 1.0'f32) =
   ## Sets stroke/border color.
   current.stroke.color = color
   current.stroke.color.a = alpha
@@ -51,25 +51,25 @@ template strokeLine*(weight: UICoord, color: Color, alpha = 1.0'f32) =
 ## Fidget nodes. 
 ## 
 
-template boxFrom*(x, y, w, h: float32) =
+proc boxFrom*(current: Figuro, x, y, w, h: float32) =
   ## Sets the box dimensions.
   current.box = initBox(x, y, w, h)
 
-template frame*(id: static string, args: varargs[untyped]): untyped =
-  ## Starts a new frame.
-  node(nkFrame, id, args):
-    # boxSizeOf parent
-    discard
-    # current.cxSize = [csAuto(), csAuto()]
+# template frame*(id: static string, args: varargs[untyped]): untyped =
+#   ## Starts a new frame.
+#   node(nkFrame, id, args):
+#     # boxSizeOf parent
+#     discard
+#     # current.cxSize = [csAuto(), csAuto()]
 
-template drawable*(id: static string, inner: untyped): untyped =
-  ## Starts a drawable node. These don't draw a normal rectangle.
-  ## Instead they draw a list of points set in `current.points`
-  ## using the nodes fill/stroke. The size of the drawable node
-  ## is used for the point sizes, etc. 
-  ## 
-  ## Note: Experimental!
-  node(nkDrawable, id, inner)
+# template drawable*(id: static string, inner: untyped): untyped =
+#   ## Starts a drawable node. These don't draw a normal rectangle.
+#   ## Instead they draw a list of points set in `current.points`
+#   ## using the nodes fill/stroke. The size of the drawable node
+#   ## is used for the point sizes, etc. 
+#   ## 
+#   ## Note: Experimental!
+#   node(nkDrawable, id, inner)
 
 template rectangle*(id: static string, args: varargs[untyped]): untyped =
   ## Starts a new rectangle.
@@ -78,31 +78,6 @@ template rectangle*(id: static string, args: varargs[untyped]): untyped =
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
   node(nkText, id, inner)
-
-## Overloaded Nodes 
-## ^^^^^^^^^^^^^^^^
-## 
-## Various overloaded node APIs
-
-template withDefaultName(name: untyped): untyped =
-  template `name`*(inner: untyped): untyped =
-    `name`("", inner)
-
-withDefaultName(frame)
-withDefaultName(rectangle)
-withDefaultName(text)
-withDefaultName(drawable)
-
-template rectangle*(color: string|Color) =
-  ## Shorthand for rectangle with fill.
-  rectangle "":
-    box 0, 0, parent.getBox().w, parent.getBox().h
-    fill color
-
-template blank*(): untyped =
-  ## Starts a new rectangle.
-  node(nkComponent, ""):
-    discard
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
