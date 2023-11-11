@@ -16,7 +16,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw self:
+  nodes self:
     fill "#0000AA"
     name "root"
     scroll "scroll":

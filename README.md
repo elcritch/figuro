@@ -162,7 +162,7 @@ Simple example:
 
 ```nim
 proc draw*(self: Main) {.slot.} =
-  withDraw self:
+  nodes self:
     fill "#0000AA"
     size 100'pp, 100'pp ## this will set to 100 percent
                         ## of the parents width and height

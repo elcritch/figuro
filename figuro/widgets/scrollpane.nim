@@ -110,7 +110,7 @@ proc scrollBarDrag*(self: ScrollPane,
     refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
-  withDraw self:
+  nodes self:
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
     clipContent true

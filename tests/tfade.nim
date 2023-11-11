@@ -30,8 +30,8 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(self.hoveredAlpha)
       for i in 0 .. 4:
         # Button.new "btn", captures(i):
-        # Button[int].new "btn", captures(i):
-        button[int] "btn", captures(i):
+        Button[int].new "btn", captures(i):
+        # button[int] "btn", captures(i):
         # button "btn", captures(i):
           box ux(10 + i * 120), 10'ux, 100'ux, 100'ux
           # we need to connect it's onHover event
