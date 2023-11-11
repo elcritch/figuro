@@ -49,8 +49,6 @@ proc draw*(self: Main) {.slot.} =
     node.gridTemplateDebugLines Figuro(vert)
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw)
-
 app.width = 440
 app.height = 440
 startFiguro(main)
