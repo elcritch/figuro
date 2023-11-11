@@ -17,7 +17,7 @@ template nodes*[T](fig: T, blk: untyped): untyped =
   ## so that the methods from `ui/apis.nim` can 
   ## be used.
   var current {.inject, used.} = fig
-  let node {.inject, used.} = fig
+  var node {.inject, used.} = fig
   `blk`
 
 template withNodes*[T](fig: T, blk: untyped): untyped =
