@@ -387,14 +387,11 @@ template TemplateContents*[T](fig: T): untyped =
 {.hint[Name]:on.}
 
 macro contents*(args: varargs[untyped]): untyped =
-  # echo "contents:\n", args.treeRepr
+  ## sets the contents of the current widget
+  ## 
   let wargs = args.parseWidgetArgs()
   let (id, stateArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
-  # echo "id: ", id
-  # echo "stateArg: ", stateArg.repr
-  # echo "captured: ", capturedVals.repr
-  # echo "blk: ", blk.repr
 
   result = quote do:
     block:
