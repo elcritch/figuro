@@ -436,40 +436,40 @@ template alignItems*(current: Figuro, con: ConstraintBehavior) =
 #   ## align items on css grid (vertical)
 #   defaultGridTemplate()
 #   current.gridItem.align = con
-template layoutItems*(current: Figuro, con: ConstraintBehavior) =
+proc layoutItems*(current: Figuro, con: ConstraintBehavior) =
   ## set justification and alignment on child items
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
-template layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
+proc layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
   ## set justification and alignment on child items
   defaultGridTemplate()
   current.gridTemplate.justifyItems = justify
   current.gridTemplate.alignItems = align
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
-template gridAutoFlow*(current: Figuro, item: GridFlow) =
+proc gridAutoFlow*(current: Figuro, item: GridFlow) =
   defaultGridTemplate()
   current.gridTemplate.autoFlow = item
   current.userSetFields.incl fsGridAutoFlow
 
-template gridAutoColumns*(current: Figuro, item: Constraint) =
+proc gridAutoColumns*(current: Figuro, item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
   current.userSetFields.incl fsGridAutoColumns
-template gridAutoRows*(current: Figuro, item: Constraint) =
+proc gridAutoRows*(current: Figuro, item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
   current.userSetFields.incl fsGridAutoRows
 
-template gridTemplateDebugLines*(current: Figuro, grid: Figuro, color: Color = blueColor) =
+proc gridTemplateDebugLines*(current: Figuro, grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.
   rectangle "grid-debug":
     # strokeLine 3'ui, css"#0000CC"
     # draw debug lines
-    boxOf grid.box
+    node.boxOf grid.box
     if not grid.gridTemplate.isNil:
       computeLayout(grid, 0)
       # echo "grid template post: ", grid.gridTemplate
@@ -480,15 +480,19 @@ template gridTemplateDebugLines*(current: Figuro, grid: Figuro, color: Color = b
       echo "size: ", (w, h)
       for col in grid.gridTemplate.columns[1..^2]:
         rectangle "column", captures(col):
-          fill color
-          box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
+          with node:
+            fill color
+            box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
       for row in grid.gridTemplate.rows[1..^2]:
         rectangle "row", captures(row):
-          fill color
-          box 0, row.start.UICoord - wd, w.UICoord, wd
+          with node:
+            fill color
+            box 0, row.start.UICoord - wd, w.UICoord, wd
       rectangle "edge":
-        fill color.darken(0.5)
-        box 0'ux, 0'ux, w, 3'ux
+        with node:
+          fill color.darken(0.5)
+          box 0'ux, 0'ux, w, 3'ux
       rectangle "edge":
-        fill color.darken(0.5)
-        box 0'ux, ux(h - 3), w, 3'ux
+        with node:
+          fill color.darken(0.5)
+          box 0'ux, ux(h - 3), w, 3'ux
