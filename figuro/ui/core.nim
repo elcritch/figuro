@@ -257,10 +257,11 @@ template setupWidget(
     let parent {.inject.}: Figuro = current
     var current {.inject.}: `widgetType` = nil
     preNode(`kind`, `id`, current, parent)
+    let node {.inject.}: `widgetType` = current
     wrapCaptures(`hasCaptures`, `capturedVals`):
       current.preDraw = proc (c: Figuro) =
         let current {.inject.} = `widgetType`(c)
-        let fig {.inject, used.} = current
+        let node {.inject, used.} = current
         if preDrawReady in current.attrs:
           current.attrs.excl preDrawReady
           `blk`

@@ -3,19 +3,6 @@ import std/sets
 import macros
 import commons
 
-template nodes*[T](fig: T, blk: untyped): untyped =
-  ## begin drawing nodes
-  ## 
-  ## sets up the required `current` variable to `fig`
-  ## so that the methods from `ui/apis.nim` can 
-  ## be used.
-  var current {.inject, used.} = fig
-  `blk`
-
-template withNodes*[T](fig: T, blk: untyped): untyped =
-  ## alias for `nodes`
-  nodes[T](fig, blk)
-
 type
   State*[T] = object
   Captures*[V] = object
