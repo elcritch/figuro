@@ -28,8 +28,9 @@ proc draw*(self: Main) {.slot.} =
           fill css"#2B9FEA"
 
       button "btn":
-        box 10'pp, 60'pp, 80'pp, 10'pp
-        fill "#2B9FEA"
+        with current:
+          box 10'pp, 60'pp, 80'pp, 10'pp
+          fill css"#2B9FEA"
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
