@@ -123,42 +123,34 @@ proc box*(
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
-template box*(
-  x: UICoord|CSSConstraint,
-  y: UICoord|CSSConstraint,
-  w: UICoord|CSSConstraint,
-  h: UICoord|CSSConstraint
-) =
-  ## Sets the size and offsets at the same time
-  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
-  current.cxSize = [csOrFixed(w), csOrFixed(h)]
-
 # template box*(rect: Box) =
 #   ## Sets the box dimensions with integers
 #   box(rect.x, rect.y, rect.w, rect.h)
 
-template offset*(
+proc offset*(
+  current: Figuro, 
   x: UICoord|CSSConstraint,
   y: UICoord|CSSConstraint
 ) =
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
 
-template size*(
+proc size*(
+  current: Figuro, 
   w: UICoord|CSSConstraint,
   h: UICoord|CSSConstraint,
 ) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
-template boxSizeOf*(node: Figuro) =
+proc boxSizeOf*(current: Figuro, node: Figuro) =
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
   current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
 
-template boxOf*(node: Figuro) =
+proc boxOf*(current: Figuro, node: Figuro) =
   current.cxOffset = [csOrFixed(node.box.x), csOrFixed(node.box.y)]
   current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
 
-template boxOf*(box: Box) =
+proc boxOf*(current: Figuro, box: Box) =
   current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
   current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
 
@@ -166,17 +158,7 @@ template css*(color: static string): Color =
   const c = parseHtmlColor(color)
   c
 
-template css*(color: static string): Color =
-  const c = parseHtmlColor(color)
-  c
-
-template hasAttr*(attr: Attributes): bool =
-  attr in current.attrs 
-
-template notAttr*(attr: Attributes): bool =
-  attr notin current.attrs 
-
-template clipContent*(clip: bool) =
+proc clipContent*(current: Figuro, clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
     current.attrs.incl clipContent
@@ -188,34 +170,12 @@ proc fill*(current: Figuro, color: Color) =
   current.fill = color
   current.userSetFields.incl fsFill
 
-template fill*(color: Color) =
-  ## Sets background color.
-  current.fill = color
-  current.userSetFields.incl fsFill
-
-template fill*(color: Color, alpha: float32) =
-  ## Sets background color.
-  current.fill = color
-  current.fill.a = alpha
-  current.userSetFields.incl fsFill
-
-template fill*(color: string, alpha: float32 = 1.0) =
-  ## Sets background color.
-  current.fill = parseHtmlColor(color)
-  current.fill.a = alpha
-  current.userSetFields.incl fsFill
-
-template fill*(node: Figuro) =
-  ## Sets background color.
-  current.fill = node.fill
-  current.userSetFields.incl fsFill
-
-template fillHover*(color: Color) =
+proc fillHover*(current: Figuro, color: Color) =
   ## Sets background color.
   current.fill = color
   current.userSetFields.incl {fsFill, fsFillHover}
 
-template fillHover*(color: Color, alpha: float32) =
+proc fillHover*(current: Figuro, color: Color, alpha: float32) =
   ## Sets background color.
   current.fill = color
   current.fill.a = alpha
@@ -241,20 +201,20 @@ proc positionRatio*(node: Figuro, point: Position, clamped = false): Position =
     result.x = result.x.clamp(0'ui, 1'ui)
     result.y = result.y.clamp(0'ui, 1'ui)
 
-template onHover*(inner: untyped) =
+template onHover*(current: Figuro, inner: untyped) =
   ## Code in the block will run when this box is hovered.
   current.listens.events.incl(evHover)
   if evHover in current.events:
     inner
 
-template onClick*(inner: untyped) =
+template onClick*(current: Figuro, inner: untyped) =
   ## On click event handler.
   current.listens.events.incl(evClick)
   if evClick in current.events.mouse and
       MouseLeft in uxInputs.buttonPress:
     inner
 
-template onClickOut*(inner: untyped) =
+template onClickOut*(current: Figuro, inner: untyped) =
   ## On click event handler.
   current.listens.events.incl(evClickOut)
   if evClickOut in current.events.mouse and
@@ -271,22 +231,17 @@ template setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
-proc cornerRadius*(current: Figuro, radius: UICoord, optional=true) =
+proc cornerRadius*(current: Figuro, radius: UICoord) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = radius
   current.userSetFields.incl fsCornerRadius
 
-template cornerRadius*(radius: UICoord) =
+proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = radius
-  current.userSetFields.incl fsCornerRadius
+  cornerRadius(current, UICoord radius.value.coord)
 
-template cornerRadius*(radius: Constraint) =
-  ## Sets all radius of all 4 corners.
-  cornerRadius(UICoord radius.value.coord)
-
-template cornerRadius*(radius: float|float32) =
-  cornerRadius(UICoord radius)
+proc cornerRadius*(current: Figuro, radius: float|float32) =
+  cornerRadius(current, UICoord radius)
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
@@ -308,9 +263,10 @@ proc setText*(node: Figuro,
   node.textLayout = internal.getTypeset(node.box,
                                           spans, hAlign, vAlign)
 
-template setText*(spans: openArray[(UiFont, string)],
-                  hAlign = FontHorizontal.Left,
-                  vAlign = FontVertical.Top) =
+proc setText*(current: Figuro,
+              spans: openArray[(UiFont, string)],
+              hAlign = FontHorizontal.Left,
+              vAlign = FontVertical.Top) =
   let thash = spans.hash()
   if thash != current.textLayout.contentHash:
     current.textLayout = internal.getTypeset(current.box,
@@ -349,7 +305,7 @@ proc findRoot*(node: Figuro): Figuro =
 ## setting up layouts and constraingts. 
 ## 
 
-template setGridCols*(args: untyped) =
+template setGridCols*(current: Figuro, args: untyped) =
   ## configure columns for CSS grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -368,7 +324,7 @@ template setGridCols*(args: untyped) =
   # layout lmGrid
   parseGridTemplateColumns(current.gridTemplate, args)
 
-template setGridRows*(args: untyped) =
+template setGridRows*(current: Figuro, args: untyped) =
   ## configure rows for CSS grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -408,23 +364,23 @@ template getGridItem(): untyped =
 proc span*(idx: int | string): GridIndex =
   mkIndex(idx, isSpan = true)
 
-template columnStart*(idx: untyped) =
-  ## set CSS grid starting column 
+template columnStart*(current: Figuro, idx: untyped) =
+  ## set CSS grid starting column
   getGridItem().index[dcol].a = idx.mkIndex()
-template columnEnd*(idx: untyped) =
-  ## set CSS grid ending column 
+template columnEnd*(current: Figuro, idx: untyped) =
+  ## set CSS grid ending column
   getGridItem().index[dcol].b = idx.mkIndex()
-template gridColumn*(val: untyped) =
-  ## set CSS grid ending column 
+template gridColumn*(current: Figuro, val: untyped) =
+  ## set CSS grid ending column
   getGridItem().column = val
 
-template rowStart*(idx: untyped) =
-  ## set CSS grid starting row 
+template rowStart*(current: Figuro, idx: untyped) =
+  ## set CSS grid starting row
   getGridItem().index[drow].a = idx.mkIndex()
-template rowEnd*(idx: untyped) =
-  ## set CSS grid ending row 
+template rowEnd*(current: Figuro, idx: untyped) =
+  ## set CSS grid ending row
   getGridItem().index[drow].b = idx.mkIndex()
-template gridRow*(val: untyped) =
+template gridRow*(current: Figuro, val: untyped) =
   ## set CSS grid ending column
   getGridItem().row = val
 

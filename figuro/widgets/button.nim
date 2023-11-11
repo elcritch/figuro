@@ -1,6 +1,7 @@
 
 import commons
 import ../ui/utils
+import std/with
 
 type
   ButtonClicks* = enum
@@ -41,8 +42,9 @@ proc tick*[T](self: Button[T], tick: int, now: MonoTime) {.slot.} =
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   nodes(self):
-    clipContent true
-    cornerRadius 10.0
+    with current:
+      clipContent true
+      cornerRadius 10.0
 
     if self.disabled:
       optionally:

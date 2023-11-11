@@ -160,7 +160,8 @@ macro optionally*(blk: untyped) =
       let fsName = ident "fs" & st[0].strVal
       result.add quote do:
         if `fsName` notin current.userSetFields:
-          `st`
+          with current:
+            `st`
     else:
       result.add st
   # echo "OPTIONALS:\n", result.repr
