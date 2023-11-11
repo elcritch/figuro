@@ -36,10 +36,10 @@ proc draw*(self: Main) {.slot.} =
               # current.gridItem = nil
               with current:
                 size 1'fr, 50'ux
+                fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
               if i in [3, 7]:
                 with current:
                   size 0.9'fr, 120'ux
-                fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
               connect(current, doHover, self, Main.hover)
 
 var main = Main.new()

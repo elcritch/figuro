@@ -7,12 +7,10 @@ export widget
 type
   Vertical* = ref object of Figuro
 
-template itemHeight*(cx: Constraint, gap = -1'ui) =
-  when current isnot Vertical:
-    {.error: "height template must be used in a vertical widget".}
-  gridAutoRows cx
+proc itemHeight*(current: Vertical, cx: Constraint, gap = -1'ui) =
+  current.gridAutoRows cx
   if gap != -1'ui:
-    rowGap gap
+    current.rowGap gap
 
 proc draw*(self: Vertical) {.slot.} =
   ## button widget!
