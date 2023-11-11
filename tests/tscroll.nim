@@ -19,7 +19,7 @@ proc draw*(self: Main) {.slot.} =
   nodes self:
     with node:
       fill css"#0000AA"
-    scroll "scroll":
+    ScrollPane.new "scroll":
       with node:
         offset 2'pp, 2'pp
         cornerRadius 7.0'ux
