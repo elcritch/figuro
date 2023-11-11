@@ -53,7 +53,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
         fill css"#2B9FEA"
       onHover:
         optionally:
-          fillHover current.fill.lighten(0.14)
+          fillHover node.fill.lighten(0.14)
           # this changes the color on hover!
 
 exportWidget(button, Button)
