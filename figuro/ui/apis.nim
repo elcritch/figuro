@@ -1,5 +1,6 @@
-import chroma, bumpy, stack_strings
 import std/[algorithm, macros, tables, os]
+import std/with
+import chroma, bumpy, stack_strings
 import cssgrid
 
 import std/[hashes]
@@ -7,6 +8,7 @@ import std/[hashes]
 import commons, core
 
 export core, cssgrid, stack_strings
+export with
 
 proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
@@ -390,25 +392,25 @@ template gridRow*(current: Figuro, val: untyped) =
   ## set CSS grid ending column
   getGridItem().row = val
 
-template gridArea*(r, c: untyped) =
+template gridArea*(current: Figuro, r, c: untyped) =
   getGridItem().row = r
   getGridItem().column = c
 
-template columnGap*(value: UICoord) =
+template columnGap*(current: Figuro, value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.gaps[dcol] = value.UiScalar
 
-template rowGap*(value: UICoord) =
+template rowGap*(current: Figuro, value: UICoord) =
   ## set CSS grid column gap
   defaultGridTemplate()
   current.gridTemplate.gaps[drow] = value.UiScalar
 
-template justifyItems*(con: ConstraintBehavior) =
+template justifyItems*(current: Figuro, con: ConstraintBehavior) =
   ## justify items on css grid (horizontal)
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
-template alignItems*(con: ConstraintBehavior) =
+template alignItems*(current: Figuro, con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   defaultGridTemplate()
   current.gridTemplate.alignItems = con
@@ -420,35 +422,35 @@ template alignItems*(con: ConstraintBehavior) =
 #   ## align items on css grid (vertical)
 #   defaultGridTemplate()
 #   current.gridItem.align = con
-template layoutItems*(con: ConstraintBehavior) =
+template layoutItems*(current: Figuro, con: ConstraintBehavior) =
   ## set justification and alignment on child items
   defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
-template layoutItems*(justify, align: ConstraintBehavior) =
+template layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
   ## set justification and alignment on child items
   defaultGridTemplate()
   current.gridTemplate.justifyItems = justify
   current.gridTemplate.alignItems = align
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
-template gridAutoFlow*(item: GridFlow) =
+template gridAutoFlow*(current: Figuro, item: GridFlow) =
   defaultGridTemplate()
   current.gridTemplate.autoFlow = item
   current.userSetFields.incl fsGridAutoFlow
 
-template gridAutoColumns*(item: Constraint) =
+template gridAutoColumns*(current: Figuro, item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
   current.userSetFields.incl fsGridAutoColumns
-template gridAutoRows*(item: Constraint) =
+template gridAutoRows*(current: Figuro, item: Constraint) =
   defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
   current.userSetFields.incl fsGridAutoRows
 
-template gridTemplateDebugLines*(grid: Figuro, color: Color = blueColor) =
+template gridTemplateDebugLines*(current: Figuro, grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.
   rectangle "grid-debug":
     # strokeLine 3'ui, css"#0000CC"

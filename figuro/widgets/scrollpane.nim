@@ -113,17 +113,21 @@ proc draw*(self: ScrollPane) {.slot.} =
   nodes self:
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
-    clipContent true
+    with current:
+      clipContent true
+
     rectangle "scrollBody":
       ## max-content is important here
       ## todo: do the same for horiz?
-      size 100'pp, 100'pp
+      with current:
+        size 100'pp, 100'pp
       if self.settings.vertical:
         current.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
         current.cxSize[dcol] = cx"max-content"
 
-      fill whiteColor.darken(0.2)
+      with current:
+        fill whiteColor.darken(0.2)
       current.offset = self.window.scrollby
       current.attrs.incl scrollPanel
       TemplateContents(self)
@@ -131,17 +135,19 @@ proc draw*(self: ScrollPane) {.slot.} =
 
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
-        box self.bary.start.x, self.bary.start.y,
-            self.bary.size.x, self.bary.size.y
-        fill css"#0000ff" * 0.4
-        cornerRadius 4'ui
+        with current:
+          box self.bary.start.x, self.bary.start.y,
+              self.bary.size.x, self.bary.size.y
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
         connect(current, doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
-        box self.barx.start.x, self.barx.start.y,
-            self.barx.size.x, self.barx.size.y
-        fill css"#0000ff" * 0.4
-        cornerRadius 4'ui
+        with current:
+          box self.barx.start.x, self.barx.start.y,
+              self.barx.size.x, self.barx.size.y
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   # self.children[0] # "scrollBody"
