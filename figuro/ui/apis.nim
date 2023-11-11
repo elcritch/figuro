@@ -366,19 +366,19 @@ template setGridRows*(current: Figuro, args: untyped) =
   parseGridTemplateRows(current.gridTemplate, args)
   # layout lmGrid
 
-template defaultGridTemplate() =
+proc defaultGridTemplate(current: Figuro) =
   if current.gridTemplate.isNil:
     current.gridTemplate = newGridTemplate()
 
-template findGridColumn*(index: GridIndex): GridLine =
-  defaultGridTemplate()
+proc findGridColumn*(current: Figuro, index: GridIndex): GridLine =
+  current.defaultGridTemplate()
   current.gridTemplate.getLine(dcol, index)
 
-template findGridRow*(index: GridIndex): GridLine =
-  defaultGridTemplate()
+proc findGridRow*(current: Figuro, index: GridIndex): GridLine =
+  current.defaultGridTemplate()
   current.gridTemplate.getLine(drow, index)
 
-template getGridItem(): untyped =
+proc getGridItem(current: Figuro): var GridItem =
   if current.gridItem.isNil:
     current.gridItem = newGridItem()
   current.gridItem
@@ -386,47 +386,47 @@ template getGridItem(): untyped =
 proc span*(idx: int | string): GridIndex =
   mkIndex(idx, isSpan = true)
 
-template columnStart*(current: Figuro, idx: untyped) =
+proc columnStart*[T](current: Figuro, idx: T) =
   ## set CSS grid starting column
-  getGridItem().index[dcol].a = idx.mkIndex()
-template columnEnd*(current: Figuro, idx: untyped) =
+  current.getGridItem().index[dcol].a = idx.mkIndex()
+proc columnEnd*[T](current: Figuro, idx: T) =
   ## set CSS grid ending column
-  getGridItem().index[dcol].b = idx.mkIndex()
-template gridColumn*(current: Figuro, val: untyped) =
+  current.getGridItem().index[dcol].b = idx.mkIndex()
+proc gridColumn*[T](current: Figuro, val: T) =
   ## set CSS grid ending column
-  getGridItem().column = val
+  current.getGridItem().column = val
 
-template rowStart*(current: Figuro, idx: untyped) =
+proc rowStart*[T](current: Figuro, idx: T) =
   ## set CSS grid starting row
   getGridItem().index[drow].a = idx.mkIndex()
-template rowEnd*(current: Figuro, idx: untyped) =
+proc rowEnd*[T](current: Figuro, idx: T) =
   ## set CSS grid ending row
   getGridItem().index[drow].b = idx.mkIndex()
-template gridRow*(current: Figuro, val: untyped) =
+proc gridRow*[T](current: Figuro, val: T) =
   ## set CSS grid ending column
   getGridItem().row = val
 
-template gridArea*(current: Figuro, r, c: untyped) =
+proc gridArea*[T](current: Figuro, r, c: T) =
   getGridItem().row = r
   getGridItem().column = c
 
-template columnGap*(current: Figuro, value: UICoord) =
+proc columnGap*(current: Figuro, value: UICoord) =
   ## set CSS grid column gap
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.gaps[dcol] = value.UiScalar
 
-template rowGap*(current: Figuro, value: UICoord) =
+proc rowGap*(current: Figuro, value: UICoord) =
   ## set CSS grid column gap
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.gaps[drow] = value.UiScalar
 
-template justifyItems*(current: Figuro, con: ConstraintBehavior) =
+proc justifyItems*(current: Figuro, con: ConstraintBehavior) =
   ## justify items on css grid (horizontal)
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.justifyItems = con
-template alignItems*(current: Figuro, con: ConstraintBehavior) =
+proc alignItems*(current: Figuro, con: ConstraintBehavior) =
   ## align items on css grid (vertical)
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.alignItems = con
 # template justify*(con: ConstraintBehavior) =
 #   ## justify items on css grid (horizontal)
@@ -438,29 +438,29 @@ template alignItems*(current: Figuro, con: ConstraintBehavior) =
 #   current.gridItem.align = con
 proc layoutItems*(current: Figuro, con: ConstraintBehavior) =
   ## set justification and alignment on child items
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
 proc layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
   ## set justification and alignment on child items
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.justifyItems = justify
   current.gridTemplate.alignItems = align
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
 proc gridAutoFlow*(current: Figuro, item: GridFlow) =
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.autoFlow = item
   current.userSetFields.incl fsGridAutoFlow
 
 proc gridAutoColumns*(current: Figuro, item: Constraint) =
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
   current.userSetFields.incl fsGridAutoColumns
 proc gridAutoRows*(current: Figuro, item: Constraint) =
-  defaultGridTemplate()
+  current.defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
   current.userSetFields.incl fsGridAutoRows
 
