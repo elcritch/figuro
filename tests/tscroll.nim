@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
         size 96'pp, 90'pp
       node.settings.size.y = 20'ui
       contents "children":
-        vertical "":
+        Vertical.new "":
           # Setup CSS Grid Template
           with node:
             offset 10'ux, 10'ux
