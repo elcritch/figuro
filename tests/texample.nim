@@ -19,30 +19,34 @@ proc draw*(self: Main) {.slot.} =
     name "root"
 
     let vert {.expose.} = vertical "vert":
-      fill whiteColor.darken(0.5)
-      offset 30'ux, 10'ux
-      size 400'ux, 120'ux
-      itemHeight 90'ux
+      with node:
+        fill whiteColor.darken(0.5)
+        offset 30'ux, 10'ux
+        size 400'ux, 120'ux
+        itemHeight 90'ux
 
-      # echo "TEXAMPLE: ", current.gridTemplate
-      fill blackColor * 0.1
-      cornerRadius 20
+        fill blackColor * 0.1
+        cornerRadius 20
 
       let slider1 {.expose.} =
         rectangle "slider":
-          size 200'ux, 45'ux
-          fill "#00A0AA"
+          with node:
+            size 200'ux, 45'ux
+            fill css"#00A0AA"
           text "txt1":
-            setText({font: "test1"}, Center, Middle)
-            fill css"#FFFFFF"
+            with node:
+              setText({font: "test1"}, Center, Middle)
+              fill css"#FFFFFF"
       rectangle "slider":
-        size 0.5'fr, 0.5'fr
-        fig.fill = css"#A000AA"
+        with node:
+          size 0.5'fr, 0.5'fr
+          fill css"#A000AA"
         text "txt2":
           # size 100'pp, 100'pp
-          setText({font: "test2"}, Center, Middle)
-          fill css"#FFFFFF"
-    gridTemplateDebugLines Figuro(vert)
+          with node:
+            setText({font: "test2"}, Center, Middle)
+            fill css"#FFFFFF"
+    node.gridTemplateDebugLines Figuro(vert)
 
 var main = Main.new()
 connect(main, doDraw, main, Main.draw)
