@@ -12,7 +12,7 @@ template nodes*[T](fig: T, blk: untyped): untyped =
   var current {.inject, used.} = fig
   `blk`
 
-template withDraw*[T](fig: T, blk: untyped): untyped =
+template withNodes*[T](fig: T, blk: untyped): untyped =
   ## alias for `nodes`
   nodes[T](fig, blk)
 

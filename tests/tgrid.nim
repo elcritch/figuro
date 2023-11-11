@@ -14,7 +14,7 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   # echo "\n\n=================================\n"
-  withDraw(self):
+  nodes(self):
     fill clearColor
     rectangle "main":
       # setWindowBounds(vec2(400, 200), vec2(800, 600))

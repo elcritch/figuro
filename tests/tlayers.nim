@@ -17,7 +17,7 @@ type
     mainRect: Figuro
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
 
     template setLabel(zlvl; left=false) =
       text "text":

@@ -20,7 +20,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     rectangle "main":
       self.mainRect = current
       box 10'ux, 10'ux, 600'ux, 120'ux

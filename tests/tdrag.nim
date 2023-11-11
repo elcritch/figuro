@@ -24,7 +24,7 @@ proc btnDrag*(node: Figuro,
           " nodeRel: ", cursor.positionRelative(node)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     self.name.setLen(0)
     self.name.add "main"
     fill "#9F2B00"

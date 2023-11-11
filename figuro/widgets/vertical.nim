@@ -16,7 +16,7 @@ template itemHeight*(cx: Constraint, gap = -1'ui) =
 
 proc draw*(self: Vertical) {.slot.} =
   ## button widget!
-  withDraw(self):
+  nodes(self):
     setGridCols 1'fr
     gridAutoFlow grRow
     justifyItems CxCenter

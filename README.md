@@ -69,7 +69,7 @@ proc tick*(self: Main) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     # current = self
     rectangle "body":
       box 10, 10, 600, 120

@@ -15,7 +15,7 @@ type
     value: float
 
 proc draw*(self: GridApp) {.slot.} =
-  withDraw(self):
+  nodes(self):
     rectangle "autoLayout":
       # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
       box 10'pp, 10'pp, 80'pp, 80'pp

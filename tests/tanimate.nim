@@ -15,7 +15,7 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     rectangle "main":
       box 0'ui, 0'ui, 620'ui, 140'ui
       for i in 0 .. 5:

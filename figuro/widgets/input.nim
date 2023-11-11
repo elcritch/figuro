@@ -143,7 +143,7 @@ proc draw*(self: Input) {.slot.} =
   ## Input widget!
   connect(self, doKeyCommand, self, Input.keyCommand)
 
-  withDraw(self):
+  nodes(self):
     if self.text.isNil:
       self.text = newTextBox(self.box, self.theme.font)
 

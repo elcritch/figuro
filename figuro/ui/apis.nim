@@ -8,7 +8,6 @@ import commons, core
 
 export core, cssgrid, stack_strings
 
-
 proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
   ## Sets stroke/border color.
   result.color = parseHtmlColor(color)
@@ -138,6 +137,17 @@ proc csOrFixed*(x: int|float32|float64|UICoord|CSSConstraint): CSSConstraint =
     x
   else: csFixed(x.UiScalar)
 
+proc box*(
+  current: Figuro,
+  x: UICoord|CSSConstraint,
+  y: UICoord|CSSConstraint,
+  w: UICoord|CSSConstraint,
+  h: UICoord|CSSConstraint
+) =
+  ## Sets the size and offsets at the same time
+  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
+  current.cxSize = [csOrFixed(w), csOrFixed(h)]
+
 template box*(
   x: UICoord|CSSConstraint,
   y: UICoord|CSSConstraint,
@@ -197,6 +207,11 @@ template clipContent*(clip: bool) =
     current.attrs.incl clipContent
   else:
     current.attrs.excl clipContent
+
+proc fill*(current: Figuro, color: Color) =
+  ## Sets background color.
+  current.fill = color
+  current.userSetFields.incl fsFill
 
 template fill*(color: Color) =
   ## Sets background color.
@@ -281,16 +296,21 @@ template setTitle*(title: string) =
     setWindowTitle(title)
     refresh(current)
 
-template cornerRadius*(radius: UICoord, optional=true) =
+proc cornerRadius*(current: Figuro, radius: UICoord, optional=true) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = radius
   current.userSetFields.incl fsCornerRadius
 
-template cornerRadius*(radius: Constraint, optional=true) =
+template cornerRadius*(radius: UICoord) =
+  ## Sets all radius of all 4 corners.
+  current.cornerRadius = radius
+  current.userSetFields.incl fsCornerRadius
+
+template cornerRadius*(radius: Constraint) =
   ## Sets all radius of all 4 corners.
   cornerRadius(UICoord radius.value.coord)
 
-template cornerRadius*(radius: float|float32, optional=true) =
+template cornerRadius*(radius: float|float32) =
   cornerRadius(UICoord radius)
 
 proc loadTypeFace*(name: string): TypefaceId =

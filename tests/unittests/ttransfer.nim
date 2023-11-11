@@ -12,7 +12,7 @@ suite "test layers":
 
   suite "basic single layer":
     var self = Figuro.new()
-    withDraw(self):
+    nodes(self):
       rectangle "body":
         rectangle "child1":
           discard
@@ -44,7 +44,7 @@ suite "test layers":
   #   var self = Figuro.new()
   #   echo "self: ", self.agentId
   #   echo "self: ", self.uid
-  #   withDraw(self):
+  #   nodes(self):
   #     rectangle "body":
   #       rectangle "child0":
   #         discard
@@ -100,7 +100,7 @@ suite "test layers":
 
   suite "three layer out of order":
     var self = Figuro.new()
-    withDraw(self):
+    nodes(self):
       current.zlevel = 20
       discard current.name.tryAdd("root")
       rectangle "body":
