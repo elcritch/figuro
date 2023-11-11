@@ -128,7 +128,7 @@ const fieldSetNames = block:
     echo "FSN: ", names
     names
 
-macro optionally*(blk: untyped) =
+macro withOptional*(node, blk: untyped) =
   ## Optionally sets any fields in `SetField` enum such as
   ## `fill` and `cornerRadius`.
   ## 
@@ -147,7 +147,7 @@ macro optionally*(blk: untyped) =
       let fsName = ident "fs" & st[0].strVal
       result.add quote do:
         if `fsName` notin current.userSetFields:
-          with node:
+          with `node`:
             `st`
     else:
       result.add st
