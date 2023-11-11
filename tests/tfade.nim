@@ -40,9 +40,6 @@ proc draw*(self: Main) {.slot.} =
             connect(doHover, self, buttonHover)
 
 var main = Main.new()
-
-echo "main: ", main.listeners
-
 app.width = 720
 app.height = 140
 
