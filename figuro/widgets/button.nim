@@ -42,7 +42,7 @@ proc tick*[T](self: Button[T], tick: int, now: MonoTime) {.slot.} =
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   nodes(self):
-    with current:
+    with node:
       clipContent true
       cornerRadius 10.0
 

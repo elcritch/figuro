@@ -16,18 +16,18 @@ type
 proc draw*(self: GridApp) {.slot.} =
   # echo "\n\n=================================\n"
   nodes(self):
-    with current:
+    with node:
       fill clearColor
     rectangle "main":
       # setWindowBounds(vec2(400, 200), vec2(800, 600))
-      with current:
+      with node:
         fill css"#D7D7D9"
         cornerRadius 10
         box 10'pp, 10'pp, 80'pp, 80'pp
       echo "windowSize: ", app.windowSize
 
       # Setup CSS Grid Template
-      with current:
+      with node:
         setGridRows ["edge-t"] 1'fr \
                     ["header"] 70'ux \
                     ["top"]    70'ux \
@@ -46,13 +46,13 @@ proc draw*(self: GridApp) {.slot.} =
                     ["edge-r"]
 
       rectangle "bar":
-        with current:
+        with node:
           fill css"#1010D0"
           gridRow "top" // "middle-top"
           gridColumn "outer-l" // "outer-r"
 
       rectangle "btn":
-        with current:
+        with node:
           # currently rendering sub-text with css grids
           # is a bit broken due to the order constraints
           # are computed. There's a fix for this 
@@ -62,7 +62,7 @@ proc draw*(self: GridApp) {.slot.} =
           gridColumn "button-la" // "button-lb"
 
         button "btn":
-          with current:
+          with node:
             # label fmt"Clicked1: {self.count:4d}"
             # size 100'ux, 30'ux
             size 50'pp, 100'pp
@@ -73,7 +73,7 @@ proc draw*(self: GridApp) {.slot.} =
           #   self.count.inc()
 
       button "grid":
-        with current:
+        with node:
           gridRow "middle" // "bottom"
           gridColumn "button-ra" // "button-rb"
           fill css"#00D000"

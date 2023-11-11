@@ -113,20 +113,20 @@ proc draw*(self: ScrollPane) {.slot.} =
   nodes self:
     current.listens.events.incl evScroll
     connect(current, doScroll, self, ScrollPane.scroll)
-    with current:
+    with node:
       clipContent true
 
     rectangle "scrollBody":
       ## max-content is important here
       ## todo: do the same for horiz?
-      with current:
+      with node:
         size 100'pp, 100'pp
       if self.settings.vertical:
         current.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
         current.cxSize[dcol] = cx"max-content"
 
-      with current:
+      with node:
         fill whiteColor.darken(0.2)
       current.offset = self.window.scrollby
       current.attrs.incl scrollPanel
@@ -135,7 +135,7 @@ proc draw*(self: ScrollPane) {.slot.} =
 
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
-        with current:
+        with node:
           box self.bary.start.x, self.bary.start.y,
               self.bary.size.x, self.bary.size.y
           fill css"#0000ff" * 0.4
@@ -143,7 +143,7 @@ proc draw*(self: ScrollPane) {.slot.} =
         connect(current, doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
-        with current:
+        with node:
           box self.barx.start.x, self.barx.start.y,
               self.barx.size.x, self.barx.size.y
           fill css"#0000ff" * 0.4

@@ -147,7 +147,7 @@ macro optionally*(blk: untyped) =
       let fsName = ident "fs" & st[0].strVal
       result.add quote do:
         if `fsName` notin current.userSetFields:
-          with current:
+          with node:
             `st`
     else:
       result.add st
