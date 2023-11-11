@@ -277,14 +277,6 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   # result.paint = newPaint(SolidPaint)
   # result.paint.color = color(0, 0, 0, 1)
 
-proc setText*(node: Figuro,
-              spans: openArray[(UiFont, string)],
-              hAlign = FontHorizontal.Left,
-              vAlign = FontVertical.Top) =
-  # if node.textLayout.isNil:
-  node.textLayout = internal.getTypeset(node.box,
-                                          spans, hAlign, vAlign)
-
 proc setText*(current: Figuro,
               spans: openArray[(UiFont, string)],
               hAlign = FontHorizontal.Left,

@@ -75,18 +75,19 @@ proc draw*(self: Main) {.slot.} =
           layoutItems justify=CxCenter, align=CxCenter
 
         for i in 0 .. 4:
-          button[int]("btn", captures(i)):
+          Button[int].new("btn", captures(i)):
             let btn = node
             with node:
               size 100'ux, 100'ux
-            connect(node, doHover, self, Main.hover)
-            connect(node, doClick, current, btnClicked)
+              connect(doHover, self, Main.hover)
+              connect(doClick, current, btnClicked)
             if i == 0:
               connect(self, update, current, btnTick)
 
             text "text":
-              fill blackColor
-              setText({font: $(btn.state)}, Center, Middle)
+              with node:
+                fill blackColor
+                setText({font: $(btn.state)}, Center, Middle)
 
 var main = Main.new()
 
