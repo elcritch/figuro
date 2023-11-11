@@ -390,17 +390,17 @@ proc gridColumn*[T](current: Figuro, val: T) =
 
 proc rowStart*[T](current: Figuro, idx: T) =
   ## set CSS grid starting row
-  getGridItem().index[drow].a = idx.mkIndex()
+  current.getGridItem().index[drow].a = idx.mkIndex()
 proc rowEnd*[T](current: Figuro, idx: T) =
   ## set CSS grid ending row
-  getGridItem().index[drow].b = idx.mkIndex()
+  current.getGridItem().index[drow].b = idx.mkIndex()
 proc gridRow*[T](current: Figuro, val: T) =
   ## set CSS grid ending column
-  getGridItem().row = val
+  current.getGridItem().row = val
 
 proc gridArea*[T](current: Figuro, r, c: T) =
-  getGridItem().row = r
-  getGridItem().column = c
+  current.getGridItem().row = r
+  current.getGridItem().column = c
 
 proc columnGap*(current: Figuro, value: UICoord) =
   ## set CSS grid column gap
