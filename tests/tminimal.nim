@@ -14,29 +14,24 @@ type
     mainRect: Figuro
 
 proc draw*(self: Main) {.slot.} =
-
-  withNodes(self):
+  nodes(self):
     rectangle "body":
-      with current:
+      with node:
         fill css"#D0D0D0"
         box 10'pp, 10'pp, 80'pp, 80'pp
         cornerRadius 10.0'ui
 
       button "btn":
-        with current:
+        with node:
           box 10'pp, 10'pp, 80'pp, 10'pp
           fill css"#2B9FEA"
 
       button "btn":
-        with current:
+        with node:
           box 10'pp, 60'pp, 80'pp, 10'pp
           fill css"#2B9FEA"
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw)
-
-echo "main: ", main.listeners
-
 app.width = 400
 app.height = 400
 
