@@ -421,7 +421,7 @@ macro expose*(args: untyped): untyped =
   else:
     result = args
 
-macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
+macro nodeImpl*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
   let widget = ident("BasicFiguro")
   let wargs = args.parseWidgetArgs()

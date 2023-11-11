@@ -73,7 +73,7 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 
 # template frame*(id: static string, args: varargs[untyped]): untyped =
 #   ## Starts a new frame.
-#   node(nkFrame, id, args):
+#   nodeImpl(nkFrame, id, args):
 #     # boxSizeOf parent
 #     discard
 #     # current.cxSize = [csAuto(), csAuto()]
@@ -85,15 +85,15 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 #   ## is used for the point sizes, etc. 
 #   ## 
 #   ## Note: Experimental!
-#   node(nkDrawable, id, inner)
+#   nodeImpl(nkDrawable, id, inner)
 
 template rectangle*(id: static string, args: varargs[untyped]): untyped =
   ## Starts a new rectangle.
-  node(nkRectangle, id, args)
+  nodeImpl(nkRectangle, id, args)
 
 template text*(id: string, inner: untyped): untyped =
   ## Starts a new rectangle.
-  node(nkText, id, inner)
+  nodeImpl(nkText, id, inner)
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
