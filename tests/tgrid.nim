@@ -19,15 +19,13 @@ proc draw*(self: GridApp) {.slot.} =
     with node:
       fill clearColor
     rectangle "main":
-      # setWindowBounds(vec2(400, 200), vec2(800, 600))
+      echo "windowSize: ", app.windowSize
       with node:
         fill css"#D7D7D9"
         cornerRadius 10
         box 10'pp, 10'pp, 80'pp, 80'pp
-      echo "windowSize: ", app.windowSize
 
-      # Setup CSS Grid Template
-      with node:
+        # Setup CSS Grid Template
         setGridRows ["edge-t"] 1'fr \
                     ["header"] 70'ux \
                     ["top"]    70'ux \
