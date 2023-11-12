@@ -24,7 +24,7 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
-    rectangle "body":
+    BasicFiguro.new "body":
       with node:
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
