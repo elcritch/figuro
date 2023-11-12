@@ -54,7 +54,6 @@ type
     value: float
     hasHovered: bool
     hoveredAlpha: float
-    mainRect: Figuro
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
@@ -78,18 +77,14 @@ proc draw*(self: Main) {.slot.} =
       for i in 0 .. 4:
         button "btn", captures(i):
           box 10 + i * 120, 10, 100, 100
-          # echo nd(), "btn: ", i
           # we need to connect it's onHover event
-          connect(current, onHover, self, Main.hover)
+          connect(node, onHover, self, Main.hover)
           # unfortunately, we have many hovers
           # so we need to give hover a type 
           # perfect, the slot pragma adds all this for
           # us
 
 var main = Main.new()
-connect(main, onDraw, main, Main.draw)
-connect(main, onTick, main, Main.tick)
-
 app.width = 720
 app.height = 140
 startFiguro(main)
