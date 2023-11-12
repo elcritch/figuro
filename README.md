@@ -55,10 +55,9 @@ type
 proc draw*(self: Main) {.slot.} =
   nodes(self):
     rectangle "body":
-      with node:
-        # sets the bounding box of this node
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        fill css"00001F"
+      # each widget template injects a new `node` variable in this block
+      box node, 10'ux, 10'ux, 600'ux, 120'ux # sets the bounding box of this node
+      fill node, css"00001F" # set the fill color
 
 var main = Main.new()
 app.width = 720
@@ -66,13 +65,12 @@ app.height = 140
 startFiguro(main)
 ```
 
-The `nodes` template sets up the needed vars for creating nodes. The `rectangle` widget template sets up a basic node. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
+The `nodes` template sets up the needed vars for creating nodes. The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
 
 It's possible to manually create nodes, but it's not encouraged. Although it can be handy to understand the how it works. The blue rectangle example roughly expands to:
 
 ```nim
 proc draw*(self: Main) {.slot.} =
-  # `nodes`
   var node {.inject.} = self
 
   block:
@@ -82,15 +80,12 @@ proc draw*(self: Main) {.slot.} =
     preNode(BasicFiguro, "body", node, parent)
     node.preDraw = proc (c: Figuro) =
       let node {.inject.} = `widgetType`(c)
-      if preDrawReady in node.attrs:
-        node.attrs.excl preDrawReady
-        with node:
-          # sets the bounding box of this node
-          box 10'ux, 10'ux, 600'ux, 120'ux
-          fill css"00001F"
+      ...
+      # sets the bounding box of this node
+      box node, 10'ux, 10'ux, 600'ux, 120'ux
+      fill node, css"00001F"
     postNode(Figuro(node))
 ```
-
 
 ### Example
 
