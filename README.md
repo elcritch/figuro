@@ -45,6 +45,51 @@ This will enable the render enginer to run on in a shared library while the widg
 Example widget which are called Figuros:
 
 ```nim
+type
+  Main* = ref object of Figuro
+    value: float
+    hasHovered: bool = false
+    hoveredAlpha: float = 0.0
+
+proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
+
+proc draw*(self: Main) {.slot.} =
+  # sets up nodes, creates `var node, parent: Figuro`
+  nodes(self):
+    # creates a new widget node of type BasicFiguro
+    # generally used to draw generic rectangles
+    rectangle "body":
+      # `with` passes rectangle `node` as first argument to api calls
+      with node:
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0'ui
+        fill whiteColor.darken(self.hoveredAlpha)
+      # sets up horizontal widget node
+      horizontal "horiz":
+        with node:
+          offset 10'ux, 0'ux
+          # configures width of items in horizontal widget
+          itemWidth cx"min-content", gap = 20'ui
+        for i in 0 .. 4:
+          # creates a button widget node, supports `doHover` and `doButton` events
+          button "btn", captures(i):
+            size node, 100'ux, 100'ux
+            connect(node, doHover, self, buttonHover)
+
+proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
+  ## handles background "fade" when buttons are hovered
+  if self.hoveredAlpha < 0.15 and self.hasHovered:
+    self.hoveredAlpha += 0.010
+    refresh(self)
+  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
+    self.hoveredAlpha -= 0.005
+    refresh(self)
+
+var main = Main.new()
+app.width = 720
+app.height = 140
+startFiguro(main)
 ```
 
 ## Signals and Slots
