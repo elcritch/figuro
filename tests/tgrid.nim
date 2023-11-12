@@ -65,7 +65,7 @@ proc draw*(self: GridApp) {.slot.} =
             # size 100'ux, 30'ux
             size 50'pp, 100'pp
             fill css"#A00000"
-          echo "cssize: ", current.cxSize.repr
+          echo "cssize: ", node.cxSize.repr
 
           # onClick:
           #   self.count.inc()
