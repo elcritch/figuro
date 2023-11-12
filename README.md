@@ -55,16 +55,20 @@ proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
 
 proc draw*(self: Main) {.slot.} =
-  # sets up nodes, creates `var node, parent: Figuro`
+  # Sets up nodes, creates `var node, parent: Figuro`
   nodes(self):
-    # creates a new widget node of type BasicFiguro
-    # generally used to draw generic rectangles
+
+    # Calls the widget template `rectangle`.
+    # This creates a new basic widget node. Generally used to draw generic rectangles.
     rectangle "body":
+
       # `with` passes rectangle `node` as first argument to api calls
       with node:
+        # sets the bounding box of this node
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0'ui
-        fill whiteColor.darken(self.hoveredAlpha)
+        # sets the background fill - color apis all use the `chroma` library
+        fill css"#FFFFFF".darken(self.hoveredAlpha)
       # sets up horizontal widget node
       horizontal "horiz":
         with node:
