@@ -39,5 +39,4 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
 var main = Main.new()
 app.width = 720
 app.height = 140
-
 startFiguro(main)

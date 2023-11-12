@@ -42,7 +42,32 @@ This will enable the render enginer to run on in a shared library while the widg
 
 ## Widget Model
 
-Example widget which are called Figuros:
+The GUI model builds on Figuro nodes. Each node has a basic set of properties that can be set and a core set of events and method. Figuro nodes can also have children. Overall it's similar to HTML DOM nodes.
+
+Widgets can be create by sub-classing the `Figuro` node type and providing a custom `draw` method (slot). The common way to create a Figuro app is creating a `Main` widget.
+
+```nim
+type
+  Main* = ref object of Figuro
+
+proc draw*(self: Main) {.slot.} =
+  nodes(self):
+    rectangle "body":
+      with node:
+        # sets the bounding box of this node
+        box 10'ux, 10'ux, 600'ux, 120'ux
+
+var main = Main.new()
+app.width = 720
+app.height = 140
+startFiguro(main)
+```
+
+The `nodes` template sets up the needed vars for creating nodes. The `rectangle` widget template sets up a basic node. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
+
+### Example
+
+Example with buttons and a fading background:
 
 ```nim
 type
@@ -97,6 +122,7 @@ app.width = 720
 app.height = 140
 startFiguro(main)
 ```
+
 
 ## Signals and Slots
 
