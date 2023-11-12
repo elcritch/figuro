@@ -1,31 +1,64 @@
 
 # Figuro
 
-An (experimental) UI toolkit for Nim. It's based on Fidget, though will likely begin to diverge significantly.
+A GUI toolkit for Nim that is event driven while being small and fast. It tries to incorporate the best elements of both imperitive and object oriented GUI toolkits. Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
 
-The core idea is to split it into two main pieces:
+## Example
 
-1. Widget / UI Application
-2. Rendering Engine
+Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
-## Trying it out
+```nim
+type
+  Main* = ref object of Figuro
+    value: float
+    hasHovered: bool = false
+    hoveredAlpha: float = 0.0
 
-Note that you *have* to follow these instructions. Using the normal Atlas installation *won't* give you the correct packages.
+proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
 
-```sh
-# recommended to install an up to date atlas
-nimble install 'https://github.com/nim-lang/atlas@#head'
+proc draw*(self: Main) {.slot.} =
+  # Sets up nodes, creates `var node, parent: Figuro`
+  nodes(self):
 
-# new atlas workspace
-mkdir fig_ws && cd fig_ws
-atlas init --deps=vendor
+    # Calls the widget template `rectangle`.
+    # This creates a new basic widget node. Generally used to draw generic rectangles.
+    rectangle "body":
 
-# get deps
-git clone https://github.com/elcritch/figuro.git
+      # `with` passes rectangle `node` as the first argument to api calls
+      with node:
+        # sets the bounding box of this node
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0'ui
+        # `fill` sets the background color. Color apis use the `chroma` library
+        fill css"#FFFFFF".darken(self.hoveredAlpha)
 
-# sync deps
-atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
-nim c -r figuro/tests/tclick.nim
+      # sets up horizontal widget node
+      horizontal "horiz":
+        with node: 
+          offset 10'ux, 0'ux
+          # `itemWidth` configures width of items in the horizontal widget
+          itemWidth cx"min-content", gap = 20'ui
+
+        for i in 0 .. 4:
+          # creates a button widget node, supports `doHover` and `doButton` events
+          button "btn", captures(i):
+            size node, 100'ux, 100'ux
+            connect(node, doHover, self, buttonHover)
+
+proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
+  ## handles background "fade" when buttons are hovered
+  if self.hoveredAlpha < 0.15 and self.hasHovered:
+    self.hoveredAlpha += 0.010
+    refresh(self)
+  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
+    self.hoveredAlpha -= 0.005
+    refresh(self)
+
+var main = Main.new()
+app.width = 720
+app.height = 140
+startFiguro(main)
 ```
 
 ![Click Example](tests/tclick-screenshot.png)
@@ -42,62 +75,96 @@ This will enable the render enginer to run on in a shared library while the widg
 
 ## Widget Model
 
-Example widget which are called Figuros:
+The GUI model builds on Figuro nodes. Each node has a basic set of properties that can be set and a core set of events and methods. Figuro nodes can also have children. Overall it's similar to HTML DOM nodes.
+
+Widgets can be create by sub-classing the `Figuro` node type and providing a custom `draw` method (slot). The common way to create a Figuro app is creating a `Main` widget.
+
+Here's a minimal example of creating a blue rectangle:
 
 ```nim
-import figuro/widgets/button
-import figuro/widget
-import figuro
-
 type
   Main* = ref object of Figuro
-    value: float
-    hasHovered: bool
-    hoveredAlpha: float
-    mainRect: Figuro
-
-proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
-  refresh(self)
-
-proc tick*(self: Main) {.slot.} =
-  if self.hoveredAlpha < 0.15 and self.hasHovered:
-    self.hoveredAlpha += 0.010
-    refresh(self)
-  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
-    self.hoveredAlpha -= 0.005
-    refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
-    # current = self
+  nodes(self):
     rectangle "body":
-      box 10, 10, 600, 120
-      cornerRadius 10.0
-      fill whiteColor.darken(self.hoveredAlpha).spin(10*self.hoveredAlpha)
-      for i in 0 .. 4:
-        button "btn", captures(i):
-          box 10 + i * 120, 10, 100, 100
-          # echo nd(), "btn: ", i
-          # we need to connect it's onHover event
-          connect(current, onHover, self, Main.hover)
-          # unfortunately, we have many hovers
-          # so we need to give hover a type 
-          # perfect, the slot pragma adds all this for
-          # us
+      # each widget template injects a new `node` variable
+      # that references the current widget
+
+      # sets the bounding box of this node
+      box node, 10'ux, 10'ux, 600'ux, 120'ux
+
+      # set the fill color
+      fill node, css"00001F"
 
 var main = Main.new()
-connect(main, onDraw, main, Main.draw)
-connect(main, onTick, main, Main.tick)
-
 app.width = 720
 app.height = 140
 startFiguro(main)
 ```
 
+The `nodes` template sets up the needed vars for creating nodes. The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
+
+It's possible to manually create nodes, but it's not encouraged. Although it can be handy to understand the how it works. The blue rectangle example roughly expands to:
+
+```nim
+proc draw*(self: Main) {.slot.} =
+  var node {.inject.} = self
+
+  block:
+    # rectangle "body":
+    let parent {.inject.}: Figuro = node
+    var node {.inject.}: `widgetType` = nil
+    preNode(BasicFiguro, "body", node, parent)
+    node.preDraw = proc (c: Figuro) =
+      let node {.inject.} = `widgetType`(c)
+      ...
+      # sets the bounding box of this node
+      box node, 10'ux, 10'ux, 600'ux, 120'ux
+      fill node, css"00001F"
+    postNode(Figuro(node))
+```
+
+### Alternate Widget Syntax
+
+There's an alternative syntax that builds on a specialized `new` template. It works the same as above, but makes it a bit more clear that new widget nodes are being created:
+
+```nim
+proc draw*(self: Main) {.slot.} =
+  nodes(self):
+    BasicFiguro.new "body":
+      with node:
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0
+        fill whiteColor.darken(self.hoveredAlpha)
+      horizontal "horiz":
+        offset node, 10'ux, 0'ux
+        itemWidth node, cx"min-content", gap = 20'ui
+        for i in 0 .. 4:
+          Button[int].new "btn", captures(i):
+            with node:
+              size 100'ux, 100'ux
+              # we need to connect the nodes onHover event
+              connect(doHover, self, buttonHover)
+```
+
+Currently both syntaxes are supported and can be mixed and matched.
+
 ## Signals and Slots
 
-Shamelessly stolen from QT.
+Figuro uses signals and slots as more generic "methods" in place of callbacks. 
+
+They allow you to connect and disconnect signals at runtime which allows adaptable event handling. Signals and slots are shamelessly stolen from QT.
+
+There are four main pieces to using slots and signal: `signal`, `slot`, `connect`, and `emit`. 
+
+The `signal` pragma defines the procs as signals with the signal type being equivalent to the rest of the arguments after the first one. The first argument must be a subclass of the `Agent` object. `Figuro` objects already subclass `Agent` so all `Figuro` objects can be used with signals and slots.
+
+The `slot` pragma transforms the proc into a signal handler. It can still be called as a regular proc as well. The first argument must be an `Agent` object such as a `Figuro` widget node.
+
+Next `connect` is a template of type `template connect*(sender: Agent, sig: Signal, target: Agent, slot: Slot)`. It connects any matching signals from the `sender` object to the `target` object. `connect` is typed and checks that the signal and the slot types match. However, slots that don't take arguments can be connect if you pass `acceptVoidSlot=true` argument to connect.
+
+Lastly, `emit` takes an agent object and sends a signal to each `slot` object connected to that object.
 
 ```nim
 import figuro
@@ -131,11 +198,31 @@ assert a.value == 42
 assert b.value == 42
 ```
 
+## Installation - Trying it out
+
+Note that you *have* to follow these instructions for now. Using the normal Atlas installation *won't* give you the correct packages.
+
+```sh
+# recommended to install an up to date atlas
+nimble install 'https://github.com/nim-lang/atlas@#head'
+
+# new atlas workspace
+mkdir fig_ws && cd fig_ws
+atlas init --deps=vendor
+
+# get deps
+git clone https://github.com/elcritch/figuro.git
+
+# sync deps
+atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
+nim c -r figuro/tests/tclick.nim
+```
+
 ## Goal
 
 Massive profits and world domination of course. ;) Failing that the ability to write cool UI apps easily, in pure Nim.
 
-## Docs
+## More Docs
 
 Initial docs section.
 
@@ -162,7 +249,7 @@ Simple example:
 
 ```nim
 proc draw*(self: Main) {.slot.} =
-  withDraw self:
+  nodes self:
     fill "#0000AA"
     size 100'pp, 100'pp ## this will set to 100 percent
                         ## of the parents width and height

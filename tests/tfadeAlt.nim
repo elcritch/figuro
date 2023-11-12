@@ -1,6 +1,7 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[horizontal, button]
+import figuro/widgets/button
+import figuro/widgets/horizontal
 import figuro/widget
 import figuro
 
@@ -12,21 +13,7 @@ type
 
 proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-
-proc draw*(self: Main) {.slot.} =
-  nodes(self):
-    rectangle "body":
-      with node:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
-        fill whiteColor.darken(self.hoveredAlpha)
-      horizontal "horiz":
-        offset node, 10'ux, 0'ux
-        itemWidth node, cx"min-content", gap = 20'ui
-        for i in 0 .. 4:
-          button "btn", captures(i):
-            size node, 100'ux, 100'ux
-            connect(node, doHover, self, buttonHover)
+  refresh(self)
 
 proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
@@ -36,7 +23,25 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
     self.hoveredAlpha -= 0.005
     refresh(self)
 
+proc draw*(self: Main) {.slot.} =
+  nodes(self):
+    BasicFiguro.new "body":
+      with node:
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0
+        fill whiteColor.darken(self.hoveredAlpha)
+      horizontal "horiz":
+        offset node, 10'ux, 0'ux
+        itemWidth node, cx"min-content", gap = 20'ui
+        for i in 0 .. 4:
+          Button[int].new "btn", captures(i):
+            with node:
+              size 100'ux, 100'ux
+              # we need to connect the nodes onHover event
+              connect(doHover, self, buttonHover)
+
 var main = Main.new()
 app.width = 720
 app.height = 140
+
 startFiguro(main)

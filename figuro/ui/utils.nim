@@ -3,14 +3,6 @@ import std/sets
 import macros
 import commons
 
-template withDraw*[T](fig: T, blk: untyped): untyped =
-  ## setup the draw method for a widget by setting
-  ## the `current` and `parent` variables
-  block:
-    var parent {.inject, used.} = fig.parent
-    var current {.inject, used.} = fig
-    `blk`
-
 type
   State*[T] = object
   Captures*[V] = object
@@ -136,7 +128,7 @@ const fieldSetNames = block:
     echo "FSN: ", names
     names
 
-macro optionally*(blk: untyped) =
+macro withOptional*(node, blk: untyped) =
   ## Optionally sets any fields in `SetField` enum such as
   ## `fill` and `cornerRadius`.
   ## 
@@ -154,8 +146,9 @@ macro optionally*(blk: untyped) =
         st[0].strVal.toLowerAscii() in fieldSetNames:
       let fsName = ident "fs" & st[0].strVal
       result.add quote do:
-        if `fsName` notin current.userSetFields:
-          `st`
+        if `fsName` notin node.userSetFields:
+          with `node`:
+            `st`
     else:
       result.add st
-  echo "OPTIONALS:\n", result.repr
+  # echo "OPTIONALS:\n", result.repr

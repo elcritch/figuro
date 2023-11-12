@@ -4,6 +4,8 @@ import figuro/widgets/button
 import figuro/widget
 import figuro
 
+import std/with
+
 type
   Main* = ref object of Figuro
     value: float
@@ -11,27 +13,25 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     rectangle "body":
-      fill "#D0D0D0"
-      box 10'pp, 10'pp, 80'pp, 80'pp
-      cornerRadius 10.0
+      with node:
+        fill css"#D0D0D0"
+        box 10'pp, 10'pp, 80'pp, 80'pp
+        cornerRadius 10.0'ui
 
       button "btn":
-        box 10'pp, 10'pp, 80'pp, 10'pp
-        fill "#2B9FEA"
+        with node:
+          box 10'pp, 10'pp, 80'pp, 10'pp
+          fill css"#2B9FEA"
 
       button "btn":
-        box 10'pp, 60'pp, 80'pp, 10'pp
-        fill "#2B9FEA"
+        with node:
+          box 10'pp, 60'pp, 80'pp, 10'pp
+          fill css"#2B9FEA"
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw)
-
-echo "main: ", main.listeners
-
 app.width = 400
 app.height = 400
 

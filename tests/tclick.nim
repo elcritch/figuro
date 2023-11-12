@@ -58,33 +58,36 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withDraw(self):
+  nodes(self):
     self.name.setLen(0)
     self.name.add "main"
 
     rectangle "body":
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      fill whiteColor.darken(self.hoveredAlpha).
-                      spin(10*self.hoveredAlpha)
+      with node:
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0
+        fill whiteColor.darken(self.hoveredAlpha).
+                        spin(10*self.hoveredAlpha)
       horizontal "horiz":
-        box 10'ux, 0'ux, 100'pp, 100'pp
-        itemWidth 100'ux, gap = 20'ui
-        layoutItems justify=CxCenter, align=CxCenter
+        with node:
+          box 10'ux, 0'ux, 100'pp, 100'pp
+          itemWidth 100'ux, gap = 20'ui
+          layoutItems justify=CxCenter, align=CxCenter
 
         for i in 0 .. 4:
-          button("btn", state(int), captures(i)):
-            let btn = current
-            size 100'ux, 100'ux
-
-            connect(current, doHover, self, Main.hover)
-            connect(current, doClick, current, btnClicked)
+          Button[int].new("btn", captures(i)):
+            let btn = node
+            with node:
+              size 100'ux, 100'ux
+              connect(doHover, self, Main.hover)
+              connect(doClick, node, btnClicked)
             if i == 0:
-              connect(self, update, current, btnTick)
+              connect(self, update, node, btnTick)
 
             text "text":
-              fill blackColor
-              setText({font: $(btn.state)}, Center, Middle)
+              with node:
+                fill blackColor
+                setText({font: $(btn.state)}, Center, Middle)
 
 var main = Main.new()
 

@@ -3,6 +3,7 @@ import std/[math, strformat]
 import figuro/widgets/button
 import figuro/widget
 import figuro
+import std/with
 
 type
   GridApp = ref object of Figuro
@@ -14,62 +15,66 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   # echo "\n\n=================================\n"
-  withDraw(self):
-    fill clearColor
+  nodes(self):
+    with node:
+      fill clearColor
     rectangle "main":
-      # setWindowBounds(vec2(400, 200), vec2(800, 600))
-      fill "#D7D7D9"
-      cornerRadius 10
-      box 10'pp, 10'pp, 80'pp, 80'pp
       echo "windowSize: ", app.windowSize
+      with node:
+        fill css"#D7D7D9"
+        cornerRadius 10
+        box 10'pp, 10'pp, 80'pp, 80'pp
 
-      # Setup CSS Grid Template
-      setGridRows ["edge-t"] 1'fr \
-                  ["header"] 70'ux \
-                  ["top"]    70'ux \
-                  ["middle-top"] 30'ux \
-                  ["middle"] 30'ux \
-                  ["bottom"] 2'fr \
-                  ["footer"] auto \
-                  ["edge-b"]
+        # Setup CSS Grid Template
+        setGridRows ["edge-t"] 1'fr \
+                    ["header"] 70'ux \
+                    ["top"]    70'ux \
+                    ["middle-top"] 30'ux \
+                    ["middle"] 30'ux \
+                    ["bottom"] 2'fr \
+                    ["footer"] auto \
+                    ["edge-b"]
 
-      setGridCols ["edge-l"]  40'ux \
-                  ["button-la", "outer-l"] 150'ux \
-                  ["button-lb"] 1'fr \
-                  ["inner-m"] 1'fr \
-                  ["button-ra"] 150'ux \
-                  ["button-rb", "outer-r"] 40'ux \
-                  ["edge-r"]
+        setGridCols ["edge-l"]  40'ux \
+                    ["button-la", "outer-l"] 150'ux \
+                    ["button-lb"] 1'fr \
+                    ["inner-m"] 1'fr \
+                    ["button-ra"] 150'ux \
+                    ["button-rb", "outer-r"] 40'ux \
+                    ["edge-r"]
 
       rectangle "bar":
-        gridRow "top" // "middle-top"
-        gridColumn "outer-l" // "outer-r"
-        fill "#1010D0"
+        with node:
+          fill css"#1010D0"
+          gridRow "top" // "middle-top"
+          gridColumn "outer-l" // "outer-r"
 
       rectangle "btn":
-        # box 10, 10, 40, 40
-        # currently rendering sub-text with css grids
-        # is a bit broken due to the order constraints
-        # are computed. There's a fix for this 
-        # that should simplify this. 
-        fill "#000FC0"
-        gridRow "middle" // "bottom"
-        gridColumn "button-la" // "button-lb"
+        with node:
+          # currently rendering sub-text with css grids
+          # is a bit broken due to the order constraints
+          # are computed. There's a fix for this 
+          # that should simplify this. 
+          fill css"#000FC0"
+          gridRow "middle" // "bottom"
+          gridColumn "button-la" // "button-lb"
 
         button "btn":
-          # label fmt"Clicked1: {self.count:4d}"
-          # size 100'ux, 30'ux
-          size 50'pp, 100'pp
-          fill "#A00000"
-          echo "cssize: ", current.cxSize.repr
+          with node:
+            # label fmt"Clicked1: {self.count:4d}"
+            # size 100'ux, 30'ux
+            size 50'pp, 100'pp
+            fill css"#A00000"
+          echo "cssize: ", node.cxSize.repr
 
           # onClick:
           #   self.count.inc()
 
       button "grid":
-        gridRow "middle" // "bottom"
-        gridColumn "button-ra" // "button-rb"
-        fill "#00D000"
+        with node:
+          gridRow "middle" // "bottom"
+          gridColumn "button-ra" // "button-rb"
+          fill css"#00D000"
         # label fmt"Clicked2: {self.count:4d}"
         # onClick: self.count.inc()
 

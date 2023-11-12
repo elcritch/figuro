@@ -12,8 +12,6 @@ else:
 
 var
   root* {.runtimeVar.}: Figuro
-  # current* {.runtimeVar.}: Figuro
-  # parent* {.runtimeVar, threadvar.}: Figuro
 
   redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
 
@@ -123,11 +121,11 @@ template onSignal*[T](
 ) =
   proc handler(self: T) {.slot.} =
     `cb`(self)
-  connect(current, signal, obj, handler, acceptVoidSlot=true)
+  connect(node, signal, obj, handler, acceptVoidSlot=true)
 
 
 template bindProp*[T](prop: Property[T]) =
-  connect(prop, doChanged, Agent(current), Figuro.changed())
+  connect(prop, doChanged, Agent(node), Figuro.changed())
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
@@ -138,7 +136,7 @@ proc sibling*(self: Figuro, name: string): Option[Figuro] =
 
 template sibling*(name: string): Option[Figuro] =
   ## finds first sibling with name
-  current.sibling(name)
+  node.sibling(name)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
@@ -153,174 +151,252 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
 
-proc connectDefaults*[T](current: T) {.slot.} =
+proc connectDefaults*[T](node: T) {.slot.} =
   ## only activate these if custom ones have been provided 
-  connect(current, doDraw, current, Figuro.clearDraw())
-  connect(current, doDraw, current, Figuro.handlePreDraw())
-  connect(current, doDraw, current, T.draw())
-  connect(current, doDraw, current, Figuro.handlePostDraw())
+  connect(node, doDraw, node, Figuro.clearDraw())
+  connect(node, doDraw, node, Figuro.handlePreDraw())
+  connect(node, doDraw, node, T.draw())
+  connect(node, doDraw, node, Figuro.handlePostDraw())
   when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
-    connect(current, doClick, current, T.clicked())
+    connect(node, doClick, node, T.clicked())
   when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
-    connect(current, doKeyInput, current, T.keyInput())
+    connect(node, doKeyInput, node, T.keyInput())
   when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
-    connect(current, doKeyPress, current, T.keyPress())
+    connect(node, doKeyPress, node, T.keyPress())
   when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
-    connect(current, doHover, current, T.hover())
+    connect(node, doHover, node, T.hover())
   when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
-    connect(root, doTick, current, T.tick(), acceptVoidSlot=true)
+    connect(root, doTick, node, T.tick(), acceptVoidSlot=true)
 
-proc preNode*[T: Figuro](kind: NodeKind, id: string, current: var T, parent: Figuro) =
+proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
   mixin draw
 
   nodeDepth.inc()
-  # echo nd(), "preNode:setup: id: ", id, " current: ", current.getId, " parent: ", parent.getId,
+  # echo nd(), "preNode:setup: id: ", id, " node: ", node.getId, " parent: ", parent.getId,
   #             " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
-  #             " cattrs: ", if current.isNil: "{}" else: $current.attrs,
+  #             " cattrs: ", if node.isNil: "{}" else: $node.attrs,
   #             " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
     # parent = nodeStack[^1]
     # Create Figuro.
-    current = T()
-    current.agentId = nextAgentId()
-    current.uid = current.agentId
-    current.parent = parent
-    parent.children.add(current)
-    # current.parent = parent
-    echo nd(), "create new node: ", id, " new: ", current.getId, "/", current.parent.getId(), " n: ", current.name, " parent: ", parent.uid 
-    refresh(current)
+    node = T()
+    node.agentId = nextAgentId()
+    node.uid = node.agentId
+    node.parent = parent
+    parent.children.add(node)
+    # node.parent = parent
+    echo nd(), "create new node: ", id, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
+    refresh(node)
   else:
     # Reuse Figuro.
     # echo nd(), "checking reuse node"
     {.hint[CondTrue]:off.}
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
-      current = T.new()
-      # echo nd(), "create new replacement node: ", id, " new: ", current.uid, " parent: ", parent.uid
-      parent.children[parent.diffIndex] = current
+      node = T.new()
+      # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
+      parent.children[parent.diffIndex] = node
     else:
-      # echo nd(), "reuse node: ", id, " new: ", current.getId, " parent: ", parent.uid
-      current = T(parent.children[parent.diffIndex])
+      # echo nd(), "reuse node: ", id, " new: ", node.getId, " parent: ", parent.uid
+      node = T(parent.children[parent.diffIndex])
     {.hint[CondTrue]:on.}
 
     if resetNodes == 0 and
-        current.nIndex == parent.diffIndex and
-        kind == current.kind:
+        node.nIndex == parent.diffIndex and
+        kind == node.kind:
       # Same node.
       discard
     else:
       # Big change.
-      current.nIndex = parent.diffIndex
-      current.resetToDefault(kind)
-      refresh(current)
+      node.nIndex = parent.diffIndex
+      node.resetToDefault(kind)
+      refresh(node)
 
-  # echo nd(), "preNode: Start: ", id, " current: ", current.getId, " parent: ", parent.getId
+  # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
-  current.uid = current.agentId
-  current.parent = parent
+  node.uid = node.agentId
+  node.parent = parent
   let name = $(id)
-  current.name.setLen(0)
-  discard current.name.tryAdd(name)
-  current.kind = kind
-  current.highlight = parent.highlight
-  current.transparency = parent.transparency
-  current.zlevel = parent.zlevel
-  current.theme = parent.theme
+  node.name.setLen(0)
+  discard node.name.tryAdd(name)
+  node.kind = kind
+  node.highlight = parent.highlight
+  node.transparency = parent.transparency
+  node.zlevel = parent.zlevel
+  node.theme = parent.theme
 
-  current.listens.events = {}
+  node.listens.events = {}
 
-  nodeStack.add(current)
+  nodeStack.add(node)
   inc parent.diffIndex
-  current.diffIndex = 0
+  node.diffIndex = 0
 
   ## these define the default behaviors for Figuro widgets
-  connectDefaults[T](current)
+  connectDefaults[T](node)
 
-proc postNode*(current: var Figuro) =
-  emit current.doDraw()
+proc postNode*(node: var Figuro) =
+  emit node.doDraw()
 
-  current.removeExtraChildren()
+  node.removeExtraChildren()
   nodeDepth.dec()
 
-import utils, macros
+import utils, macros, typetraits
 
-proc generateBodies*(widget, kind: NimNode,
+template setupWidget(
+    `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `blk`
+): auto =
+  ## sets up a new instance of a widget
+  block:
+    when not compiles(node.typeof):
+      {.warning: "missing `node` in current scope!".}
+    let parent {.inject.}: Figuro = node
+    var node {.inject.}: `widgetType` = nil
+    preNode(`kind`, `id`, node, parent)
+    wrapCaptures(`hasCaptures`, `capturedVals`):
+      node.preDraw = proc (c: Figuro) =
+        let node {.inject.} = `widgetType`(c)
+        if preDrawReady in node.attrs:
+          node.attrs.excl preDrawReady
+          `blk`
+    postNode(Figuro(node))
+    when `hasBinds`:
+      node
+
+proc generateBodies*(widget, kind, gtype: NimNode,
                      wargs: WidgetArgs,
-                     hasGeneric: bool): NimNode {.compileTime.} =
+                     hasGeneric: bool,
+                     ): NimNode {.compileTime.} =
   ## core macro helper that generates the drawing
   ## callbacks for widgets.
-  let (id, stateArg, bindsArg, capturedVals, blk) = wargs
+  let (id, _, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
   let hasBinds = newLit(not bindsArg.isNil)
-  let widgetId = ident( "widget" & id.strVal.capitalize )
+  let stateArg = gtype
 
+  # echo "widget: ", widget.treeRepr
+  # echo "stateArg: ", stateArg.treeRepr
   let widgetType =
     if not hasGeneric: quote do: `widget`
     else: quote do: `widget`[`stateArg`]
+  # echo "widgetType: ", widgetType.treeRepr
 
   result = quote do:
-    block:
-      when not compiles(current.typeof):
-        {.error: "missing `var current` in current scope!".}
-      let parent {.inject.}: Figuro = current
-      var current {.inject.}: `widgetType` = nil
-      preNode(`kind`, `id`, current, parent)
-      wrapCaptures(`hasCaptures`, `capturedVals`):
-        current.preDraw = proc (c: Figuro) =
-          let current {.inject.} = `widgetType`(c)
-          let fig {.inject, used.} = current
-          if preDrawReady in current.attrs:
-            current.attrs.excl preDrawReady
-            `blk`
-      postNode(Figuro(current))
-      when `hasBinds`:
-        current
+    setupWidget(`widgetType`, `kind`, `id`,
+                `hasCaptures`, `hasBinds`,
+                `capturedVals`, `blk`)
+
+macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
+  ## creates a widget block for a given widget
+  let widget = class.getTypeInst()
+  # echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
+  # echo "gclass: ", gclass.treeRepr, " " # , gclass.getTypeImpl().treeRepr
+  let wargs = args.parseWidgetArgs()
+  var hasGeneric = true
+  let (wtype, gtype) =
+    if widget.kind == nnkBracketExpr:
+      # echo "WBRACKET: "
+      (widget[0].getTypeInst(), widget[1].getTypeInst())
+    elif gclass != nil and gclass.getTypeInst().kind == nnkTupleConstr:
+      # echo "GCLASS: "
+      (widget.getTypeInst(), gclass)
+    else:
+      hasGeneric = false
+      # echo "W NOGEN: "
+      (widget.getTypeInst(), nil)
+  # impl.expectKind(nnkTypeDef)
+  # let hasGeneric = impl[1].len() > 0
+  result = generateBodies(wtype, ident "nkRectangle", gtype,
+                          wargs, hasGeneric)
+
+template widget*[T, U](args: varargs[untyped]): auto =
+  ## sets up a new instance of a widget of type `T`.
+  ##
+  ## The args can include:
+  ## - `captures(...)` captures a variable similar to the stdlib `capture` macro
+  ## - `state(U)` sets state type for Stateful widgets
+  ##
+  widgetImpl(T, U, args)
+
+template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
+  when t.hasGenericTypes():
+    widget[F, tuple[]](args)
+  else:
+    widget[F, void](args)
+
+macro hasGenericTypes*(n: typed): bool =
+  echo "hasGenericTypes: ", n.lispRepr
+  var hasGenerics = true
+  if n.kind == nnkBracketExpr:
+    hasGenerics = true
+  else:
+    let impl = n.getImpl()
+    hasGenerics = impl[1].len() > 0
+  return newLit(hasGenerics)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
-  ## exports a `class` as a widget by giving it a macro with `name`
-  ## which handles parsing widget args like `state(type)` and
-  ## `captures(...)`. It also generatres the proper pre- and
-  ## post- callbacks that are called before and after `doDraw`, 
-  ## respectively.
+  ## exports `class` as a template `name`,
+  ## which in turn calls `widget[T](args): blk`
   ## 
-  macro `name`*(args: varargs[untyped]): auto =
-    let widget = class.getTypeInst()
-    let wargs = args.parseWidgetArgs()
-    let impl = widget.getImpl()
-    impl.expectKind(nnkTypeDef)
-    let hasGeneric = impl[1].len() > 0
+  ## the exported widget template can take standard widget args
+  ## that `widget` can.
+  ##
+  when class.hasGenericTypes():
+    template `name`*(args: varargs[untyped]): auto =
+      ## Instantiate a widget block for a given widget `T`
+      ## creating a new Figuro node.
+      ## 
+      ## Behind the scenes this creates a new block
+      ## with new `node` and `parent` variables.
+      ## The `node` variable becomes the new widget
+      ## instance.
+      widget[T, tuple[]](args)
+    template `name`*[U](args: varargs[untyped]): auto =
+      ## Instantiate a widget block for a given widget `T`
+      ## creating a new Figuro node.
+      ## 
+      ## Behind the scenes this creates a new block
+      ## with new `node` and `parent` variables.
+      ## The `node` variable becomes the new widget
+      ## instance.
+      widget[T, U](args)
+  else:
+    template `name`*(args: varargs[untyped]): auto =
+      ## Instantiate a widget block for a given widget `T`
+      ## creating a new Figuro node.
+      ##
+      ## Behind the scenes this creates a new block
+      ## with new `node` and `parent` variables.
+      ## The `node` variable becomes the new widget
+      ## instance.
+      widget[T, void](args)
 
-    result = generateBodies(widget, ident "nkRectangle", wargs, hasGeneric)
 
 {.hint[Name]:off.}
 template TemplateContents*[T](fig: T): untyped =
   ## marks where the widget will callback for any `contents`
   ## useful
   if fig.contentsDraw != nil:
-    fig.contentsDraw(current, Figuro(fig))
+    fig.contentsDraw(node, Figuro(fig))
 {.hint[Name]:on.}
 
 macro contents*(args: varargs[untyped]): untyped =
-  # echo "contents:\n", args.treeRepr
+  ## sets the contents of the node widget
+  ## 
   let wargs = args.parseWidgetArgs()
   let (id, stateArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
-  # echo "id: ", id
-  # echo "stateArg: ", stateArg.repr
-  # echo "captured: ", capturedVals.repr
-  # echo "blk: ", blk.repr
 
   result = quote do:
     block:
-      when not compiles(current.typeof):
-        {.error: "missing `var current` in current scope!".}
-      let parentWidget = current
+      when not compiles(node.typeof):
+        {.error: "missing `var node` in node scope!".}
+      let parentWidget = node
       wrapCaptures(`hasCaptures`, `capturedVals`):
-        current.contentsDraw = proc (c, w: Figuro) =
-          let current {.inject.} = c
+        node.contentsDraw = proc (c, w: Figuro) =
+          let node {.inject.} = c
           let widget {.inject.} = typeof(parentWidget)(w)
           if contentsDrawReady in widget.attrs:
             widget.attrs.excl contentsDrawReady
@@ -338,11 +414,11 @@ macro expose*(args: untyped): untyped =
   else:
     result = args
 
-macro node*(kind: NodeKind, args: varargs[untyped]): untyped =
+macro nodeImpl*(kind: NodeKind, args: varargs[untyped]): untyped =
   ## Base template for node, frame, rectangle...
   let widget = ident("BasicFiguro")
   let wargs = args.parseWidgetArgs()
-  result = widget.generateBodies(kind, wargs, hasGeneric=false)
+  result = widget.generateBodies(kind, nil, wargs, hasGeneric=false)
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
@@ -360,7 +436,7 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
 
 proc checkParent(node: Figuro) =
   if node.parent.isNil:
-    raise newException(FiguroError, "cannot calculate exception: current: " & $node.getId & " parent: " & $node.parent.getId)
+    raise newException(FiguroError, "cannot calculate exception: node: " & $node.getId & " parent: " & $node.parent.getId)
 
 template calcBasicConstraintImpl(
     node: Figuro,

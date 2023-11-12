@@ -143,33 +143,36 @@ proc draw*(self: Input) {.slot.} =
   ## Input widget!
   connect(self, doKeyCommand, self, Input.keyCommand)
 
-  withDraw(self):
+  nodes(self):
     if self.text.isNil:
       self.text = newTextBox(self.box, self.theme.font)
 
-    clipContent true
-    cornerRadius 10.0
+    with node:
+      clipContent true
+      cornerRadius 10.0
 
     text "text":
-      fill blackColor
-      fig.textLayout = self.text.layout
-      rectangle "cursor":
-        boxOf self.text.cursorRect
+      with node:
         fill blackColor
-        current.fill.a = self.value.toFloat * 1.0
+      node.textLayout = self.text.layout
+      rectangle "cursor":
+        with node:
+          boxOf self.text.cursorRect
+          fill blackColor
+        node.fill.a = self.value.toFloat * 1.0
 
       for i, selRect in self.text.selectionRects:
         rectangle "selection", captures(i):
-          boxOf self.text.selectionRects[i]
-          fill "#A0A0FF".parseHtmlColor 
-          current.fill.a = 0.4
+          with node:
+            boxOf self.text.selectionRects[i]
+            fill css"#A0A0FF" * 0.4
 
     if self.disabled:
-      fill whiteColor.darken(0.4)
+      fill node, whiteColor.darken(0.4)
     else:
-      fill whiteColor.darken(0.2)
+      fill node, whiteColor.darken(0.2)
       if self.isActive:
-        fill current.fill.lighten(0.15)
+        fill node, node.fill.lighten(0.15)
         # this changes the color on hover!
 
 exportWidget(input, Input)

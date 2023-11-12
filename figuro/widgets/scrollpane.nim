@@ -18,7 +18,7 @@ type
     vertical*: bool = true
     barLeft*: bool
     barTop*: bool
-  
+
   ScrollWindow* = object
     scrollby*: Position
     viewSize*: Position
@@ -110,38 +110,42 @@ proc scrollBarDrag*(self: ScrollPane,
     refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
-  withDraw self:
-    current.listens.events.incl evScroll
-    connect(current, doScroll, self, ScrollPane.scroll)
-    clipContent true
+  nodes self:
+    node.listens.events.incl evScroll
+    connect(node, doScroll, self, ScrollPane.scroll)
+    clipContent node, true
+
     rectangle "scrollBody":
       ## max-content is important here
       ## todo: do the same for horiz?
-      size 100'pp, 100'pp
+      size node, 100'pp, 100'pp
       if self.settings.vertical:
-        current.cxSize[drow] = cx"max-content"
+        node.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
-        current.cxSize[dcol] = cx"max-content"
+        node.cxSize[dcol] = cx"max-content"
 
-      fill whiteColor.darken(0.2)
-      current.offset = self.window.scrollby
-      current.attrs.incl scrollPanel
+      with node:
+        fill whiteColor.darken(0.2)
+      node.offset = self.window.scrollby
+      node.attrs.incl scrollPanel
       TemplateContents(self)
       scroll(self, initPosition(0, 0))
 
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
-        box self.bary.start.x, self.bary.start.y,
-            self.bary.size.x, self.bary.size.y
-        fill css"#0000ff" * 0.4
-        cornerRadius 4'ui
-        connect(current, doDrag, self, scrollBarDrag)
+        with node:
+          box self.bary.start.x, self.bary.start.y,
+              self.bary.size.x, self.bary.size.y
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
+          connect(doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
-        box self.barx.start.x, self.barx.start.y,
-            self.barx.size.x, self.barx.size.y
-        fill css"#0000ff" * 0.4
-        cornerRadius 4'ui
+        with node:
+          box self.barx.start.x, self.barx.start.y,
+              self.barx.size.x, self.barx.size.y
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   # self.children[0] # "scrollBody"

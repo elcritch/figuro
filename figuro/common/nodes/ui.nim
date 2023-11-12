@@ -190,10 +190,10 @@ template connect*(
   signals.connect(a, signal, b, slot, acceptVoidSlot)
 
 template bubble*(signal: typed, parent: typed) =
-  connect(current, `signal`, parent, `signal Bubble`)
+  connect(node, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(current, `signal`, current.parent, `signal Bubble`)
+  connect(node, `signal`, node.parent, `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth), "render: ", n.getId,
