@@ -42,7 +42,7 @@ This will enable the render enginer to run on in a shared library while the widg
 
 ## Widget Model
 
-The GUI model builds on Figuro nodes. Each node has a basic set of properties that can be set and a core set of events and method. Figuro nodes can also have children. Overall it's similar to HTML DOM nodes.
+The GUI model builds on Figuro nodes. Each node has a basic set of properties that can be set and a core set of events and methods. Figuro nodes can also have children. Overall it's similar to HTML DOM nodes.
 
 Widgets can be create by sub-classing the `Figuro` node type and providing a custom `draw` method (slot). The common way to create a Figuro app is creating a `Main` widget.
 
