@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
         fill css"#FFFFFF".darken(self.hoveredAlpha)
 
       # sets up horizontal widget node
-      horizontal "horiz":
+      Horizontal.new "horiz":
         with node: 
           offset 10'ux, 0'ux
           # `itemWidth` configures width of items in the horizontal widget
