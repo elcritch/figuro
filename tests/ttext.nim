@@ -13,16 +13,14 @@ type
   Main* = ref object of Figuro
     value: float
     hasHovered: bool
-    mainRect: Figuro
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  refresh(self.mainRect)
+  refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
     rectangle "main":
-      self.mainRect = current
       with node:
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
