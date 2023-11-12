@@ -222,7 +222,7 @@ nim c -r figuro/tests/tclick.nim
 
 Massive profits and world domination of course. ;) Failing that the ability to write cool UI apps easily, in pure Nim.
 
-## Docs
+## More Docs
 
 Initial docs section.
 
