@@ -16,7 +16,6 @@ template nodes*[T](fig: T, blk: untyped): untyped =
   ## sets up the required `current` variable to `fig`
   ## so that the methods from `ui/apis.nim` can 
   ## be used.
-  var current {.inject, used.} = fig
   var node {.inject, used.} = fig
   `blk`
 
@@ -459,12 +458,12 @@ proc gridAutoRows*(current: Figuro, item: Constraint) =
   current.gridTemplate.autos[drow] = item
   current.userSetFields.incl fsGridAutoRows
 
-proc gridTemplateDebugLines*(current: Figuro, grid: Figuro, color: Color = blueColor) =
+proc gridTemplateDebugLines*(node: Figuro, grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.
   rectangle "grid-debug":
     # strokeLine 3'ui, css"#0000CC"
     # draw debug lines
-    node.boxOf grid.box
+    boxOf node, grid.box
     if not grid.gridTemplate.isNil:
       computeLayout(grid, 0)
       # echo "grid template post: ", grid.gridTemplate
