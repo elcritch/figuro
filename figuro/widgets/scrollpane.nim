@@ -118,8 +118,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     rectangle "scrollBody":
       ## max-content is important here
       ## todo: do the same for horiz?
-      with node:
-        size 100'pp, 100'pp
+      size node, 100'pp, 100'pp
       if self.settings.vertical:
         node.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
