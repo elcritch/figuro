@@ -25,7 +25,7 @@ proc draw*(self: Main) {.slot.} =
     # This creates a new basic widget node. Generally used to draw generic rectangles.
     rectangle "body":
 
-      # `with` passes rectangle `node` as first argument to api calls
+      # `with` passes rectangle `node` as the first argument to api calls
       with node:
         # sets the bounding box of this node
         box 10'ux, 10'ux, 600'ux, 120'ux
