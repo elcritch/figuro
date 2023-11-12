@@ -276,12 +276,12 @@ proc generateBodies*(widget, kind, gtype: NimNode,
   let hasBinds = newLit(not bindsArg.isNil)
   let stateArg = gtype
 
-  echo "widget: ", widget.treeRepr
-  echo "stateArg: ", stateArg.treeRepr
+  # echo "widget: ", widget.treeRepr
+  # echo "stateArg: ", stateArg.treeRepr
   let widgetType =
     if not hasGeneric: quote do: `widget`
     else: quote do: `widget`[`stateArg`]
-  echo "widgetType: ", widgetType.treeRepr
+  # echo "widgetType: ", widgetType.treeRepr
 
   result = quote do:
     setupWidget(`widgetType`, `kind`, `id`,
@@ -291,20 +291,20 @@ proc generateBodies*(widget, kind, gtype: NimNode,
 macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
   let widget = class.getTypeInst()
-  echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
-  echo "gclass: ", gclass.treeRepr, " " # , gclass.getTypeImpl().treeRepr
+  # echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
+  # echo "gclass: ", gclass.treeRepr, " " # , gclass.getTypeImpl().treeRepr
   let wargs = args.parseWidgetArgs()
   var hasGeneric = true
   let (wtype, gtype) =
     if widget.kind == nnkBracketExpr:
-      echo "WBRACKET: "
+      # echo "WBRACKET: "
       (widget[0].getTypeInst(), widget[1].getTypeInst())
     elif gclass != nil and gclass.getTypeInst().kind == nnkTupleConstr:
-      echo "GCLASS: "
+      # echo "GCLASS: "
       (widget.getTypeInst(), gclass)
     else:
       hasGeneric = false
-      echo "W NOGEN: "
+      # echo "W NOGEN: "
       (widget.getTypeInst(), nil)
   # impl.expectKind(nnkTypeDef)
   # let hasGeneric = impl[1].len() > 0
