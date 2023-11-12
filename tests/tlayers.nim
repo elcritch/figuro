@@ -22,15 +22,16 @@ proc draw*(self: Main) {.slot.} =
     template setLabel(zlvl; left=false) =
       text "text":
         if left:
-          box 3'pp, 30'pp, 30'pp, 22
+          box node, 3'pp, 30'pp, 30'pp, 22
         else:
-          box 70'pp, 30'pp, 30'pp, 22
-        fill blackColor
-        setText({font: "zlevel " & $zlvl})
+          box node, 70'pp, 30'pp, 30'pp, 22
+        with node:
+          fill blackColor
+          setText({font: "zlevel " & $zlvl})
 
     rectangle "container":
       with node:
-        fill "#D0D0D0"
+        fill css"#D0D0D0"
         box 3'pp, 10'pp, 30'pp, 80'pp
         cornerRadius 10.0
         clipContent false
@@ -43,39 +44,42 @@ proc draw*(self: Main) {.slot.} =
       button "btn":
         with node:
           box 10'pp, 15'pp, 130'pp, 20'pp
-        current.zlevel = 20.ZLevel
+          zlevel 20.ZLevel
+        setLabel($current.zlevel, left=true)
+
+      button "btn":
+        box node, 10'pp, 45'pp, 130'pp, 20'pp
         setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pp, 45'pp, 130'pp, 20'pp
-        setLabel(current.zlevel, left=true)
-
-      button "btn":
-        box 10'pp, 75'pp, 130'pp, 20'pp
+        box node, 10'pp, 75'pp, 130'pp, 20'pp
         current.zlevel = -5.ZLevel
         setLabel(current.zlevel)
 
     rectangle "container":
-      fill "#D0D0D0"
-      box 50'pp, 10'pp, 30'pp, 80'pp
-      cornerRadius 10.0
-      clipContent true
+      with node:
+        fill css"#D0D0D0"
+        box 50'pp, 10'pp, 30'pp, 80'pp
+        cornerRadius 10.0
+        clipContent true
       text "text":
-        box 10'pp, 10'ux, 70'pp, 22'ux
-        fill blackColor
-        setText({font: "clipped"})
+        with node:
+          box 10'pp, 10'ux, 70'pp, 22'ux
+          fill blackColor
+          setText({font: "clipped"})
 
       button "btn":
-        box 10'pp, 15'pp, 130'pp, 20'pp
-        current.zlevel = 20.ZLevel
+        with node:
+          box 10'pp, 15'pp, 130'pp, 20'pp
+          zlevel 20.ZLevel
         setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pp, 45'pp, 130'pp, 20'pp
+        box node, 10'pp, 45'pp, 130'pp, 20'pp
         setLabel(current.zlevel, left=true)
 
       button "btn":
-        box 10'pp, 75'pp, 130'pp, 20'pp
+        box node, 10'pp, 75'pp, 130'pp, 20'pp
         current.zlevel = -5.ZLevel
         setLabel(current.zlevel)
 

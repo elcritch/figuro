@@ -186,6 +186,9 @@ proc fill*(current: Figuro, color: Color) =
   current.fill = color
   current.userSetFields.incl fsFill
 
+proc zlevel*(current: Figuro, zlvl: ZLevel) =
+  current.zlevel = zlvl
+
 proc fillHover*(current: Figuro, color: Color) =
   ## Sets background color.
   current.fill = color
