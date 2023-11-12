@@ -471,7 +471,6 @@ proc gridTemplateDebugLines*(node: Figuro, grid: Figuro, color: Color = blueColo
       let wd = 1'ui
       let w = grid.gridTemplate.columns[^1].start.UICoord
       let h = grid.gridTemplate.rows[^1].start.UICoord
-      echo "size: ", (w, h)
       for col in grid.gridTemplate.columns[1..^2]:
         rectangle "column", captures(col):
           with node:
