@@ -12,15 +12,6 @@ type
 
 proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  refresh(self)
-
-proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
-  if self.hoveredAlpha < 0.15 and self.hasHovered:
-    self.hoveredAlpha += 0.010
-    refresh(self)
-  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
-    self.hoveredAlpha -= 0.005
-    refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
@@ -36,6 +27,14 @@ proc draw*(self: Main) {.slot.} =
           button "btn", captures(i):
             size node, 100'ux, 100'ux
             connect(node, doHover, self, buttonHover)
+
+proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
+  if self.hoveredAlpha < 0.15 and self.hasHovered:
+    self.hoveredAlpha += 0.010
+    refresh(self)
+  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
+    self.hoveredAlpha -= 0.005
+    refresh(self)
 
 var main = Main.new()
 app.width = 720
