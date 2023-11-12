@@ -25,26 +25,29 @@ proc btnDrag*(node: Figuro,
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
-    self.name.setLen(0)
-    self.name.add "main"
-    fill "#9F2B00"
-    box 0'ux, 0'ux, 400'ux, 300'ux
+    with node:
+      setName "main"
+      fill css"#9F2B00"
+      box 0'ux, 0'ux, 400'ux, 300'ux
 
     button "btn", state(int):
-      box 40'ux, 30'ux, 80'ux, 80'ux
-      fill "#2B9F2B"
-      connect(current, doDrag, current, btnDrag)
+      with node:
+        box 40'ux, 30'ux, 80'ux, 80'ux
+        fill css"#2B9F2B"
+        connect(doDrag, node, btnDrag)
 
       contents "child":
         text "btnText":
-          box 10'ux, 10'ux, 80'pp, 80'pp
-          fill blackColor
-          setText({font: "drag me"})
+          with node:
+            box 10'ux, 10'ux, 80'pp, 80'pp
+            fill blackColor
+            setText({font: "drag me"})
 
     rectangle "btnBody":
-      box 200'ux, 30'ux, 80'ux, 80'ux
-      fill "#9F2B00"
-      connect(current, doDrag, current, btnDrag)
+      with node:
+        box 200'ux, 30'ux, 80'ux, 80'ux
+        fill css"#9F2B00"
+        connect(doDrag, node, btnDrag)
 
 
 var main = Main.new()

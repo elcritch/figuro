@@ -80,9 +80,9 @@ proc draw*(self: Main) {.slot.} =
             with node:
               size 100'ux, 100'ux
               connect(doHover, self, Main.hover)
-              connect(doClick, current, btnClicked)
+              connect(doClick, node, btnClicked)
             if i == 0:
-              connect(self, update, current, btnTick)
+              connect(self, update, node, btnTick)
 
             text "text":
               with node:
