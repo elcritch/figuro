@@ -168,11 +168,11 @@ proc draw*(self: Input) {.slot.} =
             fill css"#A0A0FF" * 0.4
 
     if self.disabled:
-      node.fill whiteColor.darken(0.4)
+      fill node, whiteColor.darken(0.4)
     else:
-      node.fill whiteColor.darken(0.2)
+      fill node, whiteColor.darken(0.2)
       if self.isActive:
-        node.fill current.fill.lighten(0.15)
+        fill node, node.fill.lighten(0.15)
         # this changes the color on hover!
 
 exportWidget(input, Input)
