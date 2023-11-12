@@ -245,6 +245,12 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
+template preDrawBody(widgetType, blk: untyped) =
+  let node {.inject.} = `widgetType`(c)
+  if preDrawReady in node.attrs:
+    node.attrs.excl preDrawReady
+    `blk`
+
 template setupWidget(
     `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `blk`
 ): auto =
@@ -257,10 +263,7 @@ template setupWidget(
     preNode(`kind`, `id`, node, parent)
     wrapCaptures(`hasCaptures`, `capturedVals`):
       node.preDraw = proc (c: Figuro) =
-        let node {.inject.} = `widgetType`(c)
-        if preDrawReady in node.attrs:
-          node.attrs.excl preDrawReady
-          `blk`
+        preDrawBody(`widgetType`, `blk`)
     postNode(Figuro(node))
     when `hasBinds`:
       node
