@@ -16,14 +16,15 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc setLabel(zlvl: ZLevel; left=false) =
-  text "text":
-    if left:
-      box node, 3'pp, 30'pp, 30'pp, 22
-    else:
-      box node, 70'pp, 30'pp, 30'pp, 22
-    fill node, blackColor
-    setText(node, {font: "zlevel " & $zlvl})
+proc setLabel(current: Figuro, zlvl: ZLevel; left=false) =
+  nodes(current):
+    text "text":
+      if left:
+        box node, 3'pp, 30'pp, 30'pp, 22
+      else:
+        box node, 70'pp, 30'pp, 30'pp, 22
+      fill node, blackColor
+      setText(node, {font: "zlevel " & $zlvl})
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
@@ -44,16 +45,18 @@ proc draw*(self: Main) {.slot.} =
         with node:
           box 10'pp, 15'pp, 130'pp, 20'pp
           zlevel 20.ZLevel
-        # setLabel($node.zlevel, left=true)
+          setLabel(node.zlevel, left=true)
 
       button "btn":
-        box node, 10'pp, 45'pp, 130'pp, 20'pp
-        # setLabel(node.zlevel, left=true)
+        with node:
+          box 10'pp, 45'pp, 130'pp, 20'pp
+          setLabel(node.zlevel, left=true)
 
       button "btn":
-        box node, 10'pp, 75'pp, 130'pp, 20'pp
-        zlevel node, -5.ZLevel
-        # setLabel(node.zlevel)
+        with node:
+          box 10'pp, 75'pp, 130'pp, 20'pp
+          zlevel -5.ZLevel
+          setLabel(node.zlevel)
 
     rectangle "container":
       with node:
@@ -68,18 +71,21 @@ proc draw*(self: Main) {.slot.} =
           setText({font: "clipped"})
 
       button "btn":
-        box node, 10'pp, 15'pp, 130'pp, 20'pp
-        zlevel node, 20.ZLevel
-        setLabel(node.zlevel, left=true)
+        with node:
+          box 10'pp, 15'pp, 130'pp, 20'pp
+          zlevel 20.ZLevel
+          setLabel(node.zlevel, left=true)
 
       button "btn":
-        box node, 10'pp, 45'pp, 130'pp, 20'pp
-        setLabel(node.zlevel, left=true)
+        with node:
+          box 10'pp, 45'pp, 130'pp, 20'pp
+          setLabel(node.zlevel, left=true)
 
       button "btn":
-        box node, 10'pp, 75'pp, 130'pp, 20'pp
-        zlevel node, -5.ZLevel
-        setLabel(node.zlevel)
+        with node:
+          box 10'pp, 75'pp, 130'pp, 20'pp
+          zlevel -5.ZLevel
+          setLabel(node.zlevel)
 
 var main = Main.new()
 app.width = 800

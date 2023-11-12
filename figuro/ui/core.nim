@@ -250,6 +250,8 @@ template setupWidget(
 ): auto =
   ## sets up a new instance of a widget
   block:
+    when not compiles(node.typeof):
+      {.warning: "missing `node` in current scope!".}
     let parent {.inject.}: Figuro = node
     var node {.inject.}: `widgetType` = nil
     preNode(`kind`, `id`, node, parent)
