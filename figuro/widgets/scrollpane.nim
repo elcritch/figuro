@@ -18,7 +18,7 @@ type
     vertical*: bool = true
     barLeft*: bool
     barTop*: bool
-  
+
   ScrollWindow* = object
     scrollby*: Position
     viewSize*: Position
