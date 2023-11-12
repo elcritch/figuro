@@ -69,12 +69,14 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius 10.0'ui
         # `fill` sets the background color. Color apis use the `chroma` library
         fill css"#FFFFFF".darken(self.hoveredAlpha)
+
       # sets up horizontal widget node
       horizontal "horiz":
         with node: 
           offset 10'ux, 0'ux
           # `itemWidth` configures width of items in the horizontal widget
           itemWidth cx"min-content", gap = 20'ui
+
         for i in 0 .. 4:
           # creates a button widget node, supports `doHover` and `doButton` events
           button "btn", captures(i):
