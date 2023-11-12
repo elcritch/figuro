@@ -82,10 +82,6 @@ proc draw*(self: Main) {.slot.} =
         setLabel(node.zlevel)
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw)
-
-echo "main: ", main.listeners
-
 app.width = 800
 app.height = 400
 

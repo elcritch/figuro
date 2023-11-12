@@ -24,7 +24,7 @@ proc draw*(self: Main) {.slot.} =
   nodes(self):
     self.theme.font = UiFont(typefaceId: self.theme.font.typefaceId, size: 22)
     rectangle "body":
-      self.mainRect = current
+      self.mainRect = node
       with node:
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
@@ -33,11 +33,7 @@ proc draw*(self: Main) {.slot.} =
         box node, 10'ux, 10'ux, 400'ux, 100'ux
         # fill blackColor
 
-var
-  fig = Main.new()
-
-connect(fig, doDraw, fig, Main.draw)
-
+var fig = Main.new()
 app.width = 720
 app.height = 300
 
