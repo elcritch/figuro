@@ -55,7 +55,7 @@ type
 proc draw*(self: Main) {.slot.} =
   nodes(self):
     rectangle "body":
-      # each widget template injects a new `node` variable in this block
+      # each widget template injects a new `node` variable that references the current widget
       box node, 10'ux, 10'ux, 600'ux, 120'ux # sets the bounding box of this node
       fill node, css"00001F" # set the fill color
 
