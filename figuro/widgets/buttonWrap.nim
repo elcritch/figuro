@@ -34,7 +34,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
     else:
       fill node, css"#2B9FEA"
       onHover:
-        fill node, current.fill.spin(15)
+        fill node, node.fill.spin(15)
     rectangle "btnBody":
       bubble(doClick)
       boxSizeOf node, node.parent

@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 40'ux, 30'ux, 80'ux, 80'ux
         fill css"#2B9F2B"
-        connect(doDrag, current, btnDrag)
+        connect(doDrag, node, btnDrag)
 
       contents "child":
         text "btnText":
@@ -47,12 +47,9 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 200'ux, 30'ux, 80'ux, 80'ux
         fill css"#9F2B00"
-        connect(doDrag, current, btnDrag)
-
+        connect(doDrag, node, btnDrag)
 
 var main = Main.new()
-connect(main, doDraw, main, Main.draw())
-
 app.width = 400
 app.height = 140
 startFiguro(main)
