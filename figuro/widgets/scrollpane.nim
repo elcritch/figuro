@@ -111,10 +111,9 @@ proc scrollBarDrag*(self: ScrollPane,
 
 proc draw*(self: ScrollPane) {.slot.} =
   nodes self:
-    current.listens.events.incl evScroll
-    connect(current, doScroll, self, ScrollPane.scroll)
-    with node:
-      clipContent true
+    node.listens.events.incl evScroll
+    connect(node, doScroll, self, ScrollPane.scroll)
+    clipContent node, true
 
     rectangle "scrollBody":
       ## max-content is important here
@@ -122,14 +121,14 @@ proc draw*(self: ScrollPane) {.slot.} =
       with node:
         size 100'pp, 100'pp
       if self.settings.vertical:
-        current.cxSize[drow] = cx"max-content"
+        node.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
-        current.cxSize[dcol] = cx"max-content"
+        node.cxSize[dcol] = cx"max-content"
 
       with node:
         fill whiteColor.darken(0.2)
-      current.offset = self.window.scrollby
-      current.attrs.incl scrollPanel
+      node.offset = self.window.scrollby
+      node.attrs.incl scrollPanel
       TemplateContents(self)
       scroll(self, initPosition(0, 0))
 
@@ -140,7 +139,7 @@ proc draw*(self: ScrollPane) {.slot.} =
               self.bary.size.x, self.bary.size.y
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
-        connect(current, doDrag, self, scrollBarDrag)
+          connect(doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
         with node:
