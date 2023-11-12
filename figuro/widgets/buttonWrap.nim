@@ -22,25 +22,22 @@ proc clicked*[T](self: Button[T],
     refresh(self)
   self.isActive = true
 
-import macros
-
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   nodes(self):
-    
-    clipContent true
-    cornerRadius 10.0
+    with node:
+      clipContent true
+      cornerRadius 10.0
 
     if self.disabled:
-      fill "#F0F0F0"
+      fill node, css"#F0F0F0"
     else:
-      fill "#2B9FEA"
+      fill node, css"#2B9FEA"
       onHover:
-        fill current.fill.spin(15)
+        fill node, current.fill.spin(15)
     rectangle "btnBody":
       bubble(doClick)
-      boxSizeOf current.parent
+      boxSizeOf node, current.parent
       TemplateContents(self)
-
 
 exportWidget(button, Button)

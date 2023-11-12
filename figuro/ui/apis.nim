@@ -102,7 +102,7 @@ template text*(id: string, inner: untyped): untyped =
 ## These APIs provide the APIs for Fidget nodes.
 ## 
 
-template `name`*(n: string) =
+proc setName*(current: Figuro, n: string) =
   ## sets current node name
   current.name.setLen(0)
   current.name.add(n)

@@ -16,7 +16,7 @@ proc drag(main: Main; kind: EventKind,
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
-    name "root"
+    node.setName "root"
 
     let vert {.expose.} = vertical "vert":
       with node:
