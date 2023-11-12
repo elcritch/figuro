@@ -324,7 +324,7 @@ template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
   when t.hasGenericTypes():
     widget[F, tuple[]](args)
   else:
-    widget[F, nil](args)
+    widget[F, void](args)
 
 macro hasGenericTypes*(n: typed): bool =
   echo "hasGenericTypes: ", n.lispRepr
