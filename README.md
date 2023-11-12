@@ -1,31 +1,64 @@
 
 # Figuro
 
-An (experimental) UI toolkit for Nim. It's based on Fidget, though will likely begin to diverge significantly.
+A GUI toolkit for Nim that is event driven while being small and fast. It tries to incorporate the best elements of both imperitive and object oriented GUI toolkits. Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
 
-The core idea is to split it into two main pieces:
+## Example
 
-1. Widget / UI Application
-2. Rendering Engine
+Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
-## Trying it out
+```nim
+type
+  Main* = ref object of Figuro
+    value: float
+    hasHovered: bool = false
+    hoveredAlpha: float = 0.0
 
-Note that you *have* to follow these instructions. Using the normal Atlas installation *won't* give you the correct packages.
+proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
 
-```sh
-# recommended to install an up to date atlas
-nimble install 'https://github.com/nim-lang/atlas@#head'
+proc draw*(self: Main) {.slot.} =
+  # Sets up nodes, creates `var node, parent: Figuro`
+  nodes(self):
 
-# new atlas workspace
-mkdir fig_ws && cd fig_ws
-atlas init --deps=vendor
+    # Calls the widget template `rectangle`.
+    # This creates a new basic widget node. Generally used to draw generic rectangles.
+    rectangle "body":
 
-# get deps
-git clone https://github.com/elcritch/figuro.git
+      # `with` passes rectangle `node` as first argument to api calls
+      with node:
+        # sets the bounding box of this node
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0'ui
+        # `fill` sets the background color. Color apis use the `chroma` library
+        fill css"#FFFFFF".darken(self.hoveredAlpha)
 
-# sync deps
-atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
-nim c -r figuro/tests/tclick.nim
+      # sets up horizontal widget node
+      horizontal "horiz":
+        with node: 
+          offset 10'ux, 0'ux
+          # `itemWidth` configures width of items in the horizontal widget
+          itemWidth cx"min-content", gap = 20'ui
+
+        for i in 0 .. 4:
+          # creates a button widget node, supports `doHover` and `doButton` events
+          button "btn", captures(i):
+            size node, 100'ux, 100'ux
+            connect(node, doHover, self, buttonHover)
+
+proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
+  ## handles background "fade" when buttons are hovered
+  if self.hoveredAlpha < 0.15 and self.hasHovered:
+    self.hoveredAlpha += 0.010
+    refresh(self)
+  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
+    self.hoveredAlpha -= 0.005
+    refresh(self)
+
+var main = Main.new()
+app.width = 720
+app.height = 140
+startFiguro(main)
 ```
 
 ![Click Example](tests/tclick-screenshot.png)
@@ -92,65 +125,6 @@ proc draw*(self: Main) {.slot.} =
     postNode(Figuro(node))
 ```
 
-### Example
-
-Example with buttons and a fading background:
-
-```nim
-type
-  Main* = ref object of Figuro
-    value: float
-    hasHovered: bool = false
-    hoveredAlpha: float = 0.0
-
-proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
-
-proc draw*(self: Main) {.slot.} =
-  # Sets up nodes, creates `var node, parent: Figuro`
-  nodes(self):
-
-    # Calls the widget template `rectangle`.
-    # This creates a new basic widget node. Generally used to draw generic rectangles.
-    rectangle "body":
-
-      # `with` passes rectangle `node` as first argument to api calls
-      with node:
-        # sets the bounding box of this node
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0'ui
-        # `fill` sets the background color. Color apis use the `chroma` library
-        fill css"#FFFFFF".darken(self.hoveredAlpha)
-
-      # sets up horizontal widget node
-      horizontal "horiz":
-        with node: 
-          offset 10'ux, 0'ux
-          # `itemWidth` configures width of items in the horizontal widget
-          itemWidth cx"min-content", gap = 20'ui
-
-        for i in 0 .. 4:
-          # creates a button widget node, supports `doHover` and `doButton` events
-          button "btn", captures(i):
-            size node, 100'ux, 100'ux
-            connect(node, doHover, self, buttonHover)
-
-proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
-  ## handles background "fade" when buttons are hovered
-  if self.hoveredAlpha < 0.15 and self.hasHovered:
-    self.hoveredAlpha += 0.010
-    refresh(self)
-  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
-    self.hoveredAlpha -= 0.005
-    refresh(self)
-
-var main = Main.new()
-app.width = 720
-app.height = 140
-startFiguro(main)
-```
-
-
 ## Signals and Slots
 
 Figuro uses signals and slots as more generic "methods" in place of callbacks. 
@@ -197,6 +171,26 @@ connect(a, valueChanged,
 a.setValue(42)
 assert a.value == 42
 assert b.value == 42
+```
+
+## Installation - Trying it out
+
+Note that you *have* to follow these instructions for now. Using the normal Atlas installation *won't* give you the correct packages.
+
+```sh
+# recommended to install an up to date atlas
+nimble install 'https://github.com/nim-lang/atlas@#head'
+
+# new atlas workspace
+mkdir fig_ws && cd fig_ws
+atlas init --deps=vendor
+
+# get deps
+git clone https://github.com/elcritch/figuro.git
+
+# sync deps
+atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
+nim c -r figuro/tests/tclick.nim
 ```
 
 ## Goal
