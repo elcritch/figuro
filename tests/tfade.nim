@@ -35,10 +35,8 @@ proc draw*(self: Main) {.slot.} =
         itemWidth node, cx"min-content", gap = 20'ui
         for i in 0 .. 4:
           button "btn", captures(i):
-            with node:
-              size 100'ux, 100'ux
-              # we need to connect it's onHover event
-              connect(doHover, self, buttonHover)
+            size node, 100'ux, 100'ux
+            connect(node, doHover, self, buttonHover)
 
 var main = Main.new()
 app.width = 720
