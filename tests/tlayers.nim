@@ -29,17 +29,20 @@ proc draw*(self: Main) {.slot.} =
         setText({font: "zlevel " & $zlvl})
 
     rectangle "container":
-      fill "#D0D0D0"
-      box 3'pp, 10'pp, 30'pp, 80'pp
-      cornerRadius 10.0
-      clipContent false
+      with node:
+        fill "#D0D0D0"
+        box 3'pp, 10'pp, 30'pp, 80'pp
+        cornerRadius 10.0
+        clipContent false
       text "text":
-        box 10'pp, 10'ux, 70'pp, 22'ux
-        fill blackColor
-        setText({font: "not clipped"})
+        with node:
+          box 10'pp, 10'ux, 70'pp, 22'ux
+          fill blackColor
+          setText({font: "not clipped"})
 
       button "btn":
-        box 10'pp, 15'pp, 130'pp, 20'pp
+        with node:
+          box 10'pp, 15'pp, 130'pp, 20'pp
         current.zlevel = 20.ZLevel
         setLabel(current.zlevel, left=true)
 
