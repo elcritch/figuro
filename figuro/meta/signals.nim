@@ -179,7 +179,7 @@ template connect*[T](
     a: Agent,
     signal: typed,
     b: Agent,
-    slot: AgentProcTy[T],
+    slot: Signal[T],
     acceptVoidSlot: static bool = false,
 ) =
   let agentSlot = slot

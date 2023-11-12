@@ -38,6 +38,7 @@ type
 
   AgentProcTy*[S] = AgentProc
 
+  Signal*[S] = AgentProcTy[S]
   SignalTypes* = distinct object
 
 when defined(nimscript):

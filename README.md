@@ -153,7 +153,19 @@ startFiguro(main)
 
 ## Signals and Slots
 
-Shamelessly stolen from QT.
+Figuro uses signals and slots as more generic "methods" in place of callbacks. 
+
+They allow you to connect and disconnect signals at runtime which allows adaptable event handling. Signals and slots are shamelessly stolen from QT.
+
+There are four main pieces to using slots and signal: `signal`, `slot`, `connect`, and `emit`. 
+
+The `signal` pragma defines the procs as signals with the signal type being equivalent to the rest of the arguments after the first one. The first argument must be a subclass of the `Agent` object. `Figuro` objects already subclass `Agent` so all `Figuro` objects can be used with signals and slots.
+
+The `slot` pragma transforms the proc into a signal handler. It can still be called as a regular proc as well. The first argument must be an `Agent` object such as a `Figuro` widget node.
+
+Next `connect` is a template of type `template connect*(sender: Agent, sig: Signal, target: Agent, slot: Slot)`. It connects any matching signals from the `sender` object to the `target` object. `connect` is typed and checks that the signal and the slot types match. However, slots that don't take arguments can be connect if you pass `acceptVoidSlot=true` argument to connect.
+
+Lastly, `emit` takes an agent object and sends a signal to each `slot` object connected to that object.
 
 ```nim
 import figuro
