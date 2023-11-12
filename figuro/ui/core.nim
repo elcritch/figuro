@@ -322,7 +322,7 @@ template widget*[T, U](args: varargs[untyped]): auto =
 
 template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
   when t.hasGenericTypes():
-    widget[F, ()](args)
+    widget[F, tuple[]](args)
   else:
     widget[F, nil](args)
 
@@ -352,7 +352,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## with new `node` and `parent` variables.
       ## The `node` variable becomes the new widget
       ## instance.
-      widget[T, ()](args)
+      widget[T, tuple[]](args)
     template `name`*[U](args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
       ## creating a new Figuro node.
@@ -371,7 +371,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## with new `node` and `parent` variables.
       ## The `node` variable becomes the new widget
       ## instance.
-      widget[T, nil](args)
+      widget[T, void](args)
 
 
 {.hint[Name]:off.}
