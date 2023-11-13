@@ -65,7 +65,6 @@ proc runApplication(frame: AppFrame) {.thread.} =
         app.frameCount.inc()
 
 proc run*(renderer: Renderer, frame: AppFrame) =
-
   sendRoots[frame] = renderer.chan
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()

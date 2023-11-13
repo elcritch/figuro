@@ -42,6 +42,9 @@ proc runFrameImpl(frame: AppFrame) =
       computeLayout(frame.root)
       computeScreenBox(nil, frame.root)
       discard sendRoots[frame].trySend(frame.root.copyInto())
+
+exec.runFrame = runFrameImpl
+
 proc startFiguro*[T](
     widget: T,
     fullscreen = false,
@@ -57,7 +60,6 @@ proc startFiguro*[T](
                              app.uiScale * app.width.float32,
                              app.uiScale * app.height.float32)
 
-  let root = widget
   connectDefaults[T](widget)
   let frame = setupAppFrame(widget)
   refresh(widget)
@@ -67,5 +69,4 @@ proc startFiguro*[T](
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
 
   frame.uxInputList = renderer.uxInputList
-  exec.runFrame = runFrameImpl
   run(renderer, frame)
