@@ -10,7 +10,8 @@ else:
   export opengl
 
 import std/os
-import std/sets
+import std/sharedtables
+
 import shared, internal
 import ui/[core, events]
 import common/nodes/ui
@@ -29,7 +30,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 
 var
   runFrame*: proc(frame: AppFrame) {.nimcall.}
-  sendRoots*: Table[AppFrame, Chan[RenderNodes]]
+  appFrames*: Table[AppFrame, Renderer]
 
 const renderPeriodMs {.intdefine.} = 16
 const appPeriodMs {.intdefine.} = 16
@@ -65,7 +66,7 @@ proc runRenderer(renderer: Renderer) =
       renderer.render(true)
 
 proc run*(renderer: Renderer, frame: AppFrame) =
-  sendRoots[frame] = renderer.chan
+  appFrames[frame] = renderer
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
