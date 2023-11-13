@@ -14,6 +14,7 @@ type
   AppFrame* = ref object
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
+    uxInputList*: Chan[AppInputs]
 
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
