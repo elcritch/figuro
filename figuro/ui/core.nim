@@ -40,6 +40,13 @@ var
   defaultTypeface* {.runtimeVar.} = internal.getTypeface("IBMPlexSans-Regular.ttf")
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
+proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
+  frame.windowSize.x = size[0]
+  frame.windowSize.y = size[1]
+  frame.windowRawSize = frame.windowSize.wh.scaled()
+  echo "setSize: ", frame.windowSize
+  echo "setSize: ", frame.windowRawSize
+
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
 
@@ -156,7 +163,7 @@ proc connectDefaults*[T](node: T) {.slot.} =
   when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
     connect(node, doTick, node, T.tick(), acceptVoidSlot=true)
 
-proc newAppFrame*[T](root: T): AppFrame =
+proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
   connectDefaults[T](root)
@@ -170,6 +177,7 @@ proc newAppFrame*[T](root: T): AppFrame =
     root.theme = Theme(font: defaultFont)
   let frame = AppFrame(root: root)
   root.frame = frame
+  frame.setSize(size)
   refresh(root)
   return frame
 
