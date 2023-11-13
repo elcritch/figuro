@@ -59,7 +59,7 @@ proc startFiguro*[T](
     # mainApp = proc () =
     frame.root.diffIndex = 0
     if app.requestedFrame > 0:
-      refresh(root)
+      frame.root.refresh(frame.root)
       app.requestedFrame.dec()
 
     if frame.redrawNodes.len() > 0:

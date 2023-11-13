@@ -79,10 +79,10 @@ proc setupAppFrame*(root: Figuro): AppFrame =
   root.diffIndex = 0
   if root.theme.isNil:
     root.theme = Theme(font: defaultFont)
-  result = AppFrame(root: root)
-  result.root.refresh = proc(node: Figuro) =
-    result.redrawNodes.incl(node)
-
+  let frame = AppFrame(root: root)
+  frame.root.refresh = proc(node: Figuro) =
+    frame.redrawNodes.incl(node)
+  result = frame
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
