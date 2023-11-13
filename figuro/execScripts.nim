@@ -154,7 +154,6 @@ proc startFiguroRuntime() =
     app.requestedFrame = ret.requestedFrame
     sendRoot(invokeVmGetRoot())
 
-  loadMain = appLoad
   tickMain = appTick
   eventMain = appEvent
   mainApp = appMain

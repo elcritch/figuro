@@ -41,11 +41,11 @@ proc startFiguro*[T](
   echo fmt"{atlasStartSz=}"
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
 
-  loadMain = proc () =
-    emit frame.root.doLoad()
-  tickMain = proc () =
+  mainApp = proc () =
+    # tickMain = proc () =
     emit frame.root.doTick(app.tickCount, getMonoTime())
-  eventMain = proc () =
+
+    # eventMain = proc () =
     var input: AppInputs
     ## only process up to ~10 events at a time
     var cnt = 10
@@ -54,7 +54,7 @@ proc startFiguro*[T](
       computeEvents(frame.root)
       cnt.dec()
 
-  mainApp = proc () =
+    # mainApp = proc () =
     frame.root.diffIndex = 0
     if app.requestedFrame > 0:
       refresh(root)
@@ -74,12 +74,6 @@ proc startFiguro*[T](
 
   if mainApp.isNil:
     raise newException(AssertionDefect, "mainApp cannot be nil")
-  if eventMain.isNil:
-    raise newException(AssertionDefect, "eventMain cannot be nil")
-  if tickMain.isNil:
-    tickMain = proc () = discard
-  if loadMain.isNil:
-    loadMain = proc () = discard
 
   if not setup.isNil: setup()
   run(renderer, frame)

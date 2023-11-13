@@ -31,7 +31,6 @@ var
   mainApp*: MainCallback
   tickMain*: MainCallback
   eventMain*: MainCallback
-  loadMain*: MainCallback
 
   sendRoots*: Table[AppFrame, Chan[RenderNodes]]
 
@@ -65,8 +64,6 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
     while app.running:
       wait(uiAppEvent)
       timeIt(appAvgTime):
-        tickMain()
-        eventMain()
         mainApp()
         app.frameCount.inc()
 
