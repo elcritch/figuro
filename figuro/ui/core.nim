@@ -15,8 +15,6 @@ var
 
   redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
 
-  nodeStack* {.runtimeVar.}: seq[Figuro]
-  # gridStack*: seq[GridTemplate]
 
   scrollBox* {.runtimeVar.}: Box
   scrollBoxMega* {.runtimeVar.}: Box ## Scroll box is 500px bigger in y direction
@@ -180,7 +178,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
 
   # TODO: maybe a better node differ?
   if parent.children.len <= parent.diffIndex:
-    # parent = nodeStack[^1]
     # Create Figuro.
     node = T()
     node.agentId = nextAgentId()
@@ -230,7 +227,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
 
   node.listens.events = {}
 
-  nodeStack.add(node)
   inc parent.diffIndex
   node.diffIndex = 0
 
