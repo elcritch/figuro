@@ -27,8 +27,15 @@ type
   Theme* = ref object
     font*: UiFont
 
+  AppFrame* = ref object
+    redrawNodes*: OrderedSet[Figuro]
+    root*: Figuro
+    uxInputList*: Chan[AppInputs]
+    running*, focused*, minimized*, fullscreen*: bool
+    width*, height*: int
+
   Figuro* = ref object of Agent
-    refresh*: proc(node: Figuro)
+    frame*: AppFrame
     parent*: Figuro
     uid*: NodeID
     name*: StackString[16]
@@ -81,6 +88,9 @@ type
 
   Property*[T] = ref object of Agent
     value*: T
+
+proc hash*(a: AppFrame): Hash =
+  a.root.hash()
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()

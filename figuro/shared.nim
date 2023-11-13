@@ -47,9 +47,9 @@ type
   AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
 
   AppState* = object
-    running*, focused*, minimized*, fullscreen*: bool
+    # running*, focused*, minimized*, fullscreen*: bool
 
-    width*, height*: int
+    # width*, height*: int
     # UI Scale
     uiScale*: float32
     autoUiScale*: bool
