@@ -41,7 +41,8 @@ proc runFrameImpl(frame: AppFrame) =
       frame.redrawNodes.clear()
       computeLayout(frame.root)
       computeScreenBox(nil, frame.root)
-      discard sendRoots[frame].trySend(frame.root.copyInto())
+      discard exec.appFrames[frame].chan.trySend(
+                frame.root.copyInto())
 
 exec.runFrame = runFrameImpl
 
