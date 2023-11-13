@@ -16,7 +16,7 @@ type
 
 proc update*(fig: Main) {.signal.}
 
-proc btnIncr*(self: Button[int]) {.slot.} =
+proc btnTick*(self: Button[int]) {.slot.} =
   self.state.inc
   refresh(self)
 
@@ -38,6 +38,7 @@ proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
   emit self.update()
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
+  echo "hover: ", evtKind == Enter
   self.bkgFade.isActive(evtKind == Enter)
   refresh(self)
 
@@ -64,7 +65,7 @@ proc draw*(self: Main) {.slot.} =
               connect(doHover, self, btnHover)
               connect(doClick, node, btnClicked)
             if i == 0:
-              connect(self, update, node, btnIncr)
+              connect(self, update, node, btnTick)
 
             text "text":
               with node:
