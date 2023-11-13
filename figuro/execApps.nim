@@ -52,9 +52,7 @@ proc startFiguro*[T](
   ## Starts Fidget UI library
   ## 
 
-  # appWidget = widget
   app.fullscreen = fullscreen
-
   if not fullscreen:
     app.windowSize = initBox(0.0, 0.0,
                              app.uiScale * app.width.float32,
