@@ -32,9 +32,9 @@ proc startFiguro*[T](
                              app.uiScale * app.width.float32,
                              app.uiScale * app.height.float32)
 
-  root = widget
+  let root = widget
   redrawNodes = initOrderedSet[Figuro]()
-  connectDefaults[T](widget)
+  connectDefaults[T](root)
   refresh(root)
   setupRoot(root)
 

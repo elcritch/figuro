@@ -134,7 +134,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
-proc computeEvents*(node: Figuro) =
+proc computeEvents*(root: Figuro) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
   ## 
@@ -162,7 +162,7 @@ proc computeEvents*(node: Figuro) =
   # printFiguros(node)
   dragReleased = prevDrags.len() > 0 and uxInputs.mouse.release()
 
-  var captured: CapturedEvents = computeNodeEvents(node)
+  var captured: CapturedEvents = computeNodeEvents(root)
 
   uxInputs.windowSize = Box.none
 

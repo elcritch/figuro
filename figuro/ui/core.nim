@@ -11,10 +11,8 @@ else:
   {.pragma: runtimeVar, global.}
 
 var
-  root* {.runtimeVar.}: Figuro
 
   redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
-
 
   scrollBox* {.runtimeVar.}: Box
   scrollBoxMega* {.runtimeVar.}: Box ## Scroll box is 500px bigger in y direction
@@ -68,7 +66,7 @@ proc nd*(): string =
   for i in 0..nodeDepth:
     result &= "   "
 
-proc setupRoot*(widget: Figuro) =
+proc setupRoot*(root: Figuro) =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
   root.diffIndex = 0
@@ -164,7 +162,7 @@ proc connectDefaults*[T](node: T) {.slot.} =
   when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
     connect(node, doHover, node, T.hover())
   when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
-    connect(root, doTick, node, T.tick(), acceptVoidSlot=true)
+    connect(node, doTick, node, T.tick(), acceptVoidSlot=true)
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
