@@ -28,7 +28,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 var
-  mainApp*: proc(frame: AppFrame) {.nimcall.}
+  runFrame*: proc(frame: AppFrame) {.nimcall.}
   sendRoots*: Table[AppFrame, Chan[RenderNodes]]
 
 const renderPeriodMs {.intdefine.} = 16
@@ -61,7 +61,7 @@ proc runApplication(frame: AppFrame) {.thread.} =
     while app.running:
       wait(uiAppEvent)
       timeIt(appAvgTime):
-        mainApp(frame)
+        runFrame(frame)
         app.frameCount.inc()
 
 proc run*(renderer: Renderer, frame: AppFrame) =
