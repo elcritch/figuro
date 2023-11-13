@@ -22,8 +22,7 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonToggle = toUi window.buttonToggle()
 
 proc configureWindowEvents(renderer: Renderer) =
-
-  uxInputList = newChan[AppInputs](40)
+  renderer.uxInputList = newChan[AppInputs](40)
 
   let window = renderer.window
 
@@ -34,12 +33,12 @@ proc configureWindowEvents(renderer: Renderer) =
     renderer.render(updated = true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some app.windowSize
-    discard uxInputList.trySend(uxInput)
+    discard renderer.uxInputList.trySend(uxInput)
   
   window.onFocusChange = proc () =
     app.focused = window.focused
     let uxInput = window.copyInputs()
-    discard uxInputList.trySend(uxInput)
+    discard renderer.uxInputList.trySend(uxInput)
 
   window.onMouseMove = proc () =
     var uxInput = AppInputs()
@@ -49,7 +48,7 @@ proc configureWindowEvents(renderer: Renderer) =
     uxInput.mouse.prev = prevPos.descaled()
     uxInput.mouse.consumed = false
     lastMouse = uxInput.mouse
-    let res = uxInputList.trySend(uxInput)
+    let res = renderer.uxInputList.trySend(uxInput)
     if res == false:
       echo "warning: mouse event blocked!"
 
@@ -57,7 +56,7 @@ proc configureWindowEvents(renderer: Renderer) =
     var uxInput = AppInputs(mouse: lastMouse)
     uxInput.mouse.consumed = false
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
-    discard uxInputList.trySend(uxInput)
+    discard renderer.uxInputList.trySend(uxInput)
 
   window.onButtonPress = proc (button: windy.Button) =
     let uxInput = window.copyInputs()
@@ -71,7 +70,7 @@ proc configureWindowEvents(renderer: Renderer) =
               fgGreen, $uxInput.buttonDown
               )
               # fgBlue, " time: " & $(time - lastButtonRelease) )
-    discard uxInputList.trySend(uxInput)
+    discard renderer.uxInputList.trySend(uxInput)
 
   window.onButtonRelease = proc (button: Button) =
     let uxInput = window.copyInputs()
@@ -86,7 +85,7 @@ proc configureWindowEvents(renderer: Renderer) =
               fgWhite, "buttonPress ", {styleBright},
               fgGreen, $uxInput.buttonPress
               )
-    discard uxInputList.trySend(uxInput)
+    discard renderer.uxInputList.trySend(uxInput)
 
   window.onRune = proc (rune: Rune) =
     var uxInput = AppInputs(mouse: lastMouse)
@@ -94,7 +93,7 @@ proc configureWindowEvents(renderer: Renderer) =
     when defined(debugEvents):
       stdout.styledWriteLine({styleDim}, fgWhite, "keyboardInput: ",
                               {styleDim}, fgGreen, $rune)
-    discard uxInputList.trySend(uxInput)
+    discard renderer.uxInputList.trySend(uxInput)
 
   app.running = true
 

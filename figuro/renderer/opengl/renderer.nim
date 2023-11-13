@@ -16,6 +16,7 @@ type
     window*: Window
     nodes*: RenderNodes
     updated*: bool
+    uxInputList*: Chan[AppInputs]
 
 
 proc newRenderer*(
