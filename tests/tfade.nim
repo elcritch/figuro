@@ -30,7 +30,6 @@ proc draw*(self: Main) {.slot.} =
             size node, 100'ux, 100'ux
             connect(node, doHover, self, buttonHover)
 
-
 proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   self.bkgFade.tick(self)
 
