@@ -3,6 +3,8 @@
 
 A GUI toolkit for Nim that is event driven while being small and fast. It tries to incorporate the best elements of both imperitive and object oriented GUI toolkits. Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
 
+*Warning*: Figuro is still in an *alpha* stage and code and apis will be in flux. Some pieces still aren't completed.
+
 ## Example
 
 Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
