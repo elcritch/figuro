@@ -60,9 +60,7 @@ proc startFiguro*[T](
                              app.uiScale * app.width.float32,
                              app.uiScale * app.height.float32)
 
-  connectDefaults[T](widget)
-  let frame = setupAppFrame(widget)
-  refresh(widget)
+  let frame = newAppFrame(widget)
 
   let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
   echo fmt"{atlasStartSz=}"
