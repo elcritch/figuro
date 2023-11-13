@@ -70,6 +70,7 @@ type
 var
   dataDir* {.runtimeVar.}: string = DataDirPath.string
   app* {.runtimeVar.} = AppState(
+    running: true,
     uiScale: 1.0,
     autoUiScale: true
   )

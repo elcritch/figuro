@@ -31,12 +31,12 @@ proc newRenderer*(
   app.pixelScale = forcePixelScale
   let renderer = Renderer(window: window)
   startOpenGL(frame, window, openglVersion)
-  frame.uxInputList = renderer.uxInputList
   renderer.frame = frame
   renderer.ctx = newContext(atlasSize = atlasSize,
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
   renderer.chan = newChan[RenderNodes]()
+  frame.uxInputList = renderer.uxInputList
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
