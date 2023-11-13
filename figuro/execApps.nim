@@ -49,7 +49,6 @@ exec.runFrame = runFrameImpl
 proc startFiguro*[T](
     widget: T,
     fullscreen = false,
-    pixelate = false,
     pixelScale = 1.0
 ) =
   ## Starts Fidget UI library
@@ -61,9 +60,7 @@ proc startFiguro*[T](
                              app.uiScale * app.width.float32,
                              app.uiScale * app.height.float32)
 
-  let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
-  echo fmt"{atlasStartSz=}"
-  let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
+  let renderer = setupRenderer()
   let frame = newAppFrame(widget)
   frame.uxInputList = renderer.uxInputList
   run(renderer, frame)
