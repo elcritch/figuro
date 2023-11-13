@@ -22,7 +22,6 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonToggle = toUi window.buttonToggle()
 
 proc configureWindowEvents(renderer: Renderer) =
-  renderer.uxInputList = newChan[AppInputs](40)
 
   let window = renderer.window
 

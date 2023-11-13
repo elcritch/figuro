@@ -36,6 +36,7 @@ proc newRenderer*(
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
   renderer.chan = newChan[RenderNodes]()
+  renderer.uxInputList = newChan[AppInputs](40)
   frame.uxInputList = renderer.uxInputList
   return renderer
 
