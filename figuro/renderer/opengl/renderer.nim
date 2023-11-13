@@ -17,7 +17,7 @@ type
     nodes*: RenderNodes
     updated*: bool
     uxInputList*: Chan[AppInputs]
-
+    chan*: Chan[RenderNodes]
 
 proc newRenderer*(
     window: Window,
@@ -34,6 +34,7 @@ proc newRenderer*(
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
 
+  renderer.chan = newChan[RenderNodes]()
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =

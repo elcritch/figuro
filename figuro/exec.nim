@@ -74,7 +74,7 @@ proc run*(renderer: Renderer, frame: AppFrame) =
 
   sendRoots[frame] = proc (nodes: sink RenderNodes) =
       renderer.updated = true
-      renderer.nodes = nodes
+      discard renderer.chan.trySend(move nodes)
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
