@@ -32,7 +32,8 @@ var
   tickMain*: MainCallback
   eventMain*: MainCallback
   loadMain*: MainCallback
-  sendRoot*: proc (nodes: sink RenderNodes) {.closure.}
+
+  sendRoots*: Table[AppFrame, proc (nodes: sink RenderNodes) {.closure.}]
 
 const renderPeriodMs {.intdefine.} = 16
 const appPeriodMs {.intdefine.} = 16
@@ -69,9 +70,9 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
         mainApp()
         app.frameCount.inc()
 
-proc run*(renderer: Renderer) =
+proc run*(renderer: Renderer, frame: AppFrame) =
 
-  sendRoot = proc (nodes: sink RenderNodes) =
+  sendRoots[frame] = proc (nodes: sink RenderNodes) =
       renderer.updated = true
       renderer.nodes = nodes
 

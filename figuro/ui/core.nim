@@ -10,9 +10,12 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-var
+type
+  AppFrame* = ref object
+    redrawNodes*: OrderedSet[Figuro] = initOrderedSet[Figuro]()
+    root*: Figuro
 
-  redrawNodes* {.runtimeVar.}: OrderedSet[Figuro]
+var
 
   scrollBox* {.runtimeVar.}: Box
   scrollBoxMega* {.runtimeVar.}: Box ## Scroll box is 500px bigger in y direction
@@ -66,12 +69,13 @@ proc nd*(): string =
   for i in 0..nodeDepth:
     result &= "   "
 
-proc setupRoot*(root: Figuro) =
+proc setupAppFrame*(root: Figuro): AppFrame =
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
   root.diffIndex = 0
   if root.theme.isNil:
     root.theme = Theme(font: defaultFont)
+  result = AppFrame(root: root)
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
