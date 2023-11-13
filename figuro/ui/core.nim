@@ -10,11 +10,6 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-type
-  AppFrame* = ref object
-    redrawNodes*: OrderedSet[Figuro] = initOrderedSet[Figuro]()
-    root*: Figuro
-
 var
 
   scrollBox* {.runtimeVar.}: Box
@@ -76,6 +71,7 @@ proc setupAppFrame*(root: Figuro): AppFrame =
   if root.theme.isNil:
     root.theme = Theme(font: defaultFont)
   result = AppFrame(root: root)
+  result.root.frame = result
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
@@ -99,7 +95,8 @@ proc refresh*(node: Figuro) =
   if node == nil:
     return
   # app.requestedFrame.inc
-  redrawNodes.incl(node)
+  assert node.frame != nil
+  node.frame.redrawNodes.incl(node)
 
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
@@ -185,6 +182,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
     node.agentId = nextAgentId()
     node.uid = node.agentId
     node.parent = parent
+    node.frame = parent.frame
     parent.children.add(node)
     # node.parent = parent
     echo nd(), "create new node: ", id, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
@@ -217,7 +215,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
   node.uid = node.agentId
-  node.parent = parent
+  # node.parent = parent
   let name = $(id)
   node.name.setLen(0)
   discard node.name.tryAdd(name)

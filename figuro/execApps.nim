@@ -34,8 +34,8 @@ proc startFiguro*[T](
 
   let root = widget
   connectDefaults[T](widget)
-  refresh(widget)
   let frame = setupAppFrame(widget)
+  refresh(widget)
 
   loadMain = proc () =
     emit frame.root.doLoad()
@@ -83,4 +83,4 @@ proc startFiguro*[T](
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
 
   if not setup.isNil: setup()
-  renderer.run()
+  run(renderer, frame)
