@@ -14,6 +14,36 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
+proc runFrameImpl(frame: AppFrame) =
+    # tickMain = proc () =
+    emit frame.root.doTick(app.tickCount, getMonoTime())
+
+    # eventMain = proc () =
+    var input: AppInputs
+    ## only process up to ~10 events at a time
+    var cnt = 10
+    while frame.uxInputList.tryRecv(input) and cnt > 0:
+      uxInputs = input
+      computeEvents(frame)
+      cnt.dec()
+
+    # mainApp = proc () =
+    frame.root.diffIndex = 0
+    if app.requestedFrame > 0:
+      frame.root.refresh(frame.root)
+      app.requestedFrame.dec()
+
+    if frame.redrawNodes.len() > 0:
+      # echo "\nredraw: ", frame.redrawNodes.len
+      computeEvents(frame)
+      let rn = frame.redrawNodes
+      for node in rn:
+        # echo "  redraw: ", node.getId
+        emit node.doDraw()
+      frame.redrawNodes.clear()
+      computeLayout(frame.root)
+      computeScreenBox(nil, frame.root)
+      discard sendRoots[frame].trySend(frame.root.copyInto())
 proc startFiguro*[T](
     widget: T,
     setup: proc() = nil,
@@ -43,39 +73,7 @@ proc startFiguro*[T](
 
   frame.uxInputList = renderer.uxInputList
 
-  mainApp = proc (frame: AppFrame) {.nimcall.} =
-    # tickMain = proc () =
-    emit frame.root.doTick(app.tickCount, getMonoTime())
-
-    # eventMain = proc () =
-    var input: AppInputs
-    ## only process up to ~10 events at a time
-    var cnt = 10
-    while frame.uxInputList.tryRecv(input) and cnt > 0:
-      uxInputs = input
-      computeEvents(frame)
-      cnt.dec()
-
-    # mainApp = proc () =
-    frame.root.diffIndex = 0
-    if app.requestedFrame > 0:
-      frame.root.refresh(frame.root)
-      app.requestedFrame.dec()
-
-    if frame.redrawNodes.len() > 0:
-      # echo "\nredraw: ", redrawNodes.len
-      computeEvents(frame)
-      let rn = frame.redrawNodes
-      for node in rn:
-        # echo "  redraw: ", node.getId
-        emit node.doDraw()
-      frame.redrawNodes.clear()
-      computeLayout(frame.root)
-      computeScreenBox(nil, frame.root)
-      discard sendRoots[frame].trySend(frame.root.copyInto())
-
-  if mainApp.isNil:
-    raise newException(AssertionDefect, "mainApp cannot be nil")
+  exec.runFrame = runFrameImpl
 
   if not setup.isNil: setup()
   run(renderer, frame)
