@@ -11,8 +11,8 @@ let
 type
   Main* = ref object of Figuro
     bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                                    incr: 0.010,
-                                    decr: 0.005)
+                             incr: 0.010,
+                             decr: 0.005)
 
 proc update*(fig: Main) {.signal.}
 
@@ -73,7 +73,6 @@ proc draw*(self: Main) {.slot.} =
                 setText({font: $(btn.state)}, Center, Middle)
 
 var main = Main.new()
-
 app.width = 720
 app.height = 140
 startFiguro(main)
