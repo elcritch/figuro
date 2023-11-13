@@ -45,12 +45,6 @@ proc renderTicker() {.thread.} =
     if app.tickCount == app.tickCount.typeof.high:
       app.tickCount = 0
 
-proc runRenderer(renderer: Renderer) =
-  while app.running:
-    wait(uiRenderEvent)
-    timeIt(renderAvgTime):
-      renderer.render(true)
-
 proc appTicker() {.thread.} =
   while app.running:
     uiAppEvent.trigger()
@@ -63,6 +57,12 @@ proc runApplication(frame: AppFrame) {.thread.} =
       timeIt(appAvgTime):
         runFrame(frame)
         app.frameCount.inc()
+
+proc runRenderer(renderer: Renderer) =
+  while app.running:
+    wait(uiRenderEvent)
+    timeIt(renderAvgTime):
+      renderer.render(true)
 
 proc run*(renderer: Renderer, frame: AppFrame) =
   sendRoots[frame] = renderer.chan
