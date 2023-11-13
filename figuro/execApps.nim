@@ -44,7 +44,6 @@ proc runFrameImpl(frame: AppFrame) =
       discard sendRoots[frame].trySend(frame.root.copyInto())
 proc startFiguro*[T](
     widget: T,
-    setup: proc() = nil,
     fullscreen = false,
     pixelate = false,
     pixelScale = 1.0
@@ -68,8 +67,5 @@ proc startFiguro*[T](
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
 
   frame.uxInputList = renderer.uxInputList
-
   exec.runFrame = runFrameImpl
-
-  if not setup.isNil: setup()
   run(renderer, frame)
