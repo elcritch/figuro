@@ -28,17 +28,14 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 var
-  mainApp*: MainCallback
-  tickMain*: MainCallback
-  eventMain*: MainCallback
-
+  mainApp*: proc(frame: AppFrame) {.nimcall.}
   sendRoots*: Table[AppFrame, Chan[RenderNodes]]
 
 const renderPeriodMs {.intdefine.} = 16
 const appPeriodMs {.intdefine.} = 16
 
 var frameTickThread, appTickThread: Thread[void]
-var appThread, : Thread[MainCallback]
+var appThread, : Thread[AppFrame]
 
 proc renderTicker() {.thread.} =
   while true:
@@ -59,24 +56,23 @@ proc appTicker() {.thread.} =
     uiAppEvent.trigger()
     os.sleep(renderPeriodMs - 2)
 
-proc runApplication(mainApp: MainCallback) {.thread.} =
+proc runApplication(frame: AppFrame) {.thread.} =
   {.gcsafe.}:
     while app.running:
       wait(uiAppEvent)
       timeIt(appAvgTime):
-        mainApp()
+        mainApp(frame)
         app.frameCount.inc()
 
 proc run*(renderer: Renderer, frame: AppFrame) =
 
   sendRoots[frame] = renderer.chan
-
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
   createThread(frameTickThread, renderTicker)
   createThread(appTickThread, appTicker)
-  createThread(appThread, runApplication, mainApp)
+  createThread(appThread, runApplication, frame)
 
   proc ctrlc() {.noconv.} =
     echo "Got Ctrl+C exiting!"
