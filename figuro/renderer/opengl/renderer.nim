@@ -15,7 +15,6 @@ type
     ctx*: Context
     window*: Window
     nodes*: RenderNodes
-    updated*: bool
     uxInputList*: Chan[AppInputs]
     chan*: Chan[RenderNodes]
 
@@ -279,7 +278,6 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
   # let update = renderer.updated or updated
-  renderer.updated = false
   let update = renderer.chan.tryRecv(renderer.nodes)
 
   if renderer.window.closeRequested:
