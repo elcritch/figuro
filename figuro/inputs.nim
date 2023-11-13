@@ -219,7 +219,6 @@ var
 when not defined(nimscript):
   import threading/channels
   export channels
-  var uxInputList*: Chan[AppInputs]
 
 type
   ModifierKeys* = enum

@@ -37,6 +37,10 @@ proc startFiguro*[T](
   let frame = setupAppFrame(widget)
   refresh(widget)
 
+  let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
+  echo fmt"{atlasStartSz=}"
+  let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
+
   loadMain = proc () =
     emit frame.root.doLoad()
   tickMain = proc () =
@@ -45,7 +49,7 @@ proc startFiguro*[T](
     var input: AppInputs
     ## only process up to ~10 events at a time
     var cnt = 10
-    while uxInputList.tryRecv(input) and cnt > 0:
+    while renderer.uxInputList.tryRecv(input) and cnt > 0:
       uxInputs = input
       computeEvents(frame.root)
       cnt.dec()
@@ -76,11 +80,6 @@ proc startFiguro*[T](
     tickMain = proc () = discard
   if loadMain.isNil:
     loadMain = proc () = discard
-
-  let atlasStartSz = 1024 shl (app.uiScale.round().toInt() + 1)
-  echo fmt"{atlasStartSz=}"
-
-  let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
 
   if not setup.isNil: setup()
   run(renderer, frame)
