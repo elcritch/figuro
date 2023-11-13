@@ -82,37 +82,33 @@ proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
   if buttons == {MouseLeft} or buttons == {DoubleClick}:
-    echo ""
-    echo nd(), "tclick:button:clicked: ", self.state, " button: ", buttons
     if kind == Enter:
       self.state.inc
       refresh(self)
 
-proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
-  echo "button:hovered: ", kind, " :: ", self.getId
-
-proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
-  self.bkgFade.tick(self)
-  emit self.update()
-
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
-  echo "hover: ", evtKind == Enter
   self.bkgFade.isActive(evtKind == Enter)
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  # Sets up nodes, creates `var node, parent: Figuro`
   nodes(self):
     node.setName "main"
 
+    # Calls the widget template `rectangle`.
+    # This creates a new basic widget node. Generally used to draw generic rectangles.
     rectangle "body":
       with node:
+        # sets the bounding box of this node
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
+        # `fill` sets the background color. Color apis use the `chroma` library
         fill whiteColor.darken(self.bkgFade.amount)
-      horizontal "horiz":
+
+      # sets up horizontal widget node with alternate syntax
+      Horizontal.new "horiz": # same as `horizontal "horiz":`
         with node:
           box 10'ux, 0'ux, 100'pp, 100'pp
+          # `itemWidth` configures width of items in the horizontal widget
           itemWidth 100'ux, gap = 20'ui
           layoutItems justify=CxCenter, align=CxCenter
 
@@ -130,6 +126,11 @@ proc draw*(self: Main) {.slot.} =
               with node:
                 fill blackColor
                 setText({font: $(btn.state)}, Center, Middle)
+
+proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
+  ## handles background "fade" when buttons are hovered
+  self.bkgFade.tick(self)
+  emit self.update()
 
 var main = Main.new()
 app.width = 720
