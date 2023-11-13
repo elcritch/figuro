@@ -97,15 +97,12 @@ proc configureWindowEvents(renderer: Renderer) =
 
   app.running = true
 
-proc setupRenderer*(
-    pixelate: bool,
-    forcePixelScale: float32,
-    atlasSize: int = 1024
-): Renderer =
+proc setupRenderer*(): Renderer =
   let window = newWindow("", ivec2(1280, 800))
   window.startOpenGL(openglVersion)
 
-  let renderer = newRenderer(window, pixelate, forcePixelScale, atlasSize)
+  let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
+  let renderer = newRenderer(window, false, 1.0, atlasSize)
   renderer.configureWindowEvents()
   app.requestedFrame.inc
 
