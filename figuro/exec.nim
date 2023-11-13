@@ -65,8 +65,14 @@ proc runRenderer(renderer: Renderer) =
     timeIt(renderAvgTime):
       renderer.render(true)
 
-proc run*(renderer: Renderer, frame: AppFrame) =
+proc setupFrame*(frame: AppFrame): Renderer =
+  let renderer = setupRenderer(frame)
   appFrames[frame] = renderer
+  result = renderer
+
+proc run*(frame: AppFrame) =
+  let renderer = setupFrame(frame)
+
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
