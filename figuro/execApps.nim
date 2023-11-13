@@ -33,40 +33,40 @@ proc startFiguro*[T](
                              app.uiScale * app.height.float32)
 
   let root = widget
-  redrawNodes = initOrderedSet[Figuro]()
-  connectDefaults[T](root)
-  refresh(root)
-  setupRoot(root)
+  connectDefaults[T](widget)
+  refresh(widget)
+  let frame = setupAppFrame(widget)
 
   loadMain = proc () =
-    emit root.doLoad()
+    emit frame.root.doLoad()
   tickMain = proc () =
-    emit root.doTick(app.tickCount, getMonoTime())
+    emit frame.root.doTick(app.tickCount, getMonoTime())
   eventMain = proc () =
     var input: AppInputs
     ## only process up to ~10 events at a time
     var cnt = 10
     while uxInputList.tryRecv(input) and cnt > 0:
       uxInputs = input
-      computeEvents(root)
+      computeEvents(frame.root)
       cnt.dec()
+
   mainApp = proc () =
-    root.diffIndex = 0
+    frame.root.diffIndex = 0
     if app.requestedFrame > 0:
       refresh(root)
       app.requestedFrame.dec()
 
-    if redrawNodes.len() > 0:
+    if frame.redrawNodes.len() > 0:
       # echo "\nredraw: ", redrawNodes.len
       computeEvents(root)
-      let rn = redrawNodes
+      let rn = frame.redrawNodes
       for node in rn:
         # echo "  redraw: ", node.getId
         emit node.doDraw()
-      redrawNodes.clear()
-      computeLayout(root)
-      computeScreenBox(nil, root)
-      sendRoot(root.copyInto())
+      frame.redrawNodes.clear()
+      computeLayout(frame.root)
+      computeScreenBox(nil, frame.root)
+      sendRoots[frame](frame.root.copyInto())
 
   if mainApp.isNil:
     raise newException(AssertionDefect, "mainApp cannot be nil")
