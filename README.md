@@ -8,60 +8,6 @@ A GUI toolkit for Nim that is event driven while being small and fast. It tries 
 Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
 ```nim
-type
-  Main* = ref object of Figuro
-    value: float
-    hasHovered: bool = false
-    hoveredAlpha: float = 0.0
-
-proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
-
-proc draw*(self: Main) {.slot.} =
-  # Sets up nodes, creates `var node, parent: Figuro`
-  nodes(self):
-
-    # Calls the widget template `rectangle`.
-    # This creates a new basic widget node. Generally used to draw generic rectangles.
-    rectangle "body":
-
-      # `with` passes rectangle `node` as the first argument to api calls
-      with node:
-        # sets the bounding box of this node
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0'ui
-        # `fill` sets the background color. Color apis use the `chroma` library
-        fill css"#FFFFFF".darken(self.hoveredAlpha)
-
-      # sets up horizontal widget node with alternate syntax
-      Horizontal.new "horiz": # same as `horizontal "horiz":`
-        with node: 
-          offset 10'ux, 0'ux
-          # `itemWidth` configures width of items in the horizontal widget
-          itemWidth cx"min-content", gap = 20'ui
-
-        for i in 0 .. 4:
-          # creates a button widget node, supports `doHover` and `doButton` events
-          button "btn", captures(i):
-            size node, 100'ux, 100'ux
-            connect(node, doHover, self, buttonHover)
-
-proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
-  ## handles background "fade" when buttons are hovered
-  if self.hoveredAlpha < 0.15 and self.hasHovered:
-    self.hoveredAlpha += 0.010
-    refresh(self)
-  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
-    self.hoveredAlpha -= 0.005
-    refresh(self)
-
-var main = Main.new()
-app.width = 720
-app.height = 140
-startFiguro(main)
-```
-
-```nim
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22)
@@ -69,28 +15,34 @@ let
 type
   Main* = ref object of Figuro
     bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                             incr: 0.010,
-                             decr: 0.005)
+                             incr: 0.010, decr: 0.005)
 
 proc update*(fig: Main) {.signal.}
 
 proc btnTick*(self: Button[int]) {.slot.} =
+  ## slot to increment a button on every tick 
   self.state.inc
   refresh(self)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
+  ## slot to increment a button when clicked
+  ## clicks have a type of `(EventKind, UiButtonView)` 
+  ## which we can use to check if it's a mouse click
   if buttons == {MouseLeft} or buttons == {DoubleClick}:
     if kind == Enter:
       self.state.inc
       refresh(self)
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
+  ## activate fading on hover, deactive when not hovering
   self.bkgFade.isActive(evtKind == Enter)
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
+  ## draw slot for Main widget called whenever an event
+  ## triggers a node or it's parents to be refreshed
   nodes(self):
     node.setName "main"
 
@@ -108,7 +60,8 @@ proc draw*(self: Main) {.slot.} =
       Horizontal.new "horiz": # same as `horizontal "horiz":`
         with node:
           box 10'ux, 0'ux, 100'pp, 100'pp
-          # `itemWidth` configures width of items in the horizontal widget
+          # `itemWidth` is needed to set the width of items
+          # in the horizontal widget
           itemWidth 100'ux, gap = 20'ui
           layoutItems justify=CxCenter, align=CxCenter
 
