@@ -134,7 +134,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   # echo "computeNodeEvents:result:post: ", result.mouse.flags, " :: ", result.mouse.target.uid
 
-proc computeEvents*(root: Figuro) =
+proc computeEvents*(frame: AppFrame) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
   ## 
@@ -149,10 +149,10 @@ proc computeEvents*(root: Figuro) =
   ## However, first tests would need to be written to ensure the
   ## behavior is kept. Events like drag, hover, clicks all
   ## behave pretty differently.
-  root.listens.signals.incl {evClick, evClickOut, evDragEnd}
-  root.attrs.incl rootWindow
+  frame.root.listens.signals.incl {evClick, evClickOut, evDragEnd}
+  frame.root.attrs.incl rootWindow
 
-  if root.frame.redrawNodes.len() == 0 and
+  if frame.redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
       uxInputs.keyboard.rune.isNone and
       prevHovers.len == 0 and
@@ -162,7 +162,7 @@ proc computeEvents*(root: Figuro) =
   # printFiguros(node)
   dragReleased = prevDrags.len() > 0 and uxInputs.mouse.release()
 
-  var captured: CapturedEvents = computeNodeEvents(root)
+  var captured: CapturedEvents = computeNodeEvents(frame.root)
 
   uxInputs.windowSize = Box.none
 
@@ -223,13 +223,13 @@ proc computeEvents*(root: Figuro) =
       for target in newHovers:
         target.events.incl evHover
         emit target.doHover(Enter)
-        target.refresh()
+        target.refresh(target)
         prevHovers.incl target
 
       for target in delHovers:
         target.events.excl evHover
         emit target.doHover(Exit)
-        target.refresh()
+        target.refresh(target)
         prevHovers.excl target
 
   ## handle click events

@@ -41,7 +41,7 @@ proc startFiguro*[T](
   echo fmt"{atlasStartSz=}"
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
 
-  mainApp = proc () =
+  mainApp = proc (frame: AppFrame) {.nimcall.} =
     # tickMain = proc () =
     emit frame.root.doTick(app.tickCount, getMonoTime())
 
@@ -51,7 +51,7 @@ proc startFiguro*[T](
     var cnt = 10
     while renderer.uxInputList.tryRecv(input) and cnt > 0:
       uxInputs = input
-      computeEvents(frame.root)
+      computeEvents(frame)
       cnt.dec()
 
     # mainApp = proc () =
@@ -62,7 +62,7 @@ proc startFiguro*[T](
 
     if frame.redrawNodes.len() > 0:
       # echo "\nredraw: ", redrawNodes.len
-      computeEvents(root)
+      computeEvents(frame)
       let rn = frame.redrawNodes
       for node in rn:
         # echo "  redraw: ", node.getId

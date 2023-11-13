@@ -10,6 +10,14 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
+type
+  AppFrame* = ref object
+    redrawNodes*: OrderedSet[Figuro]
+    root*: Figuro
+
+proc hash*(a: AppFrame): Hash =
+  a.root.hash()
+
 var
 
   scrollBox* {.runtimeVar.}: Box
@@ -71,7 +79,9 @@ proc setupAppFrame*(root: Figuro): AppFrame =
   if root.theme.isNil:
     root.theme = Theme(font: defaultFont)
   result = AppFrame(root: root)
-  result.root.frame = result
+  result.root.refresh = proc(node: Figuro) =
+    result.redrawNodes.incl(node)
+
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
@@ -95,8 +105,8 @@ proc refresh*(node: Figuro) =
   if node == nil:
     return
   # app.requestedFrame.inc
-  assert node.frame != nil
-  node.frame.redrawNodes.incl(node)
+  assert node.refresh != nil
+  node.refresh(node)
 
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
@@ -182,7 +192,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
     node.agentId = nextAgentId()
     node.uid = node.agentId
     node.parent = parent
-    node.frame = parent.frame
+    node.refresh = parent.refresh
     parent.children.add(node)
     # node.parent = parent
     echo nd(), "create new node: ", id, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
