@@ -72,8 +72,7 @@ proc runApplication(mainApp: MainCallback) {.thread.} =
 
 proc run*(renderer: Renderer, frame: AppFrame) =
 
-  sendRoots[frame] = proc (nodes: sink RenderNodes) =
-      discard renderer.chan.trySend(move nodes)
+  sendRoots[frame] = renderer.chan
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
