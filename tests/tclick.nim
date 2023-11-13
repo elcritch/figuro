@@ -31,14 +31,6 @@ proc btnClicked*(self: Button[int],
       self.state.inc
       refresh(self)
 
-proc txtHovered*(self: Figuro, kind: EventKind) {.slot.} =
-  echo "TEXT hover! ", kind, " :: ", self.getId
-
-proc txtClicked*(self: Figuro,
-                  kind: EventKind,
-                  buttons: UiButtonView) {.slot.} =
-  echo "TEXT clicked! ", kind, " buttons ", buttons, " :: ", self.getId
-
 proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   echo "button:hovered: ", kind, " :: ", self.getId
 
@@ -46,20 +38,20 @@ proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
   if self.backgroundFade.tick(self):
     emit self.update()
 
-proc hover*(self: Main, evtKind: EventKind) {.slot.} =
+proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
+  echo "hover: ", evtKind == Enter
   self.backgroundFade.isActive(evtKind == Enter)
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
-    self.name.setLen(0)
-    self.name.add "main"
+    node.setName "main"
 
     rectangle "body":
       with node:
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
-        fill self.backgroundFade.darken(whiteColor)
+        fill whiteColor.darken(self.backgroundFade.alpha)
       horizontal "horiz":
         with node:
           box 10'ux, 0'ux, 100'pp, 100'pp
@@ -71,7 +63,7 @@ proc draw*(self: Main) {.slot.} =
             let btn = node
             with node:
               size 100'ux, 100'ux
-              connect(doHover, self, Main.hover)
+              connect(doHover, self, btnHover)
               connect(doClick, node, btnClicked)
             if i == 0:
               connect(self, update, node, btnTick)
