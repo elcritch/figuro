@@ -26,13 +26,10 @@ proc newRenderer*(
 ): Renderer =
 
   app.pixelScale = forcePixelScale
-
   let renderer = Renderer(window: window)
-
   renderer.ctx = newContext(atlasSize = atlasSize,
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
-
   renderer.chan = newChan[RenderNodes]()
   return renderer
 
