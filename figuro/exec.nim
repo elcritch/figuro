@@ -33,7 +33,7 @@ var
   eventMain*: MainCallback
   loadMain*: MainCallback
 
-  sendRoots*: Table[AppFrame, proc (nodes: sink RenderNodes) {.closure.}]
+  sendRoots*: Table[AppFrame, Chan[RenderNodes]]
 
 const renderPeriodMs {.intdefine.} = 16
 const appPeriodMs {.intdefine.} = 16
