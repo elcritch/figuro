@@ -70,7 +70,7 @@ proc startFiguro*[T](
       frame.redrawNodes.clear()
       computeLayout(frame.root)
       computeScreenBox(nil, frame.root)
-      sendRoots[frame](frame.root.copyInto())
+      discard sendRoots[frame].trySend(frame.root.copyInto())
 
   if mainApp.isNil:
     raise newException(AssertionDefect, "mainApp cannot be nil")
