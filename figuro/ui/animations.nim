@@ -7,15 +7,15 @@ type
     incr*: float
     decr*: float
     active*: bool = false
-    alpha*: float = 0.0
+    amount*: float = 0.0
 
-proc tick*(self: var FadeAnimation, node: Figuro): bool =
-  if self.active and self.alpha < self.minMax.b:
-    self.alpha += self.incr
+proc tick*(self: var FadeAnimation, node: Figuro): bool {.discardable.} =
+  if self.active and self.amount < self.minMax.b:
+    self.amount += self.incr
     refresh(node)
     result = true
-  elif not self.active and self.alpha > self.minMax.a:
-    self.alpha -= self.decr
+  elif not self.active and self.amount > self.minMax.a:
+    self.amount -= self.decr
     refresh(node)
     result = true
 
