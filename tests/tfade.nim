@@ -7,12 +7,13 @@ import figuro
 
 type
   Main* = ref object of Figuro
-    value: float
-    hasHovered: bool = false
-    hoveredAlpha: float = 0.0
+    bkgFade* = FadeAnimation(minMax: 0.0..0.15,
+                             incr: 0.010, decr: 0.005)
 
-proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
+  ## activate fading on hover, deactive when not hovering
+  self.bkgFade.isActive(evtKind == Enter)
+  refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
@@ -20,7 +21,7 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
-        fill whiteColor.darken(self.hoveredAlpha)
+        fill whiteColor.darken(self.bkgFade.amount)
       horizontal "horiz":
         offset node, 10'ux, 0'ux
         itemWidth node, cx"min-content", gap = 20'ui
@@ -29,13 +30,11 @@ proc draw*(self: Main) {.slot.} =
             size node, 100'ux, 100'ux
             connect(node, doHover, self, buttonHover)
 
+
 proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
-  if self.hoveredAlpha < 0.15 and self.hasHovered:
-    self.hoveredAlpha += 0.010
-    refresh(self)
-  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
-    self.hoveredAlpha -= 0.005
-    refresh(self)
+  self.bkgFade.tick(self)
 
 var main = Main.new()
+app.width = 720
+app.height = 140
 startFiguro(main)
