@@ -152,7 +152,7 @@ proc computeEvents*(root: Figuro) =
   root.listens.signals.incl {evClick, evClickOut, evDragEnd}
   root.attrs.incl rootWindow
 
-  if redrawNodes.len() == 0 and
+  if root.frame.redrawNodes.len() == 0 and
       uxInputs.mouse.consumed and
       uxInputs.keyboard.rune.isNone and
       prevHovers.len == 0 and

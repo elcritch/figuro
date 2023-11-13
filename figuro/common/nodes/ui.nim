@@ -1,5 +1,6 @@
 import std/unicode
 import std/monotimes
+import std/hashes
 import basics
 import ../../meta
 import ../../inputs
@@ -26,7 +27,12 @@ type
   Theme* = ref object
     font*: UiFont
 
+  AppFrame* = ref object
+    redrawNodes*: OrderedSet[Figuro]
+    root*: Figuro
+
   Figuro* = ref object of Agent
+    frame*: AppFrame
     parent*: Figuro
     uid*: NodeID
     name*: StackString[16]
@@ -79,6 +85,9 @@ type
 
   Property*[T] = ref object of Agent
     value*: T
+
+proc hash*(a: AppFrame): Hash =
+  a.root.hash()
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
