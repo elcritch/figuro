@@ -41,6 +41,8 @@ proc startFiguro*[T](
   echo fmt"{atlasStartSz=}"
   let renderer = setupRenderer(pixelate, pixelScale, atlasStartSz)
 
+  frame.uxInputList = renderer.uxInputList
+
   mainApp = proc (frame: AppFrame) {.nimcall.} =
     # tickMain = proc () =
     emit frame.root.doTick(app.tickCount, getMonoTime())
@@ -49,7 +51,7 @@ proc startFiguro*[T](
     var input: AppInputs
     ## only process up to ~10 events at a time
     var cnt = 10
-    while renderer.uxInputList.tryRecv(input) and cnt > 0:
+    while frame.uxInputList.tryRecv(input) and cnt > 0:
       uxInputs = input
       computeEvents(frame)
       cnt.dec()
