@@ -33,8 +33,8 @@ proc draw*(self: Main) {.slot.} =
         # `fill` sets the background color. Color apis use the `chroma` library
         fill css"#FFFFFF".darken(self.hoveredAlpha)
 
-      # sets up horizontal widget node
-      Horizontal.new "horiz":
+      # sets up horizontal widget node with alternate syntax
+      Horizontal.new "horiz": # same as `horizontal "horiz":`
         with node: 
           offset 10'ux, 0'ux
           # `itemWidth` configures width of items in the horizontal widget
@@ -59,6 +59,9 @@ var main = Main.new()
 app.width = 720
 app.height = 140
 startFiguro(main)
+```
+
+```nim
 ```
 
 ![Click Example](tests/tclick-screenshot.png)

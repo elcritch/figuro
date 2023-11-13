@@ -1,6 +1,7 @@
 
 ## This minimal example shows 5 blue squares.
 import figuro/widgets/[horizontal, button]
+import figuro/ui/animations
 import figuro/widget
 import figuro
 
@@ -37,6 +38,4 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
     refresh(self)
 
 var main = Main.new()
-app.width = 720
-app.height = 140
 startFiguro(main)

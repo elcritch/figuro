@@ -1,6 +1,7 @@
 import figuro/widgets/button
 import figuro/widgets/horizontal
 import figuro/widget
+import figuro/ui/animations
 import figuro
 
 let
@@ -8,12 +9,10 @@ let
   font = UiFont(typefaceId: typeface, size: 22)
 
 type
-  Counter* = object
-
   Main* = ref object of Figuro
-    value: int
-    hasHovered: bool
-    hoveredAlpha: float
+    backgroundFade* = FadeAnimation(minMax: 0.0..0.15,
+                                    incr: 0.010,
+                                    decr: 0.005)
 
 proc update*(fig: Main) {.signal.}
 
@@ -44,17 +43,11 @@ proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
   echo "button:hovered: ", kind, " :: ", self.getId
 
 proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
-  if self.hoveredAlpha < 0.15 and self.hasHovered:
-    self.hoveredAlpha += 0.010
-    refresh(self)
-  elif self.hoveredAlpha > 0.00 and not self.hasHovered:
-    self.hoveredAlpha -= 0.005
-    refresh(self)
-  self.value.inc()
-  emit self.update()
+  if self.backgroundFade.tick(self):
+    emit self.update()
 
-proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+proc hover*(self: Main, evtKind: EventKind) {.slot.} =
+  self.backgroundFade.isActive(evtKind == Enter)
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
@@ -66,8 +59,7 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
-        fill whiteColor.darken(self.hoveredAlpha).
-                        spin(10*self.hoveredAlpha)
+        fill self.backgroundFade.darken(whiteColor)
       horizontal "horiz":
         with node:
           box 10'ux, 0'ux, 100'pp, 100'pp
