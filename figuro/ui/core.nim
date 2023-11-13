@@ -41,8 +41,8 @@ var
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
 proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
-  frame.windowSize.x = size[0]
-  frame.windowSize.y = size[1]
+  frame.windowSize.w = size[0]
+  frame.windowSize.h = size[1]
   frame.windowRawSize = frame.windowSize.wh.scaled()
   echo "setSize: ", frame.windowSize
   echo "setSize: ", frame.windowRawSize
