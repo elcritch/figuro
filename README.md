@@ -101,6 +101,7 @@ proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
+  # Sets up nodes, creates `var node, parent: Figuro`
   nodes(self):
     node.setName "main"
 

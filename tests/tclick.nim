@@ -24,21 +24,11 @@ proc btnClicked*(self: Button[int],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
   if buttons == {MouseLeft} or buttons == {DoubleClick}:
-    echo ""
-    echo nd(), "tclick:button:clicked: ", self.state, " button: ", buttons
     if kind == Enter:
       self.state.inc
       refresh(self)
 
-proc hovered*[T](self: Button[T], kind: EventKind) {.slot.} =
-  echo "button:hovered: ", kind, " :: ", self.getId
-
-proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
-  self.bkgFade.tick(self)
-  emit self.update()
-
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
-  echo "hover: ", evtKind == Enter
   self.bkgFade.isActive(evtKind == Enter)
   refresh(self)
 
@@ -71,6 +61,10 @@ proc draw*(self: Main) {.slot.} =
               with node:
                 fill blackColor
                 setText({font: $(btn.state)}, Center, Middle)
+
+proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
+  self.bkgFade.tick(self)
+  emit self.update()
 
 var main = Main.new()
 app.width = 720
