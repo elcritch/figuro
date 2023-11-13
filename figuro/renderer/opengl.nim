@@ -97,7 +97,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   app.running = true
 
-proc setupRenderer*(): Renderer =
+proc setupRenderer*[F](frame: F): Renderer =
   let window = newWindow("", ivec2(1280, 800))
   window.startOpenGL(openglVersion)
 
@@ -106,6 +106,7 @@ proc setupRenderer*(): Renderer =
   renderer.configureWindowEvents()
   app.requestedFrame.inc
 
+  frame.uxInputList = renderer.uxInputList
   return renderer
 
 
