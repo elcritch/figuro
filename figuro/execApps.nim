@@ -61,5 +61,4 @@ proc startFiguro*[T](
                              app.uiScale * app.height.float32)
 
   let frame = newAppFrame(widget)
-  let renderer = setupRenderer(frame)
-  run(renderer, frame)
+  run(frame)
