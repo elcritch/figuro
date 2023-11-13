@@ -218,7 +218,6 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
   node.uid = node.agentId
-  # node.parent = parent
   let name = $(id)
   node.name.setLen(0)
   discard node.name.tryAdd(name)
