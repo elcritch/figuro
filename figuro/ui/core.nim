@@ -73,17 +73,6 @@ proc nd*(): string =
   for i in 0..nodeDepth:
     result &= "   "
 
-proc setupAppFrame*(root: Figuro): AppFrame =
-  if root == nil:
-    raise newException(NilAccessDefect, "must set root")
-  root.diffIndex = 0
-  if root.theme.isNil:
-    root.theme = Theme(font: defaultFont)
-  let frame = AppFrame(root: root)
-  frame.root.refresh = proc(node: Figuro) =
-    frame.redrawNodes.incl(node)
-  result = frame
-
 proc disable(fig: Figuro) =
   if not fig.isNil:
     fig.parent = nil
@@ -175,6 +164,20 @@ proc connectDefaults*[T](node: T) {.slot.} =
     connect(node, doHover, node, T.hover())
   when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
     connect(node, doTick, node, T.tick(), acceptVoidSlot=true)
+
+proc newAppFrame*[T](root: T): AppFrame =
+  if root == nil:
+    raise newException(NilAccessDefect, "must set root")
+  connectDefaults[T](root)
+
+  root.diffIndex = 0
+  if root.theme.isNil:
+    root.theme = Theme(font: defaultFont)
+  let frame = AppFrame(root: root)
+  frame.root.refresh = proc(node: Figuro) =
+    frame.redrawNodes.incl(node)
+  result = frame
+  refresh(root)
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
