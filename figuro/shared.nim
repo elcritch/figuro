@@ -47,6 +47,7 @@ type
   AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
 
   AppState* = object
+    running*: bool
     # running*, focused*, minimized*, fullscreen*: bool
 
     # width*, height*: int
@@ -58,8 +59,6 @@ type
     frameCount*: int
     tickCount*: int
 
-    windowSize*: Box ## Screen size in logical coordinates.
-    windowRawSize*: Vec2    ## Screen coordinates
     # windowFrame*: Vec2   ## Pixel coordinates
 
     pixelate*: bool ## ???

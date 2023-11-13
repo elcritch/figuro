@@ -161,12 +161,17 @@ proc newAppFrame*[T](root: T): AppFrame =
     raise newException(NilAccessDefect, "must set root")
   connectDefaults[T](root)
 
+  # app.windowSize = initBox(0.0, 0.0,
+  #                          app.uiScale * app.width.float32,
+  #                          app.uiScale * app.height.float32)
+
   root.diffIndex = 0
   if root.theme.isNil:
     root.theme = Theme(font: defaultFont)
   let frame = AppFrame(root: root)
-  result = frame
+  root.frame = frame
   refresh(root)
+  return frame
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
@@ -444,7 +449,7 @@ template calcBasicConstraintImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  let parentBox = if node.parent.isNil: app.windowSize
+  let parentBox = if node.parent.isNil: node.frame.windowSize
                   else: node.parent.box
   template calcBasic(val: untyped): untyped =
     block:
@@ -515,7 +520,7 @@ template calcBasicConstraintPostImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  let parentBox = if node.parent.isNil: app.windowSize
+  let parentBox = if node.parent.isNil: node.frame.windowSize
                   else: node.parent.box
   template calcBasic(val: untyped): untyped =
     block:

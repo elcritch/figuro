@@ -29,14 +29,14 @@ proc configureWindowEvents(renderer: Renderer) =
   window.runeInputEnabled = true
 
   window.onResize = proc () =
-    updateWindowSize(window)
+    updateWindowSize(renderer.frame, window)
     renderer.render(updated = true, poll = false)
     var uxInput = window.copyInputs()
-    uxInput.windowSize = some app.windowSize
+    uxInput.windowSize = some renderer.frame.windowSize
     discard renderer.uxInputList.trySend(uxInput)
   
   window.onFocusChange = proc () =
-    app.focused = window.focused
+    renderer.frame.focused = window.focused
     let uxInput = window.copyInputs()
     discard renderer.uxInputList.trySend(uxInput)
 
@@ -95,18 +95,15 @@ proc configureWindowEvents(renderer: Renderer) =
                               {styleDim}, fgGreen, $rune)
     discard renderer.uxInputList.trySend(uxInput)
 
-  app.running = true
+  renderer.frame.running = true
 
 proc setupRenderer*[F](frame: F): Renderer =
   let window = newWindow("", ivec2(1280, 800))
-  window.startOpenGL(openglVersion)
-
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
-  let renderer = newRenderer(window, false, 1.0, atlasSize)
+  let renderer = newRenderer(frame, window, false, 1.0, atlasSize)
   renderer.configureWindowEvents()
   app.requestedFrame.inc
 
-  frame.uxInputList = renderer.uxInputList
   return renderer
 
 

@@ -30,7 +30,7 @@ proc runFrameImpl(frame: AppFrame) =
     # Main
     frame.root.diffIndex = 0
     if app.requestedFrame > 0:
-      frame.root.refresh(frame.root)
+      refresh(frame.root)
       app.requestedFrame.dec()
 
     if frame.redrawNodes.len() > 0:
@@ -46,19 +46,14 @@ proc runFrameImpl(frame: AppFrame) =
 
 exec.runFrame = runFrameImpl
 
-proc startFiguro*[T](
-    widget: T,
-    fullscreen = false,
-    pixelScale = 1.0
+proc startFiguro*(
+    frame: AppFrame,
 ) =
   ## Starts Fidget UI library
   ## 
 
-  app.fullscreen = fullscreen
-  if not fullscreen:
-    app.windowSize = initBox(0.0, 0.0,
-                             app.uiScale * app.width.float32,
-                             app.uiScale * app.height.float32)
+  # app.fullscreen = fullscreen
+  # if not fullscreen:
 
-  let frame = newAppFrame(widget)
+  # let frame = newAppFrame(widget)
   run(frame)

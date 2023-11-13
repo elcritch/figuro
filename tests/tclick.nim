@@ -82,6 +82,8 @@ proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
   emit self.update()
 
 var main = Main.new()
-app.width = 720
-app.height = 140
-startFiguro(main)
+# app.width = 720
+# app.height = 140
+
+let frame = newAppFrame(main)
+startFiguro(frame)

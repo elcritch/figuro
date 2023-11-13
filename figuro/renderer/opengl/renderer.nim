@@ -5,6 +5,8 @@ import pkg/windy
 import pkg/opengl
 from pixie import Image
 
+import window
+
 import commons, fontutils, context, formatflippy, utils
 
 export tables
@@ -17,16 +19,20 @@ type
     nodes*: RenderNodes
     uxInputList*: Chan[AppInputs]
     chan*: Chan[RenderNodes]
+    frame*: AppFrame
 
 proc newRenderer*(
+    frame: AppFrame,
     window: Window,
     pixelate: bool,
     forcePixelScale: float32,
     atlasSize: int
 ): Renderer =
-
   app.pixelScale = forcePixelScale
   let renderer = Renderer(window: window)
+  startOpenGL(frame, window, openglVersion)
+  frame.uxInputList = renderer.uxInputList
+  renderer.frame = frame
   renderer.ctx = newContext(atlasSize = atlasSize,
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
@@ -235,14 +241,15 @@ proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [MainThreadEff
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
-proc renderFrame*(ctx: Context, nodes: var RenderNodes) =
+proc renderFrame*(renderer: Renderer) =
+  let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(app.windowRawSize)
+  ctx.beginFrame(renderer.frame.windowRawSize)
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  ctx.renderRoot(nodes)
+  ctx.renderRoot(renderer.nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -254,22 +261,21 @@ proc renderFrame*(ctx: Context, nodes: var RenderNodes) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(ctx: Context, 
-                   window: Window,
-                   nodes: var RenderNodes,
+proc renderAndSwap(renderer: Renderer,
                    updated: bool) =
   ## Does drawing operations.
+
   app.tickCount.inc
 
   timeIt(drawFrame):
-    ctx.renderFrame(nodes)
+    renderFrame(renderer)
 
   var error: GLenum
   while (error = glGetError(); error != GL_NO_ERROR):
     echo "gl error: " & $error.uint32
 
   timeIt(drawFrameSwap):
-    window.swapBuffers()
+    renderer.window.swapBuffers()
 
 proc render*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
@@ -278,7 +284,7 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
   let update = renderer.chan.tryRecv(renderer.nodes)
 
   if renderer.window.closeRequested:
-    app.running = false
+    renderer.frame.running = false
     return
 
   timeIt(eventPolling):
@@ -286,8 +292,5 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
       windy.pollEvents()
   
   if update:
-    renderAndSwap(renderer.ctx,
-                  renderer.window,
-                  renderer.nodes,
-                  update)
+    renderAndSwap(renderer, update)
 

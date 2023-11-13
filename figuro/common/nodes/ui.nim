@@ -32,7 +32,9 @@ type
     root*: Figuro
     uxInputList*: Chan[AppInputs]
     running*, focused*, minimized*, fullscreen*: bool
-    width*, height*: int
+
+    windowSize*: Box ## Screen size in logical coordinates.
+    windowRawSize*: Vec2    ## Screen coordinates
 
   Figuro* = ref object of Agent
     frame*: AppFrame

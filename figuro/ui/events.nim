@@ -223,13 +223,13 @@ proc computeEvents*(frame: AppFrame) =
       for target in newHovers:
         target.events.incl evHover
         emit target.doHover(Enter)
-        target.refresh(target)
+        refresh(target)
         prevHovers.incl target
 
       for target in delHovers:
         target.events.excl evHover
         emit target.doHover(Exit)
-        target.refresh(target)
+        refresh(target)
         prevHovers.excl target
 
   ## handle click events
