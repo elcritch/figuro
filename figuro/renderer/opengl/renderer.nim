@@ -278,8 +278,9 @@ proc renderAndSwap(ctx: Context,
 proc render*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
-  let update = renderer.updated or updated
+  # let update = renderer.updated or updated
   renderer.updated = false
+  let update = renderer.chan.tryRecv(renderer.nodes)
 
   if renderer.window.closeRequested:
     app.running = false
@@ -289,7 +290,7 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
     if poll:
       windy.pollEvents()
   
-  if updated:
+  if update:
     renderAndSwap(renderer.ctx,
                   renderer.window,
                   renderer.nodes,
