@@ -12,14 +12,17 @@ import commons, fontutils, context, formatflippy, utils
 export tables
 export getTypeface, getTypeset
 
+import std/locks
+
 type
   Renderer* = ref object
     ctx*: Context
     window*: Window
-    nodes*: RenderNodes
     uxInputList*: Chan[AppInputs]
-    chan*: Chan[RenderNodes]
     frame*: AppFrame
+    lock*: Lock
+    updated*: bool
+    nodes*: RenderNodes
 
 proc newRenderer*(
     frame: AppFrame,
@@ -35,8 +38,8 @@ proc newRenderer*(
   renderer.ctx = newContext(atlasSize = atlasSize,
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
-  renderer.chan = newChan[RenderNodes]()
   renderer.uxInputList = newChan[AppInputs](40)
+  renderer.lock.initLock()
   frame.uxInputList = renderer.uxInputList
   return renderer
 
@@ -281,8 +284,7 @@ proc renderAndSwap(renderer: Renderer,
 proc render*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
-  # let update = renderer.updated or updated
-  let update = renderer.chan.tryRecv(renderer.nodes)
+  let update = renderer.updated or updated
 
   if renderer.window.closeRequested:
     renderer.frame.running = false

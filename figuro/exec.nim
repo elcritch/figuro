@@ -32,6 +32,7 @@ var
   runFrame*: proc(frame: AppFrame) {.nimcall.}
   appFrames*: Table[AppFrame, Renderer]
 
+
 const renderPeriodMs {.intdefine.} = 16
 const appPeriodMs {.intdefine.} = 16
 
