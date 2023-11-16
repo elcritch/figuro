@@ -1,4 +1,5 @@
 
+import std/locks
 import std/sets
 import shared, ui/core
 import common/nodes/transfer
@@ -41,8 +42,10 @@ proc runFrameImpl(frame: AppFrame) =
       frame.redrawNodes.clear()
       computeLayout(frame.root)
       computeScreenBox(nil, frame.root)
-      discard exec.appFrames[frame].chan.trySend(
-                frame.root.copyInto())
+      appFrames.withValue(frame, renderer):
+        withLock(renderer.lock):
+          renderer.updated = true
+          renderer.nodes = frame.root.copyInto()
 
 exec.runFrame = runFrameImpl
 
