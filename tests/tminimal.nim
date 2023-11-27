@@ -32,7 +32,5 @@ proc draw*(self: Main) {.slot.} =
           fill css"#2B9FEA"
 
 var main = Main.new()
-app.width = 400
-app.height = 400
-
-startFiguro(main)
+let frame = newAppFrame(main, size=(400'ui, 400'ui))
+startFiguro(frame)
