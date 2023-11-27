@@ -33,8 +33,6 @@ proc draw*(self: Main) {.slot.} =
         box node, 10'ux, 10'ux, 400'ux, 100'ux
         # fill blackColor
 
-var fig = Main.new()
-app.width = 720
-app.height = 300
-
-startFiguro(fig)
+var main = Main.new()
+let frame = newAppFrame(main, size=(720'ui, 140'ui))
+startFiguro(frame)
