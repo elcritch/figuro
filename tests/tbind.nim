@@ -55,10 +55,6 @@ proc draw*(self: Main) {.slot.} =
         counter.update(counter.value+1)
 
 
-
 var main = Main.new()
-connect(main, doDraw, main, Main.draw())
-
-app.width = 400
-app.height = 140
-startFiguro(main)
+let frame = newAppFrame(main, size=(400'ui, 140'ui))
+startFiguro(frame)
