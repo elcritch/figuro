@@ -49,6 +49,5 @@ proc draw*(self: Main) {.slot.} =
     node.gridTemplateDebugLines Figuro(vert)
 
 var main = Main.new()
-app.width = 440
-app.height = 440
-startFiguro(main)
+let frame = newAppFrame(main, size=(440'ui, 440'ui))
+startFiguro(frame)
