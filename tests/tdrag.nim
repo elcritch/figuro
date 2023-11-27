@@ -1,4 +1,5 @@
-import figuro/widgets/buttonWrap
+import figuro/widgets/button
+import figuro/ui/animations
 import figuro/widget
 import figuro
 
@@ -16,18 +17,24 @@ type
     mainRect: Figuro
 
 proc btnDragStart*(node: Figuro,
-              kind: EventKind,
-              initial: Position,
-              cursor: Position) {.slot.} =
+                   kind: EventKind,
+                   initial: Position,
+                   cursor: Position
+                  ) {.slot.} =
   discard
 
-proc btnDragStop*(node: Figuro,
-              kind: EventKind,
-              initial: Position,
-              cursor: Position) {.slot.} =
+proc btnDragStop*(
+    node: Figuro,
+    kind: EventKind,
+    initial: Position,
+    cursor: Position
+) {.slot.} =
   echo "btnDrag:exit: ", node.getId, " ", kind,
           " change: ", initial.positionDiff(cursor),
           " nodeRel: ", cursor.positionRelative(node)
+  # let btn = Button[FadeAnimation](node)
+  let btn = Button[tuple[]](node)
+  # btn.state.setMax()
 
 proc draw*(self: Main) {.slot.} =
   nodes(self):
@@ -49,7 +56,8 @@ proc draw*(self: Main) {.slot.} =
             fill blackColor
             setText({font: "drag me"})
 
-    rectangle "btnBody":
+    button[FadeAnimation]("btn"):
+      echo "button:id: ", node.getId, " ", node.state.typeof
       with node:
         box 200'ux, 30'ux, 80'ux, 80'ux
         fill css"#9F2B00"
