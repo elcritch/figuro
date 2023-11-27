@@ -15,11 +15,17 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc btnDrag*(node: Figuro,
+proc btnDragStart*(node: Figuro,
               kind: EventKind,
               initial: Position,
               cursor: Position) {.slot.} =
-  echo "btnDrag: ", node.getId, " ", kind,
+  discard
+
+proc btnDragStop*(node: Figuro,
+              kind: EventKind,
+              initial: Position,
+              cursor: Position) {.slot.} =
+  echo "btnDrag:exit: ", node.getId, " ", kind,
           " change: ", initial.positionDiff(cursor),
           " nodeRel: ", cursor.positionRelative(node)
 
@@ -34,7 +40,7 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 40'ux, 30'ux, 80'ux, 80'ux
         fill css"#2B9F2B"
-        connect(doDrag, node, btnDrag)
+        connect(doDrag, node, btnDragStart)
 
       contents "child":
         text "btnText":
@@ -47,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 200'ux, 30'ux, 80'ux, 80'ux
         fill css"#9F2B00"
-        connect(doDrag, node, btnDrag)
+        connect(doDrag, node, btnDragStop)
 
 
 var main = Main.new()
