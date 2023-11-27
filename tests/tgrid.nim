@@ -19,7 +19,7 @@ proc draw*(self: GridApp) {.slot.} =
     with node:
       fill clearColor
     rectangle "main":
-      echo "windowSize: ", app.windowSize
+      echo "windowSize: ", self.frame.windowSize
       with node:
         fill css"#D7D7D9"
         cornerRadius 10
@@ -65,7 +65,6 @@ proc draw*(self: GridApp) {.slot.} =
             # size 100'ux, 30'ux
             size 50'pp, 100'pp
             fill css"#A00000"
-          echo "cssize: ", node.cxSize.repr
 
           # onClick:
           #   self.count.inc()
@@ -82,13 +81,9 @@ proc draw*(self: GridApp) {.slot.} =
 
 var fig = GridApp.new()
 
-connect(fig, doDraw, fig, GridApp.draw)
-
 fig.cxSize[dcol] = csAuto()
 fig.cxSize[drow] = csAuto()
 fig.box = initBox(0, 0, 480, 300)
 
-app.width = 480
-app.height = 300
-
-startFiguro(fig)
+let frame = newAppFrame(fig, size=(480'ui, 300'ui))
+startFiguro(frame)
