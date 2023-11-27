@@ -41,7 +41,5 @@ proc draw*(self: Main) {.slot.} =
               connect(doHover, self, buttonHover)
 
 var main = Main.new()
-app.width = 720
-app.height = 140
-
-startFiguro(main)
+let frame = newAppFrame(main, size=(720'ui, 140'ui))
+startFiguro(frame)
