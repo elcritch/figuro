@@ -21,3 +21,7 @@ proc tick*(self: var FadeAnimation, node: Figuro): bool {.discardable.} =
 
 proc isActive*(self: var FadeAnimation, isActive = true) =
   self.active = isActive
+proc setMax*(self: var FadeAnimation) =
+  self.amount = self.minMax.b
+proc setMin*(self: var FadeAnimation) =
+  self.amount = self.minMax.a
