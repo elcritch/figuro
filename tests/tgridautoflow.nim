@@ -66,8 +66,5 @@ proc draw*(self: GridApp) {.slot.} =
 
 
 var fig = GridApp.new()
-
-app.width = 480
-app.height = 300
-
-startFiguro(fig)
+let frame = newAppFrame(fig, size=(480'ui, 300'ui))
+startFiguro(frame)
