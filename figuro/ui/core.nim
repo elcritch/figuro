@@ -258,6 +258,7 @@ import utils, macros, typetraits
 
 type
   NonGenericType = distinct void
+  EmptyType = distinct tuple[]
 
 macro hasGenericTypes*(n: typed): bool =
   ## check is a given type is generic
@@ -376,7 +377,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## instance.
       static:
         echo "generic types! empty tuple[]"
-      widget[T, tuple[]](args)
+      widget[T, EmptyType](args)
   else:
     static:
       echo "Non generic types!"
