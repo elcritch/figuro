@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
           box 10'pp, 10'pp, 80'pp, 10'pp
           fill css"#2B9FEA"
 
-      button "btn":
+      button[void] "btn":
         with node:
           box 10'pp, 60'pp, 80'pp, 10'pp
           fill css"#2B9FEA"
