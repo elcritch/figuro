@@ -317,12 +317,13 @@ proc generateBodies*(widget, kind, gtype: NimNode,
 macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
   let widget = class.getTypeInst()
+  echo "widgetImpl: ", gclass.getTypeInst().treeRepr
   let subtype = gclass.getTypeInst()
   let wargs = args.parseWidgetArgs()
   let (hasGeneric, wtype, gtype) =
     if widget.kind == nnkBracketExpr:
       (true, widget[0].getTypeInst(), widget[1].getTypeInst())
-    elif gclass != nil and $subtype != "NonGenericType":
+    elif gclass != nil and subtype.repr != "NonGenericType":
       (true, widget.getTypeInst(), gclass.getTypeInst())
     else:
       (false, widget.getTypeInst(), nil)
@@ -354,9 +355,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## that `widget` can.
   ##
   when class.hasGenericTypes():
-    static:
-      echo "generic types!"
-    template `name`*[U](args: varargs[untyped]): auto =
+    template `name Of`*[U](args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
       ## creating a new Figuro node.
       ## 
@@ -366,7 +365,10 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## instance.
       static:
         echo "generic types! T/U args: ", typeof(U)
-      widget[T, U](args)
+      when compiles(typeof(U)):
+        widget[`T`, U](args)
+      else:
+        widget[`T`, EmptyType](args)
     template `name`*(args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
       ## creating a new Figuro node.
@@ -376,8 +378,8 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## The `node` variable becomes the new widget
       ## instance.
       static:
-        echo "generic types! empty tuple[]"
-      widget[T, EmptyType](args)
+        echo "generic types! EmptyType"
+      widget[`T`, EmptyType](args)
   else:
     static:
       echo "Non generic types!"
@@ -391,7 +393,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## instance.
       static:
         echo "non generic type! void"
-      widget[T, NonGenericType](args)
+      widget[`T`, NonGenericType](args)
 
 
 {.hint[Name]:off.}
