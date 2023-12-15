@@ -356,8 +356,9 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ##
   when class.hasGenericTypes():
     template `name Of`*[U](args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T`
-      ## creating a new Figuro node.
+      ## Instantiate a widget block for a given widget `T[U]`
+      ## creating a new Figuro node. This supports generic
+      ## widgets like `Button` which subtype `StatefulWidget[T]`.
       ## 
       ## Behind the scenes this creates a new block
       ## with new `node` and `parent` variables.
