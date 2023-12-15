@@ -16,6 +16,7 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
+
 proc btnDragStart*(node: Figuro,
                    kind: EventKind,
                    initial: Position,
