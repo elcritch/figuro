@@ -32,8 +32,7 @@ proc btnDragStop*(
   echo "btnDrag:exit: ", node.getId, " ", kind,
           " change: ", initial.positionDiff(cursor),
           " nodeRel: ", cursor.positionRelative(node)
-  # let btn = Button[FadeAnimation](node)
-  let btn = Button[tuple[]](node)
+  let btn = Button[FadeAnimation](node)
   # btn.state.setMax()
 
 proc draw*(self: Main) {.slot.} =
@@ -43,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
       fill css"#9F2B00"
       box 0'ux, 0'ux, 400'ux, 300'ux
 
-    button "btn", state(int):
+    rectangle "btn":
       with node:
         box 40'ux, 30'ux, 80'ux, 80'ux
         fill css"#2B9F2B"
@@ -56,13 +55,12 @@ proc draw*(self: Main) {.slot.} =
             fill blackColor
             setText({font: "drag me"})
 
-    button[FadeAnimation]("btn"):
+    button[FadeAnimation] "btn":
       echo "button:id: ", node.getId, " ", node.state.typeof
       with node:
         box 200'ux, 30'ux, 80'ux, 80'ux
         fill css"#9F2B00"
         connect(doDrag, node, btnDragStop)
-
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(720'ui, 140'ui))

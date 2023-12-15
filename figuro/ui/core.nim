@@ -287,40 +287,44 @@ proc generateBodies*(widget, kind, gtype: NimNode,
   let hasBinds = newLit(not bindsArg.isNil)
   let stateArg = gtype
 
-  # echo "widget: ", widget.treeRepr
-  # echo "stateArg: ", stateArg.treeRepr
+  echo "widget: ", widget.treeRepr
+  echo "stateArg: ", stateArg.treeRepr
   let widgetType =
     if not hasGeneric: quote do: `widget`
     else: quote do: `widget`[`stateArg`]
-  # echo "widgetType: ", widgetType.treeRepr
+  echo "widgetType: ", widgetType.treeRepr
 
   result = quote do:
-    setupWidget(`widgetType`, `kind`, `id`,
+    expandMacros:
+      setupWidget(`widgetType`, `kind`, `id`,
                 `hasCaptures`, `hasBinds`,
                 `capturedVals`, `blk`)
 
 macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
   let widget = class.getTypeInst()
-  # echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
-  # echo "gclass: ", gclass.treeRepr, " " # , gclass.getTypeImpl().treeRepr
+  echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
+  echo "gclass: ", gclass.treeRepr, " ", gclass.getTypeInst().treeRepr
   let wargs = args.parseWidgetArgs()
   var hasGeneric = true
   let (wtype, gtype) =
     if widget.kind == nnkBracketExpr:
       # echo "WBRACKET: "
       (widget[0].getTypeInst(), widget[1].getTypeInst())
-    elif gclass != nil and gclass.getTypeInst().kind == nnkTupleConstr:
+    # elif gclass != nil and gclass.getTypeInst().kind == nnkTupleConstr:
+    elif gclass != nil:
       # echo "GCLASS: "
-      (widget.getTypeInst(), gclass)
+      (widget.getTypeInst(), gclass.getTypeInst())
     else:
       hasGeneric = false
       # echo "W NOGEN: "
       (widget.getTypeInst(), nil)
   # impl.expectKind(nnkTypeDef)
   # let hasGeneric = impl[1].len() > 0
+  echo "hasGen: ", hasGeneric, " wtype: ", wtype.repr, " gtype: ", gtype.repr
   result = generateBodies(wtype, ident "nkRectangle", gtype,
                           wargs, hasGeneric)
+  echo "widget:\n", result.repr
 
 template widget*[T, U](args: varargs[untyped]): auto =
   ## sets up a new instance of a widget of type `T`.
@@ -338,13 +342,13 @@ template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
     widget[F, void](args)
 
 macro hasGenericTypes*(n: typed): bool =
-  echo "hasGenericTypes: ", n.lispRepr
   var hasGenerics = true
   if n.kind == nnkBracketExpr:
     hasGenerics = true
   else:
     let impl = n.getImpl()
     hasGenerics = impl[1].len() > 0
+  echo "hasGenericTypes: ", n.lispRepr, " ", hasGenerics
   return newLit(hasGenerics)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
@@ -355,15 +359,8 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## that `widget` can.
   ##
   when class.hasGenericTypes():
-    template `name`*(args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T`
-      ## creating a new Figuro node.
-      ## 
-      ## Behind the scenes this creates a new block
-      ## with new `node` and `parent` variables.
-      ## The `node` variable becomes the new widget
-      ## instance.
-      widget[T, tuple[]](args)
+    static:
+      echo "generic types!"
     template `name`*[U](args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
       ## creating a new Figuro node.
@@ -372,7 +369,20 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## with new `node` and `parent` variables.
       ## The `node` variable becomes the new widget
       ## instance.
+      static:
+        echo "generic types! T/U args: ", typeof(U)
       widget[T, U](args)
+    template `name`*(args: varargs[untyped]): auto =
+      ## Instantiate a widget block for a given widget `T`
+      ## creating a new Figuro node.
+      ## 
+      ## Behind the scenes this creates a new block
+      ## with new `node` and `parent` variables.
+      ## The `node` variable becomes the new widget
+      ## instance.
+      static:
+        echo "generic types! tuple[]"
+      widget[T, tuple[]](args)
   else:
     template `name`*(args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
