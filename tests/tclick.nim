@@ -39,42 +39,42 @@ proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
   ## triggers a node or it's parents to be refreshed
-  nodes(self):
-    node.setName "main"
+  var node = self
+  node.setName "main"
 
-    # Calls the widget template `rectangle`.
-    # This creates a new basic widget node. Generally used to draw generic rectangles.
-    rectangle "body":
+  # Calls the widget template `rectangle`.
+  # This creates a new basic widget node. Generally used to draw generic rectangles.
+  rectangle "body":
+    with node:
+      # sets the bounding box of this node
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0
+      # `fill` sets the background color. Color apis use the `chroma` library
+      fill whiteColor.darken(self.bkgFade.amount)
+
+    # sets up horizontal widget node with alternate syntax
+    Horizontal.new "horiz": # same as `horizontal "horiz":`
       with node:
-        # sets the bounding box of this node
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
-        # `fill` sets the background color. Color apis use the `chroma` library
-        fill whiteColor.darken(self.bkgFade.amount)
+        box 10'ux, 0'ux, 100'pp, 100'pp
+        # `itemWidth` is needed to set the width of items
+        # in the horizontal widget
+        itemWidth 100'ux, gap = 20'ui
+        layoutItems justify=CxCenter, align=CxCenter
 
-      # sets up horizontal widget node with alternate syntax
-      Horizontal.new "horiz": # same as `horizontal "horiz":`
-        with node:
-          box 10'ux, 0'ux, 100'pp, 100'pp
-          # `itemWidth` is needed to set the width of items
-          # in the horizontal widget
-          itemWidth 100'ux, gap = 20'ui
-          layoutItems justify=CxCenter, align=CxCenter
+      for i in 0 .. 4:
+        Button[int].new("btn", captures(i)):
+          let btn = node
+          with node:
+            size 100'ux, 100'ux
+            connect(doHover, self, btnHover)
+            connect(doClick, node, btnClicked)
+          if i == 0:
+            connect(self, update, node, btnTick)
 
-        for i in 0 .. 4:
-          Button[int].new("btn", captures(i)):
-            let btn = node
+          text "text":
             with node:
-              size 100'ux, 100'ux
-              connect(doHover, self, btnHover)
-              connect(doClick, node, btnClicked)
-            if i == 0:
-              connect(self, update, node, btnTick)
-
-            text "text":
-              with node:
-                fill blackColor
-                setText({font: $(btn.state)}, Center, Middle)
+              fill blackColor
+              setText({font: $(btn.state)}, Center, Middle)
 
 
 proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =

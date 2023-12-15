@@ -15,21 +15,21 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
-  nodes(self):
-    rectangle "main":
-      box node, 0'ui, 0'ui, 620'ui, 140'ui
-      for i in 0 .. 5:
-        button "btn", captures(i):
-          let value = self.value
-          fill node, css"#AA0000"
-          onHover:
-            fill node, css"#F00000"
-          box node,
-              ux(20 + (i.toFloat + value) * 120),
-              ux(30 + 20 * sin(value + i.toFloat)),
-              60'ui, 60'ui
-          if i == 0:
-            node.fill.a = value * 1.0
+  var node = self
+  rectangle "main":
+    box node, 0'ui, 0'ui, 620'ui, 140'ui
+    for i in 0 .. 5:
+      button "btn", captures(i):
+        let value = self.value
+        fill node, css"#AA0000"
+        onHover:
+          fill node, css"#F00000"
+        box node,
+            ux(20 + (i.toFloat + value) * 120),
+            ux(30 + 20 * sin(value + i.toFloat)),
+            60'ui, 60'ui
+        if i == 0:
+          node.fill.a = value * 1.0
 
 var fig = Main.new()
 
