@@ -12,6 +12,7 @@ suite "test layers":
 
   suite "basic single layer":
     var self = Figuro.new()
+    self.frame = AppFrame()
     nodes(self):
       rectangle "body":
         rectangle "child1":
@@ -100,6 +101,7 @@ suite "test layers":
 
   suite "three layer out of order":
     var self = Figuro.new()
+    self.frame = AppFrame()
     nodes(self):
       node.zlevel = 20
       discard node.name.tryAdd("root")
