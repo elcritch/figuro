@@ -319,29 +319,18 @@ macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
   let widget = class.getTypeInst()
   let subtype = gclass.getTypeInst()
-  echo "widgetImpl: ", " widgetTp: ", widget.repr, " hasGenerics: ", widget.hasGenericTypes()
-  echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
-  echo "gclass: ", gclass.treeRepr, " ", gclass.getTypeInst().treeRepr
   let wargs = args.parseWidgetArgs()
-  var hasGeneric = true
-  let (wtype, gtype) =
+  let (hasGeneric, wtype, gtype) =
     if widget.kind == nnkBracketExpr:
-      echo "WBRACKET: "
-      (widget[0].getTypeInst(), widget[1].getTypeInst())
-    # elif gclass != nil and gclass.getTypeInst().kind == nnkTupleConstr:
+      (true, widget[0].getTypeInst(), widget[1].getTypeInst())
     elif gclass != nil and $subtype != "NonGenericType":
-      echo "GCLASS: ", $subtype
-      (widget.getTypeInst(), gclass.getTypeInst())
+      (true, widget.getTypeInst(), gclass.getTypeInst())
     else:
-      hasGeneric = false
-      echo "W NOGEN: "
-      (widget.getTypeInst(), nil)
-  # impl.expectKind(nnkTypeDef)
-  # let hasGeneric = impl[1].len() > 0
+      (false, widget.getTypeInst(), nil)
   echo "hasGen: ", hasGeneric, " wtype: ", wtype.repr, " gtype: ", gtype.repr
   result = generateBodies(wtype, ident "nkRectangle", gtype,
                           wargs, hasGeneric)
-  echo "widget:\n", result.repr
+  # echo "widget:\n", result.repr
 
 template widget*[T, U](args: varargs[untyped]): auto =
   ## sets up a new instance of a widget of type `T`.
