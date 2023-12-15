@@ -24,21 +24,21 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  nodes(self):
-    BasicFiguro.new "body":
-      with node:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
-        fill whiteColor.darken(self.hoveredAlpha)
-      Horizontal.new "horiz":
-        offset node, 10'ux, 0'ux
-        itemWidth node, cx"min-content", gap = 20'ui
-        for i in 0 .. 4:
-          Button[int].new "btn", captures(i):
-            with node:
-              size 100'ux, 100'ux
-              # we need to connect the nodes onHover event
-              connect(doHover, self, buttonHover)
+  var node = self
+  BasicFiguro.new "body":
+    with node:
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0
+      fill whiteColor.darken(self.hoveredAlpha)
+    Horizontal.new "horiz":
+      offset node, 10'ux, 0'ux
+      itemWidth node, cx"min-content", gap = 20'ui
+      for i in 0 .. 4:
+        Button[int].new "btn", captures(i):
+          with node:
+            size 100'ux, 100'ux
+            # we need to connect the nodes onHover event
+            connect(doHover, self, buttonHover)
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(720'ui, 140'ui))
