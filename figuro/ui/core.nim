@@ -262,13 +262,11 @@ type
 macro hasGenericTypes*(n: typed): bool =
   ## check is a given type is generic
   var hasGenerics = true
-  echo "HasGenericTypes: ", " ", n.treeRepr
   if n.kind == nnkBracketExpr:
     hasGenerics = true
   else:
     let impl = n.getImpl()
     hasGenerics = impl[1].len() > 0
-  echo "HasGenericTypes: ", " ", hasGenerics
   return newLit(hasGenerics)
 
 template setupWidget(
