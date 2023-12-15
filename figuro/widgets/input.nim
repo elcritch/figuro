@@ -143,36 +143,36 @@ proc draw*(self: Input) {.slot.} =
   ## Input widget!
   connect(self, doKeyCommand, self, Input.keyCommand)
 
-  nodes(self):
-    if self.text.isNil:
-      self.text = newTextBox(self.box, self.theme.font)
+  if self.text.isNil:
+    self.text = newTextBox(self.box, self.theme.font)
 
+  with self:
+    clipContent true
+    cornerRadius 10.0
+
+  var node = self
+  text "text":
     with node:
-      clipContent true
-      cornerRadius 10.0
-
-    text "text":
+      fill blackColor
+    node.textLayout = self.text.layout
+    rectangle "cursor":
       with node:
+        boxOf self.text.cursorRect
         fill blackColor
-      node.textLayout = self.text.layout
-      rectangle "cursor":
+      node.fill.a = self.value.toFloat * 1.0
+
+    for i, selRect in self.text.selectionRects:
+      rectangle "selection", captures(i):
         with node:
-          boxOf self.text.cursorRect
-          fill blackColor
-        node.fill.a = self.value.toFloat * 1.0
+          boxOf self.text.selectionRects[i]
+          fill css"#A0A0FF" * 0.4
 
-      for i, selRect in self.text.selectionRects:
-        rectangle "selection", captures(i):
-          with node:
-            boxOf self.text.selectionRects[i]
-            fill css"#A0A0FF" * 0.4
-
-    if self.disabled:
-      fill node, whiteColor.darken(0.4)
-    else:
-      fill node, whiteColor.darken(0.2)
-      if self.isActive:
-        fill node, node.fill.lighten(0.15)
-        # this changes the color on hover!
+  if self.disabled:
+    fill node, whiteColor.darken(0.4)
+  else:
+    fill node, whiteColor.darken(0.2)
+    if self.isActive:
+      fill node, node.fill.lighten(0.15)
+      # this changes the color on hover!
 
 exportWidget(input, Input)

@@ -110,42 +110,42 @@ proc scrollBarDrag*(self: ScrollPane,
     refresh(self)
 
 proc draw*(self: ScrollPane) {.slot.} =
-  nodes self:
-    node.listens.events.incl evScroll
-    connect(node, doScroll, self, ScrollPane.scroll)
-    clipContent node, true
+  var node = self
+  self.listens.events.incl evScroll
+  connect(self, doScroll, self, ScrollPane.scroll)
+  self.clipContent true
 
-    rectangle "scrollBody":
-      ## max-content is important here
-      ## todo: do the same for horiz?
-      size node, 100'pp, 100'pp
-      if self.settings.vertical:
-        node.cxSize[drow] = cx"max-content"
-      if self.settings.horizontal:
-        node.cxSize[dcol] = cx"max-content"
-
-      with node:
-        fill whiteColor.darken(0.2)
-      node.offset = self.window.scrollby
-      node.attrs.incl scrollPanel
-      TemplateContents(self)
-      scroll(self, initPosition(0, 0))
-
+  rectangle "scrollBody":
+    ## max-content is important here
+    ## todo: do the same for horiz?
+    size node, 100'pp, 100'pp
     if self.settings.vertical:
-      rectangle "scrollbar-vertical":
-        with node:
-          box self.bary.start.x, self.bary.start.y,
-              self.bary.size.x, self.bary.size.y
-          fill css"#0000ff" * 0.4
-          cornerRadius 4'ui
-          connect(doDrag, self, scrollBarDrag)
+      node.cxSize[drow] = cx"max-content"
     if self.settings.horizontal:
-      rectangle "scrollbar-horizontal":
-        with node:
-          box self.barx.start.x, self.barx.start.y,
-              self.barx.size.x, self.barx.size.y
-          fill css"#0000ff" * 0.4
-          cornerRadius 4'ui
+      node.cxSize[dcol] = cx"max-content"
+
+    with node:
+      fill whiteColor.darken(0.2)
+    node.offset = self.window.scrollby
+    node.attrs.incl scrollPanel
+    TemplateContents(self)
+    scroll(self, initPosition(0, 0))
+
+  if self.settings.vertical:
+    rectangle "scrollbar-vertical":
+      with node:
+        box self.bary.start.x, self.bary.start.y,
+            self.bary.size.x, self.bary.size.y
+        fill css"#0000ff" * 0.4
+        cornerRadius 4'ui
+        connect(doDrag, self, scrollBarDrag)
+  if self.settings.horizontal:
+    rectangle "scrollbar-horizontal":
+      with node:
+        box self.barx.start.x, self.barx.start.y,
+            self.barx.size.x, self.barx.size.y
+        fill css"#0000ff" * 0.4
+        cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   # self.children[0] # "scrollBody"

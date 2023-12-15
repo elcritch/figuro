@@ -19,22 +19,22 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  nodes(self):
+  var node = self
+  rectangle "main":
+    with node:
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0
+      fill "#2A9EEA".parseHtmlColor * 0.7
+    text "text":
+      with node:
+        box 10'ux, 10'ux, 400'ux, 100'ux
+        fill blackColor
+        setText({font: "hello world!\n",
+                  smallFont: "it's a small world"})
     rectangle "main":
       with node:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
-        fill "#2A9EEA".parseHtmlColor * 0.7
-      text "text":
-        with node:
-          box 10'ux, 10'ux, 400'ux, 100'ux
-          fill blackColor
-          setText({font: "hello world!\n",
-                   smallFont: "it's a small world"})
-      rectangle "main":
-        with node:
-          box 10'ux, 10'ux, 400'ux, 100'ux
-          fill whiteColor * 0.33
+        box 10'ux, 10'ux, 400'ux, 100'ux
+        fill whiteColor * 0.33
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(720'ui, 140'ui))
