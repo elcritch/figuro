@@ -364,12 +364,8 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## with new `node` and `parent` variables.
       ## The `node` variable becomes the new widget
       ## instance.
-      static:
-        echo "generic types! T/U args: ", typeof(U)
-      when compiles(typeof(U)):
-        widget[`T`, U](args)
-      else:
-        widget[`T`, EmptyType](args)
+      widget[`T`, U](args)
+
     template `name`*(args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
       ## creating a new Figuro node.
@@ -378,12 +374,8 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## with new `node` and `parent` variables.
       ## The `node` variable becomes the new widget
       ## instance.
-      static:
-        echo "generic types! EmptyType"
       widget[`T`, EmptyType](args)
   else:
-    static:
-      echo "Non generic types!"
     template `name`*(args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
       ## creating a new Figuro node.
@@ -392,10 +384,7 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## with new `node` and `parent` variables.
       ## The `node` variable becomes the new widget
       ## instance.
-      static:
-        echo "non generic type! void"
       widget[`T`, NonGenericType](args)
-
 
 {.hint[Name]:off.}
 template TemplateContents*[T](fig: T): untyped =
