@@ -256,6 +256,21 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
+type
+  NonGenericType = distinct void
+
+macro hasGenericTypes*(n: typed): bool =
+  ## check is a given type is generic
+  var hasGenerics = true
+  echo "HasGenericTypes: ", " ", n.treeRepr
+  if n.kind == nnkBracketExpr:
+    hasGenerics = true
+  else:
+    let impl = n.getImpl()
+    hasGenerics = impl[1].len() > 0
+  echo "HasGenericTypes: ", " ", hasGenerics
+  return newLit(hasGenerics)
+
 template setupWidget(
     `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `blk`
 ): auto =
@@ -295,7 +310,7 @@ proc generateBodies*(widget, kind, gtype: NimNode,
   echo "widgetType: ", widgetType.treeRepr
 
   result = quote do:
-    expandMacros:
+    # expandMacros:
       setupWidget(`widgetType`, `kind`, `id`,
                 `hasCaptures`, `hasBinds`,
                 `capturedVals`, `blk`)
@@ -303,21 +318,23 @@ proc generateBodies*(widget, kind, gtype: NimNode,
 macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
   let widget = class.getTypeInst()
+  let subtype = gclass.getTypeInst()
+  echo "widgetImpl: ", " widgetTp: ", widget.repr, " hasGenerics: ", widget.hasGenericTypes()
   echo "class: ", class.treeRepr, " ", class.getTypeInst().treeRepr
   echo "gclass: ", gclass.treeRepr, " ", gclass.getTypeInst().treeRepr
   let wargs = args.parseWidgetArgs()
   var hasGeneric = true
   let (wtype, gtype) =
     if widget.kind == nnkBracketExpr:
-      # echo "WBRACKET: "
+      echo "WBRACKET: "
       (widget[0].getTypeInst(), widget[1].getTypeInst())
     # elif gclass != nil and gclass.getTypeInst().kind == nnkTupleConstr:
-    elif gclass != nil:
-      # echo "GCLASS: "
+    elif gclass != nil and $subtype != "NonGenericType":
+      echo "GCLASS: ", $subtype
       (widget.getTypeInst(), gclass.getTypeInst())
     else:
       hasGeneric = false
-      # echo "W NOGEN: "
+      echo "W NOGEN: "
       (widget.getTypeInst(), nil)
   # impl.expectKind(nnkTypeDef)
   # let hasGeneric = impl[1].len() > 0
@@ -339,17 +356,7 @@ template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
   when t.hasGenericTypes():
     widget[F, tuple[]](args)
   else:
-    widget[F, void](args)
-
-macro hasGenericTypes*(n: typed): bool =
-  var hasGenerics = true
-  if n.kind == nnkBracketExpr:
-    hasGenerics = true
-  else:
-    let impl = n.getImpl()
-    hasGenerics = impl[1].len() > 0
-  echo "hasGenericTypes: ", n.lispRepr, " ", hasGenerics
-  return newLit(hasGenerics)
+    widget[F, NonGenericType](args)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,
@@ -381,9 +388,11 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## The `node` variable becomes the new widget
       ## instance.
       static:
-        echo "generic types! tuple[]"
+        echo "generic types! empty tuple[]"
       widget[T, tuple[]](args)
   else:
+    static:
+      echo "Non generic types!"
     template `name`*(args: varargs[untyped]): auto =
       ## Instantiate a widget block for a given widget `T`
       ## creating a new Figuro node.
@@ -392,7 +401,9 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
       ## with new `node` and `parent` variables.
       ## The `node` variable becomes the new widget
       ## instance.
-      widget[T, void](args)
+      static:
+        echo "non generic type! void"
+      widget[T, NonGenericType](args)
 
 
 {.hint[Name]:off.}
