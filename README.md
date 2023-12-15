@@ -34,7 +34,7 @@ proc btnClicked*(self: Button[int],
   ## which we can use to check if it's a mouse click
   if buttons == {MouseLeft} or buttons == {DoubleClick}:
     if kind == Enter:
-      self.state.inc
+      self.state.inc()
       refresh(self)
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =

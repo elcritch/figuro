@@ -14,11 +14,10 @@ proc itemWidth*(node: Horizontal, cx: Constraint, gap = -1'ui) =
 
 proc draw*(self: Horizontal) {.slot.} =
   ## button widget!
-  nodes(self):
-    with node:
-      setGridRows 1'fr
-      gridAutoFlow grColumn
-      justifyItems CxCenter
-      alignItems CxCenter
+  with self:
+    setGridRows 1'fr
+    gridAutoFlow grColumn
+    justifyItems CxCenter
+    alignItems CxCenter
 
 exportWidget(horizontal, Horizontal)
