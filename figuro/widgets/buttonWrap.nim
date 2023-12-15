@@ -24,20 +24,20 @@ proc clicked*[T](self: Button[T],
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
-  nodes(self):
-    with node:
-      clipContent true
-      cornerRadius 10.0
+  var node = self
+  with node:
+    clipContent true
+    cornerRadius 10.0
 
-    if self.disabled:
-      fill node, css"#F0F0F0"
-    else:
-      fill node, css"#2B9FEA"
-      onHover:
-        fill node, node.fill.spin(15)
-    rectangle "btnBody":
-      bubble(doClick)
-      boxSizeOf node, node.parent
-      TemplateContents(self)
+  if self.disabled:
+    fill node, css"#F0F0F0"
+  else:
+    fill node, css"#2B9FEA"
+    onHover:
+      fill node, node.fill.spin(15)
+  rectangle "btnBody":
+    bubble(doClick)
+    boxSizeOf node, node.parent
+    TemplateContents(self)
 
 exportWidget(button, Button)
