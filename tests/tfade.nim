@@ -16,19 +16,19 @@ proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  nodes(self):
-    rectangle "body":
-      with node:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
-        fill whiteColor.darken(self.bkgFade.amount)
-      horizontal "horiz":
-        offset node, 10'ux, 0'ux
-        itemWidth node, cx"min-content", gap = 20'ui
-        for i in 0 .. 4:
-          button "btn", captures(i):
-            size node, 100'ux, 100'ux
-            connect(node, doHover, self, buttonHover)
+  var node = self
+  rectangle "body":
+    with node:
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0
+      fill whiteColor.darken(self.bkgFade.amount)
+    horizontal "horiz":
+      offset node, 10'ux, 0'ux
+      itemWidth node, cx"min-content", gap = 20'ui
+      for i in 0 .. 4:
+        button "btn", captures(i):
+          size node, 100'ux, 100'ux
+          connect(node, doHover, self, buttonHover)
 
 proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   self.bkgFade.tick(self)

@@ -10,14 +10,14 @@ import commons, core
 export core, cssgrid, stack_strings
 export with
 
-template nodes*[T](fig: T, blk: untyped): untyped =
-  ## begin drawing nodes
-  ## 
-  ## sets up the required `current` variable to `fig`
-  ## so that the methods from `ui/apis.nim` can 
-  ## be used.
-  var node {.inject, used.} = fig
-  `blk`
+# template nodes*[T](fig: T, blk: untyped): untyped =
+#   ## begin drawing nodes
+#   ## 
+#   ## sets up the required `current` variable to `fig`
+#   ## so that the methods from `ui/apis.nim` can 
+#   ## be used.
+#   var node {.inject, used.} = fig
+#   `blk`
 
 template withNodes*[T](fig: T, blk: untyped): untyped =
   ## alias for `nodes`

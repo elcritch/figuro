@@ -40,20 +40,19 @@ proc tick*[T](self: Button[T], tick: int, now: MonoTime) {.slot.} =
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
-  nodes(self):
-    with node:
-      clipContent true
-      cornerRadius 10.0'ui
+  with self:
+    clipContent true
+    cornerRadius 10.0'ui
 
-    if self.disabled:
-      withOptional node:
-        fill css"#F0F0F0"
-    else:
-      withOptional node:
-        fill css"#2B9FEA"
-      onHover:
-        withOptional node:
-          fillHover node.fill.lighten(0.14)
-          # this changes the color on hover!
+  if self.disabled:
+    withOptional self:
+      fill css"#F0F0F0"
+  else:
+    withOptional self:
+      fill css"#2B9FEA"
+    self.onHover:
+      withOptional self:
+        fillHover self.fill.lighten(0.14)
+        # this changes the color on hover!
 
 exportWidget(button, Button)
