@@ -271,13 +271,13 @@ macro hasGenericTypes*(n: typed): bool =
   return newLit(hasGenerics)
 
 template setupWidget(
-    `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `parentArg`, `blk`
+    `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `parentName`, `blk`
 ): auto =
   ## sets up a new instance of a widget
   block:
-    when not compiles(node.typeof):
+    when not compiles(`parentName`.typeof):
       {.error: "no `node` variable defined in the current scope!".}
-    let parent {.inject.}: Figuro = node
+    let parent {.inject.}: Figuro = `parentName`
     var node {.inject.}: `widgetType` = nil
     preNode(`kind`, `id`, node, parent)
     wrapCaptures(`hasCaptures`, `capturedVals`):

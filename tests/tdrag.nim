@@ -37,8 +37,8 @@ proc btnDragStop*(
   # btn.state.setMax()
 
 proc draw*(self: Main) {.slot.} =
-  var node = self
-  with node:
+  # var node = self
+  with self:
     setName "main"
     fill css"#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
@@ -56,7 +56,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: "drag me"})
 
-  buttonOf[FadeAnimation] "btn":
+  buttonOf[FadeAnimation] "btn", parent=self:
     echo "button:id: ", node.getId, " ", node.state.typeof
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
