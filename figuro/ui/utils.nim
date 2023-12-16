@@ -25,6 +25,7 @@ type
   WidgetArgs* = tuple[
     id: NimNode,
     stateArg: NimNode,
+    parentArg: NimNode,
     bindsArg: NimNode,
     capturedVals: NimNode,
     blk: NimNode
@@ -59,9 +60,15 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
         result.capturedVals = nnkBracket.newTree()
         result.capturedVals.add arg[1..^1]
       else:
-        error("unexpected arguement: " & arg.repr, arg)
+        error("unexpected paren arguement: " & arg.repr, arg)
+    elif arg.kind == nnkExprEqExpr:
+      let fname = arg[0]
+      if fname.repr == "parent":
+        result.parentArg = arg[1]
+      else:
+        error("unexpected named arguement: " & arg.treerepr, arg)
     else:
-      error("unexpected arguement: " & arg.repr, arg)
+      error("unexpected arguement: " & arg.treerepr, arg)
 
   if result.stateArg.isNil:
     result.stateArg = ident"void"

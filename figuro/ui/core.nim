@@ -297,7 +297,7 @@ proc generateBodies*(widget, kind, gtype: NimNode,
                      ): NimNode {.compileTime.} =
   ## core macro helper that generates the drawing
   ## callbacks for widgets.
-  let (id, _, bindsArg, capturedVals, blk) = wargs
+  let (id, _, parentArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
   let hasBinds = newLit(not bindsArg.isNil)
   let stateArg = gtype
@@ -399,7 +399,7 @@ macro contents*(args: varargs[untyped]): untyped =
   ## sets the contents of the node widget
   ## 
   let wargs = args.parseWidgetArgs()
-  let (id, stateArg, bindsArg, capturedVals, blk) = wargs
+  let (id, stateArg, parentArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
 
   result = quote do:
