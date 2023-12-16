@@ -143,9 +143,7 @@ If the last line is `result = node` then the widget template will return the wid
 ```nim
 proc draw*(self: Main) {.slot.} =
   let vert = vertical "vert", parent=self:
-    with node:
-      offset 30'ux, 10'ux
-      size 400'ux, 120'ux
+    size node, 400'ux, 120'ux
     result = node
 
   echo "vertical node created: ", vert
