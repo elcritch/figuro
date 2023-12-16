@@ -134,16 +134,14 @@ let frame = newAppFrame(main, size=(400'ui, 140'ui))
 frame.startFiguro()
 ```
 
-The `nodes` template sets up the needed vars for creating nodes. The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
+The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
 
-It's possible to manually create nodes, but it's not encouraged. Although it can be handy to understand the how it works. The blue rectangle example roughly expands to:
+It's possible to manually create nodes, but it's not encouraged. Although it can be handy to understand the how it works. The blue rectangle example above expands to:
 
 ```nim
 proc draw*(self: Main) {.slot.} =
-  var node {.inject.} = self
-
-  block:
-    # rectangle "body":
+  var node = self
+  block: # rectangle
     let parent {.inject.}: Figuro = node
     var node {.inject.}: `widgetType` = nil
     preNode(BasicFiguro, "body", node, parent)
@@ -162,21 +160,20 @@ There's an alternative syntax that builds on a specialized `new` template. It wo
 
 ```nim
 proc draw*(self: Main) {.slot.} =
-  nodes(self):
-    BasicFiguro.new "body":
-      with node:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
-        fill whiteColor.darken(self.hoveredAlpha)
-      horizontal "horiz":
-        offset node, 10'ux, 0'ux
-        itemWidth node, cx"min-content", gap = 20'ui
-        for i in 0 .. 4:
-          Button[int].new "btn", captures(i):
-            with node:
-              size 100'ux, 100'ux
-              # we need to connect the nodes onHover event
-              connect(doHover, self, buttonHover)
+  BasicFiguro.new "body", parent=self:
+    with node:
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0
+      fill whiteColor.darken(self.hoveredAlpha)
+    Horizontal.new "horiz":
+      offset node, 10'ux, 0'ux
+      itemWidth node, cx"min-content", gap = 20'ui
+      for i in 0 .. 4:
+        Button[int].new "btn", captures(i):
+          with node:
+            size 100'ux, 100'ux
+            # we need to connect the nodes onHover event
+            connect(doHover, self, buttonHover)
 ```
 
 Currently both syntaxes are supported and can be mixed and matched.
