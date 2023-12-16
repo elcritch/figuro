@@ -90,9 +90,8 @@ proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
   emit self.update()
 
 var main = Main.new()
-app.width = 720
-app.height = 140
-startFiguro(main)
+let frame = newAppFrame(main, size=(400'ui, 140'ui))
+startFiguro(frame)
 ```
 
 ![Click Example](tests/tclick-screenshot.png)
