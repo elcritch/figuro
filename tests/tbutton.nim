@@ -24,13 +24,12 @@ proc btnDrag*(node: Figuro,
           " nodeRel: ", cursor.positionRelative(node)
 
 proc draw*(self: Main) {.slot.} =
-  var node = self
-  with node:
+  with self:
     setName "main"
     fill css"#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
 
-  buttonOf[int] "btn":
+  Button[int].new "btn", parent=self:
     with node:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
@@ -43,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: "drag me"})
 
-  rectangle "btnBody":
+  rectangle "btnBody", parent=self:
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
       fill css"#9F2B00"
