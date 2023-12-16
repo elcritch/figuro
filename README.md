@@ -136,6 +136,23 @@ frame.startFiguro()
 
 The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
 
+### Exporting a Widget Instance
+
+If the last line is `result = node` then the widget template will return the widget. Due to limitations in how the templates work, only `result = node` will work and it must be the last line of the widget: 
+
+```nim
+proc draw*(self: Main) {.slot.} =
+  let vert = vertical "vert", parent=self:
+    with node:
+      offset 30'ux, 10'ux
+      size 400'ux, 120'ux
+    result = node
+
+  echo "vertical node created: ", vert
+```
+
+### Manual Nodes
+
 It's possible to manually create nodes, but it's not encouraged. Although it can be handy to understand the how it works. The blue rectangle example above expands to:
 
 ```nim
