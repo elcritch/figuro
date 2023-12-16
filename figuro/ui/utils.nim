@@ -72,6 +72,8 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
 
   if result.stateArg.isNil:
     result.stateArg = ident"void"
+  if result.parentArg.isNil:
+    result.parentArg = ident"node"
   # echo "parseWidgetArgs:res: ", result.repr
 
 template wrapCaptures*(hasCaptures, capturedVals, body: untyped): untyped =
