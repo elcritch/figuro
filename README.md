@@ -46,7 +46,7 @@ proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
   ## triggers a node or it's parents to be refreshed
 
-  node.setName "main"
+  self.setName "main"
 
   # Calls the widget template `rectangle` which creates a new basic widget node.
   # Generally used to draw generic boxes.
