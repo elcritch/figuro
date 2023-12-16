@@ -302,7 +302,7 @@ proc generateBodies*(widget, kind, gtype: NimNode,
   ## callbacks for widgets.
   let (id, _, parentArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
-  let hasBinds = newLit(not bindsArg.isNil)
+  # let hasBinds = newLit(not bindsArg.isNil)
   let stateArg = gtype
 
   echo "widget: ", widget.treeRepr
@@ -312,6 +312,16 @@ proc generateBodies*(widget, kind, gtype: NimNode,
     else: quote do: `widget`[`stateArg`]
   echo "widgetType: ", widgetType.treeRepr
 
+  var hasBinds = newLit(false)
+  echo "BIND: ", blk[^1].kind, " ", blk[^1][0].repr
+  if blk.len() > 1 and
+      blk[^1].kind == nnkAsgn and
+      blk[^1].repr == "result = node":
+    echo "BIND: ing: "
+    blk[^1] = quote do:
+      discard node
+    hasBinds = newLit(true)
+  
   result = quote do:
       setupWidget(`widgetType`, `kind`, `id`,
                 `hasCaptures`, `hasBinds`,
