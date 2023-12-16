@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
       offset node, 10'ux, 0'ux
       itemWidth node, cx"min-content", gap = 20'ui
       for i in 0 .. 4:
-        Button[int].new "btn", captures(i):
+        Button[int].new "btn", captures=i:
           with node:
             size 100'ux, 100'ux
             # we need to connect the nodes onHover event

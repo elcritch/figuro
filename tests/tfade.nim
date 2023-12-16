@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
       offset node, 10'ux, 0'ux
       itemWidth node, cx"min-content", gap = 20'ui
       for i in 0 .. 4:
-        button "btn", captures(i):
+        button "btn", captures=i:
           size node, 100'ux, 100'ux
           connect(node, doHover, self, buttonHover)
 
