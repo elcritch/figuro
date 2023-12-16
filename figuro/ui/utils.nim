@@ -48,11 +48,11 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
     ## 
     if arg.kind == nnkCall:
       let fname = arg[0]
-      if fname.repr == "state":
-        if arg.len() != 2:
-          error "only one type var allowed"
-        result.stateArg = arg[1]
-      elif fname.repr == "expose":
+      # if fname.repr == "state":
+      #   if arg.len() != 2:
+      #     error "only one type var allowed"
+      #   result.stateArg = arg[1]
+      if fname.repr == "expose":
         if arg.len() > 2:
           error "only no arg or a single name allowed"
         result.bindsArg = newLit(true)
