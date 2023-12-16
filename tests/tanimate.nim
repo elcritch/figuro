@@ -17,11 +17,12 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   rectangle "main", parent=self:
     box node, 0'ui, 0'ui, 620'ui, 140'ui
+    let j = 1
     for i in 0 .. 5:
-      button "btn", captures(i):
+      Button.new "btn", captures=[i,j]:
         let value = self.value
         fill node, css"#AA0000"
-        onHover:
+        node.onHover:
           fill node, css"#F00000"
         box node,
             ux(20 + (i.toFloat + value) * 120),
