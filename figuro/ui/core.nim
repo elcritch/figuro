@@ -313,7 +313,6 @@ proc generateBodies*(widget, kind, gtype: NimNode,
   echo "widgetType: ", widgetType.treeRepr
 
   result = quote do:
-    # expandMacros:
       setupWidget(`widgetType`, `kind`, `id`,
                 `hasCaptures`, `hasBinds`,
                 `capturedVals`, `parentArg`, `blk`)
@@ -334,7 +333,7 @@ macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   echo "hasGen: ", hasGeneric, " wtype: ", wtype.repr, " gtype: ", gtype.repr
   result = generateBodies(wtype, ident "nkRectangle", gtype,
                           wargs, hasGeneric)
-  # echo "widget:\n", result.repr
+  echo "widgetImpl:\n", result.repr
 
 template widget*[T, U](args: varargs[untyped]): auto =
   ## sets up a new instance of a widget of type `T`.
@@ -425,8 +424,8 @@ macro expose*(args: untyped): untyped =
       args[0][2].kind in [nnkCall, nnkCommand]:
         result = args
         result[0][2].insert(2, nnkExprEqExpr.newTree(ident "expose", newLit(true)))
-        echo "WID: args:post:\n", result.treeRepr
-        echo "WID: args:post:\n", result.repr
+        # echo "WID: args:post:\n", result.treeRepr
+        # echo "WID: args:post:\n", result.repr
   else:
     result = args
 
