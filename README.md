@@ -130,9 +130,8 @@ proc draw*(self: Main) {.slot.} =
     fill node, css"00001F"
 
 var main = Main.new()
-app.width = 720
-app.height = 140
-startFiguro(main)
+let frame = newAppFrame(main, size=(400'ui, 140'ui))
+frame.startFiguro()
 ```
 
 The `nodes` template sets up the needed vars for creating nodes. The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
