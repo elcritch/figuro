@@ -472,12 +472,12 @@ proc gridTemplateDebugLines*(node: Figuro, grid: Figuro, color: Color = blueColo
       let w = grid.gridTemplate.columns[^1].start.UICoord
       let h = grid.gridTemplate.rows[^1].start.UICoord
       for col in grid.gridTemplate.columns[1..^2]:
-        rectangle "column", captures(col):
+        rectangle "column", captures=col:
           with node:
             fill color
             box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
       for row in grid.gridTemplate.rows[1..^2]:
-        rectangle "row", captures(row):
+        rectangle "row", captures=row:
           with node:
             fill color
             box 0, row.start.UICoord - wd, w.UICoord, wd

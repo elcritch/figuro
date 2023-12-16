@@ -424,9 +424,9 @@ macro expose*(args: untyped): untyped =
       args[0].kind == nnkIdentDefs and
       args[0][2].kind in [nnkCall, nnkCommand]:
         result = args
-        result[0][2].insert(2, nnkCall.newTree(ident "expose"))
-        # echo "WID: args:post:\n", result.treeRepr
-        # echo "WID: args:post:\n", result.repr
+        result[0][2].insert(2, nnkExprEqExpr.newTree(ident "expose", newLit(true)))
+        echo "WID: args:post:\n", result.treeRepr
+        echo "WID: args:post:\n", result.repr
   else:
     result = args
 
