@@ -46,25 +46,16 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
     ## iterate through the widget args looking for 
     ## `state(int)` or `captures(i, x)` 
     ## 
-    if arg.kind == nnkCall:
-      let fname = arg[0]
-      # if fname.repr == "state":
-      #   if arg.len() != 2:
-      #     error "only one type var allowed"
-      #   result.stateArg = arg[1]
-      if fname.repr == "expose":
-        if arg.len() > 2:
-          error "only no arg or a single name allowed"
-        result.bindsArg = newLit(true)
-      elif fname.repr == "captures":
-        result.capturedVals = nnkBracket.newTree()
-        result.capturedVals.add arg[1..^1]
-      else:
-        error("unexpected paren arguement: " & arg.repr, arg)
-    elif arg.kind == nnkExprEqExpr:
+    if arg.kind == nnkExprEqExpr:
       let fname = arg[0]
       if fname.repr == "parent":
         result.parentArg = arg[1]
+      elif fname.repr == "captures":
+        if arg[1].kind == nnkBracket:
+          result.capturedVals = arg[1]
+        else:
+          result.capturedVals = nnkBracket.newTree()
+          result.capturedVals.add arg[1]
       else:
         error("unexpected named arguement: " & arg.treerepr, arg)
     else:
