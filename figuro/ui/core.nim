@@ -285,7 +285,7 @@ template setupWidget(
     preNode(`kind`, `id`, node, parent)
     wrapCaptures(`hasCaptures`, `capturedVals`):
       node.preDraw = proc (c: Figuro) =
-        let node  {.inject.} = ## implicit variable in each widget block that points to the current widget
+        let node  {.inject.} = ## implicit variable in each widget block that references the current widget
           `widgetType`(c)
         if preDrawReady in node.attrs:
           node.attrs.excl preDrawReady
