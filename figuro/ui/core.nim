@@ -271,7 +271,7 @@ macro hasGenericTypes*(n: typed): bool =
   return newLit(hasGenerics)
 
 template setupWidget(
-    `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `blk`
+    `widgetType`, `kind`, `id`, `hasCaptures`, `hasBinds`, `capturedVals`, `parentArg`, `blk`
 ): auto =
   ## sets up a new instance of a widget
   block:
@@ -301,6 +301,11 @@ proc generateBodies*(widget, kind, gtype: NimNode,
   let hasCaptures = newLit(not capturedVals.isNil)
   let hasBinds = newLit(not bindsArg.isNil)
   let stateArg = gtype
+  let parentName = if parentArg == nil:
+                    quote:
+                      node
+                  else:
+                    parentArg
 
   echo "widget: ", widget.treeRepr
   echo "stateArg: ", stateArg.treeRepr
@@ -313,7 +318,7 @@ proc generateBodies*(widget, kind, gtype: NimNode,
     # expandMacros:
       setupWidget(`widgetType`, `kind`, `id`,
                 `hasCaptures`, `hasBinds`,
-                `capturedVals`, `blk`)
+                `capturedVals`, `parentName`, `blk`)
 
 macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
   ## creates a widget block for a given widget
