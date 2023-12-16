@@ -69,7 +69,7 @@ proc draw*(self: Main) {.slot.} =
         layoutItems justify=CxCenter, align=CxCenter
 
       for i in 0 .. 4:
-        buttonOf[int] "btn", captures(i):
+        buttonOf[int] "btn", captures=[i]:
           # widgets with generic type like Button can use `<name>Of[T]` to set the generic type, otherwise void is used
           let btn = node
           with node:

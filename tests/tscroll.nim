@@ -32,7 +32,7 @@ proc draw*(self: Main) {.slot.} =
           offset 10'ux, 10'ux
           itemHeight cx"max-content"
         for i in 0 .. 15:
-          Button.new "button", captures(i):
+          Button.new "button", captures=[i]:
             # current.gridItem = nil
             with node:
               size 1'fr, 50'ux

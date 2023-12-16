@@ -45,7 +45,7 @@ proc draw*(self: GridApp) {.slot.} =
           fill rgba(245, 129, 49, 123).to(Color)
 
       for i in 1..4:
-        rectangle "items b", captures(i):
+        rectangle "items b", captures=i:
           # Setup CSS Grid Template
           with node:
             cornerRadius 6

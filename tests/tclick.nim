@@ -62,7 +62,7 @@ proc draw*(self: Main) {.slot.} =
         layoutItems justify=CxCenter, align=CxCenter
 
       for i in 0 .. 4:
-        Button[int].new("btn", captures(i)):
+        Button[int].new("btn", captures=i):
           let btn = node
           with node:
             size 100'ux, 100'ux

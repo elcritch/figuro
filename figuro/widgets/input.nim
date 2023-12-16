@@ -162,7 +162,7 @@ proc draw*(self: Input) {.slot.} =
       node.fill.a = self.value.toFloat * 1.0
 
     for i, selRect in self.text.selectionRects:
-      rectangle "selection", captures(i):
+      rectangle "selection", captures=[i]:
         with node:
           boxOf self.text.selectionRects[i]
           fill css"#A0A0FF" * 0.4
