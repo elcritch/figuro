@@ -32,13 +32,9 @@ proc draw*(self: Main) {.slot.} =
         box 10'ux, 10'ux, 400'ux, 100'ux
         fill blackColor
         # setText({font: "hello world!",
-        #           smallFont: "it's a small world"})
+        #           smallFont: "It's a small world"}, vAlign=Top)
         setText({font: "hello world!",
-                  smallFont: "AA's a small world",
-                  font: "AA's a big world"})
-      # let tl = node.textLayout
-      # print tl
-      # raise newException(Exception, "done")
+                  smallFont: "It's a small world"}, vAlign=Bottom)
     rectangle "main":
       with node:
         box 10'ux, 10'ux, 400'ux, 100'ux

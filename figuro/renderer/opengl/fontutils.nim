@@ -54,6 +54,11 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
 
   var idx = 0
   # if arrangement != nil:
+
+  var flh = 0.0
+  for f in arrangement.fonts:
+    flh = max(f.lineHeight, flh)
+
   block:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
       while idx < arrangement.runes.len():
@@ -68,9 +73,10 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune: rune,
           pos: pos,
           rect: selection,
-          descent: gfont.lineHeight,
+          descent: gfont.lineHeight + (flh - gfont.lineHeight)/4,
         )
 
+        # echo "GLYPH: ", rune, " pos: ", pos, " sel: ", selection, " lh: ", gfont.lineHeight, " mlh: ", flh, " : ", flh - gfont.lineHeight
         idx.inc()
         if idx notin span:
           break
@@ -109,17 +115,19 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
         )
       var
         snappedBounds = arrangement.computeBounds().snapToPixels()
-    
+      # echo "GEN IMG: ", glyph.rune, " wh: ", wh, " snapped: ", snappedBounds
+
       let
         lh = font.defaultLineHeight()
         bounds = rect(0, 0,
                       snappedBounds.w + snappedBounds.x, lh)
         image = newImage(bounds.w.int, bounds.h.int)
+      # echo "GEN IMG: ", glyph.rune, " bounds: ", bounds
 
       try:
         font.paint = whiteColor
-        var m = translate(-bounds.xy)
-        image.fillText(arrangement, m)
+        # var m = translate(bounds.xy)
+        image.fillText(arrangement)
 
         # put into cache
         glyphImageCached.incl hashFill
@@ -188,8 +196,6 @@ proc getTypeset*(
     wh = box.scaled().wh
     sz = uiSpans.mapIt(it[0].size.float)
     minSz = sz.foldl(max(a,b), 0.0)
-
-  wh.y = wh.y + minSz * 0.9 # why this?
 
   var spans: seq[Span]
   var pfs: seq[Font]
