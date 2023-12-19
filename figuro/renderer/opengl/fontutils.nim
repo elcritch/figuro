@@ -194,7 +194,7 @@ proc getTypeset*(
     wh = box.scaled().wh
     sz = uiSpans.mapIt(it[0].size.float)
     minSz = sz.foldl(max(a,b), 0.0)
-  
+
   wh.y = wh.y + minSz * 0.9 # why this?
 
   var spans: seq[Span]
@@ -242,7 +242,7 @@ proc getTypeset*(
   result = GlyphArrangement(
     lines: lines, # arrangement.lines.toSlices(),
     spans: spanSlices, # arrangement.spans.toSlices(),
-    fonts: gfonts, ## FIXME
+    fonts: gfonts,
     runes: arrangement.runes,
     positions: arrangement.positions,
     selectionRects: selectionRects,
