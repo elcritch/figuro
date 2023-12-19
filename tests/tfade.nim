@@ -16,8 +16,7 @@ proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  var node = self
-  rectangle "body":
+  rectangle "body", parent=self:
     with node:
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
