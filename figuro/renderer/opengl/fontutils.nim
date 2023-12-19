@@ -59,8 +59,11 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
       # echo "span: ", span.repr
       # let
       #   span = span[0] ..< span[1]
+      echo "GLYPHS: zip", " i: ", i, " span: ", span, " gfont: ", gfont.fontId
 
       while idx < arrangement.runes.len():
+        echo "GLYPHS: ", " idx: ", idx
+
         let
           pos = arrangement.positions[idx]
           rune = arrangement.runes[idx]
@@ -75,11 +78,10 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           descent: gfont.lineHeight,
         )
 
+        echo "GLYPHS: ", " idx in span: ", idx in span
+        idx.inc()
         if idx notin span:
-          idx.inc()
           break
-        else:
-          idx.inc()
 
 var
   typefaceTable*: Table[TypefaceId, Typeface]
