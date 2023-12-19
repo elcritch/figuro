@@ -6,8 +6,8 @@ import figuro
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22'ui)
-  smallFont = UiFont(typefaceId: typeface, size: 12'ui)
+  font = UiFont(typefaceId: typeface, size: 20'ui)
+  smallFont = UiFont(typefaceId: typeface, size: 13'ui)
 
 type
   Main* = ref object of Figuro
@@ -31,8 +31,18 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 10'ux, 10'ux, 400'ux, 100'ux
         fill blackColor
-        # setText({font: "hello world!",
-        #           smallFont: "It's a small world"}, vAlign=Top)
+        setText({font: "hello world!",
+                  smallFont: "It's a small world"}, vAlign=Top)
+    text "text":
+      with node:
+        box 10'ux, 10'ux, 400'ux, 100'ux
+        fill blackColor
+        setText({font: "hello world!",
+                  smallFont: "It's a small world"}, vAlign=Middle)
+    text "text":
+      with node:
+        box 10'ux, 10'ux, 400'ux, 100'ux
+        fill blackColor
         setText({font: "hello world!",
                   smallFont: "It's a small world"}, vAlign=Bottom)
     rectangle "main":
