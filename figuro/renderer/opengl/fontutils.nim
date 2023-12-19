@@ -55,9 +55,9 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
   # if arrangement != nil:
 
-  var flh = 0.0
+  var mlh = 0.0 # maximum line height per row (though this does in total?)
   for f in arrangement.fonts:
-    flh = max(f.lineHeight, flh)
+    mlh = max(f.lineHeight, mlh)
 
   block:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
@@ -73,7 +73,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune: rune,
           pos: pos,
           rect: selection,
-          descent: gfont.lineHeight + (flh - gfont.lineHeight)/4,
+          descent: gfont.lineHeight + (mlh - gfont.lineHeight)/4,
         )
 
         # echo "GLYPH: ", rune, " pos: ", pos, " sel: ", selection, " lh: ", gfont.lineHeight, " mlh: ", flh, " : ", flh - gfont.lineHeight
