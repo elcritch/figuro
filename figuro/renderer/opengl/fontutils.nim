@@ -73,7 +73,10 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune: rune,
           pos: pos,
           rect: selection,
-          descent: gfont.lineHeight + (mlh - gfont.lineHeight)/4,
+          descent: gfont.lineHeight + (mlh - gfont.lineHeight)/4, ##\
+            ## adjust the line height for varying sized fonts based 
+            ## off the max line height and the current font's lh
+            ## the 1/4 is empirical, but sorta makes sense
         )
 
         # echo "GLYPH: ", rune, " pos: ", pos, " sel: ", selection, " lh: ", gfont.lineHeight, " mlh: ", flh, " : ", flh - gfont.lineHeight
