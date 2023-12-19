@@ -35,3 +35,5 @@ suite "fontutils":
     check glyphs[1].fontId == fontId 
     check glyphs[2].fontId == smallFontId 
     check glyphs[3].fontId == smallFontId 
+    check glyphs[4].fontId == fontId 
+    check glyphs[5].fontId == fontId 
