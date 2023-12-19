@@ -18,6 +18,8 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
+import pretty
+
 proc draw*(self: Main) {.slot.} =
   var node = self
   rectangle "main":
@@ -29,8 +31,14 @@ proc draw*(self: Main) {.slot.} =
       with node:
         box 10'ux, 10'ux, 400'ux, 100'ux
         fill blackColor
-        setText({font: "hello world!\n",
-                  smallFont: "it's a small world"})
+        # setText({font: "hello world!",
+        #           smallFont: "it's a small world"})
+        setText({font: "hello world!",
+                  smallFont: "AA's a small world",
+                  font: "AA's a big world"})
+      let tl = node.textLayout
+      print tl
+      raise newException(Exception, "done")
     rectangle "main":
       with node:
         box 10'ux, 10'ux, 400'ux, 100'ux
