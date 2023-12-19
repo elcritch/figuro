@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
     with node:
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
-      fill "#2A9EEA".parseHtmlColor * 0.7
+      fill css"#2A9EEA" * 0.7
     text "text":
       with node:
         box 10'ux, 10'ux, 400'ux, 100'ux
