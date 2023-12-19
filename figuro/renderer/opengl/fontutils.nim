@@ -56,14 +56,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   # if arrangement != nil:
   block:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
-      # echo "span: ", span.repr
-      # let
-      #   span = span[0] ..< span[1]
-      echo "GLYPHS: zip", " i: ", i, " span: ", span, " gfont: ", gfont.fontId
-
       while idx < arrangement.runes.len():
-        echo "GLYPHS: ", " idx: ", idx
-
         let
           pos = arrangement.positions[idx]
           rune = arrangement.runes[idx]
@@ -78,7 +71,6 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           descent: gfont.lineHeight,
         )
 
-        echo "GLYPHS: ", " idx in span: ", idx in span
         idx.inc()
         if idx notin span:
           break
