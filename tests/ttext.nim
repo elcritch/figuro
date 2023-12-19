@@ -36,9 +36,9 @@ proc draw*(self: Main) {.slot.} =
         setText({font: "hello world!",
                   smallFont: "AA's a small world",
                   font: "AA's a big world"})
-      let tl = node.textLayout
-      print tl
-      raise newException(Exception, "done")
+      # let tl = node.textLayout
+      # print tl
+      # raise newException(Exception, "done")
     rectangle "main":
       with node:
         box 10'ux, 10'ux, 400'ux, 100'ux
