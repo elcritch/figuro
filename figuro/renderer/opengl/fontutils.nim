@@ -74,7 +74,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           pos: pos,
           rect: selection,
           descent: gfont.lineHeight + (mlh - gfont.lineHeight)/4, ##\
-            ## adjust the line height for varying sized fonts based 
+            ## adjust the line height for varying sized fonts based
             ## off the max line height and the current font's lh
             ## the 1/4 is empirical, but sorta makes sense
         )
