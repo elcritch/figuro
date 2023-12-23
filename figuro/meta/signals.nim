@@ -273,7 +273,7 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
       # echo ""
       # echo "call listener:tgt: ", tgt.agentId, " ", req.procName
       # echo "call listener:slot: ", repr slot
-      let res = slot.callMethod(tgt, req)
+      let res = slot.callMethod(tgt.toRef(), req)
       when defined(nimscript) or defined(useJsonSerde):
         discard
       else:

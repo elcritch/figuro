@@ -24,12 +24,13 @@ export options
 export variant
 
 type
-  Agent* = ref object of RootObj
+  AgentObj* = object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, OrderedSet[(AgentRef, AgentProc)]]
-    subscribed*: HashSet[AgentRef]
+    listeners*: Table[string, OrderedSet[(AgentPtr, AgentProc)]]
+    subscribed*: HashSet[AgentPtr]
   
-  AgentRef* = Agent
+  Agent* = ref AgentObj
+  AgentPtr* = ptr AgentObj
     ## type alias descring a weak ref that *must* be cleaned
     ## up when an object is set to be destroyed
     ## 
@@ -166,14 +167,15 @@ proc initAgentRequest*[T](
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): OrderedSet[(Agent, AgentProc)] =
+                        ): OrderedSet[(AgentPtr, AgentProc)] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
 
-proc weakReference(obj: Agent): AgentRef =
-  result = AgentRef(obj)
-  GC_unref(result)
+proc weakReference*(obj: Agent): AgentPtr =
+  result = addr(obj[])
+proc toRef*(obj: AgentPtr): Agent =
+  result = cast[Agent](obj)
 
 proc addAgentListeners*(obj: Agent,
                         sig: string,
@@ -185,11 +187,11 @@ proc addAgentListeners*(obj: Agent,
   #   echo "listener:count: ", obj.listeners[sig].len()
   assert slot != nil
 
-  obj.listeners.withValue(sig, value):
-    if (tgt, slot) notin value[]:
-      value[].incl((tgt.weakReference(), slot))
-  do:
-    obj.listeners.
-      mgetOrPut(sig, initOrderedSet[(Agent, AgentProc)]()).
-      incl((tgt.weakReference(), slot))
+  let tptr = tgt.weakReference()
+
+  obj.listeners.
+    mgetOrPut(sig, initOrderedSet[(AgentPtr, AgentProc)]()).
+    incl((tptr, slot))
+  
+  # slot.
   # echo "LISTENERS: ", obj.listeners
