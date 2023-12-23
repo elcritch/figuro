@@ -27,10 +27,10 @@ when isMainModule:
   suite "agent slots":
     setup:
       var
-        a {.used.} = Counter[uint]()
-        b {.used.} = Counter[uint]()
-        c {.used.} = Counter[uint]()
-        d {.used.} = Counter[uint]()
+        a {.used.} = Counter[uint].new()
+        b {.used.} = Counter[uint].new()
+        c {.used.} = Counter[uint].new()
+        d {.used.} = Counter[uint].new()
 
     test "signal / slot types":
       check SignalTypes.avgChanged(Counter[uint]) is (float, )

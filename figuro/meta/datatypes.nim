@@ -26,7 +26,13 @@ export variant
 type
   Agent* = ref object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, OrderedSet[(Agent, AgentProc)]]
+    listeners*: Table[string, OrderedSet[(AgentRef, AgentProc)]]
+    subscribed*: HashSet[AgentRef]
+  
+  AgentRef* = Agent
+    ## type alias descring a weak ref that *must* be cleaned
+    ## up when an object is set to be destroyed
+    ## 
 
   # Context for servicing an RPC call 
   RpcContext* = Agent
@@ -40,6 +46,9 @@ type
 
   Signal*[S] = AgentProcTy[S]
   SignalTypes* = distinct object
+
+proc `=destroy`*(x: typeof(Agent()[])) =
+  echo "destroy: agent: ", x.agentId
 
 when defined(nimscript):
   proc getAgentId(a: Agent): int = discard
@@ -161,6 +170,10 @@ proc getAgentListeners*(obj: Agent,
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
+
+proc weakReference(obj: Agent): AgentRef =
+  result = AgentRef(obj)
+  GC_unref(result)
 
 proc addAgentListeners*(obj: Agent,
                         sig: string,
