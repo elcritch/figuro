@@ -1,6 +1,7 @@
 
 import std/[options, tables, sets, macros, hashes]
 import std/times
+import std/sequtils
 
 # import pkg/threading/channels
 
@@ -49,7 +50,8 @@ type
   SignalTypes* = distinct object
 
 proc `=destroy`*(x: typeof(Agent()[])) =
-  echo "destroy: agent: ", x.agentId
+  echo "\ndestroy: agent: ", x.agentId
+  # echo "destroy: ", x.listeners.mapIt(it[0].agentId).repr()
 
 when defined(nimscript):
   proc getAgentId(a: Agent): int = discard
@@ -173,7 +175,7 @@ proc getAgentListeners*(obj: Agent,
     result = obj.listeners[sig]
 
 proc weakReference*(obj: Agent): AgentPtr =
-  result = addr(obj[])
+  result = cast[AgentPtr](obj)
 proc toRef*(obj: AgentPtr): Agent =
   result = cast[Agent](obj)
 
