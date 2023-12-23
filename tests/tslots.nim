@@ -43,6 +43,9 @@ when isMainModule:
         c {.used.} = Counter.new()
         d {.used.} = Counter.new()
 
+    teardown:
+      GC_fullCollect()
+
     test "signal / slot types":
       check SignalTypes.avgChanged(Counter) is (float, )
       check SignalTypes.valueChanged(Counter) is (int, )
@@ -82,8 +85,9 @@ when isMainModule:
 
 
 
-    test "signal connect":
+    test "basic signal connect":
       # TODO: how to do this?
+      echo "done"
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
@@ -121,3 +125,20 @@ when isMainModule:
               c, someAction, acceptVoidSlot = true)
 
       a.setValue(42)
+
+  suite "agent weak refs":
+    setup:
+      var
+        a {.used.} = Counter.new()
+        b {.used.} = Counter.new()
+
+    test "signal connect":
+      echo "Counter.setValue: "
+      # connect(a, valueChanged,
+      #         b, setValue)
+
+      # check b.value == 0
+      # emit a.valueChanged(137)
+
+      # check a.value == 0
+      # check b.value == 137
