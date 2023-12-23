@@ -182,6 +182,31 @@ template connect*[T](
     slot: Signal[T],
     acceptVoidSlot: static bool = false,
 ) =
+  ## sets up `b` to recieve events from `a`. Both `a` and `b`
+  ## must subtype `Agent`. The `signal` must be a signal proc, 
+  ## while `slot` must be a slot proc.
+  ## 
+  runnableExamples:
+      type
+        Updater* = ref object of Agent
+
+        Counter* = ref object of Agent
+          value: int
+
+      proc valueChanged*(tp: Counter, val: int) {.signal.}
+
+      proc setValue*(self: Counter, value: int) {.slot.} =
+        echo "setValue! ", value
+        if self.value != value:
+          self.value = value
+      
+      var
+        a = Updater.new()
+        a = Counter.new()
+      connect(a, valueChanged,
+              b, setValue)
+      emit a.valueChanged(137) #=> prints "setValue! 137"
+
   let agentSlot = slot
   # static:
   block:

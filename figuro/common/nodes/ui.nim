@@ -195,6 +195,7 @@ template connect*(
     slot: typed,
     acceptVoidSlot: static bool = false,
 ) =
+  ## template override
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
