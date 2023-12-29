@@ -269,7 +269,7 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
     # echo "call slots:req: ", req.repr
     # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
 
-    for (tgt, slot) in listeners:
+    for tgt, slot in listeners.pairs():
       # echo ""
       # echo "call listener:tgt: ", tgt.agentId, " ", req.procName
       # echo "call listener:slot: ", repr slot

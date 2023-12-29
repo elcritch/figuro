@@ -198,8 +198,13 @@ proc addAgentListeners*(obj: Agent,
   #   echo "listener:count: ", obj.listeners[sig].len()
   assert slot != nil
 
-  obj.listeners.
-    mgetOrPut(sig, initTable[AgentPtr, AgentProc]())[tgt.weakReference()] =slot
+  # mgetOrPut(sig, initTable[AgentPtr, AgentProc]())[tgt.weakReference()] =slot
+  obj.listeners.withValue(sig, agents):
+    agents[][tgt.weakReference()] = slot
+  do:
+    var agents = initTable[AgentPtr, AgentProc]()
+    agents[tgt.weakReference()] = slot
+    obj.listeners[sig] = move agents
   
   tgt.subscribed.incl(obj.weakReference())
   echo "LISTENERS: ", obj.listeners.len
