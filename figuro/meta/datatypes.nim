@@ -27,7 +27,7 @@ export variant
 type
   AgentObj* = object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, OrderedSet[(AgentPtr, AgentProc)]]
+    listeners*: Table[string, Table[AgentPtr, AgentProc]]
     subscribed*: HashSet[AgentPtr]
   
   Agent* = ref AgentObj
@@ -49,9 +49,18 @@ type
   Signal*[S] = AgentProcTy[S]
   SignalTypes* = distinct object
 
-proc `=destroy`*(x: typeof(Agent()[])) =
-  echo "\ndestroy: agent: ", x.agentId
-  # echo "destroy: ", x.listeners.mapIt(it[0].agentId).repr()
+proc `=destroy`*(x: AgentObj) =
+  let xid: AgentPtr = unsafeAddr x
+  echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
+  # for l in x.listeners.values():
+  echo "destroy: ", x.listeners.values().toSeq.mapIt(it.keys().toSeq().mapIt(it.agentId)).repr
+  echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
+  for obj in x.subscribed:
+    echo "freeing subscribed: ", obj.agentId
+    for val in obj.listeners.mvalues():
+      val.del(xid)
+      echo "removed: ", xid.repr
+
 
 when defined(nimscript):
   proc getAgentId(a: Agent): int = discard
@@ -169,7 +178,7 @@ proc initAgentRequest*[T](
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): OrderedSet[(AgentPtr, AgentProc)] =
+                        ): Table[AgentPtr, AgentProc] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
@@ -190,8 +199,8 @@ proc addAgentListeners*(obj: Agent,
   assert slot != nil
 
   obj.listeners.
-    mgetOrPut(sig, initOrderedSet[(AgentPtr, AgentProc)]()).
-    incl((tgt.weakReference(), slot))
+    mgetOrPut(sig, initTable[AgentPtr, AgentProc]())[tgt.weakReference()] =slot
   
   tgt.subscribed.incl(obj.weakReference())
-  # echo "LISTENERS: ", obj.listeners
+  echo "LISTENERS: ", obj.listeners.len
+  echo "SUBSC: ", tgt.subscribed.len

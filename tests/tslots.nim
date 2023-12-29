@@ -84,7 +84,6 @@ when isMainModule:
               c, Counter.someAction)
 
 
-
     test "basic signal connect":
       # TODO: how to do this?
       echo "done"
