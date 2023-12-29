@@ -57,9 +57,9 @@ proc `=destroy`*(x: AgentObj) =
   echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
   for obj in x.subscribed:
     echo "freeing subscribed: ", obj.agentId
-    for val in obj.listeners.mvalues():
+    for name, val in obj.listeners.mpairs():
+      echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", name, " has: ", xid in val
       val.del(xid)
-      echo "removed: ", xid.repr
 
 
 when defined(nimscript):
@@ -199,6 +199,7 @@ proc addAgentListeners*(obj: Agent,
   assert slot != nil
 
   # mgetOrPut(sig, initTable[AgentPtr, AgentProc]())[tgt.weakReference()] =slot
+  echo "addAgentListeners: ", "tgt: ", tgt.weakReference().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
   obj.listeners.withValue(sig, agents):
     agents[][tgt.weakReference()] = slot
   do:
