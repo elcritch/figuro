@@ -50,11 +50,11 @@ type
   Signal*[S] = AgentProcTy[S]
   SignalTypes* = distinct object
 
-proc `=destroy`*(x: AgentObj) =
-  let xid: AgentPtr = unsafeAddr x
+proc `=destroy`*(agent: AgentObj) =
+  let xid: AgentPtr = unsafeAddr agent
   # echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
   # echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
-  for obj in x.subscribed:
+  for obj in agent.subscribed:
     # echo "freeing subscribed: ", obj.agentId
     for signal, listenerPairs in obj.listeners.mpairs():
       # val.del(xid)

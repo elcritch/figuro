@@ -36,12 +36,12 @@ type
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
 
-  FiguroPtr* = ptr Figuro
   Figuro* = ref object of FiguroObj
+  FiguroWeakRef* = ptr FiguroObj
 
   FiguroObj* = object of Agent
     frame*: AppFrame
-    parent*: Figuro
+    parent*: FiguroWeakRef
     uid*: NodeID
     name*: StackString[16]
     children*: seq[Figuro]
@@ -94,6 +94,19 @@ type
   Property*[T] = ref object of Agent
     value*: T
 
+proc `=destroy`*(obj: FiguroObj) =
+  ## destroy
+  let objPtr: FiguroWeakRef = unsafeAddr obj
+  for child in obj.children:
+    assert objPtr == child.parent
+    child.parent = nil
+
+proc unsafeWeakReference*(obj: Figuro): FiguroWeakRef =
+  result = cast[FiguroWeakRef](obj)
+
+proc toRef*(obj: FiguroWeakRef): Figuro =
+  result = cast[Figuro](obj)
+
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
 
@@ -110,12 +123,6 @@ proc getId*(fig: Figuro): NodeID =
   ## or returns 0 if it's nil
   if fig.isNil: NodeID -1
   else: fig.uid
-
-proc unsafeWeakReference*(obj: Figuro): FiguroPtr =
-  result = cast[FiguroPtr](obj)
-
-proc toRef*(obj: FiguroPtr): Figuro =
-  result = cast[Figuro](obj)
 
 
 proc doTick*(fig: Figuro,
@@ -221,7 +228,7 @@ template bubble*(signal: typed) =
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth), "render: ", n.getId,
-          " p: ", n.parent.getId,
+          # " p: ", n.parent[].getId,
           " name: ", $n.name,
           " zlvl: ", $n.zlevel
   for ci in n.children:
