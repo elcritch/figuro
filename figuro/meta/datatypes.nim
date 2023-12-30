@@ -52,19 +52,17 @@ type
 
 proc `=destroy`*(x: AgentObj) =
   let xid: AgentPtr = unsafeAddr x
-  echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
-  # for l in x.listeners.values():
-  # echo "destroy: ", x.listeners.values().toSeq.mapIt(it.keys().toSeq().mapIt(it.agentId)).repr
-  echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
+  # echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
+  # echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
   for obj in x.subscribed:
-    echo "freeing subscribed: ", obj.agentId
+    # echo "freeing subscribed: ", obj.agentId
     for signal, listenerPairs in obj.listeners.mpairs():
       # val.del(xid)
       var toDel = initOrderedSet[AgentPairing](listenerPairs.len())
       for item in listenerPairs:
         if item.tgt == xid:
           toDel.incl(item)
-          echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", signal
+          # echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", signal
 
       for item in toDel:
         listenerPairs.excl(item)
