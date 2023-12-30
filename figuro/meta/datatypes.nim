@@ -58,7 +58,8 @@ proc `=destroy`*(x: AgentObj) =
   for obj in x.subscribed:
     echo "freeing subscribed: ", obj.agentId
     for name, val in obj.listeners.mpairs():
-      echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", name, " has: ", xid in val
+      if xid in val:
+        echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", name, " has: ", xid in val
       val.del(xid)
 
 

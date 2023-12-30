@@ -67,8 +67,6 @@ when isMainModule:
       check not(compiles(
         connect(a, someAction,
                 c, Counter.setValue)))
-      echo "agentConnect: ", " tgt: ", b.agentId, " obj: ", a.agentId, " sig: ", "valueChanged"
-      echo "agentConnect: ", " tgt: ", c.agentId, " obj: ", a.agentId, " sig: ", "valueChanged"
 
       check b.value == 0
       check c.value == 0
@@ -92,7 +90,6 @@ when isMainModule:
               b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
-      echo "agentConnect: ", " tgt: ", c.agentId, " obj: ", a.agentId, " sig: ", "valueChanged"
     
 
       check a.value == 0
