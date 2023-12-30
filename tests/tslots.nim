@@ -90,7 +90,6 @@ when isMainModule:
               b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
-    
 
       check a.value == 0
       check b.value == 0

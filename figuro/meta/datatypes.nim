@@ -26,13 +26,12 @@ export variant
 
 type
   AgentPairing = tuple[tgt: AgentWeakRef, fn: AgentProc]
-  AgentObj* = object of RootObj
+  Agent* = ref object of RootObj
     agentId*: int = 0
     listeners*: Table[string, OrderedSet[AgentPairing]]
     subscribed*: HashSet[AgentWeakRef]
-  
-  Agent* = ref AgentObj
-  AgentWeakRef* = ptr AgentObj
+
+  AgentWeakRef* = ptr type(Agent()[])
     ## type alias descring a weak ref that *must* be cleaned
     ## up when an object is set to be destroyed
     ## 
@@ -50,8 +49,9 @@ type
   Signal*[S] = AgentProcTy[S]
   SignalTypes* = distinct object
 
-proc `=destroy`*(agent: AgentObj) =
-  let xid: AgentWeakRef = unsafeAddr agent
+
+proc `=destroy`*(agent: typeof(Agent()[])) =
+  let xid: AgentWeakRef = addr agent
   # echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
   # echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
   for obj in agent.subscribed:
@@ -62,8 +62,7 @@ proc `=destroy`*(agent: AgentObj) =
       for item in listenerPairs:
         if item.tgt == xid:
           toDel.incl(item)
-          # echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", signal
-
+          echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", agent.agentId, " obj: ", obj.agentId, " name: ", signal
       for item in toDel:
         listenerPairs.excl(item)
 
@@ -206,7 +205,7 @@ proc addAgentListeners*(obj: Agent,
   assert slot != nil
 
   # mgetOrPut(sig, initTable[AgentWeakRef, AgentProc]())[tgt.weakReference()] =slot
-  # echo "addAgentListeners: ", "tgt: ", tgt.weakReference().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+  echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakReference().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
   obj.listeners.withValue(sig, agents):
     agents[].incl((tgt.unsafeWeakReference(), slot,))
   do:
