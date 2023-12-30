@@ -216,5 +216,4 @@ proc addAgentListeners*(obj: Agent,
     obj.listeners[sig] = move agents
   
   tgt.subscribed.incl(obj.weakReference())
-  echo "LISTENERS: ", obj.listeners.len
-  echo "SUBSC: ", tgt.subscribed.len
+  echo "LISTENERS: ", obj.listeners.len, " SUBSC: ", tgt.subscribed.len
