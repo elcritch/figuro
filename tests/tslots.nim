@@ -100,8 +100,8 @@ when isMainModule:
       check b.value == 42
       check c.value == 42
       echo "TEST REFS: ", " aref: ", cast[pointer](a).repr, " ", addr(a[]).pointer.repr, " agent: ", addr(Agent(a)).pointer.repr
-      check a.unsafeWeakReference().pointer == cast[pointer](a)
-      check a.unsafeWeakReference().pointer == addr(a[]).pointer
+      check a.unsafeWeakRef().pointer == cast[pointer](a)
+      check a.unsafeWeakRef().pointer == addr(a[]).pointer
 
     test "connect type errors":
       check not compiles(

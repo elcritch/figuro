@@ -197,7 +197,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
     node = T()
     node.agentId = nextAgentId()
     node.uid = node.agentId
-    node.parent = parent
+    node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
     parent.children.add(node)
     # node.parent = parent

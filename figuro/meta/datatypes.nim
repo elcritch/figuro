@@ -188,7 +188,7 @@ proc getAgentListeners*(obj: Agent,
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
 
-proc unsafeWeakReference*(obj: Agent): AgentWeakRef =
+proc unsafeWeakRef*(obj: Agent): AgentWeakRef =
   result = cast[AgentWeakRef](obj)
 
 proc toRef*(obj: AgentWeakRef): Agent =
@@ -205,13 +205,13 @@ proc addAgentListeners*(obj: Agent,
   assert slot != nil
 
   # mgetOrPut(sig, initTable[AgentWeakRef, AgentProc]())[tgt.weakReference()] =slot
-  echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakReference().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+  echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
   obj.listeners.withValue(sig, agents):
-    agents[].incl((tgt.unsafeWeakReference(), slot,))
+    agents[].incl((tgt.unsafeWeakRef(), slot,))
   do:
     var agents = initOrderedSet[AgentPairing]()
-    agents.incl( (tgt.unsafeWeakReference(), slot,) )
+    agents.incl( (tgt.unsafeWeakRef(), slot,) )
     obj.listeners[sig] = move agents
   
-  tgt.subscribed.incl(obj.unsafeWeakReference())
+  tgt.subscribed.incl(obj.unsafeWeakRef())
   # echo "LISTENERS: ", obj.listeners.len, " SUBSC: ", tgt.subscribed.len

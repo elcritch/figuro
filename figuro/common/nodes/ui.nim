@@ -36,10 +36,7 @@ type
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
 
-  Figuro* = ref object of FiguroObj
-  FiguroWeakRef* = ptr FiguroObj
-
-  FiguroObj* = object of Agent
+  Figuro* = ref object of Agent
     frame*: AppFrame
     parent*: FiguroWeakRef
     uid*: NodeID
@@ -86,6 +83,8 @@ type
     textLayout*: GlyphArrangement
     points*: seq[Position]
 
+  FiguroWeakRef* = ptr type(Figuro()[])
+
   BasicFiguro* = ref object of Figuro
 
   StatefulFiguro*[T] = ref object of Figuro
@@ -94,14 +93,14 @@ type
   Property*[T] = ref object of Agent
     value*: T
 
-proc `=destroy`*(obj: FiguroObj) =
+proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy
-  let objPtr: FiguroWeakRef = unsafeAddr obj
+  let objPtr: FiguroWeakRef = addr obj
   for child in obj.children:
     assert objPtr == child.parent
     child.parent = nil
 
-proc unsafeWeakReference*(obj: Figuro): FiguroWeakRef =
+proc unsafeWeakRef*(obj: Figuro): FiguroWeakRef =
   result = cast[FiguroWeakRef](obj)
 
 proc toRef*(obj: FiguroWeakRef): Figuro =
@@ -124,6 +123,9 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
+proc getId*(fig: FiguroWeakRef): NodeID =
+  if fig.isNil: NodeID -1
+  else: fig[].uid
 
 proc doTick*(fig: Figuro,
              tickCount: int,
