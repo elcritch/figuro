@@ -17,7 +17,6 @@ proc setValue*[T](self: Counter[T], value: T) {.slot.} =
     self.value = value
   emit self.valueChanged(value)
 
-
 proc value*(self: Counter): int =
   self.value
 
@@ -28,26 +27,17 @@ when isMainModule:
   suite "agent slots":
     setup:
       var
-        a {.used.} = Counter[uint]()
-        b {.used.} = Counter[uint]()
-        c {.used.} = Counter[uint]()
-        d {.used.} = Counter[uint]()
+        a {.used.} = Counter[uint].new()
+        b {.used.} = Counter[uint].new()
+        c {.used.} = Counter[uint].new()
+        d {.used.} = Counter[uint].new()
 
     test "signal / slot types":
       check SignalTypes.avgChanged(Counter[uint]) is (float, )
       check SignalTypes.valueChanged(Counter[uint]) is (uint, )
-      # check SignalTypes.valueChanged(Counter) is (int, )
-      # echo "type: ", SignalTypes.setValue(Counter).typeo.repr
       check SignalTypes.setValue(Counter[uint]) is (uint, )
 
     test "signal connect":
-      # let tgtProc = Counter[uint].setValue
-      # echo "check:sig: ", a.valueChanged(3.uint).typeof is (Agent, AgentRequest)
-      # echo "check:slot: ", compiles(b.setValue(3.uint))
-      # echo "check:src: ", genericParams(a.typeof).typeof is tuple
-      # a.setValue(3.uint)
-      # echo "check:AGENT: ", agentSlotsetValue(Counter[uint]).typeof.repr
-
       connect(a, valueChanged,
               b, Counter[uint].setValue())
       connect(a, valueChanged,
@@ -63,11 +53,6 @@ when isMainModule:
       check d.value == 0
 
       emit a.someChange()
-
-    # test "signal / slot types":
-    #   check avgChanged.signalType() is (float, )
-    #   check valueChanged.signalType() is (int, )
-    #   check Counter.setValue.signalType() is (int, )
 
     test "signal connect in generic proc":
       proc setup[T]() =

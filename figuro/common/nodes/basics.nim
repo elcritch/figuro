@@ -1,4 +1,4 @@
-import std/[options, unicode]
+import std/options
 import chroma
 
 import ../uimaths

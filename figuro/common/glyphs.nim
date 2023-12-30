@@ -1,4 +1,4 @@
-import std/[hashes, unicode, sequtils]
+import std/[hashes, unicode]
 import uimaths
 
 export uimaths
