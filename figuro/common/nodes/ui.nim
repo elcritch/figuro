@@ -36,7 +36,10 @@ type
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
 
-  Figuro* = ref object of Agent
+  FiguroPtr* = ptr Figuro
+  Figuro* = ref object of FiguroObj
+
+  FiguroObj* = object of Agent
     frame*: AppFrame
     parent*: Figuro
     uid*: NodeID
@@ -107,6 +110,12 @@ proc getId*(fig: Figuro): NodeID =
   ## or returns 0 if it's nil
   if fig.isNil: NodeID -1
   else: fig.uid
+
+proc unsafeWeakReference*(obj: Figuro): FiguroPtr =
+  result = cast[FiguroPtr](obj)
+
+proc toRef*(obj: FiguroPtr): Figuro =
+  result = cast[Figuro](obj)
 
 
 proc doTick*(fig: Figuro,
