@@ -25,14 +25,14 @@ export options
 export variant
 
 type
-  AgentPairing = tuple[tgt: AgentPtr, fn: AgentProc]
+  AgentPairing = tuple[tgt: AgentWeakRef, fn: AgentProc]
   AgentObj* = object of RootObj
     agentId*: int = 0
     listeners*: Table[string, OrderedSet[AgentPairing]]
-    subscribed*: HashSet[AgentPtr]
+    subscribed*: HashSet[AgentWeakRef]
   
   Agent* = ref AgentObj
-  AgentPtr* = ptr AgentObj
+  AgentWeakRef* = ptr AgentObj
     ## type alias descring a weak ref that *must* be cleaned
     ## up when an object is set to be destroyed
     ## 
@@ -51,7 +51,7 @@ type
   SignalTypes* = distinct object
 
 proc `=destroy`*(agent: AgentObj) =
-  let xid: AgentPtr = unsafeAddr agent
+  let xid: AgentWeakRef = unsafeAddr agent
   # echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
   # echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
   for obj in agent.subscribed:
@@ -184,15 +184,15 @@ proc initAgentRequest*[T](
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): OrderedSet[(AgentPtr, AgentProc)] =
+                        ): OrderedSet[(AgentWeakRef, AgentProc)] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
 
-proc unsafeWeakReference*(obj: Agent): AgentPtr =
-  result = cast[AgentPtr](obj)
+proc unsafeWeakReference*(obj: Agent): AgentWeakRef =
+  result = cast[AgentWeakRef](obj)
 
-proc toRef*(obj: AgentPtr): Agent =
+proc toRef*(obj: AgentWeakRef): Agent =
   result = cast[Agent](obj)
 
 proc addAgentListeners*(obj: Agent,
@@ -205,7 +205,7 @@ proc addAgentListeners*(obj: Agent,
   #   echo "listener:count: ", obj.listeners[sig].len()
   assert slot != nil
 
-  # mgetOrPut(sig, initTable[AgentPtr, AgentProc]())[tgt.weakReference()] =slot
+  # mgetOrPut(sig, initTable[AgentWeakRef, AgentProc]())[tgt.weakReference()] =slot
   # echo "addAgentListeners: ", "tgt: ", tgt.weakReference().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
   obj.listeners.withValue(sig, agents):
     agents[].incl((tgt.unsafeWeakReference(), slot,))
