@@ -25,9 +25,10 @@ export options
 export variant
 
 type
+  AgentPairing = tuple[tgt: AgentPtr, fn: AgentProc]
   AgentObj* = object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, HashSet[(AgentPtr, AgentProc)]]
+    listeners*: Table[string, HashSet[AgentPairing]]
     subscribed*: HashSet[AgentPtr]
   
   Agent* = ref AgentObj
@@ -57,11 +58,15 @@ proc `=destroy`*(x: AgentObj) =
   echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
   for obj in x.subscribed:
     echo "freeing subscribed: ", obj.agentId
-    for name, val in obj.listeners.mpairs():
-      let n = name
-      # if xid in val:
-      #   echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", name, " has: ", xid in val
+    for signal, listenerPairs in obj.listeners.mpairs():
       # val.del(xid)
+      var todel = initHashSet[AgentPairing](listenerPairs.len())
+      for item in listenerPairs:
+        if item.tgt == xid:
+          todel.incl(item)
+          echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", signal
+
+      listenerPairs.excl(todel)
 
 
 when defined(nimscript):
