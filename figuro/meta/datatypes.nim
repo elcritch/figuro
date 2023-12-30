@@ -28,7 +28,7 @@ type
   AgentPairing = tuple[tgt: AgentPtr, fn: AgentProc]
   AgentObj* = object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, HashSet[AgentPairing]]
+    listeners*: Table[string, OrderedSet[AgentPairing]]
     subscribed*: HashSet[AgentPtr]
   
   Agent* = ref AgentObj
@@ -60,13 +60,14 @@ proc `=destroy`*(x: AgentObj) =
     echo "freeing subscribed: ", obj.agentId
     for signal, listenerPairs in obj.listeners.mpairs():
       # val.del(xid)
-      var todel = initHashSet[AgentPairing](listenerPairs.len())
+      var toDel = initOrderedSet[AgentPairing](listenerPairs.len())
       for item in listenerPairs:
         if item.tgt == xid:
-          todel.incl(item)
+          toDel.incl(item)
           echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", signal
 
-      listenerPairs.excl(todel)
+      for item in toDel:
+        listenerPairs.excl(item)
 
 
 when defined(nimscript):
@@ -185,7 +186,7 @@ proc initAgentRequest*[T](
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): HashSet[(AgentPtr, AgentProc)] =
+                        ): OrderedSet[(AgentPtr, AgentProc)] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
@@ -210,7 +211,7 @@ proc addAgentListeners*(obj: Agent,
   obj.listeners.withValue(sig, agents):
     agents[].incl((tgt.weakReference(), slot,))
   do:
-    var agents = initHashSet[(AgentPtr, AgentProc)]()
+    var agents = initOrderedSet[AgentPairing]()
     agents.incl( (tgt.weakReference(), slot,) )
     obj.listeners[sig] = move agents
   
