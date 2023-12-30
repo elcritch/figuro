@@ -27,7 +27,7 @@ export variant
 type
   AgentObj* = object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, Table[AgentPtr, AgentProc]]
+    listeners*: Table[string, HashSet[(AgentPtr, AgentProc)]]
     subscribed*: HashSet[AgentPtr]
   
   Agent* = ref AgentObj
@@ -53,14 +53,15 @@ proc `=destroy`*(x: AgentObj) =
   let xid: AgentPtr = unsafeAddr x
   echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
   # for l in x.listeners.values():
-  echo "destroy: ", x.listeners.values().toSeq.mapIt(it.keys().toSeq().mapIt(it.agentId)).repr
+  # echo "destroy: ", x.listeners.values().toSeq.mapIt(it.keys().toSeq().mapIt(it.agentId)).repr
   echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
   for obj in x.subscribed:
     echo "freeing subscribed: ", obj.agentId
     for name, val in obj.listeners.mpairs():
-      if xid in val:
-        echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", name, " has: ", xid in val
-      val.del(xid)
+      let n = name
+      # if xid in val:
+      #   echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", x.agentId, " obj: ", obj.agentId, " name: ", name, " has: ", xid in val
+      # val.del(xid)
 
 
 when defined(nimscript):
@@ -179,7 +180,7 @@ proc initAgentRequest*[T](
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): Table[AgentPtr, AgentProc] =
+                        ): HashSet[(AgentPtr, AgentProc)] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
@@ -202,10 +203,10 @@ proc addAgentListeners*(obj: Agent,
   # mgetOrPut(sig, initTable[AgentPtr, AgentProc]())[tgt.weakReference()] =slot
   echo "addAgentListeners: ", "tgt: ", tgt.weakReference().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
   obj.listeners.withValue(sig, agents):
-    agents[][tgt.weakReference()] = slot
+    agents[].incl((tgt.weakReference(), slot,))
   do:
-    var agents = initTable[AgentPtr, AgentProc]()
-    agents[tgt.weakReference()] = slot
+    var agents = initHashSet[(AgentPtr, AgentProc)]()
+    agents.incl( (tgt.weakReference(), slot,) )
     obj.listeners[sig] = move agents
   
   tgt.subscribed.incl(obj.weakReference())
