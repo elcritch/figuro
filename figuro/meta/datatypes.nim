@@ -214,6 +214,6 @@ proc addAgentListeners*(obj: Agent,
     var agents = initOrderedSet[AgentPairing]()
     agents.incl( (tgt.unsafeWeakRef(), slot,) )
     obj.listeners[sig] = move agents
-  
+
   tgt.subscribed.incl(obj.unsafeWeakRef())
   # echo "LISTENERS: ", obj.listeners.len, " SUBSC: ", tgt.subscribed.len
