@@ -113,8 +113,8 @@ proc children*(fig: FiguroWeakRef): seq[Figuro] =
 proc unsafeWeakRef*(obj: Figuro): FiguroWeakRef =
   result = FiguroWeakRef(obj: obj)
 
-proc toRef*(obj: FiguroWeakRef): Figuro =
-  result = cast[Figuro](obj)
+proc toRef*(obj: FiguroWeakRef): lent Figuro =
+  result = obj.obj
 
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
