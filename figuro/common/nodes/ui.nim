@@ -108,12 +108,12 @@ proc `[]`*(fig: FiguroWeakRef): Figuro =
   cast[Figuro](fig.cur)
 
 proc children*(fig: FiguroWeakRef): seq[Figuro] =
-  fig[].children
+  fig.cur.children
 
 proc unsafeWeakRef*(obj: Figuro): FiguroWeakRef =
   result = FiguroWeakRef(cur: obj)
 
-template toRef*(fig: FiguroWeakRef): Figuro =
+template toRef*(fig: FiguroWeakRef): auto =
   fig.cur
 
 proc hash*(a: AppFrame): Hash =
@@ -236,7 +236,7 @@ template bubble*(signal: typed, parent: typed) =
   connect(node, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(node, `signal`, node.parent.obj, `signal Bubble`)
+  connect(node, `signal`, node.parent.cur, `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth), "render: ", n.getId,
