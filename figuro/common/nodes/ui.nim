@@ -83,7 +83,8 @@ type
     textLayout*: GlyphArrangement
     points*: seq[Position]
 
-  FiguroWeakRef* = ptr type(Figuro()[])
+  FiguroWeakRef* = object
+    obj* {.cursor.}: Figuro
 
   BasicFiguro* = ref object of Figuro
 
@@ -95,13 +96,22 @@ type
 
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy
-  let objPtr: FiguroWeakRef = addr obj
+  let objPtr = FiguroWeakRef(obj: cast[Figuro](addr obj))
   for child in obj.children:
     assert objPtr == child.parent
-    child.parent = nil
+    child.parent.obj = nil
+
+proc isNil*(fig: FiguroWeakRef): bool =
+  fig.obj.isNil()
+
+proc `[]`*(fig: FiguroWeakRef): Figuro =
+  cast[Figuro](fig.obj)
+
+proc children*(fig: FiguroWeakRef): seq[Figuro] =
+  fig[].children
 
 proc unsafeWeakRef*(obj: Figuro): FiguroWeakRef =
-  result = cast[FiguroWeakRef](obj)
+  result = FiguroWeakRef(obj: obj)
 
 proc toRef*(obj: FiguroWeakRef): Figuro =
   result = cast[Figuro](obj)

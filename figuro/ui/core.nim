@@ -73,7 +73,7 @@ proc nd*(): string =
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
-    fig.parent = nil
+    fig.parent.obj = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
@@ -472,7 +472,7 @@ template calcBasicConstraintImpl(
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
   let parentBox = if node.parent.isNil: node.frame.windowSize
-                  else: node.parent.box
+                  else: node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
@@ -486,7 +486,7 @@ template calcBasicConstraintImpl(
           res = coord.UICoord
         UiFrac(frac):
           node.checkParent()
-          res = frac.UICoord * node.parent.box.f
+          res = frac.UICoord * node.parent[].box.f
         UiPerc(perc):
           let ppval = when astToStr(f) == "x": parentBox.w
                       elif astToStr(f) == "y": parentBox.h
@@ -543,7 +543,7 @@ template calcBasicConstraintPostImpl(
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
   let parentBox = if node.parent.isNil: node.frame.windowSize
-                  else: node.parent.box
+                  else: node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord

@@ -122,7 +122,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     else:
       result[ek] = maxEvt(captured, result[ek])
 
-    if node.mouseOverlaps(false) and node.parent != nil and
+    if node.mouseOverlaps(false) and not node.parent.isNil() and
         result[ek].targets.anyIt(it.zlevel < node.zlevel):
       ## if a target node is a lower level, then ignore it
       result[ek] = captured

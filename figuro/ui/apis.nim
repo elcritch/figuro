@@ -307,7 +307,7 @@ proc ux*(coord: SomeNumber|UICoord): Constraint =
 proc findRoot*(node: Figuro): Figuro =
   result = node
   var cnt = 0
-  while result.parent != nil and result.unsafeWeakRef() != result.parent:
+  while not result.parent.isNil() and result.unsafeWeakRef() != result.parent:
     result = result.parent.toRef
     cnt.inc
     if cnt > 10_000:
