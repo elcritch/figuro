@@ -37,7 +37,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill node, node.fill.spin(15)
   rectangle "btnBody":
     bubble(doClick)
-    boxSizeOf node, node.parent
+    boxSizeOf node, node.parent.obj
     TemplateContents(self)
 
 exportWidget(button, Button)
