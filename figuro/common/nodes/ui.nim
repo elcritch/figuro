@@ -84,7 +84,7 @@ type
     points*: seq[Position]
 
   FiguroWeakRef* = object
-    obj* {.cursor.}: Figuro
+    cur* {.cursor.}: Figuro
 
   BasicFiguro* = ref object of Figuro
 
@@ -96,25 +96,25 @@ type
 
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy
-  let objPtr = FiguroWeakRef(obj: cast[Figuro](addr obj))
+  let objPtr = FiguroWeakRef(cur: cast[Figuro](addr obj))
   for child in obj.children:
     assert objPtr == child.parent
-    child.parent.obj = nil
+    child.parent.cur = nil
 
 proc isNil*(fig: FiguroWeakRef): bool =
-  fig.obj.isNil()
+  fig.cur.isNil()
 
 proc `[]`*(fig: FiguroWeakRef): Figuro =
-  cast[Figuro](fig.obj)
+  cast[Figuro](fig.cur)
 
 proc children*(fig: FiguroWeakRef): seq[Figuro] =
   fig[].children
 
 proc unsafeWeakRef*(obj: Figuro): FiguroWeakRef =
-  result = FiguroWeakRef(obj: obj)
+  result = FiguroWeakRef(cur: obj)
 
-proc toRef*(obj: FiguroWeakRef): lent Figuro =
-  result = obj.obj
+template toRef*(fig: FiguroWeakRef): Figuro =
+  fig.cur
 
 proc hash*(a: AppFrame): Hash =
   a.root.hash()

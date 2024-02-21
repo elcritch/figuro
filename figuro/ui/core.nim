@@ -73,7 +73,7 @@ proc nd*(): string =
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
-    fig.parent.obj = nil
+    fig.parent.cur = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
