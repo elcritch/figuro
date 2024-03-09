@@ -34,7 +34,7 @@ jobs:
       run: |
         nim -v
         nimble -v
-        nimble install 'https://github.com/nim-lang/atlas@#head'
+        nimble install 'https://github.com/nim-lang/atlas@#78b6814a05ec1b18eef388c7336f583eb6e9993f'
 
     - name: Cache packages
       uses: actions/cache@v3
