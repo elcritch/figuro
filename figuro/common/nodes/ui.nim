@@ -38,7 +38,7 @@ type
 
   Figuro* = ref object of Agent
     frame*: AppFrame
-    parent*: Figuro
+    parent*: FiguroWeakRef
     uid*: NodeID
     name*: StackString[16]
     children*: seq[Figuro]
@@ -83,6 +83,9 @@ type
     textLayout*: GlyphArrangement
     points*: seq[Position]
 
+  FiguroWeakRef* = object
+    cur* {.cursor.}: Figuro
+
   BasicFiguro* = ref object of Figuro
 
   StatefulFiguro*[T] = ref object of Figuro
@@ -90,6 +93,28 @@ type
 
   Property*[T] = ref object of Agent
     value*: T
+
+proc `=destroy`*(obj: type(Figuro()[])) =
+  ## destroy
+  let objPtr = FiguroWeakRef(cur: cast[Figuro](addr obj))
+  for child in obj.children:
+    assert objPtr == child.parent
+    child.parent.cur = nil
+
+proc isNil*(fig: FiguroWeakRef): bool =
+  fig.cur.isNil()
+
+proc `[]`*(fig: FiguroWeakRef): Figuro =
+  cast[Figuro](fig.cur)
+
+proc children*(fig: FiguroWeakRef): seq[Figuro] =
+  fig.cur.children
+
+proc unsafeWeakRef*(obj: Figuro): FiguroWeakRef =
+  result = FiguroWeakRef(cur: obj)
+
+template toRef*(fig: FiguroWeakRef): auto =
+  fig.cur
 
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
@@ -108,6 +133,9 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
+proc getId*(fig: FiguroWeakRef): NodeID =
+  if fig.isNil: NodeID -1
+  else: fig[].uid
 
 proc doTick*(fig: Figuro,
              tickCount: int,
@@ -195,6 +223,7 @@ template connect*(
     slot: typed,
     acceptVoidSlot: static bool = false,
 ) =
+  ## template override
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
@@ -207,11 +236,11 @@ template bubble*(signal: typed, parent: typed) =
   connect(node, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(node, `signal`, node.parent, `signal Bubble`)
+  connect(node, `signal`, node.parent.cur, `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth), "render: ", n.getId,
-          " p: ", n.parent.getId,
+          # " p: ", n.parent[].getId,
           " name: ", $n.name,
           " zlvl: ", $n.zlevel
   for ci in n.children:

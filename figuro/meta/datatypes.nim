@@ -1,6 +1,7 @@
 
 import std/[options, tables, sets, macros, hashes]
 import std/times
+import std/sequtils
 
 # import pkg/threading/channels
 
@@ -24,9 +25,16 @@ export options
 export variant
 
 type
+  AgentPairing = tuple[tgt: AgentWeakRef, fn: AgentProc]
   Agent* = ref object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, OrderedSet[(Agent, AgentProc)]]
+    listeners*: Table[string, OrderedSet[AgentPairing]]
+    subscribed*: HashSet[AgentWeakRef]
+
+  AgentWeakRef* = ptr type(Agent()[])
+    ## type alias descring a weak ref that *must* be cleaned
+    ## up when an object is set to be destroyed
+    ## 
 
   # Context for servicing an RPC call 
   RpcContext* = Agent
@@ -40,6 +48,24 @@ type
 
   Signal*[S] = AgentProcTy[S]
   SignalTypes* = distinct object
+
+
+proc `=destroy`*(agent: typeof(Agent()[])) =
+  let xid: AgentWeakRef = addr agent
+  # echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
+  # echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
+  for obj in agent.subscribed:
+    # echo "freeing subscribed: ", obj.agentId
+    for signal, listenerPairs in obj.listeners.mpairs():
+      # val.del(xid)
+      var toDel = initOrderedSet[AgentPairing](listenerPairs.len())
+      for item in listenerPairs:
+        if item.tgt == xid:
+          toDel.incl(item)
+          echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", agent.agentId, " obj: ", obj.agentId, " name: ", signal
+      for item in toDel:
+        listenerPairs.excl(item)
+
 
 when defined(nimscript):
   proc getAgentId(a: Agent): int = discard
@@ -157,10 +183,16 @@ proc initAgentRequest*[T](
 
 proc getAgentListeners*(obj: Agent,
                         sig: string
-                        ): OrderedSet[(Agent, AgentProc)] =
+                        ): OrderedSet[(AgentWeakRef, AgentProc)] =
   # echo "FIND:LISTENERS: ", obj.listeners
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
+
+proc unsafeWeakRef*(obj: Agent): AgentWeakRef =
+  result = cast[AgentWeakRef](obj)
+
+proc toRef*(obj: AgentWeakRef): Agent =
+  result = cast[Agent](obj)
 
 proc addAgentListeners*(obj: Agent,
                         sig: string,
@@ -171,7 +203,17 @@ proc addAgentListeners*(obj: Agent,
   # if obj.listeners.hasKey(sig):
   #   echo "listener:count: ", obj.listeners[sig].len()
   assert slot != nil
-  obj.listeners.
-    mgetOrPut(sig, initOrderedSet[(Agent, AgentProc)]()).
-    incl((tgt, slot))
-  # echo "LISTENERS: ", obj.listeners
+
+  # mgetOrPut(sig, initTable[AgentWeakRef, AgentProc]())[tgt.weakReference()] =slot
+  obj.listeners.withValue(sig, agents):
+    if (tgt.unsafeWeakRef(), slot,) notin agents[]:
+      echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+    agents[].incl((tgt.unsafeWeakRef(), slot,))
+  do:
+    echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+    var agents = initOrderedSet[AgentPairing]()
+    agents.incl( (tgt.unsafeWeakRef(), slot,) )
+    obj.listeners[sig] = move agents
+
+  tgt.subscribed.incl(obj.unsafeWeakRef())
+  # echo "LISTENERS: ", obj.listeners.len, " SUBSC: ", tgt.subscribed.len
