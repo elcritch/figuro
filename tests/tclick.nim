@@ -66,6 +66,7 @@ proc draw*(self: Main) {.slot.} =
           let btn = node
           with node:
             size 100'ux, 100'ux
+            cornerRadius 0.0
             connect(doHover, self, btnHover)
             connect(doClick, node, btnClicked)
           if i == 0:
