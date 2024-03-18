@@ -77,6 +77,7 @@ when isMainModule:
       check c.value == 137
       check d.value == 0
 
+
       emit a.someChange()
       connect(a, someChange,
               c, Counter.someAction)

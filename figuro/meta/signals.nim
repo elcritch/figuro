@@ -2,8 +2,9 @@ import strutils, macros, options
 import std/times
 import slots
 
-import datatypes
-export datatypes
+import agents
+
+export agents
 export times
 
 proc wrapResponse*(id: AgentId, resp: RpcParams, kind = Response): AgentResponse = 

@@ -1,8 +1,8 @@
 import tables, strutils, typetraits, macros
 
-import datatypes
+import agents
 
-export datatypes
+export agents
 
 proc firstArgument(params: NimNode): (NimNode, NimNode) =
   if params != nil and
@@ -280,8 +280,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.lispRepr
-  # echo "slot:repr:"
-  # echo result.repr
+  echo "slot:repr:"
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
