@@ -243,25 +243,6 @@ template connect*(
 
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
-
-
-# template connect*(
-#     a: Agent,
-#     signal: typed,
-#     b: Agent,
-#     slot: untyped
-# ) =
-#   when slot is AgentProc:
-#     static:
-#       echo "TYPE CONNECT: ", slot.typeof.repr, " ", genericParams(slot.typeof)
-#     when SignalTypes.`signal`(typeof(a)).typeof isnot
-#           tryGetTypeAgentProc(slot).typeof:
-#       typeMismatchError(signal, slot)
-#     let agentSlot: AgentProc = slot
-#   else:
-#     let agentSlot: AgentProc = `slot`(typeof(b))
-#   a.addAgentListeners(signalName(signal), b, agentSlot)
-
 proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
     let listeners = obj.getAgentListeners(req.procName)
