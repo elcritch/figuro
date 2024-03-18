@@ -1,7 +1,6 @@
 
 import std/[options, tables, sets, macros, hashes]
 import std/times
-import std/sequtils
 
 # import pkg/threading/channels
 
@@ -103,13 +102,8 @@ type
   AgentRouter* = ref object
     procs*: Table[string, AgentProc]
     sysprocs*: Table[string, AgentProc]
-    # subEventProcs*: Table[Event, RpcSubClients]
-    # subNames*: Table[string, Event]
     stacktraces*: bool
     subscriptionTimeout*: Duration
-    # inQueue*: EventQueue[Variant]
-    # outQueue*: EventQueue[Variant]
-    # registerQueue*: EventQueue[InetQueueItem[RpcSubOpts]]
 
 proc pack*[T](ss: var Variant, val: T) =
   # echo "Pack Type: ", getTypeId(T), " <- ", typeof(val)
