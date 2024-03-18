@@ -18,7 +18,6 @@ proc setValue*(self: Counter, value: int) {.slot.} =
     self.value = value
   emit self.valueChanged(value)
 
-
 proc setSomeValue*(self: Counter, value: int) =
   echo "setValue! ", value
   if self.value != value:
@@ -33,7 +32,6 @@ proc value*(self: Counter): int =
 
 when isMainModule:
   import unittest
-
 
   suite "agent slots":
     setup:
