@@ -147,17 +147,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     isPublic = pathStr.endsWith("*")
     isGeneric = genericParams.kind != nnkEmpty
 
-    # public rpc proc
-    # rpcSlot = ident(procNameStr & "Slot")
     rpcMethodGen = genSym(nskProc, procNameStr)
-    rpcMethodGenName = newStrLitNode repr rpcMethodGen
     procName = ident(procNameStr) # ident("agentSlot_" & rpcMethodGen.repr)
     rpcMethod = ident(procNameStr)
-    rpcSlot = ident("agentSlot_" & procNameStr)
 
-    # ctxName = ident("context")
-    # parameter type name
-    # paramsIdent = genSym(nskParam, "args")
     paramsIdent = ident("args")
     paramTypeName = ident("RpcType" & procNameStr)
 
@@ -180,7 +173,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     contextType = firstType
     kd = ident "kd"
     tp = ident "tp"
-    agent = ident "agent"
 
   var signalTyp = nnkTupleConstr.newTree()
   for i in 2..<params.len:
