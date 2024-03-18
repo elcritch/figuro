@@ -159,19 +159,6 @@ macro signalType*(s: untyped): auto =
   for arg in obj[2..^1]:
     result.add arg[1]
 
-macro tryGetTypeAgentProc(slot: untyped): untyped =
-  let res = splitNamesImpl(slot)
-  if res.isNone:
-    error("can't determine slot type", slot)
-      
-  let (tp, name) = res.get()
-
-  result = quote do:
-    SignalTypes.`name`(typeof(`tp`))
-
-macro typeMismatchError(signal, slot: typed): untyped =
-  error("mismatched signal and slot type: " & repr(signal) & " != " & repr(slot), slot)
-
 proc getAgentProcTy[T](tp: AgentProcTy[T]): T =
   discard
 
