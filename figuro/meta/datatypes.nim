@@ -1,6 +1,7 @@
 
 import std/[options, tables, sets, macros, hashes]
 import std/times
+import std/sequtils
 
 # import pkg/threading/channels
 
@@ -51,8 +52,8 @@ type
 
 proc `=destroy`*(agent: typeof(Agent()[])) =
   let xid: AgentWeakRef = addr agent
-  # echo "\ndestroy: agent: ", x.agentId, " lstCnt: ", x.listeners.len(), " subCnt: ", x.subscribed.len
-  # echo "subscribed: ", x.subscribed.toSeq.mapIt(it.agentId).repr
+  # echo "\ndestroy: agent: ", xid.agentId, " lstCnt: ", xid.listeners.len(), " subCnt: ", xid.subscribed.len
+  # echo "subscribed: ", xid.subscribed.toSeq.mapIt(it.agentId).repr
   for obj in agent.subscribed:
     # echo "freeing subscribed: ", obj.agentId
     for signal, listenerPairs in obj.listeners.mpairs():
@@ -61,7 +62,7 @@ proc `=destroy`*(agent: typeof(Agent()[])) =
       for item in listenerPairs:
         if item.tgt == xid:
           toDel.incl(item)
-          echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", agent.agentId, " obj: ", obj.agentId, " name: ", signal
+          # echo "agentRemoved: ", "tgt: ", xid.pointer.repr, " id: ", agent.agentId, " obj: ", obj.agentId, " name: ", signal
       for item in toDel:
         listenerPairs.excl(item)
 
