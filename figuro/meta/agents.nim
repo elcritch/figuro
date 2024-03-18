@@ -17,6 +17,7 @@ elif defined(useJsonSerde):
   export json
 else:
   import pkg/variant
+  import threading/channels
 
 export protocol
 export sets
@@ -29,6 +30,7 @@ type
     agentId*: int = 0
     listeners*: Table[string, OrderedSet[AgentPairing]]
     subscribed*: HashSet[AgentWeakRef]
+    threadQueue*: Option[Chan[AgentRequest]]
 
   AgentWeakRef* = ptr type(Agent()[])
     ## type alias descring a weak ref that *must* be cleaned
@@ -193,12 +195,12 @@ proc addAgentListeners*(obj: Agent,
                         tgt: Agent,
                         slot: AgentProc
                         ) =
+
   # echo "add agent listener: ", sig, " obj: ", obj.agentId, " tgt: ", tgt.agentId
   # if obj.listeners.hasKey(sig):
   #   echo "listener:count: ", obj.listeners[sig].len()
   assert slot != nil
 
-  # mgetOrPut(sig, initTable[AgentWeakRef, AgentProc]())[tgt.weakReference()] =slot
   obj.listeners.withValue(sig, agents):
     if (tgt.unsafeWeakRef(), slot,) notin agents[]:
       echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
