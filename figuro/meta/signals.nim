@@ -35,7 +35,8 @@ proc wrapResponseError*(
   #     for se in err.getStackTraceEntries():
   #       let file: string = rsplit($(se.filename), '/', maxsplit=1)[^1]
   #       errobj.trace.add( ($se.procname, file, se.line, ) )
-  result = wrapResponseError(id, errobj)
+
+  # result = wrapResponseError(id, errobj)
 
 proc parseError*(ss: Variant): AgentError = 
   ss.unpack(result)
