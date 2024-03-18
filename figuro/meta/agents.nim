@@ -5,7 +5,6 @@ import std/sequtils
 
 # import pkg/threading/channels
 
-# import equeues
 import protocol
 
 when defined(nimscript):
