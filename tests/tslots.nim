@@ -149,9 +149,9 @@ when isMainModule:
         emit x.valueChanged(137)
 
         echo "x:listeners: ", x.listeners
-        echo "x:subscribed: ", x.subscribed
+        # echo "x:subscribed: ", x.subscribed
         echo "y:listeners: ", y.listeners
-        echo "y:subscribed: ", y.subscribed
+        # echo "y:subscribed: ", y.subscribed
 
         check y.listeners.len() == 0
         check y.subscribed.len() == 1
@@ -164,7 +164,7 @@ when isMainModule:
       echo "finishing outer block "
       # check x.subscribed.len() == 0
       echo "x:listeners: ", x.listeners
-      echo "x:subscribed: ", x.subscribed
+      # echo "x:subscribed: ", x.subscribed
       # check x.listeners["valueChanged"].len() == 0
       check x.listeners.len() == 0
       check x.subscribed.len() == 0
@@ -186,16 +186,18 @@ when isMainModule:
     type
       RefHeader = object
         rc: int
+        when defined(gcOrc):
+          rootIdx: int # thanks to this we can delete potential cycle roots
+                       # in O(1) without doubly linked lists
 
       Cell = ptr RefHeader
 
     template head[T](p: ref T): Cell =
       cast[Cell](cast[int](cast[pointer](p)) -% sizeof(RefHeader))
-    template count(x: Cell): untyped =
-      x.rc shr rcShift
+    template count(x: Cell): int =
+      (x.rc shr rcShift)
 
     var x = Counter.new()
-    
     echo "X::count: ", x.head().count()
     check x.head().count() == 0
     block:
@@ -207,11 +209,17 @@ when isMainModule:
       echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
       connect(x, valueChanged,
               y, setValue)
-      echo "X::count: ", x.head().count()
-      check x.head().count() == 0
+      check x.head().count() == 1
 
       check y.value == 0
       emit x.valueChanged(137)
-      echo "X::count: ", x.head().count()
+      echo "X::count:end: ", x.head().count()
+      echo "Y::count:end: ", y.head().count()
+      check x.head().count() == 2
+    
+    echo "done with y"
+    echo "X::count: ", x.head().count()
+    check x.listeners.len() == 0
+    check x.subscribed.len() == 0
     check x.head().count() == 0
 

@@ -49,7 +49,7 @@ type
   Agent* = ref object of RootObj
     agentId*: int = 0
     listeners*: Table[string, OrderedSet[AgentPairing]]
-    subscribed*: HashSet[WeakRef[Agent]]
+    subscribed*: HashSet[Agent]
     threadQueue*: Option[Chan[AgentRequest]]
 
   AgentPairing = tuple[tgt: WeakRef[Agent], fn: AgentProc]
@@ -90,6 +90,11 @@ proc `=destroy`*(agent: typeof(Agent()[])) =
         delSigs.add(signal)
     for sig in delSigs:
       obj[].listeners.del(sig)
+  
+  # xid[].listeners.clear()
+  `=destroy`(xid[].listeners)
+  `=destroy`(xid[].subscribed)
+  `=destroy`(xid[].threadQueue)
 
 
 when defined(nimscript):
@@ -236,5 +241,5 @@ proc addAgentListeners*(obj: Agent,
     agents.incl( (tgt.unsafeWeakRef(), slot,) )
     obj.listeners[sig] = move agents
 
-  tgt.subscribed.incl(obj.unsafeWeakRef())
+  tgt.subscribed.incl(obj)
   # echo "LISTENERS: ", obj.listeners.len, " SUBSC: ", tgt.subscribed.len
