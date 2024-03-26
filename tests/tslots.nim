@@ -132,43 +132,81 @@ when isMainModule:
   proc `=destroy`*(obj: TestObj) =
     echo "destroying test object: ", obj.val
 
+  when defined(gcOrc):
+    const
+      rcMask = 0b1111
+      rcShift = 4      # shift by rcShift to get the reference counter
+  else:
+    const
+      rcMask = 0b111
+      rcShift = 3      # shift by rcShift to get the reference counter
+
+  type
+    RefHeader = object
+      rc: int
+
+    Cell = ptr RefHeader
+
+  template head[T](p: ref T): Cell =
+    cast[Cell](cast[int](cast[pointer](p)) -% sizeof(RefHeader))
+  template count(x: Cell): untyped =
+    x.rc shr rcShift
+
   suite "agent weak refs":
     test "signal connect":
+      var x = Counter.new()
+      
       block:
-        var x = Counter.new()
-        
-        block:
-          var obj {.used.} = TestObj(val: 100)
-          var y = Counter.new()
+        var obj {.used.} = TestObj(val: 100)
+        var y = Counter.new()
 
-          echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
-          connect(x, valueChanged,
-                  y, setValue)
+        echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
+        connect(x, valueChanged,
+                y, setValue)
 
-          check y.value == 0
-          emit x.valueChanged(137)
+        check y.value == 0
+        emit x.valueChanged(137)
 
-          echo "x:listeners: ", x.listeners
-          echo "x:subscribed: ", x.subscribed
-          echo "y:listeners: ", y.listeners
-          echo "y:subscribed: ", y.subscribed
-
-          check y.listeners.len() == 0
-          check y.subscribed.len() == 1
-
-          check x.listeners["valueChanged"].len() == 1
-          check x.subscribed.len() == 0
-
-          echo "block done"
-        
-        echo "finishing outer block "
-        # check x.subscribed.len() == 0
         echo "x:listeners: ", x.listeners
         echo "x:subscribed: ", x.subscribed
-        # check x.listeners["valueChanged"].len() == 0
-        check x.listeners.len() == 0
+        echo "y:listeners: ", y.listeners
+        echo "y:subscribed: ", y.subscribed
+
+        check y.listeners.len() == 0
+        check y.subscribed.len() == 1
+
+        check x.listeners["valueChanged"].len() == 1
         check x.subscribed.len() == 0
 
-        # check a.value == 0
-        # check b.value == 137
-        echo "done outer block"
+        echo "block done"
+      
+      echo "finishing outer block "
+      # check x.subscribed.len() == 0
+      echo "x:listeners: ", x.listeners
+      echo "x:subscribed: ", x.subscribed
+      # check x.listeners["valueChanged"].len() == 0
+      check x.listeners.len() == 0
+      check x.subscribed.len() == 0
+
+      # check a.value == 0
+      # check b.value == 137
+      echo "done outer block"
+
+  test "weak refs":
+    var x = Counter.new()
+    
+    echo "X::count: ", x.head().count()
+    block:
+      var obj {.used.} = TestObj(val: 100)
+      var y = Counter.new()
+      echo "X::count: ", x.head().count()
+
+      echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
+      connect(x, valueChanged,
+              y, setValue)
+      echo "X::count: ", x.head().count()
+
+      check y.value == 0
+      emit x.valueChanged(137)
+      echo "X::count: ", x.head().count()
+
