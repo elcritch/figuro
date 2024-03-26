@@ -3,8 +3,6 @@ import std/[options, tables, sets, macros, hashes]
 import std/times
 import std/sequtils
 
-# import pkg/threading/channels
-
 import protocol
 
 when defined(nimscript):
