@@ -48,8 +48,8 @@ proc `$`*[T](obj: WeakRef[T]): string =
 type
   Agent* = ref object of RootObj
     agentId*: int = 0
-    listeners*: Table[string, OrderedSet[AgentPairing]]
-    subscribed*: HashSet[WeakRef[Agent]]
+    listeners*: Table[string, OrderedSet[AgentPairing]] ## agents listening to me
+    subscribed*: HashSet[WeakRef[Agent]] ## agents I'm listening to
     threadQueue*: Option[Chan[AgentRequest]]
 
   AgentPairing = tuple[tgt: WeakRef[Agent], fn: AgentProc]
