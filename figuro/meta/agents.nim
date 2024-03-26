@@ -227,11 +227,11 @@ proc addAgentListeners*(obj: Agent,
   assert slot != nil
 
   obj.listeners.withValue(sig, agents):
-    if (tgt.unsafeWeakRef(), slot,) notin agents[]:
-      echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+    # if (tgt.unsafeWeakRef(), slot,) notin agents[]:
+    #   echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
     agents[].incl((tgt.unsafeWeakRef(), slot,))
   do:
-    echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+    # echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
     var agents = initOrderedSet[AgentPairing]()
     agents.incl( (tgt.unsafeWeakRef(), slot,) )
     obj.listeners[sig] = move agents
