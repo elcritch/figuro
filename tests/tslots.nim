@@ -99,8 +99,8 @@ when isMainModule:
       check b.value == 42
       check c.value == 42
       echo "TEST REFS: ", " aref: ", cast[pointer](a).repr, " ", addr(a[]).pointer.repr, " agent: ", addr(Agent(a)).pointer.repr
-      check a.unsafeWeakRef().pointer == cast[pointer](a)
-      check a.unsafeWeakRef().pointer == addr(a[]).pointer
+      check a.unsafeWeakRef().toPtr == cast[pointer](a)
+      check a.unsafeWeakRef().toPtr == addr(a[]).pointer
 
     test "connect type errors":
       check not compiles(
@@ -125,19 +125,50 @@ when isMainModule:
 
       a.setValue(42)
 
+  type
+    TestObj = object
+      val: int
+  
+  proc `=destroy`*(obj: TestObj) =
+    echo "destroying test object: ", obj.val
+
   suite "agent weak refs":
-    setup:
-      var
-        a {.used.} = Counter.new()
-        b {.used.} = Counter.new()
-
     test "signal connect":
-      echo "Counter.setValue: "
-      # connect(a, valueChanged,
-      #         b, setValue)
+      block:
+        var x = Counter.new()
+        
+        block:
+          var obj {.used.} = TestObj(val: 100)
+          var y = Counter.new()
 
-      # check b.value == 0
-      # emit a.valueChanged(137)
+          echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
+          connect(x, valueChanged,
+                  y, setValue)
 
-      # check a.value == 0
-      # check b.value == 137
+          check y.value == 0
+          emit x.valueChanged(137)
+
+          echo "x:listeners: ", x.listeners
+          echo "x:subscribed: ", x.subscribed
+          echo "y:listeners: ", y.listeners
+          echo "y:subscribed: ", y.subscribed
+
+          check y.listeners.len() == 0
+          check y.subscribed.len() == 1
+
+          check x.listeners["valueChanged"].len() == 1
+          check x.subscribed.len() == 0
+
+          echo "block done"
+        
+        echo "finishing outer block "
+        # check x.subscribed.len() == 0
+        echo "x:listeners: ", x.listeners
+        echo "x:subscribed: ", x.subscribed
+        # check x.listeners["valueChanged"].len() == 0
+        check x.listeners.len() == 0
+        check x.subscribed.len() == 0
+
+        # check a.value == 0
+        # check b.value == 137
+        echo "done outer block"
