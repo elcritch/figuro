@@ -71,8 +71,8 @@ type
 proc `=destroy`*(agent: typeof(Agent()[])) =
   let xid: WeakRef[Agent] = WeakRef[Agent](pt: cast[Agent](addr agent))
 
-  echo "\ndestroy: agent: ", xid[].agentId, " pt: ", xid.toPtr.repr, " lstCnt: ", xid[].listeners.len(), " subCnt: ", xid[].subscribed.len
-  echo "subscribed: ", xid[].subscribed.toSeq.mapIt(it[].agentId).repr
+  # echo "\ndestroy: agent: ", xid[].agentId, " pt: ", xid.toPtr.repr, " lstCnt: ", xid[].listeners.len(), " subCnt: ", xid[].subscribed.len
+  # echo "subscribed: ", xid[].subscribed.toSeq.mapIt(it[].agentId).repr
 
   # remove myself from agents I'm listening to
   var delSigs: seq[string]
@@ -94,13 +94,13 @@ proc `=destroy`*(agent: typeof(Agent()[])) =
   
   # remove myself from agents listening to me
   for signal, listenerPairs in xid[].listeners.mpairs():
-    echo "freeing signal: ", signal, " listeners: ", listenerPairs
+    # echo "freeing signal: ", signal, " listeners: ", listenerPairs
     for listners in listenerPairs:
       # listeners.tgt.
-      echo "\tlisterners: ", listners.tgt
-      echo "\tlisterners:subscribed ", listners.tgt[].subscribed
+      # echo "\tlisterners: ", listners.tgt
+      # echo "\tlisterners:subscribed ", listners.tgt[].subscribed
       listners.tgt[].subscribed.excl(xid)
-      echo "\tlisterners:subscribed ", listners.tgt[].subscribed
+      # echo "\tlisterners:subscribed ", listners.tgt[].subscribed
 
   # xid[].listeners.clear()
   `=destroy`(xid[].listeners)
