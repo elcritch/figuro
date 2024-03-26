@@ -132,25 +132,6 @@ when isMainModule:
   proc `=destroy`*(obj: TestObj) =
     echo "destroying test object: ", obj.val
 
-  when defined(gcOrc):
-    const
-      rcMask = 0b1111
-      rcShift = 4      # shift by rcShift to get the reference counter
-  else:
-    const
-      rcMask = 0b111
-      rcShift = 3      # shift by rcShift to get the reference counter
-
-  type
-    RefHeader = object
-      rc: int
-
-    Cell = ptr RefHeader
-
-  template head[T](p: ref T): Cell =
-    cast[Cell](cast[int](cast[pointer](p)) -% sizeof(RefHeader))
-  template count(x: Cell): untyped =
-    x.rc shr rcShift
 
   suite "agent weak refs":
     test "signal connect":
@@ -193,20 +174,44 @@ when isMainModule:
       echo "done outer block"
 
   test "weak refs":
+    when defined(gcOrc):
+      const
+        rcMask = 0b1111
+        rcShift = 4      # shift by rcShift to get the reference counter
+    else:
+      const
+        rcMask = 0b111
+        rcShift = 3      # shift by rcShift to get the reference counter
+
+    type
+      RefHeader = object
+        rc: int
+
+      Cell = ptr RefHeader
+
+    template head[T](p: ref T): Cell =
+      cast[Cell](cast[int](cast[pointer](p)) -% sizeof(RefHeader))
+    template count(x: Cell): untyped =
+      x.rc shr rcShift
+
     var x = Counter.new()
     
     echo "X::count: ", x.head().count()
+    check x.head().count() == 0
     block:
       var obj {.used.} = TestObj(val: 100)
       var y = Counter.new()
       echo "X::count: ", x.head().count()
+      check x.head().count() == 0
 
       echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
       connect(x, valueChanged,
               y, setValue)
       echo "X::count: ", x.head().count()
+      check x.head().count() == 0
 
       check y.value == 0
       emit x.valueChanged(137)
       echo "X::count: ", x.head().count()
+    check x.head().count() == 0
 
