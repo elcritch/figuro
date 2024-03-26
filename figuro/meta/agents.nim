@@ -49,7 +49,7 @@ type
   Agent* = ref object of RootObj
     agentId*: int = 0
     listeners*: Table[string, OrderedSet[AgentPairing]]
-    subscribed*: HashSet[Agent]
+    subscribed*: HashSet[WeakRef[Agent]]
     threadQueue*: Option[Chan[AgentRequest]]
 
   AgentPairing = tuple[tgt: WeakRef[Agent], fn: AgentProc]
@@ -71,9 +71,10 @@ type
 proc `=destroy`*(agent: typeof(Agent()[])) =
   let xid: WeakRef[Agent] = WeakRef[Agent](pt: cast[Agent](addr agent))
 
-  # echo "\ndestroy: agent: ", xid[].agentId, " pt: ", xid.toPtr.repr, " lstCnt: ", xid[].listeners.len(), " subCnt: ", xid[].subscribed.len
-  # echo "subscribed: ", xid[].subscribed.toSeq.mapIt(it[].agentId).repr
+  echo "\ndestroy: agent: ", xid[].agentId, " pt: ", xid.toPtr.repr, " lstCnt: ", xid[].listeners.len(), " subCnt: ", xid[].subscribed.len
+  echo "subscribed: ", xid[].subscribed.toSeq.mapIt(it[].agentId).repr
 
+  # remove myself from agents I'm listening to
   var delSigs: seq[string]
   for obj in agent.subscribed:
     # echo "freeing subscribed: ", obj[].agentId
@@ -91,6 +92,16 @@ proc `=destroy`*(agent: typeof(Agent()[])) =
     for sig in delSigs:
       obj[].listeners.del(sig)
   
+  # remove myself from agents listening to me
+  for signal, listenerPairs in xid[].listeners.mpairs():
+    echo "freeing signal: ", signal, " listeners: ", listenerPairs
+    for listners in listenerPairs:
+      # listeners.tgt.
+      echo "\tlisterners: ", listners.tgt
+      echo "\tlisterners:subscribed ", listners.tgt[].subscribed
+      listners.tgt[].subscribed.excl(xid)
+      echo "\tlisterners:subscribed ", listners.tgt[].subscribed
+
   # xid[].listeners.clear()
   `=destroy`(xid[].listeners)
   `=destroy`(xid[].subscribed)
@@ -241,5 +252,5 @@ proc addAgentListeners*(obj: Agent,
     agents.incl( (tgt.unsafeWeakRef(), slot,) )
     obj.listeners[sig] = move agents
 
-  tgt.subscribed.incl(obj)
+  tgt.subscribed.incl(obj.unsafeWeakRef())
   # echo "LISTENERS: ", obj.listeners.len, " SUBSC: ", tgt.subscribed.len

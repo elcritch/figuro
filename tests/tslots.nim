@@ -204,7 +204,7 @@ when isMainModule:
       echo "finishing outer block "
       # check x.subscribed.len() == 0
       echo "y:listeners: ", y.listeners
-      echo "y:subscribed: ", y.subscribed.mapIt(it.agentId)
+      echo "y:subscribed: ", y.subscribed.mapIt(it)
       # check x.listeners["valueChanged"].len() == 0
       check y.listeners.len() == 0
       check y.subscribed.len() == 0
@@ -249,13 +249,13 @@ when isMainModule:
       echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
       connect(x, valueChanged,
               y, setValue)
-      check x.head().count() == 1
+      check x.head().count() == 0
 
       check y.value == 0
       emit x.valueChanged(137)
       echo "X::count:end: ", x.head().count()
       echo "Y::count:end: ", y.head().count()
-      check x.head().count() == 2
+      check x.head().count() == 1
     
     echo "done with y"
     echo "X::count: ", x.head().count()
