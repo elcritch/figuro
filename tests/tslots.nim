@@ -32,6 +32,7 @@ proc value*(self: Counter): int =
 
 when isMainModule:
   import unittest
+  import std/sequtils
 
   suite "agent slots":
     setup:
@@ -134,7 +135,7 @@ when isMainModule:
 
 
   suite "agent weak refs":
-    test "signal connect":
+    test "listeners freed":
       var x = Counter.new()
       
       block:
@@ -168,6 +169,45 @@ when isMainModule:
       # check x.listeners["valueChanged"].len() == 0
       check x.listeners.len() == 0
       check x.subscribed.len() == 0
+
+      # check a.value == 0
+      # check b.value == 137
+      echo "done outer block"
+
+    test "subscribers freed":
+      var y = Counter.new()
+      
+      block:
+        var obj {.used.} = TestObj(val: 100)
+        var x = Counter.new()
+
+        echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
+        connect(x, valueChanged,
+                y, setValue)
+
+        check y.value == 0
+        emit x.valueChanged(137)
+
+        echo "x:listeners: ", x.listeners
+        # echo "x:subscribed: ", x.subscribed
+        echo "y:listeners: ", y.listeners
+        # echo "y:subscribed: ", y.subscribed
+
+        check y.listeners.len() == 0
+        check y.subscribed.len() == 1
+
+        check x.listeners["valueChanged"].len() == 1
+        check x.subscribed.len() == 0
+
+        echo "block done"
+      
+      echo "finishing outer block "
+      # check x.subscribed.len() == 0
+      echo "y:listeners: ", y.listeners
+      echo "y:subscribed: ", y.subscribed.mapIt(it.agentId)
+      # check x.listeners["valueChanged"].len() == 0
+      check y.listeners.len() == 0
+      check y.subscribed.len() == 0
 
       # check a.value == 0
       # check b.value == 137
