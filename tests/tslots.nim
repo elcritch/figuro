@@ -297,11 +297,10 @@ when isMainModule:
       check c.value == 137
 
       proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
-        {.cast(gcsafe).}:
-          var res = wa.valueChanged(1337)
-          agentResults.send(unsafeIsolate(res))
-          echo "Thread Done"
-        
+        var res = aref.valueChanged(1337)
+        agentResults.send(unsafeIsolate(res))
+        echo "Thread Done"
+      
       var thread: Thread[WeakRef[Counter]]
       createThread(thread, threadTestProc, wa)
       thread.joinThread()
