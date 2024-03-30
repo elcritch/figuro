@@ -29,6 +29,7 @@ proc someAction*(self: Counter) {.slot.} =
 proc value*(self: Counter): int =
   self.value
 
+
 when isMainModule:
   import unittest
   import std/sequtils

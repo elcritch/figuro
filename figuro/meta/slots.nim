@@ -254,7 +254,7 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     let objId = ident"obj"
 
     result.add quote do:
-      proc `rpcMethod`(`objId`: `firstType` | WeakRef[`firstType`]): (Agent, AgentRequest) =
+      proc `rpcMethod`(`objId`: `firstType` | WeakRef[`firstType`]): (typeof(`objId`), AgentRequest) =
         let args = `construct`
         let req = initAgentRequest(procName=`signalName`, args=args, id=`objId`.getId())
         result = (obj, req)
