@@ -68,6 +68,7 @@ when isMainModule:
       check c.value == 0
       check d.value == 0
 
+
       emit a.valueChanged(137)
 
       check a.value == 0

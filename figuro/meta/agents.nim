@@ -206,14 +206,14 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
   #   raise newException(ConversionError,
   #                      "unable to parse parameters: " & err.msg)
 
-proc initAgentRequest*[T](
+proc initAgentRequest*[S, T](
   procName: string,
   args: T,
   id: AgentId = AgentId(-1),
   reqKind: AgentType = Request,
-): AgentRequest =
+): AgentRequestTy[S] =
   # echo "AgentRequest: ", procName, " args: ", args.repr
-  result = AgentRequest(
+  result = AgentRequestTy[S](
     kind: reqKind,
     id: id,
     procName: procName,

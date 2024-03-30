@@ -87,7 +87,8 @@ type
 proc received*[T](proxy: AgentProxy[T], val: T) {.signal.}
 
 proc send*[T](proxy: AgentProxy[T], obj: Agent, val: T) {.slot.} =
-  proxy.chan.send( (obj.getId(), val) )
+  # proxy.chan.send( (obj.getId(), val) )
+  discard
 
 
 suite "threaded agent proxy":
@@ -103,7 +104,7 @@ suite "threaded agent proxy":
     var proxy = AgentProxy[SignalTypes.valueChanged(Counter)]()
     echo "EX1: ", proxy.typeof
   
-    proxy.send wa.valueChanged(137)
+    proxy.send a, (137, )
 
     connect(a, valueChanged,
             b, setValue)
