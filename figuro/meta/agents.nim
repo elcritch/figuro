@@ -54,6 +54,9 @@ type
 
   AgentPairing = tuple[tgt: WeakRef[Agent], fn: AgentProc]
 
+  AgentMessage* = (Agent, AgentRequest)
+  AgentThreadMessage* = (WeakRef[Agent], AgentRequest)
+
   # Context for servicing an RPC call 
   RpcContext* = Agent
 

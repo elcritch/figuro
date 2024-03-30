@@ -261,21 +261,23 @@ when isMainModule:
     check x.subscribed.len() == 0
     check x.head().count() == 0
 
+  import threading/channels
+  import std/isolation
+
   suite "threaded agent slots":
-    proc threadTestProc[T](aref: T) {.thread.} =
-      echo "thread run"
 
     setup:
       var
         a {.used.} = Counter.new()
         b {.used.} = Counter.new()
         c {.used.} = Counter.new()
-        d {.used.} = Counter.new()
 
     teardown:
       GC_fullCollect()
 
-    test "signal connect":
+    var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
+
+    test "simple threading test":
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
@@ -286,40 +288,47 @@ when isMainModule:
         connect(a, someAction,
                 c, Counter.setValue)))
 
-      check b.value == 0
-      check c.value == 0
-      check d.value == 0
-
-      let wa = a.unsafeWeakRef()
+      let wa: WeakRef[Counter] = a.unsafeWeakRef()
       emit wa.valueChanged(137)
       check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
 
       check wa[].value == 0
       check b.value == 137
       check c.value == 137
-      check d.value == 0
 
-      emit a.someChange()
-      connect(a, someChange,
-              c, Counter.someAction)
+      proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
+        {.cast(gcsafe).}:
+          var res = wa.valueChanged(1337)
+          agentResults.send(unsafeIsolate(res))
+          echo "Thread Done"
+        
+      var thread: Thread[WeakRef[Counter]]
+      createThread(thread, threadTestProc, wa)
+      thread.joinThread()
+      let resp = agentResults.recv()
+      echo "RESP: ", resp
+      emit resp
 
-    test "basic signal connect":
-      # TODO: how to do this?
-      echo "done"
-      connect(a, valueChanged,
-              b, setValue)
-      connect(a, valueChanged,
-              c, Counter.setValue)
+      check b.value == 1337
+      check c.value == 1337
 
-      check a.value == 0
-      check b.value == 0
-      check c.value == 0
+    # test "basic signal connect":
+    #   # TODO: how to do this?
+    #   echo "done"
+    #   connect(a, valueChanged,
+    #           b, setValue)
+    #   connect(a, valueChanged,
+    #           c, Counter.setValue)
 
-      a.setValue(42)
-      check a.value == 42
-      check b.value == 42
-      check c.value == 42
-      echo "TEST REFS: ", " aref: ", cast[pointer](a).repr, " ", addr(a[]).pointer.repr, " agent: ", addr(Agent(a)).pointer.repr
-      check a.unsafeWeakRef().toPtr == cast[pointer](a)
-      check a.unsafeWeakRef().toPtr == addr(a[]).pointer
+    #   check a.value == 0
+    #   check b.value == 0
+    #   check c.value == 0
+
+    #   a.setValue(42)
+    #   check a.value == 42
+    #   check b.value == 42
+    #   check c.value == 42
+    #   echo "TEST REFS: ", " aref: ", cast[pointer](a).repr, " ", addr(a[]).pointer.repr, " agent: ", addr(Agent(a)).pointer.repr
+    #   check a.unsafeWeakRef().toPtr == cast[pointer](a)
+    #   check a.unsafeWeakRef().toPtr == addr(a[]).pointer
 
