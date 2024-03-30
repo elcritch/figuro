@@ -105,16 +105,16 @@ proc `=destroy`*(agent: typeof(Agent()[])) =
   # xid[].listeners.clear()
   `=destroy`(xid[].listeners)
   `=destroy`(xid[].subscribed)
-  `=destroy`(xid[].threadQueue)
 
-
+## TODO: figure out if we need agentId at all?
 when defined(nimscript):
-  proc getAgentId(a: Agent): int = discard
-  proc getAgentId(a: AgentProc): int = discard
+  proc getId*(a: Agent): int = a.agentId
+  # proc getAgentProcId*(a: AgentProc): int = cast[int](cast[pointer](a))
   var lastUId {.compileTime.}: int = 1
 else:
-  proc getAgentId(a: Agent): int = cast[int](cast[pointer](a))
-  proc getAgentId(a: AgentProc): int = cast[int](cast[pointer](a))
+  proc getId*[T: Agent](a: WeakRef[T]): int = cast[int](a.toPtr())
+  proc getId*(a: Agent): int = cast[int](cast[pointer](a))
+  # proc getAgentProcId*(a: AgentProc): int = cast[int](cast[pointer](a))
   var lastUId: int = 0
 
 proc nextAgentId*(): int =
@@ -125,8 +125,8 @@ proc new*[T: Agent](tp: typedesc[T]): T =
   result = T()
   result.agentId = nextAgentId()
 
-proc hash*(a: Agent): Hash = hash(getAgentId(a))
-proc hash*(a: AgentProc): Hash = hash(getAgentId(a))
+proc hash*(a: Agent): Hash = hash(a.getId())
+# proc hash*(a: AgentProc): Hash = hash(getAgentProcId(a))
 
 type
 
@@ -206,13 +206,13 @@ proc rpcUnpack*[T](obj: var T, ss: RpcParams) =
 proc initAgentRequest*[T](
   procName: string,
   args: T,
-  rkind: AgentType = Request,
-  id = AgentId(0),
+  id: AgentId = AgentId(-1),
+  reqKind: AgentType = Request,
 ): AgentRequest =
   # echo "AgentRequest: ", procName, " args: ", args.repr
   result = AgentRequest(
-    kind: Request,
-    id: AgentId(0),
+    kind: reqKind,
+    id: id,
     procName: procName,
     params: rpcPack(args)
   )

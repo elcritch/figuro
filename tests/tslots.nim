@@ -5,7 +5,6 @@ type
     value: int
     avg: int
 
-
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc someChange*(tp: Counter) {.signal.}
@@ -187,6 +186,7 @@ when isMainModule:
 
         check y.value == 0
         emit x.valueChanged(137)
+
 
         echo "x:listeners: ", x.listeners
         # echo "x:subscribed: ", x.subscribed

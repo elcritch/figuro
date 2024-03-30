@@ -251,18 +251,14 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     var construct = nnkTupleConstr.newTree()
     for param in parameters[1..^1]:
       construct.add param[0]
+    let objId = ident"obj"
 
     result.add quote do:
-      proc `rpcMethod`(): (Agent, AgentRequest) =
+      proc `rpcMethod`(`objId`: `firstType`): (Agent, AgentRequest) =
         let args = `construct`
         let req = initAgentRequest(procName=`signalName`, args=args)
         result = (obj, req)
 
-    result[0][3].add nnkIdentDefs.newTree(
-      ident "obj",
-      firstType,
-      nnkEmpty.newNimNode()
-    )
     for param in parameters[1..^1]:
       result[0][3].add param
 
