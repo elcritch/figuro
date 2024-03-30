@@ -48,6 +48,8 @@ type
     agentId*: int = 0
     listeners*: Table[string, OrderedSet[AgentPairing]] ## agents listening to me
     subscribed*: HashSet[WeakRef[Agent]] ## agents I'm listening to
+
+  ThreadAgent* = ref object of Agent
     threadQueue*: Option[Chan[AgentRequest]]
 
   AgentPairing = tuple[tgt: WeakRef[Agent], fn: AgentProc]
