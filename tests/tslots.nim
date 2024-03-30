@@ -58,9 +58,6 @@ when isMainModule:
               b, setValue)
       connect(a, valueChanged,
               c, Counter.setValue)
-      static:
-        echo "NOT COMPILES:"
-      # check not(compiles(
       connect(a, valueChanged,
               c, setValue Counter)
       check not(compiles(
@@ -263,4 +260,65 @@ when isMainModule:
     check x.listeners.len() == 0
     check x.subscribed.len() == 0
     check x.head().count() == 0
+
+  suite "threaded agent slots":
+    proc threadTestProc[T](aref: T) {.thread.} =
+      echo "thread run"
+
+    setup:
+      var
+        a {.used.} = Counter.new()
+        b {.used.} = Counter.new()
+        c {.used.} = Counter.new()
+        d {.used.} = Counter.new()
+
+    teardown:
+      GC_fullCollect()
+
+    test "signal connect":
+      connect(a, valueChanged,
+              b, setValue)
+      connect(a, valueChanged,
+              c, Counter.setValue)
+      connect(a, valueChanged,
+              c, setValue Counter)
+      check not(compiles(
+        connect(a, someAction,
+                c, Counter.setValue)))
+
+      check b.value == 0
+      check c.value == 0
+      check d.value == 0
+
+      emit a.valueChanged(137)
+
+      check a.value == 0
+      check b.value == 137
+      check c.value == 137
+      check d.value == 0
+
+
+      emit a.someChange()
+      connect(a, someChange,
+              c, Counter.someAction)
+
+    test "basic signal connect":
+      # TODO: how to do this?
+      echo "done"
+      connect(a, valueChanged,
+              b, setValue)
+      connect(a, valueChanged,
+              c, Counter.setValue)
+
+      check a.value == 0
+      check b.value == 0
+      check c.value == 0
+
+      a.setValue(42)
+      check a.value == 42
+      check b.value == 42
+      check c.value == 42
+      echo "TEST REFS: ", " aref: ", cast[pointer](a).repr, " ", addr(a[]).pointer.repr, " agent: ", addr(Agent(a)).pointer.repr
+      check a.unsafeWeakRef().toPtr == cast[pointer](a)
+      check a.unsafeWeakRef().toPtr == addr(a[]).pointer
 
