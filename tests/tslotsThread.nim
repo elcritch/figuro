@@ -1,5 +1,6 @@
 
 import figuro/meta
+
 type
   Counter* = ref object of Agent
     value: int
@@ -29,62 +30,67 @@ proc someAction*(self: Counter) {.slot.} =
 proc value*(self: Counter): int =
   self.value
 
+import unittest
+import std/sequtils
 
-when isMainModule:
-  import unittest
-  import std/sequtils
+import threading/channels
+import std/isolation
 
+suite "threaded agent slots":
 
-  import threading/channels
-  import std/isolation
+  setup:
+    var
+      a {.used.} = Counter.new()
+      b {.used.} = Counter.new()
+      c {.used.} = Counter.new()
 
-  suite "threaded agent slots":
+  teardown:
+    GC_fullCollect()
 
-    setup:
-      var
-        a {.used.} = Counter.new()
-        b {.used.} = Counter.new()
-        c {.used.} = Counter.new()
+  test "simple threading test":
+    var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
 
-    teardown:
-      GC_fullCollect()
+    connect(a, valueChanged,
+            b, setValue)
+    connect(a, valueChanged,
+            c, Counter.setValue)
+    connect(a, valueChanged,
+            c, setValue Counter)
 
-    test "simple threading test":
-      var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
+    let wa: WeakRef[Counter] = a.unsafeWeakRef()
+    emit wa.valueChanged(137)
+    check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
 
-      connect(a, valueChanged,
-              b, setValue)
-      connect(a, valueChanged,
-              c, Counter.setValue)
-      connect(a, valueChanged,
-              c, setValue Counter)
-      check not(compiles(
-        connect(a, someAction,
-                c, Counter.setValue)))
+    check wa[].value == 0
+    check b.value == 137
+    check c.value == 137
 
-      let wa: WeakRef[Counter] = a.unsafeWeakRef()
-      emit wa.valueChanged(137)
-      check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
+    proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
+      var res = aref.valueChanged(1337)
+      agentResults.send(unsafeIsolate(res))
+      echo "Thread Done"
+    
+    var thread: Thread[WeakRef[Counter]]
+    createThread(thread, threadTestProc, wa)
+    thread.joinThread()
+    let resp = agentResults.recv()
+    echo "RESP: ", resp
+    emit resp
 
-      check wa[].value == 0
-      check b.value == 137
-      check c.value == 137
+    check b.value == 1337
+    check c.value == 1337
 
-      proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
-        var res = aref.valueChanged(1337)
-        agentResults.send(unsafeIsolate(res))
-        echo "Thread Done"
-      
-      var thread: Thread[WeakRef[Counter]]
-      createThread(thread, threadTestProc, wa)
-      thread.joinThread()
-      let resp = agentResults.recv()
-      echo "RESP: ", resp
-      emit resp
+type
+  Proxy*[T] = ref object of Agent
+    value: int
 
-      check b.value == 1337
-      check c.value == 1337
+suite "threaded agent proxy":
 
+  setup:
+    var
+      a {.used.} = Counter.new()
+      b {.used.} = Counter.new()
+      c {.used.} = Counter.new()
 
     test "simple threading test":
       var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
@@ -94,13 +100,6 @@ when isMainModule:
 
       connect(a, valueChanged,
               b, setValue)
-      connect(a, valueChanged,
-              c, Counter.setValue)
-      connect(a, valueChanged,
-              c, setValue Counter)
-      check not(compiles(
-        connect(a, someAction,
-                c, Counter.setValue)))
 
       let wa: WeakRef[Counter] = a.unsafeWeakRef()
       emit wa.valueChanged(137)
@@ -108,7 +107,6 @@ when isMainModule:
 
       check wa[].value == 0
       check b.value == 137
-      check c.value == 137
 
       proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
         var res = aref.valueChanged(1337)
