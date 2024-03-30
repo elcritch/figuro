@@ -81,8 +81,14 @@ suite "threaded agent slots":
     check c.value == 1337
 
 type
-  Proxy*[T] = ref object of Agent
-    value: int
+  AgentProxy*[T] = ref object of Agent
+    chan*: Chan[(WeakRef[Agent], T)]
+
+proc received*[T](proxy: AgentProxy[T], val: T) {.signal.}
+
+proc send*[T](proxy: AgentProxy[T], obj: Agent, val: T) {.slot.} =
+  proxy.chan.send( (obj.getId(), val) )
+
 
 suite "threaded agent proxy":
 
@@ -92,33 +98,31 @@ suite "threaded agent proxy":
       b {.used.} = Counter.new()
       c {.used.} = Counter.new()
 
-    test "simple threading test":
-      var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
+  test "simple threading test":
+    var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
 
-      var ex1 = newChan[SignalTypes.avgChanged(Counter)]()
-      echo "EX1: ", ex1.typeof
+    var proxy = AgentProxy[SignalTypes.valueChanged(Counter)]()
+    echo "EX1: ", proxy.typeof
 
-      connect(a, valueChanged,
-              b, setValue)
+    connect(a, valueChanged,
+            b, setValue)
 
-      let wa: WeakRef[Counter] = a.unsafeWeakRef()
-      emit wa.valueChanged(137)
-      check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
+    let wa: WeakRef[Counter] = a.unsafeWeakRef()
+    emit wa.valueChanged(137)
+    check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
 
-      check wa[].value == 0
-      check b.value == 137
+    check wa[].value == 0
+    check b.value == 137
 
-      proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
-        var res = aref.valueChanged(1337)
-        agentResults.send(unsafeIsolate(res))
-        echo "Thread Done"
-      
-      var thread: Thread[WeakRef[Counter]]
-      createThread(thread, threadTestProc, wa)
-      thread.joinThread()
-      let resp = agentResults.recv()
-      echo "RESP: ", resp
-      emit resp
+    proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
+      var res = aref.valueChanged(1337)
+      agentResults.send(unsafeIsolate(res))
+      echo "Thread Done"
+    
+    var thread: Thread[WeakRef[Counter]]
+    createThread(thread, threadTestProc, wa)
+    thread.joinThread()
+    let resp = agentResults.recv()
+    echo "RESP: ", resp
+    emit resp
 
-      check b.value == 1337
-      check c.value == 1337
