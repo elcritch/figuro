@@ -292,6 +292,7 @@ when isMainModule:
 
       let wa = a.unsafeWeakRef()
       emit wa.valueChanged(137)
+      check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
 
       check wa[].value == 0
       check b.value == 137
