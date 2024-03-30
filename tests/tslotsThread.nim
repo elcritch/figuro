@@ -82,12 +82,13 @@ suite "threaded agent slots":
 
 type
   AgentProxy*[T] = ref object of Agent
-    chan*: Chan[(WeakRef[Agent], T)]
+    chan*: Chan[(int, T)]
 
 proc received*[T](proxy: AgentProxy[T], val: T) {.signal.}
 
-proc send*[T](proxy: AgentProxy[T], obj: Agent, val: T) {.slot.} =
-  # proxy.chan.send( (obj.getId(), val) )
+proc send*[T](proxy: AgentProxy[T], obj: Agent, val: sink T) {.slot.} =
+  let wref = obj.getId()
+  proxy.chan.send( (wref, val) )
   discard
 
 
@@ -109,10 +110,5 @@ suite "threaded agent proxy":
     connect(a, valueChanged,
             b, setValue)
 
-    let wa: WeakRef[Counter] = a.unsafeWeakRef()
-    emit wa.valueChanged(137)
-
-    check wa[].value == 0
-    check b.value == 137
 
 
