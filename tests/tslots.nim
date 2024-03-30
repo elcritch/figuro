@@ -275,9 +275,9 @@ when isMainModule:
     teardown:
       GC_fullCollect()
 
-    var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
-
     test "simple threading test":
+      var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
+
       connect(a, valueChanged,
               b, setValue)
       connect(a, valueChanged,
@@ -311,23 +311,38 @@ when isMainModule:
       check b.value == 1337
       check c.value == 1337
 
-    # test "basic signal connect":
-    #   # TODO: how to do this?
-    #   echo "done"
-    #   connect(a, valueChanged,
-    #           b, setValue)
-    #   connect(a, valueChanged,
-    #           c, Counter.setValue)
 
-    #   check a.value == 0
-    #   check b.value == 0
-    #   check c.value == 0
+    test "simple threading test":
+      var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
+      connect(a, valueChanged,
+              b, setValue)
+      connect(a, valueChanged,
+              c, Counter.setValue)
+      connect(a, valueChanged,
+              c, setValue Counter)
+      check not(compiles(
+        connect(a, someAction,
+                c, Counter.setValue)))
 
-    #   a.setValue(42)
-    #   check a.value == 42
-    #   check b.value == 42
-    #   check c.value == 42
-    #   echo "TEST REFS: ", " aref: ", cast[pointer](a).repr, " ", addr(a[]).pointer.repr, " agent: ", addr(Agent(a)).pointer.repr
-    #   check a.unsafeWeakRef().toPtr == cast[pointer](a)
-    #   check a.unsafeWeakRef().toPtr == addr(a[]).pointer
+      let wa: WeakRef[Counter] = a.unsafeWeakRef()
+      emit wa.valueChanged(137)
+      check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
 
+      check wa[].value == 0
+      check b.value == 137
+      check c.value == 137
+
+      proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
+        var res = aref.valueChanged(1337)
+        agentResults.send(unsafeIsolate(res))
+        echo "Thread Done"
+      
+      var thread: Thread[WeakRef[Counter]]
+      createThread(thread, threadTestProc, wa)
+      thread.joinThread()
+      let resp = agentResults.recv()
+      echo "RESP: ", resp
+      emit resp
+
+      check b.value == 1337
+      check c.value == 1337
