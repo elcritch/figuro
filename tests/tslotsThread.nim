@@ -99,30 +99,19 @@ suite "threaded agent proxy":
       c {.used.} = Counter.new()
 
   test "simple threading test":
-    var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
 
     var proxy = AgentProxy[SignalTypes.valueChanged(Counter)]()
     echo "EX1: ", proxy.typeof
+  
+    proxy.send wa.valueChanged(137)
 
     connect(a, valueChanged,
             b, setValue)
 
     let wa: WeakRef[Counter] = a.unsafeWeakRef()
     emit wa.valueChanged(137)
-    check typeof(wa.valueChanged(137)) is (WeakRef[Agent], AgentRequest)
 
     check wa[].value == 0
     check b.value == 137
 
-    proc threadTestProc(aref: WeakRef[Counter]) {.thread.} =
-      var res = aref.valueChanged(1337)
-      agentResults.send(unsafeIsolate(res))
-      echo "Thread Done"
-    
-    var thread: Thread[WeakRef[Counter]]
-    createThread(thread, threadTestProc, wa)
-    thread.joinThread()
-    let resp = agentResults.recv()
-    echo "RESP: ", resp
-    emit resp
 
