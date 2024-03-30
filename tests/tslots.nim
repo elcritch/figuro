@@ -293,7 +293,7 @@ when isMainModule:
       let wa = a.unsafeWeakRef()
       emit wa.valueChanged(137)
 
-      check a.value == 0
+      check wa[].value == 0
       check b.value == 137
       check c.value == 137
       check d.value == 0
