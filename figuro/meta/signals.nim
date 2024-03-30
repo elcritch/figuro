@@ -232,9 +232,9 @@ template connect*(
 
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
-proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
+proc callSlots*(obj: Agent | WeakRef[Agent], req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
-    let listeners = obj.getAgentListeners(req.procName)
+    let listeners = obj.toRef().getAgentListeners(req.procName)
 
     # echo "call slots:req: ", req.repr
     # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
@@ -254,6 +254,6 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
         else:
           discard
 
-proc emit*(call: (Agent, AgentRequest)) =
+proc emit*(call: (Agent | WeakRef[Agent], AgentRequest)) =
   let (obj, req) = call
   callSlots(obj, req)

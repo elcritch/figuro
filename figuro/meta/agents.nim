@@ -224,12 +224,18 @@ proc getAgentListeners*(obj: Agent,
   if obj.listeners.hasKey(sig):
     result = obj.listeners[sig]
 
-proc unsafeWeakRef*(obj: Agent): WeakRef[Agent] =
-  result = WeakRef[Agent](pt: obj)
+proc unsafeWeakRef*[T: Agent](obj: T): WeakRef[T] =
+  result = WeakRef[T](pt: obj)
 
 proc toRef*(obj: WeakRef[Agent]): Agent =
   result = cast[Agent](obj)
+proc toRef*(obj: Agent): Agent =
+  result = obj
 
+proc asAgent*[T: Agent](obj: WeakRef[T]): WeakRef[Agent] =
+  result = WeakRef[Agent](pt: obj.pt)
+proc asAgent*[T: Agent](obj: T): Agent =
+  result = obj
 
 proc addAgentListeners*(obj: Agent,
                         sig: string,

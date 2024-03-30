@@ -290,13 +290,13 @@ when isMainModule:
       check c.value == 0
       check d.value == 0
 
-      emit a.valueChanged(137)
+      let wa = a.unsafeWeakRef()
+      emit wa.valueChanged(137)
 
       check a.value == 0
       check b.value == 137
       check c.value == 137
       check d.value == 0
-
 
       emit a.someChange()
       connect(a, someChange,
