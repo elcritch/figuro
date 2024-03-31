@@ -92,14 +92,14 @@ proc send*[T](proxy: AgentProxy[T], obj: Agent, val: sink T) {.slot.} =
   discard
 
 type
-  HttpRequest* = ref object of Agent
+  WorkRequest* = ref object of Agent
     url: string
 
-proc newHttpRequest*(url: string): HttpRequest =
-  result = HttpRequest(url: url)
+proc newRequest*(url: string): WorkRequest =
+  result = WorkRequest(url: url)
 
-proc update*(req: HttpRequest, gotByts: int) {.signal.}
-proc received*(req: HttpRequest, val: string) {.signal.}
+proc update*(req: WorkRequest, gotByts: int) {.signal.}
+proc received*(req: WorkRequest, val: string) {.signal.}
 
 suite "threaded agent proxy":
 
