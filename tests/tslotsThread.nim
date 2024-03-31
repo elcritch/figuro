@@ -91,6 +91,15 @@ proc send*[T](proxy: AgentProxy[T], obj: Agent, val: sink T) {.slot.} =
   proxy.chan.send( (wref, val) )
   discard
 
+type
+  HttpRequest* = ref object of Agent
+    url: string
+
+proc newHttpRequest*(url: string): HttpRequest =
+  result = HttpRequest(url: url)
+
+proc update*(req: HttpRequest, gotByts: int) {.signal.}
+proc received*(req: HttpRequest, val: string) {.signal.}
 
 suite "threaded agent proxy":
 
