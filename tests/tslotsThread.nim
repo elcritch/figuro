@@ -103,6 +103,7 @@ suite "threaded agent proxy":
   test "simple threading test":
 
     var proxy = AgentProxy[SignalTypes.valueChanged(Counter)]()
+    proxy.chan = newChan[(int, typeof SignalTypes.valueChanged(Counter))]()
     echo "EX1: ", proxy.typeof
   
     proxy.send a, (137, )
