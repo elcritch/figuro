@@ -6,6 +6,13 @@ import std/uri
 import meta
 
 type
+  ThreadAgentMessage* = object
+    handle*: WeakRef[Agent]
+    req*: AgentRequest
+
+  ThreadAgent* = ref object of Agent
+    threadQueue*: Option[Chan[ThreadAgentMessage]]
+
   AgentProxy*[T] = ref object of Agent
     chan*: Chan[(int, T)]
 
@@ -21,7 +28,7 @@ proc send*[T](proxy: AgentProxy[T], obj: Agent, val: sink T) {.slot.} =
   proxy.chan.send( (wref, val) )
 
 type
-  HttpRequest* = ref object of Agent
+  HttpRequest* = ref object of ThreadAgent
     url: Uri
 
 proc newHttpRequest*(url: Uri): HttpRequest =

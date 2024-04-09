@@ -49,13 +49,7 @@ type
     listeners*: Table[string, OrderedSet[AgentPairing]] ## agents listening to me
     subscribed*: HashSet[WeakRef[Agent]] ## agents I'm listening to
 
-  ThreadAgent* = ref object of Agent
-    threadQueue*: Option[Chan[AgentRequest]]
-
   AgentPairing = tuple[tgt: WeakRef[Agent], fn: AgentProc]
-
-  AgentMessage* = (Agent, AgentRequest)
-  AgentThreadMessage* = (WeakRef[Agent], AgentRequest)
 
   # Context for servicing an RPC call 
   RpcContext* = Agent
