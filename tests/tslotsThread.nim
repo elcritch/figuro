@@ -80,26 +80,7 @@ suite "threaded agent slots":
     check b.value == 1337
     check c.value == 1337
 
-type
-  AgentProxy*[T] = ref object of Agent
-    chan*: Chan[(int, T)]
-
-proc received*[T](proxy: AgentProxy[T], val: T) {.signal.}
-
-proc send*[T](proxy: AgentProxy[T], obj: Agent, val: sink T) {.slot.} =
-  let wref = obj.getId()
-  proxy.chan.send( (wref, val) )
-  discard
-
-type
-  WorkRequest* = ref object of Agent
-    url: string
-
-proc newRequest*(url: string): WorkRequest =
-  result = WorkRequest(url: url)
-
-proc update*(req: WorkRequest, gotByts: int) {.signal.}
-proc received*(req: WorkRequest, val: string) {.signal.}
+import figuro/meta/asyncs
 
 suite "threaded agent proxy":
 
