@@ -3,6 +3,8 @@ import threading/channels
 import std/isolation
 
 import ../meta
+import std/uri
+
 
 type
   AgentProxy*[T] = ref object of Agent
@@ -17,10 +19,12 @@ proc send*[T](proxy: AgentProxy[T], obj: Agent, val: sink T) {.slot.} =
 
 type
   HttpRequest* = ref object of Agent
-    url: string
+    url: Uri
 
-proc newRequest*(url: string): HttpRequest =
+proc newRequest*(url: Uri): HttpRequest =
   result = HttpRequest(url: url)
+proc newRequest*(url: string): HttpRequest =
+  newRequest(parseUri(url))
 
 proc update*(req: HttpRequest, gotByts: int) {.signal.}
 proc received*(req: HttpRequest, val: string) {.signal.}
