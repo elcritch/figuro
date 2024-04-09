@@ -1,9 +1,9 @@
 
 import threading/channels
 import std/isolation
-
-import ../meta
 import std/uri
+
+import meta
 
 type
   AgentProxy*[T] = ref object of Agent

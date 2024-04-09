@@ -80,7 +80,7 @@ suite "threaded agent slots":
     check b.value == 1337
     check c.value == 1337
 
-import figuro/meta/asyncs
+import figuro/asyncs
 
 suite "threaded agent proxy":
 
@@ -106,6 +106,12 @@ suite "threaded agent proxy":
     var proxy = newAgentProxy[HttpRequest]()
     var val = isolate newHttpRequest("http://example.com")
   
+    type
+      Msg = ref object
+        msg: string
+      Test = ref object
+        obj: Msg
+
     # proxy.send a, (137, )
 
     connect(a, valueChanged,
