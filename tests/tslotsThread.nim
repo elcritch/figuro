@@ -90,16 +90,15 @@ suite "threaded agent proxy":
       b {.used.} = Counter.new()
       c {.used.} = Counter.new()
 
-  test "simple proxy test":
+  # test "simple proxy test":
 
-    var proxy = AgentProxy[SignalTypes.valueChanged(Counter)]()
-    proxy.chan = newChan[(int, typeof SignalTypes.valueChanged(Counter))]()
-    echo "EX1: ", proxy.typeof
+  #   var proxy = newAgentProxy[SignalTypes.valueChanged(Counter)]()
+  #   echo "EX1: ", proxy.typeof
   
-    proxy.send a, (137, )
+  #   proxy.send a, (137, )
 
-    connect(a, valueChanged,
-            b, setValue)
+  #   connect(a, valueChanged,
+  #           b, setValue)
 
   test "simple threading test":
 

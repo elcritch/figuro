@@ -1,5 +1,6 @@
 
 import threading/channels
+import std/options
 import std/isolation
 import std/uri
 
@@ -11,21 +12,23 @@ type
     req*: AgentRequest
 
   ThreadAgent* = ref object of Agent
-    threadQueue*: Option[Chan[ThreadAgentMessage]]
 
-  AgentProxy*[T] = ref object of Agent
-    chan*: Chan[(int, T)]
+  AgentProxy* = ref object of Agent
+    agents*: Table[WeakRef[Agent], Agent]
+    inputs*: Option[Chan[ThreadAgentMessage]]
+    outputs*: Option[Chan[ThreadAgentMessage]]
 
-proc newAgentProxy*[T](): AgentProxy[T] =
-  result = AgentProxy[T]()
-  result.chan = newChan[(int, T)]()
+proc newAgentProxy*(): AgentProxy =
+  result = AgentProxy()
+  result.inputs = newChan[ThreadAgentMessage]().some
+  result.outputs = newChan[ThreadAgentMessage]().some
   result.agentId = nextAgentId()
 
-proc received*[T](proxy: AgentProxy[T], val: T) {.signal.}
+# proc received*[T](proxy: AgentProxy[T], val: T) {.signal.}
 
-proc send*[T](proxy: AgentProxy[T], obj: Agent, val: sink T) {.slot.} =
-  let wref = obj.getId()
-  proxy.chan.send( (wref, val) )
+# proc send*[T](proxy: AgentProxy, obj: Agent, val: sink T) {.slot.} =
+#   let wref = obj.getId()
+#   proxy.inputs.send( (wref, val) )
 
 type
   HttpRequest* = ref object of ThreadAgent
