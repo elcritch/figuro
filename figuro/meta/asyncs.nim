@@ -5,7 +5,6 @@ import std/isolation
 import ../meta
 import std/uri
 
-
 type
   AgentProxy*[T] = ref object of Agent
     chan*: Chan[(int, T)]
