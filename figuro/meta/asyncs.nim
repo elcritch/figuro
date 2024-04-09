@@ -24,10 +24,10 @@ type
   HttpRequest* = ref object of Agent
     url: Uri
 
-proc newRequest*(url: Uri): HttpRequest =
+proc newHttpRequest*(url: Uri): HttpRequest =
   result = HttpRequest(url: url)
-proc newRequest*(url: string): HttpRequest =
-  newRequest(parseUri(url))
+proc newHttpRequest*(url: string): HttpRequest =
+  newHttpRequest(parseUri(url))
 
 proc update*(req: HttpRequest, gotByts: int) {.signal.}
 proc received*(req: HttpRequest, val: string) {.signal.}

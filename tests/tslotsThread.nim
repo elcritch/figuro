@@ -104,6 +104,7 @@ suite "threaded agent proxy":
   test "simple threading test":
 
     var proxy = newAgentProxy[HttpRequest]()
+    var val = isolate newHttpRequest("http://example.com")
   
     # proxy.send a, (137, )
 
