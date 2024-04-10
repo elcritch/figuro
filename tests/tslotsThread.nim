@@ -1,5 +1,6 @@
 
 import figuro/meta
+import std/os
 
 type
   Counter* = ref object of Agent
@@ -96,8 +97,10 @@ suite "threaded agent proxy":
   
     proxy.send a, "test"
 
-    var ap = AsyncProcessor()
+    var ap = newAsyncProcessor()
     var apThr = ap.start()
+    os.sleep(5_000)
+    ap[].finished = true
     apThr.joinThread()
 
   #   connect(a, valueChanged,

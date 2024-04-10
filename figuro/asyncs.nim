@@ -25,11 +25,17 @@ type
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
-  AsyncProcessor* = ref object of RootObj
+  AsyncProcessorRaw* = object
+    finished*: bool
+  AsyncProcessor* = SharedPtr[AsyncProcessorRaw]
+
   AsyncMethod*[T, U] = ref object of RootObj
 
+proc newAsyncProcessor*(): AsyncProcessor =
+  result = newSharedPtr(AsyncProcessorRaw)
+
 proc execute*(ah: AsyncProcessor) {.thread.} =
-  while true:
+  while not ah[].finished:
     echo "Running ..."
     os.sleep(1_000)
 
