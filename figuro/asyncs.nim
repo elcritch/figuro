@@ -12,6 +12,7 @@ import patty
 import meta
 
 export smartptrs
+export uri
 
 type
   AsyncMessage*[T] = object
@@ -103,9 +104,9 @@ proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
 
 type
   HttpRequest* = object
-    url: Uri
+    uri*: Uri
   HttpResult* = object
-    data: Option[string]
+    data*: Option[string]
 
   HttpExecutor* = ref object of AsyncExecutor
     proxy*: AgentProxy[HttpRequest, HttpResult]
@@ -116,7 +117,7 @@ type
   HttpAgent* = ref object of ThreadAgent
     url: Uri
 
-proc newHttpExecutor*(): HttpExecutor =
+proc newHttpExecutor*(proxy: AgentProxy[HttpRequest, HttpResult]): HttpExecutor =
   result = HttpExecutor()
   result.proxy = newAgentProxy[HttpRequest, HttpResult]()
 

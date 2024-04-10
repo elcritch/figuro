@@ -99,8 +99,16 @@ suite "threaded agent proxy":
 
     var ap = newAsyncProcessor()
     ap.start()
-    ap.add(newHttpExecutor())
-    os.sleep(3_000)
+
+    let httpProxy = newAgentProxy[HttpRequest, HttpResult]()
+
+    ap.add(newHttpExecutor(httpProxy))
+    os.sleep(1_000)
+
+    let req = HttpRequest(uri: parseUri("http://example.com"))
+    httpProxy[].inputs.send(a, req)
+
+    os.sleep(4_000)
     # ap[].finished = true
     ap.finish()
     ap[].thread.joinThread()
