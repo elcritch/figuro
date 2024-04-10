@@ -17,15 +17,15 @@ type
 
   AgentProxy*[T, U] = object
     agents*: Table[WeakRef[Agent], Agent]
-    inputs*: Option[Chan[AsyncMessage[T]]]
-    outputs*: Option[Chan[AsyncMessage[U]]]
+    inputs*: Chan[AsyncMessage[T]]
+    outputs*: Chan[AsyncMessage[U]]
   
   AgentProxyPtr*[T, U] = SharedPtr[AgentProxy[T, U]]
 
 proc newAgentProxy*[T, U](): AgentProxyPtr[T, U] =
   result = newSharedPtr(AgentProxy[T, U])
-  result[].inputs = newChan[AsyncMessage[T]]().some
-  result[].outputs = newChan[AsyncMessage[U]]().some
+  result[].inputs = newChan[AsyncMessage[T]]()
+  result[].outputs = newChan[AsyncMessage[U]]()
 
 proc send*[T](proxy: AgentProxy, obj: Agent, val: sink T) {.slot.} =
   let wref = obj.getId()
