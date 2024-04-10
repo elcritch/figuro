@@ -66,6 +66,7 @@ proc execute*(ah: AsyncProcessor) {.thread.} =
           asyncExecs.add(exec)
     else:
       for exec in asyncExecs:
+        echo "running exec"
         exec.run()
 
 proc start*(ap: AsyncProcessor) =
@@ -112,6 +113,9 @@ type
 
   HttpAgent* = ref object of ThreadAgent
     url: Uri
+
+method run*(ap: AsyncHttp) {.gcsafe.} =
+  echo "running async http executor"
 
 proc newHttpAgent*(url: Uri): HttpAgent =
   result = HttpAgent(url: url)
