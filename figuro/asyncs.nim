@@ -12,27 +12,27 @@ export smartptrs
 
 type
   AsyncMessage*[T] = object
-    handle*: WeakRef[Agent]
-    req*: Isolated[T]
+    handle*: int
+    req*: T
 
-  AgentProxy*[T, U] = object
+  AgentProxyRaw*[T, U] = object
     agents*: Table[WeakRef[Agent], Agent]
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
   
-  AgentProxyPtr*[T, U] = SharedPtr[AgentProxy[T, U]]
+  AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
-proc newAgentProxy*[T, U](): AgentProxyPtr[T, U] =
-  result = newSharedPtr(AgentProxy[T, U])
+proc newAgentProxy*[T, U](): AgentProxy[T, U] =
+  result = newSharedPtr(AgentProxyRaw[T, U])
   result[].inputs = newChan[AsyncMessage[T]]()
   result[].outputs = newChan[AsyncMessage[U]]()
 
-proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: Isolated[T]) =
+proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: sink Isolated[T]) =
   let wref = obj.getId()
-  proxy.inputs.send( (wref, val) )
+  proxy[].inputs.send( AsyncMessage[T](handle: wref, req: val.extract()) )
 
 template send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: T) =
-  send(proxy, isolate(obj))
+  send(proxy, obj, isolate(val))
 
 type
   ThreadAgent* = ref object of Agent

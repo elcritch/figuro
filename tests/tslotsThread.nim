@@ -94,7 +94,7 @@ suite "threaded agent proxy":
 
     var proxy = newAgentProxy[string, int]()
   
-    # proxy.send a, "test"
+    proxy.send a, "test"
 
   #   connect(a, valueChanged,
   #           b, setValue)
