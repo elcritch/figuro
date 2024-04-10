@@ -50,6 +50,7 @@ proc newAsyncProcessor*(): AsyncProcessor =
   result[].commands = newChan[Commands]()
 
 proc execute*(ah: AsyncProcessor) {.thread.} =
+  var asyncExecs: seq[AsyncExecutor]
   while true:
     echo "Running ..."
     os.sleep(1_000)
@@ -62,6 +63,7 @@ proc execute*(ah: AsyncProcessor) {.thread.} =
           break
         AddExec(exec):
           echo "adding exec: ", repr exec
+          asyncExecs.add(exec)
 
 proc start*(ap: AsyncProcessor) =
   createThread(ap[].thread, execute, ap)
