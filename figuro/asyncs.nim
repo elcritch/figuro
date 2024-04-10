@@ -40,6 +40,7 @@ type
   AsyncProcessorRaw* = object
     finished*: bool
     commands*: Chan[Commands]
+    thread*: Thread[SharedPtr[AsyncProcessorRaw]]
 
   AsyncProcessor* = SharedPtr[AsyncProcessorRaw]
 
@@ -53,8 +54,11 @@ proc execute*(ah: AsyncProcessor) {.thread.} =
     echo "Running ..."
     os.sleep(1_000)
 
-proc start*(ah: AsyncProcessor): Thread[AsyncProcessor] =
-  createThread(result, execute, ah)
+proc start*(ap: AsyncProcessor) =
+  createThread(ap[].thread, execute, ap)
+
+proc finish*(ah: AsyncProcessor) =
+  discard
 
 proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result = newSharedPtr(AgentProxyRaw[T, U])
