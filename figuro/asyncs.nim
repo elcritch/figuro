@@ -38,7 +38,6 @@ variant Commands:
 
 type
   AsyncProcessorRaw* = object
-    finished*: bool
     commands*: Chan[Commands]
     thread*: Thread[SharedPtr[AsyncProcessorRaw]]
 
@@ -48,17 +47,27 @@ type
 
 proc newAsyncProcessor*(): AsyncProcessor =
   result = newSharedPtr(AsyncProcessorRaw)
+  result[].commands = newChan[Commands]()
 
 proc execute*(ah: AsyncProcessor) {.thread.} =
-  while not ah[].finished:
+  while true:
     echo "Running ..."
     os.sleep(1_000)
+    var cmd: Commands
+    let hasCmd = ah[].commands.tryRecv(cmd)
+    if hasCmd:
+      match cmd:
+        Finish:
+          echo "stopping exec"
+          break
+        AddExec(exec):
+          echo "adding exec: ", repr exec
 
 proc start*(ap: AsyncProcessor) =
   createThread(ap[].thread, execute, ap)
 
-proc finish*(ah: AsyncProcessor) =
-  discard
+proc finish*(ap: AsyncProcessor) =
+  ap[].commands.send(Finish())
 
 proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result = newSharedPtr(AgentProxyRaw[T, U])
