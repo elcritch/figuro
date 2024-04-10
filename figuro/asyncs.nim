@@ -7,6 +7,8 @@ import std/isolation
 import std/uri
 import std/asyncdispatch
 
+import patty
+
 import meta
 
 export smartptrs
@@ -25,8 +27,16 @@ type
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
+  AgentExecutor* = ref object of RootObj
+
+variant Commands:
+  Finish
+  AddExec(exec: AgentExecutor)
+
+type
   AsyncProcessorRaw* = object
     finished*: bool
+    commands*: Chan[Commands]
 
   AsyncProcessor* = SharedPtr[AsyncProcessorRaw]
 
