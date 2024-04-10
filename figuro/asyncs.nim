@@ -1,4 +1,3 @@
-
 import threading/channels
 import threading/smartptrs
 
@@ -19,7 +18,7 @@ type
     agents*: Table[WeakRef[Agent], Agent]
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
-  
+
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
 proc newAgentProxy*[T, U](): AgentProxy[T, U] =
@@ -27,11 +26,9 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].inputs = newChan[AsyncMessage[T]]()
   result[].outputs = newChan[AsyncMessage[U]]()
 
-proc send*[T, U](proxy: AgentProxy[T, U],
-                 obj: Agent,
-                 val: sink Isolated[T]) =
+proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: sink Isolated[T]) =
   let wref = obj.getId()
-  proxy[].inputs.send( AsyncMessage[T](handle: wref, req: val.extract()) )
+  proxy[].inputs.send(AsyncMessage[T](handle: wref, req: val.extract()))
 
 template send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: T) =
   send(proxy, obj, isolate(val))
@@ -44,9 +41,9 @@ type
 
 proc newHttpRequest*(url: Uri): HttpRequest =
   result = HttpRequest(url: url)
+
 proc newHttpRequest*(url: string): HttpRequest =
   newHttpRequest(parseUri(url))
 
 proc update*(req: HttpRequest, gotByts: int) {.signal.}
 proc received*(req: HttpRequest, val: string) {.signal.}
-
