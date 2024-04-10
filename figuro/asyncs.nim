@@ -52,8 +52,8 @@ proc newAsyncProcessor*(): AsyncProcessor =
 
 proc execute*(ah: AsyncProcessor) {.thread.} =
   while true:
-    echo "Running ..."
-    os.sleep(1_000)
+    echo "Running ...", " tid: ", getThreadId()
+    os.sleep(500)
     var cmd: Commands
     let hasCmd = ah[].commands.tryRecv(cmd)
     if hasCmd:
@@ -64,7 +64,7 @@ proc execute*(ah: AsyncProcessor) {.thread.} =
         AddExec(exec):
           echo "adding exec: ", repr exec
           setup(exec)
-    # else:
+    poll()
     #   for exec in asyncExecs:
     #     echo "running exec"
     #     exec.run()
@@ -88,6 +88,8 @@ proc sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: sink Isolated[T]
   let wref = agent.getId()
   proxy[].agents[wref] = agent
   proxy[].inputs.send(AsyncMessage[T](handle: wref, value: val.extract()))
+  echo "triggering event, ", proxy[].trigger.repr
+  proxy[].trigger.trigger()
 
 template sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T) =
   sendMsg(proxy, agent, isolate(val))
@@ -127,7 +129,8 @@ proc newHttpExecutor*(proxy: AgentProxy[HttpRequest, HttpResult]): HttpExecutor 
   result.proxy = newAgentProxy[HttpRequest, HttpResult]()
 
 method setup*(ap: HttpExecutor) {.gcsafe.} =
-  echo "setting up async http executor"
+  echo "setting up async http executor", " tid: ", getThreadId()
+  echo "setting up async http with trigger ", ap.proxy[].trigger.repr 
   let cb = proc (fd: AsyncFD): bool {.closure.} =
     echo "running http executor event!"
 

@@ -95,6 +95,7 @@ suite "threaded agent proxy":
 
     var proxy = newAgentProxy[string, int]()
   
+    echo "main thread", " tid: ", getThreadId()
     proxy.sendMsg a, "test"
 
     var ap = newAsyncProcessor()
@@ -103,7 +104,7 @@ suite "threaded agent proxy":
     let httpProxy = newAgentProxy[HttpRequest, HttpResult]()
 
     ap.add(newHttpExecutor(httpProxy))
-    os.sleep(1_000)
+    os.sleep(2_000)
 
     httpProxy.send(a, "http://example.com")
 
