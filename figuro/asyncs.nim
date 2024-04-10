@@ -34,6 +34,9 @@ proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: sink Isolated[T]) =
 template send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: T) =
   send(proxy, obj, isolate(val))
 
+proc process*[T, U](proxy: AgentProxy[T, U]) =
+  discard
+
 type
   ThreadAgent* = ref object of Agent
 
