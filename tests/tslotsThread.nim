@@ -105,11 +105,14 @@ suite "threaded agent proxy":
     echo "initial async http with trigger ", " tid: ", getThreadId(), " ", httpProxy[].trigger.repr 
 
     ap.add(newHttpExecutor(httpProxy))
-    os.sleep(2_000)
+    os.sleep(1_000)
 
     httpProxy.send(a, "http://example.com")
+    os.sleep(1_000)
 
-    os.sleep(4_000)
+    httpProxy.send(a, "http://example.com")
+    os.sleep(1_000)
+
     # ap[].finished = true
     ap.finish()
     ap[].thread.joinThread()

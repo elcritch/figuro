@@ -55,12 +55,8 @@ proc newAsyncProcessor*(): AsyncProcessor =
 proc execute*(ap: AsyncProcessor) {.thread.} =
   let cb = proc (fd: AsyncFD): bool {.closure.} =
     echo "running async processor command!"
-    # while true:
-    echo "Running ...", " tid: ", getThreadId()
-    # os.sleep(500)
     var cmd: Commands
-    let hasCmd = ap[].commands.tryRecv(cmd)
-    if hasCmd:
+    if ap[].commands.tryRecv(cmd):
       match cmd:
         Finish:
           echo "stopping exec"
@@ -69,6 +65,7 @@ proc execute*(ap: AsyncProcessor) {.thread.} =
           echo "adding exec: ", repr exec
           setup(exec)
   ap[].trigger.addEvent(cb)
+
   try:
     runForever()
   except CatchableError:
