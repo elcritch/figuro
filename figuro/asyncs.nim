@@ -41,6 +41,7 @@ type
   AsyncProcessorRaw* = object
     commands*: Chan[Commands]
     thread*: Thread[SharedPtr[AsyncProcessorRaw]]
+    trigger*: AsyncEvent
 
   AsyncProcessor* = SharedPtr[AsyncProcessorRaw]
 
@@ -49,34 +50,40 @@ type
 proc newAsyncProcessor*(): AsyncProcessor =
   result = newSharedPtr(AsyncProcessorRaw)
   result[].commands = newChan[Commands]()
+  result[].trigger = newAsyncEvent()
 
-proc execute*(ah: AsyncProcessor) {.thread.} =
-  while true:
+proc execute*(ap: AsyncProcessor) {.thread.} =
+  let cb = proc (fd: AsyncFD): bool {.closure.} =
+    echo "running async processor command!"
+    # while true:
     echo "Running ...", " tid: ", getThreadId()
     # os.sleep(500)
     var cmd: Commands
-    let hasCmd = ah[].commands.tryRecv(cmd)
+    let hasCmd = ap[].commands.tryRecv(cmd)
     if hasCmd:
       match cmd:
         Finish:
           echo "stopping exec"
-          break
+          raise newException(CatchableError, "finish")
         AddExec(exec):
           echo "adding exec: ", repr exec
           setup(exec)
-    poll()
-    #   for exec in asyncExecs:
-    #     echo "running exec"
-    #     exec.run()
+  ap[].trigger.addEvent(cb)
+  try:
+    runForever()
+  except CatchableError:
+    echo "done"
 
 proc start*(ap: AsyncProcessor) =
   createThread(ap[].thread, execute, ap)
 
 proc finish*(ap: AsyncProcessor) =
   ap[].commands.send(Finish())
+  ap[].trigger.trigger()
 
 proc add*(ap: AsyncProcessor, exec: sink AsyncExecutor) =
   ap[].commands.send(unsafeIsolate AddExec(exec))
+  ap[].trigger.trigger()
 
 proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result = newSharedPtr(AgentProxyRaw[T, U])
