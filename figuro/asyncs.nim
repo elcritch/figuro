@@ -95,9 +95,18 @@ proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
 
 
 type
+  HttpRequest* = object
+    url: Uri
+  HttpResult* = object
+    data: Option[string]
+
+  AsyncHttp* = ref object of AsyncExecutor
+    proxy*: AgentProxy[HttpRequest, HttpResult]
+
+
   ThreadAgent* = ref object of Agent
 
-  HttpRequest* = ref object of ThreadAgent
+  HttpAgent* = ref object of ThreadAgent
     url: Uri
 
 proc newHttpRequest*(url: Uri): HttpRequest =
