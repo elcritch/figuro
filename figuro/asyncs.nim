@@ -141,6 +141,9 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
     var msg: AsyncMessage[HttpRequest]
     if ap.proxy[].inputs.tryRecv(msg):
       echo "got message: ", msg
+      let resp = HttpResult(data: some($msg.value.uri))
+      let res = AsyncMessage[HttpResult](handle: msg.handle, value: resp)
+      ap.proxy[].outputs.send(res)
 
   ap.proxy[].trigger.addEvent(cb)
 

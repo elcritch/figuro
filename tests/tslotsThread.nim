@@ -117,6 +117,10 @@ suite "threaded agent proxy":
     ap.finish()
     ap[].thread.joinThread()
 
+    var msg: AsyncMessage[HttpResult]
+    while httpProxy[].outputs.tryRecv(msg):
+      echo "got results msg: ", msg
+
   #   connect(a, valueChanged,
   #           b, setValue)
 
