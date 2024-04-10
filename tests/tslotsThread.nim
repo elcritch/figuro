@@ -90,12 +90,11 @@ suite "threaded agent proxy":
       b {.used.} = Counter.new()
       c {.used.} = Counter.new()
 
-  # test "simple proxy test":
+  test "simple proxy test":
 
-  #   var proxy = newAgentProxy[SignalTypes.valueChanged(Counter)]()
-  #   echo "EX1: ", proxy.typeof
+    var proxy = newAgentProxy[string, int]()
   
-  #   proxy.send a, (137, )
+    # proxy.send a, "test"
 
   #   connect(a, valueChanged,
   #           b, setValue)

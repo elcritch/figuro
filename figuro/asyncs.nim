@@ -1,36 +1,39 @@
 
 import threading/channels
+import threading/smartptrs
+
 import std/options
 import std/isolation
 import std/uri
 
 import meta
 
-type
-  ThreadAgentMessage* = object
-    handle*: WeakRef[Agent]
-    req*: AgentRequest
+export smartptrs
 
+type
+  AsyncMessage*[T] = object
+    handle*: WeakRef[Agent]
+    req*: Isolated[T]
+
+  AgentProxy*[T, U] = object
+    agents*: Table[WeakRef[Agent], Agent]
+    inputs*: Option[Chan[AsyncMessage[T]]]
+    outputs*: Option[Chan[AsyncMessage[U]]]
+  
+  AgentProxyPtr*[T, U] = SharedPtr[AgentProxy[T, U]]
+
+proc newAgentProxy*[T, U](): AgentProxyPtr[T, U] =
+  result = newSharedPtr(AgentProxy[T, U])
+  result[].inputs = newChan[AsyncMessage[T]]().some
+  result[].outputs = newChan[AsyncMessage[U]]().some
+
+proc send*[T](proxy: AgentProxy, obj: Agent, val: sink T) {.slot.} =
+  let wref = obj.getId()
+  proxy.inputs.send( (wref, isolate val) )
+
+type
   ThreadAgent* = ref object of Agent
 
-  AgentProxy* = ref object of Agent
-    agents*: Table[WeakRef[Agent], Agent]
-    inputs*: Option[Chan[ThreadAgentMessage]]
-    outputs*: Option[Chan[ThreadAgentMessage]]
-
-proc newAgentProxy*(): AgentProxy =
-  result = AgentProxy()
-  result.inputs = newChan[ThreadAgentMessage]().some
-  result.outputs = newChan[ThreadAgentMessage]().some
-  result.agentId = nextAgentId()
-
-# proc received*[T](proxy: AgentProxy[T], val: T) {.signal.}
-
-# proc send*[T](proxy: AgentProxy, obj: Agent, val: sink T) {.slot.} =
-#   let wref = obj.getId()
-#   proxy.inputs.send( (wref, val) )
-
-type
   HttpRequest* = ref object of ThreadAgent
     url: Uri
 
