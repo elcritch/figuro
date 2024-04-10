@@ -111,7 +111,7 @@ suite "threaded agent proxy":
 
     let proxy = ThreadAgent.new()
 
-    var val = isolate newHttpRequest("http://example.com")
+    var val = isolate newHttpAgent("http://example.com")
   
     type
       Msg = ref object

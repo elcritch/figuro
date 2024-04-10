@@ -29,7 +29,7 @@ type
 
   AsyncExecutor* = ref object of RootObj
 
-method run*(ap: AsyncExecutor) {.base.} =
+method run*(ap: AsyncExecutor) {.base, gcsafe.} =
   discard
 
 variant Commands:
@@ -64,6 +64,9 @@ proc execute*(ah: AsyncProcessor) {.thread.} =
         AddExec(exec):
           echo "adding exec: ", repr exec
           asyncExecs.add(exec)
+    else:
+      for exec in asyncExecs:
+        exec.run()
 
 proc start*(ap: AsyncProcessor) =
   createThread(ap[].thread, execute, ap)
