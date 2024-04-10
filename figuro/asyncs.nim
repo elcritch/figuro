@@ -27,7 +27,7 @@ type
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
-  AsyncExecutor* = ref object of RootObj
+  AsyncExecutor* {.acyclic.} = ref object of RootObj
 
 method run*(ap: AsyncExecutor) {.base, gcsafe.} =
   discard
@@ -75,6 +75,9 @@ proc start*(ap: AsyncProcessor) =
 proc finish*(ap: AsyncProcessor) =
   ap[].commands.send(Finish())
 
+proc add*(ap: AsyncProcessor, exec: sink AsyncExecutor) =
+  ap[].commands.send(unsafeIsolate AddExec(exec))
+
 proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result = newSharedPtr(AgentProxyRaw[T, U])
   result[].inputs = newChan[AsyncMessage[T]]()
@@ -105,7 +108,7 @@ type
   HttpResult* = object
     data: Option[string]
 
-  AsyncHttp* = ref object of AsyncExecutor
+  HttpExecutor* = ref object of AsyncExecutor
     proxy*: AgentProxy[HttpRequest, HttpResult]
 
 
@@ -114,7 +117,10 @@ type
   HttpAgent* = ref object of ThreadAgent
     url: Uri
 
-method run*(ap: AsyncHttp) {.gcsafe.} =
+proc newHttpExecutor*(): HttpExecutor =
+  result = HttpExecutor()
+
+method run*(ap: HttpExecutor) {.gcsafe.} =
   echo "running async http executor"
 
 proc newHttpAgent*(url: Uri): HttpAgent =

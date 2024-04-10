@@ -99,6 +99,7 @@ suite "threaded agent proxy":
 
     var ap = newAsyncProcessor()
     ap.start()
+    ap.add(newHttpExecutor())
     os.sleep(3_000)
     # ap[].finished = true
     ap.finish()
