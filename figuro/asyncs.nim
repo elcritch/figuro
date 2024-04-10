@@ -1,6 +1,7 @@
 import threading/channels
 import threading/smartptrs
 
+import std/os
 import std/options
 import std/isolation
 import std/uri
@@ -23,6 +24,17 @@ type
     trigger*: AsyncEvent
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
+
+  AsyncProcessor* = ref object of RootObj
+  AsyncMethod*[T, U] = ref object of RootObj
+
+proc execute*(ah: AsyncProcessor) {.thread.} =
+  while true:
+    echo "Running ..."
+    os.sleep(1_000)
+
+proc start*(ah: AsyncProcessor): Thread[AsyncProcessor] =
+  createThread(result, execute, ah)
 
 proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result = newSharedPtr(AgentProxyRaw[T, U])

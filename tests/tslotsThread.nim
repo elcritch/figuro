@@ -96,6 +96,10 @@ suite "threaded agent proxy":
   
     proxy.send a, "test"
 
+    var ap = AsyncProcessor()
+    var apThr = ap.start()
+    apThr.joinThread()
+
   #   connect(a, valueChanged,
   #           b, setValue)
 
