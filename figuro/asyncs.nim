@@ -27,9 +27,12 @@ proc newAgentProxy*[T, U](): AgentProxyPtr[T, U] =
   result[].inputs = newChan[AsyncMessage[T]]()
   result[].outputs = newChan[AsyncMessage[U]]()
 
-proc send*[T](proxy: AgentProxy, obj: Agent, val: sink T) {.slot.} =
+proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: Isolated[T]) =
   let wref = obj.getId()
-  proxy.inputs.send( (wref, isolate val) )
+  proxy.inputs.send( (wref, val) )
+
+template send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: T) =
+  send(proxy, isolate(obj))
 
 type
   ThreadAgent* = ref object of Agent
