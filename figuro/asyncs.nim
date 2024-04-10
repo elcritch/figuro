@@ -11,6 +11,7 @@ export smartptrs
 
 type
   AsyncMessage*[T] = object
+    continued*: bool
     handle*: int
     value*: T
 
@@ -39,8 +40,11 @@ proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
   var cnt = maxCnt
   var msg: AsyncMessage[U]
   while proxy[].outputs.tryRecv(msg) and cnt > 0:
+    let obj = proxy[].agents[msg.handle]
+    if not msg.continued:
+      proxy[].agents.del(msg.handle)
     receive(msg.value)
-    
+
 
 type
   ThreadAgent* = ref object of Agent
