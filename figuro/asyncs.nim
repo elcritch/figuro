@@ -12,7 +12,7 @@ export smartptrs
 type
   AsyncMessage*[T] = object
     handle*: int
-    req*: T
+    value*: T
 
   AgentProxyRaw*[T, U] = object
     agents*: Table[int, Agent]
@@ -29,13 +29,18 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
 proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: sink Isolated[T]) =
   let wref = obj.getId()
   proxy[].agents[wref] = obj
-  proxy[].inputs.send(AsyncMessage[T](handle: wref, req: val.extract()))
+  proxy[].inputs.send(AsyncMessage[T](handle: wref, value: val.extract()))
 
 template send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: T) =
   send(proxy, obj, isolate(val))
 
-proc process*[T, U](proxy: AgentProxy[T, U]) =
-  discard
+proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
+  mixin receive
+  var cnt = maxCnt
+  var msg: AsyncMessage[U]
+  while proxy[].outputs.tryRecv(msg) and cnt > 0:
+    receive(msg.value)
+    
 
 type
   ThreadAgent* = ref object of Agent
