@@ -15,7 +15,7 @@ type
     req*: T
 
   AgentProxyRaw*[T, U] = object
-    agents*: Table[WeakRef[Agent], Agent]
+    agents*: Table[int, Agent]
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
 
@@ -28,6 +28,7 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
 
 proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: sink Isolated[T]) =
   let wref = obj.getId()
+  proxy[].agents[wref] = obj
   proxy[].inputs.send(AsyncMessage[T](handle: wref, req: val.extract()))
 
 template send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: T) =
