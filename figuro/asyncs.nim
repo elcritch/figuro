@@ -4,6 +4,7 @@ import threading/smartptrs
 import std/options
 import std/isolation
 import std/uri
+import std/asyncdispatch
 
 import meta
 
@@ -19,6 +20,7 @@ type
     agents*: Table[int, Agent]
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
+    trigger*: AsyncEvent
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
@@ -26,6 +28,7 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result = newSharedPtr(AgentProxyRaw[T, U])
   result[].inputs = newChan[AsyncMessage[T]]()
   result[].outputs = newChan[AsyncMessage[U]]()
+  result[].trigger = newAsyncEvent()
 
 proc send*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: sink Isolated[T]) =
   let wref = agent.getId()
