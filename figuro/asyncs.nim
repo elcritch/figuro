@@ -27,23 +27,23 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].inputs = newChan[AsyncMessage[T]]()
   result[].outputs = newChan[AsyncMessage[U]]()
 
-proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: sink Isolated[T]) =
-  let wref = obj.getId()
-  proxy[].agents[wref] = obj
+proc send*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: sink Isolated[T]) =
+  let wref = agent.getId()
+  proxy[].agents[wref] = agent
   proxy[].inputs.send(AsyncMessage[T](handle: wref, value: val.extract()))
 
-template send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: T) =
-  send(proxy, obj, isolate(val))
+template send*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T) =
+  send(proxy, agent, isolate(val))
 
 proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
   mixin receive
   var cnt = maxCnt
   var msg: AsyncMessage[U]
   while proxy[].outputs.tryRecv(msg) and cnt > 0:
-    let obj = proxy[].agents[msg.handle]
+    let agent = proxy[].agents[msg.handle]
     if not msg.continued:
       proxy[].agents.del(msg.handle)
-    receive(msg.value)
+    receive(agent, msg.value)
 
 
 type
