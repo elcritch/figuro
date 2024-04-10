@@ -27,11 +27,14 @@ type
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
-  AgentExecutor* = ref object of RootObj
+  AsyncExecutor* = ref object of RootObj
+
+method run*(ap: AsyncExecutor) {.base.} =
+  discard
 
 variant Commands:
   Finish
-  AddExec(exec: AgentExecutor)
+  AddExec(exec: AsyncExecutor)
 
 type
   AsyncProcessorRaw* = object
