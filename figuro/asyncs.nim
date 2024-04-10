@@ -84,13 +84,13 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].outputs = newChan[AsyncMessage[U]]()
   result[].trigger = newAsyncEvent()
 
-proc send*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: sink Isolated[T]) =
+proc sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: sink Isolated[T]) =
   let wref = agent.getId()
   proxy[].agents[wref] = agent
   proxy[].inputs.send(AsyncMessage[T](handle: wref, value: val.extract()))
 
-template send*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T) =
-  send(proxy, agent, isolate(val))
+template sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T) =
+  sendMsg(proxy, agent, isolate(val))
 
 proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
   mixin receive
@@ -116,6 +116,11 @@ type
 
   HttpAgent* = ref object of ThreadAgent
     url: Uri
+
+proc send*(proxy: AgentProxy[HttpRequest, HttpResult],
+           agent: Agent, uri: string) =
+  let req = HttpRequest(uri: parseUri(uri))
+  proxy.sendMsg(agent, isolate req)
 
 proc newHttpExecutor*(proxy: AgentProxy[HttpRequest, HttpResult]): HttpExecutor =
   result = HttpExecutor()
