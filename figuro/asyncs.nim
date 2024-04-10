@@ -29,7 +29,7 @@ type
 
   AsyncExecutor* {.acyclic.} = ref object of RootObj
 
-method run*(ap: AsyncExecutor) {.base, gcsafe.} =
+method setup*(ap: AsyncExecutor) {.base, gcsafe.} =
   discard
 
 variant Commands:
@@ -50,7 +50,6 @@ proc newAsyncProcessor*(): AsyncProcessor =
   result[].commands = newChan[Commands]()
 
 proc execute*(ah: AsyncProcessor) {.thread.} =
-  var asyncExecs: seq[AsyncExecutor]
   while true:
     echo "Running ..."
     os.sleep(1_000)
@@ -63,11 +62,11 @@ proc execute*(ah: AsyncProcessor) {.thread.} =
           break
         AddExec(exec):
           echo "adding exec: ", repr exec
-          asyncExecs.add(exec)
-    else:
-      for exec in asyncExecs:
-        echo "running exec"
-        exec.run()
+          setup(exec)
+    # else:
+    #   for exec in asyncExecs:
+    #     echo "running exec"
+    #     exec.run()
 
 proc start*(ap: AsyncProcessor) =
   createThread(ap[].thread, execute, ap)
@@ -119,9 +118,14 @@ type
 
 proc newHttpExecutor*(): HttpExecutor =
   result = HttpExecutor()
+  result.proxy = newAgentProxy[HttpRequest, HttpResult]()
 
-method run*(ap: HttpExecutor) {.gcsafe.} =
-  echo "running async http executor"
+method setup*(ap: HttpExecutor) {.gcsafe.} =
+  echo "setting up async http executor"
+  let cb = proc (fd: AsyncFD): bool {.closure.} =
+    echo "running http executor event!"
+
+  ap.proxy[].trigger.addEvent(cb)
 
 proc newHttpAgent*(url: Uri): HttpAgent =
   result = HttpAgent(url: url)
