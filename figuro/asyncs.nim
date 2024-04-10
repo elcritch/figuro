@@ -27,6 +27,7 @@ type
 
   AsyncProcessorRaw* = object
     finished*: bool
+
   AsyncProcessor* = SharedPtr[AsyncProcessorRaw]
 
   AsyncMethod*[T, U] = ref object of RootObj
