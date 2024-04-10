@@ -93,7 +93,6 @@ proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
       proxy[].agents.del(msg.handle)
     receive(agent, msg.value)
 
-
 type
   HttpRequest* = object
     url: Uri
@@ -109,11 +108,11 @@ type
   HttpAgent* = ref object of ThreadAgent
     url: Uri
 
-proc newHttpRequest*(url: Uri): HttpRequest =
-  result = HttpRequest(url: url)
+proc newHttpAgent*(url: Uri): HttpAgent =
+  result = HttpAgent(url: url)
 
-proc newHttpRequest*(url: string): HttpRequest =
-  newHttpRequest(parseUri(url))
+proc newHttpAgent*(url: string): HttpAgent =
+  newHttpAgent(parseUri(url))
 
-proc update*(req: HttpRequest, gotByts: int) {.signal.}
-proc received*(req: HttpRequest, val: string) {.signal.}
+proc update*(req: HttpAgent, gotByts: int) {.signal.}
+proc received*(req: HttpAgent, val: string) {.signal.}
