@@ -27,7 +27,9 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].inputs = newChan[AsyncMessage[T]]()
   result[].outputs = newChan[AsyncMessage[U]]()
 
-proc send*[T, U](proxy: AgentProxy[T, U], obj: Agent, val: sink Isolated[T]) =
+proc send*[T, U](proxy: AgentProxy[T, U],
+                 obj: Agent,
+                 val: sink Isolated[T]) =
   let wref = obj.getId()
   proxy[].inputs.send( AsyncMessage[T](handle: wref, req: val.extract()) )
 
