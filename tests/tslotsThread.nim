@@ -102,6 +102,7 @@ suite "threaded agent proxy":
     ap.start()
 
     let httpProxy = newAgentProxy[HttpRequest, HttpResult]()
+    echo "initial async http with trigger ", " tid: ", getThreadId(), " ", httpProxy[].trigger.repr 
 
     ap.add(newHttpExecutor(httpProxy))
     os.sleep(2_000)
