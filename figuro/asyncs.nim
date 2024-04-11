@@ -55,13 +55,8 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
 
   ap.proxy[].trigger.addEvent(cb)
 
-proc receive*(ap: HttpExecutor, maxCnt = 20) {.gcsafe.} =
-  var cnt = maxCnt
-  var msg: AsyncMessage[HttpResult]
-  while ap.proxy[].outputs.tryRecv(msg) and cnt > 0:
-    let agent = ap.proxy[].agents[msg.handle]
-    if not msg.continued:
-      ap.proxy[].agents.del(msg.handle)
+proc receive*(ap: Agent, data: Option[string]) {.gcsafe.} =
+  echo "http executor receive: "
 
 proc newHttpAgent*(url: Uri): HttpAgent =
   result = HttpAgent(url: url)
