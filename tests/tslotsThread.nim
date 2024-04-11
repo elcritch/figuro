@@ -107,22 +107,17 @@ suite "threaded agent proxy":
     ap.add(newHttpExecutor(httpProxy))
     os.sleep(1_000)
 
-    httpProxy.send(a, "http://example.com")
+    var ha = newHttpAgent("http://example.com")
+    httpProxy.submit(ha)
     os.sleep(1_000)
 
-    httpProxy.send(a, "http://example.com")
+    httpProxy.submit(ha)
     os.sleep(1_000)
 
     ap.finish()
     ap[].thread.joinThread()
 
     httpProxy.poll()
-    # var msg: AsyncMessage[HttpResult]
-    # while httpProxy[].outputs.tryRecv(msg):
-    #   echo "got results msg: ", msg
-
-  #   connect(a, valueChanged,
-  #           b, setValue)
 
   test "simple threading test":
 
