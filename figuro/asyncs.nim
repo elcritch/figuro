@@ -37,7 +37,7 @@ proc send*(proxy: HttpProxy, agent: Agent, uri: string) =
   let req = HttpRequest(uri: parseUri(uri))
   proxy.sendMsg(agent, isolate req)
 
-proc newHttpExecutor*(proxy: AgentProxy[HttpRequest, HttpResult]): HttpExecutor =
+proc newHttpExecutor*(proxy: HttpProxy): HttpExecutor =
   result = HttpExecutor()
   result.proxy = proxy
 
