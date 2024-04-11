@@ -105,14 +105,16 @@ suite "threaded agent proxy":
     echo "initial async http with trigger ", " tid: ", getThreadId(), " ", httpProxy[].trigger.repr 
 
     ap.add(newHttpExecutor(httpProxy))
-    os.sleep(1_000)
+    os.sleep(4_00)
 
     var ha = newHttpAgent("http://example.com")
     httpProxy.submit(ha)
-    os.sleep(1_000)
+    os.sleep(4_00)
 
-    httpProxy.submit(ha)
-    os.sleep(1_000)
+    expect KeyError:
+      httpProxy.submit(ha)
+
+    os.sleep(4_00)
 
     ap.finish()
     ap[].thread.joinThread()

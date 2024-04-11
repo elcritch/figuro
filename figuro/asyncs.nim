@@ -7,6 +7,7 @@ import std/options
 import std/isolation
 import std/uri
 import std/asyncdispatch
+from std/selectors import IOSelectorsException
 
 import patty
 
@@ -19,7 +20,7 @@ type
   AsyncReqId* = int
 
   AsyncKey* = object
-    reqId*: AsyncReqId
+    # reqId*: AsyncReqId
     aid*: AgentId
 
   AsyncMessage*[T] = object
@@ -58,7 +59,8 @@ type
   AsyncMethod*[T, U] = ref object of RootObj
 
 proc initAsyncKey*(agent: Agent): AsyncKey =
-  AsyncKey(aid: agent.getId(), reqId: getMonoTime().ticks().int)
+  # AsyncKey(aid: agent.getId(), reqId: getMonoTime().ticks().int)
+  AsyncKey(aid: agent.getId())
 
 proc newAsyncProcessor*(): AsyncProcessor =
   result = newSharedPtr(AsyncProcessorRaw)
@@ -103,12 +105,15 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
 
 proc sendMsg*[T, U](proxy: AgentProxy[T, U],
                     agent: Agent,
-                    val: sink Isolated[T]): AsyncKey =
+                    val: sink Isolated[T]): AsyncKey {.raises: [KeyError, IOSelectorsException].} =
   let rkey = initAsyncKey(agent)
   let msg = AsyncMessage[T](handle: rkey, value: val.extract())
-  proxy[].agents[rkey] = agent
-  proxy[].inputs.send(msg)
-  proxy[].trigger.trigger()
+  if rkey in proxy[].agents:
+    raise newException(KeyError, "already running")
+  else:
+    proxy[].agents[rkey] = agent
+    proxy[].inputs.send(msg)
+    proxy[].trigger.trigger()
 
 template sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T): AsyncKey =
   sendMsg(proxy, agent, isolate(val))
