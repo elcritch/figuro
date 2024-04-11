@@ -33,7 +33,7 @@ type
 method setup*(ap: AsyncExecutor) {.base, gcsafe.} =
   discard
 
-method process*(ap: AsyncExecutor) {.base, gcsafe.} =
+method processOutputs*(ap: AsyncExecutor) {.base, gcsafe.} =
   discard
 
 variant Commands:
@@ -149,6 +149,15 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
       ap.proxy[].outputs.send(res)
 
   ap.proxy[].trigger.addEvent(cb)
+
+method processOutputs*(ap: HttpExecutor, maxCnt = 20) {.gcsafe.} =
+  var cnt = maxCnt
+  var msg: AsyncMessage[U]
+  while proxy[].outputs.tryRecv(msg) and cnt > 0:
+    let agent = proxy[].agents[msg.handle]
+    if not msg.continued:
+      proxy[].agents.del(msg.handle)
+    receive(agent, msg.value)
 
 proc newHttpAgent*(url: Uri): HttpAgent =
   result = HttpAgent(url: url)
