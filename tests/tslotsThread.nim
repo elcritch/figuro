@@ -113,7 +113,6 @@ suite "threaded agent proxy":
     httpProxy.send(a, "http://example.com")
     os.sleep(1_000)
 
-    # ap[].finished = true
     ap.finish()
     ap[].thread.joinThread()
 
