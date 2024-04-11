@@ -10,11 +10,11 @@ import std/asyncdispatch
 import patty
 
 import meta
-import asyncProc
+import asyncs
 
 export smartptrs
 export uri
-export asyncProc
+export asyncs
 
 
 type
