@@ -62,7 +62,6 @@ method processOutputs*(ap: HttpExecutor, maxCnt = 20) {.gcsafe.} =
     let agent = ap.proxy[].agents[msg.handle]
     if not msg.continued:
       ap.proxy[].agents.del(msg.handle)
-    # receive(agent, msg.value)
 
 proc newHttpAgent*(url: Uri): HttpAgent =
   result = HttpAgent(url: url)
