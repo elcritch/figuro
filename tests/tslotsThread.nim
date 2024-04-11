@@ -96,7 +96,7 @@ suite "threaded agent proxy":
     var proxy = newAgentProxy[string, int]()
   
     echo "main thread", " tid: ", getThreadId()
-    proxy.sendMsg a, "test"
+    discard proxy.sendMsg(a, "test")
 
     var ap = newAsyncProcessor()
     ap.start()
@@ -116,7 +116,7 @@ suite "threaded agent proxy":
     ap.finish()
     ap[].thread.joinThread()
 
-    httpProxy.process()
+    httpProxy.poll()
     # var msg: AsyncMessage[HttpResult]
     # while httpProxy[].outputs.tryRecv(msg):
     #   echo "got results msg: ", msg

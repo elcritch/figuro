@@ -33,7 +33,7 @@ type
   HttpAgent* = ref object of ThreadAgent
     url: Uri
 
-proc send*(proxy: HttpProxy, agent: Agent, uri: string) =
+proc send*(proxy: HttpProxy, agent: Agent, uri: string): AsyncKey {.discardable.} =
   let req = HttpRequest(uri: parseUri(uri))
   proxy.sendMsg(agent, isolate req)
 
@@ -56,7 +56,7 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
   ap.proxy[].trigger.addEvent(cb)
 
 proc receive*(proxy: HttpProxy, ap: Agent, data: HttpResult) {.gcsafe.} =
-  echo "http executor receive: "
+  echo "http executor receive: ", data
 
 proc newHttpAgent*(url: Uri): HttpAgent =
   result = HttpAgent(url: url)

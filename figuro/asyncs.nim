@@ -101,17 +101,19 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].outputs = newChan[AsyncMessage[U]]()
   result[].trigger = newAsyncEvent()
 
-proc sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: sink Isolated[T]) =
+proc sendMsg*[T, U](proxy: AgentProxy[T, U],
+                    agent: Agent,
+                    val: sink Isolated[T]): AsyncKey =
   let rkey = initAsyncKey(agent)
   let msg = AsyncMessage[T](handle: rkey, value: val.extract())
   proxy[].agents[rkey] = agent
   proxy[].inputs.send(msg)
   proxy[].trigger.trigger()
 
-template sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T) =
+template sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T): AsyncKey =
   sendMsg(proxy, agent, isolate(val))
 
-proc process*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
+proc poll*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
   mixin receive
   var cnt = maxCnt
   var msg: AsyncMessage[U]
