@@ -105,12 +105,12 @@ proc `=destroy`*(agent: typeof(Agent()[])) =
 
 ## TODO: figure out if we need debugId at all?
 when defined(nimscript):
-  proc getId*(a: Agent): int = a.debugId
+  proc getId*(a: Agent): AgentId = a.debugId
   # proc getAgentProcId*(a: AgentProc): int = cast[int](cast[pointer](a))
   var lastUId {.compileTime.}: int = 1
 else:
-  proc getId*[T: Agent](a: WeakRef[T]): int = cast[int](a.toPtr())
-  proc getId*(a: Agent): int = cast[int](cast[pointer](a))
+  proc getId*[T: Agent](a: WeakRef[T]): AgentId = cast[int](a.toPtr())
+  proc getId*(a: Agent): AgentId = cast[int](cast[pointer](a))
   # proc getAgentProcId*(a: AgentProc): int = cast[int](cast[pointer](a))
   var lastUId: int = 0
 
