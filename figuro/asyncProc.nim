@@ -15,9 +15,12 @@ export smartptrs
 export uri
 
 type
+  AsyncReqId* = int
+
   AsyncMessage*[T] = object
     continued*: bool
-    handle*: int
+    reqId*: AsyncReqId
+    handle*: AgentId
     value*: T
 
   AgentProxyRaw*[T, U] = object
