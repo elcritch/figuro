@@ -2,6 +2,7 @@ import threading/channels
 import threading/smartptrs
 
 import std/os
+import std/monotimes
 import std/options
 import std/isolation
 import std/uri
@@ -17,14 +18,17 @@ export uri
 type
   AsyncReqId* = int
 
+  AsyncKey* = object
+    reqId*: AsyncReqId
+    aid*: AgentId
+
   AsyncMessage*[T] = object
     continued*: bool
-    reqId*: AsyncReqId
-    handle*: AgentId
+    handle*: AsyncKey
     value*: T
 
   AgentProxyRaw*[T, U] = object
-    agents*: Table[int, Agent]
+    agents*: Table[AsyncKey, Agent]
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
     trigger*: AsyncEvent
@@ -52,6 +56,9 @@ type
   AsyncProcessor* = SharedPtr[AsyncProcessorRaw]
 
   AsyncMethod*[T, U] = ref object of RootObj
+
+proc initAsyncKey*(agent: Agent): AsyncKey =
+  AsyncKey(aid: agent.getId(), reqId: getMonoTime().ticks().int)
 
 proc newAsyncProcessor*(): AsyncProcessor =
   result = newSharedPtr(AsyncProcessorRaw)
@@ -93,13 +100,12 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].inputs = newChan[AsyncMessage[T]]()
   result[].outputs = newChan[AsyncMessage[U]]()
   result[].trigger = newAsyncEvent()
-  echo "newAgentProxy::trigger ", result[].trigger.repr
 
 proc sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: sink Isolated[T]) =
-  let wref = agent.getId()
-  proxy[].agents[wref] = agent
-  proxy[].inputs.send(AsyncMessage[T](handle: wref, value: val.extract()))
-  echo "triggering event, ", proxy[].trigger.repr
+  let rkey = initAsyncKey(agent)
+  let msg = AsyncMessage[T](handle: rkey, value: val.extract())
+  proxy[].agents[rkey] = agent
+  proxy[].inputs.send(msg)
   proxy[].trigger.trigger()
 
 template sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T) =
