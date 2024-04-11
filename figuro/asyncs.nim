@@ -55,7 +55,7 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
 
   ap.proxy[].trigger.addEvent(cb)
 
-method processOutputs*(ap: HttpExecutor, maxCnt = 20) {.gcsafe.} =
+proc receive*(ap: HttpExecutor, maxCnt = 20) {.gcsafe.} =
   var cnt = maxCnt
   var msg: AsyncMessage[HttpResult]
   while ap.proxy[].outputs.tryRecv(msg) and cnt > 0:
