@@ -45,7 +45,7 @@ proc `$`*[T](obj: WeakRef[T]): string =
 
 type
   Agent* = ref object of RootObj
-    agentId*: int = 0
+    debugId*: int = 0
     listeners*: Table[string, OrderedSet[AgentPairing]] ## agents listening to me
     subscribed*: HashSet[WeakRef[Agent]] ## agents I'm listening to
 
@@ -68,20 +68,20 @@ type
 proc `=destroy`*(agent: typeof(Agent()[])) =
   let xid: WeakRef[Agent] = WeakRef[Agent](pt: cast[Agent](addr agent))
 
-  # echo "\ndestroy: agent: ", xid[].agentId, " pt: ", xid.toPtr.repr, " lstCnt: ", xid[].listeners.len(), " subCnt: ", xid[].subscribed.len
-  # echo "subscribed: ", xid[].subscribed.toSeq.mapIt(it[].agentId).repr
+  # echo "\ndestroy: agent: ", xid[].debugId, " pt: ", xid.toPtr.repr, " lstCnt: ", xid[].listeners.len(), " subCnt: ", xid[].subscribed.len
+  # echo "subscribed: ", xid[].subscribed.toSeq.mapIt(it[].debugId).repr
 
   # remove myself from agents I'm listening to
   var delSigs: seq[string]
   for obj in agent.subscribed:
-    # echo "freeing subscribed: ", obj[].agentId
+    # echo "freeing subscribed: ", obj[].debugId
     delSigs.setLen(0)
     for signal, listenerPairs in obj[].listeners.mpairs():
       var toDel = initOrderedSet[AgentPairing](listenerPairs.len())
       for item in listenerPairs:
         if item.tgt == xid:
           toDel.incl(item)
-          # echo "agentRemoved: ", "tgt: ", xid.toPtr.repr, " id: ", agent.agentId, " obj: ", obj[].agentId, " name: ", signal
+          # echo "agentRemoved: ", "tgt: ", xid.toPtr.repr, " id: ", agent.debugId, " obj: ", obj[].debugId, " name: ", signal
       for item in toDel:
         listenerPairs.excl(item)
       if listenerPairs.len() == 0:
@@ -103,9 +103,9 @@ proc `=destroy`*(agent: typeof(Agent()[])) =
   `=destroy`(xid[].listeners)
   `=destroy`(xid[].subscribed)
 
-## TODO: figure out if we need agentId at all?
+## TODO: figure out if we need debugId at all?
 when defined(nimscript):
-  proc getId*(a: Agent): int = a.agentId
+  proc getId*(a: Agent): int = a.debugId
   # proc getAgentProcId*(a: AgentProc): int = cast[int](cast[pointer](a))
   var lastUId {.compileTime.}: int = 1
 else:
@@ -120,7 +120,7 @@ proc nextAgentId*(): int =
 
 proc new*[T: Agent](tp: typedesc[T]): T =
   result = T()
-  result.agentId = nextAgentId()
+  result.debugId = nextAgentId()
 
 proc hash*(a: Agent): Hash = hash(a.getId())
 # proc hash*(a: AgentProc): Hash = hash(getAgentProcId(a))
@@ -240,17 +240,17 @@ proc addAgentListeners*(obj: Agent,
                         slot: AgentProc
                         ) =
 
-  # echo "add agent listener: ", sig, " obj: ", obj.agentId, " tgt: ", tgt.agentId
+  # echo "add agent listener: ", sig, " obj: ", obj.debugId, " tgt: ", tgt.debugId
   # if obj.listeners.hasKey(sig):
   #   echo "listener:count: ", obj.listeners[sig].len()
   assert slot != nil
 
   obj.listeners.withValue(sig, agents):
     # if (tgt.unsafeWeakRef(), slot,) notin agents[]:
-    #   echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+    #   echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.debugId, " obj: ", obj.debugId, " name: ", sig
     agents[].incl((tgt.unsafeWeakRef(), slot,))
   do:
-    # echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.agentId, " obj: ", obj.agentId, " name: ", sig
+    # echo "addAgentListeners: ", "tgt: ", tgt.unsafeWeakRef().toPtr().pointer.repr, " id: ", tgt.debugId, " obj: ", obj.debugId, " name: ", sig
     var agents = initOrderedSet[AgentPairing]()
     agents.incl( (tgt.unsafeWeakRef(), slot,) )
     obj.listeners[sig] = move agents
