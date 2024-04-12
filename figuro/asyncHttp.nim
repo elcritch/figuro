@@ -18,8 +18,7 @@ export asyncs
 
 
 type
-  HttpRequest* = object
-    uri*: Uri
+  HttpRequest* = Uri
   HttpResult* = object
     data*: Option[string]
 
@@ -43,7 +42,7 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
     var msg: AsyncMessage[HttpRequest]
     if ap.proxy[].inputs.tryRecv(msg):
       echo "got message: ", msg
-      let resp = HttpResult(data: some($msg.value.uri))
+      let resp = HttpResult(data: some($msg.value))
       let res = AsyncMessage[HttpResult](handle: msg.handle, value: resp)
       ap.proxy[].outputs.send(res)
 
@@ -55,5 +54,4 @@ proc newHttpAgent*(proxy: HttpProxy): HttpAgent =
 
 proc receive*(ha: HttpAgent, key: AsyncKey, data: HttpResult) {.slot.} =
   echo "http executor receive: ", data
-
 
