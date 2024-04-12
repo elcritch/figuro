@@ -50,13 +50,9 @@ variant Commands:
   Finish
   AddExec(exec: AsyncExecutor)
 
-proc received*[U](tp: AsyncAgent[U],
-                  key: AsyncKey,
-                  value: U) {.signal.}
+proc received*[U](tp: AsyncAgent[U], key: AsyncKey, value: U) {.signal.}
 
-proc receive*[U](tp: AsyncAgent[U],
-                 key: AsyncKey,
-                 value: U) {.slot.} =
+proc receive*[U](tp: AsyncAgent[U], key: AsyncKey, value: U) {.slot.} =
   raise newException(Defect, "not implemented")
 
 template submit*[A, T](agent: A, req: T): AsyncKey =
@@ -82,7 +78,7 @@ proc newAsyncProcessor*(): AsyncProcessor =
   result[].trigger = newAsyncEvent()
 
 proc execute*(ap: AsyncProcessor) {.thread.} =
-  let cb = proc (fd: AsyncFD): bool {.closure.} =
+  let cb = proc(fd: AsyncFD): bool {.closure.} =
     echo "running async processor command!"
     var cmd: Commands
     if ap[].commands.tryRecv(cmd):
@@ -115,10 +111,9 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].outputs = newChan[AsyncMessage[U]]()
   result[].trigger = newAsyncEvent()
 
-proc sendMsg*[T, U](proxy: AgentProxy[T, U],
-                    agent: AsyncAgent[U],
-                    val: sink Isolated[T]
-                   ): AsyncKey {.discardable, raises: [KeyError, IOSelectorsException].} =
+proc sendMsg*[T, U](
+    proxy: AgentProxy[T, U], agent: AsyncAgent[U], val: sink Isolated[T]
+): AsyncKey {.discardable, raises: [KeyError, IOSelectorsException].} =
   let rkey = initAsyncKey(agent)
   let msg = AsyncMessage[T](handle: rkey, value: val.extract())
   if rkey in proxy[].agents:
