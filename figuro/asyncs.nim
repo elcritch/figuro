@@ -113,9 +113,6 @@ proc send*[T, U](
     proxy[].inputs.send(msg)
     proxy[].trigger.trigger()
 
-template sendMsg*[T, U](proxy: AgentProxy[T, U], agent: Agent, val: T): AsyncKey =
-  sendMsg(proxy, agent, isolate(val))
-
 proc poll*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
   mixin receive
   var cnt = maxCnt
