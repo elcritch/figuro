@@ -51,19 +51,18 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
 
   ap.proxy[].trigger.addEvent(cb)
 
-
 proc submit*(agent: HttpAgent, uri: Uri): AsyncKey {.discardable.} =
   let req = HttpRequest(uri: uri)
   agent.proxy.sendMsg(agent, isolate req)
 
-proc receive*(proxy: HttpProxy, ap: Agent, data: HttpResult) {.gcsafe.} =
-  echo "http executor receive: ", data, " tp: ", ap is HttpAgent
 
 proc newHttpAgent*(proxy: HttpProxy): HttpAgent =
   result = HttpAgent(proxy: proxy)
 
-# proc newHttpAgent*(url: string): HttpAgent =
-#   newHttpAgent(parseUri(url))
+proc received*(tp: HttpAgent, key: AsyncKey, result: HttpResult) {.signal.}
 
-proc update*(req: HttpAgent, gotByts: int) {.signal.}
-proc received*(req: HttpAgent, val: string) {.signal.}
+proc receive*(proxy: HttpProxy, ap: Agent, data: HttpResult) {.gcsafe.} =
+  echo "http executor receive: ", data, " tp: ", ap is HttpAgent
+
+
+

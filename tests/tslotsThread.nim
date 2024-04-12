@@ -9,8 +9,6 @@ type
 
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
-proc someChange*(tp: Counter) {.signal.}
-
 proc avgChanged*(tp: Counter, val: float) {.signal.}
 
 proc setValue*(self: Counter, value: int) {.slot.} =
