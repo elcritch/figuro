@@ -76,11 +76,6 @@ suite "threaded agent slots":
 import figuro/meta/asyncHttp
 
 suite "threaded agent proxy":
-  setup:
-    var
-      a {.used.} = Counter.new()
-      b {.used.} = Counter.new()
-      c {.used.} = Counter.new()
 
   test "simple proxy test":
     var ap = newAsyncProcessor()
