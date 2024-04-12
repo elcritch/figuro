@@ -11,7 +11,7 @@ from std/selectors import IOSelectorsException
 
 import patty
 
-import meta
+import signals, slots
 
 export smartptrs
 export uri

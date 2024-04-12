@@ -9,7 +9,7 @@ import std/asyncdispatch
 
 import patty
 
-import meta
+import signals, slots
 import asyncs
 
 export smartptrs

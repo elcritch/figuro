@@ -79,7 +79,7 @@ suite "threaded agent slots":
     check b.value == 1337
     check c.value == 1337
 
-import figuro/asyncHttp
+import figuro/meta/asyncHttp
 
 suite "threaded agent proxy":
 
