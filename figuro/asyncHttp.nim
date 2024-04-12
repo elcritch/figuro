@@ -26,7 +26,7 @@ type
   HttpProxy* = AgentProxy[HttpRequest, HttpResult]
 
   HttpExecutor* = ref object of AsyncExecutor
-    proxy*: AgentProxy[HttpRequest, HttpResult]
+    proxy*: HttpProxy
 
   HttpAgent* = ref object of AsyncAgent[HttpResult]
     proxy*: HttpProxy
