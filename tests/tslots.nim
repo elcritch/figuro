@@ -5,6 +5,10 @@ type
     value: int
     avg: int
 
+  Originator* = ref object of Agent
+
+proc change*(tp: Originator, val: int) {.signal.}
+
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
 proc someChange*(tp: Counter) {.signal.}
@@ -41,6 +45,7 @@ when isMainModule:
         b {.used.} = Counter.new()
         c {.used.} = Counter.new()
         d {.used.} = Counter.new()
+        o {.used.} = Originator.new()
 
     teardown:
       GC_fullCollect()
@@ -99,6 +104,18 @@ when isMainModule:
       echo "TEST REFS: ", " aref: ", cast[pointer](a).repr, " ", addr(a[]).pointer.repr, " agent: ", addr(Agent(a)).pointer.repr
       check a.unsafeWeakRef().toPtr == cast[pointer](a)
       check a.unsafeWeakRef().toPtr == addr(a[]).pointer
+
+    test "differing agents, same sigs":
+      # TODO: how to do this?
+      echo "done"
+      connect(o, change,
+              b, setValue)
+
+      check b.value == 0
+
+      emit o.change(42)
+
+      check b.value == 42
 
     test "connect type errors":
       check not compiles(
