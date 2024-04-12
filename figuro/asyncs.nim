@@ -43,9 +43,6 @@ type
 method setup*(ap: AsyncExecutor) {.base, gcsafe.} =
   discard
 
-# method processOutputs*(ap: AsyncExecutor) {.base, gcsafe.} =
-#   discard
-
 variant Commands:
   Finish
   AddExec(exec: AsyncExecutor)

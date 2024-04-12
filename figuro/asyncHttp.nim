@@ -55,4 +55,3 @@ proc new*(tp: typedesc[HttpAgent], proxy: HttpProxy): HttpAgent =
 
 # proc receive*(ha: HttpAgent, key: AsyncKey, data: HttpResult) {.slot.} =
 #   echo "http executor receive: ", data
-
