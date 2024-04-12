@@ -17,7 +17,7 @@ export smartptrs
 export uri
 
 type
-  ThreadAgent*[U] = ref object of Agent
+  AsyncAgent*[U] = ref object of Agent
 
   AsyncReqId* = int
 
@@ -35,7 +35,6 @@ type
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
     trigger*: AsyncEvent
-    receiver*: ThreadAgent[U]
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
@@ -51,9 +50,14 @@ variant Commands:
   Finish
   AddExec(exec: AsyncExecutor)
 
-proc received*(tp: ThreadAgent[U],
-               key: AsyncKey,
-               value: HttpResult) {.signal.}
+proc received*[U](tp: AsyncAgent[U],
+                  key: AsyncKey,
+                  value: U) {.signal.}
+
+proc receive*[U](tp: AsyncAgent[U],
+                 key: AsyncKey,
+                 value: U) {.slot.} =
+  raise newException(Defect, "not implemented")
 
 type
   AsyncProcessorRaw* = object
@@ -130,4 +134,13 @@ proc poll*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
     let agent: Agent = proxy[].agents[msg.handle]
     if not msg.continued:
       proxy[].agents.del(msg.handle)
-    proxy.receive(agent, msg.value)
+    # proxy[].trampoline.received(agent, msg.value)
+
+    let args = ()
+    let req = initAgentRequest[U, typeof(args)](
+        procName = "received",
+        args = args,
+        id = agent.getId()
+    )
+    agent.callSlots(req)
+
