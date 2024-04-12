@@ -93,11 +93,6 @@ suite "threaded agent proxy":
 
   test "simple proxy test":
 
-    var proxy = newAgentProxy[string, int]()
-  
-    echo "main thread", " tid: ", getThreadId()
-    discard proxy.sendMsg(a, "test")
-
     var ap = newAsyncProcessor()
     ap.start()
 

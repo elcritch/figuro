@@ -195,8 +195,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
   if parent.children.len <= parent.diffIndex:
     # Create Figuro.
     node = T()
-    node.agentId = nextAgentId()
-    node.uid = node.agentId
+    node.debugId = nextAgentId()
+    node.uid = node.debugId
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
     parent.children.add(node)
@@ -230,7 +230,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
-  node.uid = node.agentId
+  node.uid = node.debugId
   let name = $(id)
   node.name.setLen(0)
   discard node.name.tryAdd(name)
