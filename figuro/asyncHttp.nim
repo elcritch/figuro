@@ -49,9 +49,9 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
 
   ap.proxy[].trigger.addEvent(cb)
 
-
-proc newHttpAgent*(proxy: HttpProxy): HttpAgent =
-  result = HttpAgent(proxy: proxy)
+proc new*(tp: typedesc[HttpAgent], proxy: HttpProxy): HttpAgent =
+  result = HttpAgent.new()
+  result.proxy = proxy
 
 # proc receive*(ha: HttpAgent, key: AsyncKey, data: HttpResult) {.slot.} =
 #   echo "http executor receive: ", data

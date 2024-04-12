@@ -110,7 +110,7 @@ suite "threaded agent proxy":
     
     let handler = HttpHandler.new()
 
-    var ha = newHttpAgent(httpProxy)
+    var ha = HttpAgent.new(httpProxy)
     discard ha.send(parseUri "http://first.example.com")
     ha.connect(received, handler, receive)
 
