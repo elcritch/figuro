@@ -28,7 +28,7 @@ type
   HttpExecutor* = ref object of AsyncExecutor
     proxy*: AgentProxy[HttpRequest, HttpResult]
 
-  HttpAgent* = ref object of Agent
+  HttpAgent* = ref object of AsyncAgent[HttpResult]
     proxy: HttpProxy
 
 proc newHttpExecutor*(proxy: HttpProxy): HttpExecutor =
@@ -51,7 +51,8 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
 
 proc submit*(agent: HttpAgent, uri: Uri): AsyncKey {.discardable.} =
   let req = HttpRequest(uri: uri)
-  agent.proxy.sendMsg(agent, isolate req)
+  connect(agent, received, agent, receive)
+  result = agent.proxy.sendMsg(agent, isolate req)
 
 
 proc newHttpAgent*(proxy: HttpProxy): HttpAgent =

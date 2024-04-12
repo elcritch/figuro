@@ -31,7 +31,7 @@ type
     value*: T
 
   AgentProxyRaw*[T, U] = object
-    agents*: Table[AsyncKey, Agent]
+    agents*: Table[AsyncKey, AsyncAgent[U]]
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
     trigger*: AsyncEvent
@@ -112,7 +112,7 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].trigger = newAsyncEvent()
 
 proc sendMsg*[T, U](proxy: AgentProxy[T, U],
-                    agent: Agent,
+                    agent: AsyncAgent[U],
                     val: sink Isolated[T]): AsyncKey {.raises: [KeyError, IOSelectorsException].} =
   let rkey = initAsyncKey(agent)
   let msg = AsyncMessage[T](handle: rkey, value: val.extract())
@@ -131,16 +131,17 @@ proc poll*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
   var cnt = maxCnt
   var msg: AsyncMessage[U]
   while proxy[].outputs.tryRecv(msg) and cnt > 0:
-    let agent: Agent = proxy[].agents[msg.handle]
+    let agent: AsyncAgent[U] = proxy[].agents[msg.handle]
     if not msg.continued:
       proxy[].agents.del(msg.handle)
     # proxy[].trampoline.received(agent, msg.value)
+    emit agent.received(msg.handle, msg.value)
 
-    let args = ()
-    let req = initAgentRequest[U, typeof(args)](
-        procName = "received",
-        args = args,
-        id = agent.getId()
-    )
-    agent.callSlots(req)
+    # let args = ()
+    # let req = initAgentRequest[U, typeof(args)](
+    #     procName = "received",
+    #     args = args,
+    #     id = agent.getId()
+    # )
+    # agent.callSlots(req)
 
