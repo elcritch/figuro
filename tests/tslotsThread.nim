@@ -100,9 +100,19 @@ suite "threaded agent proxy":
     ap.add(newHttpExecutor(httpProxy))
     os.sleep(4_00)
 
+    type
+      HttpHandler = ref object of Agent
+    
+    proc receive(ha: HttpHandler,
+                  key: AsyncKey,
+                  data: HttpResult) {.slot.} =
+      echo "got http result: ", data
+    
+    let handler = HttpHandler.new()
+
     var ha = newHttpAgent(httpProxy)
     discard ha.submit(parseUri "http://first.example.com")
-    ha.connect(received, ha, receive)
+    ha.connect(received, handler, receive)
 
     os.sleep(4_00)
     ha.submit(parseUri "http://fake.example.com")

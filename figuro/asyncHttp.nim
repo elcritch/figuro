@@ -52,6 +52,6 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
 proc newHttpAgent*(proxy: HttpProxy): HttpAgent =
   result = HttpAgent(proxy: proxy)
 
-proc receive*(ha: HttpAgent, key: AsyncKey, data: HttpResult) {.slot.} =
-  echo "http executor receive: ", data
+# proc receive*(ha: HttpAgent, key: AsyncKey, data: HttpResult) {.slot.} =
+#   echo "http executor receive: ", data
 
