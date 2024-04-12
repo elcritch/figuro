@@ -59,10 +59,9 @@ proc submit*(agent: HttpAgent, uri: Uri): AsyncKey {.discardable.} =
 proc newHttpAgent*(proxy: HttpProxy): HttpAgent =
   result = HttpAgent(proxy: proxy)
 
-proc received*(tp: HttpAgent, key: AsyncKey, result: HttpResult) {.signal.}
+proc received*(tp: HttpAgent, key: AsyncKey, value: HttpResult) {.signal.}
 
 proc receive*(proxy: HttpProxy, ap: Agent, data: HttpResult) {.gcsafe.} =
   echo "http executor receive: ", data, " tp: ", ap is HttpAgent
-
 
 
