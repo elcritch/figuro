@@ -136,12 +136,3 @@ proc poll*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
       proxy[].agents.del(msg.handle)
     # proxy[].trampoline.received(agent, msg.value)
     emit agent.received(msg.handle, msg.value)
-
-    # let args = ()
-    # let req = initAgentRequest[U, typeof(args)](
-    #     procName = "received",
-    #     args = args,
-    #     id = agent.getId()
-    # )
-    # agent.callSlots(req)
-
