@@ -1,11 +1,9 @@
-
 import figuro/meta
 import std/os
 
-type
-  Counter* = ref object of Agent
-    value: int
-    avg: int
+type Counter* = ref object of Agent
+  value: int
+  avg: int
 
 proc valueChanged*(tp: Counter, val: int) {.signal.}
 
@@ -36,7 +34,6 @@ import threading/channels
 import std/isolation
 
 suite "threaded agent slots":
-
   setup:
     var
       a {.used.} = Counter.new()
@@ -49,12 +46,9 @@ suite "threaded agent slots":
   test "simple threading test":
     var agentResults = newChan[(WeakRef[Agent], AgentRequest)]()
 
-    connect(a, valueChanged,
-            b, setValue)
-    connect(a, valueChanged,
-            c, Counter.setValue)
-    connect(a, valueChanged,
-            c, setValue Counter)
+    connect(a, valueChanged, b, setValue)
+    connect(a, valueChanged, c, Counter.setValue)
+    connect(a, valueChanged, c, setValue Counter)
 
     let wa: WeakRef[Counter] = a.unsafeWeakRef()
     emit wa.valueChanged(137)
@@ -68,7 +62,7 @@ suite "threaded agent slots":
       var res = aref.valueChanged(1337)
       agentResults.send(unsafeIsolate(res))
       echo "Thread Done"
-    
+
     var thread: Thread[WeakRef[Counter]]
     createThread(thread, threadTestProc, wa)
     thread.joinThread()
@@ -82,7 +76,6 @@ suite "threaded agent slots":
 import figuro/meta/asyncHttp
 
 suite "threaded agent proxy":
-
   setup:
     var
       a {.used.} = Counter.new()
@@ -90,25 +83,21 @@ suite "threaded agent proxy":
       c {.used.} = Counter.new()
 
   test "simple proxy test":
-
     var ap = newAsyncProcessor()
     ap.start()
 
     let httpProxy = newAgentProxy[HttpRequest, HttpResult]()
     echo "initial async http with trigger ",
-         " tid: ", getThreadId(), " ", httpProxy[].trigger.repr 
+      " tid: ", getThreadId(), " ", httpProxy[].trigger.repr
 
     ap.add(newHttpExecutor(httpProxy))
     os.sleep(4_00)
 
-    type
-      HttpHandler = ref object of Agent
-    
-    proc receive(ha: HttpHandler,
-                  key: AsyncKey,
-                  data: HttpResult) {.slot.} =
+    type HttpHandler = ref object of Agent
+
+    proc receive(ha: HttpHandler, key: AsyncKey, data: HttpResult) {.slot.} =
       echo "got http result: ", data
-    
+
     let handler = HttpHandler.new()
 
     var hreq = HttpAgent.new(httpProxy)
@@ -124,6 +113,3 @@ suite "threaded agent proxy":
     ap[].thread.joinThread()
 
     httpProxy.poll()
-
-
-
