@@ -139,7 +139,7 @@ when isMainModule:
         var obj {.used.} = TestObj(val: 100)
         var y = Counter.new()
 
-        echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
+        echo "Counter.setValue: ", "x: ", x.debugId, " y: ", y.debugId
         connect(x, valueChanged,
                 y, setValue)
 
@@ -178,7 +178,7 @@ when isMainModule:
         var obj {.used.} = TestObj(val: 100)
         var x = Counter.new()
 
-        echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
+        echo "Counter.setValue: ", "x: ", x.debugId, " y: ", y.debugId
         connect(x, valueChanged,
                 y, setValue)
 
@@ -244,7 +244,7 @@ when isMainModule:
       echo "X::count: ", x.head().count()
       check x.head().count() == 0
 
-      echo "Counter.setValue: ", "x: ", x.agentId, " y: ", y.agentId
+      echo "Counter.setValue: ", "x: ", x.debugId, " y: ", y.debugId
       connect(x, valueChanged,
               y, setValue)
       check x.head().count() == 0

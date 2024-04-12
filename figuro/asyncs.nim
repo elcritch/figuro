@@ -17,6 +17,8 @@ export smartptrs
 export uri
 
 type
+  ThreadAgent*[U] = ref object of Agent
+
   AsyncReqId* = int
 
   AsyncKey* = object
@@ -33,6 +35,7 @@ type
     inputs*: Chan[AsyncMessage[T]]
     outputs*: Chan[AsyncMessage[U]]
     trigger*: AsyncEvent
+    receiver*: ThreadAgent[U]
 
   AgentProxy*[T, U] = SharedPtr[AgentProxyRaw[T, U]]
 
@@ -47,6 +50,10 @@ method setup*(ap: AsyncExecutor) {.base, gcsafe.} =
 variant Commands:
   Finish
   AddExec(exec: AsyncExecutor)
+
+proc received*(tp: ThreadAgent[U],
+               key: AsyncKey,
+               value: HttpResult) {.signal.}
 
 type
   AsyncProcessorRaw* = object

@@ -28,8 +28,6 @@ type
   HttpExecutor* = ref object of AsyncExecutor
     proxy*: AgentProxy[HttpRequest, HttpResult]
 
-  ThreadAgent* = ref object of Agent
-
   HttpAgent* = ref object of ThreadAgent
     proxy: HttpProxy
 
