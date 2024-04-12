@@ -20,7 +20,7 @@ type
   AsyncReqId* = int
 
   AsyncKey* = object
-    # reqId*: AsyncReqId
+    reqId*: AsyncReqId
     aid*: AgentId
 
   AsyncMessage*[T] = object
@@ -59,8 +59,7 @@ type
   AsyncMethod*[T, U] = ref object of RootObj
 
 proc initAsyncKey*(agent: Agent): AsyncKey =
-  # AsyncKey(aid: agent.getId(), reqId: getMonoTime().ticks().int)
-  AsyncKey(aid: agent.getId())
+  AsyncKey(aid: agent.getId(), reqId: getMonoTime().ticks().int)
 
 proc newAsyncProcessor*(): AsyncProcessor =
   result = newSharedPtr(AsyncProcessorRaw)

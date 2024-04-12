@@ -104,10 +104,9 @@ suite "threaded agent proxy":
 
     var ha = newHttpAgent("http://example.com")
     httpProxy.submit(ha)
-    os.sleep(4_00)
+    # emit ha.submit()
 
-    expect KeyError:
-      httpProxy.submit(ha)
+    os.sleep(4_00)
 
     os.sleep(4_00)
 
