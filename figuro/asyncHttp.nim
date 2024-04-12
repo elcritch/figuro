@@ -39,10 +39,8 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
   echo "setting up async http executor", " tid: ", getThreadId(), " trigger: ", ap.proxy[].trigger.repr 
 
   let cb = proc (fd: AsyncFD): bool {.closure.} =
-    echo "\nrunning http executor event!"
     var msg: AsyncMessage[HttpRequest]
     if ap.proxy[].inputs.tryRecv(msg):
-      echo "got message: ", msg
       let resp = HttpResult(data: some($msg.value))
       let res = AsyncMessage[HttpResult](handle: msg.handle, value: resp)
       ap.proxy[].outputs.send(res)
