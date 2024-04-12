@@ -74,10 +74,8 @@ proc execute*(ap: AsyncProcessor) {.thread.} =
     if ap[].commands.tryRecv(cmd):
       match cmd:
         Finish:
-          echo "stopping exec"
           raise newException(CatchableError, "finish")
         AddExec(exec):
-          echo "adding exec: ", repr exec
           setup(exec)
   ap[].trigger.addEvent(cb)
 
