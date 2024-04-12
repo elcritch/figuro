@@ -52,9 +52,6 @@ variant Commands:
 
 proc received*[U](tp: AsyncAgent[U], key: AsyncKey, value: U) {.signal.}
 
-template submit*[T, U](agent: AsyncAgent[U], req: T): AsyncKey =
-  agent.proxy.sendMsg(agent, isolate req)
-
 type
   AsyncProcessorRaw* = object
     commands*: Chan[Commands]
@@ -107,7 +104,7 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
   result[].outputs = newChan[AsyncMessage[U]]()
   result[].trigger = newAsyncEvent()
 
-proc sendMsg*[T, U](
+proc send*[T, U](
     proxy: AgentProxy[T, U], agent: AsyncAgent[U], val: sink Isolated[T]
 ): AsyncKey {.discardable, raises: [KeyError, IOSelectorsException].} =
   let rkey = initAsyncKey(agent)
@@ -132,3 +129,6 @@ proc poll*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
       proxy[].agents.del(msg.handle)
     # proxy[].trampoline.received(agent, msg.value)
     emit agent.received(msg.handle, msg.value)
+
+template send*[T, U](agent: AsyncAgent[U], req: T): AsyncKey =
+  asyncs.send(agent.proxy, agent, isolate req)

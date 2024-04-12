@@ -20,6 +20,7 @@ export asyncs
 type
   HttpRequest* = Uri
   HttpResult* = object
+    uri*: Uri
     data*: Option[string]
 
   HttpProxy* = AgentProxy[HttpRequest, HttpResult]
