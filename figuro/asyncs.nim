@@ -127,7 +127,6 @@ proc poll*[T, U](proxy: AgentProxy[T, U], maxCnt = 20) =
     let agent: AsyncAgent[U] = proxy[].agents[msg.handle]
     if not msg.continued:
       proxy[].agents.del(msg.handle)
-    # proxy[].trampoline.received(agent, msg.value)
     emit agent.received(msg.handle, msg.value)
 
 template send*[T, U](agent: AsyncAgent[U], req: T): AsyncKey =
