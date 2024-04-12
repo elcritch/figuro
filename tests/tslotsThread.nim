@@ -102,11 +102,12 @@ suite "threaded agent proxy":
     ap.add(newHttpExecutor(httpProxy))
     os.sleep(4_00)
 
-    var ha = newHttpAgent("http://example.com")
-    httpProxy.submit(ha)
+    var ha = newHttpAgent(httpProxy)
+    ha.submit(parseUri "http://first.example.com")
     # emit ha.submit()
 
     os.sleep(4_00)
+    ha.submit(parseUri "http://fake.example.com")
 
     os.sleep(4_00)
 
@@ -114,23 +115,6 @@ suite "threaded agent proxy":
     ap[].thread.joinThread()
 
     httpProxy.poll()
-
-  test "simple threading test":
-
-    let proxy = ThreadAgent.new()
-
-    var val = isolate newHttpAgent("http://example.com")
-  
-    type
-      Msg = ref object
-        msg: string
-      Test = ref object
-        obj: Msg
-
-    # proxy.send a, (137, )
-
-    connect(a, valueChanged,
-            b, setValue)
 
 
 
