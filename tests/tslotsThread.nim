@@ -102,7 +102,7 @@ suite "threaded agent proxy":
 
     var ha = newHttpAgent(httpProxy)
     discard ha.submit(HttpRequest(uri: parseUri "http://first.example.com"))
-    # emit ha.submit()
+    connect(ha, received, ha, receive)
 
     os.sleep(4_00)
     # ha.submit(parseUri "http://fake.example.com")

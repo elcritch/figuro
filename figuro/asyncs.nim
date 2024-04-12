@@ -52,11 +52,7 @@ variant Commands:
 
 proc received*[U](tp: AsyncAgent[U], key: AsyncKey, value: U) {.signal.}
 
-proc receive*[U](tp: AsyncAgent[U], key: AsyncKey, value: U) {.slot.} =
-  raise newException(Defect, "not implemented")
-
-template submit*[A, T](agent: A, req: T): AsyncKey =
-  connect(agent, received, agent, A.receive())
+template submit*[T, U](agent: AsyncAgent[U], req: T): AsyncKey =
   agent.proxy.sendMsg(agent, isolate req)
 
 type
