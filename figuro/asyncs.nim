@@ -59,6 +59,10 @@ proc receive*[U](tp: AsyncAgent[U],
                  value: U) {.slot.} =
   raise newException(Defect, "not implemented")
 
+template submit*[A, T](agent: A, req: T): AsyncKey =
+  connect(agent, received, agent, A.receive())
+  agent.proxy.sendMsg(agent, isolate req)
+
 type
   AsyncProcessorRaw* = object
     commands*: Chan[Commands]
@@ -113,7 +117,8 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
 
 proc sendMsg*[T, U](proxy: AgentProxy[T, U],
                     agent: AsyncAgent[U],
-                    val: sink Isolated[T]): AsyncKey {.raises: [KeyError, IOSelectorsException].} =
+                    val: sink Isolated[T]
+                   ): AsyncKey {.discardable, raises: [KeyError, IOSelectorsException].} =
   let rkey = initAsyncKey(agent)
   let msg = AsyncMessage[T](handle: rkey, value: val.extract())
   if rkey in proxy[].agents:
