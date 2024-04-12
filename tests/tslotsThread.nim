@@ -91,7 +91,7 @@ suite "threaded agent proxy":
       " tid: ", getThreadId(), " ", httpProxy[].trigger.repr
 
     ap.add(newHttpExecutor(httpProxy))
-    os.sleep(4_00)
+    os.sleep(1_00)
 
     type HttpHandler = ref object of Agent
 
@@ -104,10 +104,10 @@ suite "threaded agent proxy":
     hreq.connect(received, handler, receive)
     hreq.send(parseUri "http://first.example.com")
 
-    os.sleep(4_00)
+    os.sleep(1_00)
     hreq.send(parseUri "http://fake.example.com")
 
-    os.sleep(4_00)
+    os.sleep(1_00)
 
     ap.finish()
     ap[].thread.joinThread()
