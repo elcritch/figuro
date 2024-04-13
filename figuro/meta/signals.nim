@@ -2,8 +2,9 @@ import strutils, macros, options
 import std/times
 import slots
 
-import datatypes
-export datatypes
+import agents
+
+export agents
 export times
 
 proc wrapResponse*(id: AgentId, resp: RpcParams, kind = Response): AgentResponse = 
@@ -35,7 +36,8 @@ proc wrapResponseError*(
   #     for se in err.getStackTraceEntries():
   #       let file: string = rsplit($(se.filename), '/', maxsplit=1)[^1]
   #       errobj.trace.add( ($se.procname, file, se.line, ) )
-  result = wrapResponseError(id, errobj)
+
+  # result = wrapResponseError(id, errobj)
 
 proc parseError*(ss: Variant): AgentError = 
   ss.unpack(result)
@@ -159,19 +161,6 @@ macro signalType*(s: untyped): auto =
   for arg in obj[2..^1]:
     result.add arg[1]
 
-macro tryGetTypeAgentProc(slot: untyped): untyped =
-  let res = splitNamesImpl(slot)
-  if res.isNone:
-    error("can't determine slot type", slot)
-      
-  let (tp, name) = res.get()
-
-  result = quote do:
-    SignalTypes.`name`(typeof(`tp`))
-
-macro typeMismatchError(signal, slot: typed): untyped =
-  error("mismatched signal and slot type: " & repr(signal) & " != " & repr(slot), slot)
-
 proc getAgentProcTy[T](tp: AgentProcTy[T]): T =
   discard
 
@@ -243,28 +232,9 @@ template connect*(
 
   a.addAgentListeners(signalName(signal), b, agentSlot)
 
-
-
-# template connect*(
-#     a: Agent,
-#     signal: typed,
-#     b: Agent,
-#     slot: untyped
-# ) =
-#   when slot is AgentProc:
-#     static:
-#       echo "TYPE CONNECT: ", slot.typeof.repr, " ", genericParams(slot.typeof)
-#     when SignalTypes.`signal`(typeof(a)).typeof isnot
-#           tryGetTypeAgentProc(slot).typeof:
-#       typeMismatchError(signal, slot)
-#     let agentSlot: AgentProc = slot
-#   else:
-#     let agentSlot: AgentProc = `slot`(typeof(b))
-#   a.addAgentListeners(signalName(signal), b, agentSlot)
-
-proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
+proc callSlots*(obj: Agent | WeakRef[Agent], req: AgentRequest) {.gcsafe.} =
   {.cast(gcsafe).}:
-    let listeners = obj.getAgentListeners(req.procName)
+    let listeners = obj.toRef().getAgentListeners(req.procName)
 
     # echo "call slots:req: ", req.repr
     # echo "call slots:all: ", req.procName, " ", obj.agentId, " :: ", obj.listeners
@@ -284,6 +254,6 @@ proc callSlots*(obj: Agent, req: AgentRequest) {.gcsafe.} =
         else:
           discard
 
-proc emit*(call: (Agent, AgentRequest)) =
+proc emit*(call: (Agent | WeakRef[Agent], AgentRequest)) =
   let (obj, req) = call
   callSlots(obj, req)

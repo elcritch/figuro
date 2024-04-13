@@ -1,20 +1,8 @@
 import tables, strutils, typetraits, macros
 
-import datatypes
+import agents
 
-export datatypes
-# import router
-# export router
-
-proc makeProcName(s: string): string =
-  result = ""
-  for c in s:
-    if c.isAlphaNumeric: result.add c
-
-proc hasReturnType(params: NimNode): bool =
-  if params != nil and params.len > 0 and params[0] != nil and
-     params[0].kind != nnkEmpty:
-    result = true
+export agents
 
 proc firstArgument(params: NimNode): (NimNode, NimNode) =
   if params != nil and
@@ -31,52 +19,6 @@ iterator paramsIter(params: NimNode): tuple[name, ntype: NimNode] =
     let argType = arg[^2]
     for j in 0 ..< arg.len-2:
       yield (arg[j], argType)
-
-proc identPub*(name: string): NimNode =
-  result = nnkPostfix.newTree(newIdentNode("*"), ident name)
-
-proc signalTuple*(sig: NimNode): NimNode =
-  let otp = nnkEmpty.newTree()
-  # echo "signalObjRaw:sig1: ", sig.treeRepr
-  let sigTyp =
-    if sig.kind == nnkSym: sig.getTypeInst
-    else: sig.getTypeInst
-  # echo "signalObjRaw:sig2: ", sigTyp.treeRepr
-  let stp =
-    if sigTyp.kind == nnkProcTy:
-      sig.getTypeInst[0]
-    else:
-      sigTyp.params()
-  let isGeneric = false
-
-  # echo "signalObjRaw:obj: ", otp.repr
-  # echo "signalObjRaw:obj:tr: ", otp.treeRepr
-  # echo "signalObjRaw:obj:isGen: ", otp.kind == nnkBracketExpr
-  # echo "signalObjRaw:sig: ", stp.repr
-
-  var args: seq[NimNode]
-  for i in 2..<stp.len:
-    args.add stp[i]
-
-  result = nnkTupleConstr.newTree()
-  if isGeneric:
-    template genArgs(n): auto = n[1][1]
-    var genKinds: Table[string, NimNode]
-    for i in 1..<stp.genArgs.len:
-      genKinds[repr stp.genArgs[i]] = otp[i]
-    for arg in args:
-      result.add genKinds[arg[1].repr]
-  else:
-    # genKinds
-    # echo "ARGS: ", args.repr
-    for arg in args:
-      result.add arg[1]
-  # echo "ARG: ", result.repr
-  # echo ""
-  if result.len == 0:
-    # result = bindSym"void"
-    result = quote do:
-      tuple[]
 
 proc mkParamsVars(paramsIdent, paramsType, params: NimNode): NimNode =
   ## Create local variables for each parameter in the actual RPC call proc
@@ -205,17 +147,10 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     isPublic = pathStr.endsWith("*")
     isGeneric = genericParams.kind != nnkEmpty
 
-    # public rpc proc
-    # rpcSlot = ident(procNameStr & "Slot")
     rpcMethodGen = genSym(nskProc, procNameStr)
-    rpcMethodGenName = newStrLitNode repr rpcMethodGen
     procName = ident(procNameStr) # ident("agentSlot_" & rpcMethodGen.repr)
     rpcMethod = ident(procNameStr)
-    rpcSlot = ident("agentSlot_" & procNameStr)
 
-    # ctxName = ident("context")
-    # parameter type name
-    # paramsIdent = genSym(nskParam, "args")
     paramsIdent = ident("args")
     paramTypeName = ident("RpcType" & procNameStr)
 
@@ -238,7 +173,6 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     contextType = firstType
     kd = ident "kd"
     tp = ident "tp"
-    agent = ident "agent"
 
   var signalTyp = nnkTupleConstr.newTree()
   for i in 2..<params.len:
@@ -293,8 +227,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
         let `objId` = `contextType`(context)
         if `objId` == nil:
           raise newException(ConversionError, "bad cast")
-        var `paramsIdent`: `tupTyp`
         when `tupTyp` isnot tuple[]:
+          var `paramsIdent`: `tupTyp`
           rpcUnpack(`paramsIdent`, params)
         `paramSetups`
         `mcall`
@@ -317,20 +251,25 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
     var construct = nnkTupleConstr.newTree()
     for param in parameters[1..^1]:
       construct.add param[0]
+    let objId = ident"obj"
 
     result.add quote do:
-      proc `rpcMethod`(): (Agent, AgentRequest) =
+      proc `rpcMethod`(`objId`: `firstType`): (Agent, AgentRequestTy[`firstType`]) =
         let args = `construct`
-        let req = initAgentRequest(procName=`signalName`, args=args)
-        result = (obj, req)
+        let req = initAgentRequest[`firstType`, typeof(args)](procName=`signalName`, args=args, id=`objId`.getId())
+        result = (`objId`, req)
 
-    result[0][3].add nnkIdentDefs.newTree(
-      ident "obj",
-      firstType,
-      nnkEmpty.newNimNode()
-    )
     for param in parameters[1..^1]:
-      result[0][3].add param
+      result[^1][3].add param
+
+    result.add quote do:
+      proc `rpcMethod`(`objId`: WeakRef[`firstType`]): (WeakRef[Agent], AgentRequestTy[`firstType`]) =
+        let args = `construct`
+        let req = initAgentRequest[`firstType`, typeof(args)](procName=`signalName`, args=args, id=`objId`.getId())
+        result = (`objId`.asAgent(), req)
+
+    for param in parameters[1..^1]:
+      result[^1][3].add param
 
     result.add quote do:
       proc `rpcMethod`(`kd`: typedesc[SignalTypes],
@@ -346,8 +285,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.lispRepr
-  # echo "slot:repr:"
-  # echo result.repr
+  echo "slot:repr:"
+  echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)

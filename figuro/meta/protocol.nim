@@ -49,6 +49,8 @@ type
     procName*: string
     params*: RpcParams # - we handle params below
 
+  AgentRequestTy*[T] = AgentRequest
+
   AgentResponse* = object
     kind*: AgentType
     id*: int
