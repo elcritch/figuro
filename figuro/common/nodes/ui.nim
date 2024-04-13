@@ -122,8 +122,8 @@ proc hash*(a: AppFrame): Hash =
 
 proc new*[T: Figuro](tp: typedesc[T]): T =
   result = T()
-  result.agentId = nextAgentId()
-  result.uid = result.agentId
+  result.debugId = nextAgentId()
+  result.uid = result.debugId
 
 proc getName*(fig: Figuro): string =
   result = fig.name.toString()
