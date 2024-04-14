@@ -102,9 +102,14 @@ suite "threaded agent proxy":
     os.sleep(1_00)
     hreq.send(parseUri "http://fake.example.com")
 
-    os.sleep(1_00)
+    os.sleep(1_000)
 
     ap.finish()
     ap[].thread.joinThread()
 
     httpProxy.poll()
+    os.sleep(1_000)
+    httpProxy.poll()
+    os.sleep(1_000)
+    httpProxy.poll()
+    os.sleep(1_000)
