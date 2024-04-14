@@ -55,6 +55,7 @@ proc httpRequest(req: HttpRequest): Future[HttpResult] {.async.} =
     while not ar.bodyStream.finished:
       let chunk = await ar.bodyStream.read()
       if chunk[0]:
+        hadData = true
         body.add(chunk[1])
 
     result.version = ar.version
@@ -64,6 +65,7 @@ proc httpRequest(req: HttpRequest): Future[HttpResult] {.async.} =
     for k, v in ar.headers.pairs():
       result.headers[k] = @[v]
   except OSError as err:
+    echo "ERR!"
     result.error = some(err.msg.split("\n")[0])
 
 method setup*(ap: HttpExecutor) {.gcsafe.} =
