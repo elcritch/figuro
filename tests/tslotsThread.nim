@@ -91,7 +91,7 @@ suite "threaded agent proxy":
     type HttpHandler = ref object of Agent
 
     proc receive(ha: HttpHandler, key: AsyncKey, data: HttpResult) {.slot.} =
-      echo "got http result: ", data
+      echo "got http result: ", data.body
 
     let handler = HttpHandler.new()
 
@@ -100,7 +100,7 @@ suite "threaded agent proxy":
     hreq.send(parseUri "http://first.example.com")
 
     os.sleep(1_00)
-    hreq.send(parseUri "http://fake.example.com")
+    hreq.send(parseUri "http://neverssl.com")
 
     os.sleep(1_000)
 

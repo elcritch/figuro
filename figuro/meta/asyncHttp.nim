@@ -49,7 +49,7 @@ proc httpRequest(req: HttpRequest): Future[HttpResult] {.async.} =
 
   try:
     let ar = await client.request(req)
-    echo "\nARQ: ", ar.repr()
+    # echo "\nARQ: ", ar.repr()
     var hadData = false
     var body = ""
     while not ar.bodyStream.finished:
@@ -64,7 +64,6 @@ proc httpRequest(req: HttpRequest): Future[HttpResult] {.async.} =
     for k, v in ar.headers.pairs():
       result.headers[k] = @[v]
   except OSError as err:
-    echo "ERR!"
     result.error = some(err.msg.split("\n")[0])
 
 method setup*(ap: HttpExecutor) {.gcsafe.} =
@@ -79,7 +78,6 @@ method setup*(ap: HttpExecutor) {.gcsafe.} =
       proc onResult() =
         echo "HR req: "
         let val = resp.read()
-        echo "HR req:val: ", val
         let res = AsyncMessage[HttpResult](handle: msg.handle, value: val)
         ap.proxy[].outputs.send(res)
       resp.addCallback(onResult)
