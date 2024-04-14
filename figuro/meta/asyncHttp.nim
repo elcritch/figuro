@@ -6,6 +6,7 @@ import std/options
 import std/isolation
 import std/uri
 import std/asyncdispatch
+import std/[asyncdispatch, httpclient]
 
 import patty
 
@@ -21,7 +22,10 @@ type
   HttpRequest* = Uri
   HttpResult* = object
     uri*: Uri
-    data*: Option[string]
+    version*: string
+    status*: string
+    headers*: Table[string, seq[string]]
+    body*: Option[string]
 
   HttpProxy* = AgentProxy[HttpRequest, HttpResult]
 
@@ -35,15 +39,32 @@ proc newHttpExecutor*(proxy: HttpProxy): HttpExecutor =
   result = HttpExecutor()
   result.proxy = proxy
 
+proc httpRequest(req: HttpRequest): Future[HttpResult] {.async.} =
+  discard
+  var client = newAsyncHttpClient()
+  let ar = await client.request(req)
+
+  result = HttpResult(
+    uri: req,
+    version: ar.version,
+    status: ar.status,
+    # headers: ar.headers,
+    # body: ar.
+  )
+
 method setup*(ap: HttpExecutor) {.gcsafe.} =
   echo "setting up async http executor", " tid: ", getThreadId(), " trigger: ", ap.proxy[].trigger.repr 
 
   let cb = proc (fd: AsyncFD): bool {.closure.} =
     var msg: AsyncMessage[HttpRequest]
     if ap.proxy[].inputs.tryRecv(msg):
-      let resp = HttpResult(data: some($msg.value))
-      let res = AsyncMessage[HttpResult](handle: msg.handle, value: resp)
-      ap.proxy[].outputs.send(res)
+
+      let resp = httpRequest(msg.value)
+      proc onResult() =
+        let val = resp.read()
+        let res = AsyncMessage[HttpResult](handle: msg.handle, value: val)
+        ap.proxy[].outputs.send(res)
+      resp.addCallback(onResult)
 
   ap.proxy[].trigger.addEvent(cb)
 
