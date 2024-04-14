@@ -5,8 +5,9 @@ import std/os
 import std/options
 import std/isolation
 import std/uri
+import std/strutils
 import std/asyncdispatch
-import std/[asyncdispatch, httpclient]
+import std/[asyncdispatch, httpclient, asyncstreams]
 
 import patty
 
@@ -25,6 +26,7 @@ type
     version*: string
     status*: string
     headers*: Table[string, seq[string]]
+    error*: Option[string]
     body*: Option[string]
 
   HttpProxy* = AgentProxy[HttpRequest, HttpResult]
@@ -41,19 +43,29 @@ proc newHttpExecutor*(proxy: HttpProxy): HttpExecutor =
 
 proc httpRequest(req: HttpRequest): Future[HttpResult] {.async.} =
   var client = newAsyncHttpClient()
+  result = HttpResult(
+    uri: req,
+  )
+
   try:
     let ar = await client.request(req)
     echo "\nARQ: ", ar.repr()
-    result = HttpResult(
-      uri: req,
-      version: ar.version,
-      status: ar.status,
-      # body: ar.
-    )
+    var hadData = false
+    var body = ""
+    while not ar.bodyStream.finished:
+      let chunk = await ar.bodyStream.read()
+      if chunk[0]:
+        body.add(chunk[1])
+
+    result.version = ar.version
+    result.status = ar.status
+    if hadData:
+      result.body = some(body)
     for k, v in ar.headers.pairs():
       result.headers[k] = @[v]
   except OSError as err:
     echo "ERR!"
+    result.error = some(err.msg.split("\n")[0])
 
 method setup*(ap: HttpExecutor) {.gcsafe.} =
   echo "setting up async http executor", " tid: ", getThreadId(), " trigger: ", ap.proxy[].trigger.repr 
