@@ -48,9 +48,10 @@ proc httpRequest(req: HttpRequest): Future[HttpResult] {.async.} =
       uri: req,
       version: ar.version,
       status: ar.status,
-      # headers: ar.headers,
       # body: ar.
     )
+    for k, v in ar.headers.pairs():
+      result.headers[k] = @[v]
   except OSError as err:
     echo "ERR!"
 

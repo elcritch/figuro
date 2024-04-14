@@ -109,7 +109,3 @@ suite "threaded agent proxy":
 
     httpProxy.poll()
     os.sleep(1_000)
-    httpProxy.poll()
-    os.sleep(1_000)
-    httpProxy.poll()
-    os.sleep(1_000)
