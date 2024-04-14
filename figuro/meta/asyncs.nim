@@ -103,7 +103,7 @@ proc newAgentProxy*[T, U](): AgentProxy[T, U] =
 
 proc send*[T, U](
     proxy: AgentProxy[T, U], agent: AsyncAgent[U], val: sink Isolated[T]
-): AsyncKey {.discardable, raises: [KeyError, IOSelectorsException].} =
+): AsyncKey {.discardable, raises: [KeyError, OSError, IOSelectorsException].} =
   let rkey = initAsyncKey(agent)
   let msg = AsyncMessage[T](handle: rkey, value: val.extract())
   if rkey in proxy[].agents:
