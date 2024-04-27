@@ -13,3 +13,5 @@ else:
   import figuro/execApps
   export execApps
 
+when defined(macosx):
+  {.passc: "-Wno-incompatible-function-pointer-types".}
