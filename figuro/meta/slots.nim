@@ -285,8 +285,8 @@ macro rpcImpl*(p: untyped, publish: untyped, qarg: untyped): untyped =
 
   # echo "slot: "
   # echo result.lispRepr
-  echo "slot:repr:"
-  echo result.repr
+  # echo "slot:repr:"
+  # echo result.repr
 
 template slot*(p: untyped): untyped =
   rpcImpl(p, nil, nil)
