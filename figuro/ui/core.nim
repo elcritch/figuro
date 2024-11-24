@@ -286,8 +286,14 @@ template new*[F: ref object](
     when stripGenericParams(t).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
       widget[t[tuple[]]](nkRectangle, name, blk)
+    elif stripGenericParams(t).typeof().arity() == 3:
+      # partial generic, we'll provide empty tuple
+      widget[t[tuple[], tuple[]]](nkRectangle, name, blk)
+    elif stripGenericParams(t).typeof().arity() == 4:
+      # partial generic, we'll provide empty tuple
+      widget[t[tuple[], tuple[], tuple[]]](nkRectangle, name, blk)
     else:
-      {.error: "only 1 generic params or less is supported".}
+      {.error: "only 3 generic params or less is supported".}
   else:
     # fully typed generics
     widget[t](nkRectangle, name, blk)
