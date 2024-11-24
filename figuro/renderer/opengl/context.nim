@@ -113,7 +113,7 @@ proc newContext*(
 
   result.addMaskTexture()
 
-  when defined(emscripten):
+  when defined(emscripten) or defined(useOpenGlEs):
     result.atlasShader = newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/atlas.frag")
     result.maskShader = newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/mask.frag")
   else:
