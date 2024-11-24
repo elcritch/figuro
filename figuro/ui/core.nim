@@ -280,6 +280,8 @@ template setupWidget(
 ): auto =
   ## sets up a new instance of a widget
   block:
+    static:
+      echo "setupWidget: widgetType: ", widgetType.repr
     when not compiles(`parentName`.typeof):
       {.error: "no `node` variable defined in the current scope!".}
     let parent {.inject.}: Figuro = `parentName`
@@ -360,6 +362,8 @@ template widget*[T, U](blk: untyped): auto =
               (), node, blk)
 
 template new*[F](t: typedesc[F], name: string = "node", blk: untyped): auto =
+  static:
+    echo "new widget: ", repr(t)
   when t.arity() in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
     widget[F, NonGenericType](blk)
@@ -367,12 +371,12 @@ template new*[F](t: typedesc[F], name: string = "node", blk: untyped): auto =
     # partial generics, these are generics that aren't specified
     when stripGenericParams(t).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widget[stripGenericParams(t), (tuple[], )](blk)
+      widget[t[tuple[]], (tuple[], )](blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widget[stripGenericParams(t), genericParams(F)](blk)
+    widget[t, genericParams(t)](blk)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,
