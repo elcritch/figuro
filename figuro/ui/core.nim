@@ -285,57 +285,6 @@ template setupWidget(
     when `hasBinds`:
       node
 
-proc generateBodies*(widget, kind, gtype: NimNode,
-                     wargs: WidgetArgs,
-                     hasGeneric: bool,
-                     ): NimNode {.compileTime.} =
-  ## core macro helper that generates the drawing
-  ## callbacks for widgets.
-  let (id, _, parentArg, bindsArg, capturedVals, blk) = wargs
-  let hasCaptures = newLit(not capturedVals.isNil)
-  # let hasBinds = newLit(not bindsArg.isNil)
-  let stateArg = gtype
-
-  echo "widget: ", widget.treeRepr
-  echo "stateArg: ", stateArg.treeRepr
-  let widgetType =
-    if not hasGeneric: quote do: `widget`
-    else: quote do: `widget`[`stateArg`]
-  echo "widgetType: ", widgetType.treeRepr
-
-  var hasBinds = newLit(false)
-  echo "BIND: ", blk[^1].kind, " ", blk[^1][0].repr
-  if blk.len() > 1 and
-      blk[^1].kind == nnkAsgn and
-      blk[^1].repr == "result = node":
-    echo "BIND: ing: "
-    blk[^1] = quote do:
-      discard node
-    hasBinds = newLit(true)
-  
-  result = quote do:
-      setupWidget(`widgetType`, `kind`, `id`,
-                `hasCaptures`, `hasBinds`,
-                `capturedVals`, `parentArg`, `blk`)
-
-macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
-  ## creates a widget block for a given widget
-  let widget = class.getTypeInst()
-  echo "widgetImpl: ", gclass.getTypeInst().treeRepr
-  let subtype = gclass.getTypeInst()
-  let wargs = args.parseWidgetArgs()
-  let (hasGeneric, wtype, gtype) =
-    if widget.kind == nnkBracketExpr:
-      (true, widget[0].getTypeInst(), widget[1].getTypeInst())
-    elif gclass != nil and subtype.repr != "NonGenericType":
-      (true, widget.getTypeInst(), gclass.getTypeInst())
-    else:
-      (false, widget.getTypeInst(), nil)
-  echo "hasGen: ", hasGeneric, " wtype: ", wtype.repr, " gtype: ", gtype.repr
-  result = generateBodies(wtype, ident "nkRectangle", gtype,
-                          wargs, hasGeneric)
-  echo "widgetImpl:\n", result.repr
-
 template widget*[T](nkind: NodeKind = nkRectangle, blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
