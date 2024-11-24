@@ -157,11 +157,11 @@ It's possible to manually create nodes, but it's not encouraged. Although it can
 proc draw*(self: Main) {.slot.} =
   var node = self
   block: # rectangle
-    let parent {.inject.}: Figuro = node
-    var node {.inject.}: `widgetType` = nil
+    let parent: Figuro = node
+    var node: BasicFiguro = nil
     preNode(BasicFiguro, "body", node, parent)
     node.preDraw = proc (c: Figuro) =
-      let node {.inject.} = `widgetType`(c)
+      let node {.inject.} = BasicFiguro(c)
       ...
       # sets the bounding box of this node
       box node, 10'ux, 10'ux, 600'ux, 120'ux
