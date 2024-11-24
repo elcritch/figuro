@@ -15,6 +15,7 @@ type
 
 proc update*(fig: Main) {.signal.}
 
+
 proc btnTick*(self: Button[int]) {.slot.} =
   ## slot to increment a button on every tick 
   self.state.inc

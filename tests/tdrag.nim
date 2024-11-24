@@ -56,7 +56,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: "drag me"})
 
-  buttonOf[FadeAnimation] "btn", parent=self:
+  Button[FadeAnimation].new "btn", parent=self:
     echo "button:id: ", node.getId, " ", node.state.typeof
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux

@@ -42,12 +42,6 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: "drag me"})
 
-  rectangle "btnBody", parent=self:
-    with node:
-      box 200'ux, 30'ux, 80'ux, 80'ux
-      fill css"#9F2B00"
-      connect(doDrag, node, btnDrag)
-
 var main = Main.new()
 let frame = newAppFrame(main, size=(400'ui, 140'ui))
 startFiguro(frame)
