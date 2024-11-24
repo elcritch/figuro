@@ -26,4 +26,4 @@ template new*[F: Text](
     name: string,
     blk: untyped
 ): auto =
-  widget[t](nkText, blk)
+  widget[t](nkText, name, blk)

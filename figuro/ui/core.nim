@@ -285,7 +285,7 @@ template setupWidget(
     when `hasBinds`:
       node
 
-template widget*[T](nkind: NodeKind = nkRectangle, blk: untyped): auto =
+template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
   ## The args can include:
@@ -294,7 +294,7 @@ template widget*[T](nkind: NodeKind = nkRectangle, blk: untyped): auto =
   ##
   # widgetImpl(T, U, args)
   expandMacros:
-    setupWidget(T, nkind, "test",
+    setupWidget(T, nkind, name,
               false, false,
               (), node, blk)
 
@@ -305,17 +305,17 @@ template new*[F: ref object](
 ): auto =
   when t.arity() in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widget[t](nkRectangle, blk)
+    widget[t](nkRectangle, name, blk)
   elif t.arity() == stripGenericParams(t).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(t).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widget[t[tuple[]]](nkRectangle, blk)
+      widget[t[tuple[]]](nkRectangle, name, blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widget[t](nkRectangle, blk)
+    widget[t](nkRectangle, name, blk)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,
@@ -373,12 +373,6 @@ macro expose*(args: untyped): untyped =
         # echo "WID: args:post:\n", result.repr
   else:
     result = args
-
-macro nodeImpl*(kind: NodeKind, args: varargs[untyped]): untyped =
-  ## Base template for node, frame, rectangle...
-  let widget = ident("BasicFiguro")
-  let wargs = args.parseWidgetArgs()
-  result = widget.generateBodies(kind, nil, wargs, hasGeneric=false)
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
