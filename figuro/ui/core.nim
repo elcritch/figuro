@@ -256,27 +256,15 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-type
-  NonGenericType = distinct void
-  EmptyType = distinct tuple[]
-
-macro hasGenericTypes*(n: typed): bool =
-  ## check is a given type is generic
-  var hasGenerics = true
-  if n.kind == nnkBracketExpr:
-    hasGenerics = true
-  else:
-    let impl = n.getImpl()
-    hasGenerics = impl[1].len() > 0
-  return newLit(hasGenerics)
-
 template setupWidget(
-    `widgetType`,`kind`, `id`;
-    `hasCaptures`,
-    `hasBinds`;
-    `capturedVals`,
-    `parentName`;
-    `blk`
+    widgetType,
+    nkind,
+    id;
+    hasCaptures,
+    hasBinds;
+    capturedVals,
+    parentName;
+    blk
 ): auto =
   ## sets up a new instance of a widget
   block:
@@ -286,7 +274,7 @@ template setupWidget(
       {.error: "no `node` variable defined in the current scope!".}
     let parent {.inject.}: Figuro = `parentName`
     var node {.inject.}: `widgetType` = nil
-    preNode(`kind`, `id`, node, parent)
+    preNode(`nkind`, `id`, node, parent)
     node.preDraw = proc (c: Figuro) =
       let node  {.inject.} = ## implicit variable in each widget block that references the current widget
         `widgetType`(c)
@@ -387,37 +375,15 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## the exported widget template can take standard widget args
   ## that `widget` can.
   ##
-  when class.hasGenericTypes():
-    template `name Of`*[U](args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T[U]`
-      ## creating a new Figuro node. This supports generic
-      ## widgets like `Button` which subtype `StatefulWidget[T]`.
-      ## 
-      ## Behind the scenes this creates a new block
-      ## with new `node` and `parent` variables.
-      ## The `node` variable becomes the new widget
-      ## instance.
-      widget[`T`, U](args)
-
-    template `name`*(args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T`
-      ## creating a new Figuro node.
-      ## 
-      ## Behind the scenes this creates a new block
-      ## with new `node` and `parent` variables.
-      ## The `node` variable becomes the new widget
-      ## instance.
-      widget[`T`, EmptyType](args)
-  else:
-    template `name`*(args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T`
-      ## creating a new Figuro node.
-      ##
-      ## Behind the scenes this creates a new block
-      ## with new `node` and `parent` variables.
-      ## The `node` variable becomes the new widget
-      ## instance.
-      widget[`T`, NonGenericType](args)
+  template `name`*(args: varargs[untyped]): auto =
+    ## Instantiate a widget block for a given widget `T`
+    ## creating a new Figuro node.
+    ##
+    ## Behind the scenes this creates a new block
+    ## with new `node` and `parent` variables.
+    ## The `node` variable becomes the new widget
+    ## instance.
+    widget[`T`](nkRectangle, args)
 
 {.hint[Name]:off.}
 template TemplateContents*[T](fig: T): untyped =
