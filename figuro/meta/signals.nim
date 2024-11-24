@@ -120,8 +120,8 @@ proc getSignalName*(signal: NimNode): NimNode =
     result = newStrLitNode signal.strVal
     # echo "getSignalName:result: ", result.treeRepr
 
-macro signalName*(signal: untyped): untyped =
-  result = getSignalName(signal)
+macro signalName*(signal: untyped): string =
+  getSignalName(signal)
 
 proc splitNamesImpl(slot: NimNode): Option[(NimNode, NimNode)] =
   # echo "splitNamesImpl: ", slot.treeRepr
@@ -161,7 +161,7 @@ macro signalType*(s: untyped): auto =
   for arg in obj[2..^1]:
     result.add arg[1]
 
-proc getAgentProcTy[T](tp: AgentProcTy[T]): T =
+proc getAgentProcTy*[T](tp: AgentProcTy[T]): T =
   discard
 
 template connect*[T](
@@ -170,7 +170,7 @@ template connect*[T](
     b: Agent,
     slot: Signal[T],
     acceptVoidSlot: static bool = false,
-) =
+): void =
   ## sets up `b` to recieve events from `a`. Both `a` and `b`
   ## must subtype `Agent`. The `signal` must be a signal proc, 
   ## while `slot` must be a slot proc.
@@ -196,8 +196,8 @@ template connect*[T](
               b, setValue)
       emit a.valueChanged(137) #=> prints "setValue! 137"
 
-  let agentSlot = slot
-  # static:
+  # let agentSlot: Signal[T] = slot
+  # # static:
   block:
     ## statically verify signal / slot types match
     # echo "TYP: ", repr typeof(SignalTypes.`signal`(typeof(a)))
@@ -207,7 +207,7 @@ template connect*[T](
       discard
     else:
       signalType = slotType
-  a.addAgentListeners(signalName(signal), b, agentSlot)
+  a.addAgentListeners(signalName(signal), b, slot)
 
 template connect*(
     a: Agent,
@@ -215,7 +215,7 @@ template connect*(
     b: Agent,
     slot: typed,
     acceptVoidSlot: static bool = false,
-) =
+): void =
   let agentSlot = `slot`(typeof(b))
   block:
     ## statically verify signal / slot types match

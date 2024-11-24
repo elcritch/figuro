@@ -7,6 +7,7 @@ import figuro/widget
 import figuro
 
 import std/sugar
+import std/macros
 
 type
   Main* = ref object of Figuro
@@ -15,7 +16,9 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
+  echo "hover: ", kind
   refresh(self)
+
 
 proc draw*(self: Main) {.slot.} =
   var node = self
@@ -34,7 +37,6 @@ proc draw*(self: Main) {.slot.} =
           offset 10'ux, 10'ux
           itemHeight cx"max-content"
         for idx in 0 .. 15:
-          capture idx:
             Button.new "button":
               # current.gridItem = nil
               with node:
@@ -42,7 +44,7 @@ proc draw*(self: Main) {.slot.} =
                 fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*50)
               if idx in [3, 7]:
                 node.size 0.9'fr, 120'ux
-              # node.connect(doHover, self, Main.hover)
+              connect(node, doHover, self, Main.hover)
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(600'ui, 480'ui))

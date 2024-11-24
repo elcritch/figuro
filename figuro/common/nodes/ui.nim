@@ -223,7 +223,7 @@ template connect*(
     b: Figuro,
     slot: typed,
     acceptVoidSlot: static bool = false,
-) =
+): void =
   ## template override
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}
