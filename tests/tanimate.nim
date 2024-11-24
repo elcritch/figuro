@@ -5,6 +5,8 @@ import figuro/widgets/button
 import figuro/widget
 import figuro
 
+import std/sugar
+
 type
   Main* = ref object of Figuro
     value: float
@@ -19,17 +21,18 @@ proc draw*(self: Main) {.slot.} =
     box node, 0'ui, 0'ui, 620'ui, 140'ui
     let j = 1
     for i in 0 .. 5:
-      Button.new "btn", captures=[i,j]:
-        let value = self.value
-        fill node, css"#AA0000"
-        node.onHover:
-          fill node, css"#F00000"
-        box node,
-            ux(20 + (i.toFloat + value) * 120),
-            ux(30 + 20 * sin(value + i.toFloat)),
-            60'ui, 60'ui
-        if i == 0:
-          node.fill.a = value * 1.0
+      Button.new "btn":
+        capture i, j:
+          let value = self.value
+          fill node, css"#AA0000"
+          node.onHover:
+            fill node, css"#F00000"
+          box node,
+              ux(20 + (i.toFloat + value) * 120),
+              ux(30 + 20 * sin(value + i.toFloat)),
+              60'ui, 60'ui
+          if i == 0:
+            node.fill.a = value * 1.0
 
 var fig = Main.new()
 

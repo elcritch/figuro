@@ -4,6 +4,8 @@ import figuro/widgets/[button, basics]
 import figuro/widget
 import figuro
 
+import std/sugar
+
 type
   Main* = ref object of Figuro
     value: float
@@ -24,10 +26,12 @@ proc draw*(self: Main) {.slot.} =
         box 10'pp, 60'pp, 80'pp, 10'pp
         fill css"#2B9FEA"
 
-    Button.new "btn":
-      with node:
-        box 10'pp, 10'pp, 80'pp, 10'pp
-        fill css"#2B9FEA"
+    for i in 1..2:
+      capture i:
+        Button.new "btn":
+          with node:
+            box 10'pp, UICoord(40 * i + 10), 80'pp, 10'pp
+            fill css"#2B9FEA"
 
 
 var main = Main.new()

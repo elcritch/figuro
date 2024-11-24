@@ -361,9 +361,11 @@ template widget*[T, U](blk: untyped): auto =
               false, false,
               (), node, blk)
 
-template new*[F](t: typedesc[F], name: string = "node", blk: untyped): auto =
-  static:
-    echo "new widget: ", repr(t)
+template new*[F: ref object](
+    t: typedesc[F],
+    name: string,
+    blk: untyped
+): auto =
   when t.arity() in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
     widget[F, NonGenericType](blk)
