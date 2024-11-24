@@ -18,8 +18,6 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
-import pretty
-
 proc draw*(self: Main) {.slot.} =
   var node = self
   rectangle "main":
