@@ -68,34 +68,6 @@ type
     fsJustifyItems
     fsAlignItems
 
-  FidgetConstraint* = enum
-    cMin
-    cMax
-    cScale
-    cStretch
-    cCenter
-
-  HAlign* = enum
-    hLeft
-    hCenter
-    hRight
-
-  VAlign* = enum
-    vTop
-    vCenter
-    vBottom
-
-  TextAutoResize* = enum
-    ## Should text element resize and how.
-    tsNone
-    tsWidthAndHeight
-    tsHeight
-
-  BorderStyle* = object
-    ## What kind of border.
-    # color*: Color
-    width*: float32
-
   ShadowStyle* = enum
     ## Supports drop and inner shadows.
     DropShadow
