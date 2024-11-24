@@ -48,8 +48,12 @@ type
     shadowSet
 
   FieldSet* = enum
-    # style attributes
-    # todo: this is hacky, but efficient
+    ## For tracking which fields have been set by the widget user code.
+    ## 
+    ## An example is setting `fill` in a button's code. We want this
+    ## to override any defaults the widget itself my later set.
+    ## 
+    ## TODO: this is hacky, but efficient
     fsZLevel
     fsRotation
     fsCornerRadius
