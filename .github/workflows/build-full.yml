@@ -43,4 +43,4 @@ jobs:
 
     - name: Build Tests
       run: |
-        nimble test
+        nim test
