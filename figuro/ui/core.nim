@@ -278,6 +278,13 @@ template new*[F: ref object](
     name: string,
     blk: untyped
 ): auto =
+  ## Sets up a new widget instance and fills in
+  ## `tuple[]` for missing generics of the widget type.
+  ## 
+  ## E.g. if you have a `Button[T]` and you call
+  ## `Button.new` this template will change it to
+  ## `Button[tuple[]].new`.
+  ## 
   when arity(t) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
     widget[t](nkRectangle, name, blk)
@@ -286,14 +293,8 @@ template new*[F: ref object](
     when stripGenericParams(t).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
       widget[t[tuple[]]](nkRectangle, name, blk)
-    elif stripGenericParams(t).typeof().arity() == 3:
-      # partial generic, we'll provide empty tuple
-      widget[t[tuple[], tuple[]]](nkRectangle, name, blk)
-    elif stripGenericParams(t).typeof().arity() == 4:
-      # partial generic, we'll provide empty tuple
-      widget[t[tuple[], tuple[], tuple[]]](nkRectangle, name, blk)
     else:
-      {.error: "only 3 generic params or less is supported".}
+      {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
     widget[t](nkRectangle, name, blk)
