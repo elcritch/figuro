@@ -256,35 +256,6 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-template setupWidget(
-    widgetType,
-    nkind,
-    id;
-    hasCaptures,
-    hasBinds;
-    capturedVals,
-    parentName;
-    blk
-): auto =
-  ## sets up a new instance of a widget
-  block:
-    static:
-      echo "setupWidget: widgetType: ", widgetType.repr
-    when not compiles(`parentName`.typeof):
-      {.error: "no `node` variable defined in the current scope!".}
-    let parent {.inject.}: Figuro = `parentName`
-    var node {.inject.}: `widgetType` = nil
-    preNode(`nkind`, `id`, node, parent)
-    node.preDraw = proc (c: Figuro) =
-      let node  {.inject.} = ## implicit variable in each widget block that references the current widget
-        `widgetType`(c)
-      if preDrawReady in node.attrs:
-        node.attrs.excl preDrawReady
-        `blk`
-    postNode(Figuro(node))
-    when `hasBinds`:
-      node
-
 template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
@@ -294,9 +265,20 @@ template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): 
   ##
   # widgetImpl(T, U, args)
   expandMacros:
-    setupWidget(T, nkind, name,
-              false, false,
-              (), node, blk)
+    ## sets up a new instance of a widget
+    block:
+      when not compiles(node.typeof):
+        {.error: "no `node` variable defined in the current scope!".}
+      let parent {.inject.}: Figuro = `node`
+      var node {.inject.}: `T` = nil
+      preNode(`nkind`, `name`, node, parent)
+      node.preDraw = proc (c: Figuro) =
+        let node  {.inject.} = ## implicit variable in each widget block that references the current widget
+          `T`(c)
+        if preDrawReady in node.attrs:
+          node.attrs.excl preDrawReady
+          `blk`
+      postNode(Figuro(node))
 
 template new*[F: ref object](
     t: typedesc[F],
