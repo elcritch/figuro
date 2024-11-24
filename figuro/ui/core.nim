@@ -348,7 +348,7 @@ macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
                           wargs, hasGeneric)
   echo "widgetImpl:\n", result.repr
 
-template widget*[T, U](blk: untyped): auto =
+template widget*[T](nkind: NodeKind = nkRectangle, blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
   ## The args can include:
@@ -357,7 +357,7 @@ template widget*[T, U](blk: untyped): auto =
   ##
   # widgetImpl(T, U, args)
   expandMacros:
-    setupWidget(T, nkRectangle, "test",
+    setupWidget(T, nkind, "test",
               false, false,
               (), node, blk)
 
@@ -368,17 +368,17 @@ template new*[F: ref object](
 ): auto =
   when t.arity() in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widget[F, NonGenericType](blk)
+    widget[t](nkRectangle, blk)
   elif t.arity() == stripGenericParams(t).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(t).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widget[t[tuple[]], (tuple[], )](blk)
+      widget[t[tuple[]]](nkRectangle, blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widget[t, genericParams(t)](blk)
+    widget[t](nkRectangle, blk)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,

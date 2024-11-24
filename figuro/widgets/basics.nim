@@ -20,3 +20,10 @@ proc draw*(self: Text) {.slot.} =
   self.kind = nkText
 
 # exportWidget(basicText, Text)
+
+template new*[F: Text](
+    t: typedesc[F],
+    name: string,
+    blk: untyped
+): auto =
+  widget[t](nkText, blk)

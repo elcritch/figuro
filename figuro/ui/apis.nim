@@ -7,8 +7,11 @@ import std/[hashes]
 
 import commons, core
 
+from std/sugar import capture
+
 export core, cssgrid, stack_strings
 export with
+export capture
 
 # template nodes*[T](fig: T, blk: untyped): untyped =
 #   ## begin drawing nodes

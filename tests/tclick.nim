@@ -1,7 +1,9 @@
-import figuro/widgets/[button, horizontal, basics]
+import figuro/widgets/[basics, button, horizontal, basics]
 import figuro/widget
 import figuro/ui/animations
 import figuro
+
+import std/sugar
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
@@ -61,20 +63,20 @@ proc draw*(self: Main) {.slot.} =
         itemWidth 100'ux, gap = 20'ui
         layoutItems justify=CxCenter, align=CxCenter
 
-      for i in 0 .. 4:
-        Button[int].new("btn", captures=i):
-          let btn = node
-          with node:
-            size 100'ux, 100'ux
-            cornerRadius 5.0
-            connect(doHover, self, btnHover)
-            connect(doClick, node, btnClicked)
-          if i == 0:
-            connect(self, update, node, btnTick)
-          Text.new "text":
+      for idx in 0 .. 4:
+          Button[int].new("btn"):
+            let btn = node
             with node:
-              fill blackColor
-              setText({font: $(btn.state)}, Center, Middle)
+              size 100'ux, 100'ux
+              cornerRadius 5.0
+              connect(doHover, self, btnHover)
+              connect(doClick, node, btnClicked)
+            if idx == 0:
+              connect(self, update, node, btnTick)
+            Text.new "text":
+              with node:
+                fill blackColor
+                setText({font: $(btn.state)}, Center, Middle)
 
 
 proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
