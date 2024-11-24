@@ -259,26 +259,19 @@ import utils, macros, typetraits
 template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
-  ## The args can include:
-  ## - `captures(...)` captures a variable similar to the stdlib `capture` macro
-  ## - `state(U)` sets state type for Stateful widgets
-  ##
-  # widgetImpl(T, U, args)
-  expandMacros:
-    ## sets up a new instance of a widget
-    block:
-      when not compiles(node.typeof):
-        {.error: "no `node` variable defined in the current scope!".}
-      let parent {.inject.}: Figuro = `node`
-      var node {.inject.}: `T` = nil
-      preNode(`nkind`, `name`, node, parent)
-      node.preDraw = proc (c: Figuro) =
-        let node  {.inject.} = ## implicit variable in each widget block that references the current widget
-          `T`(c)
-        if preDrawReady in node.attrs:
-          node.attrs.excl preDrawReady
-          `blk`
-      postNode(Figuro(node))
+  block:
+    when not compiles(node.typeof):
+      {.error: "no `node` variable defined in the current scope!".}
+    let parent {.inject.}: Figuro = `node`
+    var node {.inject.}: `T` = nil
+    preNode(`nkind`, `name`, node, parent)
+    node.preDraw = proc (c: Figuro) =
+      let node  {.inject.} = ## implicit variable in each widget block that references the current widget
+        `T`(c)
+      if preDrawReady in node.attrs:
+        node.attrs.excl preDrawReady
+        `blk`
+    postNode(Figuro(node))
 
 template new*[F: ref object](
     t: typedesc[F],
