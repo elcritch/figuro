@@ -89,13 +89,13 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 #   ## Note: Experimental!
 #   nodeImpl(nkDrawable, id, inner)
 
-template rectangle*(id: string, args: untyped): auto =
+template rectangle*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.
-  widget[BasicFiguro](nkRectangle, id, args)
+  widget[BasicFiguro](nkRectangle, name, blk)
 
-template text*(id: string, inner: untyped): auto =
+template text*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.
-  widget[BasicFiguro](nkText, id, args)
+  widget[BasicFiguro](nkText, name, blk)
 
 ## ---------------------------------------------
 ##             Fidget Node APIs

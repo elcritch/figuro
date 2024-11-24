@@ -32,14 +32,15 @@ proc draw*(self: Main) {.slot.} =
           offset 10'ux, 10'ux
           itemHeight cx"max-content"
         for i in 0 .. 15:
-          Button.new "button", captures=[i]:
-            # current.gridItem = nil
-            with node:
-              size 1'fr, 50'ux
-              fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
-            if i in [3, 7]:
-              node.size 0.9'fr, 120'ux
-            node.connect(doHover, self, Main.hover)
+          capture i:
+            Button.new "button":
+              # current.gridItem = nil
+              with node:
+                size 1'fr, 50'ux
+                fill rgba(66, 177, 44, 197).to(Color).spin(i.toFloat*50)
+              if i in [3, 7]:
+                node.size 0.9'fr, 120'ux
+              node.connect(doHover, self, Main.hover)
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(600'ui, 480'ui))
