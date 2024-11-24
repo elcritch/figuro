@@ -89,7 +89,7 @@ proc removeExtraChildren*(node: Figuro) =
   node.children.setLen(node.diffIndex)
 
 proc refresh*(node: Figuro) =
-  ## Request the screen be redrawn
+  ## Request that the node and it's children be redrawn
   if node == nil:
     return
   # app.requestedFrame.inc
