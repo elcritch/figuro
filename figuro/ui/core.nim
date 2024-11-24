@@ -401,8 +401,8 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
 
 {.hint[Name]:off.}
 template TemplateContents*[T](fig: T): untyped =
-  ## marks where the widget will callback for any `contents`
-  ## useful
+  ## marks where the widget will put any child `content`
+  ## which is comparable to html template and child slots.
   if fig.contentsDraw != nil:
     fig.contentsDraw(node, Figuro(fig))
 {.hint[Name]:on.}

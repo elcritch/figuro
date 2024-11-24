@@ -1,10 +1,8 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/button
+import figuro/widgets/[button, basics]
 import figuro/widget
 import figuro
-
-import std/with
 
 type
   Main* = ref object of Figuro
@@ -15,13 +13,13 @@ type
 
 proc draw*(self: Main) {.slot.} =
   var node = self
-  rectangle "body":
+  Rectangle.new "body":
     with node:
       fill css"#D0D0D0"
       box 10'pp, 10'pp, 80'pp, 80'pp
       cornerRadius 10.0'ui
 
-    button "btn":
+    Button.new "btn":
       with node:
         box 10'pp, 10'pp, 80'pp, 10'pp
         fill css"#2B9FEA"
