@@ -1,5 +1,4 @@
-import figuro/widgets/button
-import figuro/widgets/horizontal
+import figuro/widgets/[button, horizontal, basics]
 import figuro/widget
 import figuro/ui/animations
 import figuro
@@ -45,7 +44,7 @@ proc draw*(self: Main) {.slot.} =
 
   # Calls the widget template `rectangle`.
   # This creates a new basic widget node. Generally used to draw generic rectangles.
-  rectangle "body":
+  Rectangle.new "body":
     with node:
       # sets the bounding box of this node
       box 10'ux, 10'ux, 600'ux, 120'ux
@@ -72,8 +71,7 @@ proc draw*(self: Main) {.slot.} =
             connect(doClick, node, btnClicked)
           if i == 0:
             connect(self, update, node, btnTick)
-
-          text "text":
+          Text.new "text":
             with node:
               fill blackColor
               setText({font: $(btn.state)}, Center, Middle)

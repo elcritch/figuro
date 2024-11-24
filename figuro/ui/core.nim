@@ -209,7 +209,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
     {.hint[CondTrue]:off.}
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
-      node = T.new()
+      node = T.newFiguro()
       # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
       parent.children[parent.diffIndex] = node
     else:
@@ -271,9 +271,11 @@ macro hasGenericTypes*(n: typed): bool =
   return newLit(hasGenerics)
 
 template setupWidget(
-    `widgetType`, `kind`, `id`;
-    `hasCaptures`, `hasBinds`;
-    `capturedVals`, `parentName`;
+    `widgetType`,`kind`, `id`;
+    `hasCaptures`,
+    `hasBinds`;
+    `capturedVals`,
+    `parentName`;
     `blk`
 ): auto =
   ## sets up a new instance of a widget
@@ -283,13 +285,12 @@ template setupWidget(
     let parent {.inject.}: Figuro = `parentName`
     var node {.inject.}: `widgetType` = nil
     preNode(`kind`, `id`, node, parent)
-    wrapCaptures(`hasCaptures`, `capturedVals`):
-      node.preDraw = proc (c: Figuro) =
-        let node  {.inject.} = ## implicit variable in each widget block that references the current widget
-          `widgetType`(c)
-        if preDrawReady in node.attrs:
-          node.attrs.excl preDrawReady
-          `blk`
+    node.preDraw = proc (c: Figuro) =
+      let node  {.inject.} = ## implicit variable in each widget block that references the current widget
+        `widgetType`(c)
+      if preDrawReady in node.attrs:
+        node.attrs.excl preDrawReady
+        `blk`
     postNode(Figuro(node))
     when `hasBinds`:
       node
@@ -345,20 +346,33 @@ macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
                           wargs, hasGeneric)
   echo "widgetImpl:\n", result.repr
 
-template widget*[T, U](args: varargs[untyped]): auto =
+template widget*[T, U](blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
   ## The args can include:
   ## - `captures(...)` captures a variable similar to the stdlib `capture` macro
   ## - `state(U)` sets state type for Stateful widgets
   ##
-  widgetImpl(T, U, args)
+  # widgetImpl(T, U, args)
+  expandMacros:
+    setupWidget(T, nkRectangle, "test",
+              false, false,
+              (), node, blk)
 
-template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
-  when t.hasGenericTypes():
-    widget[F, tuple[]](args)
+template new*[F](t: typedesc[F], name: string = "node", blk: untyped): auto =
+  when t.arity() in [0, 1]:
+    # non-generic type, note that arity(ref object) == 1
+    widget[F, NonGenericType](blk)
+  elif t.arity() == stripGenericParams(t).typeof().arity():
+    # partial generics, these are generics that aren't specified
+    when stripGenericParams(t).typeof().arity() == 2:
+      # partial generic, we'll provide empty tuple
+      widget[stripGenericParams(t), (tuple[], )](blk)
+    else:
+      {.error: "only 1 generic params or less is supported".}
   else:
-    widget[F, NonGenericType](args)
+    # fully typed generics
+    widget[stripGenericParams(t), genericParams(F)](blk)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,

@@ -18,7 +18,7 @@ proc draw*(self: Main) {.slot.} =
   var node = self
   node.setName "root"
 
-  let vert = vertical "vert":
+  let vert = Vertical.new "vert":
     with node:
       fill whiteColor.darken(0.5)
       offset 30'ux, 10'ux
