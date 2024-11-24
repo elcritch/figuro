@@ -24,11 +24,11 @@ jobs:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Install Atlas
+    - name: Install Nimble
       run: |
+        nimble install nimble
         nim -v
         nimble -v
-        nimble install 'https://github.com/nim-lang/atlas@#78b6814a05ec1b18eef388c7336f583eb6e9993f'
 
     - name: Cache packages
       uses: actions/cache@v3
@@ -39,9 +39,8 @@ jobs:
     - name: Install Deps
       run: |
         # sync deps
-        atlas replay --cfgHere --ignoreUrls atlas.lock
-        cat nim.cfg
+        nimble install -d --verbose
 
     - name: Build Tests
       run: |
-        nim test
+        nimble test
