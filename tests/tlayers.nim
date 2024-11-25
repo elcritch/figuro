@@ -41,18 +41,18 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({font: "not clipped"})
 
-    button "btn":
+    Button.new "btn":
       with node:
         box 10'pp, 15'pp, 130'pp, 20'pp
         zlevel 20.ZLevel
         setLabel(node.zlevel, left=true)
 
-    button "btn":
+    Button.new "btn":
       with node:
         box 10'pp, 45'pp, 130'pp, 20'pp
         setLabel(node.zlevel, left=true)
 
-    button "btn":
+    Button.new "btn":
       with node:
         box 10'pp, 75'pp, 130'pp, 20'pp
         zlevel -5.ZLevel
@@ -70,18 +70,18 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({font: "clipped"})
 
-    button "btn":
+    Button.new "btn":
       with node:
         box 10'pp, 15'pp, 130'pp, 20'pp
         zlevel 20.ZLevel
         setLabel(node.zlevel, left=true)
 
-    button "btn":
+    Button.new "btn":
       with node:
         box 10'pp, 45'pp, 130'pp, 20'pp
         setLabel(node.zlevel, left=true)
 
-    button "btn":
+    Button.new "btn":
       with node:
         box 10'pp, 75'pp, 130'pp, 20'pp
         zlevel -5.ZLevel
