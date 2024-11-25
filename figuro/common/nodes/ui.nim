@@ -120,7 +120,7 @@ template toRef*(fig: FiguroWeakRef): auto =
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
 
-proc new*[T: Figuro](tp: typedesc[T]): T =
+proc newFiguro*[T: Figuro](tp: typedesc[T]): T =
   result = T()
   result.debugId = nextAgentId()
   result.uid = result.debugId
@@ -223,7 +223,7 @@ template connect*(
     b: Figuro,
     slot: typed,
     acceptVoidSlot: static bool = false,
-) =
+): void =
   ## template override
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}

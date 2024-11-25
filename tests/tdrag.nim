@@ -43,7 +43,8 @@ proc draw*(self: Main) {.slot.} =
     fill css"#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
 
-  rectangle "btn", parent=self:
+  let node = self
+  rectangle "btn":
     with node:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
@@ -56,7 +57,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: "drag me"})
 
-  Button[FadeAnimation].new "btn", parent=self:
+  Button[FadeAnimation].new "btn":
     echo "button:id: ", node.getId, " ", node.state.typeof
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux

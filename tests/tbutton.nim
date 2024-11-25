@@ -29,7 +29,8 @@ proc draw*(self: Main) {.slot.} =
     fill css"#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
 
-  Button[int].new "btn", parent=self:
+  let node = self
+  Button[int].new "btn":
     with node:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"

@@ -18,7 +18,9 @@ proc draw*(self: Main) {.slot.} =
   var node = self
   node.setName "root"
 
-  let vert = vertical "vert":
+  var vert: Vertical
+  Vertical.new "vert":
+    vert = node
     with node:
       fill whiteColor.darken(0.5)
       offset 30'ux, 10'ux
@@ -28,16 +30,14 @@ proc draw*(self: Main) {.slot.} =
       fill blackColor * 0.1
       cornerRadius 20
 
-    let slider1 =
-      rectangle "slider":
+    rectangle "slider":
+      with node:
+        size 200'ux, 45'ux
+        fill css"#00A0AA"
+      text "txt1":
         with node:
-          size 200'ux, 45'ux
-          fill css"#00A0AA"
-        text "txt1":
-          with node:
-            setText({font: "test1"}, Center, Middle)
-            fill css"#FFFFFF"
-        result = node
+          setText({font: "test1"}, Center, Middle)
+          fill css"#FFFFFF"
     rectangle "slider":
       with node:
         size 0.5'fr, 0.5'fr
@@ -47,8 +47,8 @@ proc draw*(self: Main) {.slot.} =
         with node:
           setText({font: "test2"}, Center, Middle)
           fill css"#FFFFFF"
-    result = node
-  node.gridTemplateDebugLines Figuro(vert)
+  
+  node.gridTemplateDebugLines vert
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(440'ui, 440'ui))
