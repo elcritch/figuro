@@ -17,7 +17,8 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
-  rectangle "main", parent=self:
+  let node = self
+  rectangle "main":
     box node, 0'ui, 0'ui, 620'ui, 140'ui
     let j = 1
     for i in 0 .. 5:
