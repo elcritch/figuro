@@ -59,7 +59,7 @@ proc draw*(self: GridApp) {.slot.} =
         gridRow "middle" // "bottom"
         gridColumn "button-la" // "button-lb"
 
-      button "btn":
+      Button.new "btn":
         with node:
           # label fmt"Clicked1: {self.count:4d}"
           # size 100'ux, 30'ux
@@ -69,7 +69,7 @@ proc draw*(self: GridApp) {.slot.} =
         # onClick:
         #   self.count.inc()
 
-    button "grid":
+    Button.new "grid":
       with node:
         gridRow "middle" // "bottom"
         gridColumn "button-ra" // "button-rb"
