@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        path: "fig_ws/"
+        path: "figuro/"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
