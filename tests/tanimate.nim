@@ -22,8 +22,8 @@ proc draw*(self: Main) {.slot.} =
     box node, 0'ui, 0'ui, 620'ui, 140'ui
     let j = 1
     for i in 0 .. 5:
-      Button.new "btn":
-        capture i, j:
+      capture i, j:
+        Button.new "btn":
           let value = self.value
           fill node, css"#AA0000"
           node.onHover:
