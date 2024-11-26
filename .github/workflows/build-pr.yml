@@ -14,11 +14,18 @@ jobs:
           - ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cache packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.nimble
+        key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
 
     - name: Install Nimble
       run: |
@@ -30,12 +37,6 @@ jobs:
       run: |
         # new atlas workspace
         nimble install -d --verbose
-
-    - name: Cache packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.nimble
-        key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
 
     - name: Test build From fig_ws/
       run: |
