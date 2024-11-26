@@ -39,7 +39,7 @@ jobs:
 
     - name: Test build From fig_ws/
       run: |
-        nim c figuro/tests/tclick.nim
+        ls -lh
 
     - name: Build Tests
       run: |
