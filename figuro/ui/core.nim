@@ -89,7 +89,7 @@ proc removeExtraChildren*(node: Figuro) =
   node.children.setLen(node.diffIndex)
 
 proc refresh*(node: Figuro) =
-  ## Request the screen be redrawn
+  ## Request that the node and it's children be redrawn
   if node == nil:
     return
   # app.requestedFrame.inc
@@ -209,7 +209,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
     {.hint[CondTrue]:off.}
     if not (parent.children[parent.diffIndex] of T):
       # mismatch types, replace node
-      node = T.new()
+      node = T.newFiguro()
       # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
       parent.children[parent.diffIndex] = node
     else:
@@ -256,109 +256,48 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-type
-  NonGenericType = distinct void
-  EmptyType = distinct tuple[]
-
-macro hasGenericTypes*(n: typed): bool =
-  ## check is a given type is generic
-  var hasGenerics = true
-  if n.kind == nnkBracketExpr:
-    hasGenerics = true
-  else:
-    let impl = n.getImpl()
-    hasGenerics = impl[1].len() > 0
-  return newLit(hasGenerics)
-
-template setupWidget(
-    `widgetType`, `kind`, `id`;
-    `hasCaptures`, `hasBinds`;
-    `capturedVals`, `parentName`;
-    `blk`
-): auto =
-  ## sets up a new instance of a widget
-  block:
-    when not compiles(`parentName`.typeof):
-      {.error: "no `node` variable defined in the current scope!".}
-    let parent {.inject.}: Figuro = `parentName`
-    var node {.inject.}: `widgetType` = nil
-    preNode(`kind`, `id`, node, parent)
-    wrapCaptures(`hasCaptures`, `capturedVals`):
-      node.preDraw = proc (c: Figuro) =
-        let node  {.inject.} = ## implicit variable in each widget block that references the current widget
-          `widgetType`(c)
-        if preDrawReady in node.attrs:
-          node.attrs.excl preDrawReady
-          `blk`
-    postNode(Figuro(node))
-    when `hasBinds`:
-      node
-
-proc generateBodies*(widget, kind, gtype: NimNode,
-                     wargs: WidgetArgs,
-                     hasGeneric: bool,
-                     ): NimNode {.compileTime.} =
-  ## core macro helper that generates the drawing
-  ## callbacks for widgets.
-  let (id, _, parentArg, bindsArg, capturedVals, blk) = wargs
-  let hasCaptures = newLit(not capturedVals.isNil)
-  # let hasBinds = newLit(not bindsArg.isNil)
-  let stateArg = gtype
-
-  echo "widget: ", widget.treeRepr
-  echo "stateArg: ", stateArg.treeRepr
-  let widgetType =
-    if not hasGeneric: quote do: `widget`
-    else: quote do: `widget`[`stateArg`]
-  echo "widgetType: ", widgetType.treeRepr
-
-  var hasBinds = newLit(false)
-  echo "BIND: ", blk[^1].kind, " ", blk[^1][0].repr
-  if blk.len() > 1 and
-      blk[^1].kind == nnkAsgn and
-      blk[^1].repr == "result = node":
-    echo "BIND: ing: "
-    blk[^1] = quote do:
-      discard node
-    hasBinds = newLit(true)
-  
-  result = quote do:
-      setupWidget(`widgetType`, `kind`, `id`,
-                `hasCaptures`, `hasBinds`,
-                `capturedVals`, `parentArg`, `blk`)
-
-macro widgetImpl(class, gclass: untyped, args: varargs[untyped]): auto =
-  ## creates a widget block for a given widget
-  let widget = class.getTypeInst()
-  echo "widgetImpl: ", gclass.getTypeInst().treeRepr
-  let subtype = gclass.getTypeInst()
-  let wargs = args.parseWidgetArgs()
-  let (hasGeneric, wtype, gtype) =
-    if widget.kind == nnkBracketExpr:
-      (true, widget[0].getTypeInst(), widget[1].getTypeInst())
-    elif gclass != nil and subtype.repr != "NonGenericType":
-      (true, widget.getTypeInst(), gclass.getTypeInst())
-    else:
-      (false, widget.getTypeInst(), nil)
-  echo "hasGen: ", hasGeneric, " wtype: ", wtype.repr, " gtype: ", gtype.repr
-  result = generateBodies(wtype, ident "nkRectangle", gtype,
-                          wargs, hasGeneric)
-  echo "widgetImpl:\n", result.repr
-
-template widget*[T, U](args: varargs[untyped]): auto =
+template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
-  ## The args can include:
-  ## - `captures(...)` captures a variable similar to the stdlib `capture` macro
-  ## - `state(U)` sets state type for Stateful widgets
-  ##
-  widgetImpl(T, U, args)
+  block:
+    when not compiles(node.typeof):
+      {.error: "no `node` variable defined in the current scope!".}
+    let parent {.inject.}: Figuro = `node`
+    var node {.inject.}: `T` = nil
+    preNode(`nkind`, `name`, node, parent)
+    node.preDraw = proc (c: Figuro) =
+      let node  {.inject.} = ## implicit variable in each widget block that references the current widget
+        `T`(c)
+      if preDrawReady in node.attrs:
+        node.attrs.excl preDrawReady
+        `blk`
+    postNode(Figuro(node))
 
-template new*[F](t: typedesc[F], args: varargs[untyped]): auto =
-  when t.hasGenericTypes():
-    widget[F, tuple[]](args)
+template new*[F: ref object](
+    t: typedesc[F],
+    name: string,
+    blk: untyped
+): auto =
+  ## Sets up a new widget instance and fills in
+  ## `tuple[]` for missing generics of the widget type.
+  ## 
+  ## E.g. if you have a `Button[T]` and you call
+  ## `Button.new` this template will change it to
+  ## `Button[tuple[]].new`.
+  ## 
+  when arity(t) in [0, 1]:
+    # non-generic type, note that arity(ref object) == 1
+    widget[t](nkRectangle, name, blk)
+  elif arity(t) == stripGenericParams(t).typeof().arity():
+    # partial generics, these are generics that aren't specified
+    when stripGenericParams(t).typeof().arity() == 2:
+      # partial generic, we'll provide empty tuple
+      widget[t[tuple[]]](nkRectangle, name, blk)
+    else:
+      {.error: "only 1 generic params or less is supported".}
   else:
-    widget[F, NonGenericType](args)
+    # fully typed generics
+    widget[t](nkRectangle, name, blk)
 
 template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## exports `class` as a template `name`,
@@ -367,37 +306,15 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
   ## the exported widget template can take standard widget args
   ## that `widget` can.
   ##
-  when class.hasGenericTypes():
-    template `name Of`*[U](args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T[U]`
-      ## creating a new Figuro node. This supports generic
-      ## widgets like `Button` which subtype `StatefulWidget[T]`.
-      ## 
-      ## Behind the scenes this creates a new block
-      ## with new `node` and `parent` variables.
-      ## The `node` variable becomes the new widget
-      ## instance.
-      widget[`T`, U](args)
-
-    template `name`*(args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T`
-      ## creating a new Figuro node.
-      ## 
-      ## Behind the scenes this creates a new block
-      ## with new `node` and `parent` variables.
-      ## The `node` variable becomes the new widget
-      ## instance.
-      widget[`T`, EmptyType](args)
-  else:
-    template `name`*(args: varargs[untyped]): auto =
-      ## Instantiate a widget block for a given widget `T`
-      ## creating a new Figuro node.
-      ##
-      ## Behind the scenes this creates a new block
-      ## with new `node` and `parent` variables.
-      ## The `node` variable becomes the new widget
-      ## instance.
-      widget[`T`, NonGenericType](args)
+  template `name`*(args: varargs[untyped]): auto =
+    ## Instantiate a widget block for a given widget `T`
+    ## creating a new Figuro node.
+    ##
+    ## Behind the scenes this creates a new block
+    ## with new `node` and `parent` variables.
+    ## The `node` variable becomes the new widget
+    ## instance.
+    widget[`T`](nkRectangle, args)
 
 {.hint[Name]:off.}
 template TemplateContents*[T](fig: T): untyped =
@@ -438,12 +355,6 @@ macro expose*(args: untyped): untyped =
         # echo "WID: args:post:\n", result.repr
   else:
     result = args
-
-macro nodeImpl*(kind: NodeKind, args: varargs[untyped]): untyped =
-  ## Base template for node, frame, rectangle...
-  let widget = ident("BasicFiguro")
-  let wargs = args.parseWidgetArgs()
-  result = widget.generateBodies(kind, nil, wargs, hasGeneric=false)
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.

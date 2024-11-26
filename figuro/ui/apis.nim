@@ -7,8 +7,11 @@ import std/[hashes]
 
 import commons, core
 
+from std/sugar import capture
+
 export core, cssgrid, stack_strings
 export with
+export capture
 
 # template nodes*[T](fig: T, blk: untyped): untyped =
 #   ## begin drawing nodes
@@ -86,13 +89,13 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 #   ## Note: Experimental!
 #   nodeImpl(nkDrawable, id, inner)
 
-template rectangle*(id: static string, args: varargs[untyped]): untyped =
+template rectangle*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.
-  nodeImpl(nkRectangle, id, args)
+  widget[BasicFiguro](nkRectangle, name, blk)
 
-template text*(id: string, inner: untyped): untyped =
+template text*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.
-  nodeImpl(nkText, id, inner)
+  widget[BasicFiguro](nkText, name, blk)
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
@@ -472,15 +475,17 @@ proc gridTemplateDebugLines*(node: Figuro, grid: Figuro, color: Color = blueColo
       let w = grid.gridTemplate.columns[^1].start.UICoord
       let h = grid.gridTemplate.rows[^1].start.UICoord
       for col in grid.gridTemplate.columns[1..^2]:
-        rectangle "column", captures=col:
-          with node:
-            fill color
-            box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
+        capture col:
+          rectangle "column":
+            with node:
+              fill color
+              box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
       for row in grid.gridTemplate.rows[1..^2]:
-        rectangle "row", captures=row:
-          with node:
-            fill color
-            box 0, row.start.UICoord - wd, w.UICoord, wd
+        capture row:
+          rectangle "row":
+            with node:
+              fill color
+              box 0, row.start.UICoord - wd, w.UICoord, wd
       rectangle "edge":
         with node:
           fill color.darken(0.5)

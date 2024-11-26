@@ -17,24 +17,24 @@ jobs:
           - windows-latest
     steps:
     - uses: actions/checkout@v1
-      with:
-        path: "figuro/"
+
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cache packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.nimble
+        key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
+
     - name: Install Nimble
       run: |
         nimble install nimble
         nim -v
         nimble -v
-
-    - name: Cache packages
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-${{ hashFiles('figuro/atlas.lock') }}
 
     - name: Install Deps
       run: |

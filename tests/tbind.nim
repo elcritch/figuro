@@ -33,7 +33,7 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({font: $self.counter.value & " ₿" }, Center, Middle)
 
-  button "btnAdd":
+  Button.new "btnAdd":
     box node, 160'ux, 30'ux, 80'ux, 40'ux
     text "btnText":
       with node:
@@ -44,7 +44,7 @@ proc draw*(self: Main) {.slot.} =
     self.counter.onSignal(doButton) do(counter: Property[int]):
       counter.update(counter.value-1)
 
-  button "btnSub":
+  Button.new "btnSub":
     box node, 240'ux, 30'ux, 80'ux, 40'ux
     text "btnText":
       with node:

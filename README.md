@@ -10,6 +10,12 @@ A GUI toolkit for Nim that is event driven while being small and fast. It tries 
 Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
 ```nim
+import figuro/widgets/button
+import figuro/widgets/horizontal
+import figuro/widget
+import figuro/ui/animations
+import figuro
+
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22)
@@ -20,6 +26,7 @@ type
                              incr: 0.010, decr: 0.005)
 
 proc update*(fig: Main) {.signal.}
+
 
 proc btnTick*(self: Button[int]) {.slot.} =
   ## slot to increment a button on every tick 
@@ -34,7 +41,7 @@ proc btnClicked*(self: Button[int],
   ## which we can use to check if it's a mouse click
   if buttons == {MouseLeft} or buttons == {DoubleClick}:
     if kind == Enter:
-      self.state.inc()
+      self.state.inc
       refresh(self)
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
@@ -45,13 +52,12 @@ proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
   ## triggers a node or it's parents to be refreshed
+  var node = self
+  node.setName "main"
 
-  self.setName "main"
-
-  # Calls the widget template `rectangle` which creates a new basic widget node.
-  # Generally used to draw generic boxes.
-  # Here we need to pass the `parent` argument since there's no current `node` set
-  rectangle "body", parent=self:
+  # Calls the widget template `rectangle`.
+  # This creates a new basic widget node. Generally used to draw generic rectangles.
+  rectangle "body":
     with node:
       # sets the bounding box of this node
       box 10'ux, 10'ux, 600'ux, 120'ux
@@ -60,7 +66,7 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(self.bkgFade.amount)
 
     # sets up horizontal widget node with alternate syntax
-    horizontal "horiz":
+    Horizontal.new "horiz":
       with node:
         box 10'ux, 0'ux, 100'pp, 100'pp
         # `itemWidth` is needed to set the width of items
@@ -69,11 +75,11 @@ proc draw*(self: Main) {.slot.} =
         layoutItems justify=CxCenter, align=CxCenter
 
       for i in 0 .. 4:
-        buttonOf[int] "btn", captures=[i]:
-          # widgets with generic type like Button can use `<name>Of[T]` to set the generic type, otherwise void is used
+        Button[int].new("btn", captures=i):
           let btn = node
           with node:
             size 100'ux, 100'ux
+            cornerRadius 5.0
             connect(doHover, self, btnHover)
             connect(doClick, node, btnClicked)
           if i == 0:
@@ -84,13 +90,13 @@ proc draw*(self: Main) {.slot.} =
               fill blackColor
               setText({font: $(btn.state)}, Center, Middle)
 
+
 proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
-  ## handles background "fade" when buttons are hovered
   self.bkgFade.tick(self)
   emit self.update()
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(400'ui, 140'ui))
+let frame = newAppFrame(main, size=(700'ui, 200'ui))
 startFiguro(frame)
 ```
 
@@ -157,11 +163,11 @@ It's possible to manually create nodes, but it's not encouraged. Although it can
 proc draw*(self: Main) {.slot.} =
   var node = self
   block: # rectangle
-    let parent {.inject.}: Figuro = node
-    var node {.inject.}: `widgetType` = nil
+    let parent: Figuro = node
+    var node: BasicFiguro = nil
     preNode(BasicFiguro, "body", node, parent)
     node.preDraw = proc (c: Figuro) =
-      let node {.inject.} = `widgetType`(c)
+      let node {.inject.} = BasicFiguro(c)
       ...
       # sets the bounding box of this node
       box node, 10'ux, 10'ux, 600'ux, 120'ux
