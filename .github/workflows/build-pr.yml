@@ -14,8 +14,6 @@ jobs:
           - ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-      with:
-        path: "figuro/"
     - uses: iffy/install-nim@v4
       with:
         version: ${{ matrix.nimversion }}
@@ -32,6 +30,12 @@ jobs:
       run: |
         # new atlas workspace
         nimble install -d --verbose
+
+    - name: Cache packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.nimble
+        key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
 
     - name: Test build From fig_ws/
       run: |
