@@ -38,10 +38,6 @@ jobs:
         # new atlas workspace
         nimble install -d --verbose
 
-    - name: Test build From fig_ws/
-      run: |
-        ls -lh
-
     - name: Build Tests
       run: |
         cd figuro/
