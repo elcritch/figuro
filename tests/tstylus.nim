@@ -2,35 +2,13 @@
 import std/os, stylus
 import patty
 
-const src = """
-
-Button {
-}
-
-Button.btnBody {
-}
-
-Button child {
-}
-
-Button < directChild {
-}
-
-Button < directChild.field {
-}
-
-"""
-
-let tokenizer = newTokenizer(src)
-
-
 type
   CssParser* = ref object
     buff: seq[Token]
     tokenizer: Tokenizer
 
   CssBlock* = ref object
-    selector*: seq[CssSelector]
+    selectors*: seq[CssSelector]
     properties*: seq[CssProperty]
   
   CssSelectorKind* {.pure.} = enum
@@ -48,6 +26,9 @@ type
   CssProperty* = ref object
     name*: string
     value*: string
+
+proc `==`*(a, b: CssSelector): bool =
+  a[] == b[]
 
 proc isEof(parser: CssParser): bool =
   parser.tokenizer.isEof()
@@ -135,22 +116,58 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
 
   # echo "\tsel:done"
 
-proc parseBody*(parser: CssParser) =
+proc parseBody*(parser: CssParser): seq[CssProperty] =
   parser.skip(tkWhiteSpace)
   parser.eat(tkCurlyBracketBlock)
   parser.skip(tkWhiteSpace)
   parser.eat(tkCloseCurlyBracket)
 
-proc parse*(parser: CssParser) =
+proc parse*(parser: CssParser): seq[CssBlock] =
 
   while not parser.isEof():
     parser.skip(tkWhiteSpace)
     if parser.isEof():
       break
-    let sels = parser.parseSelector()
-    echo "selectors: ", sels.repr()
-    parser.parseBody()
+    let sel = parser.parseSelector()
+    echo "selectors: ", sel.repr()
+    let props = parser.parseBody()
     echo ""
+    result.add(CssBlock(selectors: sel, properties: props))
 
-let parser = CssParser(tokenizer: tokenizer)
-parse(parser)
+
+import std/unittest
+
+suite "css parser":
+
+  test "blocks":
+    const src = """
+
+    Button {
+    }
+
+    Button.btnBody {
+    }
+
+    Button child {
+    }
+
+    Button < directChild {
+    }
+
+    Button < directChild.field {
+    }
+
+    """
+
+    let tokenizer = newTokenizer(src)
+    let parser = CssParser(tokenizer: tokenizer)
+    let res = parse(parser)
+    check res[0].selectors == @[CssSelector(cssType: "Button")]
+    check res[1].selectors == @[CssSelector(cssType: "Button", class: "btnBody")]
+    echo "results: ", res[2].selectors.repr
+    check res[2].selectors == @[
+      CssSelector(cssType: "Button", combinator: skNone),
+      CssSelector(cssType: "child", combinator: skDescendent)
+    ]
+
+
