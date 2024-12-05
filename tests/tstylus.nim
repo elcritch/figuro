@@ -287,3 +287,17 @@ suite "css parser":
     # echo "results: ", res.repr
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
+
+  test "test child descent tokenizer is working":
+    if false:
+      const src = """
+      Button > directChild {
+      }
+
+      Button > directChild.field {
+      }
+      """
+
+      let tokenizer = newTokenizer(src)
+      while not tokenizer.isEof():
+        echo repr tokenizer.nextToken()
