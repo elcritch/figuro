@@ -42,6 +42,7 @@ type
     parent*: FiguroWeakRef
     uid*: NodeID
     name*: string
+    widgetName*: string
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int

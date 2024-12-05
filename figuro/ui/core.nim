@@ -195,24 +195,24 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   template configNodeName(node, name: untyped) =
     node.name = name
 
-  template configNewNode(node: untyped) =
+  template createNewNode(T, node: untyped) =
+    node = T()
     node.debugId = nextAgentId()
     node.uid = node.debugId
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
+    node.widgetName = repr(T)
     configNodeName(node, name)
 
   if parent.children.len <= parent.diffIndex:
     # Create Figuro.
-    node = T()
-    configNewNode(node)
+    createNewNode(T, node)
     parent.children.add(node)
     echo nd(), "create new node: ", name, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
-    node = T.newFiguro()
-    configNewNode(node)
+    createNewNode(T, node)
     # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
     parent.children[parent.diffIndex] = node
   else:
