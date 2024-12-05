@@ -181,7 +181,7 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   refresh(root)
   return frame
 
-proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro) =
+proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
   # mixin draw
 
@@ -192,17 +192,20 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
   #             " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
-  if parent.children.len <= parent.diffIndex:
-    # Create Figuro.
-    node = T()
+  template configNewNode(node: auto) =
     node.debugId = nextAgentId()
     node.uid = node.debugId
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
+    node.name = name
+
+  if parent.children.len <= parent.diffIndex:
+    # Create Figuro.
+    node = T()
+    configNewNode(node)
     parent.children.add(node)
-    # node.parent = parent
-    echo nd(), "create new node: ", id, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
-    refresh(node)
+    echo nd(), "create new node: ", name, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
+    # refresh(node)
   else:
     # Reuse Figuro.
     # echo nd(), "checking reuse node"
@@ -210,6 +213,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
     if not (parent.children[parent.diffIndex] of T):
       # mismatched types, replace node
       node = T.newFiguro()
+      configNewNode(node)
       # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
       parent.children[parent.diffIndex] = node
     else:
@@ -226,13 +230,11 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
       # Big change.
       node.nIndex = parent.diffIndex
       node.resetToDefault(kind)
-      refresh(node)
+      # refresh(node)
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
   node.uid = node.debugId
-  node.name.setLen(0)
-  discard node.name.tryAdd(id)
   node.kind = kind
   node.highlight = parent.highlight
   node.transparency = parent.transparency

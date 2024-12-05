@@ -41,7 +41,7 @@ type
     frame*: AppFrame
     parent*: FiguroWeakRef
     uid*: NodeID
-    name*: StackString[16]
+    name*: string
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
@@ -126,7 +126,7 @@ proc newFiguro*[T: Figuro](tp: typedesc[T]): T =
   result.uid = result.debugId
 
 proc getName*(fig: Figuro): string =
-  result = fig.name.toString()
+  result = $fig.name
 
 proc getId*(fig: Figuro): NodeID =
   ## Get's the Figuro Node's ID

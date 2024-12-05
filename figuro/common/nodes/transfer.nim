@@ -93,7 +93,8 @@ proc convert*(current: Figuro): render.Node =
   result = Node(kind: current.kind)
 
   result.uid = current.uid
-  result.name = current.name
+  result.name.setLen(0)
+  discard result.name.tryAdd(current.name)
 
   result.box = current.box.scaled
   result.screenBox = current.screenBox.scaled
