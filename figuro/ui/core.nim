@@ -206,20 +206,17 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     parent.children.add(node)
     echo nd(), "create new node: ", name, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
     # refresh(node)
+  elif not (parent.children[parent.diffIndex] of T):
+    # mismatched types, replace node
+    node = T.newFiguro()
+    configNewNode(node)
+    # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
+    parent.children[parent.diffIndex] = node
   else:
     # Reuse Figuro.
     # echo nd(), "checking reuse node"
-    {.hint[CondTrue]:off.}
-    if not (parent.children[parent.diffIndex] of T):
-      # mismatched types, replace node
-      node = T.newFiguro()
-      configNewNode(node)
-      # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
-      parent.children[parent.diffIndex] = node
-    else:
-      # echo nd(), "reuse node: ", id, " new: ", node.getId, " parent: ", parent.uid
-      node = T(parent.children[parent.diffIndex])
-    {.hint[CondTrue]:on.}
+    # echo nd(), "reuse node: ", id, " new: ", node.getId, " parent: ", parent.uid
+    node = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and
         node.nIndex == parent.diffIndex and
@@ -230,7 +227,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
       # Big change.
       node.nIndex = parent.diffIndex
       node.resetToDefault(kind)
-      # refresh(node)
+      node.name = name
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
