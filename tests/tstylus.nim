@@ -1,5 +1,6 @@
 ## This is a simple example on how to use Stylus' tokenizer.
 import std/os, stylus
+import patty
 
 const src = """
 
@@ -16,13 +17,22 @@ Button btnBody {
 
 let tokenizer = newTokenizer(src)
 
+{.hint[Name]: off.}
+variant CssSelector:
+  SelType(tp: string)
+  SelId(id: string)
+  SelClass(class: string)
+  CombDesc(descs: seq[CssSelector])
+
+{.hint[Name]: on.}
+
 type
   CssParser* = ref object
     buff: seq[Token]
     tokenizer: Tokenizer
 
   CssBlock* = ref object
-    selector*: string
+    selector*: CssSelector
     properties*: seq[CssProperty]
   
   CssProperty* = ref object
