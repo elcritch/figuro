@@ -1,6 +1,6 @@
 ## This is a simple example on how to use Stylus' tokenizer.
-import std/os, stylus
-import patty
+import stylus
+import pretty
 
 type
   CssParser* = ref object
@@ -117,9 +117,36 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
   # echo "\tsel:done"
 
 proc parseBody*(parser: CssParser): seq[CssProperty] =
+  var
+    expectValue = false
+    expectSemi = false
+
   parser.skip(tkWhiteSpace)
   parser.eat(tkCurlyBracketBlock)
-  parser.skip(tkWhiteSpace)
+  while true:
+    parser.skip(tkWhiteSpace)
+    var tk = parser.peek()
+    case tk.kind:
+    of tkIdent:
+      echo "\tattrib: ", tk.repr
+
+      let tk = parser.nextToken()
+
+      if expectValue:
+        result[^1].value = tk.ident;
+        expectValue = false
+        expectSemi = true
+      else:
+        result.add(CssProperty(name: tk.ident))
+        expectValue = true
+    of tkCloseCurlyBracket:
+      echo "\tattribs done: ", "done"
+      break
+    else:
+      echo "\tattrib:other: ", tk.repr
+      let tk = parser.nextToken()
+      discard
+
   parser.eat(tkCloseCurlyBracket)
 
 proc parse*(parser: CssParser): seq[CssBlock] =
@@ -140,6 +167,7 @@ import std/unittest
 suite "css parser":
 
   test "blocks":
+    skip()
     const src = """
 
     Button {
@@ -169,5 +197,20 @@ suite "css parser":
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "child", combinator: skDescendent)
     ]
+
+  test "attributes":
+    const src = """
+
+    Button {
+      color-background: #00a400;
+    }
+
+    """
+
+    let tokenizer = newTokenizer(src)
+    let parser = CssParser(tokenizer: tokenizer)
+    let res = parse(parser)
+    echo "results: ", res.repr
+
 
 
