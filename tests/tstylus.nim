@@ -13,7 +13,7 @@ Button.btnBody {
 Button btnBody {
 }
 
-Button < btnBody {
+Button < child {
 }
 
 """
@@ -31,6 +31,7 @@ type
     properties*: seq[CssProperty]
   
   CssSelectorKind* {.pure.} = enum
+    skNone,
     skDirectChild,
     skDescendent,
     skSelectorList
@@ -73,29 +74,47 @@ proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
   while not tokenizer.isEof():
     let tk = parser.peek()
     if tk.kind == kind:
-      echo "skip whitespace"
+      echo "\tskip whitespace"
       discard parser.nextToken()
       continue
     else:
       break
 
 proc parseSelector*(parser: CssParser): seq[CssSelector] =
+  var isClass = false
+
   while true:
     parser.skip(tkWhiteSpace)
     var tk = parser.peek()
     case tk.kind:
     of tkIdent:
-      echo "sel: ", tk.repr
-      let tok = parser.nextToken()
-      result.add(CssSelector(cssType: tok.ident))
+      echo "\tsel: ", tk.repr
+      if isClass:
+        if result.len() == 0:
+          result.add(CssSelector())
+        let tk = parser.nextToken()
+        result[0].class = tk.ident
+        isClass = false
+      else:
+        let tk = parser.nextToken()
+        result.add(CssSelector(cssType: tk.ident))
+        if result.len() >= 2:
+          result[^1].combinator = skDescendent
+    of tkDelim:
+      case tk.delim:
+      of '.':
+        isClass = true
+      else:
+        discard
+      discard parser.nextToken()
     of tkCurlyBracketBlock:
-      echo "sel: ", "done"
+      echo "\tsel: ", "done"
       break
     else:
-      echo "sel: ", "other"
+      echo "\tsel:other: ", tk.repr
       break
 
-  echo "done"
+  echo "\tsel:done"
 
 proc parseBody*(parser: CssParser) =
   parser.skip(tkWhiteSpace)
@@ -105,9 +124,10 @@ proc parseBody*(parser: CssParser) =
 
 proc parse*(parser: CssParser) =
 
-  let sels = parser.parseSelector()
-  echo "selectors: ", sels.repr()
-  parser.parseBody()
+  while not parser.tokenizer.isEof():
+    let sels = parser.parseSelector()
+    echo "selectors: ", sels.repr()
+    parser.parseBody()
 
   echo "\nrest:"
   while true:
