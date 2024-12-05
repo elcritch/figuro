@@ -146,12 +146,12 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
         result[^1].value = CssVarName(tk.ident)
     of tkIDHash:
       if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a attribute value")
+        raise newException(ValueError, "expected css hash color to be a property value")
       result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
       discard parser.nextToken()
     of tkFunction:
       if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a attribute value")
+        raise newException(ValueError, "expected css hash color to be a property value")
       var value = tk.fnName
       while tk.kind != tkCloseParen:
         tk = parser.nextToken()
@@ -170,10 +170,10 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
     of tkSemicolon:
       # echo "\tattrib done "
       if result.len() > 0 and result[^1].name.len() == 0:
-        echo "warning: ", "missing css attribute name!"
+        echo "warning: ", "missing css property name!"
         discard result.pop()
       if result.len() > 0 and result[^1].value == MissingCssValue():
-        echo "warning: ", "missing css attribute value!"
+        echo "warning: ", "missing css property value!"
         discard result.pop()
       discard parser.nextToken()
       result.add(CssProperty())
@@ -235,7 +235,7 @@ suite "css parser":
       CssSelector(cssType: "child", combinator: skDescendent)
     ]
 
-  test "attributes":
+  test "properties":
     const src = """
 
     Button {
