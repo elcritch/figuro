@@ -231,9 +231,8 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
   node.uid = node.debugId
-  let name = $(id)
   node.name.setLen(0)
-  discard node.name.tryAdd(name)
+  discard node.name.tryAdd(id)
   node.kind = kind
   node.highlight = parent.highlight
   node.transparency = parent.transparency
@@ -256,7 +255,11 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): auto =
+template widget*[T](
+    nkind: NodeKind = nkRectangle,
+    name: string,
+    blk: untyped
+): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
   block:
