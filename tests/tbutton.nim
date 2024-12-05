@@ -34,14 +34,13 @@ proc draw*(self: Main) {.slot.} =
     with node:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
-      connect(doDrag, node, btnDrag)
 
     contents "child":
       text "btnText":
         with node:
           box 10'ux, 10'ux, 80'pp, 80'pp
           fill blackColor
-          setText({font: "drag me"})
+          setText({font: "testing"})
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(400'ui, 140'ui))

@@ -2,9 +2,9 @@
 import figuro/shared
 import figuro/ui/apis
 import figuro/widget
-import figuro/meta
+import sigils
 
-export shared, apis, widget, meta
+export shared, apis, widget, sigils
 
 when defined(compilervm) or defined(nimscript):
   import figuro/wrappers

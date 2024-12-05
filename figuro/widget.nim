@@ -1,7 +1,7 @@
 
 import common/nodes/ui
-import meta/signals
-import meta/slots
+import sigils/signals
+import sigils/slots
 import inputs
 import ui/core
 import ui/apis
