@@ -162,12 +162,13 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
         of tkCloseParen: value &= ")"
         of tkComma: value &= ","
         else:
-          echo "\tattrib:other: ", tk.repr
-      echo "\tattrib function: ", value
+          # echo "\tattrib:other: ", tk.repr
+          discard
+      # echo "\tattrib function: ", value
       result[^1].value = CssColor(parseHtmlColor(value))
       discard parser.nextToken()
     of tkSemicolon:
-      echo "\tattrib done "
+      # echo "\tattrib done "
       if result.len() > 0 and result[^1].name.len() == 0:
         echo "warning: ", "missing css attribute name!"
         discard result.pop()
@@ -177,10 +178,10 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
       discard parser.nextToken()
       result.add(CssProperty())
     of tkCloseCurlyBracket:
-      echo "\tcss block done "
+      # echo "\tcss block done "
       break
     else:
-      echo "\tattrib:other: ", tk.repr
+      # echo "\tattrib:other: ", tk.repr
       discard parser.nextToken()
 
   parser.eat(tkCloseCurlyBracket)
@@ -192,9 +193,9 @@ proc parse*(parser: CssParser): seq[CssBlock] =
     if parser.isEof():
       break
     let sel = parser.parseSelector()
-    echo "selectors: ", sel.repr()
+    # echo "selectors: ", sel.repr()
     let props = parser.parseBody()
-    echo ""
+    # echo ""
     result.add(CssBlock(selectors: sel, properties: props))
 
 
@@ -283,6 +284,6 @@ suite "css parser":
     let tokenizer = newTokenizer(src)
     let parser = CssParser(tokenizer: tokenizer)
     let res = parse(parser)[0]
-    echo "results: ", res.repr
+    # echo "results: ", res.repr
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
