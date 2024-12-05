@@ -16,7 +16,7 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  echo "hover: ", kind
+  # echo "hover: ", kind
   refresh(self)
 
 proc buttonItem(self, node: Figuro, idx: int) =
