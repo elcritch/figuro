@@ -49,15 +49,18 @@ type
     name*: string
     value*: string
 
+proc isEof(parser: CssParser): bool =
+  parser.tokenizer.isEof()
+
 proc peek(parser: CssParser): Token =
-  if tokenizer.isEof():
+  if parser.isEof():
     raise newException(Exception, "EOF!")
   if parser.buff.len() == 0:
     parser.buff.add(parser.tokenizer.nextToken())
   parser.buff[0]
 
 proc nextToken(parser: CssParser): Token =
-  if tokenizer.isEof():
+  if parser.isEof():
     raise newException(Exception, "EOF!")
   if parser.buff.len() == 0:
     parser.tokenizer.nextToken()
@@ -67,17 +70,19 @@ proc nextToken(parser: CssParser): Token =
     tk
 
 proc eat*(parser: CssParser, kind: TokenKind) =
-  if tokenizer.isEof():
+  if parser.isEof():
     raise newException(Exception, "EOF!")
   let tk = parser.nextToken()
   if tk.kind != kind:
     raise newException(Exception, "Expected: " & $kind & " got: " & $tk.kind)
 
 proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
-  while not tokenizer.isEof():
+  while not parser.isEof():
     let tk = parser.peek()
+    if parser.isEof():
+      break
     if tk.kind == kind:
-      echo "\tskip whitespace"
+      # echo "\tskip whitespace"
       discard parser.nextToken()
       continue
     else:
@@ -93,7 +98,7 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
     var tk = parser.peek()
     case tk.kind:
     of tkIdent:
-      echo "\tsel: ", tk.repr
+      # echo "\tsel: ", tk.repr
       if isClass:
         if result.len() == 0:
           result.add(CssSelector())
@@ -122,13 +127,13 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
         echo "\tsel:delim:other: ", tk.repr
       discard parser.nextToken()
     of tkCurlyBracketBlock:
-      echo "\tsel: ", "done"
+      # echo "\tsel: ", "done"
       break
     else:
-      echo "\tsel:other: ", tk.repr
+      # echo "\tsel:other: ", tk.repr
       break
 
-  echo "\tsel:done"
+  # echo "\tsel:done"
 
 proc parseBody*(parser: CssParser) =
   parser.skip(tkWhiteSpace)
@@ -138,14 +143,14 @@ proc parseBody*(parser: CssParser) =
 
 proc parse*(parser: CssParser) =
 
-  while not parser.tokenizer.isEof():
+  while not parser.isEof():
+    parser.skip(tkWhiteSpace)
+    if parser.isEof():
+      break
     let sels = parser.parseSelector()
     echo "selectors: ", sels.repr()
     parser.parseBody()
-
-  echo "\nrest:"
-  while true:
-    echo parser.nextToken().repr()
+    echo ""
 
 let parser = CssParser(tokenizer: tokenizer)
 parse(parser)
