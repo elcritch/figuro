@@ -197,7 +197,7 @@ import std/unittest
 suite "css parser":
 
   test "blocks":
-    skip()
+    # skip()
     const src = """
 
     Button {
