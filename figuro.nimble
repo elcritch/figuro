@@ -29,5 +29,3 @@ requires "stack_strings"
 requires "micros"
 
 requires "stylus"
-requires "treesitter"
-requires "treesitter_css"
