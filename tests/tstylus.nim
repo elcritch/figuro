@@ -36,6 +36,8 @@ type
 
 proc `==`*(a, b: CssSelector): bool =
   a[] == b[]
+proc `==`*(a, b: CssProperty): bool =
+  a[] == b[]
 
 proc isEof(parser: CssParser): bool =
   parser.tokenizer.isEof()
@@ -133,10 +135,9 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
   while true:
     parser.skip(tkWhiteSpace)
     var tk = parser.peek()
+
     case tk.kind:
     of tkIdent:
-      echo "\tattrib: ", tk.repr
-
       discard parser.nextToken()
       if result[^1].name.len() == 0:
         result[^1].name = tk.ident;
@@ -148,14 +149,15 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
         raise newException(ValueError, "expected css hash color to be a attribute value")
       result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
       discard parser.nextToken()
-
+    of tkSemicolon:
+      echo "\tattrib done "
+      discard parser.nextToken()
     of tkCloseCurlyBracket:
-      echo "\tattribs done: ", "done"
+      echo "\tcss block done "
       break
     else:
       echo "\tattrib:other: ", tk.repr
-      let tk = parser.nextToken()
-      discard
+      discard parser.nextToken()
 
   parser.eat(tkCloseCurlyBracket)
 
@@ -219,8 +221,10 @@ suite "css parser":
 
     let tokenizer = newTokenizer(src)
     let parser = CssParser(tokenizer: tokenizer)
-    let res = parse(parser)
+    let res = parse(parser)[0]
     echo "results: ", res.repr
+    check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
+    check res.properties == @[CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))]
 
 
 
