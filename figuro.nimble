@@ -6,7 +6,7 @@ srcDir        = "."
 
 # Dependencies
 
-requires "nim >= 1.6.5"
+# requires "nim >= 2.0.12"
 requires "pixie >= 5.0.1"
 requires "cssgrid >= 0.6.1"
 requires "chroma >= 0.2.7"

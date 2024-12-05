@@ -238,7 +238,7 @@ proc addAgentListeners*(obj: Agent,
                         sig: string,
                         tgt: Agent,
                         slot: AgentProc
-                        ) =
+                        ): void =
 
   # echo "add agent listener: ", sig, " obj: ", obj.debugId, " tgt: ", tgt.debugId
   # if obj.listeners.hasKey(sig):
