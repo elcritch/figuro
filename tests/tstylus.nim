@@ -289,6 +289,7 @@ suite "css parser":
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
   test "test child descent tokenizer is working":
+    skip()
     if false:
       const src = """
       Button > directChild {
