@@ -1,6 +1,13 @@
 ## This is a simple example on how to use Stylus' tokenizer.
 import stylus
+import patty
 import pretty
+import chroma
+
+variant CssValue:
+  MissingCssValue
+  CssColor(c: Color)
+  CssVarName(n: string)
 
 type
   CssParser* = ref object
@@ -25,7 +32,7 @@ type
 
   CssProperty* = ref object
     name*: string
-    value*: string
+    value*: CssValue
 
 proc `==`*(a, b: CssSelector): bool =
   a[] == b[]
@@ -117,12 +124,12 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
   # echo "\tsel:done"
 
 proc parseBody*(parser: CssParser): seq[CssProperty] =
-  var
-    expectValue = false
-    expectSemi = false
 
   parser.skip(tkWhiteSpace)
   parser.eat(tkCurlyBracketBlock)
+
+  result.add(CssProperty())
+
   while true:
     parser.skip(tkWhiteSpace)
     var tk = parser.peek()
@@ -130,15 +137,18 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
     of tkIdent:
       echo "\tattrib: ", tk.repr
 
-      let tk = parser.nextToken()
+      discard parser.nextToken()
+      if result[^1].name.len() == 0:
+        result[^1].name = tk.ident;
+        parser.eat(tkColon)
+      elif result[^1].value == MissingCssValue():
+        result[^1].value = CssVarName(tk.ident)
+    of tkIDHash:
+      if result[^1].value != MissingCssValue():
+        raise newException(ValueError, "expected css hash color to be a attribute value")
+      result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
+      discard parser.nextToken()
 
-      if expectValue:
-        result[^1].value = tk.ident;
-        expectValue = false
-        expectSemi = true
-      else:
-        result.add(CssProperty(name: tk.ident))
-        expectValue = true
     of tkCloseCurlyBracket:
       echo "\tattribs done: ", "done"
       break
