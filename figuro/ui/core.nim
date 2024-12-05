@@ -192,12 +192,15 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   #             " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
-  template configNewNode(node: auto) =
+  template configNodeName(node, name: untyped) =
+    node.name = name
+
+  template configNewNode(node: untyped) =
     node.debugId = nextAgentId()
     node.uid = node.debugId
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
-    node.name = name
+    configNodeName(node, name)
 
   if parent.children.len <= parent.diffIndex:
     # Create Figuro.
@@ -227,7 +230,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
       # Big change.
       node.nIndex = parent.diffIndex
       node.resetToDefault(kind)
-      node.name = name
+      configNodeName(node, name)
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
