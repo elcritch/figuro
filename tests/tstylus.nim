@@ -46,7 +46,7 @@ proc nextToken(parser: CssParser): Token =
     parser.buff.del(0)
     tk
 
-proc eat*(parser: CssParser, kind: TokenKind): bool =
+proc eat*(parser: CssParser, kind: TokenKind) =
   if tokenizer.isEof():
     raise newException(Exception, "EOF!")
   let tk = parser.nextToken()
@@ -64,6 +64,7 @@ proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
       break
 
 proc parseSelector*(parser: CssParser) =
+  parser.skip(tkWhiteSpace)
   var tk = parser.nextToken()
   while tk.kind in [tkIdent]:
     echo "sel: ", tk.repr
@@ -71,16 +72,15 @@ proc parseSelector*(parser: CssParser) =
   echo "done"
 
 proc parseBody*(parser: CssParser) =
-  var tk = parser.nextToken()
-  while tk.kind in [tkWhiteSpace]:
-    echo "sel: ", tk.repr
-    tk = parser.nextToken()
-  echo "done"
+  parser.skip(tkWhiteSpace)
+  parser.eat(tkCurlyBracketBlock)
+  parser.skip(tkWhiteSpace)
+  parser.eat(tkCloseCurlyBracket)
 
 proc parse*(parser: CssParser) =
-  parser.skip(tkWhiteSpace)
 
   parser.parseSelector()
+  parser.parseBody()
 
   echo "\nrest:"
   while true:
