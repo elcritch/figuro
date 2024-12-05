@@ -44,14 +44,14 @@ proc isEof(parser: CssParser): bool =
 
 proc peek(parser: CssParser): Token =
   if parser.isEof():
-    raise newException(Exception, "EOF!")
+    raise newException(ValueError, "EOF!")
   if parser.buff.len() == 0:
     parser.buff.add(parser.tokenizer.nextToken())
   parser.buff[0]
 
 proc nextToken(parser: CssParser): Token =
   if parser.isEof():
-    raise newException(Exception, "EOF!")
+    raise newException(ValueError, "EOF!")
   if parser.buff.len() == 0:
     parser.tokenizer.nextToken()
   else:
@@ -61,10 +61,10 @@ proc nextToken(parser: CssParser): Token =
 
 proc eat*(parser: CssParser, kind: TokenKind) =
   if parser.isEof():
-    raise newException(Exception, "EOF!")
+    raise newException(ValueError, "EOF!")
   let tk = parser.nextToken()
   if tk.kind != kind:
-    raise newException(Exception, "Expected: " & $kind & " got: " & $tk.kind)
+    raise newException(ValueError, "Expected: " & $kind & " got: " & $tk.kind)
 
 proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
   while not parser.isEof():
