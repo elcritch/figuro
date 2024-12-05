@@ -208,7 +208,7 @@ proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro
     # echo nd(), "checking reuse node"
     {.hint[CondTrue]:off.}
     if not (parent.children[parent.diffIndex] of T):
-      # mismatch types, replace node
+      # mismatched types, replace node
       node = T.newFiguro()
       # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
       parent.children[parent.diffIndex] = node
