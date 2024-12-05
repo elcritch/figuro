@@ -13,18 +13,13 @@ Button.btnBody {
 Button btnBody {
 }
 
+Button < btnBody {
+}
+
 """
 
 let tokenizer = newTokenizer(src)
 
-{.hint[Name]: off.}
-variant CssSelector:
-  SelType(tp: string)
-  SelId(id: string)
-  SelClass(class: string)
-  CombDesc(descs: seq[CssSelector])
-
-{.hint[Name]: on.}
 
 type
   CssParser* = ref object
@@ -32,12 +27,23 @@ type
     tokenizer: Tokenizer
 
   CssBlock* = ref object
-    selector*: CssSelector
+    selector*: seq[CssSelector]
     properties*: seq[CssProperty]
   
+  CssSelectorKind* {.pure.} = enum
+    skDirectChild,
+    skDescendent,
+    skSelectorList
+
+  CssSelector* = ref object
+    cssType*: string
+    class*: string
+    id*: string
+    combinator*: CssSelectorKind
+
   CssProperty* = ref object
-    name: string
-    value: string
+    name*: string
+    value*: string
 
 proc peek(parser: CssParser): Token =
   if tokenizer.isEof():
@@ -73,12 +79,22 @@ proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
     else:
       break
 
-proc parseSelector*(parser: CssParser) =
-  parser.skip(tkWhiteSpace)
-  var tk = parser.nextToken()
-  while tk.kind in [tkIdent]:
-    echo "sel: ", tk.repr
-    tk = parser.nextToken()
+proc parseSelector*(parser: CssParser): seq[CssSelector] =
+  while true:
+    parser.skip(tkWhiteSpace)
+    var tk = parser.peek()
+    case tk.kind:
+    of tkIdent:
+      echo "sel: ", tk.repr
+      let tok = parser.nextToken()
+      result.add(CssSelector(cssType: tok.ident))
+    of tkCurlyBracketBlock:
+      echo "sel: ", "done"
+      break
+    else:
+      echo "sel: ", "other"
+      break
+
   echo "done"
 
 proc parseBody*(parser: CssParser) =
@@ -89,7 +105,8 @@ proc parseBody*(parser: CssParser) =
 
 proc parse*(parser: CssParser) =
 
-  parser.parseSelector()
+  let sels = parser.parseSelector()
+  echo "selectors: ", sels.repr()
   parser.parseBody()
 
   echo "\nrest:"
