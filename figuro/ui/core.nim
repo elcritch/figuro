@@ -183,7 +183,7 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
 
 proc preNode*[T: Figuro](kind: NodeKind, id: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
-  mixin draw
+  # mixin draw
 
   nodeDepth.inc()
   # echo nd(), "preNode:setup: id: ", id, " node: ", node.getId, " parent: ", parent.getId,
