@@ -201,14 +201,14 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     node.uid = node.debugId
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
-    node.widgetName = repr(T)
+    node.widgetName = repr(T).split('[')[0]
     configNodeName(node, name)
 
   if parent.children.len <= parent.diffIndex:
     # Create Figuro.
     createNewNode(T, node)
     parent.children.add(node)
-    echo nd(), "create new node: ", name, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
+    echo nd(), "create new node: ", node.name, " widget: ", node.widgetName, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
