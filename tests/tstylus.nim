@@ -149,9 +149,27 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
         raise newException(ValueError, "expected css hash color to be a attribute value")
       result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
       discard parser.nextToken()
+    of tkFunction:
+      if result[^1].value != MissingCssValue():
+        raise newException(ValueError, "expected css hash color to be a attribute value")
+      var value = tk.fnName
+      while tk.kind != tkCloseParen:
+        tk = parser.nextToken()
+        case tk.kind:
+        of tkDimension: value &= $tk.dValue
+        of tkWhiteSpace: value &= tk.wsStr
+        of tkParenBlock: value &= "("
+        of tkCloseParen: value &= ")"
+        of tkComma: value &= ","
+        else:
+          echo "\tattrib:other: ", tk.repr
+      echo "\tattrib function: ", value
+      result[^1].value = CssColor(parseHtmlColor(value))
+      discard parser.nextToken()
     of tkSemicolon:
       echo "\tattrib done "
       discard parser.nextToken()
+      result.add(CssProperty())
     of tkCloseCurlyBracket:
       echo "\tcss block done "
       break
@@ -215,6 +233,7 @@ suite "css parser":
 
     Button {
       color-background: #00a400;
+      color: rgb(214, 122, 127);
     }
 
     """
@@ -222,9 +241,8 @@ suite "css parser":
     let tokenizer = newTokenizer(src)
     let parser = CssParser(tokenizer: tokenizer)
     let res = parse(parser)[0]
-    echo "results: ", res.repr
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
-    check res.properties == @[CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))]
-
-
+    check res.properties[0] == CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))
+    echo "results: ", res.properties[1].repr
+    check res.properties[1] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
