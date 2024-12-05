@@ -10,10 +10,10 @@ Button {
 Button.btnBody {
 }
 
-Button btnBody {
+Button child {
 }
 
-Button < child {
+Button < directChild {
 }
 
 """
@@ -81,7 +81,9 @@ proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
       break
 
 proc parseSelector*(parser: CssParser): seq[CssSelector] =
-  var isClass = false
+  var
+    isClass = false
+    isDirect = false
 
   while true:
     parser.skip(tkWhiteSpace)
@@ -95,6 +97,13 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
         let tk = parser.nextToken()
         result[0].class = tk.ident
         isClass = false
+      elif isDirect:
+        if result.len() == 0:
+          result.add(CssSelector())
+        let tk = parser.nextToken()
+        result[0].class = tk.ident
+        isDirect = false
+        result[^1].combinator = skDirectChild
       else:
         let tk = parser.nextToken()
         result.add(CssSelector(cssType: tk.ident))
@@ -104,8 +113,10 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
       case tk.delim:
       of '.':
         isClass = true
+      of '<':
+        isDirect = true
       else:
-        discard
+        echo "\tsel:delim:other: ", tk.repr
       discard parser.nextToken()
     of tkCurlyBracketBlock:
       echo "\tsel: ", "done"
