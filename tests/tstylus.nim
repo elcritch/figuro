@@ -168,6 +168,9 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
       discard parser.nextToken()
     of tkSemicolon:
       echo "\tattrib done "
+      if result[^1].value == MissingCssValue():
+        echo "warning: ", "missing css attribute value!"
+        discard result.pop()
       discard parser.nextToken()
       result.add(CssProperty())
     of tkCloseCurlyBracket:
@@ -245,4 +248,22 @@ suite "css parser":
     check res.properties[0] == CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))
     echo "results: ", res.properties[1].repr
     check res.properties[1] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
+
+
+  test "missing attribute value":
+    const src = """
+
+    Button {
+      color-background: ;
+      color: rgb(214, 122, 127);
+    }
+
+    """
+
+    let tokenizer = newTokenizer(src)
+    let parser = CssParser(tokenizer: tokenizer)
+    let res = parse(parser)[0]
+    echo "results: ", res.repr
+    check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
+    check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
