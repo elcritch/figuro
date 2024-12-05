@@ -16,6 +16,9 @@ Button child {
 Button < directChild {
 }
 
+Button < directChild.field {
+}
+
 """
 
 let tokenizer = newTokenizer(src)
