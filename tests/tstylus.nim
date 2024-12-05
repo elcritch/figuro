@@ -2,9 +2,16 @@
 import std/os, stylus
 
 const src = """
+
 Button {
-  color: rgba(10, 10, 10, 100);
 }
+
+Button.btnBody {
+}
+
+Button btnBody {
+}
+
 """
 
 let tokenizer = newTokenizer(src)
@@ -13,6 +20,14 @@ type
   CssParser* = ref object
     buff: seq[Token]
     tokenizer: Tokenizer
+
+  CssBlock* = ref object
+    selector*: string
+    properties*: seq[CssProperty]
+  
+  CssProperty* = ref object
+    name: string
+    value: string
 
 proc peek(parser: CssParser): Token =
   if tokenizer.isEof():
@@ -46,18 +61,30 @@ proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
       discard parser.nextToken()
       continue
     else:
-      echo "not whitespace"
       break
+
+proc parseSelector*(parser: CssParser) =
+  var tk = parser.nextToken()
+  while tk.kind in [tkIdent]:
+    echo "sel: ", tk.repr
+    tk = parser.nextToken()
+  echo "done"
+
+proc parseBody*(parser: CssParser) =
+  var tk = parser.nextToken()
+  while tk.kind in [tkWhiteSpace]:
+    echo "sel: ", tk.repr
+    tk = parser.nextToken()
+  echo "done"
 
 proc parse*(parser: CssParser) =
   parser.skip(tkWhiteSpace)
 
-  let tk = parser.nextToken()
-  echo repr tk
+  parser.parseSelector()
 
-  echo "rest:"
-  while not tokenizer.isEof():
-    echo repr tokenizer.nextToken()
+  echo "\nrest:"
+  while true:
+    echo parser.nextToken().repr()
 
 let parser = CssParser(tokenizer: tokenizer)
 parse(parser)
