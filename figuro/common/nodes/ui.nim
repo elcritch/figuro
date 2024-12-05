@@ -2,12 +2,12 @@ import std/unicode
 import std/monotimes
 import std/hashes
 import basics
-import ../../meta
+import sigils
 import ../../inputs
 import cssgrid
 import stack_strings
 
-export basics, meta, inputs, cssgrid, stack_strings
+export basics, sigils, inputs, cssgrid, stack_strings
 export unicode, monotimes
 
 when defined(nimscript):

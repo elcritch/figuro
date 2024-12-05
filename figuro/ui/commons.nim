@@ -3,10 +3,9 @@ import ../shared
 import ../internal
 import ../common/uimaths
 import ../common/nodes/ui
+import sigils
 
-import ../meta
-
-export shared, ui, internal, meta, uimaths
+export shared, ui, internal, sigils, uimaths
 
 type
   FiguroError* = object of CatchableError
