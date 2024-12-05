@@ -168,7 +168,10 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
       discard parser.nextToken()
     of tkSemicolon:
       echo "\tattrib done "
-      if result[^1].value == MissingCssValue():
+      if result.len() > 0 and result[^1].name.len() == 0:
+        echo "warning: ", "missing css attribute name!"
+        discard result.pop()
+      if result.len() > 0 and result[^1].value == MissingCssValue():
         echo "warning: ", "missing css attribute value!"
         discard result.pop()
       discard parser.nextToken()
@@ -225,7 +228,7 @@ suite "css parser":
     let res = parse(parser)
     check res[0].selectors == @[CssSelector(cssType: "Button")]
     check res[1].selectors == @[CssSelector(cssType: "Button", class: "btnBody")]
-    echo "results: ", res[2].selectors.repr
+    # echo "results: ", res[2].selectors.repr
     check res[2].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "child", combinator: skDescendent)
@@ -246,11 +249,11 @@ suite "css parser":
     let res = parse(parser)[0]
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
     check res.properties[0] == CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))
-    echo "results: ", res.properties[1].repr
+    # echo "results: ", res.properties[1].repr
     check res.properties[1] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
 
-  test "missing attribute value":
+  test "missing property value":
     const src = """
 
     Button {
@@ -263,7 +266,23 @@ suite "css parser":
     let tokenizer = newTokenizer(src)
     let parser = CssParser(tokenizer: tokenizer)
     let res = parse(parser)[0]
-    echo "results: ", res.repr
+    # echo "results: ", res.repr
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
+  test "missing property name":
+    const src = """
+
+    Button {
+      : #00a400;
+      color: rgb(214, 122, 127);
+    }
+
+    """
+
+    let tokenizer = newTokenizer(src)
+    let parser = CssParser(tokenizer: tokenizer)
+    let res = parse(parser)[0]
+    echo "results: ", res.repr
+    check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
+    check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
