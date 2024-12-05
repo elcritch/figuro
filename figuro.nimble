@@ -27,3 +27,5 @@ requires "nimscripter >= 1.1.5"
 requires "msgpack4nim"
 requires "stack_strings"
 requires "micros"
+requires "chame"
+
