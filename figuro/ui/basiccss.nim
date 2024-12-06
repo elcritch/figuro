@@ -196,6 +196,12 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
       let value = csFixed(tk.dValue.UiScalar)
       result[^1].value = CssSize(value)
       discard parser.nextToken()
+    of tkPercentage:
+      if result[^1].value != MissingCssValue():
+        raise newException(ValueError, "expected css percentage to be a property value")
+      let value = csPerc(100.0*tk.pUnitValue)
+      result[^1].value = CssSize(value)
+      discard parser.nextToken()
     of tkSemicolon:
       # echo "\tattrib done "
       popIncompleteProperty()
