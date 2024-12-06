@@ -25,17 +25,34 @@ suite "css parser":
     Button < directChild.field {
     }
 
+    Button:hover {
+    }
+
     """
 
     let parser = newCssParser(src)
     let res = parse(parser)
     check res[0].selectors == @[CssSelector(cssType: "Button")]
     check res[1].selectors == @[CssSelector(cssType: "Button", class: "btnBody")]
-    # echo "results: ", res[2].selectors.repr
     check res[2].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "child", combinator: skDescendent)
     ]
+    check res[3].selectors == @[
+      CssSelector(cssType: "Button", combinator: skNone),
+      CssSelector(cssType: "directChild", combinator: skDirectChild)
+    ]
+    check res[4].selectors == @[
+      CssSelector(cssType: "Button", combinator: skNone),
+      CssSelector(cssType: "directChild", class: "field", combinator: skDirectChild)
+    ]
+    check res[5].selectors == @[
+      CssSelector(cssType: "Button", combinator: skNone),
+      CssSelector(cssType: "hover", combinator: skPseudo)
+    ]
+    # echo "results: ", res[3].selectors.repr
+    # echo "results: ", res[4].selectors.repr
+    # echo "results: ", res[5].selectors.repr
 
   test "properties":
     const src = """

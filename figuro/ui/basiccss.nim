@@ -27,6 +27,7 @@ type
     skNone,
     skDirectChild,
     skDescendent,
+    skPseudo,
     skSelectorList
 
   CssSelector* = ref object
@@ -95,6 +96,7 @@ proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
 proc parseSelector*(parser: CssParser): seq[CssSelector] =
   var
     isClass = false
+    isPseudo = false
     isDirect = false
 
   while true:
@@ -107,20 +109,23 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
         if result.len() == 0:
           result.add(CssSelector())
         let tk = parser.nextToken()
-        result[0].class = tk.ident
+        result[^1].class = tk.ident
         isClass = false
-      elif isDirect:
-        if result.len() == 0:
-          result.add(CssSelector())
-        let tk = parser.nextToken()
-        result[0].class = tk.ident
-        isDirect = false
-        result[^1].combinator = skDirectChild
       else:
         let tk = parser.nextToken()
         result.add(CssSelector(cssType: tk.ident))
         if result.len() >= 2:
           result[^1].combinator = skDescendent
+        if isDirect:
+          # echo "\tsel:direct: ", result[^1].repr
+          result[^1].combinator = skDirectChild
+          isDirect = false
+        elif isPseudo:
+          result[^1].combinator = skPseudo
+          isPseudo = false
+    of tkColon:
+      isPseudo = true
+      discard parser.nextToken()
     of tkDelim:
       case tk.delim:
       of '.':
@@ -128,7 +133,7 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
       of '<':
         isDirect = true
       else:
-        echo "\tsel:delim:other: ", tk.repr
+        echo "warning: ", "unhandled token while parsing selector: ", tk.repr()
       discard parser.nextToken()
     of tkCurlyBracketBlock:
       # echo "\tsel: ", "done"
