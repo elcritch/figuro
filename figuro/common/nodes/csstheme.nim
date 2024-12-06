@@ -19,26 +19,29 @@ iterator parents*(node: Figuro): Figuro =
 proc apply*(sel: CssSelector, node: Figuro): bool =
   result = false
 
-  echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
+  # echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
   if has(sel.id):
     if sel.id in node.name:
-      echo "matched class! node: ", $node
+      # echo "matched class! node: ", $node
+      discard
     else:
-      echo "failed id check"
+      # echo "failed id check"
       return
 
   if has(sel.cssType): 
     if node.widgetName == sel.cssType:
-      echo "matched type! node: ", $node
+      # echo "matched type! node: ", $node
+      discard
     else:
-      echo "failed type check"
+      # echo "failed type check"
       return
 
   if has(sel.class):
     if sel.class in node.widgetClasses:
-      echo "matched class! node: ", $node
+      # echo "matched class! node: ", $node
+      discard
     else:
-      echo "failed class check"
+      # echo "failed class check"
       return
   
   return true
@@ -54,31 +57,31 @@ proc apply*(rule: CssBlock, node: Figuro) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    print "SEL: ", sel
-    print "comb: ", combinator
+    # print "SEL: ", sel
+    # print "comb: ", combinator
     case combinator:
     of skNone, skPseudo:
       matched = matched and sel.apply(node)
       if not matched:
-        echo "not matched"
+        # echo "not matched"
         break
     of skDescendent:
       var parentMatched = false
       for p in node.parents():
-        echo "sel:p: ", p.uid
+        # echo "sel:p: ", p.uid
         parentMatched = sel.apply(p)
         if parentMatched:
-          echo "sel:p:matched "
+          # echo "sel:p:matched "
           break
       matched = matched and parentMatched
     else:
       echo "unhandled combinator type! type: ", combinator.repr
 
-    echo "selMatch: ", matched, " idx: ", i, "\n"
+    # echo "selMatch: ", matched, " idx: ", i, "\n"
     combinator = sel.combinator
 
 proc applyThemeRules*(node: Figuro) =
-  echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
   if not node.frame.theme.isNil:
     for rule in node.frame.theme.cssRules:
       rule.apply(node)
