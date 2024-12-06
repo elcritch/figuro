@@ -53,7 +53,6 @@ proc newCssParser*(file: Path): CssParser =
     data = readFile(file.string)
   result = newCssParser(data)
 
-
 proc isEof(parser: CssParser): bool =
   parser.tokenizer.isEof()
 
@@ -135,7 +134,7 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
       # echo "\tsel: ", "done"
       break
     else:
-      # echo "\tsel:other: ", tk.repr
+      echo "warning: ", "unhandled token while parsing selector: ", tk.repr()
       break
 
   # echo "\tsel:done"
@@ -218,7 +217,7 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
       break
     else:
       # echo "\tattrib:other: ", tk.repr
-      echo "warning: ", "unhandled CSS token: ", parser.peek().repr
+      echo "warning: ", "unhandled token while parsing property: ", parser.peek().repr
       discard parser.nextToken()
 
   popIncompleteProperty(warning=false)

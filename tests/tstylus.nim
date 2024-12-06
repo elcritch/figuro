@@ -45,6 +45,7 @@ suite "css parser":
       color: rgb(214, 122, 127);
       border-width: 1;
       width: 80%;
+      border-radius: 25px;
     }
 
     """
@@ -52,11 +53,12 @@ suite "css parser":
     let parser = newCssParser(src)
     let res = parse(parser)[0]
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
-    check res.properties.len() == 4
+    check res.properties.len() == 5
     check res.properties[0] == CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))
     check res.properties[1] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
     check res.properties[2] == CssProperty(name: "border-width", value: CssSize(csFixed(1.0.UiScalar)))
     check res.properties[3] == CssProperty(name: "width", value: CssSize(csPerc(80.0)))
+    check res.properties[4] == CssProperty(name: "border-radius", value: CssSize(csFixed(25.0)))
     # echo "\nresults:"
     # for r in res.properties:
     #   echo "\t", r.repr
