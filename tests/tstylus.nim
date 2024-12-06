@@ -2,6 +2,7 @@
 import figuro/ui/basiccss
 import chroma
 import cssgrid
+import pretty
 
 import std/unittest
 
@@ -145,21 +146,33 @@ proc draw*(self: TMain) {.slot.} =
   rectangle "body":
     rectangle "child1":
       discard
+
+    Button[int].new "btnA":
+      with node:
+        box 40'ux, 30'ux, 80'ux, 80'ux
+        fill css"#2B9F2B"
   
-  Button[int].new "btn":
-    with node:
-      box 40'ux, 30'ux, 80'ux, 80'ux
-      fill css"#2B9F2B"
+    Button[int].new "btnB":
+      with node:
+        box 40'ux, 30'ux, 80'ux, 80'ux
+        fill css"#2B9F2B"
 
 suite "css exec":
   test "css target":
 
+    const themeSrc = """
+    Button {
+      background: #00a400;
+      border-width: 1;
+    }
+    """
+
     var main = TMain.new()
     main.frame = newAppFrame(main, size=(400'ui, 140'ui))
     main.frame.theme = Theme(font: defaultFont)
-    let defaultTheme = "tests/theme.css"
-    let parser = newCssParser(Path(defaultTheme))
+    let parser = newCssParser(themeSrc)
     let cssTheme = parse(parser)
+    print cssTheme
     main.frame.theme.cssRules = cssTheme
     connectDefaults(main)
     emit main.doDraw()

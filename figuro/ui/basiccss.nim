@@ -39,8 +39,16 @@ type
     value*: CssValue
 
 proc `==`*(a, b: CssSelector): bool =
+  if a.isNil and b.isNil:
+    return true
+  if a.isNil or b.isNil:
+    return false
   a[] == b[]
 proc `==`*(a, b: CssProperty): bool =
+  if a.isNil and b.isNil:
+    return true
+  if a.isNil or b.isNil:
+    return false
   a[] == b[]
 
 proc newCssParser*(src: string): CssParser =
