@@ -156,10 +156,11 @@ proc draw*(self: TMain) {.slot.} =
         box 40'ux, 30'ux, 80'ux, 80'ux
         fill css"#2B9F2B"
   
-    Button[int].new "btnB":
-      with node:
-        box 40'ux, 30'ux, 80'ux, 80'ux
-        fill css"#2B9F2B"
+    rectangle "child2":
+      Button[int].new "btnB":
+        with node:
+          box 40'ux, 30'ux, 80'ux, 80'ux
+          fill css"#2B9F2B"
 
 suite "css exec":
   test "css target":
@@ -190,3 +191,10 @@ suite "css exec":
     check btnA.fill == parseHtmlColor("#FF0000")
     check btnA.stroke.weight == 3.0
     check btnA.stroke.color == parseHtmlColor("#00FF00")
+
+    let btnB = main.children[0].children[2].children[0]
+    echo "btnB: ", $btnB
+    check btnB.name == "btnB"
+    check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 3.0
+    check btnB.stroke.color == parseHtmlColor("#00FF00")
