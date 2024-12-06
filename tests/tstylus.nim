@@ -150,6 +150,10 @@ proc draw*(self: TMain) {.slot.} =
   rectangle "body":
     rectangle "child1":
       discard
+      Button[int].new "btnC":
+        with node:
+          box 40'ux, 30'ux, 80'ux, 80'ux
+          fill css"#2B9F2B"
 
     Button[int].new "btnA":
       with node:
@@ -166,7 +170,7 @@ suite "css exec":
   test "css target":
 
     const themeSrc = """
-    #body Button {
+    #body < Button {
       background: #FF0000;
       border-width: 3;
       border-color: #00FF00;
@@ -200,5 +204,12 @@ suite "css exec":
     # echo "btnB: ", $btnB
     check btnB.name == "btnB"
     check btnB.fill == parseHtmlColor("#0000FF")
-    check btnB.stroke.weight == 3.0
-    check btnB.stroke.color == parseHtmlColor("#00FF00")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
+
+    let btnC = main.children[0].children[0].children[0]
+    # echo "btnB: ", $btnB
+    check btnC.name == "btnC"
+    check btnC.fill == parseHtmlColor("#2B9F2B")
+    check btnC.stroke.weight == 0.0
+    check btnC.stroke.color == clearColor

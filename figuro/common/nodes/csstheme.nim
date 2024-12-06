@@ -124,9 +124,9 @@ proc eval*(rule: CssBlock, node: Figuro) =
     combinator = sel.combinator
   
   if matched:
-    echo "matched node: ", node.uid
+    # echo "matched node: ", node.uid
     # print rule.selectors
-    echo "setting properties:"
+    # echo "setting properties:"
     for prop in rule.properties:
       # print rule.properties
       prop.apply(node)
