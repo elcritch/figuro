@@ -35,6 +35,9 @@ suite "css parser":
     Button:hover {
     }
 
+    #name {
+    }
+
     """
 
     let parser = newCssParser(src)
@@ -57,9 +60,10 @@ suite "css parser":
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "hover", combinator: skPseudo)
     ]
-    # echo "results: ", res[3].selectors.repr
-    # echo "results: ", res[4].selectors.repr
-    # echo "results: ", res[5].selectors.repr
+    check res[6].selectors == @[
+      CssSelector(id: "name", combinator: skNone),
+    ]
+    echo "results: ", res[6].selectors.repr
 
   test "properties":
     const src = """
@@ -161,7 +165,7 @@ suite "css exec":
   test "css target":
 
     const themeSrc = """
-    Button {
+    child1 Button {
       background: #00a400;
       border-width: 1;
     }

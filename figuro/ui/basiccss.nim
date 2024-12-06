@@ -132,6 +132,9 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
     of tkColon:
       isPseudo = true
       discard parser.nextToken()
+    of tkIDHash:
+      result.add(CssSelector(id: tk.idHash))
+      let tk = parser.nextToken()
     of tkDelim:
       case tk.delim:
       of '.':

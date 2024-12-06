@@ -148,7 +148,7 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
     fig.postDraw(fig)
 
 proc handleTheme*(fig: Figuro) {.slot.} =
-  fig.applyThemes()
+  fig.applyThemeRules()
 
 proc connectDefaults*[T](node: T) {.slot.} =
   ## only activate these if custom ones have been provided 

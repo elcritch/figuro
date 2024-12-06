@@ -47,6 +47,7 @@ type
     uid*: NodeID
     name*: string
     widgetName*: string
+    widgetClasses*: seq[string]
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
