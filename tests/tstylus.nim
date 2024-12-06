@@ -171,6 +171,10 @@ suite "css exec":
       border-width: 3;
       border-color: #00FF00;
     }
+
+    #child2 Button {
+      background: #0000FF;
+    }
     """
 
     var main = TMain.new()
@@ -186,15 +190,15 @@ suite "css exec":
     echo "\nmain: ", $main
 
     let btnA = main.children[0].children[1]
-    echo "btnA: ", $btnA
+    # echo "btnA: ", $btnA
     check btnA.name == "btnA"
     check btnA.fill == parseHtmlColor("#FF0000")
     check btnA.stroke.weight == 3.0
     check btnA.stroke.color == parseHtmlColor("#00FF00")
 
     let btnB = main.children[0].children[2].children[0]
-    echo "btnB: ", $btnB
+    # echo "btnB: ", $btnB
     check btnB.name == "btnB"
-    check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.fill == parseHtmlColor("#0000FF")
     check btnB.stroke.weight == 3.0
     check btnB.stroke.color == parseHtmlColor("#00FF00")
