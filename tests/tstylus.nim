@@ -168,6 +168,7 @@ suite "css exec":
     #body Button {
       background: #FF0000;
       border-width: 3;
+      border-color: #00FF00;
     }
     """
 
@@ -188,3 +189,4 @@ suite "css exec":
     check btnA.name == "btnA"
     check btnA.fill == parseHtmlColor("#FF0000")
     check btnA.stroke.weight == 3.0
+    check btnA.stroke.color == parseHtmlColor("#00FF00")

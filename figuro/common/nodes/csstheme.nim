@@ -68,15 +68,14 @@ proc apply*(prop: CssProperty, node: Figuro) =
       case prop.name:
       of "background":
         node.fill = c
-      of "border-width":
-        node.fill = c
+      of "border-color":
+        node.stroke.color = c
       else:
         echo "warning: ", "unhandled css property: ", prop.repr
     CssSize(cx):
       echo "\tapply size: ", cx.repr
       case prop.name:
       of "border-width":
-        echo "\n\nBORDER: ", cx.repr
         setCxFixed(cx, node.stroke.weight)
       else:
         echo "warning: ", "unhandled css property: ", prop.repr
