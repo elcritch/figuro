@@ -165,7 +165,7 @@ suite "css exec":
   test "css target":
 
     const themeSrc = """
-    child1 Button {
+    #body Button {
       background: #00a400;
       border-width: 1;
     }
@@ -176,7 +176,7 @@ suite "css exec":
     main.frame.theme = Theme(font: defaultFont)
     let parser = newCssParser(themeSrc)
     let cssTheme = parse(parser)
-    print cssTheme
+    # print cssTheme
     main.frame.theme.cssRules = cssTheme
     connectDefaults(main)
     emit main.doDraw()
