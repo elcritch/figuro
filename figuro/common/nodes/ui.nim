@@ -4,6 +4,7 @@ import std/hashes
 import basics
 import sigils
 import ../../inputs
+import ../../ui/basiccss
 import cssgrid
 import stack_strings
 
@@ -26,6 +27,7 @@ type
 
   Theme* = ref object
     font*: UiFont
+    cssRules*: seq[CssBlock]
 
   AppFrame* = ref object
     redrawNodes*: OrderedSet[Figuro]
@@ -36,6 +38,8 @@ type
 
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
+    theme*: Theme
+
 
   Figuro* = ref object of Agent
     frame*: AppFrame
@@ -61,8 +65,6 @@ type
 
     events*: EventFlags
     listens*: ListenEvents
-
-    theme*: Theme
 
     zlevel*: ZLevel
     rotation*: float32

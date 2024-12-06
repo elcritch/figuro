@@ -1,12 +1,10 @@
 import std/[paths, os]
-import ./apis
+# import ./apis
 
+import cssgrid
 import stylus
 import patty
-import pretty
 import chroma
-
-export constraints
 
 variantp CssValue:
   MissingCssValue
@@ -74,14 +72,14 @@ proc nextToken(parser: CssParser): Token =
     parser.buff.del(0)
     tk
 
-proc eat*(parser: CssParser, kind: TokenKind) =
+proc eat(parser: CssParser, kind: TokenKind) =
   if parser.isEof():
     raise newException(ValueError, "EOF!")
   let tk = parser.nextToken()
   if tk.kind != kind:
     raise newException(ValueError, "Expected: " & $kind & " got: " & $tk.kind)
 
-proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
+proc skip(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
   while not parser.isEof():
     let tk = parser.peek()
     if parser.isEof():
@@ -93,7 +91,7 @@ proc skip*(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
     else:
       break
 
-proc parseSelector*(parser: CssParser): seq[CssSelector] =
+proc parseSelector(parser: CssParser): seq[CssSelector] =
   var
     isClass = false
     isPseudo = false
@@ -144,7 +142,7 @@ proc parseSelector*(parser: CssParser): seq[CssSelector] =
 
   # echo "\tsel:done"
 
-proc parseBody*(parser: CssParser): seq[CssProperty] =
+proc parseBody(parser: CssParser): seq[CssProperty] =
 
   parser.skip(tkWhiteSpace)
   parser.eat(tkCurlyBracketBlock)

@@ -1,7 +1,8 @@
-import std/[tables, unicode, strformat, ]
+import std/[tables, unicode, os, ]
 import std/terminal
 # import cssgrid
 
+import basiccss
 import commons
 export commons
 
@@ -146,12 +147,18 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
 
+proc handleTheme*(fig: Figuro) {.slot.} =
+  # echo "theme: ", fig.frame.isNil
+  echo "fig: ", fig.getId()
+  discard
+
 proc connectDefaults*[T](node: T) {.slot.} =
   ## only activate these if custom ones have been provided 
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, Figuro.handlePostDraw())
+  connect(node, doDraw, node, Figuro.handleTheme())
   when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
     connect(node, doClick, node, T.clicked())
   when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
@@ -173,10 +180,14 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   #                          app.uiScale * app.height.float32)
 
   root.diffIndex = 0
-  if root.theme.isNil:
-    root.theme = Theme(font: defaultFont)
   let frame = AppFrame(root: root)
   root.frame = frame
+  if frame.theme.isNil:
+    let defaultTheme = "theme.css"
+    if defaultTheme.fileExists():
+      let parser = newCssParser(Path(defaultTheme))
+      let cssTheme = parse(parser)
+    frame.theme = Theme(font: defaultFont)
   frame.setSize(size)
   refresh(root)
   return frame
@@ -239,7 +250,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   node.highlight = parent.highlight
   node.transparency = parent.transparency
   node.zlevel = parent.zlevel
-  node.theme = parent.theme
+  # node.theme = parent.theme
 
   node.listens.events = {}
 
