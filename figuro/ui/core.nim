@@ -148,10 +148,7 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
     fig.postDraw(fig)
 
 proc handleTheme*(fig: Figuro) {.slot.} =
-  # echo "theme: ", fig.frame.isNil
-  echo "Theme: ", fig.getId(), " name: ", fig.name, " class: ", fig.widgetName, " theme: ", $fig.frame.theme.isNil
-  discard
-  # cssRules
+  fig.applyThemes()
 
 proc connectDefaults*[T](node: T) {.slot.} =
   ## only activate these if custom ones have been provided 
