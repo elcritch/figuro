@@ -1,5 +1,5 @@
-
-import apis
+import std/[paths, os]
+import ./apis
 
 import stylus
 import patty
@@ -47,6 +47,12 @@ proc `==`*(a, b: CssProperty): bool =
 proc newCssParser*(src: string): CssParser =
   let tokenizer = newTokenizer(src)
   result = CssParser(tokenizer: tokenizer)
+
+proc newCssParser*(file: Path): CssParser =
+  let 
+    data = readFile(file.string)
+  result = newCssParser(data)
+
 
 proc isEof(parser: CssParser): bool =
   parser.tokenizer.isEof()
