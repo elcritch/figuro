@@ -43,6 +43,7 @@ suite "css parser":
     Button {
       color-background: #00a400;
       color: rgb(214, 122, 127);
+      border-width: 1;
     }
 
     """
@@ -50,9 +51,13 @@ suite "css parser":
     let parser = newCssParser(src)
     let res = parse(parser)[0]
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
+    check res.properties.len() == 3
     check res.properties[0] == CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))
-    # echo "results: ", res.properties[1].repr
     check res.properties[1] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
+    # echo "\nresults:"
+    # for r in res.properties:
+    #   echo "\t", r.repr
+    check res.properties[2] == CssProperty(name: "border-width", value: CssSize(csFixed(1.0.UiScalar)))
 
 
   test "missing property value":

@@ -1,12 +1,17 @@
 
+import apis
+
 import stylus
 import patty
 import pretty
 import chroma
 
+export constraints
+
 variantp CssValue:
   MissingCssValue
   CssColor(c: Color)
+  CssSize(cx: Constraint)
   CssVarName(n: string)
 
 type
@@ -136,10 +141,21 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
 
   result.add(CssProperty())
 
+  template popIncompleteProperty(warning = true) =
+    if result.len() > 0 and result[^1].name.len() == 0:
+      if warning:
+        echo "warning: ", "missing css property name! Got: ", result[^1].repr()
+      discard result.pop()
+    if result.len() > 0 and result[^1].value == MissingCssValue():
+      if warning:
+        echo "warning: ", "missing css property value! Got: ", result[^1].repr()
+      discard result.pop()
+
   while true:
     parser.skip(tkWhiteSpace)
     var tk = parser.peek()
 
+    # echo "\tproperty:next: ", tk.repr
     case tk.kind:
     of tkIdent:
       discard parser.nextToken()
@@ -157,28 +173,32 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
       if result[^1].value != MissingCssValue():
         raise newException(ValueError, "expected css hash color to be a property value")
       var value = tk.fnName
-      while tk.kind != tkCloseParen:
+      while true:
         tk = parser.nextToken()
         case tk.kind:
         of tkDimension: value &= $tk.dValue
         of tkWhiteSpace: value &= tk.wsStr
         of tkParenBlock: value &= "("
-        of tkCloseParen: value &= ")"
         of tkComma: value &= ","
+        of tkCloseParen:
+          value &= ")"
+          break
         else:
-          # echo "\tattrib:other: ", tk.repr
+          # echo "\tproperty:other: ", tk.repr
           discard
-      # echo "\tattrib function: ", value
+      # echo "\tproperty function:peek: ", parser.peek().repr
+      # echo "\tproperty function: ", value
+      # echo "\tproperty function:res: ", result[^1].repr()
       result[^1].value = CssColor(parseHtmlColor(value))
+    of tkDimension:
+      if result[^1].value != MissingCssValue():
+        raise newException(ValueError, "expected css dimension to be a property value")
+      let value = csFixed(tk.dValue.UiScalar)
+      result[^1].value = CssSize(value)
       discard parser.nextToken()
     of tkSemicolon:
       # echo "\tattrib done "
-      if result.len() > 0 and result[^1].name.len() == 0:
-        echo "warning: ", "missing css property name!"
-        discard result.pop()
-      if result.len() > 0 and result[^1].value == MissingCssValue():
-        echo "warning: ", "missing css property value!"
-        discard result.pop()
+      popIncompleteProperty()
       discard parser.nextToken()
       result.add(CssProperty())
     of tkCloseCurlyBracket:
@@ -186,8 +206,10 @@ proc parseBody*(parser: CssParser): seq[CssProperty] =
       break
     else:
       # echo "\tattrib:other: ", tk.repr
+      echo "warning: ", "unhandled CSS token: ", parser.peek().repr
       discard parser.nextToken()
 
+  popIncompleteProperty(warning=false)
   parser.eat(tkCloseCurlyBracket)
 
 proc parse*(parser: CssParser): seq[CssBlock] =
