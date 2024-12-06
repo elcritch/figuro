@@ -166,8 +166,8 @@ suite "css exec":
 
     const themeSrc = """
     #body Button {
-      background: #00a400;
-      border-width: 1;
+      background: #FF0000;
+      border-width: 3;
     }
     """
 
@@ -182,3 +182,9 @@ suite "css exec":
     emit main.doDraw()
 
     echo "\nmain: ", $main
+
+    let btnA = main.children[0].children[1]
+    echo "btnA: ", $btnA
+    check btnA.name == "btnA"
+    check btnA.fill == parseHtmlColor("#FF0000")
+    check btnA.stroke.weight == 3.0

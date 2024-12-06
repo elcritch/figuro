@@ -46,14 +46,52 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
   
   return true
 
-proc apply*(rule: CssBlock, node: Figuro) =
+proc apply*(prop: CssProperty, node: Figuro) =
+  echo "\napply node: ", node.uid, " ", node.name, " prop: ", prop.repr
+
+  template setCxFixed(cx, field) =
+    match cx:
+      UiValue(value):
+        match value:
+          UiFixed(coord):
+            field = coord.float32
+          _:
+            discard
+        discard
+      _:
+        discard
+  match prop.value:
+    MissingCssValue:
+      raise newException(ValueError, "missing css value!")
+    CssColor(c):
+      echo "\tapply color: ", c.repr
+      case prop.name:
+      of "background":
+        node.fill = c
+      of "border-width":
+        node.fill = c
+      else:
+        echo "warning: ", "unhandled css property: ", prop.repr
+    CssSize(cx):
+      echo "\tapply size: ", cx.repr
+      case prop.name:
+      of "border-width":
+        echo "\n\nBORDER: ", cx.repr
+        setCxFixed(cx, node.stroke.weight)
+      else:
+        echo "warning: ", "unhandled css property: ", prop.repr
+    CssVarName(n):
+      echo "\tapply var: ", n.repr
+
+
+proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
 
   var
     sel: CssSelector
     matched = true
     combinator = skNone
-    curr = node
+    # curr = node
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
@@ -88,12 +126,14 @@ proc apply*(rule: CssBlock, node: Figuro) =
   
   if matched:
     echo "matched node: ", node.uid
-    print rule.selectors
+    # print rule.selectors
     echo "setting properties:"
-    print rule.properties
+    for prop in rule.properties:
+      # print rule.properties
+      prop.apply(node)
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
   if not node.frame.theme.isNil:
     for rule in node.frame.theme.cssRules:
-      rule.apply(node)
+      rule.eval(node)
