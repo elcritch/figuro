@@ -149,8 +149,9 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
 
 proc handleTheme*(fig: Figuro) {.slot.} =
   # echo "theme: ", fig.frame.isNil
-  echo "fig: ", fig.getId()
+  echo "Theme: ", fig.getId(), " name: ", fig.name, " class: ", fig.widgetName, " theme: ", $fig.frame.theme.isNil
   discard
+  # cssRules
 
 proc connectDefaults*[T](node: T) {.slot.} =
   ## only activate these if custom ones have been provided 
@@ -183,11 +184,12 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   let frame = AppFrame(root: root)
   root.frame = frame
   if frame.theme.isNil:
+    frame.theme = Theme(font: defaultFont)
     let defaultTheme = "theme.css"
     if defaultTheme.fileExists():
       let parser = newCssParser(Path(defaultTheme))
       let cssTheme = parse(parser)
-    frame.theme = Theme(font: defaultFont)
+      frame.theme.cssRules = cssTheme
   frame.setSize(size)
   refresh(root)
   return frame

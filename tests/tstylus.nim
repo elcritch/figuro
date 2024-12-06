@@ -5,6 +5,11 @@ import cssgrid
 
 import std/unittest
 
+import figuro/widget
+import figuro/common/nodes/ui
+import figuro/common/nodes/render
+import figuro/widgets/button
+
 suite "css parser":
 
   test "blocks":
@@ -129,3 +134,34 @@ suite "css parser":
       let parser = newCssParser(src)
       let res = parse(parser)
       echo "results: ", res.repr
+
+type
+  TMain* = ref object of Figuro
+
+proc draw*(self: TMain) {.slot.} =
+  echo "draw: "
+  let node = self
+  self.name = "main"
+  rectangle "body":
+    rectangle "child1":
+      discard
+  
+  Button[int].new "btn":
+    with node:
+      box 40'ux, 30'ux, 80'ux, 80'ux
+      fill css"#2B9F2B"
+
+suite "css exec":
+  test "css target":
+
+    var main = TMain.new()
+    main.frame = newAppFrame(main, size=(400'ui, 140'ui))
+    main.frame.theme = Theme(font: defaultFont)
+    let defaultTheme = "tests/theme.css"
+    let parser = newCssParser(Path(defaultTheme))
+    let cssTheme = parse(parser)
+    main.frame.theme.cssRules = cssTheme
+    connectDefaults(main)
+    emit main.doDraw()
+
+    echo "\nmain: ", $main

@@ -111,6 +111,17 @@ proc isNil*(fig: FiguroWeakRef): bool =
 proc `[]`*(fig: FiguroWeakRef): Figuro =
   cast[Figuro](fig.cur)
 
+proc `$`*(fig: FiguroWeakRef): string =
+  "WeakRef[" & repr(cast[pointer](fig)) & "]"
+
+proc toString*(n: Figuro, depth: int): string =
+  result = "\t".repeat(depth) & "– uiNode: " & "uid:" & $n.uid & " " & $n.name & " (" & $n.widgetName & ")"
+  for c in n.children:
+    result &= "\n" & toString(c, depth+1)
+
+proc `$`*(n: Figuro): string =
+  result = toString(n, 0)
+
 proc children*(fig: FiguroWeakRef): seq[Figuro] =
   fig.cur.children
 
