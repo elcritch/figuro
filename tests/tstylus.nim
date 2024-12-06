@@ -172,7 +172,7 @@ suite "css exec":
       border-color: #00FF00;
     }
 
-    #child2 Button {
+    #child2 < Button {
       background: #0000FF;
     }
     """

@@ -47,7 +47,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
   return true
 
 proc apply*(prop: CssProperty, node: Figuro) =
-  echo "\napply node: ", node.uid, " ", node.name, " prop: ", prop.repr
+  # echo "\napply node: ", node.uid, " ", node.name, " prop: ", prop.repr
 
   template setCxFixed(cx, field) =
     match cx:
@@ -64,7 +64,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
     MissingCssValue:
       raise newException(ValueError, "missing css value!")
     CssColor(c):
-      echo "\tapply color: ", c.repr
+      # echo "\tapply color: ", c.repr
       case prop.name:
       of "background":
         node.fill = c
@@ -73,14 +73,14 @@ proc apply*(prop: CssProperty, node: Figuro) =
       else:
         echo "warning: ", "unhandled css property: ", prop.repr
     CssSize(cx):
-      echo "\tapply size: ", cx.repr
+      # echo "\tapply size: ", cx.repr
       case prop.name:
       of "border-width":
         setCxFixed(cx, node.stroke.weight)
       else:
         echo "warning: ", "unhandled css property: ", prop.repr
     CssVarName(n):
-      echo "\tapply var: ", n.repr
+      echo "warning: ", "unhandled css variable: ", prop.repr
 
 
 proc eval*(rule: CssBlock, node: Figuro) =
