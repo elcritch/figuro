@@ -16,7 +16,7 @@ iterator parents*(node: Figuro): Figuro =
     if cnt > 10_000:
       raise newException(IndexDefect, "error finding root")
 
-proc apply*(sel: CssSelector, node: Figuro): bool =
+proc checkMatch*(sel: CssSelector, node: Figuro): bool =
   result = false
 
   # echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
@@ -61,15 +61,21 @@ proc apply*(rule: CssBlock, node: Figuro) =
     # print "comb: ", combinator
     case combinator:
     of skNone, skPseudo:
-      matched = matched and sel.apply(node)
+      matched = matched and sel.checkMatch(node)
       if not matched:
         # echo "not matched"
         break
+    of skDirectChild:
+      if node.parent.isNil:
+        matched = false
+      else:
+        matched = matched and sel.checkMatch(node.parent.toRef)
+
     of skDescendent:
       var parentMatched = false
       for p in node.parents():
         # echo "sel:p: ", p.uid
-        parentMatched = sel.apply(p)
+        parentMatched = sel.checkMatch(p)
         if parentMatched:
           # echo "sel:p:matched "
           break
@@ -79,6 +85,12 @@ proc apply*(rule: CssBlock, node: Figuro) =
 
     # echo "selMatch: ", matched, " idx: ", i, "\n"
     combinator = sel.combinator
+  
+  if matched:
+    echo "matched node: ", node.uid
+    print rule.selectors
+    echo "setting properties:"
+    print rule.properties
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
