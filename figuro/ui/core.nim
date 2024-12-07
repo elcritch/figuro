@@ -183,6 +183,7 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   if frame.theme.isNil:
     frame.theme = Theme(font: defaultFont)
     let defaultTheme = "theme.css"
+    echo "Try loading from: ", ospaths2.getCurrentDir()
     if defaultTheme.fileExists():
       let parser = newCssParser(Path(defaultTheme))
       let cssTheme = parse(parser)

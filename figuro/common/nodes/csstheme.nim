@@ -49,12 +49,12 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
 proc apply*(prop: CssProperty, node: Figuro) =
   # echo "\napply node: ", node.uid, " ", node.name, " prop: ", prop.repr
 
-  template setCxFixed(cx, field) =
+  template setCxFixed(cx, field: untyped, tp = float32) =
     match cx:
       UiValue(value):
         match value:
           UiFixed(coord):
-            field = coord.float32
+            field = coord.tp
           _:
             discard
         discard
@@ -77,6 +77,8 @@ proc apply*(prop: CssProperty, node: Figuro) =
       case prop.name:
       of "border-width":
         setCxFixed(cx, node.stroke.weight)
+      of "border-radius":
+        setCxFixed(cx, node.cornerRadius, UICoord)
       else:
         echo "warning: ", "unhandled css property: ", prop.repr
     CssVarName(n):
