@@ -1,5 +1,6 @@
 import std/[tables, unicode, os, ]
 import std/terminal
+import std/times
 # import cssgrid
 
 import basiccss
@@ -182,15 +183,21 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   root.frame = frame
   if frame.theme.isNil:
     frame.theme = Theme(font: defaultFont)
-    let defaultTheme = "theme.css"
-    echo "Try loading from: ", ospaths2.getCurrentDir()
-    if defaultTheme.fileExists():
-      let parser = newCssParser(Path(defaultTheme))
-      let cssTheme = parse(parser)
-      frame.theme.cssRules = cssTheme
   frame.setSize(size)
   refresh(root)
   return frame
+
+var lastModificationTime: times.Time
+
+proc loadTheme*(frame: AppFrame, defaultTheme = "theme.css") =
+  if defaultTheme.fileExists():
+    let ts = getLastModificationTime(defaultTheme)
+    if ts > lastModificationTime:
+      lastModificationTime = ts
+      echo "Loading from: ", ospaths2.getCurrentDir()
+      let parser = newCssParser(Path(defaultTheme))
+      let cssTheme = parse(parser)
+      frame.theme.cssRules = cssTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
