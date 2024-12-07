@@ -12,6 +12,7 @@ from std/sugar import capture
 export core, cssgrid, stack_strings
 export with
 export capture
+export constraints
 
 # template nodes*[T](fig: T, blk: untyped): untyped =
 #   ## begin drawing nodes

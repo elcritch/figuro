@@ -1,7 +1,9 @@
-import std/[tables, unicode, strformat, ]
+import std/[tables, unicode, os, ]
 import std/terminal
+import std/times
 # import cssgrid
 
+import basiccss
 import commons
 export commons
 
@@ -146,12 +148,16 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
 
+proc handleTheme*(fig: Figuro) {.slot.} =
+  fig.applyThemeRules()
+
 proc connectDefaults*[T](node: T) {.slot.} =
   ## only activate these if custom ones have been provided 
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, Figuro.handlePostDraw())
+  connect(node, doDraw, node, Figuro.handleTheme())
   when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
     connect(node, doClick, node, T.clicked())
   when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
@@ -173,13 +179,25 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   #                          app.uiScale * app.height.float32)
 
   root.diffIndex = 0
-  if root.theme.isNil:
-    root.theme = Theme(font: defaultFont)
   let frame = AppFrame(root: root)
   root.frame = frame
+  if frame.theme.isNil:
+    frame.theme = Theme(font: defaultFont)
   frame.setSize(size)
   refresh(root)
   return frame
+
+var lastModificationTime: times.Time
+
+proc loadTheme*(frame: AppFrame, defaultTheme = "theme.css") =
+  if defaultTheme.fileExists():
+    let ts = getLastModificationTime(defaultTheme)
+    if ts > lastModificationTime:
+      lastModificationTime = ts
+      echo "Loading from: ", ospaths2.getCurrentDir()
+      let parser = newCssParser(Path(defaultTheme))
+      let cssTheme = parse(parser)
+      frame.theme.cssRules = cssTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
@@ -195,24 +213,24 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   template configNodeName(node, name: untyped) =
     node.name = name
 
-  template configNewNode(node: untyped) =
+  template createNewNode(T, node: untyped) =
+    node = T()
     node.debugId = nextAgentId()
     node.uid = node.debugId
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
+    node.widgetName = repr(T).split('[')[0]
     configNodeName(node, name)
 
   if parent.children.len <= parent.diffIndex:
     # Create Figuro.
-    node = T()
-    configNewNode(node)
+    createNewNode(T, node)
     parent.children.add(node)
-    echo nd(), "create new node: ", name, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
+    echo nd(), "create new node: ", node.name, " widget: ", node.widgetName, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
-    node = T.newFiguro()
-    configNewNode(node)
+    createNewNode(T, node)
     # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
     parent.children[parent.diffIndex] = node
   else:
@@ -239,7 +257,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   node.highlight = parent.highlight
   node.transparency = parent.transparency
   node.zlevel = parent.zlevel
-  node.theme = parent.theme
+  # node.theme = parent.theme
 
   node.listens.events = {}
 

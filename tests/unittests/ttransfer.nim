@@ -106,7 +106,8 @@ suite "test layers":
     var node = self
     block:
       node.zlevel = 20
-      discard node.name.tryAdd("root")
+      # discard node.name.tryAdd("root")
+      node.name = "root"
       rectangle "body":
         rectangle "child0":
           discard

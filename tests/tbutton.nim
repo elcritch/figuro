@@ -40,7 +40,8 @@ proc draw*(self: Main) {.slot.} =
         with node:
           box 10'ux, 10'ux, 80'pp, 80'pp
           fill blackColor
-          setText({font: "testing"})
+          setText({font: "testing"}, Center, Middle)
+
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(400'ui, 140'ui))
