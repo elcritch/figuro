@@ -18,7 +18,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 
 proc runFrameImpl(frame: AppFrame) =
     # Ticks
-    emit frame.root.doTick(app.tickCount, getMonoTime())
+    emit frame.root.doTick(getMonoTime())
 
     frame.loadTheme()
 
