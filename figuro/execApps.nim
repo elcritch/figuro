@@ -1,6 +1,7 @@
 
 import std/locks
 import std/sets
+
 import shared, ui/core
 import common/nodes/transfer
 import common/nodes/ui as ui
@@ -17,7 +18,9 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 
 proc runFrameImpl(frame: AppFrame) =
     # Ticks
-    emit frame.root.doTick(app.tickCount, getMonoTime())
+    emit frame.root.doTick(getMonoTime())
+
+    frame.loadTheme()
 
     # Events
     var input: AppInputs

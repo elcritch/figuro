@@ -4,6 +4,7 @@ import std/hashes
 import basics
 import sigils
 import ../../inputs
+import ../../ui/basiccss
 import cssgrid
 import stack_strings
 
@@ -26,6 +27,7 @@ type
 
   Theme* = ref object
     font*: UiFont
+    cssRules*: seq[CssBlock]
 
   AppFrame* = ref object
     redrawNodes*: OrderedSet[Figuro]
@@ -36,12 +38,16 @@ type
 
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
+    theme*: Theme
+
 
   Figuro* = ref object of Agent
     frame*: AppFrame
     parent*: FiguroWeakRef
     uid*: NodeID
     name*: string
+    widgetName*: string
+    widgetClasses*: seq[string]
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
@@ -60,8 +66,6 @@ type
 
     events*: EventFlags
     listens*: ListenEvents
-
-    theme*: Theme
 
     zlevel*: ZLevel
     rotation*: float32
@@ -108,6 +112,17 @@ proc isNil*(fig: FiguroWeakRef): bool =
 proc `[]`*(fig: FiguroWeakRef): Figuro =
   cast[Figuro](fig.cur)
 
+proc `$`*(fig: FiguroWeakRef): string =
+  "WeakRef[" & repr(cast[pointer](fig)) & "]"
+
+proc toString*(n: Figuro, depth: int): string =
+  result = "\t".repeat(depth) & "– uiNode: " & "uid:" & $n.uid & " " & $n.name & " (" & $n.widgetName & ")"
+  for c in n.children:
+    result &= "\n" & toString(c, depth+1)
+
+proc `$`*(n: Figuro): string =
+  result = toString(n, 0)
+
 proc children*(fig: FiguroWeakRef): seq[Figuro] =
   fig.cur.children
 
@@ -139,7 +154,6 @@ proc getId*(fig: FiguroWeakRef): NodeID =
   else: fig[].uid
 
 proc doTick*(fig: Figuro,
-             tickCount: int,
              now: MonoTime) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
@@ -196,9 +210,8 @@ proc drag*(fig: BasicFiguro,
 
 
 proc doTickBubble*(fig: Figuro,
-                   tickCount: int,
                    now: MonoTime) {.slot.} =
-  emit fig.doTick(tickCount, now)
+  emit fig.doTick(now)
 proc doDrawBubble*(fig: Figuro) {.slot.} =
   emit fig.doDraw()
 proc doLoadBubble*(fig: Figuro) {.slot.} =

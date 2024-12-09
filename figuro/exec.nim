@@ -58,7 +58,7 @@ proc runApplication(frame: AppFrame) {.thread.} =
       wait(uiAppEvent)
       timeIt(appAvgTime):
         runFrame(frame)
-        app.frameCount.inc()
+        # app.frameCount.inc()
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer.frame.running:
