@@ -140,9 +140,8 @@ proc getId*(fig: FiguroWeakRef): NodeID =
   if fig.isNil: NodeID -1
   else: fig[].uid
 
-proc doTick*(fig: Figuro,
-             tickCount: int,
-             now: MonoTime) {.signal.}
+proc doTick*(fig: Figuro, tickCount: int, now: MonoTime) {.signal.}
+
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro,
