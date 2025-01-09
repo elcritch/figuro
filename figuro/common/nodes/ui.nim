@@ -120,10 +120,12 @@ template toRef*(fig: FiguroWeakRef): auto =
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
 
+var nextDebugId = 0
+
 proc newFiguro*[T: Figuro](tp: typedesc[T]): T =
   result = T()
-  result.debugId = nextAgentId()
-  result.uid = result.debugId
+  nextDebugId.inc()
+  result.uid = nextDebugId
 
 proc getName*(fig: Figuro): string =
   result = $fig.name
