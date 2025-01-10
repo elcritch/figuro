@@ -39,10 +39,8 @@ var
   appFrames*: Table[AppFrame, Renderer]
 
 const
-  renderPeriodMs {.intdefine.} = 16
-  appPeriodMs {.intdefine.} = 16
+  renderPeriodMs {.intdefine.} = 32
   renderDuration = initDuration(milliseconds = renderPeriodMs)
-  appDuration  = initDuration(milliseconds = appPeriodMs)
 
 var appTickThread: Thread[void]
 var appThread, : Thread[AppFrame]
@@ -62,7 +60,7 @@ proc waitFor*(ts: var MonoTime, dur: Duration) =
 proc appTicker() {.thread.} =
   while app.running:
     uiAppEvent.trigger()
-    os.sleep(renderPeriodMs - 2)
+    os.sleep(renderPeriodMs)
 
 proc runApplication(frame: AppFrame) {.thread.} =
   {.gcsafe.}:
