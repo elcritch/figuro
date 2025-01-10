@@ -77,6 +77,8 @@ proc runRenderer(renderer: Renderer) =
     while waitDur.inMilliseconds < 0:
       next = next + renderDuration
       waitDur = (next-now)
+    # if app.tickCount mod 100 == 0:
+    #   echo "render time: ", $(renderDuration-waitDur)
     os.sleep(waitDur.inMilliseconds)
 
 proc setupFrame*(frame: AppFrame): Renderer =
