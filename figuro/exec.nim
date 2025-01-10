@@ -31,6 +31,9 @@ when not compiles(AppFrame().deepCopy()):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
+type
+  RenderTicker* = ref object of Agent
+
 var
   runFrame*: proc(frame: AppFrame) {.nimcall.}
   appFrames*: Table[AppFrame, Renderer]
@@ -41,6 +44,15 @@ const appPeriodMs {.intdefine.} = 16
 
 var frameTickThread, appTickThread: Thread[void]
 var appThread, : Thread[AppFrame]
+
+proc renderTicker*(self: RenderTicker) {.slot.} =
+  while true:
+    uiRenderEvent.trigger()
+    # emit self.updated(i)
+    os.sleep(appPeriodMs - 2)
+    app.tickCount.inc()
+    if app.tickCount == app.tickCount.typeof.high:
+      app.tickCount = 0
 
 proc renderTicker() {.thread.} =
   while true:
