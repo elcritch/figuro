@@ -61,7 +61,6 @@ proc waitFor*(ts: var MonoTime, dur: Duration) =
 proc appTicker() {.thread.} =
   while app.running:
     uiAppEvent.trigger()
-    # discard uxInputList.trySend(AppInputs(empty: true))
     os.sleep(renderPeriodMs)
 
 proc runApplication(frame: AppFrame) {.thread.} =
@@ -89,8 +88,6 @@ proc setupFrame*(frame: AppFrame): Renderer =
 
 proc run*(frame: AppFrame) =
   let renderer = setupFrame(frame)
-
-  uxInputList = frame.uxInputList
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()

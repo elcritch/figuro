@@ -25,11 +25,8 @@ proc runFrameImpl(frame: AppFrame) =
     ## only process up to ~20 events at a time
     # input = frame.uxInputList.recv()
     # computeEvents(frame)
-
-    var cnt = 20
+    var cnt = 40
     while frame.uxInputList.tryRecv(input) and cnt > 0:
-      if input.empty:
-        return
       uxInputs = input
       computeEvents(frame)
       cnt.dec()
