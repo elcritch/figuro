@@ -25,6 +25,9 @@ export core, events
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}
 
+when not compiles(AppFrame().deepCopy()):
+  {.error: "This module requires --deepcopy:on compilation flag".}
+
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
