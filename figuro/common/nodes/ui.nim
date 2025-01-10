@@ -122,7 +122,7 @@ proc hash*(a: AppFrame): Hash =
 
 var lastNodeUID {.runtimeVar.} = 0
 
-proc nextFiguroId(): NodeId =
+proc nextFiguroId*(): NodeId =
   lastNodeUID.inc()
   result = lastNodeUID
 
