@@ -39,28 +39,14 @@ var
   appFrames*: Table[AppFrame, Renderer]
 
 
-const renderPeriodMs {.intdefine.} = 16
-const appPeriodMs {.intdefine.} = 16
+const
+  renderPeriodMs {.intdefine.} = 16
+  appPeriodMs {.intdefine.} = 16
+  renderDuration = initDuration(milliseconds = renderPeriodMs)
+  appDuration  = initDuration(milliseconds = appPeriodMs)
 
 var frameTickThread, appTickThread: Thread[void]
 var appThread, : Thread[AppFrame]
-
-proc renderTicker*(self: RenderTicker) {.slot.} =
-  while true:
-    uiRenderEvent.trigger()
-    # emit self.updated(i)
-    os.sleep(appPeriodMs - 2)
-    app.tickCount.inc()
-    if app.tickCount == app.tickCount.typeof.high:
-      app.tickCount = 0
-
-proc renderTicker() {.thread.} =
-  while true:
-    uiRenderEvent.trigger()
-    os.sleep(appPeriodMs - 2)
-    app.tickCount.inc()
-    if app.tickCount == app.tickCount.typeof.high:
-      app.tickCount = 0
 
 proc appTicker() {.thread.} =
   while app.running:
@@ -76,10 +62,22 @@ proc runApplication(frame: AppFrame) {.thread.} =
         app.frameCount.inc()
 
 proc runRenderer(renderer: Renderer) =
+  var ts = getMonoTime()
   while app.running and renderer.frame.running:
-    wait(uiRenderEvent)
+    app.tickCount.inc()
+    if app.tickCount == app.tickCount.typeof.high:
+      app.tickCount = 0
     timeIt(renderAvgTime):
       renderer.render(true)
+    
+    var
+      next = ts
+      now = getMonoTime()
+      waitDur = (next-now)
+    while waitDur.inMilliseconds < 0:
+      next = next + renderDuration
+      waitDur = (next-now)
+    os.sleep(waitDur.inMilliseconds)
 
 proc setupFrame*(frame: AppFrame): Renderer =
   let renderer = setupRenderer(frame)
@@ -92,7 +90,7 @@ proc run*(frame: AppFrame) =
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
-  createThread(frameTickThread, renderTicker)
+  # createThread(frameTickThread, renderTicker)
   createThread(appTickThread, appTicker)
   createThread(appThread, runApplication, frame)
 
