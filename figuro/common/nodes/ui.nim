@@ -232,7 +232,7 @@ template bubble*(signal: typed, parent: typed) =
   connect(node, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(node, `signal`, node.parent{}, `signal Bubble`)
+  connect(node, `signal`, node.parent[], `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth), "render: ", n.getId,
