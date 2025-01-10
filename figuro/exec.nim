@@ -39,7 +39,7 @@ var
   appFrames*: Table[AppFrame, Renderer]
 
 const
-  renderPeriodMs {.intdefine.} = 24
+  renderPeriodMs {.intdefine.} = 16
   renderDuration = initDuration(milliseconds = renderPeriodMs)
 
 var appTickThread: Thread[void]
