@@ -45,8 +45,9 @@ proc runFrameImpl(frame: AppFrame) =
       computeScreenBox(nil, frame.root)
       appFrames.withValue(frame, renderer):
         withLock(renderer.lock):
-          renderer.updated.store true
           renderer.nodes = frame.root.copyInto()
+          renderer.updated.store true
+        uiAppEvent.trigger()
 
 exec.runFrame = runFrameImpl
 
