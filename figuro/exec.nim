@@ -60,14 +60,14 @@ proc waitFor*(ts: var MonoTime, dur: Duration) =
 
 proc appTicker() {.thread.} =
   while app.running:
-    # uiAppEvent.trigger()
-    discard uxInputList.trySend(AppInputs(empty: true))
+    uiAppEvent.trigger()
+    # discard uxInputList.trySend(AppInputs(empty: true))
     os.sleep(renderPeriodMs)
 
 proc runApplication(frame: AppFrame) {.thread.} =
   {.gcsafe.}:
     while app.running:
-      # wait(uiAppEvent)
+      wait(uiAppEvent)
       timeIt(appAvgTime):
         runFrame(frame)
         app.frameCount.inc()

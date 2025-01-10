@@ -298,6 +298,6 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
       windy.pollEvents()
   
   if update:
+    renderer.updated.store false
     renderAndSwap(renderer, update)
-  renderer.updated.store false
 
