@@ -109,10 +109,9 @@ proc hash*(a: AppFrame): Hash =
 
 var lastNodeUID {.runtimeVar.} = 0
 
-proc nextFiguroId*(): NodeId =
+proc nextFiguroId*(): NodeID =
   lastNodeUID.inc()
   result = lastNodeUID
-
 
 proc newFiguro*[T: Figuro](tp: typedesc[T]): T =
   result = T()
