@@ -67,7 +67,6 @@ proc runRenderer(renderer: Renderer) =
       app.tickCount = 0
     timeIt(renderAvgTime):
       renderer.render(false)
-    # ts.waitFor(renderDuration)
     os.sleep(renderDuration.inMilliseconds)
 
 proc setupFrame*(frame: AppFrame): Renderer =
