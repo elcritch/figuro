@@ -48,6 +48,18 @@ const
 var appTickThread: Thread[void]
 var appThread, : Thread[AppFrame]
 
+proc waitFor*(ts: var MonoTime, dur: Duration) =
+  var
+    next = ts
+    now = getMonoTime()
+    waitDur = (next-now)
+  while waitDur.inMilliseconds < 0:
+    next = next + dur
+    waitDur = (next-now)
+  # if app.tickCount mod 100 == 0:
+  #   echo "render time: ", $(renderDuration-waitDur)
+  os.sleep(waitDur.inMilliseconds)
+
 proc appTicker() {.thread.} =
   while app.running:
     uiAppEvent.trigger()
@@ -68,18 +80,8 @@ proc runRenderer(renderer: Renderer) =
     if app.tickCount == app.tickCount.typeof.high:
       app.tickCount = 0
     timeIt(renderAvgTime):
-      renderer.render(true)
-    
-    var
-      next = ts
-      now = getMonoTime()
-      waitDur = (next-now)
-    while waitDur.inMilliseconds < 0:
-      next = next + renderDuration
-      waitDur = (next-now)
-    # if app.tickCount mod 100 == 0:
-    #   echo "render time: ", $(renderDuration-waitDur)
-    os.sleep(waitDur.inMilliseconds)
+      renderer.render(false)
+    ts.waitFor(renderDuration)
 
 proc setupFrame*(frame: AppFrame): Renderer =
   let renderer = setupRenderer(frame)
