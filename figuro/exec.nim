@@ -40,23 +40,11 @@ var
   uxInputList*: Chan[AppInputs]
 
 const
-  renderPeriodMs {.intdefine.} = 16
+  renderPeriodMs {.intdefine.} = 14
   renderDuration = initDuration(milliseconds = renderPeriodMs)
 
 var appTickThread: Thread[void]
 var appThread, : Thread[AppFrame]
-
-proc waitFor*(ts: var MonoTime, dur: Duration) {.inline.} =
-  var
-    next = ts
-    now = getMonoTime()
-    waitDur = (next-now)
-  while waitDur.inMilliseconds < 0:
-    next = next + dur
-    waitDur = (next-now)
-  # if app.tickCount mod 100 == 0:
-  #   echo "render time: ", $(renderDuration-waitDur)
-  os.sleep(waitDur.inMilliseconds)
 
 proc appTicker() {.thread.} =
   while app.running:
@@ -72,14 +60,15 @@ proc runApplication(frame: AppFrame) {.thread.} =
         app.frameCount.inc()
 
 proc runRenderer(renderer: Renderer) =
-  var ts = getMonoTime()
   while app.running and renderer.frame.running:
+    # var ts = getMonoTime()
     app.tickCount.inc()
     if app.tickCount == app.tickCount.typeof.high:
       app.tickCount = 0
     timeIt(renderAvgTime):
       renderer.render(false)
-    ts.waitFor(renderDuration)
+    # ts.waitFor(renderDuration)
+    os.sleep(renderDuration.inMilliseconds)
 
 proc setupFrame*(frame: AppFrame): Renderer =
   let renderer = setupRenderer(frame)
