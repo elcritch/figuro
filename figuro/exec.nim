@@ -45,7 +45,7 @@ const
   renderDuration = initDuration(milliseconds = renderPeriodMs)
   appDuration  = initDuration(milliseconds = appPeriodMs)
 
-var frameTickThread, appTickThread: Thread[void]
+var appTickThread: Thread[void]
 var appThread, : Thread[AppFrame]
 
 proc appTicker() {.thread.} =
@@ -90,7 +90,6 @@ proc run*(frame: AppFrame) =
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
-  # createThread(frameTickThread, renderTicker)
   createThread(appTickThread, appTicker)
   createThread(appThread, runApplication, frame)
 
