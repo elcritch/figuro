@@ -37,9 +37,10 @@ type
 var
   runFrame*: proc(frame: AppFrame) {.nimcall.}
   appFrames*: Table[AppFrame, Renderer]
+  uxInputList*: Chan[AppInputs]
 
 const
-  renderPeriodMs {.intdefine.} = 32
+  renderPeriodMs {.intdefine.} = 16
   renderDuration = initDuration(milliseconds = renderPeriodMs)
 
 var appTickThread: Thread[void]
@@ -59,13 +60,14 @@ proc waitFor*(ts: var MonoTime, dur: Duration) =
 
 proc appTicker() {.thread.} =
   while app.running:
-    uiAppEvent.trigger()
+    # uiAppEvent.trigger()
+    discard uxInputList.trySend(AppInputs(empty: true))
     os.sleep(renderPeriodMs)
 
 proc runApplication(frame: AppFrame) {.thread.} =
   {.gcsafe.}:
     while app.running:
-      wait(uiAppEvent)
+      # wait(uiAppEvent)
       timeIt(appAvgTime):
         runFrame(frame)
         app.frameCount.inc()
@@ -87,6 +89,8 @@ proc setupFrame*(frame: AppFrame): Renderer =
 
 proc run*(frame: AppFrame) =
   let renderer = setupFrame(frame)
+
+  uxInputList = frame.uxInputList
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()

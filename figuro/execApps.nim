@@ -23,6 +23,8 @@ proc runFrameImpl(frame: AppFrame) =
     # Events
     var input: AppInputs
     ## only process up to ~20 events at a time
+    input = frame.uxInputList.recv()
+    computeEvents(frame)
     var cnt = 20
     while frame.uxInputList.tryRecv(input) and cnt > 0:
       uxInputs = input
@@ -47,7 +49,6 @@ proc runFrameImpl(frame: AppFrame) =
         withLock(renderer.lock):
           renderer.nodes = frame.root.copyInto()
           renderer.updated.store true
-        uiAppEvent.trigger()
 
 exec.runFrame = runFrameImpl
 
