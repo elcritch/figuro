@@ -1,6 +1,7 @@
 
 import std/locks
 import std/sets
+import pkg/threading/atomics
 import shared, ui/core
 import common/nodes/transfer
 import common/nodes/ui as ui
@@ -44,7 +45,7 @@ proc runFrameImpl(frame: AppFrame) =
       computeScreenBox(nil, frame.root)
       appFrames.withValue(frame, renderer):
         withLock(renderer.lock):
-          renderer.updated = true
+          renderer.updated.store true
           renderer.nodes = frame.root.copyInto()
 
 exec.runFrame = runFrameImpl

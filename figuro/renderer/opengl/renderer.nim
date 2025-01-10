@@ -1,5 +1,6 @@
 import std/[hashes, os, strformat, tables, times, unicode]
 
+import pkg/threading/atomics
 import pkg/chroma
 import pkg/windy
 import pkg/opengl
@@ -21,7 +22,7 @@ type
     uxInputList*: Chan[AppInputs]
     frame*: AppFrame
     lock*: Lock
-    updated*: bool
+    updated*: Atomic[bool]
     nodes*: RenderNodes
 
 proc newRenderer*(
@@ -284,7 +285,9 @@ proc renderAndSwap(renderer: Renderer,
 proc render*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
-  let update = renderer.updated or updated
+  let
+    renderUpdate = renderer.updated.load()
+    update = renderUpdate or updated
 
   if renderer.window.closeRequested:
     renderer.frame.running = false
@@ -296,4 +299,5 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
   
   if update:
     renderAndSwap(renderer, update)
+  renderer.updated.store false
 
