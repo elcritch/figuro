@@ -65,7 +65,6 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   node.zlevel = 0.ZLevel
   node.attrs = {}
   
-
 var nodeDepth = 0
 proc nd*(): string =
   for i in 0..nodeDepth:
@@ -196,8 +195,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     node.name = name
 
   template configNewNode(node: untyped) =
-    node.debugId = nextAgentId()
-    node.uid = node.debugId
+    node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
     configNodeName(node, name)
