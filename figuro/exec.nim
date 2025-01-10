@@ -46,7 +46,7 @@ const
 var appTickThread: Thread[void]
 var appThread, : Thread[AppFrame]
 
-proc waitFor*(ts: var MonoTime, dur: Duration) =
+proc waitFor*(ts: var MonoTime, dur: Duration) {.inline.} =
   var
     next = ts
     now = getMonoTime()
