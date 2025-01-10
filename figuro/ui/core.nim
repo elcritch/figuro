@@ -65,7 +65,6 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   node.zlevel = 0.ZLevel
   node.attrs = {}
   
-
 var nodeDepth = 0
 proc nd*(): string =
   for i in 0..nodeDepth:
@@ -73,7 +72,7 @@ proc nd*(): string =
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
-    fig.parent.cur = nil
+    fig.parent.pt = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
@@ -196,8 +195,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     node.name = name
 
   template configNewNode(node: untyped) =
-    node.debugId = nextAgentId()
-    node.uid = node.debugId
+    node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
     configNodeName(node, name)
@@ -234,7 +232,6 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
-  node.uid = node.debugId
   node.kind = kind
   node.highlight = parent.highlight
   node.transparency = parent.transparency

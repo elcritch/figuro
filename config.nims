@@ -8,6 +8,7 @@ switch("styleCheck", "hint")
 --d:windyNoHttp
 --d:printDebugTimings
 --d:nimStrictDelete
+--deepcopy:on
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 

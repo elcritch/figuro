@@ -6,9 +6,11 @@ import sigils
 import ../../inputs
 import cssgrid
 import stack_strings
+import sigils/weakrefs
 
 export basics, sigils, inputs, cssgrid, stack_strings
 export unicode, monotimes
+export weakrefs
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -39,7 +41,7 @@ type
 
   Figuro* = ref object of Agent
     frame*: AppFrame
-    parent*: FiguroWeakRef
+    parent*: WeakRef[Figuro]
     uid*: NodeID
     name*: string
     children*: seq[Figuro]
@@ -84,9 +86,6 @@ type
     textLayout*: GlyphArrangement
     points*: seq[Position]
 
-  FiguroWeakRef* = object
-    cur* {.cursor.}: Figuro
-
   BasicFiguro* = ref object of Figuro
 
   StatefulFiguro*[T] = ref object of Figuro
@@ -97,33 +96,26 @@ type
 
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy
-  let objPtr = FiguroWeakRef(cur: cast[Figuro](addr obj))
+  let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
   for child in obj.children:
     assert objPtr == child.parent
-    child.parent.cur = nil
+    child.parent.pt = nil
 
-proc isNil*(fig: FiguroWeakRef): bool =
-  fig.cur.isNil()
-
-proc `[]`*(fig: FiguroWeakRef): Figuro =
-  cast[Figuro](fig.cur)
-
-proc children*(fig: FiguroWeakRef): seq[Figuro] =
-  fig.cur.children
-
-proc unsafeWeakRef*(obj: Figuro): FiguroWeakRef =
-  result = FiguroWeakRef(cur: obj)
-
-template toRef*(fig: FiguroWeakRef): auto =
-  fig.cur
+proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
+  fig{}.children
 
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
 
+var lastNodeUID {.runtimeVar.} = 0
+
+proc nextFiguroId*(): NodeID =
+  lastNodeUID.inc()
+  result = lastNodeUID
+
 proc newFiguro*[T: Figuro](tp: typedesc[T]): T =
   result = T()
-  result.debugId = nextAgentId()
-  result.uid = result.debugId
+  result.uid = nextFiguroId()
 
 proc getName*(fig: Figuro): string =
   result = $fig.name
@@ -134,13 +126,12 @@ proc getId*(fig: Figuro): NodeID =
   if fig.isNil: NodeID -1
   else: fig.uid
 
-proc getId*(fig: FiguroWeakRef): NodeID =
+proc getId*(fig: WeakRef[Figuro]): NodeID =
   if fig.isNil: NodeID -1
   else: fig[].uid
 
-proc doTick*(fig: Figuro,
-             tickCount: int,
-             now: MonoTime) {.signal.}
+proc doTick*(fig: Figuro, tickCount: int, now: MonoTime) {.signal.}
+
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro,
@@ -237,7 +228,7 @@ template bubble*(signal: typed, parent: typed) =
   connect(node, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(node, `signal`, node.parent.cur, `signal Bubble`)
+  connect(node, `signal`, node.parent[], `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth), "render: ", n.getId,
