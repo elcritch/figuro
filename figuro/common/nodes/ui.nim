@@ -101,9 +101,6 @@ proc `=destroy`*(obj: type(Figuro()[])) =
     assert objPtr == child.parent
     child.parent.pt = nil
 
-proc isNil*(fig: WeakRef[Figuro]): bool =
-  fig.isNil()
-
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig{}.children
 
