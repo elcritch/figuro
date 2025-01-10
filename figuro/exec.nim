@@ -61,7 +61,6 @@ proc runApplication(frame: AppFrame) {.thread.} =
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer.frame.running:
-    # var ts = getMonoTime()
     app.tickCount.inc()
     if app.tickCount == app.tickCount.typeof.high:
       app.tickCount = 0
