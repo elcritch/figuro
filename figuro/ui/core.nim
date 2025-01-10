@@ -232,7 +232,6 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
-  node.uid = node.debugId
   node.kind = kind
   node.highlight = parent.highlight
   node.transparency = parent.transparency
