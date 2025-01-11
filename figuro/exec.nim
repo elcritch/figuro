@@ -47,13 +47,12 @@ type
   AppTicker* = ref object of Agent
     period*: Duration
 
-proc appTick*(tp: AgentProxy[AppTicker]) {.signal.}
+proc appTick*(tp: AppTicker) {.signal.}
 
-proc appTicker*(self: AgentProxy[AppTicker]) {.slot.} =
+proc appTicker*(self: AppTicker) {.slot.} =
   while app.running:
-    echo "tick: "
     emit self.appTick()
-    os.sleep(self.remote.toKind(AppTicker)[].period.inMilliseconds)
+    os.sleep(self.period.inMilliseconds)
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:

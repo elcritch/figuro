@@ -7,6 +7,8 @@ import common/nodes/transfer
 import common/nodes/ui as ui
 import common/nodes/render as render
 import widget
+import sigils
+import sigils/threads
 
 import exec
 
@@ -60,10 +62,9 @@ proc startFiguro*(
   appTickThread = newSigilThread()
   var ticker = AppTicker(period: renderDuration)
   let tp = ticker.moveToThread(ensureMove appTickThread)
-  connect(tp, appTick, frame, runFrameImpl)
+  threads.connect(tp, appTick, frame, AppFrame.runFrameImpl())
 
-  connect(appTickThread[].agent, started, tp, appTicker)
+  threads.connect(appTickThread[].agent, started, tp, appTicker)
   appTickThread.start()
 
   run(frame)
-  discard tp
