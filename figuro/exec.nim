@@ -10,13 +10,10 @@ else:
   export opengl
 
 import std/os
-import std/sharedtables
 
 import shared, internal
 import ui/[core, events]
 import common/nodes/ui
-import common/nodes/render
-import common/nodes/transfer
 import widget
 import timers
 
