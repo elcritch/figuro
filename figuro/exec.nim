@@ -60,9 +60,9 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc cssLoaded*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
+proc cssLoaded*(tp: CssLoader, cssRules: int) {.signal.}
 
-proc cssLoader*(self: CssLoader, cssRules: seq[CssBlock]) {.slot.} =
+proc cssLoader*(self: CssLoader, cssRules: int) {.slot.} =
   echo "start css loader"
   printConnections(self)
   while app.running:
@@ -73,7 +73,7 @@ proc cssLoader*(self: CssLoader, cssRules: seq[CssBlock]) {.slot.} =
       emit self.cssLoaded(cssRules)
     os.sleep(initDuration(seconds=10).inMilliseconds)
 
-proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
+proc updateTheme*(self: AppFrame, cssRules: int) {.slot.} =
   echo "CSS theme loaded"
   discard
 
