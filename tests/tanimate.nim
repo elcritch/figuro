@@ -11,7 +11,7 @@ type
   Main* = ref object of Figuro
     value: float
 
-proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
+proc tick*(self: Main, now: MonoTime) {.slot.} =
   refresh(self)
   self.value = 0.004 * (1+tick).toFloat
   self.value = clamp(self.value mod 1.0, 0, 1.0)
