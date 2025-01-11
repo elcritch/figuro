@@ -49,7 +49,8 @@ type
 
 proc appTick*(tp: AppTicker) {.signal.}
 
-proc appTicker*(self: AppTicker) {.slot.} =
+proc tick*(self: AppTicker) {.slot.} =
+  echo "start tick"
   printConnections(self)
   while app.running:
     echo "tick"
@@ -62,7 +63,7 @@ proc setupTicker(frame: AppFrame) =
     ticker.debugName = "Ticker"
   connect(ticker, appTick, frame, frame.frameRunner)
   let tp = ticker.moveToThread(appTickThread)
-  threads.connect(appTickThread[].agent, started, tp, appTicker)
+  threads.connect(appTickThread[].agent, started, tp, AppTicker.tick)
   appTickThread.start()
 
 proc start(self: AppFrame) {.slot.} =
