@@ -69,7 +69,8 @@ proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
   appFrames[frame] = renderer
   result = renderer
 
-proc run*(frame: sink AppFrame, ticker: sink AppTicker) =
+proc run*(frame: var AppFrame, ticker: var AppTicker) =
+  echo "run frame: ", frame.unsafeGcCount
   let renderer = setupFrame(frame.unsafeWeakRef())
 
   uiRenderEvent = initUiEvent()
@@ -81,8 +82,8 @@ proc run*(frame: sink AppFrame, ticker: sink AppTicker) =
   appTickThread.start()
   appThread.start()
 
-  let tp = ticker.moveToThread(appTickThread)
-  let frameProxy = frame.moveToThread(appThread)
+  let tp = ticker.moveToThread(ensureMove appTickThread)
+  let frameProxy = frame.moveToThread(ensureMove appThread)
 
   proc ctrlc() {.noconv.} =
     echo "Got Ctrl+C exiting!"

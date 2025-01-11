@@ -92,8 +92,8 @@ proc refresh*(node: Figuro) =
   if node == nil:
     return
   # app.requestedFrame.inc
-  assert node.frame != nil
-  node.frame.redrawNodes.incl(node)
+  assert not node.frame.isNil
+  node.frame[].redrawNodes.incl(node)
 
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
@@ -175,7 +175,7 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   if root.theme.isNil:
     root.theme = Theme(font: defaultFont)
   let frame = AppFrame(root: root)
-  root.frame = frame
+  root.frame = frame.unsafeWeakRef()
   frame.setSize(size)
   refresh(root)
   return frame
@@ -384,8 +384,9 @@ template calcBasicConstraintImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  let parentBox = if node.parent.isNil: node.frame.windowSize
-                  else: node.parent[].box
+  let parentBox =
+    if node.parent.isNil: node.frame[].windowSize
+    else: node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
@@ -455,8 +456,9 @@ template calcBasicConstraintPostImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  let parentBox = if node.parent.isNil: node.frame.windowSize
-                  else: node.parent[].box
+  let parentBox =
+    if node.parent.isNil: node.frame[].windowSize
+    else: node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord

@@ -39,7 +39,7 @@ type
     windowRawSize*: Vec2    ## Screen coordinates
 
   Figuro* = ref object of Agent
-    frame*: AppFrame
+    frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]
     uid*: NodeID
     name*: string
