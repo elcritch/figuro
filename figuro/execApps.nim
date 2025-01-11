@@ -67,3 +67,4 @@ proc startFiguro*(
   appTickThread.start()
 
   run(frame)
+  echo "tp: ", tp
