@@ -80,13 +80,13 @@ proc run*(frame: var AppFrame, ticker: var AppTicker) =
   appTickThread = newSigilThread()
   appThread = newSigilThread()
 
-  appTickThread.start()
-  appThread.start()
-
   let tp = ticker.moveToThread(ensureMove appTickThread)
   let frameProxy = frame.moveToThread(ensureMove appThread)
  
   connect(appTickThread[].agent, started, tp.getRemote()[], appTicker)
+
+  appTickThread.start()
+  appThread.start()
 
   proc ctrlc() {.noconv.} =
     echo "Got Ctrl+C exiting!"
