@@ -60,11 +60,10 @@ proc startFiguro*(
   appTickThread = newSigilThread()
   var ticker = AppTicker(period: renderDuration)
   let tp = ticker.moveToThread(ensureMove appTickThread)
-  connect(ticker, appTick, frame, runFrameImpl)
+  connect(tp, appTick, frame, runFrameImpl)
 
-  connect(appTickThread[].agent, started, tp.getRemote()[], appTicker)
-
+  connect(appTickThread[].agent, started, tp, appTicker)
   appTickThread.start()
 
   run(frame)
-  echo "tp: ", tp
+  discard tp
