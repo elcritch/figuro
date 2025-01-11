@@ -213,7 +213,8 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   template configNodeName(node, name: untyped) =
     node.name = name
 
-  template configNewNode(node: untyped) =
+  template createNewNode[T](tp: typedesc[T], node: untyped) =
+    node = T()
     node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
