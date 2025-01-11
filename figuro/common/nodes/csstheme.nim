@@ -1,7 +1,8 @@
 
 import ../../ui/basiccss
 import ui
-import pretty
+import pkg/pretty
+import pkg/sigils/weakrefs
 
 template has(val: string): bool =
   val.len() > 0
@@ -10,11 +11,12 @@ iterator parents*(node: Figuro): Figuro =
   var curr = node
   var cnt = 0
   while not curr.parent.isNil() and curr.unsafeWeakRef() != curr.parent:
-    curr = curr.parent.toRef
-    yield curr
-    cnt.inc
-    if cnt > 10_000:
-      raise newException(IndexDefect, "error finding root")
+    withRef curr.parent, parent:
+      curr = parent
+      yield curr
+      cnt.inc
+      if cnt > 10_000:
+        raise newException(IndexDefect, "error finding root")
 
 proc checkMatch*(sel: CssSelector, node: Figuro): bool =
   result = false
@@ -108,7 +110,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
       if node.parent.isNil:
         matched = false
       else:
-        matched = matched and sel.checkMatch(node.parent.toRef)
+        matched = matched and sel.checkMatch(node.parent[])
 
     of skDescendent:
       var parentMatched = false
@@ -135,6 +137,6 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
-  if not node.frame.theme.isNil:
-    for rule in node.frame.theme.cssRules:
+  if not node.frame[].theme.isNil:
+    for rule in node.frame[].theme.cssRules:
       rule.eval(node)

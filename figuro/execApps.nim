@@ -20,7 +20,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 
 proc runFrameImpl(frame: AppFrame) {.slot.} =
   # Ticks
-  emit frame.root.doTick(app.tickCount, getMonoTime())
+  emit frame.root.doTick(getMonoTime())
 
   # Events
   var input: AppInputs
