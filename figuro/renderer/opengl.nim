@@ -3,6 +3,7 @@ import std/terminal
 
 import pkg/pixie
 import pkg/windy
+import pkg/sigils/weakrefs
 
 import ../shared
 import ../inputs
@@ -31,11 +32,11 @@ proc configureWindowEvents(renderer: Renderer) =
     updateWindowSize(renderer.frame, window)
     renderer.render(updated = true, poll = false)
     var uxInput = window.copyInputs()
-    uxInput.windowSize = some renderer.frame.windowSize
+    uxInput.windowSize = some renderer.frame[].windowSize
     discard renderer.uxInputList.trySend(uxInput)
   
   window.onFocusChange = proc () =
-    renderer.frame.focused = window.focused
+    renderer.frame[].focused = window.focused
     let uxInput = window.copyInputs()
     discard renderer.uxInputList.trySend(uxInput)
 
@@ -94,9 +95,9 @@ proc configureWindowEvents(renderer: Renderer) =
                               {styleDim}, fgGreen, $rune)
     discard renderer.uxInputList.trySend(uxInput)
 
-  renderer.frame.running = true
+  renderer.frame[].running = true
 
-proc setupRenderer*[F](frame: F): Renderer =
+proc setupRenderer*[F](frame: WeakRef[F]): Renderer =
   let window = newWindow("", ivec2(1280, 800))
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, window, false, 1.0, atlasSize)

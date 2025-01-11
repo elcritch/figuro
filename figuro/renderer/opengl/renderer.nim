@@ -5,6 +5,8 @@ import pkg/chroma
 import pkg/windy
 import pkg/opengl
 from pixie import Image
+import pkg/sigils
+import pkg/sigils/threads
 
 import window
 
@@ -20,13 +22,13 @@ type
     ctx*: Context
     window*: Window
     uxInputList*: Chan[AppInputs]
-    frame*: AppFrame
+    frame*: WeakRef[AppFrame]
     lock*: Lock
     updated*: Atomic[bool]
     nodes*: RenderNodes
 
 proc newRenderer*(
-    frame: AppFrame,
+    frame: WeakRef[AppFrame],
     window: Window,
     pixelate: bool,
     forcePixelScale: float32,
@@ -35,13 +37,13 @@ proc newRenderer*(
   app.pixelScale = forcePixelScale
   let renderer = Renderer(window: window)
   startOpenGL(frame, window, openglVersion)
-  renderer.frame = frame
+  # renderer.frame = frame
   renderer.ctx = newContext(atlasSize = atlasSize,
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
   renderer.uxInputList = newChan[AppInputs](4)
   renderer.lock.initLock()
-  frame.uxInputList = renderer.uxInputList
+  frame[].uxInputList = renderer.uxInputList
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
@@ -249,7 +251,7 @@ proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [MainThreadEff
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.frame.windowRawSize)
+  ctx.beginFrame(renderer.frame[].windowRawSize)
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -290,7 +292,7 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
     update = renderUpdate or updated
 
   if renderer.window.closeRequested:
-    renderer.frame.running = false
+    renderer.frame[].running = false
     return
 
   timeIt(eventPolling):

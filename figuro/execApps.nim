@@ -16,37 +16,37 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
-proc runFrameImpl(frame: AppFrame) =
-    # Ticks
-    emit frame.root.doTick(app.tickCount, getMonoTime())
+proc runFrameImpl(frame: AppFrame) {.slot.} =
+  # Ticks
+  emit frame.root.doTick(app.tickCount, getMonoTime())
 
-    # Events
-    var input: AppInputs
-    ## only process up to ~X events at a time
-    var cnt = 4
-    while frame.uxInputList.tryRecv(input) and cnt > 0:
-      uxInputs = input
-      computeEvents(frame)
-      cnt.dec()
+  # Events
+  var input: AppInputs
+  ## only process up to ~X events at a time
+  var cnt = 4
+  while frame.uxInputList.tryRecv(input) and cnt > 0:
+    uxInputs = input
+    computeEvents(frame)
+    cnt.dec()
 
-    # Main
-    frame.root.diffIndex = 0
-    if app.requestedFrame > 0:
-      refresh(frame.root)
-      app.requestedFrame.dec()
+  # Main
+  frame.root.diffIndex = 0
+  if app.requestedFrame > 0:
+    refresh(frame.root)
+    app.requestedFrame.dec()
 
-    if frame.redrawNodes.len() > 0:
-      computeEvents(frame)
-      let rn = frame.redrawNodes
-      for node in rn:
-        emit node.doDraw()
-      frame.redrawNodes.clear()
-      computeLayout(frame.root)
-      computeScreenBox(nil, frame.root)
-      appFrames.withValue(frame, renderer):
-        withLock(renderer.lock):
-          renderer.nodes = frame.root.copyInto()
-          renderer.updated.store true
+  if frame.redrawNodes.len() > 0:
+    computeEvents(frame)
+    let rn = frame.redrawNodes
+    for node in rn:
+      emit node.doDraw()
+    frame.redrawNodes.clear()
+    computeLayout(frame.root)
+    computeScreenBox(nil, frame.root)
+    appFrames.withValue(frame, renderer):
+      withLock(renderer.lock):
+        renderer.nodes = frame.root.copyInto()
+        renderer.updated.store true
 
 # exec.runFrame = runFrameImpl
 
@@ -56,8 +56,6 @@ proc startFiguro*(
   ## Starts Fidget UI library
   ## 
 
-  # app.fullscreen = fullscreen
-  # if not fullscreen:
-
-  # let frame = newAppFrame(widget)
+  var ticker = AppTicker(period: renderDuration)
+  connect(ticker, appTick, frame, runFrameImpl)
   run(frame)

@@ -11,6 +11,7 @@ else:
 
 import std/os
 
+import sigils
 import sigils/threads
 
 import shared, internal
@@ -30,45 +31,31 @@ when not compiles(AppFrame().deepCopy()):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
-
 var
   # runFrame*: proc(frame: AppFrame) {.nimcall.}
-  appFrames*: Table[AppFrame, Renderer]
+  appFrames*: Table[WeakRef[AppFrame], Renderer]
   uxInputList*: Chan[AppInputs]
 
 const
-  renderPeriodMs {.intdefine.} = 14
-  renderDuration = initDuration(milliseconds = renderPeriodMs)
+  renderPeriodMs* {.intdefine.} = 14
+  renderDuration* = initDuration(milliseconds = renderPeriodMs)
 
-var appTickThread: Thread[void]
+var appTickThread: ptr SigilThreadImpl
 var appThread: ptr SigilThreadImpl
 
 type
-  App* = ref object of Agent
-    frame: AppFrame
+  AppTicker* = ref object of Agent
+    period*: Duration
 
-proc appTick*(tp: App) {.signal.}
+proc appTick*(tp: AppTicker) {.signal.}
 
-proc appRun*(tp: App) {.slot.} =
-  timeIt(appAvgTime):
-    # runFrame(tp.frame)
-    app.frameCount.inc()
-
-proc appTicker() {.thread.} =
+proc appTicker*(self: AppTicker) {.slot.} =
   while app.running:
-    uiAppEvent.trigger()
-    os.sleep(renderPeriodMs)
-
-proc runApplication(frame: AppFrame) {.thread.} =
-  {.gcsafe.}:
-    while app.running:
-      wait(uiAppEvent)
-      timeIt(appAvgTime):
-        # runFrame(frame)
-        app.frameCount.inc()
+    emit self.appTick()
+    os.sleep(self.period.inMilliseconds)
 
 proc runRenderer(renderer: Renderer) =
-  while app.running and renderer.frame.running:
+  while app.running and renderer[].frame[].running:
     app.tickCount.inc()
     if app.tickCount == app.tickCount.typeof.high:
       app.tickCount = 0
@@ -76,23 +63,22 @@ proc runRenderer(renderer: Renderer) =
       renderer.render(false)
     os.sleep(renderDuration.inMilliseconds)
 
-proc setupFrame*(frame: AppFrame): Renderer =
+proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
   let renderer = setupRenderer(frame)
   appFrames[frame] = renderer
   result = renderer
 
 proc run*(frame: AppFrame) =
-  let renderer = setupFrame(frame)
+  let renderer = setupFrame(frame.unsafeWeakRef())
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
-  createThread(appTickThread, appTicker)
-  # createThread(appThread, runApplication, frame)
+  appTickThread = newSigilThread()
   appThread = newSigilThread()
-  appThread.start()
 
-  # connect(appThread, valueChanged, b, setValueGlobal)
+  appTickThread.start()
+  appThread.start()
 
 
   proc ctrlc() {.noconv.} =
