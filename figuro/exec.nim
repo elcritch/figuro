@@ -76,6 +76,7 @@ proc cssLoader*(self: CssLoader) {.slot.} =
 proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
   echo "CSS theme loaded"
   self.theme.cssRules = cssRules
+  refresh(self.root)
 
 proc setupTicker*(frame: AppFrame) =
   var ticker = AppTicker(period: renderDuration)
@@ -121,7 +122,7 @@ proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
 
   appThread = newSigilThread()
   let frameProxy = frame.moveToThread(ensureMove appThread)
-  connect(appThread[].agent, started, frameProxy, start)
+  threads.connect(appThread[].agent, started, frameProxy, start)
   appThread.start()
 
   proc ctrlc() {.noconv.} =
