@@ -50,7 +50,6 @@ proc getId*(typeface: Typeface): TypefaceId =
 #   FontId font.hash()
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
-  # threads: RenderThread
 
   var idx = 0
   # if arrangement != nil:

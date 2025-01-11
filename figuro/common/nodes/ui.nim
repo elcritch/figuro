@@ -29,18 +29,19 @@ type
   Theme* = ref object
     font*: UiFont
 
-  AppFrame* = ref object
+  AppFrame* = ref object of Agent
+    frameRunner*: AgentProcTy[tuple[]]
+    appTicker*: AgentProxyShared
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]
-    # threadAgents*: seq[ThreadAgent]
     running*, focused*, minimized*, fullscreen*: bool
 
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
 
   Figuro* = ref object of Agent
-    frame*: AppFrame
+    frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]
     uid*: NodeID
     name*: string

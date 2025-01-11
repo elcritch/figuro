@@ -10,13 +10,13 @@ else:
   export opengl
 
 import std/os
-import std/sharedtables
+
+import sigils
+import sigils/threads
 
 import shared, internal
 import ui/[core, events]
 import common/nodes/ui
-import common/nodes/render
-import common/nodes/transfer
 import widget
 import timers
 
@@ -25,61 +25,74 @@ export core, events
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}
 
+when not compiles(AppFrame().deepCopy()):
+  {.error: "This module requires --deepcopy:on compilation flag".}
+
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 var
-  runFrame*: proc(frame: AppFrame) {.nimcall.}
-  appFrames*: Table[AppFrame, Renderer]
+  # runFrame*: proc(frame: AppFrame) {.nimcall.}
+  appFrames*: Table[WeakRef[AppFrame], Renderer]
+  uxInputList*: Chan[AppInputs]
 
+const
+  renderPeriodMs* {.intdefine.} = 14
+  renderDuration* = initDuration(milliseconds = renderPeriodMs)
 
-const renderPeriodMs {.intdefine.} = 16
-const appPeriodMs {.intdefine.} = 16
+var appTickThread*: ptr SigilThreadImpl
+var appThread*: ptr SigilThreadImpl
 
-var frameTickThread, appTickThread: Thread[void]
-var appThread, : Thread[AppFrame]
+type
+  AppTicker* = ref object of Agent
+    period*: Duration
 
-proc renderTicker() {.thread.} =
-  while true:
-    uiRenderEvent.trigger()
-    os.sleep(appPeriodMs - 2)
+proc appTick*(tp: AppTicker) {.signal.}
+
+proc tick*(self: AppTicker) {.slot.} =
+  echo "start tick"
+  printConnections(self)
+  while app.running:
+    emit self.appTick()
+    os.sleep(self.period.inMilliseconds)
+
+proc setupTicker(frame: AppFrame) =
+  appTickThread = newSigilThread()
+  var ticker = AppTicker(period: renderDuration)
+  when defined(sigilsDebug): ticker.debugName = "Ticker"
+  let tp = ticker.moveToThread(appTickThread)
+  connect(tp, appTick, frame, frame.frameRunner)
+  connect(appTickThread[].agent, started, tp, tick)
+  appTickThread.start()
+  frame.appTicker = tp
+
+proc start(self: AppFrame) {.slot.} =
+  self.setupTicker()
+
+proc runRenderer(renderer: Renderer) =
+  while app.running and renderer[].frame[].running:
     app.tickCount.inc()
     if app.tickCount == app.tickCount.typeof.high:
       app.tickCount = 0
-
-proc appTicker() {.thread.} =
-  while app.running:
-    uiAppEvent.trigger()
-    os.sleep(renderPeriodMs - 2)
-
-proc runApplication(frame: AppFrame) {.thread.} =
-  {.gcsafe.}:
-    while app.running:
-      wait(uiAppEvent)
-      timeIt(appAvgTime):
-        runFrame(frame)
-        app.frameCount.inc()
-
-proc runRenderer(renderer: Renderer) =
-  while app.running and renderer.frame.running:
-    wait(uiRenderEvent)
     timeIt(renderAvgTime):
-      renderer.render(true)
+      renderer.render(false)
+    os.sleep(renderDuration.inMilliseconds)
 
-proc setupFrame*(frame: AppFrame): Renderer =
-  let renderer = setupRenderer(frame)
-  appFrames[frame] = renderer
-  result = renderer
-
-proc run*(frame: AppFrame) =
-  let renderer = setupFrame(frame)
+proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
+  ## run figuro
+  when defined(sigilsDebug): frame.debugName = "Frame"
+  let frameRef = frame.unsafeWeakRef()
+  let renderer = setupRenderer(frameRef)
+  appFrames[frameRef] = renderer
+  frame.frameRunner = frameRunner
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
-  createThread(frameTickThread, renderTicker)
-  createThread(appTickThread, appTicker)
-  createThread(appThread, runApplication, frame)
+  appThread = newSigilThread()
+  let frameProxy = frame.moveToThread(ensureMove appThread)
+  connect(appThread[].agent, started, frameProxy, start)
+  appThread.start()
 
   proc ctrlc() {.noconv.} =
     echo "Got Ctrl+C exiting!"
