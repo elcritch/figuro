@@ -67,9 +67,7 @@ proc setupTicker(frame: AppFrame) =
   frame.appTicker = tp
 
 proc start(self: AppFrame) {.slot.} =
-  echo "starting app frame"
   self.setupTicker()
-
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:
@@ -80,15 +78,10 @@ proc runRenderer(renderer: Renderer) =
       renderer.render(false)
     os.sleep(renderDuration.inMilliseconds)
 
-proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
-  echo "setupFrame: ", $frame
-  let renderer = setupRenderer(frame)
-  appFrames[frame] = renderer
-  result = renderer
-
 proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   echo "run frame: ", frame.unsafeGcCount
-  let renderer = setupFrame(frame.unsafeWeakRef())
+  let renderer = setupRenderer(frame)
+  appFrames[frame] = renderer
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
