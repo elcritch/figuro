@@ -59,7 +59,4 @@ proc startFiguro*(
   var ticker = AppTicker(period: renderDuration)
   connect(ticker, appTick, frame, runFrameImpl)
 
-  let tp = ticker.moveToThread(appTickThread)
-  let frameProxy = frame.moveToThread(appThread)
-
-  run(frameProxy)
+  run(frame)

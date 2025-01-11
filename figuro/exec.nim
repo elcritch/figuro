@@ -68,8 +68,8 @@ proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
   appFrames[frame] = renderer
   result = renderer
 
-proc run*(frameProxy: AgentProxy[AppFrame]) =
-  let renderer = setupFrame(frameProxy.remote.toKind(AppFrame))
+proc run*(frame: var AppFrame) =
+  let renderer = setupFrame(frame.unsafeWeakRef())
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
@@ -79,6 +79,9 @@ proc run*(frameProxy: AgentProxy[AppFrame]) =
 
   appTickThread.start()
   appThread.start()
+
+  let tp = ticker.moveToThread(appTickThread)
+  let frameProxy = frame.moveToThread(appThread)
 
 
   proc ctrlc() {.noconv.} =
