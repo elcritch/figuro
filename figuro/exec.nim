@@ -80,8 +80,9 @@ proc setupTicker*(frame: AppFrame) =
   var cssLoader = CssLoader(period: renderDuration)
   cssLoaderThread.setupThread(cssLoader, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssLoader())
   
-  var cssWatcher = CssLoader(period: renderDuration)
-  cssWatcherThread.setupThread(cssWatcher, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssWatcher())
+  when defined(figuroFsMonitor):
+    var cssWatcher = CssLoader(period: renderDuration)
+    cssWatcherThread.setupThread(cssWatcher, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssWatcher())
 
 proc start(self: AppFrame) {.slot.} =
   self.setupTicker()

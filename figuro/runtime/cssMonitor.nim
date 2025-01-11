@@ -25,7 +25,6 @@ else:
 
 var
   watcherSelf: WeakRef[CssLoader]
-  watcherTheme: cstring
 
 proc themeUpdate() =
   let cssRules = loadTheme()

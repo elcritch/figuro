@@ -47,8 +47,15 @@ elif defined(macosx):
   --d:kqueueUserEvent
   --threads:on
   # --passC:"-mfloat-abi=hard"
-  --passL:"-Wl,-rpath,/opt/homebrew/opt/fswatch/lib"
-  --passL:"-Wl,-rpath,/usr/local/homebrew/opt/fswatch/lib"
+  when gorge("brew --prefix fswatch").dirExists():
+    static:
+      echo "FSMON!"
+    --define:figuroFsMonitor
+    --passL:"-Wl,-rpath,/opt/homebrew/opt/fswatch/lib"
+    --passL:"-Wl,-rpath,/usr/local/homebrew/opt/fswatch/lib"
+  else:
+    static:
+      echo "NO FSMON!"
 
 import std/os
 import std/strutils
