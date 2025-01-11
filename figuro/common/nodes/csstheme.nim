@@ -73,7 +73,8 @@ proc apply*(prop: CssProperty, node: Figuro) =
       of "border-color":
         node.stroke.color = c
       else:
-        echo "warning: ", "unhandled css property: ", prop.repr
+        # echo "warning: ", "unhandled css property: ", prop.repr
+        discard
     CssSize(cx):
       # echo "\tapply size: ", cx.repr
       case prop.name:
@@ -82,7 +83,8 @@ proc apply*(prop: CssProperty, node: Figuro) =
       of "border-radius":
         setCxFixed(cx, node.cornerRadius, UICoord)
       else:
-        echo "warning: ", "unhandled css property: ", prop.repr
+        # echo "warning: ", "unhandled css property: ", prop.repr
+        discard
     CssVarName(n):
       echo "warning: ", "unhandled css variable: ", prop.repr
 
