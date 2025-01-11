@@ -12,6 +12,7 @@ import sigils/weakrefs
 export basics, sigils, inputs, cssgrid, stack_strings
 export unicode, monotimes
 export weakrefs
+export basiccss
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -34,6 +35,7 @@ type
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]
     appTicker*: AgentProxyShared
+    cssLoader*: AgentProxyShared
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]

@@ -40,11 +40,15 @@ const
   renderPeriodMs* {.intdefine.} = 14
   renderDuration* = initDuration(milliseconds = renderPeriodMs)
 
-var appTickThread*: ptr SigilThreadImpl
-var appThread*: ptr SigilThreadImpl
+var
+  appTickThread*: ptr SigilThreadImpl
+  cssLoaderThread*: ptr SigilThreadImpl
+  appThread*: ptr SigilThreadImpl
 
 type
   AppTicker* = ref object of Agent
+    period*: Duration
+  CssLoader* = ref object of Agent
     period*: Duration
 
 proc appTick*(tp: AppTicker) {.signal.}
@@ -56,15 +60,35 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc setupTicker(frame: AppFrame) =
-  appTickThread = newSigilThread()
+proc cssLoaded*(tp: AppTicker, cssRules: seq[CssBlock]) {.signal.}
+
+proc cssLoader*(self: AppTicker, cssRules: seq[CssBlock]) {.slot.} =
+  echo "start tick"
+  printConnections(self)
+  while app.running:
+    emit self.appTick()
+    os.sleep(self.period.inMilliseconds)
+
+proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
+  echo "CSS theme loaded"
+  discard
+
+proc setupTicker*(frame: AppFrame) =
   var ticker = AppTicker(period: renderDuration)
   when defined(sigilsDebug): ticker.debugName = "Ticker"
+  appTickThread = newSigilThread()
   let tp = ticker.moveToThread(appTickThread)
   threads.connect(tp, appTick, frame, frame.frameRunner)
   threads.connect(appTickThread[].agent, started, tp, tick)
   appTickThread.start()
   frame.appTicker = tp
+
+  var cssLoader = CssLoader(period: renderDuration)
+  cssLoaderThread = newSigilThread()
+  let cp = cssLoader.moveToThread(cssLoaderThread)
+  threads.connect(cp, cssLoaded, frame, updateTheme)
+  cssLoaderThread.start()
+  frame.cssLoader = cp
 
 proc start(self: AppFrame) {.slot.} =
   self.setupTicker()
