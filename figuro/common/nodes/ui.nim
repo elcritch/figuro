@@ -29,7 +29,7 @@ type
   Theme* = ref object
     font*: UiFont
 
-  AppFrame* = ref object
+  AppFrame* = ref object of Agent
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]

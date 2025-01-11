@@ -11,6 +11,8 @@ else:
 
 import std/os
 
+import sigils/threads
+
 import shared, internal
 import ui/[core, events]
 import common/nodes/ui
@@ -28,11 +30,9 @@ when not compiles(AppFrame().deepCopy()):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
-type
-  RenderTicker* = ref object of Agent
 
 var
-  runFrame*: proc(frame: AppFrame) {.nimcall.}
+  # runFrame*: proc(frame: AppFrame) {.nimcall.}
   appFrames*: Table[AppFrame, Renderer]
   uxInputList*: Chan[AppInputs]
 
@@ -41,7 +41,18 @@ const
   renderDuration = initDuration(milliseconds = renderPeriodMs)
 
 var appTickThread: Thread[void]
-var appThread, : Thread[AppFrame]
+var appThread: ptr SigilThreadImpl
+
+type
+  App* = ref object of Agent
+    frame: AppFrame
+
+proc appTick*(tp: App) {.signal.}
+
+proc appRun*(tp: App) {.slot.} =
+  timeIt(appAvgTime):
+    # runFrame(tp.frame)
+    app.frameCount.inc()
 
 proc appTicker() {.thread.} =
   while app.running:
@@ -53,7 +64,7 @@ proc runApplication(frame: AppFrame) {.thread.} =
     while app.running:
       wait(uiAppEvent)
       timeIt(appAvgTime):
-        runFrame(frame)
+        # runFrame(frame)
         app.frameCount.inc()
 
 proc runRenderer(renderer: Renderer) =
@@ -77,7 +88,12 @@ proc run*(frame: AppFrame) =
   uiAppEvent = initUiEvent()
 
   createThread(appTickThread, appTicker)
-  createThread(appThread, runApplication, frame)
+  # createThread(appThread, runApplication, frame)
+  appThread = newSigilThread()
+  appThread.start()
+
+  # connect(appThread, valueChanged, b, setValueGlobal)
+
 
   proc ctrlc() {.noconv.} =
     echo "Got Ctrl+C exiting!"

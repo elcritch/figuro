@@ -48,7 +48,7 @@ proc runFrameImpl(frame: AppFrame) =
           renderer.nodes = frame.root.copyInto()
           renderer.updated.store true
 
-exec.runFrame = runFrameImpl
+# exec.runFrame = runFrameImpl
 
 proc startFiguro*(
     frame: AppFrame,
