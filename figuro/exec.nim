@@ -51,6 +51,7 @@ proc appTick*(tp: AgentProxy[AppTicker]) {.signal.}
 
 proc appTicker*(self: AgentProxy[AppTicker]) {.slot.} =
   while app.running:
+    echo "tick: "
     emit self.appTick()
     os.sleep(self.remote.toKind(AppTicker)[].period.inMilliseconds)
 
