@@ -51,7 +51,7 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
 # exec.runFrame = runFrameImpl
 
 proc startFiguro*(
-    frame: var AppFrame,
+    frame: sink AppFrame,
 ) =
   ## Starts Fidget UI library
   ## 
