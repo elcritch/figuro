@@ -188,6 +188,11 @@ proc parseBody(parser: CssParser): seq[CssProperty] =
         raise newException(ValueError, "expected css hash color to be a property value")
       result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
       discard parser.nextToken()
+    of tkHash:
+      if result[^1].value != MissingCssValue():
+        raise newException(ValueError, "expected css hash color to be a property value")
+      result[^1].value = CssColor(parseHtmlColor("#" & tk.hash))
+      discard parser.nextToken()
     of tkFunction:
       if result[^1].value != MissingCssValue():
         raise newException(ValueError, "expected css hash color to be a property value")
