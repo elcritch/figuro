@@ -83,6 +83,8 @@ proc setupTicker*(frame: AppFrame) =
   when defined(figuroFsMonitor):
     var cssWatcher = CssLoader(period: renderDuration)
     cssWatcherThread.setupThread(cssWatcher, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssWatcher())
+  else:
+    echo "fsmonitor not loaded"
 
 proc start(self: AppFrame) {.slot.} =
   self.setupTicker()
