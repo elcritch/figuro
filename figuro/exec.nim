@@ -70,7 +70,6 @@ proc start(self: AppFrame) {.slot.} =
   self.setupTicker()
   self.loadTheme()
 
-
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:
     app.tickCount.inc()

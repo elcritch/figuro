@@ -174,10 +174,6 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
     raise newException(NilAccessDefect, "must set root")
   connectDefaults[T](root)
 
-  # app.windowSize = initBox(0.0, 0.0,
-  #                          app.uiScale * app.width.float32,
-  #                          app.uiScale * app.height.float32)
-
   root.diffIndex = 0
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
