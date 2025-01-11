@@ -91,6 +91,7 @@ proc setupTicker*(frame: AppFrame) =
   cssLoaderThread = newSigilThread()
   let cp = cssLoader.moveToThread(cssLoaderThread)
   threads.connect(cp, cssLoaded, frame, updateTheme)
+  threads.connect(cssLoaderThread[].agent, started, cp, cssLoader)
   cssLoaderThread.start()
   frame.cssLoader = cp
 
