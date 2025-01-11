@@ -71,7 +71,7 @@ proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
   appFrames[frame] = renderer
   result = renderer
 
-proc run*(frame: var AppFrame) =
+proc run*(frame: var AppFrame, runFrameSlot: AgentProcTy[tuple[]]) =
   echo "run frame: ", frame.unsafeGcCount
   let renderer = setupFrame(frame.unsafeWeakRef())
 
@@ -79,6 +79,22 @@ proc run*(frame: var AppFrame) =
   uiAppEvent = initUiEvent()
 
   appThread = newSigilThread()
+
+  when defined(sigilsDebug):
+    frame.debugName = "Frame"
+
+  appTickThread = newSigilThread()
+  var ticker = AppTicker(period: renderDuration)
+  when defined(sigilsDebug):
+    ticker.debugName = "Ticker"
+
+  let tp = ticker.moveToThread(ensureMove appTickThread)
+  threads.connect(tp, appTick, frame, runFrameSlot)
+
+  printConnections(tp)
+
+  threads.connect(appTickThread[].agent, started, tp, appTicker)
+  appTickThread.start()
 
   printConnections(frame)
   let frameProxy = frame.moveToThread(ensureMove appThread)
