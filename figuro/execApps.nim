@@ -18,9 +18,13 @@ when not compileOption("threads"):
 when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
+var timestamp = getMonoTime()
+
 proc runFrameImpl(frame: AppFrame) {.slot.} =
   # Ticks
-  emit frame.root.doTick(getMonoTime())
+  let last = timestamp
+  timestamp = getMonoTime()
+  emit frame.root.doTick(timestamp, timestamp - last)
 
   # Events
   var input: AppInputs

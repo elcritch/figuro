@@ -135,7 +135,7 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
   if fig.isNil: NodeID -1
   else: fig[].uid
 
-proc doTick*(fig: Figuro, now: MonoTime) {.signal.}
+proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
@@ -192,8 +192,9 @@ proc drag*(fig: BasicFiguro,
 
 
 proc doTickBubble*(fig: Figuro,
-                   now: MonoTime) {.slot.} =
-  emit fig.doTick(now)
+                   now: MonoTime,
+                   period: Duration) {.slot.} =
+  emit fig.doTick(now, period)
 proc doDrawBubble*(fig: Figuro) {.slot.} =
   emit fig.doDraw()
 proc doLoadBubble*(fig: Figuro) {.slot.} =

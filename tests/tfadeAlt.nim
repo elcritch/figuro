@@ -15,7 +15,7 @@ proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   refresh(self)
 
-proc tick*(self: Main, now: MonoTime) {.slot.} =
+proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
   if self.hoveredAlpha < 0.15 and self.hasHovered:
     self.hoveredAlpha += 0.010
     refresh(self)
