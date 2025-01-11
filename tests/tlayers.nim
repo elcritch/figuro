@@ -88,5 +88,5 @@ proc draw*(self: Main) {.slot.} =
         setLabel(node.zlevel)
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(800'ui, 400'ui))
+var frame = newAppFrame(main, size=(800'ui, 400'ui))
 startFiguro(frame)

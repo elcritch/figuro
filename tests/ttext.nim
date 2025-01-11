@@ -49,5 +49,5 @@ proc draw*(self: Main) {.slot.} =
         fill whiteColor * 0.33
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(720'ui, 140'ui))
+var frame = newAppFrame(main, size=(720'ui, 140'ui))
 startFiguro(frame)

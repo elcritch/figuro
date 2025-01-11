@@ -37,5 +37,5 @@ proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
   self.bkgFade.tick(self)
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(720'ui, 140'ui))
+var frame = newAppFrame(main, size=(720'ui, 140'ui))
 startFiguro(frame)

@@ -85,5 +85,5 @@ fig.cxSize[dcol] = csAuto()
 fig.cxSize[drow] = csAuto()
 fig.box = initBox(0, 0, 480, 300)
 
-let frame = newAppFrame(fig, size=(480'ui, 300'ui))
+var frame = newAppFrame(fig, size=(480'ui, 300'ui))
 startFiguro(frame)
