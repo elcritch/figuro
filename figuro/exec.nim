@@ -79,23 +79,19 @@ proc runRenderer(renderer: Renderer) =
     os.sleep(renderDuration.inMilliseconds)
 
 proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
-  let renderer = setupRenderer(frame.unsafeWeakRef)
-  appFrames[frame] = renderer
+  ## run figuro
+  when defined(sigilsDebug): frame.debugName = "Frame"
+  let frameRef = frame.unsafeWeakRef()
+  let renderer = setupRenderer(frameRef)
+  appFrames[frameRef] = renderer
+  frame.frameRunner = frameRunner
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
   appThread = newSigilThread()
-
-  when defined(sigilsDebug):
-    frame.debugName = "Frame"
-
-  printConnections(frame)
-  frame.frameRunner = frameRunner
   let frameProxy = frame.moveToThread(ensureMove appThread)
-  threads.connect(appThread[].agent, started, frameProxy, AppFrame.start())
-  printConnections(frameProxy)
- 
+  connect(appThread[].agent, started, frameProxy, start)
   appThread.start()
 
   proc ctrlc() {.noconv.} =
