@@ -19,7 +19,6 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 proc runFrameImpl(frame: AppFrame) {.slot.} =
-  echo "run frame!"
   # Ticks
   emit frame.root.doTick(app.tickCount, getMonoTime())
 
