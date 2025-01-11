@@ -71,7 +71,7 @@ proc cssLoader*(self: CssLoader) {.slot.} =
     if cssRules.len() > 0:
       echo "css send"
       emit self.cssUpdate(cssRules)
-    os.sleep(initDuration(seconds=10).inMilliseconds)
+    os.sleep(initDuration(seconds=3).inMilliseconds)
 
 proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
   echo "CSS theme loaded"
