@@ -12,7 +12,8 @@ suite "test layers":
 
   suite "basic single layer":
     var self = Figuro.new()
-    self.frame = AppFrame()
+    var frame = AppFrame()
+    self.frame = frame.unsafeWeakRef()
     var node = self
     block:
       rectangle "body":
@@ -102,7 +103,8 @@ suite "test layers":
 
   suite "three layer out of order":
     var self = Figuro.new()
-    self.frame = AppFrame()
+    var frame = AppFrame()
+    self.frame = frame.unsafeWeakRef()
     var node = self
     block:
       node.zlevel = 20

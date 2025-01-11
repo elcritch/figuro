@@ -65,5 +65,5 @@ proc draw*(self: Main) {.slot.} =
       connect(doDrag, node, btnDragStop)
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(720'ui, 140'ui))
+var frame = newAppFrame(main, size=(720'ui, 140'ui))
 startFiguro(frame)

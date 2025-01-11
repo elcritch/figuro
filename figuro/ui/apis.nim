@@ -312,10 +312,11 @@ proc findRoot*(node: Figuro): Figuro =
   result = node
   var cnt = 0
   while not result.parent.isNil() and result.unsafeWeakRef() != result.parent:
-    result = result.parent.toRef
-    cnt.inc
-    if cnt > 10_000:
-      raise newException(IndexDefect, "error finding root")
+    withRef result.parent, parent:
+      result = parent
+      cnt.inc
+      if cnt > 10_000:
+        raise newException(IndexDefect, "error finding root")
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints

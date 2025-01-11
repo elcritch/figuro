@@ -44,5 +44,5 @@ proc draw*(self: Main) {.slot.} =
 
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(400'ui, 140'ui))
+var frame = newAppFrame(main, size=(400'ui, 140'ui))
 startFiguro(frame)

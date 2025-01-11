@@ -1,9 +1,12 @@
 import std/[hashes, os, strformat, tables, times, unicode]
 
+import pkg/threading/atomics
 import pkg/chroma
 import pkg/windy
 import pkg/opengl
 from pixie import Image
+import pkg/sigils
+import pkg/sigils/threads
 
 import window
 
@@ -19,13 +22,13 @@ type
     ctx*: Context
     window*: Window
     uxInputList*: Chan[AppInputs]
-    frame*: AppFrame
+    frame*: WeakRef[AppFrame]
     lock*: Lock
-    updated*: bool
+    updated*: Atomic[bool]
     nodes*: RenderNodes
 
 proc newRenderer*(
-    frame: AppFrame,
+    frame: WeakRef[AppFrame],
     window: Window,
     pixelate: bool,
     forcePixelScale: float32,
@@ -38,9 +41,9 @@ proc newRenderer*(
   renderer.ctx = newContext(atlasSize = atlasSize,
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)
-  renderer.uxInputList = newChan[AppInputs](40)
+  renderer.uxInputList = newChan[AppInputs](4)
   renderer.lock.initLock()
-  frame.uxInputList = renderer.uxInputList
+  frame[].uxInputList = renderer.uxInputList
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
@@ -248,7 +251,7 @@ proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [MainThreadEff
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.frame.windowRawSize)
+  ctx.beginFrame(renderer.frame[].windowRawSize)
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -284,10 +287,12 @@ proc renderAndSwap(renderer: Renderer,
 proc render*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
-  let update = renderer.updated or updated
+  let
+    renderUpdate = renderer.updated.load()
+    update = renderUpdate or updated
 
   if renderer.window.closeRequested:
-    renderer.frame.running = false
+    renderer.frame[].running = false
     return
 
   timeIt(eventPolling):
@@ -295,5 +300,6 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
       windy.pollEvents()
   
   if update:
+    renderer.updated.store false
     renderAndSwap(renderer, update)
 

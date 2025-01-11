@@ -203,6 +203,7 @@ const
 
 type
   AppInputs* = object
+    empty*: bool
     mouse*: Mouse
     keyboard*: Keyboard
 

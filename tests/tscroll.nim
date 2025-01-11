@@ -49,5 +49,5 @@ proc draw*(self: Main) {.slot.} =
           buttonItem(self, node, idx)
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(600'ui, 480'ui))
+var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)

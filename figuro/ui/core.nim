@@ -75,7 +75,7 @@ proc nd*(): string =
 
 proc disable(fig: Figuro) =
   if not fig.isNil:
-    fig.parent.cur = nil
+    fig.parent.pt = nil
     fig.attrs.incl inactive
     for child in fig.children:
       disable(child)
@@ -95,8 +95,8 @@ proc refresh*(node: Figuro) =
   if node == nil:
     return
   # app.requestedFrame.inc
-  assert node.frame != nil
-  node.frame.redrawNodes.incl(node)
+  assert not node.frame.isNil
+  node.frame[].redrawNodes.incl(node)
 
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
@@ -180,7 +180,7 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
 
   root.diffIndex = 0
   let frame = AppFrame(root: root)
-  root.frame = frame
+  root.frame = frame.unsafeWeakRef()
   if frame.theme.isNil:
     frame.theme = Theme(font: defaultFont)
   frame.setSize(size)
@@ -213,10 +213,8 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   template configNodeName(node, name: untyped) =
     node.name = name
 
-  template createNewNode(T, node: untyped) =
-    node = T()
-    node.debugId = nextAgentId()
-    node.uid = node.debugId
+  template configNewNode(node: untyped) =
+    node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
     node.widgetName = repr(T).split('[')[0]
@@ -252,7 +250,6 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
-  node.uid = node.debugId
   node.kind = kind
   node.highlight = parent.highlight
   node.transparency = parent.transparency
@@ -405,8 +402,9 @@ template calcBasicConstraintImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  let parentBox = if node.parent.isNil: node.frame.windowSize
-                  else: node.parent[].box
+  let parentBox =
+    if node.parent.isNil: node.frame[].windowSize
+    else: node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
@@ -476,8 +474,9 @@ template calcBasicConstraintPostImpl(
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  let parentBox = if node.parent.isNil: node.frame.windowSize
-                  else: node.parent[].box
+  let parentBox =
+    if node.parent.isNil: node.frame[].windowSize
+    else: node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord

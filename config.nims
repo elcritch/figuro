@@ -2,12 +2,14 @@ switch("styleCheck", "hint")
 
 --path:"$nim" ## important for nimscripter
 
---gc:orc
-# --gc:arc
+# --gc:orc
+--gc:arc
+--d:useMalloc
 
 --d:windyNoHttp
 --d:printDebugTimings
---d:nimStrictDelete
+# --d:nimStrictDelete
+--deepcopy:on
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 

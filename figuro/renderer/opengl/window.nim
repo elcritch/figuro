@@ -8,6 +8,8 @@ import utils
 import commons
 import ../../common/nodes/ui
 
+import pkg/sigils/weakrefs
+
 export AppFrame
 
 # import ../patches/textboxes 
@@ -37,14 +39,14 @@ proc getScaleInfo*(window: Window): ScaleInfo =
   result.x = scale
   result.y = scale
 
-proc updateWindowSize*(frame: AppFrame, window: Window) =
+proc updateWindowSize*(frame: WeakRef[AppFrame], window: Window) =
   app.requestedFrame.inc
 
   var cwidth, cheight: cint
   let size = window.size()
-  frame.windowRawSize.x = size.x.toFloat
-  frame.windowRawSize.y = size.y.toFloat
-  frame.minimized = window.minimized()
+  frame[].windowRawSize.x = size.x.toFloat
+  frame[].windowRawSize.y = size.y.toFloat
+  frame[].minimized = window.minimized()
   app.pixelRatio = window.contentScale()
 
   glViewport(0, 0, cwidth, cheight)
@@ -53,24 +55,24 @@ proc updateWindowSize*(frame: AppFrame, window: Window) =
   if app.autoUiScale:
     app.uiScale = min(scale.x, scale.y)
 
-  let sz = frame.windowRawSize.descaled()
+  let sz = frame[].windowRawSize.descaled()
   # TODO: set screen logical offset too?
-  frame.windowSize.w = sz.x
-  frame.windowSize.h = sz.y
+  frame[].windowSize.w = sz.x
+  frame[].windowSize.h = sz.y
 
-proc startOpenGL*(frame: AppFrame, window: Window, openglVersion: (int, int)) =
+proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
 
   let scale = window.getScaleInfo()
 
   if app.autoUiScale:
     app.uiScale = min(scale.x, scale.y)
 
-  assert frame != nil
-  if frame.fullscreen:
-    window.fullscreen = frame.fullscreen
+  assert not frame.isNil
+  if frame[].fullscreen:
+    window.fullscreen = frame[].fullscreen
   else:
-    frame.windowRawSize = frame.windowSize.wh.scaled()
-    window.size = ivec2(frame.windowRawSize)
+    frame[].windowRawSize = frame[].windowSize.wh.scaled()
+    window.size = ivec2(frame[].windowRawSize)
 
   if window.isNil:
     quit(
@@ -96,7 +98,7 @@ proc startOpenGL*(frame: AppFrame, window: Window, openglVersion: (int, int)) =
 
   # app.lastDraw = getTicks()
   # app.lastTick = app.lastDraw
-  frame.focused = true
+  frame[].focused = true
 
   useDepthBuffer(false)
   updateWindowSize(frame, window)
