@@ -17,6 +17,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 proc runFrameImpl(frame: AppFrame) {.slot.} =
+  echo "run frame!"
   # Ticks
   emit frame.root.doTick(app.tickCount, getMonoTime())
 
@@ -56,7 +57,13 @@ proc startFiguro*(
   ## Starts Fidget UI library
   ## 
 
+  appTickThread = newSigilThread()
   var ticker = AppTicker(period: renderDuration)
+  let tp = ticker.moveToThread(ensureMove appTickThread)
   connect(ticker, appTick, frame, runFrameImpl)
 
-  run(frame, ticker)
+  connect(appTickThread[].agent, started, tp.getRemote()[], appTicker)
+
+  appTickThread.start()
+
+  run(frame)

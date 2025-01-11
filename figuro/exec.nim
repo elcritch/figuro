@@ -51,7 +51,6 @@ proc appTick*(tp: AppTicker) {.signal.}
 
 proc appTicker*(self: AppTicker) {.slot.} =
   while app.running:
-    echo "tick"
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
@@ -70,22 +69,17 @@ proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
   appFrames[frame] = renderer
   result = renderer
 
-proc run*(frame: var AppFrame, ticker: var AppTicker) =
+proc run*(frame: var AppFrame) =
   echo "run frame: ", frame.unsafeGcCount
   let renderer = setupFrame(frame.unsafeWeakRef())
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()
 
-  appTickThread = newSigilThread()
   appThread = newSigilThread()
 
-  let tp = ticker.moveToThread(ensureMove appTickThread)
   let frameProxy = frame.moveToThread(ensureMove appThread)
  
-  connect(appTickThread[].agent, started, tp.getRemote()[], appTicker)
-
-  appTickThread.start()
   appThread.start()
 
   proc ctrlc() {.noconv.} =
