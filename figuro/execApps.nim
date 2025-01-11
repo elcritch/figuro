@@ -26,6 +26,8 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
   timestamp = getMonoTime()
   emit frame.root.doTick(timestamp, timestamp - last)
 
+  frame.loadTheme()
+
   # Events
   var input: AppInputs
   ## only process up to ~X events at a time
