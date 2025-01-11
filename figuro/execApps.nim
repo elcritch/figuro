@@ -43,7 +43,7 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
     frame.redrawNodes.clear()
     computeLayout(frame.root)
     computeScreenBox(nil, frame.root)
-    appFrames.withValue(frame, renderer):
+    appFrames.withValue(frame.unsafeWeakRef(), renderer):
       withLock(renderer.lock):
         renderer.nodes = frame.root.copyInto()
         renderer.updated.store true
@@ -58,4 +58,8 @@ proc startFiguro*(
 
   var ticker = AppTicker(period: renderDuration)
   connect(ticker, appTick, frame, runFrameImpl)
-  run(frame)
+
+  let tp = ticker.moveToThread(appTickThread)
+  let frameProxy: AgentProxy[AppFrame] = frame.moveToThread(appThread)
+
+  run(frameProxy)
