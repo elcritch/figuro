@@ -40,11 +40,15 @@ const
   renderPeriodMs* {.intdefine.} = 14
   renderDuration* = initDuration(milliseconds = renderPeriodMs)
 
-var appTickThread*: ptr SigilThreadImpl
-var appThread*: ptr SigilThreadImpl
+var
+  appTickThread*: ptr SigilThreadImpl
+  cssLoaderThread*: ptr SigilThreadImpl
+  appThread*: ptr SigilThreadImpl
 
 type
   AppTicker* = ref object of Agent
+    period*: Duration
+  CssLoader* = ref object of Agent
     period*: Duration
 
 proc appTick*(tp: AppTicker) {.signal.}
@@ -56,18 +60,44 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc setupTicker(frame: AppFrame) =
-  appTickThread = newSigilThread()
+proc cssUpdate*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
+
+proc cssLoader*(self: CssLoader) {.slot.} =
+  echo "start css loader"
+  printConnections(self)
+  while app.running:
+    echo "css load"
+    let cssRules = loadTheme()
+    if cssRules.len() > 0:
+      echo "css send"
+      emit self.cssUpdate(cssRules)
+    os.sleep(initDuration(seconds=10).inMilliseconds)
+
+proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
+  echo "CSS theme loaded"
+  self.theme.cssRules = cssRules
+
+proc setupTicker*(frame: AppFrame) =
   var ticker = AppTicker(period: renderDuration)
   when defined(sigilsDebug): ticker.debugName = "Ticker"
+  appTickThread = newSigilThread()
   let tp = ticker.moveToThread(appTickThread)
-  connect(tp, appTick, frame, frame.frameRunner)
-  connect(appTickThread[].agent, started, tp, tick)
+  threads.connect(tp, appTick, frame, frame.frameRunner)
+  threads.connect(appTickThread[].agent, started, tp, tick)
   appTickThread.start()
   frame.appTicker = tp
 
+  var cssLoader = CssLoader(period: renderDuration)
+  cssLoaderThread = newSigilThread()
+  let cp = cssLoader.moveToThread(cssLoaderThread)
+  threads.connect(cp, cssUpdate, frame, AppFrame.updateTheme())
+  threads.connect(cssLoaderThread[].agent, started, cp, CssLoader.cssLoader())
+  cssLoaderThread.start()
+  frame.cssLoader = cp
+
 proc start(self: AppFrame) {.slot.} =
   self.setupTicker()
+  # self.loadTheme()
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:

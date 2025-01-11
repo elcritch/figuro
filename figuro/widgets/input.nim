@@ -17,7 +17,7 @@ proc doKeyCommand*(self: Input,
                    pressed: UiButtonView,
                    down: UiButtonView) {.signal.}
 
-proc tick*(self: Input, tick: int, now: MonoTime) {.slot.} =
+proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
   if self.isActive:
     self.cnt.inc()
     self.cnt = self.cnt mod 33
@@ -145,7 +145,7 @@ proc draw*(self: Input) {.slot.} =
   connect(self, doKeyCommand, self, Input.keyCommand)
 
   if self.text.isNil:
-    self.text = newTextBox(self.box, self.theme.font)
+    self.text = newTextBox(self.box, self.frame[].theme.font)
 
   with self:
     clipContent true

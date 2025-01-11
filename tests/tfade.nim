@@ -33,7 +33,7 @@ proc draw*(self: Main) {.slot.} =
             size node, 100'ux, 100'ux
             connect(node, doHover, self, buttonHover)
 
-proc tick*(self: Main, tick: int, now: MonoTime) {.slot.} =
+proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
   self.bkgFade.tick(self)
 
 var main = Main.new()

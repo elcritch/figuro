@@ -56,7 +56,7 @@ type
     autoUiScale*: bool
 
     requestedFrame*: int = 2
-    frameCount*: int
+    # frameCount*: int
     tickCount*: int
 
     # windowFrame*: Vec2   ## Pixel coordinates

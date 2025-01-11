@@ -4,6 +4,7 @@ import std/hashes
 import basics
 import sigils
 import ../../inputs
+import ../../ui/basiccss
 import cssgrid
 import stack_strings
 import sigils/weakrefs
@@ -11,6 +12,7 @@ import sigils/weakrefs
 export basics, sigils, inputs, cssgrid, stack_strings
 export unicode, monotimes
 export weakrefs
+export basiccss
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -28,10 +30,12 @@ type
 
   Theme* = ref object
     font*: UiFont
+    cssRules*: seq[CssBlock]
 
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]
     appTicker*: AgentProxyShared
+    cssLoader*: AgentProxyShared
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]
@@ -39,12 +43,16 @@ type
 
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2    ## Screen coordinates
+    theme*: Theme
+
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]
     uid*: NodeID
     name*: string
+    widgetName*: string
+    widgetClasses*: seq[string]
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
@@ -63,8 +71,6 @@ type
 
     events*: EventFlags
     listens*: ListenEvents
-
-    theme*: Theme
 
     zlevel*: ZLevel
     rotation*: float32
@@ -131,7 +137,7 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
   if fig.isNil: NodeID -1
   else: fig[].uid
 
-proc doTick*(fig: Figuro, tickCount: int, now: MonoTime) {.signal.}
+proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
@@ -188,9 +194,9 @@ proc drag*(fig: BasicFiguro,
 
 
 proc doTickBubble*(fig: Figuro,
-                   tickCount: int,
-                   now: MonoTime) {.slot.} =
-  emit fig.doTick(tickCount, now)
+                   now: MonoTime,
+                   period: Duration) {.slot.} =
+  emit fig.doTick(now, period)
 proc doDrawBubble*(fig: Figuro) {.slot.} =
   emit fig.doDraw()
 proc doLoadBubble*(fig: Figuro) {.slot.} =
