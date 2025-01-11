@@ -51,6 +51,7 @@ proc appTick*(tp: AppTicker) {.signal.}
 
 proc appTicker*(self: AppTicker) {.slot.} =
   while app.running:
+    echo "tick"
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
@@ -84,6 +85,8 @@ proc run*(frame: var AppFrame, ticker: var AppTicker) =
 
   let tp = ticker.moveToThread(ensureMove appTickThread)
   let frameProxy = frame.moveToThread(ensureMove appThread)
+ 
+  connect(appTickThread[].agent, started, tp.getRemote()[], appTicker)
 
   proc ctrlc() {.noconv.} =
     echo "Got Ctrl+C exiting!"
