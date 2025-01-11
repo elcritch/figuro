@@ -37,7 +37,7 @@ proc newRenderer*(
   app.pixelScale = forcePixelScale
   let renderer = Renderer(window: window)
   startOpenGL(frame, window, openglVersion)
-  # renderer.frame = frame
+  renderer.frame = frame
   renderer.ctx = newContext(atlasSize = atlasSize,
                     pixelate = pixelate,
                     pixelScale = app.pixelScale)

@@ -64,11 +64,12 @@ proc runRenderer(renderer: Renderer) =
     os.sleep(renderDuration.inMilliseconds)
 
 proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
+  echo "setupFrame: ", $frame
   let renderer = setupRenderer(frame)
   appFrames[frame] = renderer
   result = renderer
 
-proc run*(frame: var AppFrame, ticker: var AppTicker) =
+proc run*(frame: sink AppFrame, ticker: sink AppTicker) =
   let renderer = setupFrame(frame.unsafeWeakRef())
 
   uiRenderEvent = initUiEvent()
