@@ -79,8 +79,7 @@ proc runRenderer(renderer: Renderer) =
     os.sleep(renderDuration.inMilliseconds)
 
 proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
-  echo "run frame: ", frame.unsafeGcCount
-  let renderer = setupRenderer(frame)
+  let renderer = setupRenderer(frame.unsafeWeakRef)
   appFrames[frame] = renderer
 
   uiRenderEvent = initUiEvent()
