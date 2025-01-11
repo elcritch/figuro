@@ -40,8 +40,8 @@ const
   renderPeriodMs* {.intdefine.} = 14
   renderDuration* = initDuration(milliseconds = renderPeriodMs)
 
-var appTickThread: ptr SigilThreadImpl
-var appThread: ptr SigilThreadImpl
+var appTickThread*: ptr SigilThreadImpl
+var appThread*: ptr SigilThreadImpl
 
 type
   AppTicker* = ref object of Agent
@@ -68,8 +68,8 @@ proc setupFrame*(frame: WeakRef[AppFrame]): Renderer =
   appFrames[frame] = renderer
   result = renderer
 
-proc run*(frame: AppFrame) =
-  let renderer = setupFrame(frame.unsafeWeakRef())
+proc run*(frameProxy: AgentProxy[AppFrame]) =
+  let renderer = setupFrame(frameProxy.remote.toKind(AppFrame))
 
   uiRenderEvent = initUiEvent()
   uiAppEvent = initUiEvent()

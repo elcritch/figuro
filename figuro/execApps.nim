@@ -51,7 +51,7 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
 # exec.runFrame = runFrameImpl
 
 proc startFiguro*(
-    frame: AppFrame,
+    frame: var AppFrame,
 ) =
   ## Starts Fidget UI library
   ## 
@@ -60,6 +60,6 @@ proc startFiguro*(
   connect(ticker, appTick, frame, runFrameImpl)
 
   let tp = ticker.moveToThread(appTickThread)
-  let frameProxy: AgentProxy[AppFrame] = frame.moveToThread(appThread)
+  let frameProxy = frame.moveToThread(appThread)
 
   run(frameProxy)
