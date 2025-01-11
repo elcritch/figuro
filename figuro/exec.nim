@@ -51,6 +51,7 @@ proc appTick*(tp: AppTicker) {.signal.}
 
 proc appTicker*(self: AppTicker) {.slot.} =
   while app.running:
+    echo "tick"
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
