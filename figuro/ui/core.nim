@@ -185,8 +185,11 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
 
 var lastModificationTime: times.Time
 
-proc loadTheme*(defaultTheme = "theme.css"): seq[CssBlock] =
-  let defaultTheme = defaultTheme.absolutePath()
+proc themePath*(): string =
+  result = "theme.css".absolutePath()
+
+proc loadTheme*(): seq[CssBlock] =
+  let defaultTheme = themePath()
   if defaultTheme.fileExists():
     let ts = getLastModificationTime(defaultTheme)
     if ts > lastModificationTime:

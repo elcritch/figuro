@@ -47,6 +47,8 @@ elif defined(macosx):
   --d:kqueueUserEvent
   --threads:on
   # --passC:"-mfloat-abi=hard"
+  --passL:"-Wl,-rpath,/opt/homebrew/opt/fswatch/lib"
+  --passL:"-Wl,-rpath,/usr/local/homebrew/opt/fswatch/lib"
 
 import std/os
 import std/strutils

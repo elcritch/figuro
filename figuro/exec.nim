@@ -16,6 +16,7 @@ import sigils/threads
 
 import shared, internal
 import ui/[core, events]
+import runtime/cssMonitor
 import common/nodes/ui
 import widget
 import timers
@@ -43,12 +44,11 @@ const
 var
   appTickThread*: ptr SigilThreadImpl
   cssLoaderThread*: ptr SigilThreadImpl
+  cssWatcherThread*: ptr SigilThreadImpl
   appThread*: ptr SigilThreadImpl
 
 type
   AppTicker* = ref object of Agent
-    period*: Duration
-  CssLoader* = ref object of Agent
     period*: Duration
 
 proc appTick*(tp: AppTicker) {.signal.}
@@ -60,41 +60,28 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc cssUpdate*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
-
-proc cssLoader*(self: CssLoader) {.slot.} =
-  echo "start css loader"
-  printConnections(self)
-  while app.running:
-    echo "css load"
-    let cssRules = loadTheme()
-    if cssRules.len() > 0:
-      echo "css send"
-      emit self.cssUpdate(cssRules)
-    os.sleep(initDuration(seconds=3).inMilliseconds)
-
 proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
-  echo "CSS theme loaded"
+  echo "CSS theme loaded: "
   self.theme.cssRules = cssRules
   refresh(self.root)
 
+template setupThread(thread, obj, sig, slot, starter: untyped) =
+  `thread` = newSigilThread()
+  let proxy = `obj`.moveToThread(`thread`)
+  threads.connect(proxy, `sig`, frame, `slot`)
+  threads.connect(`thread`[].agent, started, proxy, `starter`)
+  `thread`.start()
+  frame.proxies.add proxy
+
 proc setupTicker*(frame: AppFrame) =
   var ticker = AppTicker(period: renderDuration)
-  when defined(sigilsDebug): ticker.debugName = "Ticker"
-  appTickThread = newSigilThread()
-  let tp = ticker.moveToThread(appTickThread)
-  threads.connect(tp, appTick, frame, frame.frameRunner)
-  threads.connect(appTickThread[].agent, started, tp, tick)
-  appTickThread.start()
-  frame.appTicker = tp
+  appTickThread.setupThread(ticker, sig=appTick, slot=frame.frameRunner, starter=AppTicker.tick())
 
   var cssLoader = CssLoader(period: renderDuration)
-  cssLoaderThread = newSigilThread()
-  let cp = cssLoader.moveToThread(cssLoaderThread)
-  threads.connect(cp, cssUpdate, frame, AppFrame.updateTheme())
-  threads.connect(cssLoaderThread[].agent, started, cp, CssLoader.cssLoader())
-  cssLoaderThread.start()
-  frame.cssLoader = cp
+  cssLoaderThread.setupThread(cssLoader, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssLoader())
+  
+  var cssWatcher = CssLoader(period: renderDuration)
+  cssWatcherThread.setupThread(cssWatcher, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssWatcher())
 
 proc start(self: AppFrame) {.slot.} =
   self.setupTicker()

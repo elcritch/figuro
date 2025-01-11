@@ -34,8 +34,7 @@ type
 
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]
-    appTicker*: AgentProxyShared
-    cssLoader*: AgentProxyShared
+    proxies*: seq[AgentProxyShared]
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]
