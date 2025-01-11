@@ -145,7 +145,7 @@ proc draw*(self: Input) {.slot.} =
   connect(self, doKeyCommand, self, Input.keyCommand)
 
   if self.text.isNil:
-    self.text = newTextBox(self.box, self.theme.font)
+    self.text = newTextBox(self.box, self.frame[].theme.font)
 
   with self:
     clipContent true

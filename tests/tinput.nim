@@ -22,7 +22,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   var node = self
-  self.theme.font = UiFont(typefaceId: self.theme.font.typefaceId, size: 22)
+  # self.theme.font = UiFont(typefaceId: self.frame[].theme.font.typefaceId, size: 22)
   rectangle "body":
     self.mainRect = node
     with node:
