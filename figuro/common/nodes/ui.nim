@@ -30,6 +30,7 @@ type
     font*: UiFont
 
   AppFrame* = ref object of Agent
+    frameRunner*: AgentProcTy[tuple[]]
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]

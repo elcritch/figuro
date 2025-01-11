@@ -56,6 +56,23 @@ proc appTicker*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
+proc setupTicker(frame: AppFrame) =
+  var ticker = AppTicker(period: renderDuration)
+  when defined(sigilsDebug):
+    ticker.debugName = "Ticker"
+  connect(ticker, appTick, frame, frame.frameRunner)
+
+  let tp = ticker.moveToThread(appTickThread)
+  # printConnections(tp)
+
+  threads.connect(appTickThread[].agent, started, tp, appTicker)
+  appTickThread.start()
+
+proc start(self: AppFrame) {.slot.} =
+  echo "starting app frame"
+  self.setupTicker()
+
+
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:
     app.tickCount.inc()
@@ -79,22 +96,11 @@ proc run*(frame: var AppFrame, runFrameSlot: AgentProcTy[tuple[]]) =
   uiAppEvent = initUiEvent()
 
   appThread = newSigilThread()
+  appTickThread = newSigilThread()
 
   when defined(sigilsDebug):
     frame.debugName = "Frame"
 
-  appTickThread = newSigilThread()
-  var ticker = AppTicker(period: renderDuration)
-  when defined(sigilsDebug):
-    ticker.debugName = "Ticker"
-
-  let tp = ticker.moveToThread(ensureMove appTickThread)
-  threads.connect(tp, appTick, frame, runFrameSlot)
-
-  printConnections(tp)
-
-  threads.connect(appTickThread[].agent, started, tp, appTicker)
-  appTickThread.start()
 
   printConnections(frame)
   let frameProxy = frame.moveToThread(ensureMove appThread)
