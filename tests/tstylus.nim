@@ -182,16 +182,17 @@ suite "css exec":
     """
 
     var main = TMain.new()
-    main.frame = newAppFrame(main, size=(400'ui, 140'ui))
-    main.frame.theme = Theme(font: defaultFont)
+    var frame = newAppFrame(main, size=(400'ui, 140'ui))
+    main.frame = frame.unsafeWeakRef()
+    main.frame[].theme = Theme(font: defaultFont)
     let parser = newCssParser(themeSrc)
     let cssTheme = parse(parser)
     # print cssTheme
-    main.frame.theme.cssRules = cssTheme
+    main.frame[].theme.cssRules = cssTheme
     connectDefaults(main)
     emit main.doDraw()
 
-    echo "\nmain: ", $main
+    # echo "\nmain: ", $main
 
     let btnA = main.children[0].children[1]
     # echo "btnA: ", $btnA
