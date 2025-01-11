@@ -57,20 +57,15 @@ proc tick*(self: AppTicker) {.slot.} =
     os.sleep(self.period.inMilliseconds)
 
 proc setupTicker(frame: AppFrame) =
-  echo "start ticker"
   appTickThread = newSigilThread()
-
   var ticker = AppTicker(period: renderDuration)
   when defined(sigilsDebug): ticker.debugName = "Ticker"
-
   connect(ticker, appTick, frame, frame.frameRunner)
-
   let tp = ticker.moveToThread(appTickThread)
   threads.connect(appTickThread[].agent, started, tp, AppTicker.tick)
   frame.appTicker = tp
 
   appTickThread.start()
-  echo "done ticker setup"
 
 proc start(self: AppFrame) {.slot.} =
   echo "starting app frame"
