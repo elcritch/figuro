@@ -185,7 +185,7 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
 
 var lastModificationTime: times.Time
 
-proc loadTheme*(frame: AppFrame, defaultTheme = "theme.css") =
+proc loadTheme*(defaultTheme = "theme.css"): seq[CssBlock] =
   if defaultTheme.fileExists():
     let ts = getLastModificationTime(defaultTheme)
     if ts > lastModificationTime:
@@ -193,7 +193,8 @@ proc loadTheme*(frame: AppFrame, defaultTheme = "theme.css") =
       echo "Loading from: ", ospaths2.getCurrentDir()
       let parser = newCssParser(Path(defaultTheme))
       let cssTheme = parse(parser)
-      frame.theme.cssRules = cssTheme
+      # frame.theme.cssRules = cssTheme
+      result = cssTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
