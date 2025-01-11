@@ -61,8 +61,8 @@ proc setupTicker(frame: AppFrame) =
   var ticker = AppTicker(period: renderDuration)
   when defined(sigilsDebug): ticker.debugName = "Ticker"
   let tp = ticker.moveToThread(appTickThread)
-  connect(tp, appTick, frame, frame.frameRunner)
-  connect(appTickThread[].agent, started, tp, tick)
+  threads.connect(tp, appTick, frame, frame.frameRunner)
+  threads.connect(appTickThread[].agent, started, tp, tick)
   appTickThread.start()
   frame.appTicker = tp
 
