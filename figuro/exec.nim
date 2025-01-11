@@ -60,9 +60,9 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc cssLoaded*(tp: CssLoader, cssRules: int) {.signal.}
+proc cssUpdate*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
 
-proc cssLoader*(self: CssLoader, cssRules: int) {.slot.} =
+proc cssLoader*(self: CssLoader) {.slot.} =
   echo "start css loader"
   printConnections(self)
   while app.running:
@@ -70,12 +70,12 @@ proc cssLoader*(self: CssLoader, cssRules: int) {.slot.} =
     let cssRules = loadTheme()
     if cssRules.len() > 0:
       echo "css send"
-      emit self.cssLoaded(cssRules)
+      emit self.cssUpdate(cssRules)
     os.sleep(initDuration(seconds=10).inMilliseconds)
 
-proc updateTheme*(self: AppFrame, cssRules: int) {.slot.} =
+proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
   echo "CSS theme loaded"
-  discard
+  self.theme.cssRules = cssRules
 
 proc setupTicker*(frame: AppFrame) =
   var ticker = AppTicker(period: renderDuration)
@@ -90,14 +90,14 @@ proc setupTicker*(frame: AppFrame) =
   var cssLoader = CssLoader(period: renderDuration)
   cssLoaderThread = newSigilThread()
   let cp = cssLoader.moveToThread(cssLoaderThread)
-  threads.connect(cp, cssLoaded, frame, updateTheme)
-  threads.connect(cssLoaderThread[].agent, started, cp, cssLoader)
+  threads.connect(cp, cssUpdate, frame, AppFrame.updateTheme())
+  threads.connect(cssLoaderThread[].agent, started, cp, CssLoader.cssLoader())
   cssLoaderThread.start()
   frame.cssLoader = cp
 
 proc start(self: AppFrame) {.slot.} =
   self.setupTicker()
-  self.loadTheme()
+  # self.loadTheme()
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:

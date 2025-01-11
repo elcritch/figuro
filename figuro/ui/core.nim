@@ -186,11 +186,12 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
 var lastModificationTime: times.Time
 
 proc loadTheme*(defaultTheme = "theme.css"): seq[CssBlock] =
+  let defaultTheme = defaultTheme.absolutePath()
   if defaultTheme.fileExists():
     let ts = getLastModificationTime(defaultTheme)
     if ts > lastModificationTime:
       lastModificationTime = ts
-      echo "Loading from: ", ospaths2.getCurrentDir()
+      echo "Loading CSS file: ", defaultTheme
       let parser = newCssParser(Path(defaultTheme))
       let cssTheme = parse(parser)
       # frame.theme.cssRules = cssTheme
