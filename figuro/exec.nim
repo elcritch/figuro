@@ -50,6 +50,7 @@ type
 proc appTick*(tp: AppTicker) {.signal.}
 
 proc appTicker*(self: AppTicker) {.slot.} =
+  printConnections(self)
   while app.running:
     echo "tick"
     emit self.appTick()
@@ -79,7 +80,9 @@ proc run*(frame: var AppFrame) =
 
   appThread = newSigilThread()
 
+  printConnections(frame)
   let frameProxy = frame.moveToThread(ensureMove appThread)
+  printConnections(frameProxy)
  
   appThread.start()
 

@@ -59,10 +59,17 @@ proc startFiguro*(
   ## Starts Fidget UI library
   ## 
 
+  when defined(sigilsDebug):
+    frame.debugName = "Frame"
+
   appTickThread = newSigilThread()
   var ticker = AppTicker(period: renderDuration)
+  when defined(sigilsDebug):
+    ticker.debugName = "Ticker"
+
   let tp = ticker.moveToThread(ensureMove appTickThread)
   threads.connect(tp, appTick, frame, AppFrame.runFrameImpl())
+  printConnections(tp)
 
   threads.connect(appTickThread[].agent, started, tp, appTicker)
   appTickThread.start()
