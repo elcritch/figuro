@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
     text "btnText":
       bindProp(self.counter)
       with node:
-        box 0'pp, 0'pp, 100'pp, 100'pp
+        box 0'pp, 0'pp, 100'pp, 120'pp
         fill blackColor
         setText({font: $self.counter.value & " ₿" }, Center, Middle)
 
@@ -37,7 +37,7 @@ proc draw*(self: Main) {.slot.} =
     box node, 160'ux, 30'ux, 80'ux, 40'ux
     text "btnText":
       with node:
-        size 100'pp, 100'pp
+        size 100'pp, 120'pp
         fill blackColor
         setText({largeFont: "–"}, Center, Middle)
     ## something like this:
@@ -48,7 +48,7 @@ proc draw*(self: Main) {.slot.} =
     box node, 240'ux, 30'ux, 80'ux, 40'ux
     text "btnText":
       with node:
-        size 100'pp, 100'pp
+        size 100'pp, 120'pp
         fill blackColor
         setText({largeFont: "+"}, Center, Middle)
     self.counter.onSignal(doButton) do(counter: Property[int]):
