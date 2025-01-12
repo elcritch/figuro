@@ -14,7 +14,7 @@ iterator parents*(node: Figuro): Figuro =
       curr = parent
       yield curr
       cnt.inc
-      if cnt > 10_000:
+      if cnt > 1_000:
         raise newException(IndexDefect, "error finding root")
 
 proc checkMatch*(sel: CssSelector, node: Figuro): bool =
