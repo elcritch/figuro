@@ -104,10 +104,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
             if child of Text:
               child.fill = c
       of "background":
-        if evHover in node.events:
-          discard
-        else:
-          node.fill = c
+        node.fill = c
       of "border-color":
         node.stroke.color = c
       else:
