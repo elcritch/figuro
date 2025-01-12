@@ -7,6 +7,6 @@ Button {
   border-radius: 10;
 }
 
-Button:hover {
-  background: rgb(169, 255, 158);
+buttons:hover {
+  background: rgb(255, 158, 253);
 }

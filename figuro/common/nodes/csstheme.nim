@@ -146,6 +146,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
         break
     of skPseudo:
       # stdout.styledWriteLine fgCyan, "skPseudo: ", $prevCombinator
+      matched = matched and sel.checkMatch(node)
       matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(node)
       if not matched:
         # echo "not matched"

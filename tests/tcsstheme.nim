@@ -192,6 +192,7 @@ suite "css exec":
     let btnA {.inject, used.} = main.children[0].children[1]
     let btnB {.inject, used.} = main.children[0].children[2].children[0]
     let btnC {.inject, used.} = main.children[0].children[0].children[0]
+    let child30 {.inject, used.} = main.children[0].children[3].children[0]
     let btnD {.inject, used.} = main.children[0].children[3].children[0].children[0]
 
   test "node names":
@@ -200,6 +201,8 @@ suite "css exec":
     check btnB.name == "btnB"
     check btnC.name == "btnC"
     check btnD.name == "btnD"
+    check child30.name == "child30"
+    check child30.fill == clearColor
 
   test "css direct descendants":
     const themeSrc = """
@@ -275,6 +278,7 @@ suite "css exec":
     setupMain(themeSrc)
     # if evHover in current.events:
     btnD.events.incl evHover
+    child30.events.incl evHover
     echo "btnD.events: ", btnD.events
     emit main.doDraw()
 
@@ -287,5 +291,6 @@ suite "css exec":
     check btnB.fill == initialColor
 
     # should be untouched
+    check child30.fill == clearColor
     check btnA.fill == initialColor
     check btnC.fill == initialColor
