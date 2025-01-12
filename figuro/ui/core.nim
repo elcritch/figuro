@@ -293,7 +293,7 @@ template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): 
     preNode(`nkind`, `name`, node, parent)
     node.preDraw = proc(c: Figuro) =
       let node {.inject.} = ## implicit variable in each widget block that references the current widget
-        T`(c)
+        `T`(c)
       if preDrawReady in node.attrs:
         node.attrs.excl preDrawReady
         `blk`
