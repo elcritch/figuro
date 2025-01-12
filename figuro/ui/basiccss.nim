@@ -176,9 +176,11 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
   while true:
     parser.skip(tkWhiteSpace)
-    if parser.isEof():
+    var tk: Token
+    try:
+      tk = parser.peek()
+    except EofError:
       raise newException(InvalidCssBody, "Invalid CSS Body")
-    var tk = parser.peek()
 
     echo "\tproperty:next: ", tk.repr
     case tk.kind
