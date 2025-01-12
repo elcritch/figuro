@@ -48,7 +48,7 @@ proc cssLoaderImpl*(self: CssLoader) =
     if cssRules.len() > 0:
       echo "CSSTheme updated: ", themePath()
       emit self.cssUpdate(cssRules)
-    os.sleep(30_000)
+    os.sleep(300_000)
 
 proc cssLoader*(self: CssLoader) {.slot.} =
   echo "Starting CSS Loader"
