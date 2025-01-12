@@ -75,7 +75,7 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   return true
 
 proc apply*(prop: CssProperty, node: Figuro) =
-  echo "\napply node: ", node.uid, " ", node.name, " wn: ", node.widgetName, " prop: ", prop.repr
+  # echo "\napply node: ", node.uid, " ", node.name, " wn: ", node.widgetName, " prop: ", prop.repr
 
   template setCxFixed(cx, field: untyped, tp = float32) =
     match cx:
@@ -96,10 +96,13 @@ proc apply*(prop: CssProperty, node: Figuro) =
       # echo "\tapply color: ", c.repr
       case prop.name
       of "color":
-        echo "COLOR: "
+        # is color in CSS really only for fonts?
         if node of Text:
-          echo "COLOR:text:"
           node.fill = c
+        else:
+          for child in node.children:
+            if child of Text:
+              child.fill = c
       of "background":
         node.fill = c
       of "border-color":
