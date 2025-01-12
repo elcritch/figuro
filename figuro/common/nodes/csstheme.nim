@@ -100,16 +100,16 @@ proc eval*(rule: CssBlock, node: Figuro) =
   var
     sel: CssSelector
     matched = true
-    combinator = skNone
+    prevCombinator = skNone
     # curr = node
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $combinator
+    stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
     # echo "comb: ", combinator.repr
-    case combinator
+    case prevCombinator
     of skNone, skPseudo, skSelectorList:
-      stdout.styledWriteLine fgCyan, "skPseudo: ", $combinator
+      stdout.styledWriteLine fgCyan, "skPseudo: ", $prevCombinator
       matched = matched and sel.checkMatch(node)
       if not matched:
         echo "not matched"
@@ -130,7 +130,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
       matched = matched and parentMatched
 
     # echo "selMatch: ", matched, " idx: ", i, "\n"
-    combinator = sel.combinator
+    prevCombinator = sel.combinator
 
   if matched:
     # echo "matched node: ", node.uid
