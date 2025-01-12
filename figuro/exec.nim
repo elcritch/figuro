@@ -55,13 +55,12 @@ proc appTick*(tp: AppTicker) {.signal.}
 
 proc tick*(self: AppTicker) {.slot.} =
   echo "start tick"
-  printConnections(self)
   while app.running:
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
 proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
-  echo "CSS theme loaded: "
+  echo "CSS theme loaded"
   self.theme.cssRules = cssRules
   refresh(self.root)
 

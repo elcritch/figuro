@@ -1,4 +1,4 @@
-import std/[paths, os]
+import std/[strutils, paths, os]
 # import ./apis
 
 import cssgrid
@@ -153,7 +153,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
 
   # echo "\tsel:done"
 
-proc parseBody(parser: CssParser): seq[CssProperty] =
+proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} =
 
   parser.skip(tkWhiteSpace)
   parser.eat(tkCurlyBracketBlock)
@@ -186,12 +186,20 @@ proc parseBody(parser: CssParser): seq[CssProperty] =
     of tkIDHash:
       if result[^1].value != MissingCssValue():
         raise newException(ValueError, "expected css hash color to be a property value")
-      result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
+      try:
+        result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
+      except InvalidColor:
+        echo "CSS Warning: invalid color `$1` " % [tk.idHash]
+        result[^1].value = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkHash:
       if result[^1].value != MissingCssValue():
         raise newException(ValueError, "expected css hash color to be a property value")
-      result[^1].value = CssColor(parseHtmlColor("#" & tk.hash))
+      try:
+        result[^1].value = CssColor(parseHtmlColor("#" & tk.hash))
+      except InvalidColor:
+        echo "CSS Warning: invalid color `$1` " % [tk.hash]
+        result[^1].value = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkFunction:
       if result[^1].value != MissingCssValue():

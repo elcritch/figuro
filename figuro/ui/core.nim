@@ -199,6 +199,7 @@ proc loadTheme*(): seq[CssBlock] =
       let cssTheme = parse(parser)
       # frame.theme.cssRules = cssTheme
       result = cssTheme
+      echo "Loaded CSS file: ", defaultTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.

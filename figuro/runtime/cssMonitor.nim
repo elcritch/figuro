@@ -29,15 +29,13 @@ var
 proc themeUpdate() =
   let cssRules = loadTheme()
   if cssRules.len() > 0:
-    echo "css updated"
+    echo "CSSTheme updated: ", themePath()
     emit watcherSelf.cssUpdate(cssRules)
 
 proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
-  echo "fsevent: ", event.path, " thr: ", getThreadId()
   themeUpdate()
 
 proc cssWatcherImpl*(self: CssLoader) =
-  echo "css watcher started"
   watcherSelf = self.unsafeWeakRef()
   let defaultTheme = themePath()
   var mon = newMonitor()
@@ -45,22 +43,20 @@ proc cssWatcherImpl*(self: CssLoader) =
   mon.setCallback(fsmonCallback)
   mon.start()
 
-
 proc cssLoaderImpl*(self: CssLoader) =
   echo "css start"
   while true:
-    echo "css check"
+    echo "CSSTheme check"
     let cssRules = loadTheme()
     if cssRules.len() > 0:
-      echo "css updated"
-    emit self.cssUpdate(cssRules)
+      echo "CSSTheme updated: ", themePath()
+      emit self.cssUpdate(cssRules)
     os.sleep(30_000)
 
 proc cssLoader*(self: CssLoader) {.slot.} =
-  echo "start css loader"
-  printConnections(self)
+  echo "Starting CSS Loader"
   cssLoaderImpl(self)
 
 proc cssWatcher*(self: CssLoader) {.slot.} =
-  echo "start css watcher"
+  echo "Starting CSS Watcher"
   cssWatcherImpl(self)

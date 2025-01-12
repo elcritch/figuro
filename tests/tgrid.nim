@@ -19,7 +19,7 @@ proc draw*(self: GridApp) {.slot.} =
   with node:
     fill clearColor
   rectangle "main":
-    echo "windowSize: ", self.frame[].windowSize
+    # echo "windowSize: ", self.frame[].windowSize
     with node:
       fill css"#D7D7D9"
       cornerRadius 10
