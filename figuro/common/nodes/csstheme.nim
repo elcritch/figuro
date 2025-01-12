@@ -18,6 +18,8 @@ iterator parents*(node: Figuro): Figuro =
         raise newException(IndexDefect, "error finding root")
 
 proc checkMatch*(sel: CssSelector, node: Figuro): bool =
+  ## checks a CSS selector in a "fail fast" style
+  ## so it'll return false unless every check passes
   result = false
 
   # echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
@@ -88,8 +90,12 @@ proc apply*(prop: CssProperty, node: Figuro) =
     CssVarName(n):
       echo "Warning: ", "unhandled css variable: ", prop.repr
 
+import std/terminal
+
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
+  stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
+  stdout.styledWriteLine fgRed, rule.selectors.repr
 
   var
     sel: CssSelector
@@ -99,13 +105,14 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    echo "SEL: ", sel.repr
-    echo "comb: ", combinator.repr
+    stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $combinator
+    # echo "comb: ", combinator.repr
     case combinator
-    of skNone, skPseudo:
+    of skNone, skPseudo, skSelectorList:
+      stdout.styledWriteLine fgCyan, "skPseudo: ", $combinator
       matched = matched and sel.checkMatch(node)
       if not matched:
-        # echo "not matched"
+        echo "not matched"
         break
     of skDirectChild:
       if node.parent.isNil:
@@ -121,8 +128,6 @@ proc eval*(rule: CssBlock, node: Figuro) =
           # echo "sel:p:matched "
           break
       matched = matched and parentMatched
-    else:
-      echo "unhandled combinator type! type: ", combinator.repr
 
     # echo "selMatch: ", matched, " idx: ", i, "\n"
     combinator = sel.combinator
