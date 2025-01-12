@@ -173,6 +173,8 @@ proc draw*(self: TMain) {.slot.} =
             box 40'ux, 30'ux, 80'ux, 80'ux
             fill css"#FFFFFF"
 
+const initialColor = parseHtmlColor "#FFFFFF"
+
 suite "css exec":
 
   template setupMain(themeSrc) =
@@ -215,8 +217,9 @@ suite "css exec":
     check btnB.stroke.color == clearColor
 
     ## Not a direct descendant of body or child2, should be orig
+    # should be untouched
     check btnC.name == "btnC"
-    check btnC.fill == parseHtmlColor("#FFFFFF")
+    check btnC.fill == initialColor
     check btnC.stroke.weight == 0.0
     check btnC.stroke.color == clearColor
 
@@ -232,3 +235,8 @@ suite "css exec":
     # echo "btnB: ", $btnB
     check btnD.name == "btnD"
     check btnD.fill == parseHtmlColor("#00FFFF")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnB.fill == initialColor
+    check btnC.fill == initialColor
