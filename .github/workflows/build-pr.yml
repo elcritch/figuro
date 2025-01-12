@@ -40,5 +40,4 @@ jobs:
 
     - name: Build Tests
       run: |
-        cd figuro/
         nim test
