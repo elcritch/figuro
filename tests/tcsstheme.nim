@@ -173,7 +173,8 @@ proc draw*(self: TMain) {.slot.} =
             box 40'ux, 30'ux, 80'ux, 80'ux
             fill css"#FFFFFF"
 
-const initialColor = parseHtmlColor "#FFFFFF"
+const
+  initialColor = parseHtmlColor "#FFFFFF"
 
 suite "css exec":
 
