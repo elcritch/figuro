@@ -115,47 +115,43 @@ proc renderDropShadows(ctx: Context, node: Node) =
   ## drawing poor man's shadows
   ## should add a primitive to opengl.context to
   ## do this with pixie and 9-patch, but that's a headache
-  let shadow = node.shadow.get()
+  let shadow = node.shadow[DropShadow]
   let color = shadow.color * (1.0/16.0)
   let blurAmt = shadow.blur / 8.0
-  if shadow.kind == DropShadow:
-    for i in -4 .. 4:
-      for j in -4 .. 4:
-        let xblur: float32 = i.toFloat() * blurAmt
-        let yblur: float32 = j.toFloat() * blurAmt
-        let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
-        ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+  for i in -4 .. 4:
+    for j in -4 .. 4:
+      let xblur: float32 = i.toFloat() * blurAmt
+      let yblur: float32 = j.toFloat() * blurAmt
+      let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
+      ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
 
 proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
-  let shadow = node.shadow.get()
+  let shadow = node.shadow[InnerShadow]
   let n = shadow.blur.toInt
   var color = shadow.color
   color.a = 2*color.a/n.toFloat
   let blurAmt = shadow.blur / n.toFloat
-  echo "inner shadow color: ", color
-  if shadow.kind == InnerShadow:
-    for i in 0 .. n:
-      let blur: float32 = i.toFloat() * blurAmt
-      var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
-      # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
-      if shadow.x >= 0'f32:
-        box.w += shadow.x
-      else:
-        box.x += shadow.x + blurAmt
-      if shadow.y >= 0'f32:
-        box.h += shadow.y
-      else:
-        box.y += shadow.y + blurAmt
-
-      ctx.strokeRoundedRect(
-        rect = box,
-        color = color,
-        weight = blur,
-        radius = node.cornerRadius - blur,
-      )
+  for i in 0 .. n:
+    let blur: float32 = i.toFloat() * blurAmt
+    var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
+    # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
+    if shadow.x >= 0'f32:
+      box.w += shadow.x
+    else:
+      box.x += shadow.x + blurAmt
+    if shadow.y >= 0'f32:
+      box.h += shadow.y
+    else:
+      box.y += shadow.y + blurAmt
+    ctx.strokeRoundedRect(
+      rect = box,
+      color = color,
+      weight = blur,
+      radius = node.cornerRadius - blur,
+    )
 
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
@@ -238,8 +234,8 @@ proc render(
     ctx.translate(-node.screenBox.wh / 2)
 
   # hacky method to draw drop shadows... should probably be done in opengl shaders
-  ifrender node.kind == nkRectangle and node.shadow.isSome() and node.shadow.get().kind == DropShadow:
-    echo "shadow: ", node.shadow.get().repr
+  ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
+    echo "drop shadow: ", node.shadow[DropShadow].repr
     ctx.renderDropShadows(node)
 
   # handle clipping children content based on this node
@@ -258,8 +254,8 @@ proc render(
     elif node.kind == nkRectangle:
       ctx.renderBoxes(node)
 
-  ifrender node.kind == nkRectangle and node.shadow.isSome() and node.shadow.get().kind == InnerShadow:
-    echo "inner shadow: ", node.shadow.get().repr
+  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
+    echo "inner shadow: ", node.shadow[InnerShadow].repr
     ctx.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)

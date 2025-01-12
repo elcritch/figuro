@@ -78,14 +78,12 @@ type
   ZLevel* = int8
 
   Shadow* = object
-    kind*: ShadowStyle
     blur*: UICoord
     x*: UICoord
     y*: UICoord
     color*: Color
 
   RenderShadow* = object
-    kind*: ShadowStyle
     blur*: float32
     x*: float32
     y*: float32

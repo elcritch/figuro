@@ -84,7 +84,7 @@ type
     contentsDraw*: proc(current, widget: Figuro)
 
     kind*: NodeKind
-    shadow*: Option[Shadow]
+    shadow*: array[ShadowStyle, Shadow]
     cornerRadius*: UICoord
     image*: ImageStyle
     textLayout*: GlyphArrangement

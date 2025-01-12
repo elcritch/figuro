@@ -110,15 +110,22 @@ proc convert*(current: Figuro): render.Node =
 
   case current.kind
   of nkRectangle:
-    if current.shadow.isSome:
-      let orig = current.shadow.get()
+    block:
+      let orig = current.shadow[DropShadow]
       var shadow: RenderShadow
-      shadow.kind = orig.kind
       shadow.blur = orig.blur.scaled
       shadow.x = orig.x.scaled
       shadow.y = orig.y.scaled
       shadow.color = orig.color
-      result.shadow = some shadow
+      result.shadow[DropShadow] = shadow
+    block:
+      let orig = current.shadow[InnerShadow]
+      var shadow: RenderShadow
+      shadow.blur = orig.blur.scaled
+      shadow.x = orig.x.scaled
+      shadow.y = orig.y.scaled
+      shadow.color = orig.color
+      result.shadow[InnerShadow] = shadow
     result.cornerRadius = current.cornerRadius.scaled
   of nkImage:
     result.image = current.image
