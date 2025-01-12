@@ -13,6 +13,10 @@ variantp CssValue:
   CssVarName(n: string)
 
 type
+  EofError* = object of CatchableError
+  CssError* = object of CatchableError
+  InvalidCssBody* = object of CssError
+
   CssParser* = ref object
     buff: seq[Token]
     tokenizer: Tokenizer
@@ -64,16 +68,17 @@ proc isEof(parser: CssParser): bool =
   parser.tokenizer.isEof()
 
 proc peek(parser: CssParser): Token =
-  if parser.isEof():
-    raise newException(ValueError, "EOF!")
   if parser.buff.len() == 0:
+    if parser.isEof():
+      echo "parser EOF: ", parser.buff.repr
+      raise newException(EofError, "EOF!")
     parser.buff.add(parser.tokenizer.nextToken())
   parser.buff[0]
 
 proc nextToken(parser: CssParser): Token =
-  if parser.isEof():
-    raise newException(ValueError, "EOF!")
   if parser.buff.len() == 0:
+    if parser.isEof():
+      raise newException(EofError, "EOF!")
     parser.tokenizer.nextToken()
   else:
     let tk = parser.buff[0]
@@ -81,8 +86,8 @@ proc nextToken(parser: CssParser): Token =
     tk
 
 proc eat(parser: CssParser, kind: TokenKind) =
-  if parser.isEof():
-    raise newException(ValueError, "EOF!")
+  # if parser.isEof():
+  #   raise newException(EofError, "EOF!")
   let tk = parser.nextToken()
   if tk.kind != kind:
     raise newException(ValueError, "Expected: " & $kind & " got: " & $tk.kind)
@@ -153,7 +158,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
 
   # echo "\tsel:done"
 
-proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} =
+proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} =
   parser.skip(tkWhiteSpace)
   parser.eat(tkCurlyBracketBlock)
 
@@ -171,9 +176,11 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
 
   while true:
     parser.skip(tkWhiteSpace)
+    if parser.isEof():
+      raise newException(InvalidCssBody, "Invalid CSS Body")
     var tk = parser.peek()
 
-    # echo "\tproperty:next: ", tk.repr
+    echo "\tproperty:next: ", tk.repr
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
@@ -256,11 +263,15 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
 
 proc parse*(parser: CssParser): seq[CssBlock] =
   while not parser.isEof():
+    echo "CSS Block: "
     parser.skip(tkWhiteSpace)
     if parser.isEof():
       break
     let sel = parser.parseSelector()
     # echo "selectors: ", sel.repr()
-    let props = parser.parseBody()
-    # echo ""
-    result.add(CssBlock(selectors: sel, properties: props))
+    try:
+      let props = parser.parseRuleBody()
+      # echo ""
+      result.add(CssBlock(selectors: sel, properties: props))
+    except InvalidCssBody:
+      echo "Error: ", "unable to parse CSS body for " & repr sel

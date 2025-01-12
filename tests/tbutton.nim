@@ -35,12 +35,11 @@ proc draw*(self: Main) {.slot.} =
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
 
-    block:
-      text "btnText":
-        with node:
-          box 10'ux, 10'ux, 80'pp, 80'pp
-          fill blackColor
-          setText({font: "testing"}, Center, Middle)
+    text "btnText":
+      with node:
+        box 10'ux, 10'ux, 80'pp, 80'pp
+        fill blackColor
+        setText({font: "testing"}, Center, Middle)
 
 
 var main = Main.new()

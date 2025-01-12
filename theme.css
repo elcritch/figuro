@@ -10,3 +10,6 @@ Button {
 Button:hover {
   background: rgb(169, 255, 158);
 }
+
+Button:hover < Text {
+  background: rgb(169, 255, 158);
