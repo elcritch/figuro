@@ -9,7 +9,7 @@ import cssgrid
 import stack_strings
 import sigils/weakrefs
 
-export basics, sigils, inputs, cssgrid, stack_strings
+export basics, inputs, cssgrid, stack_strings
 export unicode, monotimes
 export weakrefs
 export basiccss
@@ -98,7 +98,7 @@ type
   Property*[T] = ref object of Agent
     value*: T
 
-  Rectangle* = ref object of BasicFiguro
+  # Rectangle* = ref object of BasicFiguro
   Text* = ref object of BasicFiguro
 
 proc `=destroy`*(obj: type(Figuro()[])) =
@@ -211,11 +211,17 @@ template connect*(
     acceptVoidSlot: static bool = false,
 ): void =
   ## template override
+  static:
+    echo "CONNECT: ", $a.typeof
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
+    static:
+      echo "HOVER ", $a.typeof
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":
+    static:
+      echo "DRAG ", $a.typeof
     a.listens.signals.incl {evDrag, evDragEnd}
   signals.connect(a, signal, b, slot, acceptVoidSlot)
 

@@ -96,7 +96,7 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 
 template rectangle*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.
-  widget[Rectangle](nkRectangle, name, blk)
+  widget[BasicFiguro](nkRectangle, name, blk)
 
 template text*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.
@@ -221,7 +221,7 @@ template onHover*(current: Figuro, inner: untyped) =
   ## Code in the block will run when this box is hovered.
   current.listens.events.incl(evHover)
   if evHover in current.events:
-    `inner`
+    inner
 
 template onHover*(inner: untyped) =
   onHover(node, inner)
@@ -230,7 +230,7 @@ template onClick*(current: Figuro, inner: untyped) =
   ## On click event handler.
   current.listens.events.incl(evClick)
   if evClick in current.events.mouse and MouseLeft in uxInputs.buttonPress:
-    `inner`
+    inner
 
 template onClick*(inner: untyped) =
   onClick(node, inner)
@@ -239,7 +239,7 @@ template onClickOut*(current: Figuro, inner: untyped) =
   ## On click event handler.
   current.listens.events.incl(evClickOut)
   if evClickOut in current.events.mouse and MouseLeft in uxInputs.buttonPress:
-    `inner`
+    inner
 
 template onClickOut*(inner: untyped) =
   onClickOut(node, inner)

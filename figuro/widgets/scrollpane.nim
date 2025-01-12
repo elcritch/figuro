@@ -1,5 +1,4 @@
 import commons
-import ../ui/utils
 
 type
   ScrollPane* = ref object of Figuro
