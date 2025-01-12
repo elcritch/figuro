@@ -86,7 +86,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
         # echo "warning: ", "unhandled css property: ", prop.repr
         discard
     CssVarName(n):
-      echo "warning: ", "unhandled css variable: ", prop.repr
+      echo "Warning: ", "unhandled css variable: ", prop.repr
 
 
 proc eval*(rule: CssBlock, node: Figuro) =
