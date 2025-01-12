@@ -1,8 +1,8 @@
 
 Button {
-  background: rgba(200, 26, 29, 0.397);
+  background: rgb(255, 136, 0);
   width: 100;
   border-width: 5;
   border-color: #0095a0;
-  border-radius: 30;
+  border-radius: 10;
 }
