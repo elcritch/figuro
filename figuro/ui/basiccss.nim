@@ -163,11 +163,11 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
   template popIncompleteProperty(warning = true) =
     if result.len() > 0 and result[^1].name.len() == 0:
       if warning:
-        echo "warning: ", "missing css property name! Got: ", result[^1].repr()
+        echo "CSS Warning: ", "missing css property name! Got: ", result[^1].repr()
       discard result.pop()
     if result.len() > 0 and result[^1].value == MissingCssValue():
       if warning:
-        echo "warning: ", "missing css property value! Got: ", result[^1].repr()
+        echo "CSS Warning: ", "missing css property value! Got: ", result[^1].repr()
       discard result.pop()
 
   while true:
@@ -189,7 +189,7 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
       try:
         result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
       except InvalidColor:
-        echo "CSS Warning: invalid color `$1` " % [tk.idHash]
+        echo "CSS Warning: ", "invalid color `$1` " % [tk.idHash]
         result[^1].value = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkHash:
@@ -198,7 +198,7 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
       try:
         result[^1].value = CssColor(parseHtmlColor("#" & tk.hash))
       except InvalidColor:
-        echo "CSS Warning: invalid color `$1` " % [tk.hash]
+        echo "CSS Warning: ", "invalid color `$1` " % [tk.hash]
         result[^1].value = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkFunction:
@@ -244,7 +244,7 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
       break
     else:
       # echo "\tattrib:other: ", tk.repr
-      echo "warning: ", "unhandled token while parsing property: ", parser.peek().repr
+      echo "CSS Warning: ", "unhandled token while parsing property: ", parser.peek().repr
       discard parser.nextToken()
 
   popIncompleteProperty(warning=false)
