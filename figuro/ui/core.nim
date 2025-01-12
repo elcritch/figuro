@@ -1,4 +1,4 @@
-import std/[tables, unicode, os]
+import std/[tables, unicode, os, strformat]
 import std/terminal
 import std/times
 # import cssgrid
@@ -225,18 +225,8 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     createNewNode(T, node)
     parent.children.add(node)
     echo nd(),
-      "create new node: ",
-      node.name,
-      " widget: ",
-      node.widgetName,
-      " new: ",
-      node.getId,
-      "/",
-      node.parent.getId(),
-      " n: ",
-      node.name,
-      " parent: ",
-      parent.uid
+      fmt"create new node: {node.name} widget: {node.widgetName}",
+      fmt" new: {$node.getId}/{node.parent.getId()} n: {node.name} parent: {parent.uid}"
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
