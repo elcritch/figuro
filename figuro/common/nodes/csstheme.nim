@@ -99,8 +99,8 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    # print "SEL: ", sel
-    # print "comb: ", combinator
+    echo "SEL: ", sel.repr
+    echo "comb: ", combinator.repr
     case combinator
     of skNone, skPseudo:
       matched = matched and sel.checkMatch(node)

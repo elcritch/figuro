@@ -249,12 +249,16 @@ suite "css exec":
   test "other":
     const themeSrc = """
 
-    #child3 Button {
+    #child3 Button:hover {
       background: #00FFFF;
     }
     """
     setupMain(themeSrc)
 
+    # if evHover in current.events:
+    btnD.events.incl evHover
+
+    # print main.frame[].theme.cssRules
     # echo "btnB: ", $btnB
     check btnD.name == "btnD"
     check btnD.fill == parseHtmlColor("#00FFFF")
