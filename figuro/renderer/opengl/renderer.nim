@@ -132,8 +132,10 @@ proc renderInnerShadows(ctx: Context, node: Node) =
   ## and I don't actually want to think today ;)
   let shadow = node.shadow.get()
   let n = shadow.blur.toInt
-  let color = shadow.color * 1.0/n.toFloat
+  var color = shadow.color
+  color.a = 2*color.a/n.toFloat
   let blurAmt = shadow.blur / n.toFloat
+  echo "inner shadow color: ", color
   if shadow.kind == InnerShadow:
     for i in 0 .. n:
       let blur: float32 = i.toFloat() * blurAmt
@@ -160,11 +162,11 @@ proc renderBoxes(ctx: Context, node: Node) =
   if node.fill.a > 0'f32:
     if node.cornerRadius > 0:
       discard
-      # ctx.fillRoundedRect(
-      #   rect = node.screenBox.atXY(0'f32, 0'f32),
-      #   color = node.fill,
-      #   radius = node.cornerRadius,
-      # )
+      ctx.fillRoundedRect(
+        rect = node.screenBox.atXY(0'f32, 0'f32),
+        color = node.fill,
+        radius = node.cornerRadius,
+      )
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
 
