@@ -319,3 +319,4 @@ suite "css exec":
     check child30.fill == clearColor
     check btnA.fill == initialColor
     check btnC.fill == initialColor
+    check btnD.fill == initialColor
