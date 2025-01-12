@@ -211,17 +211,11 @@ template connect*(
     acceptVoidSlot: static bool = false,
 ): void =
   ## template override
-  static:
-    echo "CONNECT: ", $a.typeof
   when signalName(signal) == "doClick":
     a.listens.signals.incl {evClick, evClickOut}
   elif signalName(signal) == "doHover":
-    static:
-      echo "HOVER ", $a.typeof
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":
-    static:
-      echo "DRAG ", $a.typeof
     a.listens.signals.incl {evDrag, evDragEnd}
   signals.connect(a, signal, b, slot, acceptVoidSlot)
 
