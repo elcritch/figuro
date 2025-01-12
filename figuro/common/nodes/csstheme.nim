@@ -120,8 +120,8 @@ import std/terminal
 
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
-  # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
-  # stdout.styledWriteLine fgRed, rule.selectors.repr
+  stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
+  stdout.styledWriteLine fgRed, rule.selectors.repr
 
   var
     sel: CssSelector
