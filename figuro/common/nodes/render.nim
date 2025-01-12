@@ -1,5 +1,6 @@
 import pkg/stack_strings
 import basics
+import hashes
 
 export basics
 

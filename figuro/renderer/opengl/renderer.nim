@@ -112,14 +112,18 @@ proc drawMasks(ctx: Context, node: Node) =
     )
 
 proc renderShadows(ctx: Context, node: Node) =
-  ## drawing shadows
+  ## drawing poor man's shadows
+  ## should add a primitive to opengl.context to
+  ## do this with pixie and 9-patch, but that's a headache
   let shadow = node.shadow.get()
-  let blurAmt = shadow.blur / 3.0
-  for i in 0 .. 10:
-    let blurs: float32 = i.toFloat() * blurAmt
-    let box = node.screenBox.atXY(x = shadow.x + blurs, y = shadow.y + blurs)
-    ctx.fillRoundedRect(rect = box, color = shadow.color, radius = node.cornerRadius)
-    # echo "blurs: ", box, " ", shadow.color
+  let color = shadow.color * (1.0/16.0)
+  let blurAmt = shadow.blur / 8.0
+  for i in -4 .. 4:
+    for j in -4 .. 4:
+      let xblur: float32 = i.toFloat() * blurAmt
+      let yblur: float32 = j.toFloat() * blurAmt
+      let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
+      ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
 
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles

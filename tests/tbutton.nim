@@ -35,7 +35,8 @@ proc draw*(self: Main) {.slot.} =
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
     
-    node.shadow = some Shadow(kind: DropShadow, blur: 4.0'ui, x: 0.0'ui, y: 0.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.05))
+    node.shadow = some Shadow(kind: DropShadow, blur: 6.0'ui, x: 3.0'ui, y: 3.0'ui,
+                                color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.1))
 
     text "btnText":
       with node:
