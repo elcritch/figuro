@@ -153,25 +153,25 @@ proc draw*(self: TMain) {.slot.} =
       Button[int].new "btnC":
         with node:
           box 40'ux, 30'ux, 80'ux, 80'ux
-          fill css"#2B9F2B"
+          fill css"#FFFFFF"
 
     Button[int].new "btnA":
       with node:
         box 40'ux, 30'ux, 80'ux, 80'ux
-        fill css"#2B9F2B"
+        fill css"#FFFFFF"
   
     rectangle "child2":
       Button[int].new "btnB":
         with node:
           box 40'ux, 30'ux, 80'ux, 80'ux
-          fill css"#2B9F2B"
+          fill css"#FFFFFF"
 
     rectangle "child3":
       rectangle "child30":
         Button[int].new "btnD":
           with node:
             box 40'ux, 30'ux, 80'ux, 80'ux
-            fill css"#2B9F2B"
+            fill css"#FFFFFF"
 
 suite "css exec":
 
@@ -216,7 +216,7 @@ suite "css exec":
 
     ## Not a direct descendant of body or child2, should be orig
     check btnC.name == "btnC"
-    check btnC.fill == parseHtmlColor("#2B9F2B")
+    check btnC.fill == parseHtmlColor("#FFFFFF")
     check btnC.stroke.weight == 0.0
     check btnC.stroke.color == clearColor
 
@@ -228,7 +228,6 @@ suite "css exec":
     }
     """
     setupMain(themeSrc)
-
 
     # echo "btnB: ", $btnB
     check btnD.name == "btnD"
