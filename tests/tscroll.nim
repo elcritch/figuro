@@ -6,9 +6,6 @@ import figuro/widgets/vertical
 import figuro/widget
 import figuro
 
-import std/sugar
-import std/macros
-
 type
   Main* = ref object of Figuro
     value: float

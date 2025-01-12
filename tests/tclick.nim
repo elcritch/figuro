@@ -78,7 +78,6 @@ proc draw*(self: Main) {.slot.} =
                 fill blackColor
                 setText({font: $(btn.state)}, Center, Middle)
 
-
 proc tick*(self: Main, time: MonoTime, delta: Duration) {.slot.} =
   self.bkgFade.tick(self)
   emit self.update()

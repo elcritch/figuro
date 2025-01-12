@@ -1,8 +1,12 @@
 
 Button {
   background: rgb(164, 158, 255);
-  width: 100;
   border-width: 5;
   border-color: #160075;
   border-radius: 10;
+  color: rgb(78, 0, 90);
+}
+
+Button:hover {
+  background: rgb(169, 255, 158);
 }

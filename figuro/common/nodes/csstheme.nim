@@ -14,10 +14,12 @@ iterator parents*(node: Figuro): Figuro =
       curr = parent
       yield curr
       cnt.inc
-      if cnt > 10_000:
+      if cnt > 1_000:
         raise newException(IndexDefect, "error finding root")
 
 proc checkMatch*(sel: CssSelector, node: Figuro): bool =
+  ## checks a CSS selector in a "fail fast" style
+  ## so it'll return false unless every check passes
   result = false
 
   # echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
@@ -45,10 +47,35 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
       # echo "failed class check"
       return
 
+  # if node.combinator == skPseudo and node. 
+
+  return true
+
+proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
+  ## checks a CSS selector in a "fail fast" style
+  ## so it'll return false unless every check passes
+  result = false
+
+  # echo "selector:pseudo:check: ", pseudo.repr, " node: ", node.uid, " name: ", node.name
+  case pseudo.cssType
+  of "hover":
+    if evHover in node.events:
+      # echo "matched pseudo hover! node: ", $node.name
+      discard
+    else:
+      # echo "failed pseudo hover! node: ", $node.name, " evt: ", node.events
+      return
+  else:
+    once:
+      echo "Warning: ", "unhandled CSS psuedo class: ", pseudo.cssType
+    
+
+  # if node.combinator == skPseudo and node. 
+
   return true
 
 proc apply*(prop: CssProperty, node: Figuro) =
-  # echo "\napply node: ", node.uid, " ", node.name, " prop: ", prop.repr
+  # echo "\napply node: ", node.uid, " ", node.name, " wn: ", node.widgetName, " prop: ", prop.repr
 
   template setCxFixed(cx, field: untyped, tp = float32) =
     match cx:
@@ -68,6 +95,14 @@ proc apply*(prop: CssProperty, node: Figuro) =
     CssColor(c):
       # echo "\tapply color: ", c.repr
       case prop.name
+      of "color":
+        # is color in CSS really only for fonts?
+        if node of Text:
+          node.fill = c
+        else:
+          for child in node.children:
+            if child of Text:
+              child.fill = c
       of "background":
         node.fill = c
       of "border-color":
@@ -82,28 +117,49 @@ proc apply*(prop: CssProperty, node: Figuro) =
         setCxFixed(cx, node.stroke.weight)
       of "border-radius":
         setCxFixed(cx, node.cornerRadius, UICoord)
+      of "width":
+        node.cxSize[dcol] = cx
+      of "height":
+        node.cxSize[drow] = cx
       else:
         # echo "warning: ", "unhandled css property: ", prop.repr
         discard
     CssVarName(n):
-      echo "Warning: ", "unhandled css variable: ", prop.repr
+      once:
+        echo "Warning: ", "unhandled css variable: ", prop.repr
+
+import std/terminal
 
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
+  # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " wn: ", node.widgetName, " sel:len: ", $rule.selectors.len
+  # stdout.styledWriteLine fgRed, rule.selectors.repr
 
   var
     sel: CssSelector
     matched = true
-    combinator = skNone
+    prevCombinator = skNone
     # curr = node
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    # print "SEL: ", sel
-    # print "comb: ", combinator
-    case combinator
-    of skNone, skPseudo:
+    # stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
+
+    if sel.combinator == skPseudo:
+      prevCombinator = sel.combinator
+      continue
+
+    case prevCombinator
+    of skNone, skSelectorList:
+      # stdout.styledWriteLine fgCyan, "skNone/SelList:: ", $prevCombinator
       matched = matched and sel.checkMatch(node)
+      if not matched:
+        # echo "not matched"
+        break
+    of skPseudo:
+      # stdout.styledWriteLine fgCyan, "skPseudo: ", $prevCombinator
+      matched = matched and sel.checkMatch(node)
+      matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(node)
       if not matched:
         # echo "not matched"
         break
@@ -121,11 +177,9 @@ proc eval*(rule: CssBlock, node: Figuro) =
           # echo "sel:p:matched "
           break
       matched = matched and parentMatched
-    else:
-      echo "unhandled combinator type! type: ", combinator.repr
 
     # echo "selMatch: ", matched, " idx: ", i, "\n"
-    combinator = sel.combinator
+    prevCombinator = sel.combinator
 
   if matched:
     # echo "matched node: ", node.uid

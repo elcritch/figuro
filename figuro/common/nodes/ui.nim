@@ -9,7 +9,7 @@ import cssgrid
 import stack_strings
 import sigils/weakrefs
 
-export basics, sigils, inputs, cssgrid, stack_strings
+export basics, inputs, cssgrid, stack_strings
 export unicode, monotimes
 export weakrefs
 export basiccss
@@ -97,6 +97,9 @@ type
 
   Property*[T] = ref object of Agent
     value*: T
+
+  Rectangle* = ref object of BasicFiguro
+  Text* = ref object of BasicFiguro
 
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy

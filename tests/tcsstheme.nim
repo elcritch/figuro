@@ -153,22 +153,58 @@ proc draw*(self: TMain) {.slot.} =
       Button[int].new "btnC":
         with node:
           box 40'ux, 30'ux, 80'ux, 80'ux
-          fill css"#2B9F2B"
+          fill css"#FFFFFF"
 
     Button[int].new "btnA":
       with node:
         box 40'ux, 30'ux, 80'ux, 80'ux
-        fill css"#2B9F2B"
+        fill css"#FFFFFF"
   
     rectangle "child2":
       Button[int].new "btnB":
         with node:
           box 40'ux, 30'ux, 80'ux, 80'ux
-          fill css"#2B9F2B"
+          fill css"#FFFFFF"
+
+    rectangle "child3":
+      rectangle "child30":
+        Button[int].new "btnD":
+          with node:
+            box 40'ux, 30'ux, 80'ux, 80'ux
+            fill css"#FFFFFF"
+
+const
+  initialColor = parseHtmlColor "#FFFFFF"
 
 suite "css exec":
-  test "css target":
 
+  template setupMain(themeSrc) =
+    var main {.inject.} = TMain.new()
+    var frame = newAppFrame(main, size=(400'ui, 140'ui))
+    main.frame = frame.unsafeWeakRef()
+    main.frame[].theme = Theme(font: defaultFont)
+    let parser = newCssParser(themeSrc)
+    let cssTheme = parse(parser)
+    # print cssTheme
+    main.frame[].theme.cssRules = cssTheme
+    connectDefaults(main)
+    emit main.doDraw()
+    let btnA {.inject, used.} = main.children[0].children[1]
+    let btnB {.inject, used.} = main.children[0].children[2].children[0]
+    let btnC {.inject, used.} = main.children[0].children[0].children[0]
+    let child30 {.inject, used.} = main.children[0].children[3].children[0]
+    let btnD {.inject, used.} = main.children[0].children[3].children[0].children[0]
+
+  test "node names":
+    setupMain("")
+    check btnA.name == "btnA"
+    check btnB.name == "btnB"
+    check btnC.name == "btnC"
+    check btnD.name == "btnD"
+    check child30.name == "child30"
+    check child30.fill == clearColor
+
+  test "css direct descendants":
     const themeSrc = """
     #body < Button {
       background: #FF0000;
@@ -180,37 +216,107 @@ suite "css exec":
       background: #0000FF;
     }
     """
-
-    var main = TMain.new()
-    var frame = newAppFrame(main, size=(400'ui, 140'ui))
-    main.frame = frame.unsafeWeakRef()
-    main.frame[].theme = Theme(font: defaultFont)
-    let parser = newCssParser(themeSrc)
-    let cssTheme = parse(parser)
-    # print cssTheme
-    main.frame[].theme.cssRules = cssTheme
-    connectDefaults(main)
-    emit main.doDraw()
-
-    # echo "\nmain: ", $main
-
-    let btnA = main.children[0].children[1]
-    # echo "btnA: ", $btnA
-    check btnA.name == "btnA"
+    setupMain(themeSrc)
     check btnA.fill == parseHtmlColor("#FF0000")
     check btnA.stroke.weight == 3.0
     check btnA.stroke.color == parseHtmlColor("#00FF00")
 
-    let btnB = main.children[0].children[2].children[0]
-    # echo "btnB: ", $btnB
-    check btnB.name == "btnB"
     check btnB.fill == parseHtmlColor("#0000FF")
     check btnB.stroke.weight == 0.0
     check btnB.stroke.color == clearColor
 
-    let btnC = main.children[0].children[0].children[0]
-    # echo "btnB: ", $btnB
-    check btnC.name == "btnC"
-    check btnC.fill == parseHtmlColor("#2B9F2B")
+    ## Not a direct descendant of body or child2, should be orig
+    # should be untouched
+    check btnC.fill == initialColor
     check btnC.stroke.weight == 0.0
     check btnC.stroke.color == clearColor
+
+  test "css grandchild descdendant":
+    const themeSrc = """
+
+    #child3 Button {
+      background: #00FFFF;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnD.fill == parseHtmlColor("#00FFFF")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnB.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "css grandchild descdendant of direct child":
+    const themeSrc = """
+
+    #child2 Button {
+      background: #00FFFF;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnB.fill == parseHtmlColor("#00FFFF")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnD.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "test hover":
+    const themeSrc = """
+    #child2 Button:hover {
+      background: #0000FF;
+    }
+
+    #child3 Button:hover {
+      background: #00FFFF;
+    }
+    """
+    setupMain(themeSrc)
+    # if evHover in current.events:
+    btnD.events.incl evHover
+    child30.events.incl evHover
+    echo "btnD.events: ", btnD.events
+    emit main.doDraw()
+
+    # print main.frame[].theme.cssRules
+    # echo "btnB: ", $btnB
+    check btnD.fill == parseHtmlColor("#00FFFF")
+
+    check evHover notin btnB.events
+    check btnB.fill != parseHtmlColor("#0000FF")
+    check btnB.fill == initialColor
+
+    # should be untouched
+    check child30.fill == clearColor
+    check btnA.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "test comment":
+    const themeSrc = """
+    /* #child3 Button:hover {
+      background: #00FFFF;
+    } */
+    #child2 Button:hover {
+      background: #0000FF;
+    }
+    /* #child3 Button:hover {
+      background: #00FFFF;
+    } */
+    """
+    setupMain(themeSrc)
+    # if evHover in current.events:
+    btnB.events.incl evHover
+    emit main.doDraw()
+
+    # print main.frame[].theme.cssRules
+    check btnB.fill == parseHtmlColor("#0000FF")
+
+    # should be untouched
+    check child30.fill == clearColor
+    check btnA.fill == initialColor
+    check btnC.fill == initialColor
+    check btnD.fill == initialColor

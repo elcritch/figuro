@@ -29,6 +29,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
   else:
     fill node, css"#2B9FEA"
     onHover:
+      echo "on hover"
       fill node, node.fill.spin(15)
   rectangle "btnBody":
     bubble(doClick)

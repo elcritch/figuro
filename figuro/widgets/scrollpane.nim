@@ -1,5 +1,4 @@
 import commons
-import ../ui/utils
 
 type
   ScrollPane* = ref object of Figuro
@@ -152,7 +151,6 @@ proc draw*(self: ScrollPane) {.slot.} =
         cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
-  # self.children[0] # "scrollBody"
   self
 
 exportWidget(scroll, ScrollPane)

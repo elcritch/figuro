@@ -2,7 +2,7 @@ import commons
 import ../widget
 export widget
 
-type Rectangle* = ref object of BasicFiguro
+# type Rectangle* = ref object of BasicFiguro
 
 proc draw*(self: Rectangle) {.slot.} =
   ## button widget!
@@ -10,7 +10,7 @@ proc draw*(self: Rectangle) {.slot.} =
 
 # exportWidget(basicRectangle, Rectangle)
 
-type Text* = ref object of BasicFiguro
+# type Text* = ref object of BasicFiguro
 
 proc draw*(self: Text) {.slot.} =
   ## text widget!

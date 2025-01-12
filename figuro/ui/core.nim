@@ -1,7 +1,7 @@
-import std/[tables, unicode, os]
+import std/[tables, unicode, os, strformat]
 import std/terminal
 import std/times
-# import cssgrid
+import sigils
 
 import basiccss
 import commons
@@ -155,16 +155,17 @@ proc connectDefaults*[T](node: T) {.slot.} =
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, Figuro.handlePostDraw())
   connect(node, doDraw, node, Figuro.handleTheme())
-  when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
-    connect(node, doClick, node, T.clicked())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
-    connect(node, doKeyInput, node, T.keyInput())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
-    connect(node, doKeyPress, node, T.keyPress())
-  when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
-    connect(node, doHover, node, T.hover())
-  when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
-    connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
+  when T isnot BasicFiguro:
+    when compiles(SignalTypes.clicked(T)):
+      connect(node, doClick, node, T.clicked())
+    when compiles(SignalTypes.keyInput(T)):
+      connect(node, doKeyInput, node, T.keyInput())
+    when compiles(SignalTypes.keyPress(T)):
+      connect(node, doKeyPress, node, T.keyPress())
+    when compiles(SignalTypes.hover(T)):
+      connect(node, doHover, node, T.hover())
+    when compiles(SignalTypes.tick(T)):
+      connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
 proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   if root == nil:
@@ -225,18 +226,8 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     createNewNode(T, node)
     parent.children.add(node)
     echo nd(),
-      "create new node: ",
-      node.name,
-      " widget: ",
-      node.widgetName,
-      " new: ",
-      node.getId,
-      "/",
-      node.parent.getId(),
-      " n: ",
-      node.name,
-      " parent: ",
-      parent.uid
+      fmt"create new node: {node.name} widget: {node.widgetName}",
+      fmt" new: {$node.getId}/{node.parent.getId()} n: {node.name} parent: {parent.uid}"
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
@@ -381,8 +372,6 @@ macro expose*(args: untyped): untyped =
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
   if parent == nil:
-    # node.box.w = app.windowSize.x
-    # node.box.h = app.windowSize.y
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:

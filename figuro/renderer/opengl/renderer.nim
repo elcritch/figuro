@@ -256,7 +256,8 @@ proc renderFrame*(renderer: Renderer) =
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  ctx.renderRoot(renderer.nodes)
+  withLock(renderer.lock):
+    ctx.renderRoot(renderer.nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()

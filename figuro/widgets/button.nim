@@ -49,8 +49,8 @@ proc draw*[T](self: Button[T]) {.slot.} =
     withOptional self:
       fill css"#2B9FEA"
     self.onHover:
-      withOptional self:
-        fillHover self.fill.lighten(0.14)
-        # this changes the color on hover!
+      # withOptional self:
+      fill self, self.fill.lighten(0.14)
+      # this changes the color on hover!
 
 exportWidget(button, Button)
