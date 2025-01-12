@@ -11,20 +11,17 @@ import ../ui/[core, events]
 import libfswatch
 import libfswatch/fswatch
 
-type
-  CssLoader* = ref object of Agent
-    period*: Duration
+type CssLoader* = ref object of Agent
+  period*: Duration
 
 proc cssUpdate*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
-
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}
 
-var
-  watcherSelf: WeakRef[CssLoader]
+var watcherSelf: WeakRef[CssLoader]
 
 proc themeUpdate() =
   let cssRules = loadTheme()

@@ -1,4 +1,3 @@
-
 import ../../ui/basiccss
 import ui
 import pkg/pretty
@@ -30,7 +29,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
       # echo "failed id check"
       return
 
-  if has(sel.cssType): 
+  if has(sel.cssType):
     if node.widgetName == sel.cssType:
       # echo "matched type! node: ", $node
       discard
@@ -45,7 +44,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
     else:
       # echo "failed class check"
       return
-  
+
   return true
 
 proc apply*(prop: CssProperty, node: Figuro) =
@@ -62,12 +61,13 @@ proc apply*(prop: CssProperty, node: Figuro) =
         discard
       _:
         discard
+
   match prop.value:
     MissingCssValue:
       raise newException(ValueError, "missing css value!")
     CssColor(c):
       # echo "\tapply color: ", c.repr
-      case prop.name:
+      case prop.name
       of "background":
         node.fill = c
       of "border-color":
@@ -77,7 +77,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
         discard
     CssSize(cx):
       # echo "\tapply size: ", cx.repr
-      case prop.name:
+      case prop.name
       of "border-width":
         setCxFixed(cx, node.stroke.weight)
       of "border-radius":
@@ -87,7 +87,6 @@ proc apply*(prop: CssProperty, node: Figuro) =
         discard
     CssVarName(n):
       echo "Warning: ", "unhandled css variable: ", prop.repr
-
 
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
@@ -102,7 +101,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
     sel = rule.selectors[^i]
     # print "SEL: ", sel
     # print "comb: ", combinator
-    case combinator:
+    case combinator
     of skNone, skPseudo:
       matched = matched and sel.checkMatch(node)
       if not matched:
@@ -113,7 +112,6 @@ proc eval*(rule: CssBlock, node: Figuro) =
         matched = false
       else:
         matched = matched and sel.checkMatch(node.parent[])
-
     of skDescendent:
       var parentMatched = false
       for p in node.parents():
@@ -128,7 +126,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
     # echo "selMatch: ", matched, " idx: ", i, "\n"
     combinator = sel.combinator
-  
+
   if matched:
     # echo "matched node: ", node.uid
     # print rule.selectors

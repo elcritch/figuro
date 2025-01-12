@@ -32,4 +32,3 @@ proc startFiguro*(
     drawMain()
     echo "drawMain walk took: ", epochTime() - startTime, "ms"
   # dumpTree(root)
-

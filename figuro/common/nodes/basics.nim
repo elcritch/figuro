@@ -12,9 +12,7 @@ when defined(compilervm):
 else:
   {.pragma: runtimeVar, global.}
 
-type
-  NodeID* = int64
-
+type NodeID* = int64
 
 type
   NodeKind* = enum
@@ -100,5 +98,3 @@ type
   ImageStyle* = object
     name*: string
     color*: Color
-
-

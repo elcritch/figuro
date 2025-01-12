@@ -1,11 +1,9 @@
-
 import commons
 import ../ui/utils
 import ../widget
 export widget
 
-type
-  Horizontal* = ref object of Figuro
+type Horizontal* = ref object of Figuro
 
 proc itemWidth*(node: Horizontal, cx: Constraint, gap = -1'ui) =
   node.gridAutoColumns cx

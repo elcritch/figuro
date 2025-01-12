@@ -16,12 +16,10 @@ var
 
 proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
-  var mpos = uxInputs.mouse.pos 
+  var mpos = uxInputs.mouse.pos
   if includeOffset:
-    mpos += node.totalOffset 
-  let act = 
-    node.screenBox.w > 0'ui and
-    node.screenBox.h > 0'ui 
+    mpos += node.totalOffset
+  let act = node.screenBox.w > 0'ui and node.screenBox.h > 0'ui
 
   result = act and mpos.overlaps(node.screenBox)
 
@@ -47,7 +45,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
     node.checkEvent(evDrag, uxInputs.mouse.down())
     node.checkEvent(evDragEnd, dragReleased)
-  
+
   if rootWindow in node.attrs:
     node.checkEvent(evDragEnd, dragReleased)
 
@@ -61,8 +59,7 @@ type
   CapturedEvents* = array[EventKinds, EventsCapture]
 
 proc maxEvt(a, b: EventsCapture): EventsCapture =
-  if b.zlvl >= a.zlvl and b.flags != {}: b
-  else: a
+  if b.zlvl >= a.zlvl and b.flags != {}: b else: a
 
 proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonView] =
   ## Consume mouse buttons
@@ -89,7 +86,7 @@ proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonV
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
   ## 
-  
+
   if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
     refresh(node)
 
@@ -103,15 +100,15 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
     buttons = matchingEvts.consumeMouseButtons()
 
   for ek in EventKinds:
-    let captured = EventsCapture(zlvl: node.zlevel,
-                                  flags: matchingEvts * {ek},
-                                  buttons: buttons[ek],
-                                  targets: toHashSet([node]))
+    let captured = EventsCapture(
+      zlvl: node.zlevel,
+      flags: matchingEvts * {ek},
+      buttons: buttons[ek],
+      targets: toHashSet([node]),
+    )
 
-    if clipContent in node.attrs and
-          result[ek].zlvl <= node.zlevel and
-          ek != evDrag and
-          not node.mouseOverlaps(false):
+    if clipContent in node.attrs and result[ek].zlvl <= node.zlevel and ek != evDrag and
+        not node.mouseOverlaps(false):
       ## this node clips events, so it must overlap child events, 
       ## e.g. ignore child captures if this node isn't also overlapping 
       result[ek] = captured
@@ -152,11 +149,8 @@ proc computeEvents*(frame: AppFrame) =
   frame.root.listens.signals.incl {evClick, evClickOut, evDragEnd}
   frame.root.attrs.incl rootWindow
 
-  if frame.redrawNodes.len() == 0 and
-      uxInputs.mouse.consumed and
-      uxInputs.keyboard.rune.isNone and
-      prevHovers.len == 0 and
-      prevDrags.len == 0:
+  if frame.redrawNodes.len() == 0 and uxInputs.mouse.consumed and
+      uxInputs.keyboard.rune.isNone and prevHovers.len == 0 and prevDrags.len == 0:
     return
 
   # printFiguros(node)
@@ -178,8 +172,7 @@ proc computeEvents*(frame: AppFrame) =
 
   # handle keyboard inputs
   let keyInput = captured[evKeyboardInput]
-  if keyInput .targets.len() > 0 and
-      evKeyboardInput in keyInput.flags and
+  if keyInput.targets.len() > 0 and evKeyboardInput in keyInput.flags and
       uxInputs.keyboard.rune.isSome:
     let rune = uxInputs.keyboard.rune.get()
     uxInputs.keyboard.rune = Rune.none
@@ -192,10 +185,8 @@ proc computeEvents*(frame: AppFrame) =
   ## handle keyboard presses
   block keyboardEvents:
     let keyPress = captured[evKeyPress]
-    if keyPress.targets.len() > 0 and
-        evKeyPress in keyPress.flags and
-        uxInputs.buttonPress != {} and
-        not uxInputs.keyboard.consumed:
+    if keyPress.targets.len() > 0 and evKeyPress in keyPress.flags and
+        uxInputs.buttonPress != {} and not uxInputs.keyboard.consumed:
       let pressed = uxInputs.buttonPress - MouseButtons
       let down = uxInputs.buttonDown - MouseButtons
 
@@ -206,9 +197,7 @@ proc computeEvents*(frame: AppFrame) =
   ## handle scroll events
   block scrollEvents:
     let scroll = captured[evScroll]
-    if scroll.targets.len() > 0 and
-        not uxInputs.mouse.consumed:
-
+    if scroll.targets.len() > 0 and not uxInputs.mouse.consumed:
       for target in scroll.targets:
         # echo "scroll input: ", $target.uid, " name: ", $target.name
         emit target.doScroll(uxInputs.mouse.wheelDelta)
@@ -241,14 +230,14 @@ proc computeEvents*(frame: AppFrame) =
       let delClicks = prevClicks - clickTargets
 
       for target in delClicks:
-          target.events.excl evClick
-          emit target.doClick(Exit, click.buttons)
-          prevClicks.excl target
+        target.events.excl evClick
+        emit target.doClick(Exit, click.buttons)
+        prevClicks.excl target
 
       for target in newClicks:
-          target.events.incl evClick
-          emit target.doClick(Enter, click.buttons)
-          prevClicks.incl target
+        target.events.incl evClick
+        emit target.doClick(Enter, click.buttons)
+        prevClicks.incl target
 
   ## handle drag events
   block dragEvents:

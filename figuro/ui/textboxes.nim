@@ -10,7 +10,8 @@ type
 
   TextBox* = ref object
     selection*: Slice[int]
-    growing*: TextDirection # Text editors store selection direction to control how keys behave
+    growing*: TextDirection
+      # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
     cursorRect*: Box
     selHash: Hash
@@ -18,11 +19,15 @@ type
     font*: UiFont
     box*: Box
 
-proc runes*(self: TextBox): var seq[Rune] = self.layout.runes
+proc runes*(self: TextBox): var seq[Rune] =
+  self.layout.runes
 
-proc toSlice[T](a: T): Slice[T] = a..a # Shortcut 
+proc toSlice[T](a: T): Slice[T] =
+  a .. a # Shortcut 
+
 proc hasSelection*(self: TextBox): bool =
-  self.selection != 0..0 and self.layout.runes.len() > 0
+  self.selection != 0 .. 0 and self.layout.runes.len() > 0
+
 proc clamped*(self: TextBox, dir = right, offset = 0): int =
   let ln = self.layout.runes.len()
   case dir
@@ -45,21 +50,19 @@ proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
   ## Otherwise, this character is ignored.
   self.box = box
   self.font = font
-  let spans = {self.font: $self.runes(),
-               self.font: "."}
+  let spans = {self.font: $self.runes(), self.font: "."}
   self.layout = internal.getTypeset(self.box, spans)
   self.runes().setLen(self.runes().len() - 1)
 
 iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
   ## get the slices for each line given a `selection`
   for line in lines:
-    if selection.a in line or
-       selection.b in line or
-       (selection.a < line.a and line.b < selection.b):
+    if selection.a in line or selection.b in line or
+        (selection.a < line.a and line.b < selection.b):
       # handle partial lines
-      yield max(line.a, selection.a)..min(line.b, selection.b)
+      yield max(line.a, selection.a) .. min(line.b, selection.b)
     else: # handle full lines
-      yield line.a..line.a
+      yield line.a .. line.a
 
 import pretty
 
@@ -69,7 +72,7 @@ proc updateCursor(self: var TextBox) =
   # print "updateCursor:layout: ", self.layout
 
   var cursor: Rect
-  case self.growing:
+  case self.growing
   of left:
     cursor = self.layout.selectionRects[self.selection.a]
   of right:
@@ -77,11 +80,11 @@ proc updateCursor(self: var TextBox) =
 
   ## this is gross but works for now
   let fontSize = self.font.size.scaled()
-  let width = max(0.08*fontSize, 2.0)
-  cursor.x = cursor.x - width/2.0
-  cursor.y = cursor.y - 0.06*fontSize
+  let width = max(0.08 * fontSize, 2.0)
+  cursor.x = cursor.x - width / 2.0
+  cursor.y = cursor.y - 0.06 * fontSize
   cursor.w = width
-  cursor.h = 1.0*fontSize
+  cursor.h = 1.0 * fontSize
   self.cursorRect = cursor.descaled()
 
 proc updateSelection*(self: var TextBox) =
@@ -125,13 +128,13 @@ proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
 
 proc findPrevWord*(self: TextBox): int =
   result = -1
-  for i in countdown(max(0,self.selection.a-2), 0):
+  for i in countdown(max(0, self.selection.a - 2), 0):
     if self.runes()[i].isWhiteSpace():
       return i
 
 proc findNextWord*(self: TextBox): int =
   result = self.runes().len()
-  for i in countup(self.selection.a+1, self.runes().len()-1):
+  for i in countup(self.selection.a + 1, self.runes().len() - 1):
     if self.runes()[i].isWhiteSpace():
       return i
 
@@ -163,7 +166,7 @@ proc cursorStart*(self: var TextBox, growSelection = false) =
     self.selection.a = 0
     self.growing = left
   else:
-    self.selection = 0..0
+    self.selection = 0 .. 0
 
 proc cursorEnd*(self: var TextBox, growSelection = false) =
   if growSelection:
@@ -176,7 +179,7 @@ proc cursorLeft*(self: var TextBox, growSelection = false) =
   if growSelection:
     if self.selection.len() == 1:
       self.growing = left
-    case self.growing:
+    case self.growing
     of left:
       self.selection.a = self.clamped(left, offset = -1)
     of right:
@@ -189,7 +192,7 @@ proc cursorRight*(self: var TextBox, growSelection = false) =
     if self.selection.len() == 1:
       self.growing = right
 
-    case self.growing:
+    case self.growing
     of left:
       self.selection.a = self.clamped(left, offset = 1)
     of right:
@@ -251,14 +254,14 @@ proc cursorUp*(self: var TextBox, growSelection = false) =
   # textBox.adjustScroll()
 
 proc cursorSelectAll*(self: var TextBox) =
-  self.selection = 0..self.runes.len
+  self.selection = 0 .. self.runes.len
 
 proc cursorWordLeft*(self: var TextBox, growSelection = false) =
   let idx = findPrevWord(self)
   if growSelection:
-    self.selection.a = idx+1
+    self.selection.a = idx + 1
   else:
-    self.selection = toSlice(idx+1)
+    self.selection = toSlice(idx + 1)
 
 proc cursorWordRight*(self: var TextBox, growSelection = false) =
   let idx = findNextWord(self)

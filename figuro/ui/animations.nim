@@ -1,13 +1,11 @@
-
 import apis
 
-type
-  FadeAnimation* = object
-    minMax*: Slice[float]
-    incr*: float
-    decr*: float
-    active*: bool = false
-    amount*: float = 0.0
+type FadeAnimation* = object
+  minMax*: Slice[float]
+  incr*: float
+  decr*: float
+  active*: bool = false
+  amount*: float = 0.0
 
 proc tick*(self: var FadeAnimation, node: Figuro): bool {.discardable.} =
   if self.active and self.amount < self.minMax.b:
@@ -21,7 +19,9 @@ proc tick*(self: var FadeAnimation, node: Figuro): bool {.discardable.} =
 
 proc isActive*(self: var FadeAnimation, isActive = true) =
   self.active = isActive
+
 proc setMax*(self: var FadeAnimation) =
   self.amount = self.minMax.b
+
 proc setMin*(self: var FadeAnimation) =
   self.amount = self.minMax.a

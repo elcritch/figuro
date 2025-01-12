@@ -5,15 +5,16 @@ when defined(nimTypeNames):
 
 type
   EntryKind = enum
-    Begin, End, Mark
+    Begin
+    End
+    Mark
 
   PerfEntry* = object
     tag: string
     ticks: int64
     kind: EntryKind
 
-  TimeSeries* = ref object
-    ## Helps you time stuff over multiple frames.
+  TimeSeries* = ref object ## Helps you time stuff over multiple frames.
     at: Natural
     data: seq[float64]
 
@@ -81,15 +82,15 @@ func `$`*(buffer: seq[PerfEntry]): string =
     let delta = float64(entry.ticks - prevTicks) / 1000000000.0
     prevTicks = entry.ticks
 
-    case entry.kind:
-      of Begin:
-        lines.add(&"{delta:>8.6f} {indent}{entry.tag} [")
-        indent.add("  ")
-      of End:
-        indent = indent[0 .. ^3]
-        lines.add(&"{delta:>8.6f} {indent}]")
-      of Mark:
-        lines.add(&"{delta:>8.6f}{indent} {entry.tag}")
+    case entry.kind
+    of Begin:
+      lines.add(&"{delta:>8.6f} {indent}{entry.tag} [")
+      indent.add("  ")
+    of End:
+      indent = indent[0 .. ^3]
+      lines.add(&"{delta:>8.6f} {indent}]")
+    of Mark:
+      lines.add(&"{delta:>8.6f}{indent} {entry.tag}")
 
   result = lines.join("\n")
 
@@ -154,6 +155,7 @@ when defined(nimTypeNames):
     diffCount: int
     diffSizes: int
     dead: bool
+
   var prevDump = newTable[string, CountSize]()
   func dumpHeapDiff*(top = 10): string =
     ## Takes a diff of the heap and prints out top 10 memory growers.
@@ -184,7 +186,7 @@ when defined(nimTypeNames):
           count: it.count,
           sizes: it.sizes,
           diffCount: it.count,
-          diffSizes: it.sizes
+          diffSizes: it.sizes,
         )
       else:
         var prev = prevDump[name]
@@ -202,9 +204,9 @@ when defined(nimTypeNames):
         it.sizes = 0
     # sort
     var arr = toSeq(prevDump.values())
-    arr.sort func(a, b: CountSize): int =
+    arr.sort func (a, b: CountSize): int =
       abs(b.sizes) + abs(b.diffSizes) - abs(a.sizes) - abs(a.diffSizes)
-    for it in arr[0 .. min(len(arr)-1, top)]:
+    for it in arr[0 .. min(len(arr) - 1, top)]:
       result.add &"[Heap] #{it.count:>10}({it.diffCount:>10})"
       result.add &" {byteFmt(it.sizes):>10}({byteFmt(it.diffSizes):>10})"
       result.add &" {it.name}\n"

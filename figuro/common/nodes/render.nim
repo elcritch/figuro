@@ -4,7 +4,6 @@ import basics
 export basics
 
 type
-
   NodeIdx* = distinct int
 
   Node* = object
@@ -44,15 +43,14 @@ type
 
 import pretty
 
-proc `$`*(id: NodeIdx): string = "NodeIdx(" & $(int(id)) & ")"
+proc `$`*(id: NodeIdx): string =
+  "NodeIdx(" & $(int(id)) & ")"
+
 proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 proc `<=`*(a, b: NodeIdx): bool {.borrow.}
 proc `==`*(a, b: NodeIdx): bool {.borrow.}
 
-iterator childIndex*(
-    nodes: seq[Node],
-    current: NodeIdx
-): NodeIdx =
+iterator childIndex*(nodes: seq[Node], current: NodeIdx): NodeIdx =
   let id = nodes[current.int].uid
   let childCnt = nodes[current.int].childCount
   # print "\nchildIndex: ", current,

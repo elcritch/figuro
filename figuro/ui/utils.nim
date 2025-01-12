@@ -12,23 +12,23 @@ proc state*[T](tp: typedesc[T]): State[T] =
   ## represents the state
   discard
 
-macro captures*(vals: varargs[untyped]): untyped = 
+macro captures*(vals: varargs[untyped]): untyped =
   ## represents the captures
   var tpl = nnkTupleConstr.newNimNode()
   for val in vals:
     # echo "captures:val: ", val.getTypeInst.repr
     tpl.add val
-  result = quote do:
+  result = quote:
     Captures[typeof(`tpl`)](val: `tpl`)
 
-type
-  WidgetArgs* = tuple[
+type WidgetArgs* =
+  tuple[
     id: NimNode,
     stateArg: NimNode,
     parentArg: NimNode,
     bindsArg: NimNode,
     capturedVals: NimNode,
-    blk: NimNode
+    blk: NimNode,
   ]
 
 proc parseWidgetArgs*(args: NimNode): WidgetArgs =
@@ -42,7 +42,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
   result.id.expectKind(nnkStrLit)
   result.blk = args[^1]
 
-  for arg in args[1..^2]:
+  for arg in args[1 ..^ 2]:
     ## iterate through the widget args looking for 
     ## `state(int)` or `captures(i, x)` 
     ## 
@@ -63,7 +63,7 @@ proc parseWidgetArgs*(args: NimNode): WidgetArgs =
     #     error("unexpected paren arguement: " & arg.repr, arg)
     if arg.kind == nnkExprEqExpr:
       let fname = arg[0]
-      case fname.repr:
+      case fname.repr
       of "parent":
         result.parentArg = arg[1]
       of "captures":
@@ -110,21 +110,21 @@ template printNewEventInfo*() =
       let evts = captured[ek]
       let targets = evts.targets
 
-      if evts.flags != {} and
-        ek in evts.flags and
-        # evts.flags != {evHover} and
-        # not uxInputs.keyboard.consumed and
-        true:
-        
-        var emsg: seq[(string, string)] = @[
-                    ("ek: ", $ek),
-                    ("tgt: ", $targets),
-                    # ("evts: ", $evts.flags),
-                    ("btnsP: ", $uxInputs.buttonPress),
-                    ("btnsR: ", $uxInputs.buttonRelease),
-                    # (" consumed: ", $uxInputs.mouse.consumed),
-                    # ( " ", $app.frameCount),
-                    ]
+      if evts.flags != {} and ek in evts.flags and
+          # evts.flags != {evHover} and
+          # not uxInputs.keyboard.consumed and
+          true:
+        var emsg: seq[(string, string)] =
+          @[
+            ("ek: ", $ek),
+            ("tgt: ", $targets),
+            # ("evts: ", $evts.flags),
+            ("btnsP: ", $uxInputs.buttonPress),
+            ("btnsR: ", $uxInputs.buttonRelease),
+          ]
+            # (" consumed: ", $uxInputs.mouse.consumed),
+            # ( " ", $app.frameCount),
+
         if ek == evClick:
           emsg.add ("pClick: ", $prevClicks)
         if ek == evHover:
@@ -140,12 +140,12 @@ template printNewEventInfo*() =
           stdout.styledWriteLine(fgWhite, "")
 
 const fieldSetNames = block:
-    var names: HashSet[string]
-    for item in FieldSet:
-      let name = $item
-      names.incl name[2..^1].toLowerAscii()
-    echo "FSN: ", names
-    names
+  var names: HashSet[string]
+  for item in FieldSet:
+    let name = $item
+    names.incl name[2 ..^ 1].toLowerAscii()
+  echo "FSN: ", names
+  names
 
 macro withOptional*(node, blk: untyped) =
   ## Optionally sets any fields in `SetField` enum such as
@@ -160,8 +160,7 @@ macro withOptional*(node, blk: untyped) =
   ## 
   result = newStmtList()
   for st in blk:
-    if st.kind in [nnkCommand, nnkCall] and
-        st[0].kind == nnkIdent and
+    if st.kind in [nnkCommand, nnkCall] and st[0].kind == nnkIdent and
         st[0].strVal.toLowerAscii() in fieldSetNames:
       let fsName = ident "fs" & st[0].strVal
       result.add quote do:

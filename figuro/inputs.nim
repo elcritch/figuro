@@ -36,7 +36,7 @@ type
     rune*: Option[Rune]
     textCursor*: int ## At which character in the input string are we
     selectionCursor*: int ## To which character are we selecting to
-  
+
   EventKinds* {.size: sizeof(int8).} = enum
     evClick
     evClickOut
@@ -103,22 +103,22 @@ type
     KeyX
     KeyY
     KeyZ
-    KeyBacktick     # `
-    KeyMinus        # -
-    KeyEqual        # =
+    KeyBacktick # `
+    KeyMinus # -
+    KeyEqual # =
     KeyBackspace
     KeyTab
-    KeyLeftBracket  # [
+    KeyLeftBracket # [
     KeyRightBracket # ]
-    KeyBackslash    # \
+    KeyBackslash # \
     KeyCapsLock
-    KeySemicolon    # :
-    KeyApostrophe   # '
+    KeySemicolon # :
+    KeyApostrophe # '
     KeyEnter
     KeyLeftShift
-    KeyComma        # ,
-    KeyPeriod       # .
-    KeySlash        # /
+    KeyComma # ,
+    KeyPeriod # .
+    KeySlash # /
     KeyRightShift
     KeyLeftControl
     KeyLeftSuper
@@ -165,87 +165,66 @@ type
     Numpad7
     Numpad8
     Numpad9
-    NumpadDecimal   # .
+    NumpadDecimal # .
     NumpadEnter
-    NumpadAdd       # +
-    NumpadSubtract  # -
-    NumpadMultiply  # *
-    NumpadDivide    # /
-    NumpadEqual     # =
+    NumpadAdd # +
+    NumpadSubtract # -
+    NumpadMultiply # *
+    NumpadDivide # /
+    NumpadEqual # =
 
   UiButtonView* = set[UiButton]
   KeyRange* = KeyA .. NumpadEqual
 
 const
   MouseButtons* = {
-    MouseLeft,
-    MouseRight,
-    MouseMiddle,
-    MouseButton4,
-    MouseButton5,
-    DoubleClick,
-    TripleClick,
-    QuadrupleClick
+    MouseLeft, MouseRight, MouseMiddle, MouseButton4, MouseButton5, DoubleClick,
+    TripleClick, QuadrupleClick,
   }
 
   ModifierButtons* = {
-    KeyLeftControl,
-    KeyRightControl,
-    KeyLeftSuper,
-    KeyRightSuper,
-    KeyLeftAlt,
-    KeyRightAlt,
-    KeyLeftShift,
-    KeyRightShift,
-    KeyMenu,
+    KeyLeftControl, KeyRightControl, KeyLeftSuper, KeyRightSuper, KeyLeftAlt,
+    KeyRightAlt, KeyLeftShift, KeyRightShift, KeyMenu,
   }
 
+type AppInputs* = object
+  empty*: bool
+  mouse*: Mouse
+  keyboard*: Keyboard
 
-type
-  AppInputs* = object
-    empty*: bool
-    mouse*: Mouse
-    keyboard*: Keyboard
+  buttonPress*: UiButtonView
+  buttonDown*: UiButtonView
+  buttonRelease*: UiButtonView
+  buttonToggle*: UiButtonView
 
-    buttonPress*: UiButtonView
-    buttonDown*: UiButtonView
-    buttonRelease*: UiButtonView
-    buttonToggle*: UiButtonView
+  windowSize*: Option[Box]
 
-    windowSize*: Option[Box]
-
-var
-  uxInputs* {.runtimeVar.} = AppInputs()
+var uxInputs* {.runtimeVar.} = AppInputs()
 
 when not defined(nimscript):
   import threading/channels
   export channels
 
-type
-  ModifierKeys* = enum
-    KNone
-    KMeta
-    KControl
-    KAlt
-    KShift
-    KMenu
+type ModifierKeys* = enum
+  KNone
+  KMeta
+  KControl
+  KAlt
+  KShift
+  KMenu
 
 proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
   result[KNone] = {}
-  result[KMeta] = 
-          when defined(macosx):
-            {KeyLeftSuper, KeyRightSuper}
-          else:
-            {KeyLeftControl, KeyRightControl}
-  result[KAlt] = 
-          {KeyLeftAlt, KeyRightAlt}
-  result[KShift] = 
-          {KeyLeftShift, KeyRightShift}
-  result[KMenu] = 
-          {KeyMenu}
+  result[KMeta] =
+    when defined(macosx):
+      {KeyLeftSuper, KeyRightSuper}
+    else:
+      {KeyLeftControl, KeyRightControl}
+  result[KAlt] = {KeyLeftAlt, KeyRightAlt}
+  result[KShift] = {KeyLeftShift, KeyRightShift}
+  result[KMenu] = {KeyMenu}
 
-var keyConfig* {.runtimeVar.}:
-  array[ModifierKeys, UiButtonView] = defaultKeyConfigs()
+var keyConfig* {.runtimeVar.}: array[ModifierKeys, UiButtonView] = defaultKeyConfigs()
 
 proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
   let ck = keys * ModifierButtons

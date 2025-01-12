@@ -18,17 +18,17 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - uses: iffy/install-nim@v4
-      with:
-        version: ${{ matrix.nimversion }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Cache packages
       uses: actions/cache@v3
       with:
         path: ~/.nimble
         key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
+
+    - uses: iffy/install-nim@v4
+      with:
+        version: ${{ matrix.nimversion }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Install Nimble
       run: |

@@ -1,4 +1,3 @@
-
 when defined(js):
   import figuro/htmlbackend
   export htmlbackend
@@ -47,9 +46,8 @@ var
   cssWatcherThread*: ptr SigilThreadImpl
   appThread*: ptr SigilThreadImpl
 
-type
-  AppTicker* = ref object of Agent
-    period*: Duration
+type AppTicker* = ref object of Agent
+  period*: Duration
 
 proc appTick*(tp: AppTicker) {.signal.}
 
@@ -74,14 +72,26 @@ template setupThread(thread, obj, sig, slot, starter: untyped) =
 
 proc setupTicker*(frame: AppFrame) =
   var ticker = AppTicker(period: renderDuration)
-  appTickThread.setupThread(ticker, sig=appTick, slot=frame.frameRunner, starter=AppTicker.tick())
+  appTickThread.setupThread(
+    ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
+  )
 
   var cssLoader = CssLoader(period: renderDuration)
-  cssLoaderThread.setupThread(cssLoader, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssLoader())
-  
+  cssLoaderThread.setupThread(
+    cssLoader,
+    sig = cssUpdate,
+    slot = AppFrame.updateTheme(),
+    starter = CssLoader.cssLoader(),
+  )
+
   when defined(figuroFsMonitor):
     var cssWatcher = CssLoader(period: renderDuration)
-    cssWatcherThread.setupThread(cssWatcher, sig=cssUpdate, slot=AppFrame.updateTheme(), starter=CssLoader.cssWatcher())
+    cssWatcherThread.setupThread(
+      cssWatcher,
+      sig = cssUpdate,
+      slot = AppFrame.updateTheme(),
+      starter = CssLoader.cssWatcher(),
+    )
   else:
     echo "fsmonitor not loaded"
 
@@ -100,7 +110,8 @@ proc runRenderer(renderer: Renderer) =
 
 proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   ## run figuro
-  when defined(sigilsDebug): frame.debugName = "Frame"
+  when defined(sigilsDebug):
+    frame.debugName = "Frame"
   let frameRef = frame.unsafeWeakRef()
   let renderer = setupRenderer(frameRef)
   appFrames[frameRef] = renderer
@@ -117,6 +128,7 @@ proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   proc ctrlc() {.noconv.} =
     echo "Got Ctrl+C exiting!"
     app.running = false
+
   setControlCHook(ctrlc)
 
   runRenderer(renderer)

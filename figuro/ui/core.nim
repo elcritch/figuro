@@ -1,4 +1,4 @@
-import std/[tables, unicode, os, ]
+import std/[tables, unicode, os]
 import std/terminal
 import std/times
 # import cssgrid
@@ -13,10 +13,10 @@ else:
   {.pragma: runtimeVar, global.}
 
 var
-
   scrollBox* {.runtimeVar.}: Box
   scrollBoxMega* {.runtimeVar.}: Box ## Scroll box is 500px bigger in y direction
-  scrollBoxMini* {.runtimeVar.}: Box ## Scroll box is smaller by 100px useful for debugging
+  scrollBoxMini* {.runtimeVar.}: Box
+    ## Scroll box is smaller by 100px useful for debugging
 
   numNodes* {.runtimeVar.}: int
   popupActive* {.runtimeVar.}: bool
@@ -30,12 +30,14 @@ var
 
   nodeLookup* {.runtimeVar.}: Table[string, Figuro]
 
-  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UICoord ##\
+  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UICoord
+    ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
-  adjustTopTextFactor* {.runtimeVar.} = 1/16.0 # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
+  adjustTopTextFactor* {.runtimeVar.} = 1 / 16.0
+    # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
 
   # global scroll bar settings
-  scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color 
+  scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color
   scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
 var
@@ -52,7 +54,7 @@ proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
 
-  node.box = initBox(0,0,0,0)
+  node.box = initBox(0, 0, 0, 0)
   node.rotation = 0
   # node.screenBox = rect(0,0,0,0)
   # node.offset = vec2(0, 0)
@@ -66,11 +68,10 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
   node.attrs = {}
-  
 
 var nodeDepth = 0
 proc nd*(): string =
-  for i in 0..nodeDepth:
+  for i in 0 .. nodeDepth:
     result &= "   "
 
 proc disable(fig: Figuro) =
@@ -85,7 +86,7 @@ proc removeExtraChildren*(node: Figuro) =
   if node.diffIndex == node.children.len:
     return
   echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
-  for i in node.diffIndex..<node.children.len:
+  for i in node.diffIndex ..< node.children.len:
     disable(node.children[i])
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
@@ -111,15 +112,11 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
-template onSignal*[T](
-    obj: T,
-    signal: typed,
-    cb: proc(obj: T) {.nimcall.},
-) =
+template onSignal*[T](obj: T, signal: typed, cb: proc(obj: T) {.nimcall.}) =
   proc handler(self: T) {.slot.} =
     `cb`(self)
-  connect(node, signal, obj, handler, acceptVoidSlot=true)
 
+  connect(node, signal, obj, handler, acceptVoidSlot = true)
 
 template bindProp*[T](prop: Property[T]) =
   connect(prop, doChanged, Agent(node), Figuro.changed())
@@ -167,7 +164,7 @@ proc connectDefaults*[T](node: T) {.slot.} =
   when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
     connect(node, doHover, node, T.hover())
   when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
-    connect(node, doTick, node, T.tick(), acceptVoidSlot=true)
+    connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
 proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   if root == nil:
@@ -227,7 +224,19 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     # Create Figuro.
     createNewNode(T, node)
     parent.children.add(node)
-    echo nd(), "create new node: ", node.name, " widget: ", node.widgetName, " new: ", node.getId, "/", node.parent.getId(), " n: ", node.name, " parent: ", parent.uid 
+    echo nd(),
+      "create new node: ",
+      node.name,
+      " widget: ",
+      node.widgetName,
+      " new: ",
+      node.getId,
+      "/",
+      node.parent.getId(),
+      " n: ",
+      node.name,
+      " parent: ",
+      parent.uid
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
@@ -240,9 +249,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     # echo nd(), "reuse node: ", id, " new: ", node.getId, " parent: ", parent.uid
     node = T(parent.children[parent.diffIndex])
 
-    if resetNodes == 0 and
-        node.nIndex == parent.diffIndex and
-        kind == node.kind:
+    if resetNodes == 0 and node.nIndex == parent.diffIndex and kind == node.kind:
       # Same node.
       discard
     else:
@@ -275,11 +282,7 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-template widget*[T](
-    nkind: NodeKind = nkRectangle,
-    name: string,
-    blk: untyped
-): auto =
+template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): auto =
   ## sets up a new instance of a widget of type `T`.
   ##
   block:
@@ -288,19 +291,15 @@ template widget*[T](
     let parent {.inject.}: Figuro = `node`
     var node {.inject.}: `T` = nil
     preNode(`nkind`, `name`, node, parent)
-    node.preDraw = proc (c: Figuro) =
-      let node  {.inject.} = ## implicit variable in each widget block that references the current widget
+    node.preDraw = proc(c: Figuro) =
+      let node {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
       if preDrawReady in node.attrs:
         node.attrs.excl preDrawReady
         `blk`
     postNode(Figuro(node))
 
-template new*[F: ref object](
-    t: typedesc[F],
-    name: string,
-    blk: untyped
-): auto =
+template new*[F: ref object](t: typedesc[F], name: string, blk: untyped): auto =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 
@@ -339,13 +338,14 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
     ## instance.
     widget[`T`](nkRectangle, args)
 
-{.hint[Name]:off.}
+{.hint[Name]: off.}
 template TemplateContents*[T](fig: T): untyped =
   ## marks where the widget will put any child `content`
   ## which is comparable to html template and child slots.
   if fig.contentsDraw != nil:
     fig.contentsDraw(node, Figuro(fig))
-{.hint[Name]:on.}
+
+{.hint[Name]: on.}
 
 macro contents*(args: varargs[untyped]): untyped =
   ## sets the contents of the node widget
@@ -354,13 +354,13 @@ macro contents*(args: varargs[untyped]): untyped =
   let (id, stateArg, parentArg, bindsArg, capturedVals, blk) = wargs
   let hasCaptures = newLit(not capturedVals.isNil)
 
-  result = quote do:
+  result = quote:
     block:
       when not compiles(node.typeof):
         {.error: "missing `var node` in node scope!".}
       let parentWidget = node
       wrapCaptures(`hasCaptures`, `capturedVals`):
-        node.contentsDraw = proc (c, w: Figuro) =
+        node.contentsDraw = proc(c, w: Figuro) =
           let node {.inject.} = c
           let widget {.inject.} = typeof(parentWidget)(w)
           if contentsDrawReady in widget.attrs:
@@ -369,13 +369,12 @@ macro contents*(args: varargs[untyped]): untyped =
   # echo "contents: ", result.repr
 
 macro expose*(args: untyped): untyped =
-  if args.kind == nnkLetSection and 
-      args[0].kind == nnkIdentDefs and
+  if args.kind == nnkLetSection and args[0].kind == nnkIdentDefs and
       args[0][2].kind in [nnkCall, nnkCommand]:
-        result = args
-        result[0][2].insert(2, nnkExprEqExpr.newTree(ident "expose", newLit(true)))
-        # echo "WID: args:post:\n", result.treeRepr
-        # echo "WID: args:post:\n", result.repr
+    result = args
+    result[0][2].insert(2, nnkExprEqExpr.newTree(ident "expose", newLit(true)))
+    # echo "WID: args:post:\n", result.treeRepr
+    # echo "WID: args:post:\n", result.repr
   else:
     result = args
 
@@ -395,46 +394,55 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
 
 proc checkParent(node: Figuro) =
   if node.parent.isNil:
-    raise newException(FiguroError, "cannot calculate exception: node: " & $node.getId & " parent: " & $node.parent.getId)
+    raise newException(
+      FiguroError,
+      "cannot calculate exception: node: " & $node.getId & " parent: " &
+        $node.parent.getId,
+    )
 
-template calcBasicConstraintImpl(
-    node: Figuro,
-    dir: static GridDir,
-    f: untyped
-) =
+template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) =
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
   let parentBox =
-    if node.parent.isNil: node.frame[].windowSize
-    else: node.parent[].box
+    if node.parent.isNil:
+      node.frame[].windowSize
+    else:
+      node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
       match val:
         UiAuto(_):
           when astToStr(f) in ["w"]:
-            res = parentBox.f -  node.box.x
+            res = parentBox.f - node.box.x
           elif astToStr(f) in ["h"]:
-            res = parentBox.f -  node.box.y
+            res = parentBox.f - node.box.y
         UiFixed(coord):
           res = coord.UICoord
         UiFrac(frac):
           node.checkParent()
           res = frac.UICoord * node.parent[].box.f
         UiPerc(perc):
-          let ppval = when astToStr(f) == "x": parentBox.w
-                      elif astToStr(f) == "y": parentBox.h
-                      else: parentBox.f
+          let ppval =
+            when astToStr(f) == "x":
+              parentBox.w
+            elif astToStr(f) == "y":
+              parentBox.h
+            else:
+              parentBox.f
           res = perc.UICoord / 100.0.UICoord * ppval
         UiContentMin(cmins):
           res = cmins.UICoord
         UiContentMax(cmaxs):
           res = cmaxs.UICoord
       res
-  
-  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
-                else: node.cxOffset[dir]
+
+  let csValue =
+    when astToStr(f) in ["w", "h"]:
+      node.cxSize[dir]
+    else:
+      node.cxOffset[dir]
   match csValue:
     UiNone:
       discard
@@ -454,32 +462,30 @@ template calcBasicConstraintImpl(
       discard
     UiValue(value):
       node.box.f = calcBasic(value)
-    UiEnd():
+    UiEnd:
       discard
 
 proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
-  when isXY == true and dir == dcol: 
+  when isXY == true and dir == dcol:
     calcBasicConstraintImpl(node, dir, x)
-  elif isXY == true and dir == drow: 
+  elif isXY == true and dir == drow:
     calcBasicConstraintImpl(node, dir, y)
   # w & h need to run after x & y
-  elif isXY == false and dir == dcol: 
+  elif isXY == false and dir == dcol:
     calcBasicConstraintImpl(node, dir, w)
-  elif isXY == false and dir == drow: 
+  elif isXY == false and dir == drow:
     calcBasicConstraintImpl(node, dir, h)
 
-template calcBasicConstraintPostImpl(
-    node: Figuro,
-    dir: static GridDir,
-    f: untyped
-) =
+template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyped) =
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
   let parentBox =
-    if node.parent.isNil: node.frame[].windowSize
-    else: node.parent[].box
+    if node.parent.isNil:
+      node.frame[].windowSize
+    else:
+      node.parent[].box
   template calcBasic(val: untyped): untyped =
     block:
       var res: UICoord
@@ -500,9 +506,12 @@ template calcBasicConstraintPostImpl(
         _:
           res = node.box.f
       res
-  
-  let csValue = when astToStr(f) in ["w", "h"]: node.cxSize[dir] 
-                else: node.cxOffset[dir]
+
+  let csValue =
+    when astToStr(f) in ["w", "h"]:
+      node.cxSize[dir]
+    else:
+      node.cxOffset[dir]
   match csValue:
     UiNone:
       discard
@@ -522,51 +531,61 @@ template calcBasicConstraintPostImpl(
       discard
     UiValue(value):
       node.box.f = calcBasic(value)
-    UiEnd():
+    UiEnd:
       discard
 
 proc calcBasicConstraintPost(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
-  when isXY == true and dir == dcol: 
+  when isXY == true and dir == dcol:
     calcBasicConstraintPostImpl(node, dir, x)
-  elif isXY == true and dir == drow: 
+  elif isXY == true and dir == drow:
     calcBasicConstraintPostImpl(node, dir, y)
   # w & h need to run after x & y
-  elif isXY == false and dir == dcol: 
+  elif isXY == false and dir == dcol:
     calcBasicConstraintPostImpl(node, dir, w)
-  elif isXY == false and dir == drow: 
+  elif isXY == false and dir == drow:
     calcBasicConstraintPostImpl(node, dir, h)
 
 proc printLayout*(node: Figuro, depth = 0) =
   stdout.styledWriteLine(
-            " ".repeat(depth),
-            {styleDim}, fgWhite, "node: ",
-            resetStyle,
-            fgWhite, $node.name, "[xy: ",
-            fgGreen, $node.box.x.float.round(2),
-              "x", $node.box.y.float.round(2),
-            fgWhite, "; wh:",
-            fgYellow, $node.box.w.float.round(2),
-              "x", $node.box.h.float.round(2),
-            fgWhite, "]")
+    " ".repeat(depth),
+    {styleDim},
+    fgWhite,
+    "node: ",
+    resetStyle,
+    fgWhite,
+    $node.name,
+    "[xy: ",
+    fgGreen,
+    $node.box.x.float.round(2),
+    "x",
+    $node.box.y.float.round(2),
+    fgWhite,
+    "; wh:",
+    fgYellow,
+    $node.box.w.float.round(2),
+    "x",
+    $node.box.h.float.round(2),
+    fgWhite,
+    "]",
+  )
   for c in node.children:
-    printLayout(c, depth+2)
+    printLayout(c, depth + 2)
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
 
   # # simple constraints
-  calcBasicConstraint(node, dcol, isXY=true)
-  calcBasicConstraint(node, drow, isXY=true)
-  calcBasicConstraint(node, dcol, isXY=false)
-  calcBasicConstraint(node, drow, isXY=false)
-
+  calcBasicConstraint(node, dcol, isXY = true)
+  calcBasicConstraint(node, drow, isXY = true)
+  calcBasicConstraint(node, dcol, isXY = false)
+  calcBasicConstraint(node, drow, isXY = false)
 
   # css grid impl
   if not node.gridTemplate.isNil:
     # compute children first, then lay them out in grid
     for n in node.children:
-      computeLayout(n, depth+1)
+      computeLayout(n, depth + 1)
 
     # adjust box to not include offset in wh
     var box = node.box
@@ -579,30 +598,29 @@ proc computeLayout*(node: Figuro, depth: int) =
 
     for n in node.children:
       for c in n.children:
-        calcBasicConstraint(c, dcol, isXY=false)
-        calcBasicConstraint(c, drow, isXY=false)
-
+        calcBasicConstraint(c, dcol, isXY = false)
+        calcBasicConstraint(c, drow, isXY = false)
   else:
     for n in node.children:
-      computeLayout(n, depth+1)
+      computeLayout(n, depth + 1)
 
     # update childrens
     for n in node.children:
-      calcBasicConstraintPost(n, dcol, isXY=true)
-      calcBasicConstraintPost(n, drow, isXY=true)
-      calcBasicConstraintPost(n, dcol, isXY=false)
-      calcBasicConstraintPost(n, drow, isXY=false)
-
-
+      calcBasicConstraintPost(n, dcol, isXY = true)
+      calcBasicConstraintPost(n, drow, isXY = true)
+      calcBasicConstraintPost(n, dcol, isXY = false)
+      calcBasicConstraintPost(n, drow, isXY = false)
 
 proc computeLayout*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):
-    stdout.styledWriteLine({styleDim}, fgWhite, "computeLayout:pre ",
-                            {styleDim}, fgGreen, "")
+    stdout.styledWriteLine(
+      {styleDim}, fgWhite, "computeLayout:pre ", {styleDim}, fgGreen, ""
+    )
     printLayout(node)
   computeLayout(node, 0)
   when defined(debugLayout) or defined(figuroDebugLayout):
-    stdout.styledWriteLine({styleDim}, fgWhite, "computeLayout:post ",
-                            {styleDim}, fgGreen, "")
+    stdout.styledWriteLine(
+      {styleDim}, fgWhite, "computeLayout:post ", {styleDim}, fgGreen, ""
+    )
     printLayout(node)
     echo ""
