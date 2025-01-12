@@ -5,6 +5,7 @@ import figuro/widget
 import figuro/common/nodes/ui
 import figuro/common/nodes/render
 import figuro/common/nodes/transfer
+import pkg/sigils
 
 import pretty
 
