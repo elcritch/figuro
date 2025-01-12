@@ -147,10 +147,17 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       of '<':
         isDirect = true
       else:
-        echo "warning: ", "unhandled token while parsing selector: ", tk.repr()
+        echo "warning: ", "unhandled delim token while parsing selector: ", tk.repr()
       discard parser.nextToken()
     of tkCurlyBracketBlock:
       # echo "\tsel: ", "done"
+      break
+    of tkComment:
+      echo "\tcomment: ", "done"
+      # var tk = parser.peek()
+      let nt = parser.nextToken()
+      echo "TK: ", tk.repr
+      # echo "NT: ", nt.repr
       break
     else:
       echo "warning: ", "unhandled token while parsing selector: ", tk.repr()
@@ -269,7 +276,11 @@ proc parse*(parser: CssParser): seq[CssBlock] =
     parser.skip(tkWhiteSpace)
     if parser.isEof():
       break
-    let sel = parser.parseSelector()
+    var sel: seq[CssSelector]
+    try:
+      sel = parser.parseSelector()
+    except ValueError:
+      continue
     # echo "selectors: ", sel.repr()
     try:
       let props = parser.parseRuleBody()
@@ -277,3 +288,5 @@ proc parse*(parser: CssParser): seq[CssBlock] =
       result.add(CssBlock(selectors: sel, properties: props))
     except InvalidCssBody:
       echo "Error: ", "unable to parse CSS body for " & repr sel
+    except ValueError:
+      continue

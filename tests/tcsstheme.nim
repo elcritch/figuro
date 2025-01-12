@@ -294,3 +294,28 @@ suite "css exec":
     check child30.fill == clearColor
     check btnA.fill == initialColor
     check btnC.fill == initialColor
+
+  test "test comment":
+    const themeSrc = """
+    /* #child3 Button:hover {
+      background: #00FFFF;
+    } */
+    #child2 Button:hover {
+      background: #0000FF;
+    }
+    /* #child3 Button:hover {
+      background: #00FFFF;
+    } */
+    """
+    setupMain(themeSrc)
+    # if evHover in current.events:
+    btnB.events.incl evHover
+    emit main.doDraw()
+
+    # print main.frame[].theme.cssRules
+    check btnB.fill == parseHtmlColor("#0000FF")
+
+    # should be untouched
+    check child30.fill == clearColor
+    check btnA.fill == initialColor
+    check btnC.fill == initialColor
