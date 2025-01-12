@@ -166,9 +166,32 @@ proc draw*(self: TMain) {.slot.} =
           box 40'ux, 30'ux, 80'ux, 80'ux
           fill css"#2B9F2B"
 
-suite "css exec":
-  test "css target":
+    rectangle "child3":
+      rectangle "child30":
+        Button[int].new "btnD":
+          with node:
+            box 40'ux, 30'ux, 80'ux, 80'ux
+            fill css"#2B9F2B"
 
+suite "css exec":
+
+  template setupMain(themeSrc) =
+    var main {.inject.} = TMain.new()
+    var frame = newAppFrame(main, size=(400'ui, 140'ui))
+    main.frame = frame.unsafeWeakRef()
+    main.frame[].theme = Theme(font: defaultFont)
+    let parser = newCssParser(themeSrc)
+    let cssTheme = parse(parser)
+    # print cssTheme
+    main.frame[].theme.cssRules = cssTheme
+    connectDefaults(main)
+    emit main.doDraw()
+    let btnA {.inject, used.} = main.children[0].children[1]
+    let btnB {.inject, used.} = main.children[0].children[2].children[0]
+    let btnC {.inject, used.} = main.children[0].children[0].children[0]
+    let btnD {.inject, used.} = main.children[0].children[3].children[0].children[0]
+
+  test "css direct descendants":
     const themeSrc = """
     #body < Button {
       background: #FF0000;
@@ -180,37 +203,33 @@ suite "css exec":
       background: #0000FF;
     }
     """
-
-    var main = TMain.new()
-    var frame = newAppFrame(main, size=(400'ui, 140'ui))
-    main.frame = frame.unsafeWeakRef()
-    main.frame[].theme = Theme(font: defaultFont)
-    let parser = newCssParser(themeSrc)
-    let cssTheme = parse(parser)
-    # print cssTheme
-    main.frame[].theme.cssRules = cssTheme
-    connectDefaults(main)
-    emit main.doDraw()
-
-    # echo "\nmain: ", $main
-
-    let btnA = main.children[0].children[1]
-    # echo "btnA: ", $btnA
+    setupMain(themeSrc)
     check btnA.name == "btnA"
     check btnA.fill == parseHtmlColor("#FF0000")
     check btnA.stroke.weight == 3.0
     check btnA.stroke.color == parseHtmlColor("#00FF00")
 
-    let btnB = main.children[0].children[2].children[0]
-    # echo "btnB: ", $btnB
     check btnB.name == "btnB"
     check btnB.fill == parseHtmlColor("#0000FF")
     check btnB.stroke.weight == 0.0
     check btnB.stroke.color == clearColor
 
-    let btnC = main.children[0].children[0].children[0]
-    # echo "btnB: ", $btnB
+    ## Not a direct descendant of body or child2, should be orig
     check btnC.name == "btnC"
     check btnC.fill == parseHtmlColor("#2B9F2B")
     check btnC.stroke.weight == 0.0
     check btnC.stroke.color == clearColor
+
+  test "css argets":
+    const themeSrc = """
+
+    #child3 Button {
+      background: #00FFFF;
+    }
+    """
+    setupMain(themeSrc)
+
+
+    # echo "btnB: ", $btnB
+    check btnD.name == "btnD"
+    check btnD.fill == parseHtmlColor("#00FFFF")
