@@ -182,7 +182,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     except EofError:
       raise newException(InvalidCssBody, "Invalid CSS Body")
 
-    echo "\tproperty:next: ", tk.repr
+    # echo "\tproperty:next: ", tk.repr
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
@@ -265,7 +265,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
 proc parse*(parser: CssParser): seq[CssBlock] =
   while not parser.isEof():
-    echo "CSS Block: "
+    # echo "CSS Block: "
     parser.skip(tkWhiteSpace)
     if parser.isEof():
       break

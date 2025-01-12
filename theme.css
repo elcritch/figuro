@@ -11,6 +11,6 @@ Button:hover {
   background: rgb(169, 255, 158);
 }
 
-Button < Text {
-  background: rgb(169, 255, 158);
+Button < text {
+  color: rgb(169, 255, 158);
 }
