@@ -11,37 +11,28 @@ import commons
 
 import pretty
 
-type
-
-  GlyphPosition* = ref object
-    ## Represents a glyph position after typesetting.
-    fontId*: FontId
-    fontSize*: float32
-    rune*: Rune
-    pos*: Vec2       # Where to draw the image character.
-    rect*: Rect
-    descent*: float32
-
+type GlyphPosition* = ref object ## Represents a glyph position after typesetting.
+  fontId*: FontId
+  fontSize*: float32
+  rune*: Rune
+  pos*: Vec2 # Where to draw the image character.
+  rect*: Rect
+  descent*: float32
 
 var
   glyphImageChan* = newChan[(Hash, Image)](1000)
   glyphImageCached*: HashSet[Hash]
 
 proc toSlices*[T: SomeInteger](a: openArray[(T, T)]): seq[Slice[T]] =
-  a.mapIt(it[0]..it[1])
+  a.mapIt(it[0] .. it[1])
 
 proc hash*(tp: Typeface): Hash =
   var h = Hash(0)
   h = h !& hash tp.filePath
   result = !$h
 
-
 proc hash*(glyph: GlyphPosition): Hash {.inline.} =
-  result = hash((
-    2344,
-    glyph.fontId,
-    glyph.rune,
-  ))
+  result = hash((2344, glyph.fontId, glyph.rune))
 
 proc getId*(typeface: Typeface): TypefaceId =
   TypefaceId typeface.hash()
@@ -50,7 +41,6 @@ proc getId*(typeface: Typeface): TypefaceId =
 #   FontId font.hash()
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
-
   var idx = 0
   # if arrangement != nil:
 
@@ -66,16 +56,18 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune = arrangement.runes[idx]
           selection = arrangement.selectionRects[idx]
 
+        let descent = gfont.lineHeight + (mlh - gfont.lineHeight) / 4
+          ## adjust the line height for varying sized fonts based
+          ## off the max line height and the current font's lh
+          ## the 1/4 is empirical, but sorta makes sense
+
         yield GlyphPosition(
           fontId: gfont.fontId,
           fontSize: gfont.size,
           rune: rune,
           pos: pos,
           rect: selection,
-          descent: gfont.lineHeight + (mlh - gfont.lineHeight)/4, ##\
-            ## adjust the line height for varying sized fonts based
-            ## off the max line height and the current font's lh
-            ## the 1/4 is empirical, but sorta makes sense
+          descent: descent,
         )
 
         # echo "GLYPH: ", rune, " pos: ", pos, " sel: ", selection, " lh: ", gfont.lineHeight, " mlh: ", flh, " : ", flh - gfont.lineHeight
@@ -93,7 +85,8 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
   ## Font Glyphs are generated with Bottom vAlign and Center hAlign
   ## this puts the glyphs in the right position
   ## so that the renderer doesn't need to figure out adjustments
-  threads: MainThread
+  threads:
+    MainThread
 
   for glyph in arrangement.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
@@ -113,16 +106,14 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
           bounds = wh,
           hAlign = CenterAlign,
           vAlign = BottomAlign,
-          wrap = false
+          wrap = false,
         )
-      var
-        snappedBounds = arrangement.computeBounds().snapToPixels()
+      var snappedBounds = arrangement.computeBounds().snapToPixels()
       # echo "GEN IMG: ", glyph.rune, " wh: ", wh, " snapped: ", snappedBounds
 
       let
         lh = font.defaultLineHeight()
-        bounds = rect(0, 0,
-                      snappedBounds.w + snappedBounds.x, lh)
+        bounds = rect(0, 0, snappedBounds.w + snappedBounds.x, lh)
         image = newImage(bounds.w.int, bounds.h.int)
       # echo "GEN IMG: ", glyph.rune, " bounds: ", bounds
 
@@ -133,13 +124,13 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
 
         # put into cache
         glyphImageCached.incl hashFill
-        glyphImageChan.send(unsafeIsolate (hashFill, image,))
-
+        glyphImageChan.send(unsafeIsolate (hashFill, image))
       except PixieError:
         discard
 
 proc getTypeface*(name: string): FontId =
-  threads: MainThread
+  threads:
+    MainThread
 
   let
     typefacePath = DataDirPath.string / name
@@ -153,7 +144,8 @@ proc getTypeface*(name: string): FontId =
   # echo "getTypeFace:res: ", typefaceTable[id].hash()
 
 proc convertFont*(font: UiFont): (FontId, Font) =
-  threads: MainThread
+  threads:
+    MainThread
   # echo "convertFont: ", font.typefaceId
   # echo "typefaceTable:addr: ", getThreadId()
   let
@@ -176,7 +168,7 @@ proc convertFont*(font: UiFont): (FontId, Font) =
             a = b
     if font.lineHeight < 0.0'ui:
       pxfont.lineHeight = pxfont.defaultLineHeight()
-    
+
     fontTable[id] = pxfont
     result = (id, pxfont)
     # echo "getFont:input: "
@@ -190,14 +182,15 @@ proc getTypeset*(
     box: Box,
     uiSpans: openArray[(UiFont, string)],
     hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top
+    vAlign = FontVertical.Top,
 ): GlyphArrangement =
-  threads: MainThread
+  threads:
+    MainThread
 
   var
     wh = box.scaled().wh
     sz = uiSpans.mapIt(it[0].size.float)
-    minSz = sz.foldl(max(a,b), 0.0)
+    minSz = sz.foldl(max(a, b), 0.0)
 
   var spans: seq[Span]
   var pfs: seq[Font]
@@ -207,23 +200,27 @@ proc getTypeset*(
     pfs.add(pf)
     spans.add(newSpan(txt, pf))
     assert not pf.typeface.isNil
-    gfonts.add GlyphFont(fontId: uiFont.getId(),
-                          lineHeight: pf.lineHeight)
+    gfonts.add GlyphFont(fontId: uiFont.getId(), lineHeight: pf.lineHeight)
 
   var ha: HorizontalAlignment
-  case hAlign:
-  of Left: ha = LeftAlign
-  of Center: ha = CenterAlign
-  of Right: ha = RightAlign
+  case hAlign
+  of Left:
+    ha = LeftAlign
+  of Center:
+    ha = CenterAlign
+  of Right:
+    ha = RightAlign
 
   var va: VerticalAlignment
-  case vAlign:
-  of Top: va = TopAlign
-  of Middle: va = MiddleAlign
-  of Bottom: va = BottomAlign
+  case vAlign
+  of Top:
+    va = TopAlign
+  of Middle:
+    va = MiddleAlign
+  of Bottom:
+    va = BottomAlign
 
-  let arrangement =
-    pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va)
+  let arrangement = pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va)
 
   # echo "getTypeset:"
   # echo "getTypeset:wh: ", wh
@@ -235,9 +232,9 @@ proc getTypeset*(
     selectionRects = newSeqOfCap[Rect](arrangement.selectionRects.len())
     # a.mapIt(it[0]..it[1])
   for line in arrangement.lines:
-    lines.add line[0]..line[1]
+    lines.add line[0] .. line[1]
   for span in arrangement.spans:
-    spanSlices.add span[0]..span[1]
+    spanSlices.add span[0] .. span[1]
   for rect in arrangement.selectionRects:
     selectionRects.add rect
 

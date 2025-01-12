@@ -1,36 +1,35 @@
-import buffers, chroma, pixie, hashes, opengl, os, shaders, strformat,
-    strutils, tables, textures, times, formatflippy
+import
+  buffers, chroma, pixie, hashes, opengl, os, shaders, strformat, strutils, tables,
+  textures, times, formatflippy
 
-const
-  quadLimit = 10_921
+const quadLimit = 10_921
 
-type
-  Context* = ref object
-    atlasShader, maskShader, activeShader: Shader
-    atlasTexture: Texture
-    maskTextureWrite: int       ## Index into max textures for writing.
-    maskTextureRead: int        ## Index into max textures for rendering.
-    maskTextures: seq[Texture]  ## Masks array for pushing and popping.
-    atlasSize: int              ## Size x size dimensions of the atlas
-    atlasMargin: int            ## Default margin between images
-    quadCount: int              ## Number of quads drawn so far
-    maxQuads: int               ## Max quads to draw before issuing an OpenGL call
-    mat*: Mat4                  ## Current matrix
-    mats: seq[Mat4]             ## Matrix stack
-    entries*: Table[Hash, Rect] ## Mapping of image name to atlas UV position
-    heights: seq[uint16]        ## Height map of the free space in the atlas
-    proj*: Mat4
-    frameSize: Vec2             ## Dimensions of the window frame
-    vertexArrayId, maskFramebufferId: GLuint
-    frameBegun, maskBegun: bool
-    pixelate*: bool             ## Makes texture look pixelated, like a pixel game.
-    pixelScale*: float32        ## Multiple scaling factor.
+type Context* = ref object
+  atlasShader, maskShader, activeShader: Shader
+  atlasTexture: Texture
+  maskTextureWrite: int ## Index into max textures for writing.
+  maskTextureRead: int ## Index into max textures for rendering.
+  maskTextures: seq[Texture] ## Masks array for pushing and popping.
+  atlasSize: int ## Size x size dimensions of the atlas
+  atlasMargin: int ## Default margin between images
+  quadCount: int ## Number of quads drawn so far
+  maxQuads: int ## Max quads to draw before issuing an OpenGL call
+  mat*: Mat4 ## Current matrix
+  mats: seq[Mat4] ## Matrix stack
+  entries*: Table[Hash, Rect] ## Mapping of image name to atlas UV position
+  heights: seq[uint16] ## Height map of the free space in the atlas
+  proj*: Mat4
+  frameSize: Vec2 ## Dimensions of the window frame
+  vertexArrayId, maskFramebufferId: GLuint
+  frameBegun, maskBegun: bool
+  pixelate*: bool ## Makes texture look pixelated, like a pixel game.
+  pixelScale*: float32 ## Multiple scaling factor.
 
-    # Buffer data for OpenGL
-    positions: tuple[buffer: Buffer, data: seq[float32]]
-    colors: tuple[buffer: Buffer, data: seq[uint8]]
-    uvs: tuple[buffer: Buffer, data: seq[float32]]
-    indices: tuple[buffer: Buffer, data: seq[uint16]]
+  # Buffer data for OpenGL
+  positions: tuple[buffer: Buffer, data: seq[float32]]
+  colors: tuple[buffer: Buffer, data: seq[uint8]]
+  uvs: tuple[buffer: Buffer, data: seq[float32]]
+  indices: tuple[buffer: Buffer, data: seq[uint16]]
 
 proc draw(ctx: Context)
 
@@ -51,7 +50,7 @@ proc setUpMaskFramebuffer(ctx: Context) =
     GL_COLOR_ATTACHMENT0,
     GL_TEXTURE_2D,
     ctx.maskTextures[ctx.maskTextureWrite].textureId,
-    0
+    0,
   )
 
 proc createAtlasTexture(ctx: Context, size: int): Texture =
@@ -89,11 +88,11 @@ proc addMaskTexture(ctx: Context, frameSize = vec2(1, 1)) =
   ctx.maskTextures.add(maskTexture)
 
 proc newContext*(
-  atlasSize = 1024,
-  atlasMargin = 4,
-  maxQuads = 1024,
-  pixelate = false,
-  pixelScale = 1.0
+    atlasSize = 1024,
+    atlasMargin = 4,
+    maxQuads = 1024,
+    pixelate = false,
+    pixelScale = 1.0,
 ): Context =
   ## Creates a new context.
   if maxQuads > quadLimit:
@@ -114,8 +113,10 @@ proc newContext*(
   result.addMaskTexture()
 
   when defined(emscripten) or defined(useOpenGlEs):
-    result.atlasShader = newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/atlas.frag")
-    result.maskShader = newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/mask.frag")
+    result.atlasShader =
+      newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/atlas.frag")
+    result.maskShader =
+      newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/mask.frag")
   else:
     result.atlasShader = newShaderStatic("glsl/atlas.vert", "glsl/atlas.frag")
     result.maskShader = newShaderStatic("glsl/atlas.vert", "glsl/mask.frag")
@@ -123,24 +124,21 @@ proc newContext*(
   result.positions.buffer.componentType = cGL_FLOAT
   result.positions.buffer.kind = bkVEC2
   result.positions.buffer.target = GL_ARRAY_BUFFER
-  result.positions.data = newSeq[float32](
-    result.positions.buffer.kind.componentCount() * maxQuads * 4
-  )
+  result.positions.data =
+    newSeq[float32](result.positions.buffer.kind.componentCount() * maxQuads * 4)
 
   result.colors.buffer.componentType = GL_UNSIGNED_BYTE
   result.colors.buffer.kind = bkVEC4
   result.colors.buffer.target = GL_ARRAY_BUFFER
   result.colors.buffer.normalized = true
-  result.colors.data = newSeq[uint8](
-    result.colors.buffer.kind.componentCount() * maxQuads * 4
-  )
+  result.colors.data =
+    newSeq[uint8](result.colors.buffer.kind.componentCount() * maxQuads * 4)
 
   result.uvs.buffer.componentType = cGL_FLOAT
   result.uvs.buffer.kind = bkVEC2
   result.uvs.buffer.target = GL_ARRAY_BUFFER
-  result.uvs.data = newSeq[float32](
-    result.uvs.buffer.kind.componentCount() * maxQuads * 4
-  )
+  result.uvs.data =
+    newSeq[float32](result.uvs.buffer.kind.componentCount() * maxQuads * 4)
 
   result.indices.buffer.componentType = GL_UNSIGNED_SHORT
   result.indices.buffer.kind = bkSCALAR
@@ -149,14 +147,16 @@ proc newContext*(
 
   for i in 0 ..< maxQuads:
     let offset = i * 4
-    result.indices.data.add([
-      (offset + 3).uint16,
-      (offset + 0).uint16,
-      (offset + 1).uint16,
-      (offset + 2).uint16,
-      (offset + 3).uint16,
-      (offset + 1).uint16,
-    ])
+    result.indices.data.add(
+      [
+        (offset + 3).uint16,
+        (offset + 0).uint16,
+        (offset + 1).uint16,
+        (offset + 2).uint16,
+        (offset + 3).uint16,
+        (offset + 1).uint16,
+      ]
+    )
 
   # Indices are only uploaded once
   bindBufferData(result.indices.buffer.addr, result.indices.data[0].addr)
@@ -205,7 +205,7 @@ proc findEmptyRect(ctx: Context, width, height: int): Rect =
 
   var lowest = ctx.atlasSize
   var at = 0
-  for i in 0..ctx.atlasSize - 1:
+  for i in 0 .. ctx.atlasSize - 1:
     var v = int(ctx.heights[i])
     if v < lowest:
       # found low point, is it consecutive?
@@ -227,7 +227,7 @@ proc findEmptyRect(ctx: Context, width, height: int): Rect =
     ctx.grow()
     return ctx.findEmptyRect(width, height)
 
-  for j in at..at + imgWidth - 1:
+  for j in at .. at + imgWidth - 1:
     ctx.heights[j] = uint16(lowest + imgHeight + ctx.atlasMargin * 2)
 
   var rect = rect(
@@ -245,12 +245,7 @@ proc putImage*(ctx: Context, path: string | Hash, image: Image, debug = false) =
     echo "putImage: ", (image.width, image.height), " @ ", path
   let rect = ctx.findEmptyRect(image.width, image.height)
   ctx.entries[path] = rect / float(ctx.atlasSize)
-  updateSubImage(
-    ctx.atlasTexture,
-    int(rect.x),
-    int(rect.y),
-    image
-  )
+  updateSubImage(ctx.atlasTexture, int(rect.x), int(rect.y), image)
 
 proc updateImage*(ctx: Context, path: string | Hash, image: Image) =
   ## Updates an image that was put there with putImage.
@@ -264,7 +259,7 @@ proc updateImage*(ctx: Context, path: string | Hash, image: Image) =
     ctx.atlasTexture,
     int(rect.x * ctx.atlasSize.float),
     int(rect.y * ctx.atlasSize.float),
-    image
+    image,
   )
 
 proc putFlippy*(ctx: Context, path: string | Hash, flippy: Flippy) =
@@ -275,13 +270,7 @@ proc putFlippy*(ctx: Context, path: string | Hash, flippy: Flippy) =
     x = int(rect.x)
     y = int(rect.y)
   for level, mip in flippy.mipmaps:
-    updateSubImage(
-      ctx.atlasTexture,
-      x,
-      y,
-      mip,
-      level
-    )
+    updateSubImage(ctx.atlasTexture, x, y, mip, level)
     x = x div 2
     y = y div 2
 
@@ -305,23 +294,14 @@ proc draw(ctx: Context) =
 
   if ctx.activeShader.hasUniform("maskTex"):
     glActiveTexture(GL_TEXTURE1)
-    glBindTexture(
-      GL_TEXTURE_2D,
-      ctx.maskTextures[ctx.maskTextureRead].textureId
-    )
+    glBindTexture(GL_TEXTURE_2D, ctx.maskTextures[ctx.maskTextureRead].textureId)
     ctx.activeShader.setUniform("maskTex", 1)
 
   ctx.activeShader.bindUniforms()
 
-  glBindBuffer(
-    GL_ELEMENT_ARRAY_BUFFER,
-    ctx.indices.buffer.bufferId
-  )
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ctx.indices.buffer.bufferId)
   glDrawElements(
-    GL_TRIANGLES,
-    ctx.indices.buffer.count.GLint,
-    ctx.indices.buffer.componentType,
-    nil
+    GL_TRIANGLES, ctx.indices.buffer.count.GLint, ctx.indices.buffer.componentType, nil
   )
 
   ctx.quadCount = 0
@@ -410,13 +390,7 @@ proc drawUvRect(ctx: Context, at, to: Vec2, uvAt, uvTo: Vec2, color: Color) =
   inc ctx.quadCount
 
 proc drawUvRect(ctx: Context, rect, uvRect: Rect, color: Color) =
-  ctx.drawUvRect(
-    rect.xy,
-    rect.xy + rect.wh,
-    uvRect.xy,
-    uvRect.xy + uvRect.wh,
-    color
-  )
+  ctx.drawUvRect(rect.xy, rect.xy + rect.wh, uvRect.xy, uvRect.xy + uvRect.wh, color)
 
 proc getOrLoadImageRect(ctx: Context, imagePath: string | Hash): Rect =
   if imagePath is Hash:
@@ -450,7 +424,7 @@ proc drawImage*(
     imagePath: string | Hash,
     pos: Vec2 = vec2(0, 0),
     color = color(1, 1, 1, 1),
-    scale = 1.0
+    scale = 1.0,
 ) =
   ## Draws image the UI way - pos at top-left.
   let
@@ -463,7 +437,7 @@ proc drawImage*(
     imagePath: string | Hash,
     pos: Vec2 = vec2(0, 0),
     color = color(1, 1, 1, 1),
-    size: Vec2
+    size: Vec2,
 ) =
   ## Draws image the UI way - pos at top-left.
   let rect = ctx.getOrLoadImageRect(imagePath)
@@ -474,36 +448,24 @@ proc drawSprite*(
     imagePath: string | Hash,
     pos: Vec2 = vec2(0, 0),
     color = color(1, 1, 1, 1),
-    scale = 1.0
+    scale = 1.0,
 ) =
   ## Draws image the game way - pos at center.
   let
     rect = ctx.getOrLoadImageRect(imagePath)
     wh = rect.wh * ctx.atlasSize.float32 * scale
-  ctx.drawUvRect(
-    pos - wh / 2,
-    pos + wh / 2,
-    rect.xy,
-    rect.xy + rect.wh,
-    color
-  )
+  ctx.drawUvRect(pos - wh / 2, pos + wh / 2, rect.xy, rect.xy + rect.wh, color)
 
 proc drawSprite*(
-  ctx: Context,
-  imagePath: string | Hash,
-  pos: Vec2 = vec2(0, 0),
-  color = color(1, 1, 1, 1),
-  size: Vec2
+    ctx: Context,
+    imagePath: string | Hash,
+    pos: Vec2 = vec2(0, 0),
+    color = color(1, 1, 1, 1),
+    size: Vec2,
 ) =
   ## Draws image the game way - pos at center.
   let rect = ctx.getOrLoadImageRect(imagePath)
-  ctx.drawUvRect(
-    pos - size / 2,
-    pos + size / 2,
-    rect.xy,
-    rect.xy + rect.wh,
-    color
-  )
+  ctx.drawUvRect(pos - size / 2, pos + size / 2, rect.xy, rect.xy + rect.wh, color)
 
 proc fillRect*(ctx: Context, rect: Rect, color: Color) =
   const imgKey = hash("rect")
@@ -520,17 +482,18 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
     rect.xy,
     rect.xy + rect.wh,
     uvRect.xy + uvRect.wh / 2,
-    uvRect.xy + uvRect.wh / 2, color
+    uvRect.xy + uvRect.wh / 2,
+    color,
   )
 
 proc generateCorner(
     radius: int,
-    quadrant: range[1..4],
+    quadrant: range[1 .. 4],
     stroked: bool,
     lineWidth: float32 = 0'f32,
-    fillStyle = rgba(255, 255, 255, 255)
+    fillStyle = rgba(255, 255, 255, 255),
 ): Image =
-  const s = 4.0/3.0 * (sqrt(2.0) - 1.0)
+  const s = 4.0 / 3.0 * (sqrt(2.0) - 1.0)
   let
     x = radius.toFloat
     y = radius.toFloat
@@ -543,11 +506,11 @@ proc generateCorner(
     trc = tr + vec2(0, r * s)
     blc = bl + vec2(r * s, 0)
 
-  template drawImpl(ctx: untyped, doStroke: bool) = 
+  template drawImpl(ctx: untyped, doStroke: bool) =
     let path = newPath()
     if doStroke:
-      let bl = vec2(0, y - lineWidth/2)
-      let tr = vec2(x - lineWidth/2, 0)
+      let bl = vec2(0, y - lineWidth / 2)
+      let tr = vec2(x - lineWidth / 2, 0)
       path.moveTo(bl)
       path.bezierCurveTo(blc, trc, tr)
     else:
@@ -556,7 +519,7 @@ proc generateCorner(
       path.lineTo(bl)
       path.bezierCurveTo(blc, trc, tr)
 
-    case quadrant:
+    case quadrant
     of 1:
       ctx.rotate(270 * PI / 180)
       ctx.translate(-tr)
@@ -579,22 +542,17 @@ proc generateCorner(
   if not stroked:
     let ctx1 = newContext(image)
     ctx1.fillStyle = fillStyle
-    drawImpl(ctx1, doStroke=false)
+    drawImpl(ctx1, doStroke = false)
   else:
     let ctx2 = newContext(image)
     ctx2.strokeStyle = fillStyle
     ctx2.lineCap = SquareCap
     ctx2.lineWidth = lineWidth
-    drawImpl(ctx2, doStroke=true)
+    drawImpl(ctx2, doStroke = true)
 
   result = image
 
-proc fillRoundedRect*(
-    ctx: Context,
-    rect: Rect,
-    color: Color,
-    radius: float32
-) =
+proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   if rect.w <= 0 or rect.h <= -0:
     when defined(fidgetExtraDebugLogging):
       echo "fillRoundedRect: too small: ", rect
@@ -603,65 +561,54 @@ proc fillRoundedRect*(
   let
     w = rect.w.ceil()
     h = rect.h.ceil()
-    radius = min(radius, min(rect.w/2, rect.h/2)).ceil()
+    radius = min(radius, min(rect.w / 2, rect.h / 2)).ceil()
     rw = radius
     rh = radius
 
-  let hash = hash((
-    6118,
-    (rw*100).int, (rh*100).int,
-    (radius*100).int,
-  ))
+  let hash = hash((6118, (rw * 100).int, (rh * 100).int, (radius * 100).int))
 
   if radius > 0.0:
     # let stroked = stroked and lineWidth <= radius
     var hashes: array[4, Hash]
-    for quadrant in 1..4:
+    for quadrant in 1 .. 4:
       let qhash = hash !& quadrant
-      hashes[quadrant-1] = qhash
+      hashes[quadrant - 1] = qhash
       if qhash notin ctx.entries:
-        let img = generateCorner(radius.int, quadrant, false, 0.0, rgba(255, 255, 255, 255))
-        ctx.putImage(hashes[quadrant-1], img)
+        let img =
+          generateCorner(radius.int, quadrant, false, 0.0, rgba(255, 255, 255, 255))
+        ctx.putImage(hashes[quadrant - 1], img)
 
     let
-      xy = rect.xy 
-      offsets = [vec2(w-rw, 0), vec2(0, 0), vec2(0, h-rh), vec2(w-rw, h-rh)]
+      xy = rect.xy
+      offsets = [vec2(w - rw, 0), vec2(0, 0), vec2(0, h - rh), vec2(w - rw, h - rh)]
 
-    for corner in 0..3:
+    for corner in 0 .. 3:
       let
         uvRect = ctx.entries[hashes[corner]]
         wh = rect.wh * ctx.atlasSize.float32
         pt = xy + offsets[corner]
-      
-      ctx.drawUvRect(pt, pt + rw,
-                    uvRect.xy, uvRect.xy + uvRect.wh,
-                    color)
+
+      ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
 
   let
-    rrw = w-rw
-    rrh = h-rh
-    wrw = w-2*rw
-    hrh = h-2*rh
-  
-  fillRect(ctx, rect(rect.x+rw, rect.y+rh, wrw, hrh), color)
+    rrw = w - rw
+    rrh = h - rh
+    wrw = w - 2 * rw
+    hrh = h - 2 * rh
 
-  fillRect(ctx, rect(rect.x+rw, rect.y,     wrw, rh), color)
-  fillRect(ctx, rect(rect.x+rw, rect.y+rrh, wrw, rh), color)
+  fillRect(ctx, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
 
-  fillRect(ctx, rect(rect.x, rect.y+rh,     rw, hrh), color)
-  fillRect(ctx, rect(rect.x+rrw, rect.y+rh, rw, hrh), color)
+  fillRect(ctx, rect(rect.x + rw, rect.y, wrw, rh), color)
+  fillRect(ctx, rect(rect.x + rw, rect.y + rrh, wrw, rh), color)
 
+  fillRect(ctx, rect(rect.x, rect.y + rh, rw, hrh), color)
+  fillRect(ctx, rect(rect.x + rrw, rect.y + rh, rw, hrh), color)
 
 proc strokeRoundedRect*(
-    ctx: Context,
-    rect: Rect,
-    color: Color,
-    weight: float32,
-    radius: float32,
+    ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
 ) =
-  let
-    fillStyle = rgba(255, 255, 255, 255)
-  
+  let fillStyle = rgba(255, 255, 255, 255)
+
   if rect.w <= 0 or rect.h <= -0:
     when defined(fidgetExtraDebugLogging):
       echo "fillRoundedRect: too small: ", rect
@@ -670,110 +617,91 @@ proc strokeRoundedRect*(
   let
     w = rect.w.ceil()
     h = rect.h.ceil()
-    radius = min(radius, min(rect.w/2, rect.h/2)).ceil()
+    radius = min(radius, min(rect.w / 2, rect.h / 2)).ceil()
     rw = radius
     rh = radius
 
-  let hash = hash((
-    6217,
-    (rw*100).int, (rh*100).int,
-    (radius*100).int,
-    (weight*100).int,
-  ))
+  let hash =
+    hash((6217, (rw * 100).int, (rh * 100).int, (radius * 100).int, (weight * 100).int))
 
   if radius > 0.0:
     # let stroked = stroked and lineWidth <= radius
     var hashes: array[4, Hash]
-    for quadrant in 1..4:
+    for quadrant in 1 .. 4:
       let qhash = hash !& quadrant
-      hashes[quadrant-1] = qhash
+      hashes[quadrant - 1] = qhash
       if qhash notin ctx.entries:
         let img = generateCorner(radius.int, quadrant, true, weight, fillStyle)
-        ctx.putImage(hashes[quadrant-1], img)
+        ctx.putImage(hashes[quadrant - 1], img)
 
     let
-      xy = rect.xy 
-      offsets = [vec2(w-rw, 0), vec2(0, 0), vec2(0, h-rh), vec2(w-rw, h-rh)]
+      xy = rect.xy
+      offsets = [vec2(w - rw, 0), vec2(0, 0), vec2(0, h - rh), vec2(w - rw, h - rh)]
 
-    for corner in 0..3:
+    for corner in 0 .. 3:
       let
         uvRect = ctx.entries[hashes[corner]]
         wh = rect.wh * ctx.atlasSize.float32
         pt = xy + offsets[corner]
-      
-      ctx.drawUvRect(pt, pt + rw,
-                    uvRect.xy, uvRect.xy + uvRect.wh,
-                    color)
+
+      ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
 
   block:
     let
       ww = weight
-      rrw = w-ww
-      rrh = h-ww
-      wrw = w-2*rw
-      hrh = h-2*rh
-    
-    fillRect(ctx, rect(rect.x+rw, rect.y,     wrw, ww), color)
-    fillRect(ctx, rect(rect.x+rw, rect.y+rrh, wrw, ww), color)
+      rrw = w - ww
+      rrh = h - ww
+      wrw = w - 2 * rw
+      hrh = h - 2 * rh
 
-    fillRect(ctx, rect(rect.x, rect.y+rh,     ww, hrh), color)
-    fillRect(ctx, rect(rect.x+rrw, rect.y+rh, ww, hrh), color)
+    fillRect(ctx, rect(rect.x + rw, rect.y, wrw, ww), color)
+    fillRect(ctx, rect(rect.x + rw, rect.y + rrh, wrw, ww), color)
+
+    fillRect(ctx, rect(rect.x, rect.y + rh, ww, hrh), color)
+    fillRect(ctx, rect(rect.x + rrw, rect.y + rh, ww, hrh), color)
 
 when false:
   proc strokeRoundedRect*(
-    ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
+      ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
   ) =
-      if rect.w <= 0 or rect.h <= -0:
-        when defined(fidgetExtraDebugLogging): echo "strokeRoundedRect: too small: ", rect
-        return
+    if rect.w <= 0 or rect.h <= -0:
+      when defined(fidgetExtraDebugLogging):
+        echo "strokeRoundedRect: too small: ", rect
+      return
 
-      let radius = min(radius, min(rect.w/2, rect.h/2))
-      # TODO: Make this a 9 patch
-      let hash = hash((
-        8349,
-        rect.w.int,
-        rect.h.int,
-        (weight*100).int,
-        (radius*100).int
-      ))
+    let radius = min(radius, min(rect.w / 2, rect.h / 2))
+    # TODO: Make this a 9 patch
+    let hash =
+      hash((8349, rect.w.int, rect.h.int, (weight * 100).int, (radius * 100).int))
 
+    let
+      w = ceil(rect.w).int
+      h = ceil(rect.h).int
+    if hash notin ctx.entries:
       let
-        w = ceil(rect.w).int
-        h = ceil(rect.h).int
-      if hash notin ctx.entries:
-        let
-          image = newImage(w, h)
-          c = newContext(image)
-        c.fillStyle = rgba(255, 255, 255, 255)
-        c.lineWidth = weight
-        c.strokeStyle = color
-        c.strokeRoundedRect(
-          rect(weight / 2, weight / 2, rect.w - weight, rect.h - weight),
-          radius
-        )
-        echo "strokeRoundedRect: ", hash
-        ctx.putImage(hash, image, true)
-      let
-        uvRect = ctx.entries[hash]
-        wh = rect.wh * ctx.atlasSize.float32
-      ctx.drawUvRect(
-        rect.xy,
-        rect.xy + vec2(w.float32, h.float32),
-        uvRect.xy,
-        uvRect.xy + uvRect.wh,
-        color
+        image = newImage(w, h)
+        c = newContext(image)
+      c.fillStyle = rgba(255, 255, 255, 255)
+      c.lineWidth = weight
+      c.strokeStyle = color
+      c.strokeRoundedRect(
+        rect(weight / 2, weight / 2, rect.w - weight, rect.h - weight), radius
       )
+      echo "strokeRoundedRect: ", hash
+      ctx.putImage(hash, image, true)
+    let
+      uvRect = ctx.entries[hash]
+      wh = rect.wh * ctx.atlasSize.float32
+    ctx.drawUvRect(
+      rect.xy,
+      rect.xy + vec2(w.float32, h.float32),
+      uvRect.xy,
+      uvRect.xy + uvRect.wh,
+      color,
+    )
 
-proc line*(
-  ctx: Context, a: Vec2, b: Vec2, weight: float32, color: Color
-) =
-  let hash = hash((
-    2345,
-    a,
-    b,
-    (weight*100).int,
-    hash(color)
-  ))
+proc line*(ctx: Context, a: Vec2, b: Vec2, weight: float32, color: Color) =
+  let hash = hash((2345, a, b, (weight * 100).int, hash(color)))
 
   let
     w = ceil(abs(b.x - a.x)).int
@@ -796,18 +724,12 @@ proc line*(
     uvRect = ctx.entries[hash]
     wh = vec2(w.float32, h.float32) * ctx.atlasSize.float32
   ctx.drawUvRect(
-    pos,
-    pos + vec2(w.float32, h.float32),
-    uvRect.xy,
-    uvRect.xy + uvRect.wh,
-    color
+    pos, pos + vec2(w.float32, h.float32), uvRect.xy, uvRect.xy + uvRect.wh, color
   )
 
-proc linePolygon*(
-  ctx: Context, poly: seq[Vec2], weight: float32, color: Color
-) =
+proc linePolygon*(ctx: Context, poly: seq[Vec2], weight: float32, color: Color) =
   for i in 0 ..< poly.len:
-    ctx.line(poly[i], poly[(i+1) mod poly.len], weight, color)
+    ctx.line(poly[i], poly[(i + 1) mod poly.len], weight, color)
 
 proc clearMask*(ctx: Context) =
   ## Sets mask off (actually fills the mask with white).
@@ -870,7 +792,7 @@ proc beginFrame*(ctx: Context, frameSize: Vec2, proj: Mat4) =
   ctx.proj = proj
 
   if ctx.maskTextures[0].width != frameSize.x.int32 or
-    ctx.maskTextures[0].height != frameSize.y.int32:
+      ctx.maskTextures[0].height != frameSize.y.int32:
     # Resize all of the masks.
     ctx.frameSize = frameSize
     for i in 0 ..< ctx.maskTextures.len:
@@ -886,9 +808,7 @@ proc beginFrame*(ctx: Context, frameSize: Vec2, proj: Mat4) =
 
 proc beginFrame*(ctx: Context, frameSize: Vec2) =
   beginFrame(
-    ctx,
-    frameSize,
-    ortho[float32](0.0, frameSize.x, frameSize.y, 0, -1000.0, 1000.0)
+    ctx, frameSize, ortho[float32](0.0, frameSize.x, frameSize.y, 0, -1000.0, 1000.0)
   )
 
 proc endFrame*(ctx: Context) =

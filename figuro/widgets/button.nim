@@ -1,4 +1,3 @@
-
 import commons
 import ../ui/utils
 
@@ -19,9 +18,7 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
 
 proc doButton*[T](self: Button[T]) {.signal.}
 
-proc clicked*[T](self: Button[T],
-                 kind: EventKind,
-                 buttons: UiButtonView) {.slot.} =
+proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   # echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
   if kind == Exit:
     return

@@ -1,4 +1,3 @@
-
 import pkg/opengl
 import pkg/chroma
 
@@ -13,17 +12,18 @@ proc openglDebug*() =
     if (flags and GL_CONTEXT_FLAG_DEBUG_BIT.GLint) != 0:
       # Set up error logging
       proc printGlDebug(
-        source, typ: GLenum,
-        id: GLuint,
-        severity: GLenum,
-        length: GLsizei,
-        message: ptr GLchar,
-        userParam: pointer
+          source, typ: GLenum,
+          id: GLuint,
+          severity: GLenum,
+          length: GLsizei,
+          message: ptr GLchar,
+          userParam: pointer,
       ) {.stdcall.} =
         echo &"source={toHex(source.uint32)} type={toHex(typ.uint32)} " &
           &"id={id} severity={toHex(severity.uint32)}: {$message}"
         if severity != GL_DEBUG_SEVERITY_NOTIFICATION:
           running = false
+
       glDebugMessageCallback(printGlDebug, nil)
       glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)
       glEnable(GL_DEBUG_OUTPUT)

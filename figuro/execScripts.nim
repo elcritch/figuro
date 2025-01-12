@@ -1,4 +1,3 @@
-
 import common/nodes/render
 import shared
 import exec
@@ -10,13 +9,11 @@ from "$nim"/compiler/nimeval import findNimStdLibCompileTime
 import std/[strformat, os, times, json, osproc, sequtils]
 
 when isMainModule:
-
-  var 
+  var
     intr: WrappedInterpreter
     init, tick, event, draw, getRoot, getAppState: WrappedPnode
     addins: VmAddins
     lastModification = fromUnix(0)
-
 
 errorHook = proc(name: cstring, line, col: int, msg: cstring, sev: Severity) {.cdecl.} =
   echo fmt"{line}:col; {msg}"
@@ -38,21 +35,19 @@ proc getAgentId(args: VmArgs) {.cdecl.} =
     # echo "getAgentId: ", id
     args.setResult id
 
-const 
-  vmProcs* = [
-    VmProcSignature(package: "figuro",
-                    name: "run",
-                    module: "wrappers",
-                    vmProc: runImpl),
-    VmProcSignature(package: "figuro",
-                    name: "getAgentId",
-                    module: "datatypes",
-                    vmProc: getAgentId),
-  ]
+const vmProcs* = [
+  VmProcSignature(package: "figuro", name: "run", module: "wrappers", vmProc: runImpl),
+  VmProcSignature(
+    package: "figuro", name: "getAgentId", module: "datatypes", vmProc: getAgentId
+  ),
+]
 
 when isMainModule:
   let theProcs = vmProcs
-  addins = VmAddins(procs: cast[ptr UncheckedArray[typeof theProcs[0]]](theProcs.addr), procLen: vmProcs.len)
+  addins = VmAddins(
+    procs: cast[ptr UncheckedArray[typeof theProcs[0]]](theProcs.addr),
+    procLen: vmProcs.len,
+  )
 
 let
   scriptDir = getAppDir() / "../tests/"
@@ -69,7 +64,13 @@ proc loadTheScript*(addins: VmAddins): WrappedInterpreter =
   paths.add "../".absolutePath # figuro
   let cpaths = paths.mapIt(it.cstring())
 
-  result = loadScript(cstring scriptPath, addins, cpaths, cstring findNimStdLibCompileTime(), defaultDefines)
+  result = loadScript(
+    cstring scriptPath,
+    addins,
+    cpaths,
+    cstring findNimStdLibCompileTime(),
+    defaultDefines,
+  )
   setCurrentDir oldDir
 
 proc invokeVmInit*() =
@@ -79,9 +80,7 @@ proc invokeVmInit*() =
 proc invokeVmTick*() =
   if intr != nil and tick != nil:
     let state: AppStatePartial = (
-      tickCount: app.tickCount,
-      requestedFrame: app.requestedFrame,
-      uiScale: app.uiScale
+      tickCount: app.tickCount, requestedFrame: app.requestedFrame, uiScale: app.uiScale
     )
     let ret = intr.invoke(tick, [newNode state])
     let appRet = fromVm(AppStatePartial, ret)
@@ -115,7 +114,7 @@ proc invokeVmGetAppState*(): AppState =
       result = fromVm(AppState, state)
 
 proc scriptUpdate() =
-  let lastMod = getLastModificationTime(scriptPath);
+  let lastMod = getLastModificationTime(scriptPath)
   if lastMod > lastModification:
     if intr.isNil:
       intr = loadTheScript(addins)
@@ -136,8 +135,8 @@ proc startFiguroRuntime() =
   shared.app = invokeVmGetAppState()
 
   if not app.fullscreen:
-    app.windowSize = Position vec2(app.uiScale * app.width.float32,
-                                   app.uiScale * app.height.float32)
+    app.windowSize =
+      Position vec2(app.uiScale * app.width.float32, app.uiScale * app.height.float32)
 
   proc appLoad() =
     discard

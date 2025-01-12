@@ -20,12 +20,12 @@ type
   CssBlock* = ref object
     selectors*: seq[CssSelector]
     properties*: seq[CssProperty]
-  
+
   CssSelectorKind* {.pure.} = enum
-    skNone,
-    skDirectChild,
-    skDescendent,
-    skPseudo,
+    skNone
+    skDirectChild
+    skDescendent
+    skPseudo
     skSelectorList
 
   CssSelector* = ref object
@@ -44,6 +44,7 @@ proc `==`*(a, b: CssSelector): bool =
   if a.isNil or b.isNil:
     return false
   a[] == b[]
+
 proc `==`*(a, b: CssProperty): bool =
   if a.isNil and b.isNil:
     return true
@@ -56,8 +57,7 @@ proc newCssParser*(src: string): CssParser =
   result = CssParser(tokenizer: tokenizer)
 
 proc newCssParser*(file: Path): CssParser =
-  let 
-    data = readFile(file.string)
+  let data = readFile(file.string)
   result = newCssParser(data)
 
 proc isEof(parser: CssParser): bool =
@@ -108,7 +108,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
   while true:
     parser.skip(tkWhiteSpace)
     var tk = parser.peek()
-    case tk.kind:
+    case tk.kind
     of tkIdent:
       # echo "\tsel: ", tk.repr
       if isClass:
@@ -136,7 +136,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       result.add(CssSelector(id: tk.idHash))
       let tk = parser.nextToken()
     of tkDelim:
-      case tk.delim:
+      case tk.delim
       of '.':
         isClass = true
       of '<':
@@ -154,7 +154,6 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
   # echo "\tsel:done"
 
 proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} =
-
   parser.skip(tkWhiteSpace)
   parser.eat(tkCurlyBracketBlock)
 
@@ -175,11 +174,11 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
     var tk = parser.peek()
 
     # echo "\tproperty:next: ", tk.repr
-    case tk.kind:
+    case tk.kind
     of tkIdent:
       discard parser.nextToken()
       if result[^1].name.len() == 0:
-        result[^1].name = tk.ident;
+        result[^1].name = tk.ident
         parser.eat(tkColon)
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
@@ -207,11 +206,15 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
       var value = tk.fnName
       while true:
         tk = parser.nextToken()
-        case tk.kind:
-        of tkDimension: value &= $tk.dValue
-        of tkWhiteSpace: value &= tk.wsStr
-        of tkParenBlock: value &= "("
-        of tkComma: value &= ","
+        case tk.kind
+        of tkDimension:
+          value &= $tk.dValue
+        of tkWhiteSpace:
+          value &= tk.wsStr
+        of tkParenBlock:
+          value &= "("
+        of tkComma:
+          value &= ","
         of tkCloseParen:
           value &= ")"
           break
@@ -231,7 +234,7 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
     of tkPercentage:
       if result[^1].value != MissingCssValue():
         raise newException(ValueError, "expected css percentage to be a property value")
-      let value = csPerc(100.0*tk.pUnitValue)
+      let value = csPerc(100.0 * tk.pUnitValue)
       result[^1].value = CssSize(value)
       discard parser.nextToken()
     of tkSemicolon:
@@ -244,14 +247,14 @@ proc parseBody(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} 
       break
     else:
       # echo "\tattrib:other: ", tk.repr
-      echo "CSS Warning: ", "unhandled token while parsing property: ", parser.peek().repr
+      echo "CSS Warning: ",
+        "unhandled token while parsing property: ", parser.peek().repr
       discard parser.nextToken()
 
-  popIncompleteProperty(warning=false)
+  popIncompleteProperty(warning = false)
   parser.eat(tkCloseCurlyBracket)
 
 proc parse*(parser: CssParser): seq[CssBlock] =
-
   while not parser.isEof():
     parser.skip(tkWhiteSpace)
     if parser.isEof():

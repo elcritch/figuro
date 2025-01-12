@@ -2,23 +2,23 @@ import buffers, pixie, opengl
 
 type
   MinFilter* = enum
-    minDefault,
-    minNearest = GL_NEAREST,
-    minLinear = GL_LINEAR,
-    minNearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST,
-    minLinearMipmapNearest = GL_LINEAR_MIPMAP_NEAREST,
-    minNearestMipmapLinear = GL_NEAREST_MIPMAP_LINEAR,
+    minDefault
+    minNearest = GL_NEAREST
+    minLinear = GL_LINEAR
+    minNearestMipmapNearest = GL_NEAREST_MIPMAP_NEAREST
+    minLinearMipmapNearest = GL_LINEAR_MIPMAP_NEAREST
+    minNearestMipmapLinear = GL_NEAREST_MIPMAP_LINEAR
     minLinearMipmapLinear = GL_LINEAR_MIPMAP_LINEAR
 
   MagFilter* = enum
-    magDefault,
-    magNearest = GL_NEAREST,
+    magDefault
+    magNearest = GL_NEAREST
     magLinear = GL_LINEAR
 
   Wrap* = enum
-    wDefault,
-    wRepeat = GL_REPEAT,
-    wClampToEdge = GL_CLAMP_TO_EDGE,
+    wDefault
+    wRepeat = GL_REPEAT
+    wClampToEdge = GL_CLAMP_TO_EDGE
     wMirroredRepeat = GL_MIRRORED_REPEAT
 
   Texture* = object
@@ -30,20 +30,14 @@ type
     genMipmap*: bool
     textureId*: GLuint
 
-proc bindTextureBufferData*(
-  texture: ptr Texture, buffer: ptr Buffer, data: pointer
-) =
+proc bindTextureBufferData*(texture: ptr Texture, buffer: ptr Buffer, data: pointer) =
   bindBufferData(buffer, data)
 
   if texture.textureId == 0:
     glGenTextures(1, texture.textureId.addr)
 
   glBindTexture(GL_TEXTURE_BUFFER, texture.textureId)
-  glTexBuffer(
-    GL_TEXTURE_BUFFER,
-    texture.internalFormat,
-    buffer.bufferId
-  )
+  glTexBuffer(GL_TEXTURE_BUFFER, texture.internalFormat, buffer.bufferId)
 
 proc bindTextureData*(texture: ptr Texture, data: pointer) =
   if texture.textureId == 0:
@@ -59,17 +53,13 @@ proc bindTextureData*(texture: ptr Texture, data: pointer) =
     border = 0,
     format = texture.format,
     `type` = texture.componentType,
-    pixels = data
+    pixels = data,
   )
 
   if texture.magFilter != magDefault:
-    glTexParameteri(
-      GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.magFilter.GLint
-    )
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture.magFilter.GLint)
   if texture.minFilter != minDefault:
-    glTexParameteri(
-      GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.minFilter.GLint
-    )
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture.minFilter.GLint)
   if texture.wrapS != wDefault:
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texture.wrapS.GLint)
   if texture.wrapT != wDefault:
@@ -110,7 +100,7 @@ proc updateSubImage*(texture: Texture, x, y: int, image: Image, level: int) =
     height = image.height.GLint,
     format = image.getFormat(),
     `type` = GL_UNSIGNED_BYTE,
-    pixels = data[0].addr
+    pixels = data[0].addr,
   )
 
 proc updateSubImage*(texture: Texture, x, y: int, image: Image) =

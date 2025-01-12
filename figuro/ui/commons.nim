@@ -1,4 +1,3 @@
-
 import ../shared
 import ../internal
 import ../common/uimaths
@@ -8,5 +7,4 @@ import sigils
 
 export shared, ui, internal, sigils, uimaths, csstheme
 
-type
-  FiguroError* = object of CatchableError
+type FiguroError* = object of CatchableError
