@@ -114,11 +114,12 @@ proc drawMasks(ctx: Context, node: Node) =
 proc renderShadows(ctx: Context, node: Node) =
   ## drawing shadows
   let shadow = node.shadow.get()
-  let blurAmt = shadow.blur / 7.0
-  for i in 0 .. 6:
+  let blurAmt = shadow.blur / 3.0
+  for i in 0 .. 10:
     let blurs: float32 = i.toFloat() * blurAmt
     let box = node.screenBox.atXY(x = shadow.x + blurs, y = shadow.y + blurs)
     ctx.fillRoundedRect(rect = box, color = shadow.color, radius = node.cornerRadius)
+    # echo "blurs: ", box, " ", shadow.color
 
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
@@ -199,6 +200,11 @@ proc render(
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
 
+  # hacky method to draw drop shadows... should probably be done in opengl shaders
+  ifrender node.kind == nkRectangle and node.shadow.isSome():
+    echo "shadow: ", node.shadow.get().repr
+    ctx.renderShadows(node)
+
   # handle clipping children content based on this node
   ifrender clipContent in node.attrs:
     ctx.beginMask()
@@ -206,10 +212,6 @@ proc render(
     ctx.endMask()
   finally:
     ctx.popMask()
-
-  # hacky method to draw drop shadows... should probably be done in opengl sharders
-  ifrender node.kind == nkRectangle and node.shadow.isSome():
-    ctx.renderShadows(node)
 
   ifrender true:
     if node.kind == nkText:
