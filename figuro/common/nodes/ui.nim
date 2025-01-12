@@ -98,7 +98,7 @@ type
   Property*[T] = ref object of Agent
     value*: T
 
-  # Rectangle* = ref object of BasicFiguro
+  Rectangle* = ref object of BasicFiguro
   Text* = ref object of BasicFiguro
 
 proc `=destroy`*(obj: type(Figuro()[])) =

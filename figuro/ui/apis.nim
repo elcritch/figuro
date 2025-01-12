@@ -96,7 +96,7 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 
 template rectangle*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.
-  widget[BasicFiguro](nkRectangle, name, blk)
+  widget[Rectangle](nkRectangle, name, blk)
 
 template text*(name: string, blk: untyped): auto =
   ## Starts a new rectangle.

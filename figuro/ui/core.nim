@@ -155,7 +155,7 @@ proc connectDefaults*[T](node: T) {.slot.} =
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, Figuro.handlePostDraw())
   connect(node, doDraw, node, Figuro.handleTheme())
-  when T isnot BasicFiguro and T isnot Text:
+  when T isnot BasicFiguro:
     when compiles(SignalTypes.clicked(T)):
       connect(node, doClick, node, T.clicked())
     when compiles(SignalTypes.keyInput(T)):
