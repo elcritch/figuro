@@ -155,16 +155,17 @@ proc connectDefaults*[T](node: T) {.slot.} =
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, Figuro.handlePostDraw())
   connect(node, doDraw, node, Figuro.handleTheme())
-  when T isnot BasicFiguro and compiles(SignalTypes.clicked(T)):
-    connect(node, doClick, node, T.clicked())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyInput(T)):
-    connect(node, doKeyInput, node, T.keyInput())
-  when T isnot BasicFiguro and compiles(SignalTypes.keyPress(T)):
-    connect(node, doKeyPress, node, T.keyPress())
-  when T isnot BasicFiguro and compiles(SignalTypes.hover(T)):
-    connect(node, doHover, node, T.hover())
-  when T isnot BasicFiguro and compiles(SignalTypes.tick(T)):
-    connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
+  when T isnot BasicFiguro:
+    when compiles(SignalTypes.clicked(T)):
+      connect(node, doClick, node, T.clicked())
+    when compiles(SignalTypes.keyInput(T)):
+      connect(node, doKeyInput, node, T.keyInput())
+    when compiles(SignalTypes.keyPress(T)):
+      connect(node, doKeyPress, node, T.keyPress())
+    when compiles(SignalTypes.hover(T)):
+      connect(node, doHover, node, T.hover())
+    when compiles(SignalTypes.tick(T)):
+      connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
 proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   if root == nil:

@@ -98,6 +98,9 @@ type
   Property*[T] = ref object of Agent
     value*: T
 
+  Rectangle* = ref object of BasicFiguro
+  Text* = ref object of BasicFiguro
+
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy
   let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
