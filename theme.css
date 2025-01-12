@@ -6,3 +6,7 @@ Button {
   border-color: #160075;
   border-radius: 10;
 }
+
+Button:hover {
+  background: rgb(169, 255, 158);
+}

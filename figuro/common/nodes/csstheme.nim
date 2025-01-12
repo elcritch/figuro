@@ -56,15 +56,19 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   ## so it'll return false unless every check passes
   result = false
 
-  echo "selector:pseudo:check: ", pseudo.repr, " node: ", node.uid, " name: ", node.name
+  # echo "selector:pseudo:check: ", pseudo.repr, " node: ", node.uid, " name: ", node.name
   case pseudo.cssType
   of "hover":
     if evHover in node.events:
-      echo "matched pseudo hover! node: ", $node.name
+      # echo "matched pseudo hover! node: ", $node.name
       discard
     else:
-      echo "failed pseudo hover! node: ", $node.name, " evt: ", node.events
+      # echo "failed pseudo hover! node: ", $node.name, " evt: ", node.events
       return
+  else:
+    once:
+      echo "Warning: ", "unhandled CSS psuedo class: ", pseudo.cssType
+    
 
   # if node.combinator == skPseudo and node. 
 
@@ -109,15 +113,15 @@ proc apply*(prop: CssProperty, node: Figuro) =
         # echo "warning: ", "unhandled css property: ", prop.repr
         discard
     CssVarName(n):
-      echo "Warning: ", "unhandled css variable: ", prop.repr
+      once:
+        echo "Warning: ", "unhandled css variable: ", prop.repr
 
 import std/terminal
 
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
-  # if node.name in ["btnB", "btnD"]:
-  stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
-  stdout.styledWriteLine fgRed, rule.selectors.repr
+  # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
+  # stdout.styledWriteLine fgRed, rule.selectors.repr
 
   var
     sel: CssSelector
@@ -127,8 +131,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    if node.name in ["btnB", "btnD"]:
-      stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
+    # stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
 
     if sel.combinator == skPseudo:
       prevCombinator = sel.combinator
@@ -174,7 +177,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
       prop.apply(node)
 
 proc applyThemeRules*(node: Figuro) =
-  echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
   if not node.frame[].theme.isNil:
     for rule in node.frame[].theme.cssRules:
       rule.eval(node)
