@@ -47,6 +47,27 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
       # echo "failed class check"
       return
 
+  # if node.combinator == skPseudo and node. 
+
+  return true
+
+proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
+  ## checks a CSS selector in a "fail fast" style
+  ## so it'll return false unless every check passes
+  result = false
+
+  echo "selector:pseudo:check: ", pseudo.repr, " node: ", node.uid, " name: ", node.name
+  case pseudo.cssType
+  of "hover":
+    if evHover in node.events:
+      echo "matched pseudo hover! node: ", $node.name
+      discard
+    else:
+      echo "failed pseudo hover! node: ", $node.name, " evt: ", node.events
+      return
+
+  # if node.combinator == skPseudo and node. 
+
   return true
 
 proc apply*(prop: CssProperty, node: Figuro) =
@@ -94,8 +115,9 @@ import std/terminal
 
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
-  # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
-  # stdout.styledWriteLine fgRed, rule.selectors.repr
+  # if node.name in ["btnB", "btnD"]:
+  stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
+  stdout.styledWriteLine fgRed, rule.selectors.repr
 
   var
     sel: CssSelector
@@ -105,7 +127,8 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    # stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
+    if node.name in ["btnB", "btnD"]:
+      stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
 
     if sel.combinator == skPseudo:
       prevCombinator = sel.combinator
@@ -120,7 +143,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
         break
     of skPseudo:
       # stdout.styledWriteLine fgCyan, "skPseudo: ", $prevCombinator
-      matched = matched and sel.checkMatch(node)
+      matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(node)
       if not matched:
         # echo "not matched"
         break
@@ -151,7 +174,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
       prop.apply(node)
 
 proc applyThemeRules*(node: Figuro) =
-  # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
   if not node.frame[].theme.isNil:
     for rule in node.frame[].theme.cssRules:
       rule.eval(node)

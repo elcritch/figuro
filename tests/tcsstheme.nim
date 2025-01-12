@@ -273,9 +273,10 @@ suite "css exec":
     }
     """
     setupMain(themeSrc)
-
     # if evHover in current.events:
     btnD.events.incl evHover
+    echo "btnD.events: ", btnD.events
+    emit main.doDraw()
 
     # print main.frame[].theme.cssRules
     # echo "btnB: ", $btnB
