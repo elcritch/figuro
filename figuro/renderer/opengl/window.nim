@@ -24,7 +24,7 @@ when defined(glDebugMessageCallback):
 
 static:
   ## compile check to ensure windy buttons don't change on us
-  for i in 0..windy.Button.high().int:
+  for i in 0 .. windy.Button.high().int:
     assert $Button(i) == $UiButton(i)
 
 proc toUi*(wbtn: windy.ButtonView): UiButtonView =
@@ -61,7 +61,6 @@ proc updateWindowSize*(frame: WeakRef[AppFrame], window: Window) =
   frame[].windowSize.h = sz.y
 
 proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
-
   let scale = window.getScaleInfo()
 
   if app.autoUiScale:
@@ -76,8 +75,7 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
 
   if window.isNil:
     quit(
-      "Failed to open window. GL version:" &
-      &"{openglVersion[0]}.{$openglVersion[1]}"
+      "Failed to open window. GL version:" & &"{openglVersion[0]}.{$openglVersion[1]}"
     )
 
   window.makeContextCurrent()
@@ -90,10 +88,7 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
   glEnable(GL_BLEND)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
   glBlendFuncSeparate(
-    GL_SRC_ALPHA,
-    GL_ONE_MINUS_SRC_ALPHA,
-    GL_ONE,
-    GL_ONE_MINUS_SRC_ALPHA
+    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA
   )
 
   # app.lastDraw = getTicks()

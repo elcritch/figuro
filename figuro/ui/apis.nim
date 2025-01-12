@@ -27,13 +27,17 @@ template withNodes*[T](fig: T, blk: untyped): untyped =
   ## alias for `nodes`
   nodes[T](fig, blk)
 
-proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: string, alpha = 1.0): Stroke =
+proc init*(
+    tp: typedesc[Stroke], weight: float32 | UICoord, color: string, alpha = 1.0
+): Stroke =
   ## Sets stroke/border color.
   result.color = parseHtmlColor(color)
   result.color.a = alpha
   result.weight = weight.float32
 
-proc init*(tp: typedesc[Stroke], weight: float32|UICoord, color: Color, alpha = 1.0): Stroke =
+proc init*(
+    tp: typedesc[Stroke], weight: float32 | UICoord, color: Color, alpha = 1.0
+): Stroke =
   ## Sets stroke/border color.
   result.color = color
   result.color.a = alpha
@@ -120,23 +124,21 @@ proc setName*(current: Figuro, n: string) =
 
 type CSSConstraint = Constraint
 
-proc fltOrZero(x: int|float32|float64|UICoord|CSSConstraint): float32 =
-  when x is CSSConstraint:
-    0.0
-  else:
-    x.float32
+proc fltOrZero(x: int | float32 | float64 | UICoord | CSSConstraint): float32 =
+  when x is CSSConstraint: 0.0 else: x.float32
 
-proc csOrFixed*(x: int|float32|float64|UICoord|CSSConstraint): CSSConstraint =
+proc csOrFixed*(x: int | float32 | float64 | UICoord | CSSConstraint): CSSConstraint =
   when x is CSSConstraint:
     x
-  else: csFixed(x.UiScalar)
+  else:
+    csFixed(x.UiScalar)
 
 proc box*(
-  current: Figuro,
-  x: UICoord|CSSConstraint,
-  y: UICoord|CSSConstraint,
-  w: UICoord|CSSConstraint,
-  h: UICoord|CSSConstraint
+    current: Figuro,
+    x: UICoord | CSSConstraint,
+    y: UICoord | CSSConstraint,
+    w: UICoord | CSSConstraint,
+    h: UICoord | CSSConstraint,
 ) =
   ## Sets the size and offsets at the same time
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
@@ -146,18 +148,10 @@ proc box*(
 #   ## Sets the box dimensions with integers
 #   box(rect.x, rect.y, rect.w, rect.h)
 
-proc offset*(
-  current: Figuro, 
-  x: UICoord|CSSConstraint,
-  y: UICoord|CSSConstraint
-) =
+proc offset*(current: Figuro, x: UICoord | CSSConstraint, y: UICoord | CSSConstraint) =
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
 
-proc size*(
-  current: Figuro, 
-  w: UICoord|CSSConstraint,
-  h: UICoord|CSSConstraint,
-) =
+proc size*(current: Figuro, w: UICoord | CSSConstraint, h: UICoord | CSSConstraint) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
 proc boxSizeOf*(current: Figuro, node: Figuro) =
@@ -218,7 +212,7 @@ proc positionRelative*(point: Position, node: Figuro): Position =
 proc positionRatio*(node: Figuro, point: Position, clamped = false): Position =
   ## computes relative fraction of the mouse's position to the node's area
   let track = node.box.wh - point
-  result = (point.positionRelative(node) - point/2)/track 
+  result = (point.positionRelative(node) - point / 2) / track
   if clamped:
     result.x = result.x.clamp(0'ui, 1'ui)
     result.y = result.y.clamp(0'ui, 1'ui)
@@ -228,24 +222,25 @@ template onHover*(current: Figuro, inner: untyped) =
   current.listens.events.incl(evHover)
   if evHover in current.events:
     inner
+
 template onHover*(inner: untyped) =
   onHover(node, inner)
 
 template onClick*(current: Figuro, inner: untyped) =
   ## On click event handler.
   current.listens.events.incl(evClick)
-  if evClick in current.events.mouse and
-      MouseLeft in uxInputs.buttonPress:
+  if evClick in current.events.mouse and MouseLeft in uxInputs.buttonPress:
     inner
+
 template onClick*(inner: untyped) =
   onClick(node, inner)
 
 template onClickOut*(current: Figuro, inner: untyped) =
   ## On click event handler.
   current.listens.events.incl(evClickOut)
-  if evClickOut in current.events.mouse and
-      MouseLeft in uxInputs.buttonPress:
+  if evClickOut in current.events.mouse and MouseLeft in uxInputs.buttonPress:
     inner
+
 template onClickOut*(inner: untyped) =
   onClickOut(node, inner)
 
@@ -268,7 +263,7 @@ proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
   cornerRadius(current, UICoord radius.value.coord)
 
-proc cornerRadius*(current: Figuro, radius: float|float32) =
+proc cornerRadius*(current: Figuro, radius: float | float32) =
   cornerRadius(current, UICoord radius)
 
 proc loadTypeFace*(name: string): TypefaceId =
@@ -283,15 +278,15 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   # result.paint = newPaint(SolidPaint)
   # result.paint.color = color(0, 0, 0, 1)
 
-proc setText*(current: Figuro,
-              spans: openArray[(UiFont, string)],
-              hAlign = FontHorizontal.Left,
-              vAlign = FontVertical.Top) =
+proc setText*(
+    current: Figuro,
+    spans: openArray[(UiFont, string)],
+    hAlign = FontHorizontal.Left,
+    vAlign = FontVertical.Top,
+) =
   let thash = spans.hash()
   if thash != current.textLayout.contentHash:
-    current.textLayout = internal.getTypeset(current.box,
-                                             spans, hAlign, vAlign)
-
+    current.textLayout = internal.getTypeset(current.box, spans, hAlign, vAlign)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
@@ -305,7 +300,7 @@ proc setText*(current: Figuro,
 proc csFixed*(coord: UICoord): Constraint =
   csFixed(coord.UiScalar)
 
-proc ux*(coord: SomeNumber|UICoord): Constraint =
+proc ux*(coord: SomeNumber | UICoord): Constraint =
   csFixed(coord.UiScalar)
 
 proc findRoot*(node: Figuro): Figuro =
@@ -388,9 +383,11 @@ proc span*(idx: int | string): GridIndex =
 proc columnStart*[T](current: Figuro, idx: T) =
   ## set CSS grid starting column
   current.getGridItem().index[dcol].a = idx.mkIndex()
+
 proc columnEnd*[T](current: Figuro, idx: T) =
   ## set CSS grid ending column
   current.getGridItem().index[dcol].b = idx.mkIndex()
+
 proc gridColumn*[T](current: Figuro, val: T) =
   ## set CSS grid ending column
   current.getGridItem().column = val
@@ -398,9 +395,11 @@ proc gridColumn*[T](current: Figuro, val: T) =
 proc rowStart*[T](current: Figuro, idx: T) =
   ## set CSS grid starting row
   current.getGridItem().index[drow].a = idx.mkIndex()
+
 proc rowEnd*[T](current: Figuro, idx: T) =
   ## set CSS grid ending row
   current.getGridItem().index[drow].b = idx.mkIndex()
+
 proc gridRow*[T](current: Figuro, val: T) =
   ## set CSS grid ending column
   current.getGridItem().row = val
@@ -423,10 +422,12 @@ proc justifyItems*(current: Figuro, con: ConstraintBehavior) =
   ## justify items on css grid (horizontal)
   current.defaultGridTemplate()
   current.gridTemplate.justifyItems = con
+
 proc alignItems*(current: Figuro, con: ConstraintBehavior) =
   ## align items on css grid (vertical)
   current.defaultGridTemplate()
   current.gridTemplate.alignItems = con
+
 # template justify*(con: ConstraintBehavior) =
 #   ## justify items on css grid (horizontal)
 #   defaultGridTemplate()
@@ -458,6 +459,7 @@ proc gridAutoColumns*(current: Figuro, item: Constraint) =
   current.defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
   current.userSetFields.incl fsGridAutoColumns
+
 proc gridAutoRows*(current: Figuro, item: Constraint) =
   current.defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
@@ -476,13 +478,13 @@ proc gridTemplateDebugLines*(node: Figuro, grid: Figuro, color: Color = blueColo
       let wd = 1'ui
       let w = grid.gridTemplate.columns[^1].start.UICoord
       let h = grid.gridTemplate.rows[^1].start.UICoord
-      for col in grid.gridTemplate.columns[1..^2]:
+      for col in grid.gridTemplate.columns[1 ..^ 2]:
         capture col:
           rectangle "column":
             with node:
               fill color
               box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
-      for row in grid.gridTemplate.rows[1..^2]:
+      for row in grid.gridTemplate.rows[1 ..^ 2]:
         capture row:
           rectangle "row":
             with node:

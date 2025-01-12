@@ -1,4 +1,3 @@
-
 import common/nodes/render
 import common/nodes/transfer
 import widget
@@ -7,8 +6,8 @@ import runtime/jsonutils_lite
 
 var
   appWidget* {.compileTime.}: Figuro
-  mainApp* {.compileTime.}: proc ()
-  appTicker* {.compileTime.}: proc ()
+  mainApp* {.compileTime.}: proc()
+  appTicker* {.compileTime.}: proc()
 
 proc appInit() =
   discard
@@ -39,20 +38,22 @@ proc getRoot*(): seq[Node] =
 proc getAppState*(): AppState =
   result = app
 
-proc run*(init: proc() {.nimcall.},
-          tick: proc(state: AppStatePartial): AppStatePartial {.nimcall.},
-          event: proc(inputs: string) {.nimcall.},
-          draw: proc(): AppStatePartial {.nimcall.},
-          getRoot: proc(): seq[Node] {.nimcall.},
-          getAppState: proc(): AppState {.nimcall.}
-          ) = discard
+proc run*(
+    init: proc() {.nimcall.},
+    tick: proc(state: AppStatePartial): AppStatePartial {.nimcall.},
+    event: proc(inputs: string) {.nimcall.},
+    draw: proc(): AppStatePartial {.nimcall.},
+    getRoot: proc(): seq[Node] {.nimcall.},
+    getAppState: proc(): AppState {.nimcall.},
+) =
+  discard
 
 proc startFiguro*(
     widget: Figuro,
     setup: proc() = nil,
     fullscreen = false,
     pixelate = false,
-    pixelScale = 1.0
+    pixelScale = 1.0,
 ) =
   ## Starts Fidget UI library
   ## 
@@ -76,11 +77,4 @@ proc startFiguro*(
 
   setupRoot(appWidget)
 
-  run(
-    appInit,
-    appTick,
-    appEvent,
-    appDraw,
-    getRoot,
-    getAppState
-  )
+  run(appInit, appTick, appEvent, appDraw, getRoot, getAppState)

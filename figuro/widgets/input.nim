@@ -5,17 +5,14 @@ import basics
 import ../ui/utils
 import ../ui/textboxes
 
-type
-  Input* = ref object of Figuro
-    isActive*: bool
-    disabled*: bool
-    text*: TextBox
-    value: int
-    cnt: int
+type Input* = ref object of Figuro
+  isActive*: bool
+  disabled*: bool
+  text*: TextBox
+  value: int
+  cnt: int
 
-proc doKeyCommand*(self: Input,
-                   pressed: UiButtonView,
-                   down: UiButtonView) {.signal.}
+proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
   if self.isActive:
@@ -25,9 +22,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       self.value = (self.value + 1) mod 2
       refresh(self)
 
-proc clicked*(self: Input,
-              kind: EventKind,
-              buttons: UiButtonView) {.slot.} =
+proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
   self.isActive = kind == Enter
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -36,8 +31,7 @@ proc clicked*(self: Input,
     self.value = 0
   refresh(self)
 
-proc keyInput*(self: Input,
-               rune: Rune) {.slot.} =
+proc keyInput*(self: Input, rune: Rune) {.slot.} =
   self.text.insert(rune)
   self.text.update()
   refresh(self)
@@ -47,13 +41,10 @@ proc getKey(p: UiButtonView): UiButton =
     if x.ord in KeyRange.low.ord .. KeyRange.high.ord:
       return x
 
-proc keyCommand*(self: Input,
-                 pressed: UiButtonView,
-                 down: UiButtonView) {.slot.} =
+proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
     echo "\nInput:keyPress: ",
-            " pressed: ", $pressed,
-            " down: ", $down, " :: ", self.selection
+      " pressed: ", $pressed, " down: ", $down, " :: ", self.selection
   if down == KNone:
     var update = true
     case pressed.getKey
@@ -81,7 +72,6 @@ proc keyCommand*(self: Input,
       update = false
     if update:
       self.text.updateSelection()
-
   elif down == KMeta:
     case pressed.getKey
     of KeyA:
@@ -93,21 +83,20 @@ proc keyCommand*(self: Input,
     else:
       discard
     self.text.updateSelection()
-
   elif down == KShift:
     case pressed.getKey
     of KeyLeft:
-      self.text.cursorLeft(growSelection=true)
+      self.text.cursorLeft(growSelection = true)
     of KeyRight:
-      self.text.cursorRight(growSelection=true)
+      self.text.cursorRight(growSelection = true)
     of KeyUp:
-      self.text.cursorUp(growSelection=true)
+      self.text.cursorUp(growSelection = true)
     of KeyDown:
-      self.text.cursorDown(growSelection=true)
+      self.text.cursorDown(growSelection = true)
     of KeyHome:
-      self.text.cursorStart(growSelection=true)
+      self.text.cursorStart(growSelection = true)
     of KeyEnd:
-      self.text.cursorEnd(growSelection=true)
+      self.text.cursorEnd(growSelection = true)
     else:
       discard
     self.text.updateSelection()
@@ -133,12 +122,14 @@ proc keyCommand*(self: Input,
   # self.text.updateSelection()
   refresh(self)
 
-proc keyPress*(self: Input,
-               pressed: UiButtonView,
-               down: UiButtonView) {.slot.} =
-  echo "input: ", " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
+proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
+  echo "input: ",
+    " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ",
+    self.text.growing
   emit self.doKeyCommand(pressed, down)
-  echo "post:input: ", " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
+  echo "post:input: ",
+    " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ",
+    self.text.growing
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!

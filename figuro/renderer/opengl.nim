@@ -23,24 +23,23 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonToggle = toUi window.buttonToggle()
 
 proc configureWindowEvents(renderer: Renderer) =
-
   let window = renderer.window
 
   window.runeInputEnabled = true
 
-  window.onResize = proc () =
+  window.onResize = proc() =
     updateWindowSize(renderer.frame, window)
     renderer.render(updated = true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some renderer.frame[].windowSize
     discard renderer.uxInputList.trySend(uxInput)
-  
-  window.onFocusChange = proc () =
+
+  window.onFocusChange = proc() =
     renderer.frame[].focused = window.focused
     let uxInput = window.copyInputs()
     discard renderer.uxInputList.trySend(uxInput)
 
-  window.onMouseMove = proc () =
+  window.onMouseMove = proc() =
     var uxInput = AppInputs()
     let pos = vec2(window.mousePos())
     uxInput.mouse.pos = pos.descaled()
@@ -52,47 +51,67 @@ proc configureWindowEvents(renderer: Renderer) =
     if res == false:
       echo "warning: mouse event blocked!"
 
-  window.onScroll = proc () =
+  window.onScroll = proc() =
     var uxInput = AppInputs(mouse: lastMouse)
     uxInput.mouse.consumed = false
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
     discard renderer.uxInputList.trySend(uxInput)
 
-  window.onButtonPress = proc (button: windy.Button) =
+  window.onButtonPress = proc(button: windy.Button) =
     let uxInput = window.copyInputs()
     when defined(debugEvents):
-      stdout.styledWriteLine({styleDim},
-              fgWhite, "buttonPress ", {styleBright},
-              fgGreen, $uxInput.buttonPress,
-              fgWhite, "buttonRelease ",
-              fgGreen, $uxInput.buttonRelease,
-              fgWhite, "buttonDown ", {styleBright},
-              fgGreen, $uxInput.buttonDown
-              )
-              # fgBlue, " time: " & $(time - lastButtonRelease) )
+      stdout.styledWriteLine(
+        {styleDim},
+        fgWhite,
+        "buttonPress ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonPress,
+        fgWhite,
+        "buttonRelease ",
+        fgGreen,
+        $uxInput.buttonRelease,
+        fgWhite,
+        "buttonDown ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonDown,
+      ) # fgBlue, " time: " & $(time - lastButtonRelease) )
     discard renderer.uxInputList.trySend(uxInput)
 
-  window.onButtonRelease = proc (button: Button) =
+  window.onButtonRelease = proc(button: Button) =
     let uxInput = window.copyInputs()
     when defined(debugEvents):
-      stdout.styledWriteLine({styleDim},
-              fgWhite, "release ",
-              fgGreen, $button,
-              fgWhite, "buttonRelease ",
-              fgGreen, $uxInput.buttonRelease,
-              fgWhite, "buttonDown ", {styleBright},
-              fgGreen, $uxInput.buttonDown,
-              fgWhite, "buttonPress ", {styleBright},
-              fgGreen, $uxInput.buttonPress
-              )
+      stdout.styledWriteLine(
+        {styleDim},
+        fgWhite,
+        "release ",
+        fgGreen,
+        $button,
+        fgWhite,
+        "buttonRelease ",
+        fgGreen,
+        $uxInput.buttonRelease,
+        fgWhite,
+        "buttonDown ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonDown,
+        fgWhite,
+        "buttonPress ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonPress,
+      )
     discard renderer.uxInputList.trySend(uxInput)
 
-  window.onRune = proc (rune: Rune) =
+  window.onRune = proc(rune: Rune) =
     var uxInput = AppInputs(mouse: lastMouse)
     uxInput.keyboard.rune = some rune
     when defined(debugEvents):
-      stdout.styledWriteLine({styleDim}, fgWhite, "keyboardInput: ",
-                              {styleDim}, fgGreen, $rune)
+      stdout.styledWriteLine(
+        {styleDim}, fgWhite, "keyboardInput: ", {styleDim}, fgGreen, $rune
+      )
     discard renderer.uxInputList.trySend(uxInput)
 
   renderer.frame[].running = true
@@ -105,5 +124,3 @@ proc setupRenderer*[F](frame: WeakRef[F]): Renderer =
   app.requestedFrame.inc
 
   return renderer
-
-

@@ -1,11 +1,9 @@
-
 import commons
 import ../ui/utils
 import ../widget
 export widget
 
-type
-  Vertical* = ref object of Figuro
+type Vertical* = ref object of Figuro
 
 proc itemHeight*(current: Vertical, cx: Constraint, gap = -1'ui) =
   current.gridAutoRows cx

@@ -1,4 +1,3 @@
-
 import ui as ui
 import render as render
 import ../../shared
@@ -7,13 +6,13 @@ type
   RenderList* = object
     nodes*: seq[Node]
     rootIds*: seq[NodeIdx]
+
   RenderNodes* = OrderedTable[ZLevel, RenderList]
 
-type
-  RenderTree* = ref object
-    id*: int
-    name*: string
-    children*: seq[RenderTree]
+type RenderTree* = ref object
+  id*: int
+  name*: string
+  children*: seq[RenderTree]
 
 func `[]`*(a: RenderTree, idx: int): RenderTree =
   if a.children.len() == 0:
@@ -21,19 +20,19 @@ func `[]`*(a: RenderTree, idx: int): RenderTree =
   a.children[idx]
 
 func `==`*(a, b: RenderTree): bool =
-  if a.isNil and b.isNil: return true
-  if a.isNil or b.isNil: return false
+  if a.isNil and b.isNil:
+    return true
+  if a.isNil or b.isNil:
+    return false
   `==`(a[], b[])
 
-proc toTree*(nodes: seq[Node],
-              idx = 0.NodeIdx,
-              depth = 1): RenderTree =
+proc toTree*(nodes: seq[Node], idx = 0.NodeIdx, depth = 1): RenderTree =
   let n = nodes[idx.int]
   result = RenderTree(id: n.uid, name: $n.name)
   # echo "  ".repeat(depth), "toTree:idx: ", idx.int
   for ci in nodes.childIndex(idx):
     # echo "  ".repeat(depth), "toTree:cidx: ", ci.int
-    result.children.add toTree(nodes, ci, depth+1)
+    result.children.add toTree(nodes, ci, depth + 1)
 
 proc toTree*(list: RenderList): RenderTree =
   result = RenderTree(name: "pseudoRoot")
@@ -55,7 +54,7 @@ proc findRoot*(list: RenderList, node: Node): Node =
       if n.uid == result.parent:
         result = n
         break
-    
+
     if curr.uid == result.uid:
       return
 
@@ -83,8 +82,7 @@ proc add*(list: var RenderList, node: Node) =
     #         "` node: ", node.uid, " `", node.name, "` "
     # echo " nodeRoot: ", findRoot(list, node).uid
     let nr = findRoot(list, node)
-    if nr.uid != lastRoot.uid and
-        node.uid != list.nodes[^1].uid:
+    if nr.uid != lastRoot.uid and node.uid != list.nodes[^1].uid:
       # echo "rootIds:add: ", node.uid, " // ", node.parent, " ", node.name
       list.rootIds.add(list.nodes.len().NodeIdx)
   list.nodes.add(node)
@@ -110,7 +108,7 @@ proc convert*(current: Figuro): render.Node =
   result.transparency = current.transparency
   result.stroke = current.stroke
 
-  case current.kind:
+  case current.kind
   of nkRectangle:
     if current.shadow.isSome:
       let orig = current.shadow.get()
@@ -134,11 +132,9 @@ proc convert*(current: Figuro): render.Node =
   else:
     discard
 
-proc convert*(renders: var RenderNodes,
-              current: Figuro,
-              parent: NodeID,
-              maxzlvl: ZLevel
-              ) =
+proc convert*(
+    renders: var RenderNodes, current: Figuro, parent: NodeID, maxzlvl: ZLevel
+) =
   # echo "convert:node: ", current.uid, " parent: ", parent
   var render = current.convert()
   render.parent = parent
@@ -155,11 +151,13 @@ proc convert*(renders: var RenderNodes,
     let chlvl = child.zlevel
     renders.convert(child, current.uid, chlvl)
 
-
 proc copyInto*(uis: Figuro): RenderNodes =
   result = initOrderedTable[ZLevel, RenderList]()
   result.convert(uis, -1.NodeID, 0.ZLevel)
 
-  result.sort(proc(x, y: auto): int = cmp(x[0],y[0]))
+  result.sort(
+    proc(x, y: auto): int =
+      cmp(x[0], y[0])
+  )
   # echo "nodes:len: ", result.len()
   # printRenders(result)

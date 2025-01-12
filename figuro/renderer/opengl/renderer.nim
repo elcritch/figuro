@@ -17,30 +17,28 @@ export getTypeface, getTypeset
 
 import std/locks
 
-type
-  Renderer* = ref object
-    ctx*: Context
-    window*: Window
-    uxInputList*: Chan[AppInputs]
-    frame*: WeakRef[AppFrame]
-    lock*: Lock
-    updated*: Atomic[bool]
-    nodes*: RenderNodes
+type Renderer* = ref object
+  ctx*: Context
+  window*: Window
+  uxInputList*: Chan[AppInputs]
+  frame*: WeakRef[AppFrame]
+  lock*: Lock
+  updated*: Atomic[bool]
+  nodes*: RenderNodes
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
     window: Window,
     pixelate: bool,
     forcePixelScale: float32,
-    atlasSize: int
+    atlasSize: int,
 ): Renderer =
   app.pixelScale = forcePixelScale
   let renderer = Renderer(window: window)
   startOpenGL(frame, window, openglVersion)
   renderer.frame = frame
-  renderer.ctx = newContext(atlasSize = atlasSize,
-                    pixelate = pixelate,
-                    pixelScale = app.pixelScale)
+  renderer.ctx =
+    newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = app.pixelScale)
   renderer.uxInputList = newChan[AppInputs](4)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
@@ -58,10 +56,9 @@ proc renderDrawable*(ctx: Context, node: Node) =
 proc renderText(ctx: Context, node: Node) {.forbids: [MainThreadEff].} =
   # draw characters
   # if node.textLayout == nil:
-    # return
+  # return
 
   for glyph in node.textLayout.glyphs():
-
     if unicode.isWhiteSpace(glyph.rune):
       # Don't draw space, even if font has a char for it.
       # FIXME: use unicode 'is whitespace' ?
@@ -69,10 +66,10 @@ proc renderText(ctx: Context, node: Node) {.forbids: [MainThreadEff].} =
 
     let
       glyphId = glyph.hash()
-      charPos = vec2(glyph.pos.x ,
-                      glyph.pos.y - glyph.descent)
+      charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent)
     if glyphId notin ctx.entries:
-      echo "no glyph in context: ", glyphId, " glyph: `", glyph.rune, "`", " (", repr(glyph.rune), ")"
+      echo "no glyph in context: ",
+        glyphId, " glyph: `", glyph.rune, "`", " (", repr(glyph.rune), ")"
       continue
     ctx.drawImage(glyphId, charPos, node.fill)
 
@@ -89,7 +86,7 @@ macro ifrender(check, code: untyped, post: untyped = nil) =
     let `checkval` = `check`
     if `checkval`:
       `code`
-  
+
   if post != nil:
     post.expectKind(nnkFinally)
     let postBlock = post[0]
@@ -104,65 +101,68 @@ macro postRender() =
 
 proc drawMasks(ctx: Context, node: Node) =
   if node.cornerRadius != 0:
-    ctx.fillRoundedRect(rect(
-      0, 0,
-      node.screenBox.w, node.screenBox.h
-    ), rgba(255, 0, 0, 255).color, node.cornerRadius)
+    ctx.fillRoundedRect(
+      rect(0, 0, node.screenBox.w, node.screenBox.h),
+      rgba(255, 0, 0, 255).color,
+      node.cornerRadius,
+    )
   else:
-    ctx.fillRect(rect(
-      0, 0,
-      node.screenBox.w, node.screenBox.h
-    ), rgba(255, 0, 0, 255).color)
+    ctx.fillRect(
+      rect(0, 0, node.screenBox.w, node.screenBox.h), rgba(255, 0, 0, 255).color
+    )
 
 proc renderShadows(ctx: Context, node: Node) =
   ## drawing shadows
   let shadow = node.shadow.get()
   let blurAmt = shadow.blur / 7.0
-  for i in 0..6:
+  for i in 0 .. 6:
     let blurs: float32 = i.toFloat() * blurAmt
-    let box = node.screenBox.atXY(x = shadow.x + blurs,
-                                  y = shadow.y + blurs)
-    ctx.fillRoundedRect(rect = box,
-                        color = shadow.color,
-                        radius = node.cornerRadius)
+    let box = node.screenBox.atXY(x = shadow.x + blurs, y = shadow.y + blurs)
+    ctx.fillRoundedRect(rect = box, color = shadow.color, radius = node.cornerRadius)
 
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
     if node.cornerRadius > 0:
-      ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
-                          color = node.fill,
-                          radius = node.cornerRadius)
+      ctx.fillRoundedRect(
+        rect = node.screenBox.atXY(0'f32, 0'f32),
+        color = node.fill,
+        radius = node.cornerRadius,
+      )
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
 
   if node.highlight.a > 0'f32:
     if node.cornerRadius > 0:
-      ctx.fillRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
-                          color = node.highlight,
-                          radius = node.cornerRadius)
+      ctx.fillRoundedRect(
+        rect = node.screenBox.atXY(0'f32, 0'f32),
+        color = node.highlight,
+        radius = node.cornerRadius,
+      )
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
   if node.kind == nkImage and node.image.name != "":
     let path = dataDir / node.image.name
     let size = vec2(node.screenBox.w, node.screenBox.h)
-    ctx.drawImage(path,
-                  pos = vec2(0, 0),
-                  color = node.image.color,
-                  size = size)
-  
+    ctx.drawImage(path, pos = vec2(0, 0), color = node.image.color, size = size)
+
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.strokeRoundedRect(rect = node.screenBox.atXY(0'f32, 0'f32),
-                          color = node.stroke.color,
-                          weight = node.stroke.weight,
-                          radius = node.cornerRadius)
+    ctx.strokeRoundedRect(
+      rect = node.screenBox.atXY(0'f32, 0'f32),
+      color = node.stroke.color,
+      weight = node.stroke.weight,
+      radius = node.cornerRadius,
+    )
 
+proc render(
+    ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx
+) {.forbids: [MainThreadEff].} =
+  template node(): auto =
+    nodes[nodeIdx.int]
 
-proc render(ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbids: [MainThreadEff].} =
-
-  template node(): auto = nodes[nodeIdx.int]
-  template parent(): auto = nodes[parentIdx.int]
+  template parent(): auto =
+    nodes[parentIdx.int]
 
   # echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
   # print node.uid
@@ -179,7 +179,7 @@ proc render(ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbi
   ## active ZLevel (z-index).
   if disableRender in node.attrs:
     return
-  
+
   # setup the opengl context to match the current node size and position
 
   ctx.saveTransform()
@@ -195,9 +195,9 @@ proc render(ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx) {.forbi
 
   # handle node rotation
   ifrender node.rotation != 0:
-    ctx.translate(node.screenBox.wh/2)
-    ctx.rotate(node.rotation/180*PI)
-    ctx.translate(-node.screenBox.wh/2)
+    ctx.translate(node.screenBox.wh / 2)
+    ctx.rotate(node.rotation / 180 * PI)
+    ctx.translate(-node.screenBox.wh / 2)
 
   # handle clipping children content based on this node
   ifrender clipContent in node.attrs:
@@ -268,8 +268,7 @@ proc renderFrame*(renderer: Renderer) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: Renderer,
-                   updated: bool) =
+proc renderAndSwap(renderer: Renderer, updated: bool) =
   ## Does drawing operations.
 
   app.tickCount.inc
@@ -298,8 +297,7 @@ proc render*(renderer: Renderer, updated = false, poll = true) =
   timeIt(eventPolling):
     if poll:
       windy.pollEvents()
-  
+
   if update:
     renderer.updated.store false
     renderAndSwap(renderer, update)
-

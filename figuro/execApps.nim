@@ -1,4 +1,3 @@
-
 import std/locks
 import std/sets
 import pkg/threading/atomics
@@ -56,9 +55,7 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
 
 # exec.runFrame = runFrameImpl
 
-proc startFiguro*(
-    frame: var AppFrame,
-) =
+proc startFiguro*(frame: var AppFrame) =
   ## Starts Fidget UI library
   ## 
 

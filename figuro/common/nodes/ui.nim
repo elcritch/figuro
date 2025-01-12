@@ -19,7 +19,6 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-
 type
   InputEvents* = object
     events*: EventFlags
@@ -41,9 +40,8 @@ type
     running*, focused*, minimized*, fullscreen*: bool
 
     windowSize*: Box ## Screen size in logical coordinates.
-    windowRawSize*: Vec2    ## Screen coordinates
+    windowRawSize*: Vec2 ## Screen coordinates
     theme*: Theme
-
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]
@@ -81,9 +79,9 @@ type
     gridTemplate*: GridTemplate
     gridItem*: GridItem
 
-    preDraw*: proc (current: Figuro)
-    postDraw*: proc (current: Figuro)
-    contentsDraw*: proc (current, widget: Figuro)
+    preDraw*: proc(current: Figuro)
+    postDraw*: proc(current: Figuro)
+    contentsDraw*: proc(current, widget: Figuro)
 
     kind*: NodeKind
     shadow*: Option[Shadow]
@@ -129,32 +127,29 @@ proc getName*(fig: Figuro): string =
 proc getId*(fig: Figuro): NodeID =
   ## Get's the Figuro Node's ID
   ## or returns 0 if it's nil
-  if fig.isNil: NodeID -1
-  else: fig.uid
+  if fig.isNil:
+    NodeID -1
+  else:
+    fig.uid
 
 proc getId*(fig: WeakRef[Figuro]): NodeID =
-  if fig.isNil: NodeID -1
-  else: fig[].uid
+  if fig.isNil:
+    NodeID -1
+  else:
+    fig[].uid
 
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
-proc doHover*(fig: Figuro,
-              kind: EventKind) {.signal.}
-proc doClick*(fig: Figuro,
-              kind: EventKind,
-              keys: UiButtonView) {.signal.}
+proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
+proc doClick*(fig: Figuro, kind: EventKind, keys: UiButtonView) {.signal.}
 proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
-proc doKeyPress*(fig: Figuro,
-                 pressed: UiButtonView,
-                 down: UiButtonView) {.signal.}
-proc doScroll*(fig: Figuro,
-               wheelDelta: Position) {.signal.}
-proc doDrag*(fig: Figuro,
-             kind: EventKind,
-             initial: Position,
-             latest: Position) {.signal.}
+proc doKeyPress*(fig: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
+proc doScroll*(fig: Figuro, wheelDelta: Position) {.signal.}
+proc doDrag*(
+  fig: Figuro, kind: EventKind, initial: Position, latest: Position
+) {.signal.}
 
 proc doUpdate*[T](agent: Agent, value: T) {.signal.}
 proc doChanged*(agent: Agent) {.signal.}
@@ -171,48 +166,39 @@ proc draw*(fig: BasicFiguro) {.slot.} =
 proc keyInput*(fig: BasicFiguro, rune: Rune) {.slot.} =
   discard
 
-proc keyPress*(fig: BasicFiguro,
-              pressed: UiButtonView,
-              down: UiButtonView) {.slot.} =
+proc keyPress*(fig: BasicFiguro, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   discard
 
-proc clicked*(self: BasicFiguro,
-              kind: EventKind,
-              buttons: UiButtonView) {.slot.} =
+proc clicked*(self: BasicFiguro, kind: EventKind, buttons: UiButtonView) {.slot.} =
   discard
 
-proc scroll*(fig: BasicFiguro,
-             wheelDelta: Position) {.slot.} =
+proc scroll*(fig: BasicFiguro, wheelDelta: Position) {.slot.} =
   discard
 
-proc drag*(fig: BasicFiguro,
-           kind: EventKind,
-           initial: Position,
-           latest: Position) {.slot.} =
+proc drag*(
+    fig: BasicFiguro, kind: EventKind, initial: Position, latest: Position
+) {.slot.} =
   discard
 
-
-proc doTickBubble*(fig: Figuro,
-                   now: MonoTime,
-                   period: Duration) {.slot.} =
+proc doTickBubble*(fig: Figuro, now: MonoTime, period: Duration) {.slot.} =
   emit fig.doTick(now, period)
+
 proc doDrawBubble*(fig: Figuro) {.slot.} =
   emit fig.doDraw()
+
 proc doLoadBubble*(fig: Figuro) {.slot.} =
   emit fig.doLoad()
-proc doHoverBubble*(fig: Figuro,
-                    kind: EventKind) {.slot.} =
-  emit fig.doHover(kind)
-proc doClickBubble*(fig: Figuro,
-                    kind: EventKind,
-                    buttonPress: UiButtonView) {.slot.} =
-  emit fig.doClick(kind, buttonPress)
-proc doDragBubble*(fig: Figuro,
-                   kind: EventKind,
-                   initial: Position,
-                   latest: Position) {.slot.} =
-  emit fig.doDrag(kind, initial, latest)
 
+proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
+  emit fig.doHover(kind)
+
+proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+  emit fig.doClick(kind, buttonPress)
+
+proc doDragBubble*(
+    fig: Figuro, kind: EventKind, initial: Position, latest: Position
+) {.slot.} =
+  emit fig.doDrag(kind, initial, latest)
 
 template connect*(
     a: Figuro,
@@ -237,10 +223,13 @@ template bubble*(signal: typed) =
   connect(node, `signal`, node.parent[], `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
-  echo "  ".repeat(depth), "render: ", n.getId,
-          # " p: ", n.parent[].getId,
-          " name: ", $n.name,
-          " zlvl: ", $n.zlevel
+  echo "  ".repeat(depth),
+    "render: ",
+    n.getId,
+    # " p: ", n.parent[].getId,
+    " name: ",
+    $n.name,
+    " zlvl: ",
+    $n.zlevel
   for ci in n.children:
-    printFiguros(ci, depth+1)
-
+    printFiguros(ci, depth + 1)

@@ -20,10 +20,10 @@ type
     uniforms*: seq[Uniform]
 
 proc getErrorLog*(
-  id: GLuint,
-  path: string,
-  lenProc: typeof(glGetShaderiv),
-  strProc: typeof(glGetShaderInfoLog)
+    id: GLuint,
+    path: string,
+    lenProc: typeof(glGetShaderiv),
+    strProc: typeof(glGetShaderInfoLog),
 ): string =
   ## Gets the error log from compiling or linking shaders.
   var length: GLint = 0
@@ -34,9 +34,8 @@ proc getErrorLog*(
     result = log
   else:
     if log.startsWith("Compute info"):
-      log = log[25..^1]
-    let
-      clickable = &"{path}({log[2..log.find(')')]}"
+      log = log[25 ..^ 1]
+    let clickable = &"{path}({log[2..log.find(')')]}"
     result = &"{clickable}: {log}"
 
 proc compileComputeShader*(compute: (string, string)): GLuint =
@@ -45,7 +44,8 @@ proc compileComputeShader*(compute: (string, string)): GLuint =
 
   block:
     var computeShaderArray = allocCStringArray([compute[1]])
-    defer: dealloc(computeShaderArray)
+    defer:
+      dealloc(computeShaderArray)
 
     var isCompiled: GLint
 
@@ -56,9 +56,7 @@ proc compileComputeShader*(compute: (string, string)): GLuint =
 
     if isCompiled == 0:
       echo "Compute shader compilation failed:"
-      echo getErrorLog(
-        computeShader, compute[0], glGetShaderiv, glGetShaderInfoLog
-      )
+      echo getErrorLog(computeShader, compute[0], glGetShaderiv, glGetShaderInfoLog)
       quit()
 
   result = glCreateProgram()
@@ -70,9 +68,7 @@ proc compileComputeShader*(compute: (string, string)): GLuint =
   glGetProgramiv(result, GL_LINK_STATUS, isLinked.addr)
   if isLinked == 0:
     echo "Linking compute shader failed:"
-    echo getErrorLog(
-      result, compute[0], glGetProgramiv, glGetProgramInfoLog
-    )
+    echo getErrorLog(result, compute[0], glGetProgramiv, glGetProgramInfoLog)
     quit()
 
 proc compileComputeShader*(path: string): GLuint =
@@ -101,9 +97,7 @@ proc compileShaderFiles*(vert, frag: (string, string)): GLuint =
 
     if isCompiled == 0:
       echo "Vertex shader compilation failed:"
-      echo getErrorLog(
-        vertShader, vert[0], glGetShaderiv, glGetShaderInfoLog
-      )
+      echo getErrorLog(vertShader, vert[0], glGetShaderiv, glGetShaderInfoLog)
       quit()
 
     fragShader = glCreateShader(GL_FRAGMENT_SHADER)
@@ -113,9 +107,7 @@ proc compileShaderFiles*(vert, frag: (string, string)): GLuint =
 
     if isCompiled == 0:
       echo "Fragment shader compilation failed:"
-      echo getErrorLog(
-        fragShader, frag[0], glGetShaderiv, glGetShaderInfoLog
-      )
+      echo getErrorLog(fragShader, frag[0], glGetShaderiv, glGetShaderInfoLog)
       quit()
 
   # Attach shaders to a GL program
@@ -134,19 +126,12 @@ proc compileShaderFiles*(vert, frag: (string, string)): GLuint =
 
 proc compileShaderFiles*(vertPath, fragPath: string): GLuint =
   ## Compiles the shader files and links them into a program, returning that id.
-  compileShaderFiles(
-    (vertPath, readFile(vertPath)),
-    (fragPath, readFile(fragPath))
-  )
+  compileShaderFiles((vertPath, readFile(vertPath)), (fragPath, readFile(fragPath)))
 
 proc readAttribsAndUniforms(shader: Shader) =
   block attributes:
     var activeAttribCount: GLint
-    glGetProgramiv(
-      shader.programId,
-      GL_ACTIVE_ATTRIBUTES,
-      activeAttribCount.addr
-    )
+    glGetProgramiv(shader.programId, GL_ACTIVE_ATTRIBUTES, activeAttribCount.addr)
 
     for i in 0 ..< activeAttribCount:
       var
@@ -160,7 +145,7 @@ proc readAttribsAndUniforms(shader: Shader) =
         length.addr,
         size.addr,
         kind.addr,
-        buf[0].addr
+        buf[0].addr,
       )
       buf.setLen(length)
 
@@ -169,11 +154,7 @@ proc readAttribsAndUniforms(shader: Shader) =
 
   block uniforms:
     var activeUniformCount: GLint
-    glGetProgramiv(
-      shader.programId,
-      GL_ACTIVE_UNIFORMS,
-      activeUniformCount.addr
-    )
+    glGetProgramiv(shader.programId, GL_ACTIVE_UNIFORMS, activeUniformCount.addr)
 
     for i in 0 ..< activeUniformCount:
       var
@@ -187,7 +168,7 @@ proc readAttribsAndUniforms(shader: Shader) =
         length.addr,
         size.addr,
         kind.addr,
-        buf[0].addr
+        buf[0].addr,
       )
       buf.setLen(length)
 
@@ -253,17 +234,16 @@ proc hasUniform*(shader: Shader, name: string): bool =
   return false
 
 proc setUniform(
-  shader: Shader,
-  name: string,
-  componentType: GLenum,
-  kind: BufferKind,
-  values: array[64, uint8]
+    shader: Shader,
+    name: string,
+    componentType: GLenum,
+    kind: BufferKind,
+    values: array[64, uint8],
 ) =
   for uniform in shader.uniforms.mitems:
     if uniform.name == name:
-      if uniform.componentType != componentType or
-        uniform.kind != kind or
-        uniform.values != values:
+      if uniform.componentType != componentType or uniform.kind != kind or
+          uniform.values != values:
         uniform.componentType = componentType
         uniform.kind = kind
         uniform.values = values
@@ -273,46 +253,37 @@ proc setUniform(
   echo &"Ignoring setUniform for \"{name}\", not active"
 
 proc setUniform(
-  shader: Shader,
-  name: string,
-  componentType: GLenum,
-  kind: BufferKind,
-  values: array[16, float32]
+    shader: Shader,
+    name: string,
+    componentType: GLenum,
+    kind: BufferKind,
+    values: array[16, float32],
 ) =
   assert componentType == cGL_FLOAT
   setUniform(shader, name, componentType, kind, cast[array[64, uint8]](values))
 
 proc setUniform(
-  shader: Shader,
-  name: string,
-  componentType: GLenum,
-  kind: BufferKind,
-  values: array[16, int32]
+    shader: Shader,
+    name: string,
+    componentType: GLenum,
+    kind: BufferKind,
+    values: array[16, int32],
 ) =
   assert componentType == cGL_INT
   setUniform(shader, name, componentType, kind, cast[array[64, uint8]](values))
 
 proc raiseUniformVarargsException(name: string, count: int) =
   raise newException(
-    Exception,
-    &"{count} varargs is more than the maximum of 4 for \"{name}\""
+    Exception, &"{count} varargs is more than the maximum of 4 for \"{name}\""
   )
 
-proc raiseUniformComponentTypeException(
-  name: string,
-  componentType: GLenum
-) =
+proc raiseUniformComponentTypeException(name: string, componentType: GLenum) =
   let hex = toHex(componentType.uint32)
-  raise newException(
-    Exception,
-    &"Uniform \"{name}\" is of unexpected component type {hex}"
-  )
+  raise
+    newException(Exception, &"Uniform \"{name}\" is of unexpected component type {hex}")
 
 proc raiseUniformKindException(name: string, kind: BufferKind) =
-  raise newException(
-    Exception,
-    &"Uniform \"{name}\" is of unexpected kind {kind}"
-  )
+  raise newException(Exception, &"Uniform \"{name}\" is of unexpected kind {kind}")
 
 proc setUniform*(shader: Shader, name: string, args: varargs[int32]) =
   var values: array[16, int32]
@@ -320,17 +291,17 @@ proc setUniform*(shader: Shader, name: string, args: varargs[int32]) =
     values[i] = args[i]
 
   var kind: BufferKind
-  case len(args):
-    of 1:
-      kind = bkSCALAR
-    of 2:
-      kind = bkVEC2
-    of 3:
-      kind = bkVEC3
-    of 4:
-      kind = bkVEC4
-    else:
-      raiseUniformVarargsException(name, len(args))
+  case len(args)
+  of 1:
+    kind = bkSCALAR
+  of 2:
+    kind = bkVEC2
+  of 3:
+    kind = bkVEC3
+  of 4:
+    kind = bkVEC4
+  else:
+    raiseUniformVarargsException(name, len(args))
 
   shader.setUniform(name, cGL_INT, kind, values)
 
@@ -340,17 +311,17 @@ proc setUniform*(shader: Shader, name: string, args: varargs[float32]) =
     values[i] = args[i]
 
   var kind: BufferKind
-  case len(args):
-    of 1:
-      kind = bkSCALAR
-    of 2:
-      kind = bkVEC2
-    of 3:
-      kind = bkVEC3
-    of 4:
-      kind = bkVEC4
-    else:
-      raiseUniformVarargsException(name, len(args))
+  case len(args)
+  of 1:
+    kind = bkSCALAR
+  of 2:
+    kind = bkVEC2
+  of 3:
+    kind = bkVEC3
+  of 4:
+    kind = bkVEC4
+  else:
+    raiseUniformVarargsException(name, len(args))
 
   shader.setUniform(name, cGL_FLOAT, kind, values)
 
@@ -387,7 +358,7 @@ proc bindUniforms*(shader: Shader) =
 
     if uniform.componentType == cGL_INT:
       let values = cast[array[16, GLint]](uniform.values)
-      case uniform.kind:
+      case uniform.kind
       of bkSCALAR:
         glUniform1i(uniform.location, values[0])
       of bkVEC2:
@@ -395,18 +366,12 @@ proc bindUniforms*(shader: Shader) =
       of bkVEC3:
         glUniform3i(uniform.location, values[0], values[1], values[2])
       of bkVEC4:
-        glUniform4i(
-          uniform.location,
-          values[0],
-          values[1],
-          values[2],
-          values[3]
-        )
+        glUniform4i(uniform.location, values[0], values[1], values[2], values[3])
       else:
         raiseUniformKindException(uniform.name, uniform.kind)
     elif uniform.componentType == cGL_FLOAT:
       let values = cast[array[16, float32]](uniform.values)
-      case uniform.kind:
+      case uniform.kind
       of bkSCALAR:
         glUniform1f(uniform.location, values[0])
       of bkVEC2:
@@ -414,20 +379,9 @@ proc bindUniforms*(shader: Shader) =
       of bkVEC3:
         glUniform3f(uniform.location, values[0], values[1], values[2])
       of bkVEC4:
-        glUniform4f(
-          uniform.location,
-          values[0],
-          values[1],
-          values[2],
-          values[3]
-        )
+        glUniform4f(uniform.location, values[0], values[1], values[2], values[3])
       of bkMAT4:
-        glUniformMatrix4fv(
-          uniform.location,
-          1,
-          GL_FALSE,
-          values[0].unsafeAddr
-        )
+        glUniformMatrix4fv(uniform.location, 1, GL_FALSE, values[0].unsafeAddr)
       else:
         raiseUniformKindException(uniform.name, uniform.kind)
     else:
@@ -435,19 +389,13 @@ proc bindUniforms*(shader: Shader) =
 
     uniform.changed = false
 
-proc bindUniformBuffer*(
-  shader: Shader, name: string, buffer: Buffer, binding: GLuint
-) =
+proc bindUniformBuffer*(shader: Shader, name: string, buffer: Buffer, binding: GLuint) =
   assert buffer.target == GL_UNIFORM_BUFFER
   let index = glGetUniformBlockIndex(shader.programId, name)
   glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer.bufferId)
   glUniformBlockBinding(shader.programId, index, binding)
 
-proc bindAttrib*(
-  shader: Shader,
-  name: string,
-  buffer: Buffer
-) =
+proc bindAttrib*(shader: Shader, name: string, buffer: Buffer) =
   glBindBuffer(buffer.target, buffer.bufferId)
 
   for attrib in shader.attribs:
@@ -459,7 +407,7 @@ proc bindAttrib*(
           buffer.componentType,
           if buffer.normalized: GL_TRUE else: GL_FALSE,
           0,
-          nil
+          nil,
         )
       else:
         glVertexAttribIPointer(
@@ -467,7 +415,7 @@ proc bindAttrib*(
           buffer.kind.componentCount().GLint,
           buffer.componentType,
           0,
-          nil
+          nil,
         )
 
       glEnableVertexAttribArray(attrib.location.GLuint)

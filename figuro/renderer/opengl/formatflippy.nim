@@ -2,9 +2,8 @@ import pixie, streams, supersnappy, chroma, strformat
 
 const version = 1
 
-type
-  Flippy* = object
-    mipmaps*: seq[Image]
+type Flippy* = object
+  mipmaps*: seq[Image]
 
 func width*(flippy: Flippy): int =
   flippy.mipmaps[0].width
@@ -33,6 +32,7 @@ proc alphaBleed*(image: Image) =
             sumG += int rgba.g
             sumB += int rgba.b
             count += 1
+
         use image.unsafe[x * 2 + 0, y * 2 + 0]
         use image.unsafe[x * 2 + 1, y * 2 + 0]
         use image.unsafe[x * 2 + 1, y * 2 + 1]
@@ -73,7 +73,8 @@ proc alphaBleed*(image: Image) =
 proc save*(flippy: Flippy, filePath: string) =
   ## Flippy is a special file format that is fast to load and save with mip maps.
   var f = newFileStream(filePath, fmWrite)
-  defer: f.close()
+  defer:
+    f.close()
 
   f.write("flip")
   f.write(version.uint32)
@@ -109,7 +110,8 @@ proc pngToFlippy*(pngPath, flippyPath: string) =
 proc loadFlippy*(filePath: string): Flippy =
   ## Flippy is a special file format that is fast to load and save with mip maps.
   var f = newFileStream(filePath, fmRead)
-  defer: f.close()
+  defer:
+    f.close()
 
   if f.readStr(4) != "flip":
     raise newException(IOError, &"Invalid Flippy header {filePath}.")
@@ -144,10 +146,7 @@ proc loadFlippy*(filePath: string): Flippy =
 
 proc outlineBorder*(image: Image, borderPx: int): Image =
   ## Adds n pixel border around alpha parts of the image.
-  result = newImage(
-    image.width + borderPx * 2,
-    image.height + borderPx * 3,
-  )
+  result = newImage(image.width + borderPx * 2, image.height + borderPx * 3)
   for y in 0 ..< result.height:
     for x in 0 ..< result.width:
       var filled = false
