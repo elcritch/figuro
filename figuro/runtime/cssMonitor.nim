@@ -28,6 +28,8 @@ proc themeUpdate() =
   if cssRules.len() > 0:
     echo "CSSTheme updated: ", themePath()
     emit watcherSelf.cssUpdate(cssRules)
+    os.sleep(30) # TODO: fixme: this is a hack to ensure proper text resizing 
+    emit watcherSelf.cssUpdate(cssRules)
 
 proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
   themeUpdate()
@@ -48,6 +50,8 @@ proc cssLoaderImpl*(self: CssLoader) =
     if cssRules.len() > 0:
       echo "CSSTheme updated: ", themePath()
       emit self.cssUpdate(cssRules)
+      os.sleep(30) # TODO: fixme: this is a hack to ensure proper text resizing 
+      emit watcherSelf.cssUpdate(cssRules)
     os.sleep(300_000)
 
 proc cssLoader*(self: CssLoader) {.slot.} =
