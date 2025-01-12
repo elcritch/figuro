@@ -94,8 +94,8 @@ import std/terminal
 
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
-  stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
-  stdout.styledWriteLine fgRed, rule.selectors.repr
+  # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " sel:len: ", $rule.selectors.len
+  # stdout.styledWriteLine fgRed, rule.selectors.repr
 
   var
     sel: CssSelector
@@ -105,14 +105,24 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
-    # echo "comb: ", combinator.repr
+    # stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
+
+    if sel.combinator == skPseudo:
+      prevCombinator = sel.combinator
+      continue
+
     case prevCombinator
-    of skNone, skPseudo, skSelectorList:
-      stdout.styledWriteLine fgCyan, "skPseudo: ", $prevCombinator
+    of skNone, skSelectorList:
+      # stdout.styledWriteLine fgCyan, "skNone/SelList:: ", $prevCombinator
       matched = matched and sel.checkMatch(node)
       if not matched:
-        echo "not matched"
+        # echo "not matched"
+        break
+    of skPseudo:
+      # stdout.styledWriteLine fgCyan, "skPseudo: ", $prevCombinator
+      matched = matched and sel.checkMatch(node)
+      if not matched:
+        # echo "not matched"
         break
     of skDirectChild:
       if node.parent.isNil:

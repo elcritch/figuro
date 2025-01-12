@@ -238,7 +238,6 @@ suite "css exec":
     setupMain(themeSrc)
 
     # echo "btnB: ", $btnB
-    check btnD.name == "btnD"
     check btnD.fill == parseHtmlColor("#00FFFF")
 
     # should be untouched
@@ -246,8 +245,28 @@ suite "css exec":
     check btnB.fill == initialColor
     check btnC.fill == initialColor
 
-  test "other":
+  test "css grandchild descdendant of direct child":
     const themeSrc = """
+
+    #child2 Button {
+      background: #00FFFF;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnB.fill == parseHtmlColor("#00FFFF")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnD.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "test hover":
+    const themeSrc = """
+    #child2 Button:hover {
+      background: #0000FF;
+    }
 
     #child3 Button:hover {
       background: #00FFFF;
@@ -260,10 +279,12 @@ suite "css exec":
 
     # print main.frame[].theme.cssRules
     # echo "btnB: ", $btnB
-    check btnD.name == "btnD"
     check btnD.fill == parseHtmlColor("#00FFFF")
+
+    check evHover notin btnB.events
+    check btnB.fill != parseHtmlColor("#0000FF")
+    check btnB.fill == initialColor
 
     # should be untouched
     check btnA.fill == initialColor
-    check btnB.fill == initialColor
     check btnC.fill == initialColor
