@@ -194,6 +194,13 @@ suite "css exec":
     let btnC {.inject, used.} = main.children[0].children[0].children[0]
     let btnD {.inject, used.} = main.children[0].children[3].children[0].children[0]
 
+  test "node names":
+    setupMain("")
+    check btnA.name == "btnA"
+    check btnB.name == "btnB"
+    check btnC.name == "btnC"
+    check btnD.name == "btnD"
+
   test "css direct descendants":
     const themeSrc = """
     #body < Button {
@@ -207,19 +214,16 @@ suite "css exec":
     }
     """
     setupMain(themeSrc)
-    check btnA.name == "btnA"
     check btnA.fill == parseHtmlColor("#FF0000")
     check btnA.stroke.weight == 3.0
     check btnA.stroke.color == parseHtmlColor("#00FF00")
 
-    check btnB.name == "btnB"
     check btnB.fill == parseHtmlColor("#0000FF")
     check btnB.stroke.weight == 0.0
     check btnB.stroke.color == clearColor
 
     ## Not a direct descendant of body or child2, should be orig
     # should be untouched
-    check btnC.name == "btnC"
     check btnC.fill == initialColor
     check btnC.stroke.weight == 0.0
     check btnC.stroke.color == clearColor
