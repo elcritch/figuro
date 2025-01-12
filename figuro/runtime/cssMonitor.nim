@@ -23,7 +23,7 @@ else:
 
 var watcherSelf: WeakRef[CssLoader]
 
-proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
+proc themeUpdate() =
   let cssRules = loadTheme()
   if cssRules.len() > 0:
     echo "CSSTheme updated: ", themePath()
@@ -31,29 +31,12 @@ proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
     os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
     emit watcherSelf.cssUpdate(cssRules)
 
-proc cssWatcherImpl*(self: CssLoader) =
-  watcherSelf = self.unsafeWeakRef()
-  let defaultTheme = themePath()
-  var mon = newMonitor()
-  mon.addPath(defaultTheme)
-  mon.setCallback(fsmonCallback)
-  mon.start()
+proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
+  themeUpdate()
 
-proc cssLoaderImpl*(self: CssLoader) =
-  echo "css start"
-  while true:
-    echo "CSSTheme check"
-    let cssRules = loadTheme()
-    if cssRules.len() > 0:
-      echo "CSSTheme updated: ", themePath()
-      emit self.cssUpdate(cssRules)
-      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-      emit watcherSelf.cssUpdate(cssRules)
-    os.sleep(300_000)
 
 proc cssLoader*(self: CssLoader) {.slot.} =
   echo "Starting CSS Loader"
-  echo "css start"
   while true:
     echo "CSSTheme check"
     let cssRules = loadTheme()
@@ -66,4 +49,9 @@ proc cssLoader*(self: CssLoader) {.slot.} =
 
 proc cssWatcher*(self: CssLoader) {.slot.} =
   echo "Starting CSS Watcher"
-  cssWatcherImpl(self)
+  watcherSelf = self.unsafeWeakRef()
+  let defaultTheme = themePath()
+  var mon = newMonitor()
+  mon.addPath(defaultTheme)
+  mon.setCallback(fsmonCallback)
+  mon.start()
