@@ -119,6 +119,8 @@ proc apply*(prop: CssProperty, node: Figuro) =
         setCxFixed(cx, node.cornerRadius, UICoord)
       of "width":
         node.cxSize[dcol] = cx
+      of "height":
+        node.cxSize[drow] = cx
       else:
         # echo "warning: ", "unhandled css property: ", prop.repr
         discard
