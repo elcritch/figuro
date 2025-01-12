@@ -75,7 +75,7 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   return true
 
 proc apply*(prop: CssProperty, node: Figuro) =
-  # echo "\napply node: ", node.uid, " ", node.name, " prop: ", prop.repr
+  echo "\napply node: ", node.uid, " ", node.name, " wn: ", node.widgetName, " prop: ", prop.repr
 
   template setCxFixed(cx, field: untyped, tp = float32) =
     match cx:
@@ -95,6 +95,11 @@ proc apply*(prop: CssProperty, node: Figuro) =
     CssColor(c):
       # echo "\tapply color: ", c.repr
       case prop.name
+      of "color":
+        echo "COLOR: "
+        if node of Text:
+          echo "COLOR:text:"
+          node.fill = c
       of "background":
         node.fill = c
       of "border-color":
@@ -120,8 +125,8 @@ import std/terminal
 
 proc eval*(rule: CssBlock, node: Figuro) =
   # print rule.selectors
-  stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " wn: ", node.widgetName, " sel:len: ", $rule.selectors.len
-  stdout.styledWriteLine fgRed, rule.selectors.repr
+  # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " wn: ", node.widgetName, " sel:len: ", $rule.selectors.len
+  # stdout.styledWriteLine fgRed, rule.selectors.repr
 
   var
     sel: CssSelector
