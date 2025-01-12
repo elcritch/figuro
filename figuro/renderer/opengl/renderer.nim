@@ -127,9 +127,9 @@ proc renderDropShadows(ctx: Context, node: Node) =
         ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
 
 proc renderInnerShadows(ctx: Context, node: Node) =
-  ## drawing poor man's shadows
-  ## should add a primitive to opengl.context to
-  ## do this with pixie and 9-patch, but that's a headache
+  ## drawing poor man's inner shadows
+  ## this is even more incorrect than drop shadows, but it's something
+  ## and I don't actually want to think today ;)
   let shadow = node.shadow.get()
   let n = shadow.blur.toInt
   let color = shadow.color * 1.0/n.toFloat
