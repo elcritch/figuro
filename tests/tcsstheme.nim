@@ -228,7 +228,25 @@ suite "css exec":
     check btnC.stroke.weight == 0.0
     check btnC.stroke.color == clearColor
 
-  test "css argets":
+  test "css grandchild descdendant":
+    const themeSrc = """
+
+    #child3 Button {
+      background: #00FFFF;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnD.name == "btnD"
+    check btnD.fill == parseHtmlColor("#00FFFF")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnB.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "other":
     const themeSrc = """
 
     #child3 Button {
