@@ -240,6 +240,23 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     else:
       raise newException(ValueError, "expected basic css value, got: " & tk.repr)
 
+  proc parseShadow(tk: var Token): CssValue =
+    var args: seq[CssValue]
+    for i in 1..4:
+      parser.skip(tkWhiteSpace)
+      tk = parser.peek()
+      args.add parseBasicValue(tk)
+    parser.skip(tkWhiteSpace)
+    parser.eat(tkSemicolon)
+    if args.len() == 4 and
+        args[0].kind == CssValueKind.CssSize and
+        args[1].kind == CssValueKind.CssSize and
+        args[2].kind == CssValueKind.CssSize and
+        args[3].kind == CssValueKind.CssColor:
+      result = CssShadow(args[0].cx, args[1].cx, args[2].cx, args[3].c)
+    else:
+      echo "CSS Warning: ", "unhandled css shadow kind: "
+
   while true:
     parser.skip(tkWhiteSpace)
     var tk: Token
@@ -258,22 +275,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         parser.eat(tkColon)
 
         if result[^1].name == "box-shadow":
-          var args: seq[CssValue]
-          for i in 1..4:
-            parser.skip(tkWhiteSpace)
-            tk = parser.peek()
-            args.add parseBasicValue(tk)
-          parser.skip(tkWhiteSpace)
-          parser.eat(tkSemicolon)
-          if args.len() == 4 and
-              args[0].kind == CssValueKind.CssSize and
-              args[1].kind == CssValueKind.CssSize and
-              args[2].kind == CssValueKind.CssSize and
-              args[3].kind == CssValueKind.CssColor:
-            result[^1].value = CssShadow(args[0].cx, args[1].cx, args[2].cx, args[3].c)
-          else:
-            echo "CSS Warning: ",
-              "unhandled css shadow kind: ", result[^1].name
+          result[^1].value = parseShadow(tk)
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
