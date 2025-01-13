@@ -276,18 +276,13 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       return
 
     if args[0] == CssVarName("none"):
-      echo "none"
+      args = args[1..^1]
 
-    if args[0] == CssVarName("inset"):
-      echo "inset"
+    if args.len() > 0 and args[0] == CssVarName("inset"):
       result.sstyle = InnerShadow
       args = args[1..^1]
 
-    if args.len() == 0:
-      return
-
     let lcnt = args.cssSizesCount()
-    echo "shadow lcnt: ", lcnt
     if lcnt == 2:
       result = CssShadow(result.sstyle, args[0].cx, args[1].cx, csNone(), csNone(), CssBlack)
     elif lcnt == 3:
@@ -296,17 +291,13 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, args[3].cx, CssBlack)
     args = args[lcnt..^1]
 
-    echo "lcnt done: ", args.repr
-
     if args.len() == 0:
       return
     elif args[0].kind == CssValueKind.CssColor:
-      echo "color"
       result.scolor = args[0].c
       args = args[1..^1]
 
     if args.len() > 0 and args[0] == CssVarName("inset"):
-      echo "inset"
       result.sstyle = InnerShadow
       if args.len() == 0: return
 
