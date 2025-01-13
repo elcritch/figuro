@@ -11,7 +11,7 @@ variantp CssValue:
   CssColor(c: Color)
   CssSize(cx: Constraint)
   CssVarName(n: string)
-  CssShadow(sblur, sx, sy: Constraint, scolor: Color)
+  CssShadow(sstyle: ShadowStyle, sblur, sx, sy: Constraint, scolor: Color)
 
 type
   EofError* = object of CatchableError
