@@ -493,6 +493,7 @@ suite "css exec":
     check btnB.shadow[InnerShadow].blur == 10
     check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
 
+    # CSS Warning: unhandled css shadow kind:
     let themeSrc2 = """
 
     #child2 < Button {
