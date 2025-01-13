@@ -193,6 +193,8 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       except InvalidColor:
         # echo "css value not color"
         discard
+        result = CssVarName(tk.ident)
+      
     of tkIDHash:
       try:
         result = CssColor(parseHtmlColor("#" & tk.idHash))
@@ -241,20 +243,33 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     else:
       raise newException(ValueError, "expected basic css value, got: " & tk.repr)
 
-  proc parseShadow(tk: var Token, style: ShadowStyle): CssValue =
+  proc parseShadow(tk: var Token): CssValue =
+    ## parse css shadow
+    ## really oughtta follow https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#formal_syntax
+    ## but I only care to handle a few for now
     var args: seq[CssValue]
-    for i in 1..4:
+    for i in 1..5:
       parser.skip(tkWhiteSpace)
       tk = parser.peek()
       args.add parseBasicValue(tk)
-    parser.skip(tkWhiteSpace)
+      parser.skip(tkWhiteSpace)
+      if parser.peek().kind == tkSemicolon:
+        echo "css shadow done: found semi"
+        break
     parser.eat(tkSemicolon)
-    if args.len() == 4 and
+    echo "css args: ", args.repr
+    if args.len() >= 4 and
         args[0].kind == CssValueKind.CssSize and
         args[1].kind == CssValueKind.CssSize and
         args[2].kind == CssValueKind.CssSize and
         args[3].kind == CssValueKind.CssColor:
-      result = CssShadow(style, args[0].cx, args[1].cx, args[2].cx, args[3].c)
+      if args.len() == 5:
+        if args[4].kind == CssValueKind.CssVarName:
+          result = CssShadow(InnerShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
+        else:
+          echo "CSS Warning: ", "unhandled token while parsing shadow: ", args[4].repr
+      else:
+        result = CssShadow(DropShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
     else:
       echo "CSS Warning: ", "unhandled css shadow kind: "
 
@@ -276,7 +291,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         parser.eat(tkColon)
 
         if result[^1].name == "box-shadow":
-          result[^1].value = parseShadow(tk, DropShadow)
+          result[^1].value = parseShadow(tk)
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:

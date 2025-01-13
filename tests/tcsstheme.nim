@@ -321,7 +321,7 @@ suite "css exec":
     check btnC.fill == initialColor
     check btnD.fill == initialColor
 
-  test "css direct descendants":
+  test "box shadow":
     const themeSrc = """
 
     #child2 < Button {
@@ -339,6 +339,28 @@ suite "css exec":
     check btnB.shadow[DropShadow].color == parseHtmlColor("red")
     check btnB.shadow[InnerShadow].blur == 0
     check btnB.shadow[InnerShadow].color == clearColor
+    # check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
+
+  test "inset box shadow":
+    const themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 10px 5px 5px red inset;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].blur == 0
+    check btnB.shadow[DropShadow].color == clearColor
+    check btnB.shadow[InnerShadow].blur == 10
+    check btnB.shadow[InnerShadow].x == 5
+    check btnB.shadow[InnerShadow].y == 5
+    check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
     # check btnB.fill == parseHtmlColor("#FF0000")
     check btnB.stroke.weight == 0.0
     check btnB.stroke.color == clearColor
