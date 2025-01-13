@@ -3,8 +3,6 @@ import figuro/widget
 import figuro/ui/animations
 import figuro
 
-import std/sugar
-
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22)
