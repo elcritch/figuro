@@ -185,8 +185,15 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
   var shadowFieldCount = 0
 
-  proc parseBasic(tk: var Token): CssValue =
+  proc parseBasicValue(tk: var Token): CssValue =
     case tk.kind
+    of tkIdent:
+      discard parser.nextToken()
+      try:
+        result = CssColor(parseHtmlColor("#" & tk.idHash))
+      except InvalidColor:
+        echo "css value not color"
+        discard
     of tkIDHash:
       try:
         result = CssColor(parseHtmlColor("#" & tk.idHash))
@@ -268,7 +275,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     of tkIDHash, tkHash, tkFunction, tkDimension, tkPercentage:
       if result[^1].value != MissingCssValue():
         raise newException(ValueError, "expected empty CSS value. Got: " & result[^1].value.repr)
-      result[^1].value = parseBasic(tk)
+      result[^1].value = parseBasicValue(tk)
     else:
       # echo "\tattrib:other: ", tk.repr
       echo "CSS Warning: ",
