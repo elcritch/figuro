@@ -8,6 +8,8 @@ else:
   import renderer/opengl
   export opengl
 
+import pkg/chronicles
+
 import std/os
 
 import sigils
@@ -52,13 +54,13 @@ type AppTicker* = ref object of Agent
 proc appTick*(tp: AppTicker) {.signal.}
 
 proc tick*(self: AppTicker) {.slot.} =
-  echo "start tick"
+  info "Start AppTicker", period = self.period
   while app.running:
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
 proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
-  echo "CSS theme loaded"
+  info "CSS theme loaded"
   self.theme.cssRules = cssRules
   refresh(self.root)
 

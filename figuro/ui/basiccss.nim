@@ -5,12 +5,15 @@ import cssgrid
 import stylus
 import patty
 import chroma
+import ../common/nodes/basics
+import chronicles
 
 variantp CssValue:
   MissingCssValue
   CssColor(c: Color)
   CssSize(cx: Constraint)
   CssVarName(n: string)
+  CssShadow(sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color)
 
 type
   EofError* = object of CatchableError
@@ -55,6 +58,31 @@ proc `==`*(a, b: CssProperty): bool =
   if a.isNil or b.isNil:
     return false
   a[] == b[]
+
+proc `$`*(val: CssValue): string =
+  match val:
+    MissingCssValue:
+      "<empty>"
+    CssColor(c):
+      toHtmlHex(c)
+    CssSize(cx):
+      match cx:
+        UiValue(value):
+          $value
+        _:
+          $cx
+    CssVarName(n):
+      if n in ["inset", "none"]:
+        $n
+      else:
+        fmt"var({n})"
+    CssShadow(style, x, y, blur, spread, color):
+      fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
+
+proc `$`*(vals: seq[CssValue]): string =
+  for val in vals:
+    result &= " "
+    result &= $val
 
 proc newCssParser*(src: string): CssParser =
   let tokenizer = newTokenizer(src)
@@ -105,6 +133,7 @@ proc skip(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
       break
 
 proc parseSelector(parser: CssParser): seq[CssSelector] =
+  # echo "start: selector parser: "
   var
     isClass = false
     isPseudo = false
@@ -113,9 +142,9 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
   while true:
     parser.skip(tkWhiteSpace)
     var tk = parser.peek()
+    # echo "\t selector parser: ", tk.repr
     case tk.kind
     of tkIdent:
-      # echo "\tsel: ", tk.repr
       if isClass:
         if result.len() == 0:
           result.add(CssSelector())
@@ -139,7 +168,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       discard parser.nextToken()
     of tkIDHash:
       result.add(CssSelector(id: tk.idHash))
-      let tk = parser.nextToken()
+      tk = parser.nextToken()
     of tkDelim:
       case tk.delim
       of '.':
@@ -153,10 +182,9 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       # echo "\tsel: ", "done"
       break
     of tkComment:
-      echo "\tcomment: ", "done"
       # var tk = parser.peek()
-      let nt = parser.nextToken()
-      echo "TK: ", tk.repr
+      tk = parser.nextToken()
+      # echo "TK: ", tk.repr
       # echo "NT: ", nt.repr
       break
     else:
@@ -174,51 +202,39 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
   template popIncompleteProperty(warning = true) =
     if result.len() > 0 and result[^1].name.len() == 0:
       if warning:
-        echo "CSS Warning: ", "missing css property name! Got: ", result[^1].repr()
+        warn "CSS: Missing css property name!", cssResult = result[^1].repr()
       discard result.pop()
     if result.len() > 0 and result[^1].value == MissingCssValue():
       if warning:
-        echo "CSS Warning: ", "missing css property value! Got: ", result[^1].repr()
+        warn "CSS: Missing css property value!", cssResult = result[^1].repr()
       discard result.pop()
 
-  while true:
-    parser.skip(tkWhiteSpace)
-    var tk: Token
-    try:
-      tk = parser.peek()
-    except EofError:
-      raise newException(InvalidCssBody, "Invalid CSS Body")
-
-    # echo "\tproperty:next: ", tk.repr
+  proc parseBasicValue(tk: var Token): CssValue =
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
-      if result[^1].name.len() == 0:
-        result[^1].name = tk.ident
-        parser.eat(tkColon)
-      elif result[^1].value == MissingCssValue():
-        result[^1].value = CssVarName(tk.ident)
-    of tkIDHash:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a property value")
       try:
-        result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
+        result = CssColor(parseHtmlColor(tk.ident))
       except InvalidColor:
-        echo "CSS Warning: ", "invalid color `$1` " % [tk.idHash]
-        result[^1].value = CssColor(parseHtmlColor("black"))
+        # echo "css value not color"
+        discard
+        result = CssVarName(tk.ident)
+      
+    of tkIDHash:
+      try:
+        result = CssColor(parseHtmlColor("#" & tk.idHash))
+      except InvalidColor:
+        debug("CSS Warning: invalid color ", color = tk.idHash)
+        result = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkHash:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a property value")
       try:
-        result[^1].value = CssColor(parseHtmlColor("#" & tk.hash))
+        result = CssColor(parseHtmlColor("#" & tk.hash))
       except InvalidColor:
-        echo "CSS Warning: ", "invalid color `$1` " % [tk.hash]
-        result[^1].value = CssColor(parseHtmlColor("black"))
+        debug("CSS Warning: invalid color ", color = tk.hash)
+        result = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkFunction:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a property value")
       var value = tk.fnName
       while true:
         tk = parser.nextToken()
@@ -240,19 +256,99 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       # echo "\tproperty function:peek: ", parser.peek().repr
       # echo "\tproperty function: ", value
       # echo "\tproperty function:res: ", result[^1].repr()
-      result[^1].value = CssColor(parseHtmlColor(value))
+      result = CssColor(parseHtmlColor(value))
     of tkDimension:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css dimension to be a property value")
       let value = csFixed(tk.dValue.UiScalar)
-      result[^1].value = CssSize(value)
+      result = CssSize(value)
       discard parser.nextToken()
     of tkPercentage:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css percentage to be a property value")
       let value = csPerc(100.0 * tk.pUnitValue)
-      result[^1].value = CssSize(value)
+      result = CssSize(value)
       discard parser.nextToken()
+    else:
+      raise newException(ValueError, "expected basic css value, got: " & tk.repr)
+
+  proc parseShadow(tk: var Token): CssValue =
+    ## parse css shadow
+    ## really oughtta follow https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#formal_syntax
+    ## but I only care to handle a few for now
+    const
+      CssSizeKd = CssValueKind.CssSize
+      CssBlack = Color(r:0.0,g:0.0,b:0.0,a:1.0)
+    proc cssSizesCount(args: seq[CssValue]): int =
+      result = 0
+      for arg in args:
+        if arg.kind != CssSizeKd:
+          break
+        result.inc()
+
+    var args: seq[CssValue]
+    for i in 1..6:
+      parser.skip(tkWhiteSpace)
+      tk = parser.peek()
+      args.add(parseBasicValue(tk))
+      parser.skip(tkWhiteSpace)
+      if parser.peek().kind == tkSemicolon:
+        break
+    parser.eat(tkSemicolon)
+
+    let parsedargs = args
+    result = CssShadow(DropShadow, csFixed(0), csFixed(0), csFixed(0), csFixed(0), CssBlack)
+    if args.len() == 0:
+      echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
+      return
+
+    if args[0] == CssVarName("none"):
+      args = args[1..^1]
+
+    if args.len() > 0 and args[0] == CssVarName("inset"):
+      result.sstyle = InnerShadow
+      args = args[1..^1]
+
+    let lcnt = args.cssSizesCount()
+    if lcnt == 2:
+      result = CssShadow(result.sstyle, args[0].cx, args[1].cx, csNone(), csNone(), CssBlack)
+    elif lcnt == 3:
+      result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, csNone(), CssBlack)
+    elif lcnt == 4:
+      result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, args[3].cx, CssBlack)
+    args = args[lcnt..^1]
+
+    if args.len() == 0:
+      return
+    elif args[0].kind == CssValueKind.CssColor:
+      result.scolor = args[0].c
+      args = args[1..^1]
+
+    if args.len() > 0 and args[0] == CssVarName("inset"):
+      result.sstyle = InnerShadow
+      args = args[1..^1]
+
+    if args.len() == 0:
+      return
+
+    warn("CSS: unhandled css shadow kind", parsedargs = $parsedargs)
+
+  while true:
+    parser.skip(tkWhiteSpace)
+    var tk: Token
+    try:
+      tk = parser.peek()
+    except EofError:
+      raise newException(InvalidCssBody, "Invalid CSS Body")
+
+    # echo "\t rule body parser: ", tk.repr
+    # echo "\tproperty:next: ", tk.repr
+    case tk.kind
+    of tkIdent:
+      discard parser.nextToken()
+      if result[^1].name.len() == 0:
+        result[^1].name = tk.ident
+        parser.eat(tkColon)
+        if result[^1].name == "box-shadow":
+          result[^1].value = parseShadow(tk)
+      elif result[^1].value == MissingCssValue():
+        result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
       # echo "\tattrib done "
       popIncompleteProperty()
@@ -261,12 +357,15 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     of tkCloseCurlyBracket:
       # echo "\tcss block done "
       break
+    of tkIDHash, tkHash, tkFunction, tkDimension, tkPercentage:
+      if result[^1].value != MissingCssValue():
+        raise newException(ValueError, "expected empty CSS value. Got: " & result[^1].value.repr)
+      result[^1].value = parseBasicValue(tk)
     else:
-      # echo "\tattrib:other: ", tk.repr
-      echo "CSS Warning: ",
-        "unhandled token while parsing property: ", parser.peek().repr
-      discard parser.nextToken()
+      warn("CSS: unhandled token while parsing property: ", peek = parser.peek())
+      tk = parser.nextToken()
 
+  # echo "finished: rule body parsing"
   popIncompleteProperty(warning = false)
   parser.eat(tkCloseCurlyBracket)
 
@@ -279,7 +378,8 @@ proc parse*(parser: CssParser): seq[CssBlock] =
     var sel: seq[CssSelector]
     try:
       sel = parser.parseSelector()
-    except ValueError:
+    except ValueError as e:
+      warn "CSS: parsing got value error: ", error = e.msg
       continue
     # echo "selectors: ", sel.repr()
     try:
@@ -287,6 +387,7 @@ proc parse*(parser: CssParser): seq[CssBlock] =
       # echo ""
       result.add(CssBlock(selectors: sel, properties: props))
     except InvalidCssBody:
-      echo "Error: ", "unable to parse CSS body for " & repr sel
-    except ValueError:
+      error "CSS: invalid css body", selector = sel.repr
+    except ValueError as e:
+      error "CSS: error parsing css body", error = e.msg
       continue

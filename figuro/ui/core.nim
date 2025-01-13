@@ -6,6 +6,7 @@ import sigils
 import basiccss
 import commons
 export commons
+import pkg/chronicles
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -48,8 +49,8 @@ proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
   frame.windowSize.w = size[0]
   frame.windowSize.h = size[1]
   frame.windowRawSize = frame.windowSize.wh.scaled()
-  echo "setSize: ", frame.windowSize
-  echo "setSize: ", frame.windowRawSize
+  # echo "setSize: ", frame.windowSize
+  # echo "setSize: ", frame.windowRawSize
 
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
@@ -192,12 +193,12 @@ proc loadTheme*(): seq[CssBlock] =
     let ts = getLastModificationTime(defaultTheme)
     if ts > lastModificationTime:
       lastModificationTime = ts
-      echo "Loading CSS file: ", defaultTheme
+      info "Loading CSS file", cssFile = defaultTheme
       let parser = newCssParser(Path(defaultTheme))
       let cssTheme = parse(parser)
       # frame.theme.cssRules = cssTheme
       result = cssTheme
-      echo "Loaded CSS file: ", defaultTheme
+      info "Loaded CSS file", cssFile = defaultTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.

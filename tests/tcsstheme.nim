@@ -144,7 +144,6 @@ type
   TMain* = ref object of Figuro
 
 proc draw*(self: TMain) {.slot.} =
-  echo "draw: "
   let node = self
   self.name = "main"
   rectangle "body":
@@ -320,3 +319,195 @@ suite "css exec":
     check btnA.fill == initialColor
     check btnC.fill == initialColor
     check btnD.fill == initialColor
+
+  test "box shadow":
+    const themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px red;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].x == 5
+    check btnB.shadow[DropShadow].y == 5
+    check btnB.shadow[DropShadow].blur == 10
+    check btnB.shadow[DropShadow].color == parseHtmlColor("red")
+
+    check btnB.shadow[InnerShadow].blur == 0
+    check btnB.shadow[InnerShadow].color == clearColor
+    # check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
+
+  test "box shadow 2":
+    const themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px red;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].x == 5
+    check btnB.shadow[DropShadow].y == 5
+    check btnB.shadow[DropShadow].blur == 0
+    check btnB.shadow[DropShadow].color == parseHtmlColor("red")
+
+    check btnB.shadow[InnerShadow].blur == 0
+    check btnB.shadow[InnerShadow].color == clearColor
+    # check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
+
+  test "box shadow 3":
+    const themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px 20px red;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].x == 5
+    check btnB.shadow[DropShadow].y == 5
+    check btnB.shadow[DropShadow].blur == 10
+    check btnB.shadow[DropShadow].spread == 20
+    check btnB.shadow[DropShadow].color == parseHtmlColor("red")
+
+    check btnB.shadow[InnerShadow].blur == 0
+    check btnB.shadow[InnerShadow].color == clearColor
+    # check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
+
+  test "inset box shadow":
+    const themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px red inset;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].blur == 0
+    check btnB.shadow[DropShadow].color == clearColor
+
+    check btnB.shadow[InnerShadow].x == 5
+    check btnB.shadow[InnerShadow].y == 5
+    check btnB.shadow[InnerShadow].blur == 10
+    check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
+    # check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
+
+  test "inset box shadow 2":
+    const themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px 20px red inset;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].blur == 0
+    check btnB.shadow[DropShadow].color == clearColor
+
+    check btnB.shadow[InnerShadow].x == 5
+    check btnB.shadow[InnerShadow].y == 5
+    check btnB.shadow[InnerShadow].blur == 10
+    check btnB.shadow[InnerShadow].spread == 20
+    check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
+    # check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
+
+  test "box shadow none":
+    let themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px red;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].x == 5
+    check btnB.shadow[DropShadow].y == 5
+    check btnB.shadow[DropShadow].blur == 10
+    check btnB.shadow[DropShadow].color == parseHtmlColor("red")
+
+    let themeSrc2 = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: none;
+    }
+
+    """
+    let parser = newCssParser(themeSrc2)
+    let cssTheme = parse(parser)
+    main.frame[].theme.cssRules = cssTheme
+    emit main.doDraw()
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].blur == 0
+    check btnB.shadow[DropShadow].color == blackColor
+
+    check btnB.shadow[InnerShadow].x == 0
+    check btnB.shadow[InnerShadow].y == 0
+    check btnB.shadow[InnerShadow].blur == 0
+
+  test "box shadow none inset":
+    let themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px red inset;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[InnerShadow].x == 5
+    check btnB.shadow[InnerShadow].y == 5
+    check btnB.shadow[InnerShadow].blur == 10
+    check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
+
+    # CSS Warning: unhandled css shadow kind:
+    let themeSrc2 = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: none inset;
+    }
+
+    """
+    let parser = newCssParser(themeSrc2)
+    let cssTheme = parse(parser)
+    main.frame[].theme.cssRules = cssTheme
+    emit main.doDraw()
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[InnerShadow].blur == 0
+    check btnB.shadow[InnerShadow].color == blackColor
+    check btnB.shadow[InnerShadow].x == 0
+    check btnB.shadow[InnerShadow].y == 0

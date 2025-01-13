@@ -1,5 +1,6 @@
 import pkg/stack_strings
 import basics
+import hashes
 
 export basics
 
@@ -30,7 +31,7 @@ type
 
     case kind*: NodeKind
     of nkRectangle:
-      shadow*: Option[RenderShadow]
+      shadow*: array[ShadowStyle, RenderShadow]
       cornerRadius*: float32
     of nkImage:
       image*: ImageStyle

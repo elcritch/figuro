@@ -3,13 +3,14 @@ import sigils
 import sigils/threads
 
 import ../ui/basiccss
-import ../internal
 
-import ../[shared, internal]
-import ../ui/[core, events]
+import ../shared
+import ../ui/[core]
 
 import libfswatch
 import libfswatch/fswatch
+
+import pkg/chronicles
 
 type CssLoader* = ref object of Agent
   period*: Duration
@@ -26,25 +27,25 @@ var watcherSelf: WeakRef[CssLoader]
 proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
   let cssRules = loadTheme()
   if cssRules.len() > 0:
-    echo "CSSTheme updated: ", themePath()
+    info "CSSTheme updated: ", themePath = themePath()
     emit watcherSelf.cssUpdate(cssRules)
     os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
     emit watcherSelf.cssUpdate(cssRules)
 
 proc cssLoader*(self: CssLoader) {.slot.} =
-  echo "Starting CSS Loader"
+  info "Starting CSS Loader"
   while true:
-    echo "CSSTheme check"
+    info "CSSTheme check"
     let cssRules = loadTheme()
     if cssRules.len() > 0:
-      echo "CSSTheme updated: ", themePath()
+      info "CSSTheme updated: ", themePath = themePath()
       emit self.cssUpdate(cssRules)
       os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
       emit watcherSelf.cssUpdate(cssRules)
     os.sleep(300_000)
 
 proc cssWatcher*(self: CssLoader) {.slot.} =
-  echo "Starting CSS Watcher"
+  info "Starting CSS Watcher"
   watcherSelf = self.unsafeWeakRef()
   let defaultTheme = themePath()
   var mon = newMonitor()

@@ -5,8 +5,10 @@ Button {
   border-color: #160075;
   border-radius: 10;
   color: rgb(78, 0, 90);
+  box-shadow: none;
 }
 
 Button:hover {
-  background: rgb(169, 255, 158);
+  background: rgb(158, 223, 255);
+  box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
 }
