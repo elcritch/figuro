@@ -333,6 +333,7 @@ suite "css exec":
     setupMain(themeSrc)
 
     check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].blur == 10
     # check btnB.fill == parseHtmlColor("#FF0000")
     check btnB.stroke.weight == 0.0
     check btnB.stroke.color == clearColor
