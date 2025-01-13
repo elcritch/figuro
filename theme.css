@@ -5,6 +5,7 @@ Button {
   border-color: #160075;
   border-radius: 10;
   color: rgb(78, 0, 90);
+  box-shadow: 10px 5px 5px red;
 }
 
 Button:hover {

@@ -92,6 +92,8 @@ proc apply*(prop: CssProperty, node: Figuro) =
   match prop.value:
     MissingCssValue:
       raise newException(ValueError, "missing css value!")
+    CssShadow(blur, x, y, color):
+      raise newException(ValueError, "missing css value!")
     CssColor(c):
       # echo "\tapply color: ", c.repr
       case prop.name

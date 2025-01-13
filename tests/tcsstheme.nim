@@ -320,3 +320,19 @@ suite "css exec":
     check btnA.fill == initialColor
     check btnC.fill == initialColor
     check btnD.fill == initialColor
+
+  test "css direct descendants":
+    const themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 10px 5px 5px red;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    # check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 0.0
+    check btnB.stroke.color == clearColor
