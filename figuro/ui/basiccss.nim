@@ -258,7 +258,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         result.inc()
 
     var args: seq[CssValue]
-    for i in 1..5:
+    for i in 1..6:
       parser.skip(tkWhiteSpace)
       tk = parser.peek()
       args.add(parseBasicValue(tk))
