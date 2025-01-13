@@ -271,41 +271,44 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     echo "css args: "
     for arg in args: echo "\t", arg.repr
     result = CssShadow(DropShadow, csFixed(0), csFixed(0), csFixed(0), csFixed(0), CssBlack)
-    if args.len() > 0:
-      if args[0] == CssVarName("inset"):
-        echo "inset"
-        result.sstyle = InnerShadow
-        args = args[1..^1]
-      if args[0] == CssVarName("none"):
-        echo "none"
-        return
+    if args.len() == 0:
+      echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
+      return
 
-      let lcnt = args.cssSizesCount()
-      echo "shadow lcnt: ", lcnt
-      if lcnt == 2:
-        result = CssShadow(result.sstyle, args[0].cx, args[1].cx, csNone(), csNone(), CssBlack)
-      elif lcnt == 3:
-        result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, csNone(), CssBlack)
-      elif lcnt == 4:
-        result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, args[3].cx, CssBlack)
-      args = args[lcnt..^1]
+    if args[0] == CssVarName("inset"):
+      echo "inset"
+      result.sstyle = InnerShadow
+      args = args[1..^1]
+    if args[0] == CssVarName("none"):
+      echo "none"
+      return
 
-      echo "lcnt done: ", args.repr
+    let lcnt = args.cssSizesCount()
+    echo "shadow lcnt: ", lcnt
+    if lcnt == 2:
+      result = CssShadow(result.sstyle, args[0].cx, args[1].cx, csNone(), csNone(), CssBlack)
+    elif lcnt == 3:
+      result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, csNone(), CssBlack)
+    elif lcnt == 4:
+      result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, args[3].cx, CssBlack)
+    args = args[lcnt..^1]
 
-      if args.len() == 0:
-        return
-      elif args[0].kind == CssValueKind.CssColor:
-        echo "color"
-        result.scolor = args[0].c
-        args = args[1..^1]
+    echo "lcnt done: ", args.repr
 
-      if args[0..^1] == @[CssVarName("inset")]:
-        echo "inset"
-        result.sstyle = InnerShadow
-        if args.len() == 0: return
+    if args.len() == 0:
+      return
+    elif args[0].kind == CssValueKind.CssColor:
+      echo "color"
+      result.scolor = args[0].c
+      args = args[1..^1]
 
-      if args.len() == 0:
-        return
+    if args.len() > 0 and args[0] == CssVarName("inset"):
+      echo "inset"
+      result.sstyle = InnerShadow
+      if args.len() == 0: return
+
+    if args.len() == 0:
+      return
 
     echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
 

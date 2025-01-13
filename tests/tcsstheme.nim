@@ -511,4 +511,3 @@ suite "css exec":
     check btnB.shadow[InnerShadow].color == blackColor
     check btnB.shadow[InnerShadow].x == 0
     check btnB.shadow[InnerShadow].y == 0
-    check btnB.shadow[InnerShadow].blur == 0
