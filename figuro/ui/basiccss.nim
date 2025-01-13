@@ -8,7 +8,6 @@ import chroma
 import ../common/nodes/basics
 import chronicles
 
-
 variantp CssValue:
   MissingCssValue
   CssColor(c: Color)
@@ -144,7 +143,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       discard parser.nextToken()
     of tkIDHash:
       result.add(CssSelector(id: tk.idHash))
-      let tk = parser.nextToken()
+      tk = parser.nextToken()
     of tkDelim:
       case tk.delim
       of '.':
