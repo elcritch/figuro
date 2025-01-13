@@ -116,7 +116,8 @@ proc renderDropShadows(ctx: Context, node: Node) =
   ## should add a primitive to opengl.context to
   ## do this with pixie and 9-patch, but that's a headache
   let shadow = node.shadow[DropShadow]
-  let color = shadow.color * (1.0/16.0)
+  var color = shadow.color
+  color.a = color.a * 1.0/16.0
   let blurAmt = shadow.blur / 8.0
   for i in -4 .. 4:
     for j in -4 .. 4:
@@ -235,7 +236,6 @@ proc render(
 
   # hacky method to draw drop shadows... should probably be done in opengl shaders
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-    echo "drop shadow: ", node.shadow[DropShadow].repr
     ctx.renderDropShadows(node)
 
   # handle clipping children content based on this node
