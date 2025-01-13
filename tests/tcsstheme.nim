@@ -437,3 +437,41 @@ suite "css exec":
     # check btnB.fill == parseHtmlColor("#FF0000")
     check btnB.stroke.weight == 0.0
     check btnB.stroke.color == clearColor
+
+  test "box shadow none":
+    let themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px red;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].x == 5
+    check btnB.shadow[DropShadow].y == 5
+    check btnB.shadow[DropShadow].blur == 10
+    check btnB.shadow[DropShadow].color == parseHtmlColor("red")
+
+    let themeSrc2 = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: none;
+    }
+
+    """
+    let parser = newCssParser(themeSrc2)
+    let cssTheme = parse(parser)
+    main.frame[].theme.cssRules = cssTheme
+    emit main.doDraw()
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[DropShadow].blur == 0
+    check btnB.shadow[DropShadow].color == blackColor
+
+    check btnB.shadow[InnerShadow].x == 0
+    check btnB.shadow[InnerShadow].y == 0
+    check btnB.shadow[InnerShadow].blur == 0

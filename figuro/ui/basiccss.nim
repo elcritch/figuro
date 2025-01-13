@@ -264,14 +264,13 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       args.add(parseBasicValue(tk))
       parser.skip(tkWhiteSpace)
       if parser.peek().kind == tkSemicolon:
-        echo "css shadow done: found semi"
         break
     parser.eat(tkSemicolon)
 
     let parsedargs = args
     echo "css args: "
     for arg in args: echo "\t", arg.repr
-    result = CssShadow(DropShadow, csNone(), csNone(), csNone(), csNone(), CssBlack)
+    result = CssShadow(DropShadow, csFixed(0), csFixed(0), csFixed(0), csFixed(0), CssBlack)
     if args.len() > 0:
       if args[0] == CssVarName("inset"):
         echo "inset"
