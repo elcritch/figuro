@@ -6,6 +6,7 @@ import sigils
 import basiccss
 import commons
 export commons
+import pkg/chronicles
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -192,12 +193,12 @@ proc loadTheme*(): seq[CssBlock] =
     let ts = getLastModificationTime(defaultTheme)
     if ts > lastModificationTime:
       lastModificationTime = ts
-      echo "Loading CSS file: ", defaultTheme
+      info "Loading CSS file", cssFile = defaultTheme
       let parser = newCssParser(Path(defaultTheme))
       let cssTheme = parse(parser)
       # frame.theme.cssRules = cssTheme
       result = cssTheme
-      echo "Loaded CSS file: ", defaultTheme
+      info "Loaded CSS file", cssFile = defaultTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.

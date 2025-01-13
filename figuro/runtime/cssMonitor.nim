@@ -33,7 +33,7 @@ proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
     emit watcherSelf.cssUpdate(cssRules)
 
 proc cssLoader*(self: CssLoader) {.slot.} =
-  echo "Starting CSS Loader"
+  info "Starting CSS Loader"
   while true:
     info "CSSTheme check"
     let cssRules = loadTheme()
@@ -45,7 +45,7 @@ proc cssLoader*(self: CssLoader) {.slot.} =
     os.sleep(300_000)
 
 proc cssWatcher*(self: CssLoader) {.slot.} =
-  echo "Starting CSS Watcher"
+  info "Starting CSS Watcher"
   watcherSelf = self.unsafeWeakRef()
   let defaultTheme = themePath()
   var mon = newMonitor()

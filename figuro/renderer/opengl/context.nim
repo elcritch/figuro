@@ -472,7 +472,6 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
   if imgKey notin ctx.entries:
     var image = newImage(4, 4)
     image.fill(rgba(255, 255, 255, 255))
-    echo "fillRect: ", imgKey
     ctx.putImage(imgKey, image)
 
   let
@@ -555,7 +554,7 @@ proc generateCorner(
 proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   if rect.w <= 0 or rect.h <= -0:
     when defined(fidgetExtraDebugLogging):
-      echo "fillRoundedRect: too small: ", rect
+      info "fillRoundedRect: too small: ", rect = rect
     return
 
   let

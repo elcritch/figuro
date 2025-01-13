@@ -54,7 +54,7 @@ type AppTicker* = ref object of Agent
 proc appTick*(tp: AppTicker) {.signal.}
 
 proc tick*(self: AppTicker) {.slot.} =
-  echo "start tick"
+  info "Start AppTicker", period = self.period
   while app.running:
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
