@@ -183,16 +183,14 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         echo "CSS Warning: ", "missing css property value! Got: ", result[^1].repr()
       discard result.pop()
 
-  var shadowFieldCount = 0
-
   proc parseBasicValue(tk: var Token): CssValue =
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
       try:
-        result = CssColor(parseHtmlColor("#" & tk.idHash))
+        result = CssColor(parseHtmlColor(tk.ident))
       except InvalidColor:
-        echo "css value not color"
+        # echo "css value not color"
         discard
     of tkIDHash:
       try:
@@ -258,8 +256,16 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       if result[^1].name.len() == 0:
         result[^1].name = tk.ident
         parser.eat(tkColon)
+
         if result[^1].name == "box-shadow":
-          shadowFieldCount = 4
+          var values: seq[CssValue]
+          for i in 1..4:
+            parser.skip(tkWhiteSpace)
+            tk = parser.nextToken()
+            echo "tk: ", tk.repr
+            values.add parseBasicValue(tk)
+            echo "css shadow cnt: ", i, " targ: ", values[^1].repr
+            echo ""
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
