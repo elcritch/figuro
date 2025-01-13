@@ -511,3 +511,18 @@ suite "css exec":
     check btnB.shadow[InnerShadow].color == blackColor
     check btnB.shadow[InnerShadow].x == 0
     check btnB.shadow[InnerShadow].y == 0
+
+  test "empty css":
+    let themeSrc = """
+
+    /* #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px red inset;
+    } */
+
+    """
+    let parser = newCssParser(themeSrc)
+    let res = parse(parser)
+    check res.len() == 0
+
+

@@ -26,22 +26,20 @@ var watcherSelf: WeakRef[CssLoader]
 
 proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
   let cssRules = loadTheme()
-  if cssRules.len() > 0:
-    info "CSSTheme updated: ", themePath = themePath()
-    emit watcherSelf.cssUpdate(cssRules)
-    os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-    emit watcherSelf.cssUpdate(cssRules)
+  info "CSSTheme updated: ", themePath = themePath()
+  emit watcherSelf.cssUpdate(cssRules)
+  os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+  emit watcherSelf.cssUpdate(cssRules)
 
 proc cssLoader*(self: CssLoader) {.slot.} =
   info "Starting CSS Loader"
   while true:
     info "CSSTheme check"
     let cssRules = loadTheme()
-    if cssRules.len() > 0:
-      info "CSSTheme updated: ", themePath = themePath()
-      emit self.cssUpdate(cssRules)
-      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-      emit watcherSelf.cssUpdate(cssRules)
+    info "CSSTheme updated: ", themePath = themePath()
+    emit self.cssUpdate(cssRules)
+    os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+    emit watcherSelf.cssUpdate(cssRules)
     os.sleep(300_000)
 
 proc cssWatcher*(self: CssLoader) {.slot.} =

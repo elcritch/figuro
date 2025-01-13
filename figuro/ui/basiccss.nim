@@ -120,12 +120,12 @@ proc eat(parser: CssParser, kind: TokenKind) =
   if tk.kind != kind:
     raise newException(ValueError, "Expected: " & $kind & " got: " & $tk.kind)
 
-proc skip(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
+proc skip(parser: CssParser, kind: set[TokenKind] = {tkWhiteSpace}) =
   while not parser.isEof():
     let tk = parser.peek()
     if parser.isEof():
       break
-    if tk.kind == kind:
+    if tk.kind in kind:
       # echo "\tskip whitespace"
       discard parser.nextToken()
       continue
@@ -140,7 +140,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
     isDirect = false
 
   while true:
-    parser.skip(tkWhiteSpace)
+    parser.skip({tkWhiteSpace, tkComment})
     var tk = parser.peek()
     # echo "\t selector parser: ", tk.repr
     case tk.kind
@@ -194,7 +194,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
   # echo "\tsel:done"
 
 proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} =
-  parser.skip(tkWhiteSpace)
+  parser.skip({tkWhiteSpace})
   parser.eat(tkCurlyBracketBlock)
 
   result.add(CssProperty())
@@ -284,10 +284,10 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
     var args: seq[CssValue]
     for i in 1..6:
-      parser.skip(tkWhiteSpace)
+      parser.skip({tkWhiteSpace, tkComment})
       tk = parser.peek()
       args.add(parseBasicValue(tk))
-      parser.skip(tkWhiteSpace)
+      parser.skip({tkWhiteSpace, tkComment})
       if parser.peek().kind == tkSemicolon:
         break
     parser.eat(tkSemicolon)
@@ -330,7 +330,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     warn("CSS: unhandled css shadow kind", parsedargs = $parsedargs)
 
   while true:
-    parser.skip(tkWhiteSpace)
+    parser.skip({tkWhiteSpace, tkComment})
     var tk: Token
     try:
       tk = parser.peek()
@@ -372,7 +372,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 proc parse*(parser: CssParser): seq[CssBlock] =
   while not parser.isEof():
     # echo "CSS Block: "
-    parser.skip(tkWhiteSpace)
+    parser.skip({tkWhiteSpace, tkComment})
     if parser.isEof():
       break
     var sel: seq[CssSelector]
