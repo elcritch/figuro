@@ -296,12 +296,11 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
     if args.len() > 0 and args[0] == CssVarName("inset"):
       result.sstyle = InnerShadow
-      if args.len() == 0: return
+      args = args[1..^1]
 
     if args.len() == 0:
       return
 
-    echo "CSS Warning: ", "unhandled css shadow kind: ", args.repr
     echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
 
   while true:
