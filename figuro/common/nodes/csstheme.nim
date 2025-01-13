@@ -94,9 +94,9 @@ proc apply*(prop: CssProperty, node: Figuro) =
       raise newException(ValueError, "missing css value!")
     CssShadow(style, blur, x, y, color):
       echo "css shadow: ", prop.value.repr
-      setCxFixed(blur, node.shadow[DropShadow].blur, UICoord)
-      setCxFixed(x, node.shadow[DropShadow].x, UICoord)
-      setCxFixed(y, node.shadow[DropShadow].y, UICoord)
+      setCxFixed(blur, node.shadow[style].blur, UICoord)
+      setCxFixed(x, node.shadow[style].x, UICoord)
+      setCxFixed(y, node.shadow[style].y, UICoord)
       node.shadow[style].color = color
     CssColor(c):
       # echo "\tapply color: ", c.repr
