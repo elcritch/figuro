@@ -1,5 +1,6 @@
 import std/locks
 import std/sets
+import std/logging
 import pkg/threading/atomics
 import shared, ui/core
 import common/nodes/transfer

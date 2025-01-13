@@ -6,6 +6,8 @@ import stylus
 import patty
 import chroma
 import ../common/nodes/basics
+import chronicles
+
 
 variantp CssValue:
   MissingCssValue
@@ -296,12 +298,13 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
     if args.len() > 0 and args[0] == CssVarName("inset"):
       result.sstyle = InnerShadow
-      args = args[1..^1]
+      # args = args[1..^1]
 
     if args.len() == 0:
       return
 
-    echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
+    # echo(fmt"CSS Warning: unhandled css shadow kind: {parsedargs.repr}")
+    error("CSS: unhandled css shadow kind", parsedargs)
 
   while true:
     parser.skip(tkWhiteSpace)
