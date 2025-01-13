@@ -185,29 +185,23 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
   var shadowFieldCount = 0
 
-  template parseBasic(result: typed, token: Token) =
-    case token.kind
+  proc parseBasic(tk: var Token): CssValue =
+    case tk.kind
     of tkIDHash:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a property value")
       try:
-        result[^1].value = CssColor(parseHtmlColor("#" & tk.idHash))
+        result = CssColor(parseHtmlColor("#" & tk.idHash))
       except InvalidColor:
         echo "CSS Warning: ", "invalid color `$1` " % [tk.idHash]
-        result[^1].value = CssColor(parseHtmlColor("black"))
+        result = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkHash:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a property value")
       try:
-        result[^1].value = CssColor(parseHtmlColor("#" & tk.hash))
+        result = CssColor(parseHtmlColor("#" & tk.hash))
       except InvalidColor:
         echo "CSS Warning: ", "invalid color `$1` " % [tk.hash]
-        result[^1].value = CssColor(parseHtmlColor("black"))
+        result = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkFunction:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css hash color to be a property value")
       var value = tk.fnName
       while true:
         tk = parser.nextToken()
@@ -229,19 +223,17 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       # echo "\tproperty function:peek: ", parser.peek().repr
       # echo "\tproperty function: ", value
       # echo "\tproperty function:res: ", result[^1].repr()
-      result[^1].value = CssColor(parseHtmlColor(value))
+      result = CssColor(parseHtmlColor(value))
     of tkDimension:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css dimension to be a property value")
       let value = csFixed(tk.dValue.UiScalar)
-      result[^1].value = CssSize(value)
+      result = CssSize(value)
       discard parser.nextToken()
     of tkPercentage:
-      if result[^1].value != MissingCssValue():
-        raise newException(ValueError, "expected css percentage to be a property value")
       let value = csPerc(100.0 * tk.pUnitValue)
-      result[^1].value = CssSize(value)
+      result = CssSize(value)
       discard parser.nextToken()
+    else:
+      raise newException(ValueError, "expected basic css value, got: " & tk.repr)
 
   while true:
     parser.skip(tkWhiteSpace)
@@ -274,7 +266,9 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       # echo "\tcss block done "
       break
     of tkIDHash, tkHash, tkFunction, tkDimension, tkPercentage:
-      result.parseBasic(tk)
+      if result[^1].value != MissingCssValue():
+        raise newException(ValueError, "expected empty CSS value. Got: " & result[^1].value.repr)
+      result[^1].value = parseBasic(tk)
     else:
       # echo "\tattrib:other: ", tk.repr
       echo "CSS Warning: ",
