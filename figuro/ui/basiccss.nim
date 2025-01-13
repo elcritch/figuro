@@ -202,11 +202,11 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
   template popIncompleteProperty(warning = true) =
     if result.len() > 0 and result[^1].name.len() == 0:
       if warning:
-        echo "CSS Warning: ", "missing css property name! Got: ", result[^1].repr()
+        warning "CSS: Missing css property name! Got: ", cssResult = result[^1].repr()
       discard result.pop()
     if result.len() > 0 and result[^1].value == MissingCssValue():
       if warning:
-        echo "CSS Warning: ", "missing css property value! Got: ", result[^1].repr()
+        warning "CSS: Missing css property value! Got: ", cssResult = result[^1].repr()
       discard result.pop()
 
   proc parseBasicValue(tk: var Token): CssValue =
@@ -224,14 +224,14 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       try:
         result = CssColor(parseHtmlColor("#" & tk.idHash))
       except InvalidColor:
-        echo "CSS Warning: ", "invalid color `$1` " % [tk.idHash]
+        debug("CSS Warning: invalid color ", color = tk.idHash)
         result = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkHash:
       try:
         result = CssColor(parseHtmlColor("#" & tk.hash))
       except InvalidColor:
-        echo "CSS Warning: ", "invalid color `$1` " % [tk.hash]
+        debug("CSS Warning: invalid color ", color = tk.hash)
         result = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkFunction:
@@ -327,7 +327,6 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     if args.len() == 0:
       return
 
-    # echo(fmt"CSS Warning: unhandled css shadow kind: {parsedargs.repr}")
     error("CSS: unhandled css shadow kind", parsedargs = $parsedargs)
 
   while true:
@@ -363,10 +362,8 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         raise newException(ValueError, "expected empty CSS value. Got: " & result[^1].value.repr)
       result[^1].value = parseBasicValue(tk)
     else:
-      # echo "\tattrib:other: ", tk.repr
-      echo "CSS Warning: ",
-        "unhandled token while parsing property: ", parser.peek().repr
-      discard parser.nextToken()
+      error("CSS: unhandled token while parsing property: ", peek = parser.peek())
+      tk = parser.nextToken()
 
   # echo "finished: rule body parsing"
   popIncompleteProperty(warning = false)
