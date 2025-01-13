@@ -48,8 +48,8 @@ proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
   frame.windowSize.w = size[0]
   frame.windowSize.h = size[1]
   frame.windowRawSize = frame.windowSize.wh.scaled()
-  echo "setSize: ", frame.windowSize
-  echo "setSize: ", frame.windowRawSize
+  # echo "setSize: ", frame.windowSize
+  # echo "setSize: ", frame.windowRawSize
 
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
