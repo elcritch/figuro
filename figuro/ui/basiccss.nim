@@ -275,12 +275,15 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
       return
 
+    if args[0] == CssVarName("none"):
+      echo "none"
+
     if args[0] == CssVarName("inset"):
       echo "inset"
       result.sstyle = InnerShadow
       args = args[1..^1]
-    if args[0] == CssVarName("none"):
-      echo "none"
+
+    if args.len() == 0:
       return
 
     let lcnt = args.cssSizesCount()
