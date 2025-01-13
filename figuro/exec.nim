@@ -54,13 +54,13 @@ type AppTicker* = ref object of Agent
 proc appTick*(tp: AppTicker) {.signal.}
 
 proc tick*(self: AppTicker) {.slot.} =
-  info "Start AppTicker", period = self.period
+  notice "Start AppTicker", period = self.period
   while app.running:
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
 proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
-  info "CSS theme loaded"
+  debug "CSS theme into app", numberOfCssRules = cssRules.len()
   self.theme.cssRules = cssRules
   refresh(self.root)
 

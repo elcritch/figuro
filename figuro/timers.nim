@@ -1,8 +1,12 @@
 import std/[times, monotimes, strutils, macros] # This is to provide the timing output
+import pkg/chronicles
 
 type
   FrameIdx* = tuple[count: int, skipped: int]
   TimeIt* = tuple[micros: float, count: int]
+
+proc logTiming(name, time: string) =
+  info "timings", name = name, time = time
 
 macro timeIt*(timer, blk: untyped) =
   let name = newStrLitNode timer.repr()
@@ -18,7 +22,7 @@ macro timeIt*(timer, blk: untyped) =
       timer.count.inc
       if timer.count mod 1_000 == 0:
         let num = timer.micros / 1_000.0
-        echo "timing:", `name`, ": ", num.formatBiggestFloat(ffDecimal, 3), " ms"
+        logTiming($`name`, $num.formatBiggestFloat(ffDecimal, 3) & " ms")
   else:
     quote:
       `blk`

@@ -193,11 +193,11 @@ proc loadTheme*(): seq[CssBlock] =
     let ts = getLastModificationTime(defaultTheme)
     if ts > lastModificationTime:
       lastModificationTime = ts
-      info "Loading CSS file", cssFile = defaultTheme
+      notice "Loading CSS file", cssFile = defaultTheme
       let parser = newCssParser(Path(defaultTheme))
       let cssTheme = parse(parser)
       result = cssTheme
-      info "Loaded CSS file", cssFile = defaultTheme
+      notice "Loaded CSS file", cssFile = defaultTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
