@@ -475,3 +475,40 @@ suite "css exec":
     check btnB.shadow[InnerShadow].x == 0
     check btnB.shadow[InnerShadow].y == 0
     check btnB.shadow[InnerShadow].blur == 0
+
+  test "box shadow none inset":
+    let themeSrc = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: 5px 5px 10px red inset;
+    }
+
+    """
+    setupMain(themeSrc)
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[InnerShadow].x == 5
+    check btnB.shadow[InnerShadow].y == 5
+    check btnB.shadow[InnerShadow].blur == 10
+    check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
+
+    let themeSrc2 = """
+
+    #child2 < Button {
+      background: #0000FF;
+      box-shadow: none inset;
+    }
+
+    """
+    let parser = newCssParser(themeSrc2)
+    let cssTheme = parse(parser)
+    main.frame[].theme.cssRules = cssTheme
+    emit main.doDraw()
+
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.shadow[InnerShadow].blur == 0
+    check btnB.shadow[InnerShadow].color == blackColor
+    check btnB.shadow[InnerShadow].x == 0
+    check btnB.shadow[InnerShadow].y == 0
+    check btnB.shadow[InnerShadow].blur == 0
