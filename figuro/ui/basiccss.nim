@@ -258,23 +258,31 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         parser.eat(tkColon)
 
         if result[^1].name == "box-shadow":
-          var values: seq[CssValue]
+          var args: seq[CssValue]
           echo "css shadow args: "
           for i in 1..4:
             parser.skip(tkWhiteSpace)
             tk = parser.peek()
-            values.add parseBasicValue(tk)
-            echo "  targ: ", values[^1].repr
+            args.add parseBasicValue(tk)
+            echo "  targ: ", args[^1].repr
           parser.skip(tkWhiteSpace)
           parser.eat(tkSemicolon)
-          echo "BOX shadow: "
+          echo "BOX shadow: ", args.mapIt(it.kind).repr
+          if args.len() == 4 and
+              args[0].kind == CssValueKind.CssSize and
+              args[1].kind == CssValueKind.CssSize and
+              args[2].kind == CssValueKind.CssSize and
+              args[3].kind == CssValueKind.CssColor:
+            echo "CSS SHADOW! field: ", result[^1].name
+            result[^1].value = CssShadow(args[0].cx, args[1].cx, args[2].cx, args[3].c)
+          else:
+            echo "CSS Warning: ",
+              "unhandled css shadow kind: ", result[^1].name
 
           echo ""
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
-      if result[^1].name == "box-shadow":
-        result[^1].value = CssShadow(csNone(), csNone(), csNone(), Color())
       # echo "\tattrib done "
       popIncompleteProperty()
       discard parser.nextToken()
