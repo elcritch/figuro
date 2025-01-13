@@ -259,16 +259,16 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
         if result[^1].name == "box-shadow":
           var values: seq[CssValue]
+          echo "css shadow args: "
           for i in 1..4:
             parser.skip(tkWhiteSpace)
             tk = parser.peek()
-            echo "tk: ", tk.repr
             values.add parseBasicValue(tk)
-            echo "css shadow cnt: ", i, " targ: ", values[^1].repr
-            echo ""
+            echo "  targ: ", values[^1].repr
           parser.skip(tkWhiteSpace)
           parser.eat(tkSemicolon)
           echo "BOX shadow: "
+
           echo ""
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
