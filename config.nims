@@ -16,6 +16,10 @@ switch("styleCheck", "hint")
 if not defined(emscripten):
   --threads:on
 
+--define:chronicles_sinks:textlines
+--define:"chronicles_indent:2"
+--define:"chronicles_timestamps:NoTimestamps"
+
 import os
 
 if defined(emscripten):

@@ -8,6 +8,8 @@ else:
   import renderer/opengl
   export opengl
 
+import pkg/chronicles
+
 import std/os
 
 import sigils
@@ -58,7 +60,7 @@ proc tick*(self: AppTicker) {.slot.} =
     os.sleep(self.period.inMilliseconds)
 
 proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
-  echo "CSS theme loaded"
+  info "CSS theme loaded"
   self.theme.cssRules = cssRules
   refresh(self.root)
 
