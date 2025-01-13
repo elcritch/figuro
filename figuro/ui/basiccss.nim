@@ -291,15 +291,22 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, args[3].cx, CssBlack)
       args = args[lcnt..^1]
 
+      echo "lcnt done: ", args.repr
+
       if args.len() == 0:
         return
-      elif args.len() == 1:
-        if args[0] == CssVarName("inset"):
-          result.sstyle = InnerShadow
-          return
-        elif args[0].kind == CssValueKind.CssColor:
-          result.scolor = args[0].c
-          return
+      elif args[0].kind == CssValueKind.CssColor:
+        echo "color"
+        result.scolor = args[0].c
+        args = args[1..^1]
+
+      if args[0..^1] == @[CssVarName("inset")]:
+        echo "inset"
+        result.sstyle = InnerShadow
+        if args.len() == 0: return
+
+      if args.len() == 0:
+        return
 
     echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
 
@@ -322,6 +329,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)
+          echo "box-shadow: ", result[^1].value.repr
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
