@@ -185,26 +185,8 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
   var shadowFieldCount = 0
 
-  while true:
-    parser.skip(tkWhiteSpace)
-    var tk: Token
-    try:
-      tk = parser.peek()
-    except EofError:
-      raise newException(InvalidCssBody, "Invalid CSS Body")
-
-    echo "\t rule body parser: ", tk.repr
-    # echo "\tproperty:next: ", tk.repr
-    case tk.kind
-    of tkIdent:
-      discard parser.nextToken()
-      if result[^1].name.len() == 0:
-        result[^1].name = tk.ident
-        parser.eat(tkColon)
-        if result[^1].name == "box-shadow":
-          shadowFieldCount = 4
-      elif result[^1].value == MissingCssValue():
-        result[^1].value = CssVarName(tk.ident)
+  template parseBasic(result: typed, token: Token) =
+    case token.kind
     of tkIDHash:
       if result[^1].value != MissingCssValue():
         raise newException(ValueError, "expected css hash color to be a property value")
@@ -260,6 +242,27 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       let value = csPerc(100.0 * tk.pUnitValue)
       result[^1].value = CssSize(value)
       discard parser.nextToken()
+
+  while true:
+    parser.skip(tkWhiteSpace)
+    var tk: Token
+    try:
+      tk = parser.peek()
+    except EofError:
+      raise newException(InvalidCssBody, "Invalid CSS Body")
+
+    echo "\t rule body parser: ", tk.repr
+    # echo "\tproperty:next: ", tk.repr
+    case tk.kind
+    of tkIdent:
+      discard parser.nextToken()
+      if result[^1].name.len() == 0:
+        result[^1].name = tk.ident
+        parser.eat(tkColon)
+        if result[^1].name == "box-shadow":
+          shadowFieldCount = 4
+      elif result[^1].value == MissingCssValue():
+        result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
       if result[^1].name == "box-shadow":
         result[^1].value = CssShadow(csNone(), csNone(), csNone(), Color())
@@ -270,6 +273,8 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     of tkCloseCurlyBracket:
       # echo "\tcss block done "
       break
+    of tkIDHash, tkHash, tkFunction, tkDimension, tkPercentage:
+      result.parseBasic(tk)
     else:
       # echo "\tattrib:other: ", tk.repr
       echo "CSS Warning: ",
