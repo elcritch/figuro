@@ -79,12 +79,14 @@ type
 
   Shadow* = object
     blur*: UICoord
+    spread*: UICoord
     x*: UICoord
     y*: UICoord
     color*: Color
 
   RenderShadow* = object
     blur*: float32
+    spread*: UICoord
     x*: float32
     y*: float32
     color*: Color

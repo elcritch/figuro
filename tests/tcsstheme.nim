@@ -326,17 +326,18 @@ suite "css exec":
 
     #child2 < Button {
       background: #0000FF;
-      box-shadow: 10px 5px 5px red;
+      box-shadow: 5px 5px 10px red;
     }
 
     """
     setupMain(themeSrc)
 
     check btnB.fill == parseHtmlColor("#0000FF")
-    check btnB.shadow[DropShadow].blur == 10
     check btnB.shadow[DropShadow].x == 5
     check btnB.shadow[DropShadow].y == 5
+    check btnB.shadow[DropShadow].blur == 10
     check btnB.shadow[DropShadow].color == parseHtmlColor("red")
+
     check btnB.shadow[InnerShadow].blur == 0
     check btnB.shadow[InnerShadow].color == clearColor
     # check btnB.fill == parseHtmlColor("#FF0000")

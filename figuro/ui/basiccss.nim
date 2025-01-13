@@ -12,7 +12,7 @@ variantp CssValue:
   CssColor(c: Color)
   CssSize(cx: Constraint)
   CssVarName(n: string)
-  CssShadow(sstyle: ShadowStyle, sblur, sx, sy: Constraint, scolor: Color)
+  CssShadow(sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color)
 
 type
   EofError* = object of CatchableError
@@ -250,42 +250,56 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     const
       CssSizeKd = CssValueKind.CssSize
       CssBlack = Color(r:0.0,g:0.0,b:0.0,a:1.0)
+    proc cssSizesCount(args: seq[CssValue]): int =
+      result = 0
+      for arg in args:
+        if arg.kind != CssSizeKd:
+          break
+        result.inc()
+
     var args: seq[CssValue]
     for i in 1..5:
       parser.skip(tkWhiteSpace)
       tk = parser.peek()
-      args.add parseBasicValue(tk)
+      args.add(parseBasicValue(tk))
       parser.skip(tkWhiteSpace)
       if parser.peek().kind == tkSemicolon:
         echo "css shadow done: found semi"
         break
     parser.eat(tkSemicolon)
-    echo "css args: ", args.repr
-    if args.len() == 1 and args[0] == CssVarName("none"):
-        result = CssShadow(DropShadow, csNone(), csNone(), csNone(), CssBlack)
-    elif args.len() == 2 and
-          args[0] == CssVarName("none") and
-          args[1] == CssVarName("inset"):
-        result = CssShadow(InnerShadow, csNone(), csNone(), csNone(), CssBlack)
-    elif args.len() >= 3 and
-        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
-        args[2] == CssVarName("inset"):
-      result = CssShadow(InnerShadow, args[0].cx, args[1].cx, csNone(), CssBlack)
-    elif args.len() >= 3 and
-        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
-        args[2].kind == CssSizeKd:
-      result = CssShadow(DropShadow, args[0].cx, args[1].cx, args[2].cx, CssBlack)
-    elif args.len() == 4 and
-        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
-        (args[2].kind == CssSizeKd and args[3].kind == CssValueKind.CssColor):
-      result = CssShadow(DropShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
-    elif args.len() == 5 and
-        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
-        (args[2].kind == CssSizeKd and args[3].kind == CssValueKind.CssColor) and
-        args[4] == CssVarName("inset"):
-      result = CssShadow(InnerShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
-    else:
-      echo "CSS Warning: ", "unhandled css shadow kind: ", args.repr
+
+    let parsedargs = args
+    echo "css args: "
+    for arg in args: echo "\t", arg.repr
+    result = CssShadow(DropShadow, csNone(), csNone(), csNone(), csNone(), CssBlack)
+    if args.len() > 0:
+      if args[0] == CssVarName("inset"):
+        echo "inset"
+        result.sstyle = InnerShadow
+        args = args[1..^1]
+      if args[0] == CssVarName("none"):
+        echo "none"
+        return
+
+      let lcnt = args.cssSizesCount()
+      echo "shadow lcnt: ", lcnt
+      if lcnt == 2:
+        result = CssShadow(result.sstyle, args[0].cx, args[1].cx, csNone(), csNone(), CssBlack)
+      elif lcnt == 3:
+        result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, csNone(), CssBlack)
+      elif lcnt == 4:
+        result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, args[3].cx, CssBlack)
+      args = args[lcnt..^1]
+
+      if args.len() == 1:
+        if args[0] == CssVarName("inset"):
+          result.sstyle = InnerShadow
+          return
+        elif args[0].kind == CssValueKind.CssColor:
+          result.scolor = args[0].c
+          return
+
+    echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
 
   while true:
     parser.skip(tkWhiteSpace)
