@@ -2,6 +2,11 @@ import
   buffers, chroma, pixie, hashes, opengl, os, shaders, strformat, strutils, tables,
   textures, times, formatflippy
 
+import pkg/chronicles
+
+logScope:
+  scope = "opengl"
+
 const quadLimit = 10_921
 
 type Context* = ref object
@@ -194,7 +199,7 @@ proc hash(v: Vec2): Hash =
 proc grow(ctx: Context) =
   ctx.draw()
   ctx.atlasSize = ctx.atlasSize * 2
-  echo "grow atlasSize ", ctx.atlasSize
+  info "grow atlasSize ", atlasSize = ctx.atlasSize
   ctx.heights.setLen(ctx.atlasSize)
   ctx.atlasTexture = ctx.createAtlasTexture(ctx.atlasSize)
   ctx.entries.clear()
@@ -239,10 +244,8 @@ proc findEmptyRect(ctx: Context, width, height: int): Rect =
 
   return rect
 
-proc putImage*(ctx: Context, path: string | Hash, image: Image, debug = false) =
+proc putImage*(ctx: Context, path: string | Hash, image: Image) =
   # Reminder: This does not set mipmaps (used for text, should it?)
-  if debug:
-    echo "putImage: ", (image.width, image.height), " @ ", path
   let rect = ctx.findEmptyRect(image.width, image.height)
   ctx.entries[path] = rect / float(ctx.atlasSize)
   updateSubImage(ctx.atlasTexture, int(rect.x), int(rect.y), image)
@@ -262,8 +265,11 @@ proc updateImage*(ctx: Context, path: string | Hash, image: Image) =
     image,
   )
 
+proc logFlippy(flippy: Flippy, file: string) =
+  debug "putFlippy file", fwidth = $flippy.width, fheight = $flippy.height, flippyPath = file
+
 proc putFlippy*(ctx: Context, path: string | Hash, flippy: Flippy) =
-  echo "putFlippy: ", (flippy.width, flippy.height), " @ ", path
+  logFlippy(flippy, $path)
   let rect = ctx.findEmptyRect(flippy.width, flippy.height)
   ctx.entries[path] = rect / float(ctx.atlasSize)
   var
@@ -392,6 +398,9 @@ proc drawUvRect(ctx: Context, at, to: Vec2, uvAt, uvTo: Vec2, color: Color) =
 proc drawUvRect(ctx: Context, rect, uvRect: Rect, color: Color) =
   ctx.drawUvRect(rect.xy, rect.xy + rect.wh, uvRect.xy, uvRect.xy + uvRect.wh, color)
 
+proc logImage(file: string) =
+  debug "load image file", flippyPath = file
+
 proc getOrLoadImageRect(ctx: Context, imagePath: string | Hash): Rect =
   if imagePath is Hash:
     return ctx.entries[imagePath]
@@ -401,7 +410,8 @@ proc getOrLoadImageRect(ctx: Context, imagePath: string | Hash): Rect =
     filePath.add ".png"
   if hash(filePath) notin ctx.entries:
     # Need to load imagePath, check to see if the .flippy file is around
-    echo "[load] ", filePath
+    # echo "[load] ", filePath
+    logImage(filePath)
     if not fileExists(filePath):
       raise newException(Exception, &"Image '{filePath}' not found")
     let flippyFilePath = filePath.changeFileExt(".flippy")
@@ -609,8 +619,8 @@ proc strokeRoundedRect*(
   let fillStyle = rgba(255, 255, 255, 255)
 
   if rect.w <= 0 or rect.h <= -0:
-    when defined(fidgetExtraDebugLogging):
-      echo "fillRoundedRect: too small: ", rect
+    # when defined(fidgetExtraDebugLogging):
+    #   echo "fillRoundedRect: too small: ", rect
     return
 
   let
@@ -664,8 +674,7 @@ when false:
       ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
   ) =
     if rect.w <= 0 or rect.h <= -0:
-      when defined(fidgetExtraDebugLogging):
-        echo "strokeRoundedRect: too small: ", rect
+      notic "strokeRoundedRect: too small: ", rect = rect
       return
 
     let radius = min(radius, min(rect.w / 2, rect.h / 2))
@@ -686,7 +695,6 @@ when false:
       c.strokeRoundedRect(
         rect(weight / 2, weight / 2, rect.w - weight, rect.h - weight), radius
       )
-      echo "strokeRoundedRect: ", hash
       ctx.putImage(hash, image, true)
     let
       uvRect = ctx.entries[hash]
@@ -717,8 +725,7 @@ proc line*(ctx: Context, a: Vec2, b: Vec2, weight: float32, color: Color) =
     c.fillStyle = rgba(255, 255, 255, 255)
     c.lineWidth = weight
     c.strokeSegment(segment(a - pos, b - pos))
-    echo "line: ", hash
-    ctx.putImage(hash, image, true)
+    ctx.putImage(hash, image)
   let
     uvRect = ctx.entries[hash]
     wh = vec2(w.float32, h.float32) * ctx.atlasSize.float32
