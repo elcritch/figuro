@@ -247,6 +247,9 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     ## parse css shadow
     ## really oughtta follow https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow#formal_syntax
     ## but I only care to handle a few for now
+    const
+      CssSizeKd = CssValueKind.CssSize
+      CssBlack = Color(r:0.0,g:0.0,b:0.0,a:1.0)
     var args: seq[CssValue]
     for i in 1..5:
       parser.skip(tkWhiteSpace)
@@ -258,20 +261,31 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         break
     parser.eat(tkSemicolon)
     echo "css args: ", args.repr
-    if args.len() >= 4 and
-        args[0].kind == CssValueKind.CssSize and
-        args[1].kind == CssValueKind.CssSize and
-        args[2].kind == CssValueKind.CssSize and
-        args[3].kind == CssValueKind.CssColor:
-      if args.len() == 5:
-        if args[4].kind == CssValueKind.CssVarName:
-          result = CssShadow(InnerShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
-        else:
-          echo "CSS Warning: ", "unhandled token while parsing shadow: ", args[4].repr
-      else:
-        result = CssShadow(DropShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
+    if args.len() == 1 and args[0] == CssVarName("none"):
+        result = CssShadow(DropShadow, csNone(), csNone(), csNone(), CssBlack)
+    elif args.len() == 2 and
+          args[0] == CssVarName("none") and
+          args[1] == CssVarName("inset"):
+        result = CssShadow(InnerShadow, csNone(), csNone(), csNone(), CssBlack)
+    elif args.len() >= 3 and
+        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
+        args[2] == CssVarName("inset"):
+      result = CssShadow(InnerShadow, args[0].cx, args[1].cx, csNone(), CssBlack)
+    elif args.len() >= 3 and
+        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
+        args[2].kind == CssSizeKd:
+      result = CssShadow(DropShadow, args[0].cx, args[1].cx, args[2].cx, CssBlack)
+    elif args.len() == 4 and
+        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
+        (args[2].kind == CssSizeKd and args[3].kind == CssValueKind.CssColor):
+      result = CssShadow(DropShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
+    elif args.len() == 5 and
+        (args[0].kind == CssSizeKd and args[1].kind == CssSizeKd) and
+        (args[2].kind == CssSizeKd and args[3].kind == CssValueKind.CssColor) and
+        args[4] == CssVarName("inset"):
+      result = CssShadow(InnerShadow, args[0].cx, args[1].cx, args[2].cx, args[3].c)
     else:
-      echo "CSS Warning: ", "unhandled css shadow kind: "
+      echo "CSS Warning: ", "unhandled css shadow kind: ", args.repr
 
   while true:
     parser.skip(tkWhiteSpace)
