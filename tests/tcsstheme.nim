@@ -349,7 +349,7 @@ suite "css exec":
 
     #child2 < Button {
       background: #0000FF;
-      box-shadow: 10px 5px 5px red inset;
+      box-shadow: 5px 5px 10px red inset;
     }
 
     """
@@ -358,9 +358,10 @@ suite "css exec":
     check btnB.fill == parseHtmlColor("#0000FF")
     check btnB.shadow[DropShadow].blur == 0
     check btnB.shadow[DropShadow].color == clearColor
-    check btnB.shadow[InnerShadow].blur == 10
+
     check btnB.shadow[InnerShadow].x == 5
     check btnB.shadow[InnerShadow].y == 5
+    check btnB.shadow[InnerShadow].blur == 10
     check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
     # check btnB.fill == parseHtmlColor("#FF0000")
     check btnB.stroke.weight == 0.0
