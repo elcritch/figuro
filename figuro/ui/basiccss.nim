@@ -291,7 +291,9 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         result = CssShadow(result.sstyle, args[0].cx, args[1].cx, args[2].cx, args[3].cx, CssBlack)
       args = args[lcnt..^1]
 
-      if args.len() == 1:
+      if args.len() == 0:
+        return
+      elif args.len() == 1:
         if args[0] == CssVarName("inset"):
           result.sstyle = InnerShadow
           return
