@@ -5,6 +5,7 @@ import cssgrid
 import stylus
 import patty
 import chroma
+import ../common/nodes/basics
 
 variantp CssValue:
   MissingCssValue
@@ -240,7 +241,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     else:
       raise newException(ValueError, "expected basic css value, got: " & tk.repr)
 
-  proc parseShadow(tk: var Token): CssValue =
+  proc parseShadow(tk: var Token, style: ShadowStyle): CssValue =
     var args: seq[CssValue]
     for i in 1..4:
       parser.skip(tkWhiteSpace)
@@ -253,7 +254,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         args[1].kind == CssValueKind.CssSize and
         args[2].kind == CssValueKind.CssSize and
         args[3].kind == CssValueKind.CssColor:
-      result = CssShadow(args[0].cx, args[1].cx, args[2].cx, args[3].c)
+      result = CssShadow(style, args[0].cx, args[1].cx, args[2].cx, args[3].c)
     else:
       echo "CSS Warning: ", "unhandled css shadow kind: "
 
@@ -275,7 +276,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         parser.eat(tkColon)
 
         if result[^1].name == "box-shadow":
-          result[^1].value = parseShadow(tk)
+          result[^1].value = parseShadow(tk, DropShadow)
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
