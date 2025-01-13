@@ -44,6 +44,7 @@ type
     strokeSet
     imageSet
     shadowSet
+    skipCss
 
   FieldSet* = enum
     ## For tracking which fields have been set by the widget user code.

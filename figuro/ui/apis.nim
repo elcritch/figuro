@@ -171,6 +171,13 @@ template css*(color: static string): Color =
   const c = parseHtmlColor(color)
   c
 
+proc cssEnable*(current: Figuro, enable: bool) =
+  ## Causes the parent to clip the children.
+  if enable:
+    current.attrs.excl skipCss
+  else:
+    current.attrs.incl skipCss
+
 proc clipContent*(current: Figuro, clip: bool) =
   ## Causes the parent to clip the children.
   if clip:

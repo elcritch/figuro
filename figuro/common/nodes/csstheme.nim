@@ -197,6 +197,8 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  if skipCss in node.attrs:
+    return
   if not node.frame[].theme.isNil:
     for rule in node.frame[].theme.cssRules:
       rule.eval(node)

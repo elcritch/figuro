@@ -24,6 +24,7 @@ proc draw*(self: Main) {.slot.} =
     for i in 0 .. 9:
       capture i, j:
         Button.new "btn":
+          cssEnable node, false
           let value = self.value
           fill node, css"#AA0000".spin(i.toFloat*20.0)
           node.onHover:
