@@ -107,7 +107,7 @@ proc skip(parser: CssParser, kind: TokenKind = tkWhiteSpace) =
       break
 
 proc parseSelector(parser: CssParser): seq[CssSelector] =
-  echo "start: selector parser: "
+  # echo "start: selector parser: "
   var
     isClass = false
     isPseudo = false
@@ -116,7 +116,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
   while true:
     parser.skip(tkWhiteSpace)
     var tk = parser.peek()
-    echo "\t selector parser: ", tk.repr
+    # echo "\t selector parser: ", tk.repr
     case tk.kind
     of tkIdent:
       if isClass:
@@ -156,10 +156,9 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       # echo "\tsel: ", "done"
       break
     of tkComment:
-      echo "\tcomment: ", "done"
       # var tk = parser.peek()
-      let nt = parser.nextToken()
-      echo "TK: ", tk.repr
+      tk = parser.nextToken()
+      # echo "TK: ", tk.repr
       # echo "NT: ", nt.repr
       break
     else:
@@ -268,8 +267,6 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     parser.eat(tkSemicolon)
 
     let parsedargs = args
-    echo "css args: "
-    for arg in args: echo "\t", arg.repr
     result = CssShadow(DropShadow, csFixed(0), csFixed(0), csFixed(0), csFixed(0), CssBlack)
     if args.len() == 0:
       echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
@@ -322,10 +319,8 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       if result[^1].name.len() == 0:
         result[^1].name = tk.ident
         parser.eat(tkColon)
-
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)
-          echo "box-shadow: ", result[^1].value.repr
       elif result[^1].value == MissingCssValue():
         result[^1].value = CssVarName(tk.ident)
     of tkSemicolon:
@@ -346,7 +341,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         "unhandled token while parsing property: ", parser.peek().repr
       discard parser.nextToken()
 
-  echo "finished: rule body parsing"
+  # echo "finished: rule body parsing"
   popIncompleteProperty(warning = false)
   parser.eat(tkCloseCurlyBracket)
 
