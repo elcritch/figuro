@@ -338,6 +338,7 @@ suite "css exec":
     check btnB.shadow[DropShadow].y == 5
     check btnB.shadow[DropShadow].color == parseHtmlColor("red")
     check btnB.shadow[InnerShadow].blur == 0
+    check btnB.shadow[InnerShadow].color == clearColor
     # check btnB.fill == parseHtmlColor("#FF0000")
     check btnB.stroke.weight == 0.0
     check btnB.stroke.color == clearColor
