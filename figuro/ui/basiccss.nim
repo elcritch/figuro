@@ -311,7 +311,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     except EofError:
       raise newException(InvalidCssBody, "Invalid CSS Body")
 
-    echo "\t rule body parser: ", tk.repr
+    # echo "\t rule body parser: ", tk.repr
     # echo "\tproperty:next: ", tk.repr
     case tk.kind
     of tkIdent:
