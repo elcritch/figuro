@@ -202,11 +202,11 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
   template popIncompleteProperty(warning = true) =
     if result.len() > 0 and result[^1].name.len() == 0:
       if warning:
-        warning "CSS: Missing css property name! Got: ", cssResult = result[^1].repr()
+        warn "CSS: Missing css property name!", cssResult = result[^1].repr()
       discard result.pop()
     if result.len() > 0 and result[^1].value == MissingCssValue():
       if warning:
-        warning "CSS: Missing css property value! Got: ", cssResult = result[^1].repr()
+        warn "CSS: Missing css property value!", cssResult = result[^1].repr()
       discard result.pop()
 
   proc parseBasicValue(tk: var Token): CssValue =
@@ -322,12 +322,12 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
 
     if args.len() > 0 and args[0] == CssVarName("inset"):
       result.sstyle = InnerShadow
-      # args = args[1..^1]
+      args = args[1..^1]
 
     if args.len() == 0:
       return
 
-    error("CSS: unhandled css shadow kind", parsedargs = $parsedargs)
+    warn("CSS: unhandled css shadow kind", parsedargs = $parsedargs)
 
   while true:
     parser.skip(tkWhiteSpace)
@@ -362,7 +362,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         raise newException(ValueError, "expected empty CSS value. Got: " & result[^1].value.repr)
       result[^1].value = parseBasicValue(tk)
     else:
-      error("CSS: unhandled token while parsing property: ", peek = parser.peek())
+      warn("CSS: unhandled token while parsing property: ", peek = parser.peek())
       tk = parser.nextToken()
 
   # echo "finished: rule body parsing"
@@ -379,7 +379,7 @@ proc parse*(parser: CssParser): seq[CssBlock] =
     try:
       sel = parser.parseSelector()
     except ValueError as e:
-      echo "Error: ", "parsing got value error: " & e.msg
+      warn "CSS: parsing got value error: ", error = e.msg
       continue
     # echo "selectors: ", sel.repr()
     try:
@@ -387,7 +387,7 @@ proc parse*(parser: CssParser): seq[CssBlock] =
       # echo ""
       result.add(CssBlock(selectors: sel, properties: props))
     except InvalidCssBody:
-      echo "Error: ", "unable to parse CSS body for " & repr sel
+      error "CSS: invalid css body", selector = sel.repr
     except ValueError as e:
-      echo "Error: ", "css rule parsing got value error: " & e.msg
+      error "CSS: error parsing css body", error = e.msg
       continue

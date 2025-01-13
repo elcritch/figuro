@@ -144,7 +144,6 @@ type
   TMain* = ref object of Figuro
 
 proc draw*(self: TMain) {.slot.} =
-  echo "draw: "
   let node = self
   self.name = "main"
   rectangle "body":
