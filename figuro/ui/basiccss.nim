@@ -59,6 +59,31 @@ proc `==`*(a, b: CssProperty): bool =
     return false
   a[] == b[]
 
+proc `$`*(val: CssValue): string =
+  match val:
+    MissingCssValue:
+      "<empty>"
+    CssColor(c):
+      toHtmlHex(c)
+    CssSize(cx):
+      match cx:
+        UiValue(value):
+          $value
+        _:
+          $cx
+    CssVarName(n):
+      if n in ["inset", "none"]:
+        $n
+      else:
+        fmt"var({n})"
+    CssShadow(style, x, y, blur, spread, color):
+      fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
+
+proc `$`*(vals: seq[CssValue]): string =
+  for val in vals:
+    result &= " "
+    result &= $val
+
 proc newCssParser*(src: string): CssParser =
   let tokenizer = newTokenizer(src)
   result = CssParser(tokenizer: tokenizer)
@@ -303,7 +328,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       return
 
     # echo(fmt"CSS Warning: unhandled css shadow kind: {parsedargs.repr}")
-    error("CSS: unhandled css shadow kind", parsedargs)
+    error("CSS: unhandled css shadow kind", parsedargs = $parsedargs)
 
   while true:
     parser.skip(tkWhiteSpace)
