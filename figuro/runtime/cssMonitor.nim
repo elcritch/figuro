@@ -36,7 +36,7 @@ proc cssLoader*(self: CssLoader) {.slot.} =
     let cssRules = loadTheme()
     emit self.cssUpdate(cssRules)
     os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-    emit watcherSelf.cssUpdate(cssRules)
+    emit self.cssUpdate(cssRules)
     os.sleep(300_000)
 
 proc cssWatcher*(self: CssLoader) {.slot.} =
