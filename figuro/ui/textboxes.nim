@@ -70,6 +70,8 @@ proc updateCursor(self: var TextBox) =
   # print "updateCursor:sel: ", self.selection
   # print "updateCursor:selRect: ", self.selectionRects
   # print "updateCursor:layout: ", self.layout
+  if self.layout.selectionRects.len() == 0:
+    return
 
   var cursor: Rect
   case self.growing
