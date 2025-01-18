@@ -46,6 +46,8 @@ proc htmlDone*(tp: HtmlLoader, cssRules: seq[CssBlock]) {.signal.}
 
 let thr = newSigilThread()
 
+thr.start()
+
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   # echo "hover: ", kind
@@ -89,6 +91,8 @@ proc draw*(self: Main) {.slot.} =
         echo "Load clicked"
         self.loading = true
         emit self.htmlLoad()
+        echo "connections: "
+        printConnections(self)
         refresh(self)
       connect(node, doClick, self, clickLoad)
 
