@@ -52,7 +52,7 @@ type
   Link* = object
     title*: string
     href*: string
-    siteLink*: string
+    siteFrom*: string
     siteName*: string
 
   Submission* = object
@@ -79,7 +79,7 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
     let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit"}).toSeq()[0]
     submission.link.href = linkA.attrs["href"]
     submission.link.title = linkA.innerText()
-    submission.link.siteLink = siteSpan.findAll("a")[0].attrs["href"]
+    submission.link.siteFrom = siteSpan.findAll("a")[0].attrs["href"]
     submission.link.siteName = siteSpan.findAll("span")[0].innerText()
 
     submission.rank = rank.innerText()
