@@ -23,6 +23,15 @@ iterator elems*(n: XmlNode): XmlNode {.inline.} =
     if c.kind == xnElement:
       yield c
 
+iterator elemsWithAttrs*(n: openArray[XmlNode], attrs: varargs[string]): XmlNode {.inline.} =
+  for c in n:
+    if c.kind == xnElement and c.attrs != nil:
+      var filt = true
+      for attr in attrs:
+        filt = filt and c.attrs.hasKey(attr)
+      if filt:
+        yield c
+
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
   let client = newHttpClient()
@@ -32,11 +41,10 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
   # var stack = @[Node(document)]
   # echo "document: ", document.findAll("table")
   var submissions: seq[XmlNode]
-  for tr in document.findAll("tr"):
+  for tr in document.findAll("tr").elemsWithAttrs("class"):
     # athing submission
-    if tr.attrs != nil and tr.attrs.hasKey "class":
-      if tr.attrs["class"] == "athing submission":
-        submissions.add tr
+    if tr.attrs["class"] == "athing submission":
+      submissions.add tr
 
   for submission in submissions:
     echo "story: "
