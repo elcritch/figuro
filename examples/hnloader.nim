@@ -21,8 +21,9 @@ proc parseTable(mainTable: XmlNode) =
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
   let client = newHttpClient()
-  let res = client.get(loader.url)
-  let document = parseHTML(res.bodyStream)
+  # let res = client.get(loader.url)
+  # let document = parseHTML(res.bodyStream)
+  let document = loadHtml("examples/hn.html")
   # var stack = @[Node(document)]
   # echo "document: ", document.findAll("table")
   for table in document.findAll("table"):
