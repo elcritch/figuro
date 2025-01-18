@@ -87,12 +87,10 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
     submission.rank = rank.innerText()
     submission.upvote.id = vote.attrs["id"]
     submission.upvote.href = vote.attrs["href"]
-    # echo ""
-    # echo "siteSpan: ", siteSpan
-    # echo ""
-    echo "\nsubmission:\n\t", repr submission
-    # echo ""
+    # echo "\nsubmission:\n\t", repr submission
+    submissions.add(submission)
   
+  echo "stories loaded"
   emit loader.htmlDone(submissions)
 
 
