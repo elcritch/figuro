@@ -19,9 +19,7 @@ let
 type HtmlLoader* = ref object of Agent
   period*: Duration
 
-proc htmlLoaded*(tp: HtmlLoader, cssRules: seq[CssBlock]) {.signal.}
-
-proc loadHnPage() =
+proc loadHnPage(loader: HtmlLoader) {.slot.} =
   if paramCount() != 1:
     echo "Usage: " & paramStr(0) & " [URL]"
     quit(1)
@@ -43,13 +41,17 @@ type
     value: float
     hasHovered: bool
     loader: AgentProxy[HtmlLoader]
-    buttonMsg = "Load"
+    loading = false
+
+proc htmlLoad*(tp: Main) {.signal.}
+proc htmlDone*(tp: HtmlLoader, cssRules: seq[CssBlock]) {.signal.}
 
 proc clickLoad(self: Main,
                 kind: EventKind,
                 buttons: UiButtonView) {.slot.} =
   echo "Load clicked"
-  self.buttonMsg = "Loading..."
+  self.loading = true
+  emit self.htmlLoad()
   refresh(self)
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
@@ -78,7 +80,11 @@ proc draw*(self: Main) {.slot.} =
       ui.Text.new "text":
         with node:
           fill blackColor
-          setText({font: self.buttonMsg}, Center, Middle)
+        case self.loading:
+        of false:
+          node.setText({font: "Load"}, Center, Middle)
+        of true:
+          node.setText({font: "Loading..."}, Center, Middle)
 
     ScrollPane.new "scroll":
       with node:
