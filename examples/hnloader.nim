@@ -56,6 +56,8 @@ type
     upvote*: Upvote
     link*: Link
 
+proc htmlDone*(tp: HtmlLoader, stories: seq[Submission]) {.signal.}
+
 proc loadPage*(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
   when isMainModule:
@@ -90,6 +92,9 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
     # echo ""
     echo "\nsubmission:\n\t", repr submission
     # echo ""
+  
+  emit loader.htmlDone(submissions)
+
 
 when isMainModule:
   let l = HtmlLoader(url: "https://news.ycombinator.com")

@@ -22,7 +22,6 @@ type
     loading = false
 
 proc htmlLoad*(tp: Main) {.signal.}
-proc htmlDone*(tp: HtmlLoader, cssRules: seq[CssBlock]) {.signal.}
 
 let thr = newSigilThread()
 
@@ -41,6 +40,9 @@ proc buttonItem(self, node: Figuro, idx: int) =
       fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*50)
     connect(node, doHover, self, Main.hover)
 
+proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
+  echo "ui:got: ", stories
+
 proc draw*(self: Main) {.slot.} =
   var node = self
   with node:
@@ -51,6 +53,7 @@ proc draw*(self: Main) {.slot.} =
     var loader = HtmlLoader(url: "https://news.ycombinator.com")
     self.loader = loader.moveToThread(thr)
     threads.connect(self, htmlLoad, self.loader, HtmlLoader.loadPage())
+    threads.connect(self.loader, htmlDone, self, Main.loadStories())
 
   rectangle "outer":
     with node:
