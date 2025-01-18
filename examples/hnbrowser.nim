@@ -13,10 +13,14 @@ import figuro/widgets/vertical
 import figuro/widget
 import figuro
 
-type CssLoader* = ref object of Agent
+let
+  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  font = UiFont(typefaceId: typeface, size: 22)
+
+type HtmlLoader* = ref object of Agent
   period*: Duration
 
-proc htmlLoaded*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
+proc htmlLoaded*(tp: HtmlLoader, cssRules: seq[CssBlock]) {.signal.}
 
 proc loadHnPage() =
   if paramCount() != 1:
@@ -35,11 +39,16 @@ proc loadHnPage() =
     for i in countdown(node.childList.high, 0):
       stack.add(node.childList[i])
 
-
 type
   Main* = ref object of Figuro
     value: float
     hasHovered: bool
+    loader: AgentProxy[HtmlLoader]
+
+proc clickLoad(self: Main,
+                kind: EventKind,
+                buttons: UiButtonView) {.slot.} =
+  discard
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
@@ -58,20 +67,31 @@ proc draw*(self: Main) {.slot.} =
   var node = self
   with node:
     fill css"#0000AA"
-  ScrollPane.new "scroll":
-    with node:
-      offset 2'pp, 2'pp
-      cornerRadius 7.0'ux
-      size 96'pp, 90'pp
-    node.settings.size.y = 20'ui
-    contents "children":
-      Vertical.new "":
-        # Setup CSS Grid Template
+
+  Vertical.new "outer":
+    Button.new "Load":
+      with node:
+        size 0.5'fr, 50'ux
+      connect(node, doClick, self, Main.clickLoad())
+      ui.Text.new "text":
         with node:
-          offset 10'ux, 10'ux
-          itemHeight cx"max-content"
-        for idx in 0 .. 15:
-          buttonItem(self, node, idx)
+          fill blackColor
+          setText({font: "Load"}, Center, Middle)
+
+    ScrollPane.new "scroll":
+      with node:
+        offset 2'pp, 2'pp
+        cornerRadius 7.0'ux
+        size 96'pp, 90'pp
+      node.settings.size.y = 20'ui
+      contents "children":
+        Vertical.new "items":
+          # Setup CSS Grid Template
+          with node:
+            offset 10'ux, 10'ux
+            itemHeight cx"max-content"
+          for idx in 0 .. 1:
+            buttonItem(self, node, idx)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
