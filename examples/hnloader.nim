@@ -40,7 +40,7 @@ iterator withAttrs*(
     if c.kind == xnElement and c.attrs != nil:
       var filt = true
       for attr in attrs:
-        filt = filt and c.attrs.hasKey(attr[0]) and c.attrs[attr[0]] == attr[1]
+        filt = filt and c.attrs.hasKey(attr[0]) and attr[1] in c.attrs[attr[0]]
       if filt:
         yield c
 
@@ -52,6 +52,7 @@ type
   Link* = object
     title*: string
     href*: string
+    site*: string
 
   Submission* = object
     rank*: string
@@ -74,6 +75,7 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
     let vote = sub.findAll("a").withAttrs("id").toSeq()[0]
     let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).toSeq()[0]
     let linkA = titleTd.elems().toSeq()[0]
+    let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit comhead"}).toSeq()[0]
     submission.link.href = linkA.attrs["href"]
     submission.link.title = linkA.innerText()
 
