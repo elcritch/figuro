@@ -1,13 +1,8 @@
-
 # Compile with nim c -d:ssl
-# List text found between HTML tags on the target website.
-
-## This minimal example shows 5 blue squares.
 import figuro/widgets/[basics, button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro/widget
 import figuro
-
 import hnloader
 
 let
