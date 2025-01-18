@@ -20,11 +20,9 @@ type HtmlLoader* = ref object of Agent
   url: string
 
 proc loadPage(loader: HtmlLoader) {.slot.} =
-  if paramCount() != 1:
-    echo "Usage: " & paramStr(0) & " [URL]"
-    quit(1)
+  echo "Starting page load..."
   let client = newHttpClient()
-  let res = client.get(paramStr(1))
+  let res = client.get(loader.url)
   let document = parseHTML(res.bodyStream)
   var stack = @[Node(document)]
   while stack.len > 0:
@@ -52,14 +50,7 @@ proc clickLoad(self: Main,
                 kind: EventKind,
                 buttons: UiButtonView) {.slot.} =
   echo "Load clicked"
-  if not self.loading:
-    self.loading = true
-    emit self.htmlLoad()
-    var loader = HtmlLoader(url: "https://news.ycombinator.com")
-    self.loader = loader.moveToThread(thr)
-    threads.connect(self.proxy, htmlLoad, frame, HtmlLoader.loadPage())
-  else:
-    refresh(self)
+  refresh(self)
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
@@ -79,6 +70,13 @@ proc draw*(self: Main) {.slot.} =
   with node:
     fill css"#0000AA"
 
+  if not self.loading:
+    echo "Setting up loading"
+    self.loading = true
+    var loader = HtmlLoader(url: "https://news.ycombinator.com")
+    self.loader = loader.moveToThread(thr)
+    threads.connect(self, htmlLoad, self.loader, HtmlLoader.loadPage())
+
   rectangle "outer":
     with node:
       offset 10'ux, 10'ux
@@ -92,7 +90,7 @@ proc draw*(self: Main) {.slot.} =
     Button.new "Load":
       with node:
         size 0.5'fr, 50'ux
-      connect(node, doClick, self, Main.clickLoad())
+      connect(node, doClick, self, Main.htmlLoad(), acceptVoidSlot = true)
       ui.Text.new "text":
         with node:
           fill blackColor
