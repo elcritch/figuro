@@ -18,6 +18,11 @@ proc parseTable(mainTable: XmlNode) =
   # echo "main table: ", mainTable.localNameStr()
   discard
 
+iterator elems*(n: XmlNode): XmlNode {.inline.} =
+  for c in n:
+    if c.kind == xnElement:
+      yield c
+
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
   let client = newHttpClient()
@@ -33,7 +38,7 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
       if table.attrs["id"] == "hnmain":
         # table.findAll("tbody")
         # echo "main: ", table
-        for child in table:
+        for child in table.elems():
           echo "child: ", child.kind
           if child.kind == xnElement:
             echo "child: tag: ", child.tag()
