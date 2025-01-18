@@ -23,7 +23,7 @@ iterator elems*(n: XmlNode): XmlNode {.inline.} =
     if c.kind == xnElement:
       yield c
 
-iterator elemsWithAttrs*(n: openArray[XmlNode], attrs: varargs[string]): XmlNode {.inline.} =
+iterator withAttrs*(n: openArray[XmlNode], attrs: varargs[string]): XmlNode {.inline.} =
   for c in n:
     if c.kind == xnElement and c.attrs != nil:
       var filt = true
@@ -32,34 +32,37 @@ iterator elemsWithAttrs*(n: openArray[XmlNode], attrs: varargs[string]): XmlNode
       if filt:
         yield c
 
+iterator withAttrs*(n: openArray[XmlNode], attrs: openArray[(string, string)]): XmlNode {.inline.} =
+  for c in n:
+    if c.kind == xnElement and c.attrs != nil:
+      var filt = true
+      for attr in attrs:
+        filt = filt and
+        c.attrs.hasKey(attr[0]) and 
+        c.attrs[attr[0]] == attr[1]
+      if filt:
+        yield c
+
+type
+  Submission* = ref object
+    rank: string
+
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
   let client = newHttpClient()
-  # let res = client.get(loader.url)
-  # let document = parseHTML(res.bodyStream)
   let document = loadHtml("examples/hn.html")
-  # var stack = @[Node(document)]
-  # echo "document: ", document.findAll("table")
-  var submissions: seq[XmlNode]
-  for tr in document.findAll("tr").elemsWithAttrs("class"):
-    # athing submission
-    if tr.attrs["class"] == "athing submission":
-      submissions.add tr
+  var subs: seq[XmlNode] =
+    document.
+      findAll("tr").
+      withAttrs({"class": "athing submission"}).toSeq()
 
-  for submission in submissions:
+  var submissions: seq[Submission]
+  for sub in subs:
     echo "story: "
-    echo submission
+    echo sub
+    let rank = sub.findAll("span").withAttrs({"class": "rank"}).toSeq()[0]
+    echo "rank: ", rank.innerText()
     echo ""
-
-    # # echo "table: ", table
-    # echo "table: ", table.attrs
-    # if table.attrs.hasKey("id"):
-    #   if table.attrs["id"] == "hnmain":
-    #     # table.findAll("tbody")
-    #     # echo "main: ", table
-    #     let comments = table.elems().toSeq()[1]
-    #     let comments = 
-    #     echo "stories: "
 
 
 when isMainModule:
