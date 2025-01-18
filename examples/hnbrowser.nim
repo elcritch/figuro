@@ -72,9 +72,16 @@ proc draw*(self: Main) {.slot.} =
   with node:
     fill css"#0000AA"
 
-  Vertical.new "outer":
+  rectangle "outer":
     with node:
       offset 10'ux, 10'ux
+      setGridCols 1'fr
+      setGridRows ["top"] 70'ux \
+                  ["items"] 1'fr
+      gridAutoFlow grRow
+      justifyItems CxCenter
+      alignItems CxStart
+
     Button.new "Load":
       with node:
         size 0.5'fr, 50'ux
