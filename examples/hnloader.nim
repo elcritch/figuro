@@ -74,7 +74,7 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
     submission.rank = rank.innerText()
     submission.upvote.id = vote.attrs["id"]
     submission.upvote.href = vote.attrs["href"]
-    echo "\nsubmission: ", repr submission
+    echo "\nsubmission:\n\t", repr submission
     echo ""
 
 
