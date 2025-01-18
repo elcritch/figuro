@@ -27,12 +27,17 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
   # var stack = @[Node(document)]
   # echo "document: ", document.findAll("table")
   for table in document.findAll("table"):
-    echo "table: ", table
-    if table.attrs.hasKey "hnmain":
-      # table.findAll("tbody")
-      # echo "main: ", table
-      for child in table:
-        echo "child: ", child.htmlTag
+    # echo "table: ", table
+    echo "table: ", table.attrs
+    if table.attrs.hasKey("id"):
+      if table.attrs["id"] == "hnmain":
+        # table.findAll("tbody")
+        # echo "main: ", table
+        for child in table:
+          echo "child: ", child.kind
+          if child.kind == xnElement:
+            echo "child: tag: ", child.tag()
+          discard
 
 when isMainModule:
   let l = HtmlLoader(url: "https://news.ycombinator.com")
