@@ -13,11 +13,7 @@ import std/strtabs
 import pretty
 
 type HtmlLoader* = ref object of Agent
-  url: string
-
-proc parseTable(mainTable: XmlNode) =
-  # echo "main table: ", mainTable.localNameStr()
-  discard
+  url*: string
 
 iterator elems*(n: XmlNode): XmlNode {.inline.} =
   for c in n:
@@ -74,8 +70,8 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
   var submissions: seq[Submission]
   for sub in subs[0 .. 1]:
     var submission: Submission
-    echo "story: "
-    echo sub
+    # echo "story: "
+    # echo sub
     let rank = sub.findAll("span").withAttrs({"class": "rank"}).toSeq()[0]
     let vote = sub.findAll("a").withAttrs("id").toSeq()[0]
     let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).toSeq()[0]
@@ -92,7 +88,7 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
     # echo ""
     # echo "siteSpan: ", siteSpan
     # echo ""
-    # echo "\nsubmission:\n\t", repr submission
+    echo "\nsubmission:\n\t", repr submission
     # echo ""
 
 when isMainModule:

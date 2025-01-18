@@ -8,6 +8,8 @@ import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro/widget
 import figuro
 
+import hnloader
+
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22)
