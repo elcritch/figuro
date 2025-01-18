@@ -7,9 +7,8 @@ import std/strutils
 import chame/minidom
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/button
-import figuro/widgets/scrollpane
-import figuro/widgets/vertical
+import figuro/widgets/[basics, button]
+import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro/widget
 import figuro
 
@@ -44,11 +43,14 @@ type
     value: float
     hasHovered: bool
     loader: AgentProxy[HtmlLoader]
+    buttonMsg = "Load"
 
 proc clickLoad(self: Main,
                 kind: EventKind,
                 buttons: UiButtonView) {.slot.} =
-  discard
+  echo "Load clicked"
+  self.buttonMsg = "Loading..."
+  refresh(self)
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
@@ -76,7 +78,7 @@ proc draw*(self: Main) {.slot.} =
       ui.Text.new "text":
         with node:
           fill blackColor
-          setText({font: "Load"}, Center, Middle)
+          setText({font: self.buttonMsg}, Center, Middle)
 
     ScrollPane.new "scroll":
       with node:
