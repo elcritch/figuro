@@ -36,6 +36,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   echo "got stories"
   self.stories = stories
+  refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   var node = self
@@ -72,7 +73,7 @@ proc draw*(self: Main) {.slot.} =
         refresh(self)
       connect(node, doClick, self, clickLoad)
 
-      ui.Text.new "text":
+      Text.new "text":
         with node:
           fill blackColor
           offset 0'ux, 10'ux
@@ -94,12 +95,15 @@ proc draw*(self: Main) {.slot.} =
           with node:
             offset 10'ux, 10'ux
             itemHeight cx"max-content"
-          for idx in 0 .. 1:
-            Button.new "button":
-              with node:
-                size 1'fr, 50'ux
-                fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*50)
-              connect(node, doHover, self, Main.hover)
+          for idx, story in self.stories:
+            capture story:
+              Button.new "button":
+                with node:
+                  size 1'fr, 40'ux
+                # connect(node, doHover, self, Main.hover)
+                Text.new "text":
+                  offset node, 0'ux, 11'ux
+                  node.setText({font: $story.link.title}, Center, Middle)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
