@@ -13,7 +13,22 @@ type HtmlLoader* = ref object of Agent
 proc parseTable(mainTable: Element) =
   echo "main table: ", mainTable.localNameStr()
   echo "main: ", mainTable.attrsStr().toSeq()
+  echo ""
 
+  var stack: seq[Node] = mainTable.childList
+  block outer:
+    while stack.len > 0:
+      let node = stack.pop()
+      if node of minidom.Text:
+        let s = minidom.Text(node)
+        # echo "text: ", s.data.strip()
+      elif node of minidom.Element:
+        let elem = minidom.Element(node)
+        if elem.localNameStr == "table":
+          echo "element: ", elem.localNameStr()
+          echo "element: ", elem.attrsStr().toSeq()
+      for i in countdown(node.childList.high, 0):
+        stack.add(node.childList[i])
 
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
