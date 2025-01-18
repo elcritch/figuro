@@ -1,10 +1,6 @@
 
 # Compile with nim c -d:ssl
 # List text found between HTML tags on the target website.
-import std/httpclient
-import std/os
-import std/strutils
-import chame/minidom
 
 ## This minimal example shows 5 blue squares.
 import figuro/widgets/[basics, button]
@@ -15,24 +11,6 @@ import figuro
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 22)
-
-type HtmlLoader* = ref object of Agent
-  url: string
-
-proc loadPage(loader: HtmlLoader) {.slot.} =
-  echo "Starting page load..."
-  let client = newHttpClient()
-  let res = client.get(loader.url)
-  let document = parseHTML(res.bodyStream)
-  var stack = @[Node(document)]
-  while stack.len > 0:
-    let node = stack.pop()
-    if node of minidom.Text:
-      let s = minidom.Text(node).data.strip()
-      if s != "":
-        echo s
-    for i in countdown(node.childList.high, 0):
-      stack.add(node.childList[i])
 
 type
   Main* = ref object of Figuro
@@ -91,8 +69,6 @@ proc draw*(self: Main) {.slot.} =
         echo "Load clicked"
         self.loading = true
         emit self.htmlLoad()
-        echo "connections: "
-        printConnections(self)
         refresh(self)
       connect(node, doClick, self, clickLoad)
 
