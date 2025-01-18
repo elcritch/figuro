@@ -17,9 +17,9 @@ let
   font = UiFont(typefaceId: typeface, size: 22)
 
 type HtmlLoader* = ref object of Agent
-  period*: Duration
+  url: string
 
-proc loadHnPage(loader: HtmlLoader) {.slot.} =
+proc loadPage(loader: HtmlLoader) {.slot.} =
   if paramCount() != 1:
     echo "Usage: " & paramStr(0) & " [URL]"
     quit(1)
@@ -46,13 +46,20 @@ type
 proc htmlLoad*(tp: Main) {.signal.}
 proc htmlDone*(tp: HtmlLoader, cssRules: seq[CssBlock]) {.signal.}
 
+let thr = newSigilThread()
+
 proc clickLoad(self: Main,
                 kind: EventKind,
                 buttons: UiButtonView) {.slot.} =
   echo "Load clicked"
-  self.loading = true
-  emit self.htmlLoad()
-  refresh(self)
+  if not self.loading:
+    self.loading = true
+    emit self.htmlLoad()
+    var loader = HtmlLoader(url: "https://news.ycombinator.com")
+    self.loader = loader.moveToThread(thr)
+    threads.connect(self.proxy, htmlLoad, frame, HtmlLoader.loadPage())
+  else:
+    refresh(self)
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
