@@ -3,6 +3,7 @@ import std/httpclient
 import std/os
 import std/sequtils
 import std/strutils
+import std/sugar
 
 # import chame/minidom
 import std/htmlparser
@@ -44,8 +45,12 @@ iterator withAttrs*(n: openArray[XmlNode], attrs: openArray[(string, string)]): 
         yield c
 
 type
-  Submission* = ref object
-    rank: string
+  Upvote* = object
+    id*: string
+    href*: string
+  Submission* = object
+    rank*: string
+    upvote*: Upvote
 
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
@@ -57,11 +62,19 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
       withAttrs({"class": "athing submission"}).toSeq()
 
   var submissions: seq[Submission]
-  for sub in subs:
+  for sub in subs[0..1]:
+    var submission: Submission
     echo "story: "
     echo sub
-    let rank = sub.findAll("span").withAttrs({"class": "rank"}).toSeq()[0]
-    echo "rank: ", rank.innerText()
+    let rank = sub.
+      findAll("span").
+      withAttrs({"class": "rank"}).
+      toSeq()[0]
+    let vote = sub.findAll("a").withAttrs("id").toSeq()[0]
+    submission.rank = rank.innerText()
+    submission.upvote.id = vote.attrs["id"]
+    submission.upvote.href = vote.attrs["href"]
+    echo "\nsubmission: ", repr submission
     echo ""
 
 
