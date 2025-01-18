@@ -62,8 +62,12 @@ type
 
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
-  let client = newHttpClient()
-  let document = loadHtml("examples/hn.html")
+  when isMainModule:
+    let document = loadHtml("examples/hn.html")
+  else:
+    let client = newHttpClient()
+    let res = client.get(loader.url)
+    let document = parseHTML(res.bodyStream)
   var subs: seq[XmlNode] =
     document.findAll("tr").withAttrs({"class": "athing submission"}).toSeq()
 
@@ -85,11 +89,11 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
     submission.rank = rank.innerText()
     submission.upvote.id = vote.attrs["id"]
     submission.upvote.href = vote.attrs["href"]
-    echo ""
-    echo "siteSpan: ", siteSpan
-    echo ""
-    echo "\nsubmission:\n\t", repr submission
-    echo ""
+    # echo ""
+    # echo "siteSpan: ", siteSpan
+    # echo ""
+    # echo "\nsubmission:\n\t", repr submission
+    # echo ""
 
 when isMainModule:
   let l = HtmlLoader(url: "https://news.ycombinator.com")
