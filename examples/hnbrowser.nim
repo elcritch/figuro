@@ -73,7 +73,8 @@ proc draw*(self: Main) {.slot.} =
     fill css"#0000AA"
 
   Vertical.new "outer":
-    offset node, 10'ui, 10'ui
+    with node:
+      offset 10'ux, 10'ux
     Button.new "Load":
       with node:
         size 0.5'fr, 50'ux
@@ -81,6 +82,7 @@ proc draw*(self: Main) {.slot.} =
       ui.Text.new "text":
         with node:
           fill blackColor
+          offset 0'ux, 10'ux
         case self.loading:
         of false:
           node.setText({font: "Load"}, Center, Middle)
