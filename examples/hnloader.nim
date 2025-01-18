@@ -19,11 +19,11 @@ proc parseTable(mainTable: Element) =
   block outer:
     while stack.len > 0:
       let node = stack.pop()
-      if node of minidom.Text:
-        let s = minidom.Text(node)
+      if node of Text:
+        let s = Text(node)
         # echo "text: ", s.data.strip()
-      elif node of minidom.Element:
-        let elem = minidom.Element(node)
+      elif node of Element:
+        let elem = Element(node)
         if elem.localNameStr == "table":
           echo "element: ", elem.localNameStr()
           echo "element: ", elem.attrsStr().toSeq()
@@ -40,11 +40,11 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
   block outer:
     while stack.len > 0:
       let node = stack.pop()
-      if node of minidom.Text:
-        let s = minidom.Text(node)
+      if node of Text:
+        let s = Text(node)
         # echo "text: ", s.data.strip()
-      elif node of minidom.Element:
-        let elem = minidom.Element(node)
+      elif node of Element:
+        let elem = Element(node)
         if elem.localNameStr == "table":
           echo "element: ", elem.localNameStr()
           # echo "element: ", elem.attrsStr().toSeq()
