@@ -52,7 +52,8 @@ type
   Link* = object
     title*: string
     href*: string
-    site*: string
+    siteLink*: string
+    siteName*: string
 
   Submission* = object
     rank*: string
@@ -75,13 +76,17 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
     let vote = sub.findAll("a").withAttrs("id").toSeq()[0]
     let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).toSeq()[0]
     let linkA = titleTd.elems().toSeq()[0]
-    let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit comhead"}).toSeq()[0]
+    let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit"}).toSeq()[0]
     submission.link.href = linkA.attrs["href"]
     submission.link.title = linkA.innerText()
+    submission.link.siteLink = siteSpan.findAll("a")[0].attrs["href"]
+    submission.link.siteName = siteSpan.findAll("span")[0].innerText()
 
     submission.rank = rank.innerText()
     submission.upvote.id = vote.attrs["id"]
     submission.upvote.href = vote.attrs["href"]
+    echo ""
+    echo "siteSpan: ", siteSpan
     echo ""
     echo "\nsubmission:\n\t", repr submission
     echo ""
