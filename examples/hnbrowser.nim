@@ -73,6 +73,7 @@ proc draw*(self: Main) {.slot.} =
     fill css"#0000AA"
 
   Vertical.new "outer":
+    offset node, 10'ui, 10'ui
     Button.new "Load":
       with node:
         size 0.5'fr, 50'ux

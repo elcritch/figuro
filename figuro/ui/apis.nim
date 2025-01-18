@@ -122,23 +122,23 @@ proc setName*(current: Figuro, n: string) =
 ## interacting with user interactions. 
 ## 
 
-type CSSConstraint = Constraint
+# type Constraint* = Constraint
 
-proc fltOrZero(x: int | float32 | float64 | UICoord | CSSConstraint): float32 =
-  when x is CSSConstraint: 0.0 else: x.float32
+proc fltOrZero(x: int | float32 | float64 | UICoord | Constraint): float32 =
+  when x is Constraint: 0.0 else: x.float32
 
-proc csOrFixed*(x: int | float32 | float64 | UICoord | CSSConstraint): CSSConstraint =
-  when x is CSSConstraint:
+proc csOrFixed*(x: int | float32 | float64 | UICoord | Constraint): Constraint =
+  when x is Constraint:
     x
   else:
     csFixed(x.UiScalar)
 
 proc box*(
     current: Figuro,
-    x: UICoord | CSSConstraint,
-    y: UICoord | CSSConstraint,
-    w: UICoord | CSSConstraint,
-    h: UICoord | CSSConstraint,
+    x: UICoord | Constraint,
+    y: UICoord | Constraint,
+    w: UICoord | Constraint,
+    h: UICoord | Constraint,
 ) =
   ## Sets the size and offsets at the same time
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
@@ -148,10 +148,10 @@ proc box*(
 #   ## Sets the box dimensions with integers
 #   box(rect.x, rect.y, rect.w, rect.h)
 
-proc offset*(current: Figuro, x: UICoord | CSSConstraint, y: UICoord | CSSConstraint) =
+proc offset*(current: Figuro, x: UICoord | Constraint, y: UICoord | Constraint) =
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
 
-proc size*(current: Figuro, w: UICoord | CSSConstraint, h: UICoord | CSSConstraint) =
+proc size*(current: Figuro, w: UICoord | Constraint, h: UICoord | Constraint) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
 proc boxSizeOf*(current: Figuro, node: Figuro) =
