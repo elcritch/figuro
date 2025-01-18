@@ -70,10 +70,18 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
       findAll("span").
       withAttrs({"class": "rank"}).
       toSeq()[0]
-    let vote = sub.findAll("a").withAttrs("id").toSeq()[0]
+    let vote = sub.
+      findAll("a").
+      withAttrs("id").
+      toSeq()[0]
+    let titles = sub.
+      findAll("span").
+      withAttrs({"class": "titleline"}).toSeq()[0]
+
     submission.rank = rank.innerText()
     submission.upvote.id = vote.attrs["id"]
     submission.upvote.href = vote.attrs["href"]
+    echo "titles: ", titles
     echo "\nsubmission:\n\t", repr submission
     echo ""
 
