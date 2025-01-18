@@ -15,7 +15,11 @@ proc parseTable(mainTable: Element) =
   echo "main: ", mainTable.attrsStr().toSeq()
   echo ""
 
-  var stack: seq[Node] = mainTable.childList
+  for idx, child in mainTable.childList:
+    echo "child: ", idx, " ", child of Text, " ", child of Element
+
+  var stack: seq[Node] = @[mainTable.childList[0]]
+
   block outer:
     while stack.len > 0:
       let node = stack.pop()
