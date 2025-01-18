@@ -49,9 +49,14 @@ type
     id*: string
     href*: string
 
+  Link* = object
+    title*: string
+    href*: string
+
   Submission* = object
     rank*: string
     upvote*: Upvote
+    link*: Link
 
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
@@ -67,15 +72,15 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
     echo sub
     let rank = sub.findAll("span").withAttrs({"class": "rank"}).toSeq()[0]
     let vote = sub.findAll("a").withAttrs("id").toSeq()[0]
-    let title = sub.findAll("span").withAttrs({"class": "titleline"}).toSeq()[0]
-    let link = title.elems().toSeq()[0]
+    let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).toSeq()[0]
+    let linkA = titleTd.elems().toSeq()[0]
+    submission.link.href = linkA.attrs["href"]
+    submission.link.title = linkA.innerText()
 
     submission.rank = rank.innerText()
     submission.upvote.id = vote.attrs["id"]
     submission.upvote.href = vote.attrs["href"]
-    # echo "titles:\n\t", titles
     echo ""
-    echo "link:\n\t", link
     echo "\nsubmission:\n\t", repr submission
     echo ""
 
