@@ -31,18 +31,28 @@ proc loadPage(loader: HtmlLoader) {.slot.} =
   let document = loadHtml("examples/hn.html")
   # var stack = @[Node(document)]
   # echo "document: ", document.findAll("table")
-  for table in document.findAll("table"):
-    # echo "table: ", table
-    echo "table: ", table.attrs
-    if table.attrs.hasKey("id"):
-      if table.attrs["id"] == "hnmain":
-        # table.findAll("tbody")
-        # echo "main: ", table
-        for child in table.elems():
-          echo "child: ", child.kind
-          if child.kind == xnElement:
-            echo "child: tag: ", child.tag()
-          discard
+  var submissions: seq[XmlNode]
+  for tr in document.findAll("tr"):
+    # athing submission
+    if tr.attrs != nil and tr.attrs.hasKey "class":
+      if tr.attrs["class"] == "athing submission":
+        submissions.add tr
+
+  for submission in submissions:
+    echo "story: "
+    echo submission
+    echo ""
+
+    # # echo "table: ", table
+    # echo "table: ", table.attrs
+    # if table.attrs.hasKey("id"):
+    #   if table.attrs["id"] == "hnmain":
+    #     # table.findAll("tbody")
+    #     # echo "main: ", table
+    #     let comments = table.elems().toSeq()[1]
+    #     let comments = 
+    #     echo "stories: "
+
 
 when isMainModule:
   let l = HtmlLoader(url: "https://news.ycombinator.com")
