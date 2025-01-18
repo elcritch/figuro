@@ -56,7 +56,7 @@ type
     upvote*: Upvote
     link*: Link
 
-proc loadPage(loader: HtmlLoader) {.slot.} =
+proc loadPage*(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
   when isMainModule:
     let document = loadHtml("examples/hn.html")
