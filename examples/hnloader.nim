@@ -4,61 +4,34 @@ import std/os
 import std/sequtils
 import std/strutils
 
-import chame/minidom
+# import chame/minidom
+import std/htmlparser
+import std/xmltree
+import std/strtabs
+
 import pretty
 
 type HtmlLoader* = ref object of Agent
   url: string
 
-proc parseTable(mainTable: Element) =
-  echo "main table: ", mainTable.localNameStr()
-  echo "main: ", mainTable.attrsStr().toSeq()
-  echo ""
-
-  for idx, child in mainTable.childList:
-    echo "child: ", idx, " ", child of Text, " ", child of Element
-
-  var stack: seq[Node] = @[mainTable.childList[0]]
-
-  block outer:
-    while stack.len > 0:
-      let node = stack.pop()
-      if node of Text:
-        let s = Text(node)
-        # echo "text: ", s.data.strip()
-      elif node of Element:
-        let elem = Element(node)
-        if elem.localNameStr == "table":
-          echo "element: ", elem.localNameStr()
-          echo "element: ", elem.attrsStr().toSeq()
-      for i in countdown(node.childList.high, 0):
-        stack.add(node.childList[i])
+proc parseTable(mainTable: XmlNode) =
+  # echo "main table: ", mainTable.localNameStr()
+  discard
 
 proc loadPage(loader: HtmlLoader) {.slot.} =
   echo "Starting page load..."
   let client = newHttpClient()
   let res = client.get(loader.url)
   let document = parseHTML(res.bodyStream)
-  var stack = @[Node(document)]
-
-  block outer:
-    while stack.len > 0:
-      let node = stack.pop()
-      if node of Text:
-        let s = Text(node)
-        # echo "text: ", s.data.strip()
-      elif node of Element:
-        let elem = Element(node)
-        if elem.localNameStr == "table":
-          echo "element: ", elem.localNameStr()
-          # echo "element: ", elem.attrsStr().toSeq()
-          for name, value in elem.attrsStr():
-            if name == "id":
-              echo "element: found table "
-              parseTable(elem)
-              break outer
-      for i in countdown(node.childList.high, 0):
-        stack.add(node.childList[i])
+  # var stack = @[Node(document)]
+  # echo "document: ", document.findAll("table")
+  for table in document.findAll("table"):
+    echo "table: ", table
+    if table.attrs.hasKey "hnmain":
+      # table.findAll("tbody")
+      # echo "main: ", table
+      for child in table:
+        echo "child: ", child.htmlTag
 
 when isMainModule:
   let l = HtmlLoader(url: "https://news.ycombinator.com")
