@@ -1,10 +1,10 @@
 
 Button {
-  background: rgb(164, 158, 255);
+  background: rgb(35, 23, 0);
   border-width: 5;
-  border-color: #160075;
+  border-color: #1e0f00;
   border-radius: 10;
-  color: rgb(78, 0, 90);
+  color: rgb(210, 210, 210);
   box-shadow: none;
 }
 

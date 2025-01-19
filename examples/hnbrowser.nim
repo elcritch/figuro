@@ -7,7 +7,7 @@ import hnloader
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22)
+  font = UiFont(typefaceId: typeface, size: 18)
 
 type
   Main* = ref object of Figuro
@@ -86,10 +86,10 @@ proc draw*(self: Main) {.slot.} =
       # node.settings.size.y = 20'ui
       contents "children":
         Vertical.new "items":
-          # Setup CSS Grid Template
           with node:
-            offset 10'ux, 10'ux
+            # offset 10'ux, 10'ux
             itemHeight cx"max-content"
+          
           for idx, story in self.stories:
             capture story:
               Button.new "button":
