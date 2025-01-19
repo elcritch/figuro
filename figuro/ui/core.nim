@@ -160,7 +160,7 @@ proc connectDefaults*[T](node: T) {.slot.} =
   # only activate these if custom ones have been provided 
   when T isnot BasicFiguro:
     when compiles(SignalTypes.initialize(T)):
-      connect(node, doInit, node, T.initialize())
+      connect(node, doInitialize, node, T.initialize())
     when compiles(SignalTypes.clicked(T)):
       connect(node, doClick, node, T.clicked())
     when compiles(SignalTypes.keyInput(T)):
@@ -271,7 +271,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
 
 proc postNode*(node: var Figuro) =
   if initialized notin node.attrs:
-    emit node.doInit()
+    emit node.doInitialize()
     node.attrs.incl initialized
   emit node.doDraw()
 
