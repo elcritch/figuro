@@ -100,7 +100,7 @@ proc setupTicker*(frame: AppFrame) =
 proc start*(self: AppFrame) {.slot.} =
   self.setupTicker()
   # self.loadTheme()
-  emit self.root.doInit()
+  emit self.root.doInit() # run root's doInit now things are setup and on the right thread
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:

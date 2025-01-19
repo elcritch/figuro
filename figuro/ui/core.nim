@@ -152,7 +152,6 @@ proc handleTheme*(fig: Figuro) {.slot.} =
 
 proc connectDefaults*[T](node: T) {.slot.} =
   ## connect default UI signals
-  echo "connectDefaults: ", node.name
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
@@ -161,7 +160,6 @@ proc connectDefaults*[T](node: T) {.slot.} =
   # only activate these if custom ones have been provided 
   when T isnot BasicFiguro:
     when compiles(SignalTypes.initialize(T)):
-      echo "connect: doInit ", " name: ", node.name, " id: ", node.uid, " to: ", T.initialize().repr
       connect(node, doInit, node, T.initialize())
     when compiles(SignalTypes.clicked(T)):
       connect(node, doClick, node, T.clicked())
@@ -273,7 +271,6 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
 
 proc postNode*(node: var Figuro) =
   if initialized notin node.attrs:
-    echo "calling doInit: ", node.name
     emit node.doInit()
     node.attrs.incl initialized
   emit node.doDraw()
