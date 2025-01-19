@@ -106,6 +106,6 @@ proc draw*(self: Main) {.slot.} =
                   offset node, 10'ux, ux(18/2)
                   node.setText({font: $story.link.title}, Left, Middle)
 
-var main = Main.new()
+var main = Main(name: "Main")
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)

@@ -152,6 +152,7 @@ proc handleTheme*(fig: Figuro) {.slot.} =
 
 proc connectDefaults*[T](node: T) {.slot.} =
   ## connect default UI signals
+  echo "connectDefaults: ", node.name
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
@@ -174,6 +175,7 @@ proc connectDefaults*[T](node: T) {.slot.} =
       connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
 proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
+  mixin draw
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
   connectDefaults[T](root)
