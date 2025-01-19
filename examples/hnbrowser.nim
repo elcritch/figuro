@@ -19,21 +19,25 @@ type
 
 proc htmlLoad*(tp: Main) {.signal.}
 
-proc initialize*(self: Main) {.slot.} =
-  echo "initialize::"
+proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
+  echo "got stories"
+  self.stories = stories
+  refresh(self)
 
 let thr = newSigilThread()
 
 thr.start()
 
+proc initialize*(self: Main) {.slot.} =
+  echo "Setting up loading"
+  var loader = HtmlLoader(url: "https://news.ycombinator.com")
+  self.loader = loader.moveToThread(thr)
+  threads.connect(self, htmlLoad, self.loader, HtmlLoader.loadPage())
+  threads.connect(self.loader, htmlDone, self, Main.loadStories())
+
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
   # echo "hover: ", kind
-  refresh(self)
-
-proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
-  echo "got stories"
-  self.stories = stories
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
@@ -41,12 +45,6 @@ proc draw*(self: Main) {.slot.} =
   with node:
     fill css"#0000AA"
 
-  if self.loader.isNil:
-    echo "Setting up loading"
-    var loader = HtmlLoader(url: "https://news.ycombinator.com")
-    self.loader = loader.moveToThread(thr)
-    threads.connect(self, htmlLoad, self.loader, HtmlLoader.loadPage())
-    threads.connect(self.loader, htmlDone, self, Main.loadStories())
 
   rectangle "outer":
     with node:
