@@ -22,6 +22,7 @@ proc htmlLoad*(tp: Main) {.signal.}
 proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   echo "got stories"
   self.stories = stories[0..2]
+  self.loading = false
   refresh(self)
 
 let thr = newSigilThread()
