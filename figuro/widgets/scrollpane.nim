@@ -35,13 +35,14 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     contentViewRatio = (viewSize / contentSize).clamp(0.0'ui, 1.0'ui)
     contentOverflow = (contentSize - viewSize).clamp(0'ui, contentSize.y)
 
-  ScrollWindow(
+  result = ScrollWindow(
     viewSize: viewSize,
     contentSize: contentSize,
     contentViewRatio: contentViewRatio,
     contentOverflow: contentOverflow,
     scrollBy: scrollby,
   )
+  echo "ScrollWindow: ", result.repr
 
 proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false) =
   if isAbsolute:

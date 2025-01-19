@@ -151,13 +151,16 @@ proc handleTheme*(fig: Figuro) {.slot.} =
   fig.applyThemeRules()
 
 proc connectDefaults*[T](node: T) {.slot.} =
-  ## only activate these if custom ones have been provided 
+  ## connect default UI signals
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, Figuro.handlePostDraw())
   connect(node, doDraw, node, Figuro.handleTheme())
+  # only activate these if custom ones have been provided 
   when T isnot BasicFiguro:
+    when compiles(SignalTypes.init(T)):
+      connect(node, doInit, node, T.init())
     when compiles(SignalTypes.clicked(T)):
       connect(node, doClick, node, T.clicked())
     when compiles(SignalTypes.keyInput(T)):
@@ -212,6 +215,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   # TODO: maybe a better node differ?
   template configNodeName(node, name: untyped) =
     node.name = name
+    node.attrs.incl initReady
 
   template createNewNode[T](tp: typedesc[T], node: untyped) =
     node = T()
@@ -266,6 +270,10 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
   connectDefaults[T](node)
 
 proc postNode*(node: var Figuro) =
+  if initReady in node.attrs:
+    echo "calling doInit: ", node.name
+    emit node.doInit()
+    node.attrs.excl initReady
   emit node.doDraw()
 
   node.removeExtraChildren()

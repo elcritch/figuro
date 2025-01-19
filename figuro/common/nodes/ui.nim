@@ -143,6 +143,7 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
 
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
+proc doInit*(fig: Figuro) {.signal.}
 proc doDraw*(fig: Figuro) {.signal.}
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
