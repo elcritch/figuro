@@ -70,7 +70,7 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
     document.findAll("tr").withAttrs({"class": "athing submission"}).toSeq()
 
   var submissions: seq[Submission]
-  for sub in subs[0 .. 1]:
+  for sub in subs:
     var submission: Submission
     # echo "story: "
     # echo sub
