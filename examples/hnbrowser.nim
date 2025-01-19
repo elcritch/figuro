@@ -99,7 +99,7 @@ proc draw*(self: Main) {.slot.} =
                 with node:
                   size 1'fr, 40'ux
                 # connect(node, doHover, self, Main.hover)
-                echo "button"
+                echo "story: ", node.uid
                 Text.new "text":
                   offset node, 10'ux, ux(18/2)
                   node.setText({font: $story.link.title}, Left, Middle)
