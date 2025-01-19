@@ -22,8 +22,6 @@ proc htmlLoad*(tp: Main) {.signal.}
 proc initialize*(self: Main) {.slot.} =
   echo "initialize::"
 
-echo "Main.init: ", Main.initialize().pointer.repr
-
 let thr = newSigilThread()
 
 thr.start()
@@ -106,6 +104,6 @@ proc draw*(self: Main) {.slot.} =
                   offset node, 10'ux, ux(18/2)
                   node.setText({font: $story.link.title}, Left, Middle)
 
-var main = Main(name: "Main")
+var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)
