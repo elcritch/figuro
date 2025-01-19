@@ -42,7 +42,7 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     contentOverflow: contentOverflow,
     scrollBy: scrollby,
   )
-  echo "ScrollWindow: ", result.repr
+  # echo "ScrollWindow: ", result.repr
 
 proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false) =
   if isAbsolute:
