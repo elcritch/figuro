@@ -19,8 +19,10 @@ type
 
 proc htmlLoad*(tp: Main) {.signal.}
 
-proc init*(self: Main) {.slot.} =
-  echo "first init"
+proc initialize*(self: Main) {.slot.} =
+  echo "initialize::"
+
+echo "Main.init: ", Main.initialize().pointer.repr
 
 let thr = newSigilThread()
 

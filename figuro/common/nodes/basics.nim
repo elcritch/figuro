@@ -34,7 +34,7 @@ type
     contentsDrawReady
     rxWindowResize
     rootWindow
-    initReady
+    initialized
     # style attributes
     zLevelSet
     rotationSet
