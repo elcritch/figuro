@@ -239,6 +239,7 @@ proc getTypeset*(
     selectionRects.add rect
 
   result = GlyphArrangement(
+    contentHash: getContentHash(box, uiSpans, hAlign, vAlign),
     lines: lines, # arrangement.lines.toSlices(),
     spans: spanSlices, # arrangement.spans.toSlices(),
     fonts: gfonts,
@@ -246,6 +247,7 @@ proc getTypeset*(
     positions: arrangement.positions,
     selectionRects: selectionRects,
   )
+
   # echo "arrangement:\n", result.repr
   # print result
 

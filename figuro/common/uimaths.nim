@@ -216,6 +216,10 @@ template `x=`*(r: Position, v: UICoord) =
 template `y=`*(r: Position, v: UICoord) =
   r.Vec2.y = v.float32
 
+proc hash*(bx: Box): Hash =
+  result = hash(bx.x) !& hash(bx.y) !& hash(bx.w) !& hash(bx.h)
+  result = !$result
+
 proc `+`*(rect: Box, xy: Position): Box =
   ## offset rect with xy vec2 
   result = rect

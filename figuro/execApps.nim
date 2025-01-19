@@ -49,6 +49,10 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
       emit node.doDraw()
     computeLayout(frame.root)
     computeScreenBox(nil, frame.root)
+    # for node in rn:
+    #   emit node.doDraw()
+    # computeLayout(frame.root)
+    # computeScreenBox(nil, frame.root)
     appFrames.withValue(frame.unsafeWeakRef(), renderer):
       withLock(renderer.lock):
         renderer.nodes = frame.root.copyInto()

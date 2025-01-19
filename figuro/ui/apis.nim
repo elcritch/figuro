@@ -291,9 +291,11 @@ proc setText*(
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ) =
-  let thash = spans.hash()
+  let thash = getContentHash(current.box, spans, hAlign, vAlign)
   if thash != current.textLayout.contentHash:
+    echo "setText: ", current.name, " ", thash, " => ", current.textLayout.contentHash
     current.textLayout = internal.getTypeset(current.box, spans, hAlign, vAlign)
+    refresh(current)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
