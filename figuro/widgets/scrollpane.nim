@@ -134,7 +134,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     node.offset = self.window.scrollby
     node.attrs.incl scrollPanel
     TemplateContents(self)
-    scroll(self, initPosition(0, 0))
+    # scroll(self, initPosition(0, 0))
 
   if self.settings.vertical:
     rectangle "scrollbar-vertical":

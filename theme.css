@@ -9,6 +9,6 @@ Button {
 }
 
 Button:hover {
-  background: rgb(158, 223, 255);
+  background: rgba(166, 100, 62, 0.67);
   box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
 }

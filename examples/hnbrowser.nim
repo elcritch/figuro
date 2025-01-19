@@ -96,9 +96,10 @@ proc draw*(self: Main) {.slot.} =
                 with node:
                   size 1'fr, 40'ux
                 # connect(node, doHover, self, Main.hover)
+                echo "button"
                 Text.new "text":
-                  offset node, 0'ux, 11'ux
-                  node.setText({font: $story.link.title}, Center, Middle)
+                  offset node, 10'ux, ux(18/2)
+                  node.setText({font: $story.link.title}, Left, Middle)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))

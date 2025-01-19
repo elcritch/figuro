@@ -43,10 +43,10 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
 
   if frame.redrawNodes.len() > 0:
     computeEvents(frame)
-    let rn = frame.redrawNodes
+    let rn = move frame.redrawNodes
+    frame.redrawNodes.clear()
     for node in rn:
       emit node.doDraw()
-    frame.redrawNodes.clear()
     computeLayout(frame.root)
     computeScreenBox(nil, frame.root)
     appFrames.withValue(frame.unsafeWeakRef(), renderer):

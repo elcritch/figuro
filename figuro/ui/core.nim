@@ -94,6 +94,7 @@ proc removeExtraChildren*(node: Figuro) =
 
 proc refresh*(node: Figuro) =
   ## Request that the node and it's children be redrawn
+  # echo "refresh: ", node.name, " :: ", getStackTrace()
   if node == nil:
     return
   # app.requestedFrame.inc
