@@ -1,18 +1,18 @@
 
 Button {
-  background: rgb(35, 23, 0);
+  background: #444;
   border-width: 5;
   border-color: #1e0f00;
   border-radius: 10;
-  color: rgb(210, 210, 210);
+  color: #CCC;
   box-shadow: none;
 }
 
 Button:hover {
-  background: rgba(166, 100, 62, 0.67);
+  background: #727272;
   box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
 }
 
 #main {
-  background: rgb(0, 0, 0);
+  background: #141414;
 }
