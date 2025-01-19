@@ -2,6 +2,7 @@ import std/[algorithm, macros, tables, os]
 import std/with
 import chroma, bumpy, stack_strings
 import cssgrid
+import chronicles
 
 import std/[hashes]
 
@@ -293,7 +294,7 @@ proc setText*(
 ) =
   let thash = getContentHash(current.box, spans, hAlign, vAlign)
   if thash != current.textLayout.contentHash:
-    echo "setText: ", current.name, " ", thash, " => ", current.textLayout.contentHash
+    trace "setText: ", nodeName = current.name, thash = thash, contentHash = current.textLayout.contentHash
     current.textLayout = internal.getTypeset(current.box, spans, hAlign, vAlign)
     refresh(current)
 
