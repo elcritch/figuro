@@ -16,7 +16,7 @@ Button:hover {
 #scroll Button {
   background: #111111;
   border-width: 5;
-  border-color: #383838;
+  border-color: rgba(95, 84, 0, 0.45);
   border-radius: 10;
   color: #CCC;
   box-shadow: none;
