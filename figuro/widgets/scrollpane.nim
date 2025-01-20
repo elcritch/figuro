@@ -96,12 +96,14 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   var window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
   window.updateScroll(wheelDelta * 10'ui)
   let windowChanged = window.hash() != self.window.hash()
-  if windowChanged:
-    self.window = window
   debug "scroll: ", name = self.name, windowChanged = windowChanged
   if windowChanged:
-    debug "scroll:window ", name = self.name, hash = self.window.hash(), window = self.window
-    debug "scroll:window ", name = self.name, hash = window.hash(), newWindow = window
+    debug "scroll:window ", name = self.name, hash = self.window.hash(), 
+      scrollby = self.window.scrollby.repr, viewSize = self.window.viewSize.repr, contentSize = self.window.contentSize.repr, contentOverflow = self.window.contentOverflow.repr, contentViewRatio = self.window.contentViewRatio.repr
+    debug "scroll:window ", name = self.name, hash = window.hash(),
+      scrollby = window.scrollby.repr, viewSize = window.viewSize.repr, contentSize = window.contentSize.repr, contentOverflow = window.contentOverflow.repr, contentViewRatio = window.contentViewRatio.repr
+  if windowChanged:
+    self.window = window
   let prevScrollBy = self.window.scrollby
   assert child.name == "scrollBody"
   # self.window.updateScroll(wheelDelta * 10'ui)
