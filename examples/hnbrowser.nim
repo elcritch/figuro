@@ -98,7 +98,7 @@ proc draw*(self: Main) {.slot.} =
           with node:
             # offset 10'ux, 10'ux
             itemHeight cx"max-content"
-          
+
           for idx in 0..20:
             capture idx:
               Button.new "button":

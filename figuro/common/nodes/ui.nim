@@ -59,6 +59,7 @@ type
     offset*: Position
     totalOffset*: Position
     scroll*: Position
+    prevSize*: Position
 
     attrs*: set[Attributes]
     userSetFields*: set[FieldSet]
@@ -144,7 +145,11 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
 proc doInitialize*(fig: Figuro) {.signal.}
+  ## called before draw when a node is first created or reset
 proc doDraw*(fig: Figuro) {.signal.}
+  ## draws node
+proc doSizeChanged*(fig: Figuro, node: Figuro) {.signal.}
+  ## called after layout size changes
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
 proc doClick*(fig: Figuro, kind: EventKind, keys: UiButtonView) {.signal.}

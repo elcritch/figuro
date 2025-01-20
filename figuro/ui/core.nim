@@ -570,6 +570,7 @@ proc printLayout*(node: Figuro, depth = 0) =
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
+  debug "computeLayout", name = node.name, box = node.box.wh.repr
 
   # # simple constraints
   calcBasicConstraint(node, dcol, isXY = true)
@@ -579,6 +580,7 @@ proc computeLayout*(node: Figuro, depth: int) =
 
   # css grid impl
   if not node.gridTemplate.isNil:
+    debug "computeLayout:gridTemplate", name = node.name, box = node.box.repr
     # compute children first, then lay them out in grid
     for n in node.children:
       computeLayout(n, depth + 1)
@@ -596,6 +598,7 @@ proc computeLayout*(node: Figuro, depth: int) =
       for c in n.children:
         calcBasicConstraint(c, dcol, isXY = false)
         calcBasicConstraint(c, drow, isXY = false)
+    debug "computeLayout:gridTemplate:post", name = node.name, box = node.box.repr
   else:
     for n in node.children:
       computeLayout(n, depth + 1)
@@ -606,6 +609,10 @@ proc computeLayout*(node: Figuro, depth: int) =
       calcBasicConstraintPost(n, drow, isXY = true)
       calcBasicConstraintPost(n, dcol, isXY = false)
       calcBasicConstraintPost(n, drow, isXY = false)
+
+  if node.box.wh != node.prevSize:
+    debug "computeLayout:post:changed: ", name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+    node.prevSize = node.box.wh
 
 proc computeLayout*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):
