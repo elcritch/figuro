@@ -59,7 +59,7 @@ type
 proc htmlDone*(tp: HtmlLoader, stories: seq[Submission]) {.signal.}
 
 proc loadPage*(loader: HtmlLoader) {.slot.} =
-    # try:
+  try:
     echo "Starting page load..."
     when isMainModule:
       let document = loadHtml("examples/hn.html")
@@ -98,18 +98,16 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
       if vote != nil:
         submission.upvote.id = vote.attrs["id"]
         submission.upvote.href = vote.attrs["href"]
-      echo "\nsubmission:\n\t", repr submission
+
       submissions.add(submission)
-      echo "\nadded:\n\t"
     
-    echo "\nDONE:\n\t"
-    echo "stories loaded"
     emit loader.htmlDone(submissions)
-  # except CatchableError as err:
-  #   echo "error loading page: ", $err.msg
-  # except Defect as err:
-  #   echo "error loading page: ", $err.msg
-  #   echo "error loading page: ", $err.getStackTrace()
+  except CatchableError as err:
+    echo "error loading page: ", $err.msg
+    echo "error loading page: ", $err.getStackTrace()
+  except Defect as err:
+    echo "error loading page: ", $err.msg
+    echo "error loading page: ", $err.getStackTrace()
 
 
 when isMainModule:
