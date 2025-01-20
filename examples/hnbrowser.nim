@@ -46,13 +46,16 @@ proc draw*(self: Main) {.slot.} =
   with node:
     fill css"#0000AA"
 
-
   rectangle "outer":
     with node:
       offset 10'ux, 10'ux
       setGridCols 1'fr
       setGridRows ["top"] 70'ux \
-                  ["items"] 1'fr
+                  ["items"] 1'fr \
+                  ["bottom"] 20'ux
+      setGridCols ["left"]  1'fr \
+                  ["right"] 0'ux
+      gridColumn 1 // 1
       gridAutoFlow grRow
       justifyItems CxCenter
       alignItems CxStart
@@ -60,6 +63,8 @@ proc draw*(self: Main) {.slot.} =
     Button.new "Load":
       with node:
         size 0.5'fr, 50'ux
+        gridRow "top" // "items"
+        gridColumn "left" // "right"
       proc clickLoad(self: Main,
                       kind: EventKind,
                       buttons: UiButtonView) {.slot.} =
@@ -82,6 +87,8 @@ proc draw*(self: Main) {.slot.} =
 
     ScrollPane.new "scroll":
       with node:
+        gridRow "items" // "bottom"
+        gridColumn 1 // 2
         offset 2'pp, 2'pp
         cornerRadius 7.0'ux
         size 96'pp, 90'pp
@@ -92,6 +99,16 @@ proc draw*(self: Main) {.slot.} =
             # offset 10'ux, 10'ux
             itemHeight cx"max-content"
           
+          for idx in 0..20:
+            capture idx:
+              Button.new "button":
+                with node:
+                  size 1'fr, 40'ux
+                # connect(node, doHover, self, Main.hover)
+                # echo "story: ", node.uid
+                Text.new "text":
+                  offset node, 10'ux, ux(18/2)
+                  node.setText({font: $idx}, Left, Middle)
           for idx, story in self.stories:
             capture story:
               Button.new "button":
