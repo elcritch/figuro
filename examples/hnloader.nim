@@ -59,39 +59,57 @@ type
 proc htmlDone*(tp: HtmlLoader, stories: seq[Submission]) {.signal.}
 
 proc loadPage*(loader: HtmlLoader) {.slot.} =
-  echo "Starting page load..."
-  when isMainModule:
-    let document = loadHtml("examples/hn.html")
-  else:
-    let client = newHttpClient()
-    let res = client.get(loader.url)
-    let document = parseHTML(res.bodyStream)
-  var subs: seq[XmlNode] =
-    document.findAll("tr").withAttrs({"class": "athing submission"}).toSeq()
+    # try:
+    echo "Starting page load..."
+    when isMainModule:
+      let document = loadHtml("examples/hn.html")
+    else:
+      let client = newHttpClient()
+      let res = client.get(loader.url)
+      let document = parseHTML(res.bodyStream)
+    var subs: seq[XmlNode] =
+      document.findAll("tr").withAttrs({"class": "athing submission"}).toSeq()
 
-  var submissions: seq[Submission]
-  for sub in subs:
-    var submission: Submission
-    # echo "story: "
-    # echo sub
-    let rank = sub.findAll("span").withAttrs({"class": "rank"}).toSeq()[0]
-    let vote = sub.findAll("a").withAttrs("id").toSeq()[0]
-    let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).toSeq()[0]
-    let linkA = titleTd.elems().toSeq()[0]
-    let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit"}).toSeq()[0]
-    submission.link.href = linkA.attrs["href"]
-    submission.link.title = linkA.innerText()
-    submission.link.siteFrom = siteSpan.findAll("a")[0].attrs["href"]
-    submission.link.siteName = siteSpan.findAll("span")[0].innerText()
+    template getFirst(item: untyped, doNil = false): auto =
+      let s = item.toSeq()
+      if s.len == 0:
+        if doNil:
+          nil.XmlNode
+        else:
+          raise newException(ValueError, "no item found for " & astToStr(item))
+      else:
+        s[0]
+    var submissions: seq[Submission]
+    for sub in subs:
+      var submission: Submission
+      # echo "story:\n\t", sub
+      let rank = sub.findAll("span").withAttrs({"class": "rank"}).getFirst()
+      let vote = sub.findAll("a").withAttrs("id").getFirst(doNil=true)
+      let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).getFirst()
+      let linkA = titleTd.elems().getFirst()
+      let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit"}).getFirst()
 
-    submission.rank = rank.innerText()
-    submission.upvote.id = vote.attrs["id"]
-    submission.upvote.href = vote.attrs["href"]
-    echo "\nsubmission:\n\t", repr submission
-    submissions.add(submission)
-  
-  echo "stories loaded"
-  emit loader.htmlDone(submissions)
+      submission.link.href = linkA.attrs["href"]
+      submission.link.title = linkA.innerText()
+      submission.link.siteFrom = siteSpan.findAll("a")[0].attrs["href"]
+      submission.link.siteName = siteSpan.findAll("span")[0].innerText()
+
+      submission.rank = rank.innerText()
+      if vote != nil:
+        submission.upvote.id = vote.attrs["id"]
+        submission.upvote.href = vote.attrs["href"]
+      echo "\nsubmission:\n\t", repr submission
+      submissions.add(submission)
+      echo "\nadded:\n\t"
+    
+    echo "\nDONE:\n\t"
+    echo "stories loaded"
+    emit loader.htmlDone(submissions)
+  # except CatchableError as err:
+  #   echo "error loading page: ", $err.msg
+  # except Defect as err:
+  #   echo "error loading page: ", $err.msg
+  #   echo "error loading page: ", $err.getStackTrace()
 
 
 when isMainModule:

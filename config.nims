@@ -10,6 +10,8 @@ switch("styleCheck", "hint")
 --d:printDebugTimings
 # --d:nimStrictDelete
 --deepcopy:on
+--debugger:native
+--debugInfo
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 
