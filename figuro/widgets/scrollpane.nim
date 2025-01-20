@@ -1,4 +1,7 @@
 import commons
+import std/hashes
+
+import chronicles
 
 type
   ScrollPane* = ref object of Figuro
@@ -28,6 +31,11 @@ type
     size*: Position
     start*: Position
 
+proc hash*(x: ScrollWindow): Hash =
+  result = Hash(0)
+  for f in x.fields(): result = result !& hash(f)
+  result = !$result
+
 proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow =
   let
     viewSize = viewBox.wh
@@ -42,7 +50,7 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     contentOverflow: contentOverflow,
     scrollBy: scrollby,
   )
-  # echo "ScrollWindow: ", result.repr
+  trace "calculateWindow: ", window = result.repr
 
 proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false) =
   if isAbsolute:
@@ -54,6 +62,7 @@ proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false
 proc calculateBar*(
     settings: ScrollSettings, window: ScrollWindow, isY: bool
 ): ScrollBar =
+  trace "calculateBar: ", settings = settings.repr, window = window.repr
   let
     sizePercent = clamp(window.scrollby / window.contentOverflow, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio * window.viewSize
@@ -84,14 +93,24 @@ proc calculateBar*(
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
+  var window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
+  window.updateScroll(wheelDelta * 10'ui)
+  let windowChanged = window.hash() != self.window.hash()
+  if windowChanged:
+    self.window = window
+  debug "scroll: ", name = self.name, windowChanged = windowChanged
+  if windowChanged:
+    debug "scroll:window ", name = self.name, hash = self.window.hash(), window = self.window
+    debug "scroll:window ", name = self.name, hash = window.hash(), newWindow = window
+  let prevScrollBy = self.window.scrollby
   assert child.name == "scrollBody"
-  self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-  self.window.updateScroll(wheelDelta * 10'ui)
+  # self.window.updateScroll(wheelDelta * 10'ui)
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.window, isY = true)
   if self.settings.horizontal:
     self.barx = calculateBar(self.settings, self.window, isY = false)
-  refresh(self)
+  if windowChanged:
+    refresh(self)
 
 proc scrollBarDrag*(
     self: ScrollPane, kind: EventKind, initial: Position, cursor: Position
@@ -120,6 +139,7 @@ proc draw*(self: ScrollPane) {.slot.} =
   self.listens.events.incl evScroll
   connect(self, doScroll, self, ScrollPane.scroll)
   self.clipContent true
+  debug "scroll:draw: ", name = self.name
 
   rectangle "scrollBody":
     ## max-content is important here
@@ -135,7 +155,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     node.offset = self.window.scrollby
     node.attrs.incl scrollPanel
     TemplateContents(self)
-    # scroll(self, initPosition(0, 0))
+    scroll(self, initPosition(0, 0))
 
   if self.settings.vertical:
     rectangle "scrollbar-vertical":

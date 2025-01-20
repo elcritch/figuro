@@ -1,6 +1,5 @@
 import std/locks
 import std/sets
-import std/logging
 import pkg/threading/atomics
 import shared, ui/core
 import common/nodes/transfer
@@ -9,6 +8,7 @@ import common/nodes/render as render
 import widget
 import sigils
 import sigils/threads
+import chronicles
 
 import exec
 
@@ -42,6 +42,7 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
     app.requestedFrame.dec()
 
   if frame.redrawNodes.len() > 0:
+    debug "Frame Redraw! "
     computeEvents(frame)
     let rn = move frame.redrawNodes
     frame.redrawNodes.clear()

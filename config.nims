@@ -12,6 +12,7 @@ switch("styleCheck", "hint")
 --deepcopy:on
 --debugger:native
 --debugInfo
+--define:"chronicles_log_level:debug"
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 
