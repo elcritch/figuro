@@ -364,17 +364,6 @@ macro contents*(args: varargs[untyped]): untyped =
           if contentsDrawReady in widget.attrs:
             widget.attrs.excl contentsDrawReady
             `blk`
-  # echo "contents: ", result.repr
-
-macro expose*(args: untyped): untyped =
-  if args.kind == nnkLetSection and args[0].kind == nnkIdentDefs and
-      args[0][2].kind in [nnkCall, nnkCommand]:
-    result = args
-    result[0][2].insert(2, nnkExprEqExpr.newTree(ident "expose", newLit(true)))
-    # echo "WID: args:post:\n", result.treeRepr
-    # echo "WID: args:post:\n", result.repr
-  else:
-    result = args
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
