@@ -42,7 +42,7 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
     app.requestedFrame.dec()
 
   if frame.redrawNodes.len() > 0:
-    debug "Frame Redraw! "
+    trace "Frame Redraw! "
     computeEvents(frame)
     let rn = move frame.redrawNodes
     frame.redrawNodes.clear()
