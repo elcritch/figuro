@@ -83,6 +83,7 @@ type
     preDraw*: proc(current: Figuro)
     postDraw*: proc(current: Figuro)
     contentsDraw*: proc(current, widget: Figuro)
+    contentProcs*: seq[proc(parent: Figuro)]
 
     kind*: NodeKind
     shadow*: array[ShadowStyle, Shadow]

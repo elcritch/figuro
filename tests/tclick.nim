@@ -62,6 +62,7 @@ proc draw*(self: Main) {.slot.} =
         layoutItems justify=CxCenter, align=CxCenter
 
       for idx in 0 .. 4:
+        capture idx:
           Button[int].new("btn"):
             let btn = node
             with node:
