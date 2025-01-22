@@ -13,6 +13,7 @@ switch("styleCheck", "hint")
 --debugger:native
 --debugInfo
 --define:"chronicles_log_level:debug"
+# --define:"chronicles_log_level:trace"
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 

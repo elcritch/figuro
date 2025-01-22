@@ -215,7 +215,7 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   ## Process the start of the node.
 
   nodeDepth.inc()
-  trace "preNode:setup", id = nid, node = node.getId, parent = parent.getId,
+  trace "preNode:setup", nd= nd(), id= nid, node= node.getId, parent = parent.getId,
               diffIndex = parent.diffIndex, parentChilds = parent.children.len,
               cattrs = if node.isNil: "{}" else: $node.attrs,
               pattrs = if parent.isNil: "{}" else: $parent.attrs
@@ -233,9 +233,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
     # Create Figuro.
     createNewNode(T, node)
     parent.children.add(node)
-    # echo nd(),
-    #   fmt"create new node: {node.name} widget: {node.widgetName}",
-    #   fmt" new: {$node.getId}/{node.parent.getId()} n: {node.name} parent: {parent.uid}"
+    trace "preNode:create:", nd = nd(),
+      name= node.name, widget= node.widgetName,
+      new = fmt"{$node.getId}/{node.parent.getId()}", n= node.name, parent= parent.uid
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
