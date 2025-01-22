@@ -1,5 +1,5 @@
 # Compile with nim c -d:ssl
-import figuro/widgets/[basics, button]
+import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro/widget
 import figuro
@@ -95,29 +95,19 @@ proc draw*(self: Main) {.slot.} =
 
       Vertical.new "items":
         with node:
-          # offset 10'ux, 10'ux
           itemHeight cx"max-content"
 
-        # for idx in 0..10:
-        #   capture idx:
-        #     Button.new "button":
-        #       with node:
-        #         size 1'fr, 40'ux
-        #       # connect(node, doHover, self, Main.hover)
-        #       # echo "story: ", node.uid
-        #       Text.new "text":
-        #         offset node, 10'ux, ux(18/2)
-        #         node.setText({font: $idx}, Left, Middle)
         for idx, story in self.stories:
           capture story:
-            Button.new "button":
+            Button.new "story":
               with node:
-                size 1'fr, 40'ux
+                size 1'fr, 60'ux
               # connect(node, doHover, self, Main.hover)
               # echo "story: ", story.link.title
               Text.new "text":
                 offset node, 10'ux, ux(18/2)
                 node.setText({font: $story.link.title}, Left, Middle)
+                fill node, blackColor
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))

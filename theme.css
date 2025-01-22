@@ -13,13 +13,14 @@ Button:hover {
   box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
 }
 
-#scroll Button {
+#story {
   background: #f5c480;
   border-width: 5;
   border-color: rgba(95, 84, 0, 0.45);
   border-radius: 10;
-  color: #000000;
+  color: #ff0000;
   box-shadow: none;
+  height: 200;
 }
 
 #main {

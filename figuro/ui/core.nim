@@ -317,6 +317,9 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
   when not compiles(node.typeof):
     {.error: "no `node` variable defined in the current scope!".}
   
+  static:
+    echo "WR: ", nkind, " ", nn
+
   let childPreDraw = proc(c: Figuro) =
       # echo "widgt PRE-DRAW INIT: ", nm
       let node {.inject.} = ## implicit variable in each widget block that references the current widget
@@ -325,6 +328,9 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
         node.attrs.excl preDrawReady
         `blk`
   widgetRegisterImpl[T](nkind, nn, node, childPreDraw)
+
+template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
+  widgetRegister[t](nkText, name, blk)
 
 template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
