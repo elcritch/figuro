@@ -300,6 +300,17 @@ proc nodeInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro
   node.preDraw = preDraw
   postNode(Figuro(node))
 
+proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
+  ## sets up a new instance of a widget of type `T`.
+  ##
+  
+  let fc = FiguroContent(
+    name: $(nn),
+    childInit: when nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
+    childPreDraw: callback,
+  )
+  node.contents.add(fc)
+
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
@@ -313,12 +324,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
       if preDrawReady in node.attrs:
         node.attrs.excl preDrawReady
         `blk`
-  let fc = FiguroContent(
-    name: $(nn),
-    childInit: when nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
-    childPreDraw: childPreDraw,
-  )
-  node.contents.add(fc)
+  widgetRegisterImpl[T](nkind, nn, node, childPreDraw)
 
 template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
