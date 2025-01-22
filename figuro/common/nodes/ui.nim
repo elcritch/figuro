@@ -155,7 +155,7 @@ proc doInitialize*(fig: Figuro) {.signal.}
   ## called before draw when a node is first created or reset
 proc doDraw*(fig: Figuro) {.signal.}
   ## draws node
-proc doSizeChanged*(fig: Figuro, node: Figuro) {.signal.}
+proc doLayoutResize*(fig: Figuro, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.signal.}
   ## called after layout size changes
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}

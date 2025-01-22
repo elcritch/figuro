@@ -183,7 +183,7 @@ proc printLayout*(node: Figuro, depth = 0) =
     resetStyle,
     fgWhite,
     $node.name,
-    "[xy: ",
+    " [xy: ",
     fgGreen,
     $node.box.x.float.round(2),
     "x",
