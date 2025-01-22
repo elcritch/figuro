@@ -50,12 +50,11 @@ proc draw*(self: Main) {.slot.} =
       fill css"#2B9F2B"
       connect(doDrag, node, btnDragStart)
 
-    contents "child":
-      text "btnText":
-        with node:
-          box 10'ux, 10'ux, 80'pp, 80'pp
-          fill blackColor
-          setText({font: "drag me"})
+    text "btnText":
+      with node:
+        box 10'ux, 10'ux, 80'pp, 80'pp
+        fill blackColor
+        setText({font: "drag me"})
 
   Button[FadeAnimation].new "btn":
     echo "button:id: ", node.getId, " ", node.state.typeof

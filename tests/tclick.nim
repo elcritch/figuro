@@ -1,4 +1,4 @@
-import figuro/widgets/[basics, button, horizontal, basics]
+import figuro/widgets/[button, horizontal]
 import figuro/widget
 import figuro/ui/animations
 import figuro
