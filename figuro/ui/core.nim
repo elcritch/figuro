@@ -296,7 +296,7 @@ proc nodeInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro
     when K is NKRect: nkRectangle
     elif K is NKText: nkText
     else: {.error: "error".}
-  preNode(nkRectangle, name, node, parent)
+  preNode(kind, name, node, parent)
   node.preDraw = preDraw
   postNode(Figuro(node))
 
