@@ -92,34 +92,32 @@ proc draw*(self: Main) {.slot.} =
         offset 2'pp, 2'pp
         cornerRadius 7.0'ux
         size 96'pp, 90'pp
-      # node.settings.size.y = 20'ui
-      # contents "children":
-      block:
-        Vertical.new "items":
-          with node:
-            # offset 10'ux, 10'ux
-            itemHeight cx"max-content"
 
-          for idx in 0..20:
-            capture idx:
-              Button.new "button":
-                with node:
-                  size 1'fr, 40'ux
-                # connect(node, doHover, self, Main.hover)
-                # echo "story: ", node.uid
-                Text.new "text":
-                  offset node, 10'ux, ux(18/2)
-                  node.setText({font: $idx}, Left, Middle)
-          for idx, story in self.stories:
-            capture story:
-              Button.new "button":
-                with node:
-                  size 1'fr, 40'ux
-                # connect(node, doHover, self, Main.hover)
-                # echo "story: ", node.uid
-                Text.new "text":
-                  offset node, 10'ux, ux(18/2)
-                  node.setText({font: $story.link.title}, Left, Middle)
+      Vertical.new "items":
+        with node:
+          # offset 10'ux, 10'ux
+          itemHeight cx"max-content"
+
+        for idx in 0..20:
+          capture idx:
+            Button.new "button":
+              with node:
+                size 1'fr, 40'ux
+              # connect(node, doHover, self, Main.hover)
+              # echo "story: ", node.uid
+              Text.new "text":
+                offset node, 10'ux, ux(18/2)
+                node.setText({font: $idx}, Left, Middle)
+        for idx, story in self.stories:
+          capture story:
+            Button.new "button":
+              with node:
+                size 1'fr, 40'ux
+              # connect(node, doHover, self, Main.hover)
+              # echo "story: ", node.uid
+              Text.new "text":
+                offset node, 10'ux, ux(18/2)
+                node.setText({font: $story.link.title}, Left, Middle)
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
