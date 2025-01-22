@@ -288,8 +288,9 @@ type
   NKRect = object
   NKText = object
 
-proc widgetInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) =
-  # echo "widgt SETUP PROC: ", name
+proc nodeInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) =
+  ## callback proc to initialized a new node, or re-use and existing node
+  ## using the appropriate node type
   var node: `T` = nil
   when K is NKRect: 
     preNode(nkRectangle, name, node, parent)
@@ -316,7 +317,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
           `blk`
     let fc = FiguroContent(
       name: $(nn),
-      childInit: when nkind == nkText: widgetInit[T, NKText] else: widgetInit[T, NKRect],
+      childInit: when nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
       childPreDraw: childPreDraw,
     )
     node.contents.add(fc)
