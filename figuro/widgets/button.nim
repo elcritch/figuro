@@ -57,8 +57,8 @@ proc draw*[T](self: Button[T]) {.slot.} =
       fill self, self.fill.lighten(0.14)
       # this changes the color on hover!
   
-  rectangle "test":
-    echo "TEMPLATE: ", self.name, " :: ", self.uid
+  rectangle "buttonInner":
+    echo "TEMPLATE: ", self.name, "/", self.uid, " node: ", node.name
     TemplateContents(self, contents)
 
 # exportWidget(button, Button)

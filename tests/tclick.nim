@@ -61,7 +61,7 @@ proc draw*(self: Main) {.slot.} =
         itemWidth 100'ux, gap = 20'ui
         layoutItems justify=CxCenter, align=CxCenter
 
-      for idx in 0 .. 0:
+      for idx in 0 .. 4:
         capture idx:
           Button[int].new("btn"):
             echo "BUTTON!!"
@@ -74,6 +74,7 @@ proc draw*(self: Main) {.slot.} =
             if idx == 0:
               connect(self, update, node, btnTick)
             Text.new "text":
+              echo "TEXT!!", node.name, " state: ", $(btn.state)
               with node:
                 fill blackColor
                 setText({font: $(btn.state)}, Center, Middle)

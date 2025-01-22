@@ -211,26 +211,23 @@ proc loadTheme*(): seq[CssBlock] =
       result = cssTheme
       notice "Loaded CSS file", cssFile = defaultTheme
 
-proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figuro) =
+proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figuro) =
   ## Process the start of the node.
 
   nodeDepth.inc()
-  # echo nd(), "preNode:setup: id: ", id, " node: ", node.getId, " parent: ", parent.getId,
-  #             " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
-  #             " cattrs: ", if node.isNil: "{}" else: $node.attrs,
-  #             " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
+  echo nd(), "preNode:setup: id: ", nid, " node: ", node.getId, " parent: ", parent.getId,
+              " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
+              " cattrs: ", if node.isNil: "{}" else: $node.attrs,
+              " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
-  template configNodeName(node, name: untyped) =
-    node.name = name
-
   template createNewNode[T](tp: typedesc[T], node: untyped) =
     node = T()
     node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
     node.widgetName = repr(T).split('[')[0]
-    configNodeName(node, name)
+    node.name = nid
 
   if parent.children.len <= parent.diffIndex:
     # Create Figuro.
@@ -258,7 +255,7 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
       # Big change.
       node.nIndex = parent.diffIndex
       node.resetToDefault(kind)
-      configNodeName(node, name)
+      node.name = nid
 
   # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
 
@@ -287,6 +284,7 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
+
 proc widgetInit*[T](parent: Figuro, fc: FiguroContent) =
   # echo "widgt SETUP PROC: ", name
   var node: `T` = nil
@@ -294,7 +292,7 @@ proc widgetInit*[T](parent: Figuro, fc: FiguroContent) =
   node.preDraw = fc.childPreDraw
   postNode(Figuro(node))
 
-template widget*[T](nkind: NodeKind = nkRectangle, nm: string | static string, blk: untyped) =
+template widgetRegister*[T](nkind: NodeKind = nkRectangle, nn: untyped, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   block:
@@ -302,20 +300,20 @@ template widget*[T](nkind: NodeKind = nkRectangle, nm: string | static string, b
       {.error: "no `node` variable defined in the current scope!".}
     
     let childPreDraw = proc(c: Figuro) =
-        echo "widgt PRE-DRAW INIT: ", nm
+        # echo "widgt PRE-DRAW INIT: ", nm
         let node {.inject.} = ## implicit variable in each widget block that references the current widget
           `T`(c)
         if preDrawReady in node.attrs:
           node.attrs.excl preDrawReady
           `blk`
     let fc = FiguroContent(
-      nodeName: nm,
+      nodeName: $(nn),
       childInit: widgetInit[T],
       childPreDraw: childPreDraw,
     )
     node.contents.add(fc)
 
-template new*[F: Figuro](t: typedesc[F], nm: string | static string, blk: untyped): auto =
+template new*[F: Figuro](t: typedesc[F], name: string | static string, blk: untyped): auto =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 
@@ -323,19 +321,21 @@ template new*[F: Figuro](t: typedesc[F], nm: string | static string, blk: untype
   ## `Button.new` this template will change it to
   ## `Button[tuple[]].new`.
   ## 
+  static:
+    echo "NEW: ", name
   when arity(t) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widget[t](nkRectangle, nm, blk)
+    widgetRegister[t](nkRectangle, name, blk)
   elif arity(t) == stripGenericParams(t).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(t).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widget[t[tuple[]]](nkRectangle, nm, blk)
+      widgetRegister[t[tuple[]]](nkRectangle, name, blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widget[t](nkRectangle, nm, blk)
+    widgetRegister[t](nkRectangle, name, blk)
 
 {.hint[Name]: off.}
 template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
