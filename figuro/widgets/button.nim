@@ -38,8 +38,8 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   let node = self
-  let contents = move self.contentProcs
-  self.contentProcs.setLen(0)
+  let contents = move self.contents
+  self.contents.setLen(0)
   echo "BUTTON DRAW: ", self.name, " :: ", self.uid, " contents: ", contents.repr
   with self:
     clipContent true

@@ -138,15 +138,15 @@ proc clearDraw*(fig: Figuro) {.slot.} =
   fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
   fig.userSetFields = {}
   fig.diffIndex = 0
-  fig.contentProcs.setLen(0)
+  fig.contents.setLen(0)
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
   if fig.preDraw != nil:
     fig.preDraw(fig)
 
 proc handleContents*(fig: Figuro) {.slot.} =
-  for cp in fig.contentProcs:
-    cp(fig)
+  for content in fig.contents:
+    content.childInit(fig, content.childPreDraw)
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
@@ -293,19 +293,25 @@ template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): 
   block:
     when not compiles(node.typeof):
       {.error: "no `node` variable defined in the current scope!".}
-    node.contentProcs.add proc(parent: Figuro) =
-      echo "widgt SETUP PROC: ", name
-      var node {.inject.}: `T` = nil
-      preNode(`nkind`, `name`, node, parent)
-      # node.preDraw = preDraw
-      node.preDraw = proc(c: Figuro) =
+    
+    let childPreDraw = proc(c: Figuro) =
         echo "widgt PRE-DRAW INIT: ", name
         let node {.inject.} = ## implicit variable in each widget block that references the current widget
           `T`(c)
         if preDrawReady in node.attrs:
           node.attrs.excl preDrawReady
           `blk`
+    let childInit = proc(parent: Figuro, pd: proc(current: Figuro)) =
+      echo "widgt SETUP PROC: ", name
+      var node {.inject.}: `T` = nil
+      preNode(`nkind`, `name`, node, parent)
+      node.preDraw = pd
       postNode(Figuro(node))
+    let fc = FiguroContents(
+      childInit: childInit,
+      childPreDraw: childPreDraw,
+    )
+    node.contents.add(fc)
 
 template new*[F: ref object](t: typedesc[F], name: string, blk: untyped): auto =
   ## Sets up a new widget instance and fills in
@@ -354,7 +360,7 @@ template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
   #   fig.contentsDraw(node, Figuro(fig))
   for content in contents:
     echo "TemplateContents PROC: ", content.repr
-    content(node)
+    content.childInit(node, content.childPreDraw)
 
 {.hint[Name]: on.}
 

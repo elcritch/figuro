@@ -82,8 +82,9 @@ type
 
     preDraw*: proc(current: Figuro)
     postDraw*: proc(current: Figuro)
-    contentsDraw*: proc(current, widget: Figuro)
-    contentProcs*: seq[proc(parent: Figuro)]
+    contents*: seq[FiguroContents]
+    # contentsDraw*: proc(current, widget: Figuro)
+    # contentProcs*: seq[proc(parent: Figuro)]
 
     kind*: NodeKind
     shadow*: array[ShadowStyle, Shadow]
@@ -91,6 +92,10 @@ type
     image*: ImageStyle
     textLayout*: GlyphArrangement
     points*: seq[Position]
+
+  FiguroContents* = object
+    childInit*: proc(parent: Figuro, preDraw: proc(current: Figuro)) {.nimcall.}
+    childPreDraw*: proc(current: Figuro)
 
   BasicFiguro* = ref object of Figuro
 
