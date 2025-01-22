@@ -298,7 +298,7 @@ proc widgetInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Fig
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-template widgetRegister*[T](nkind: NodeKind, nn: string | static string, blk: untyped) =
+template widgetRegister*[T](nkind: NodeKind, nn: string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   block:
@@ -319,7 +319,7 @@ template widgetRegister*[T](nkind: NodeKind, nn: string | static string, blk: un
     )
     node.contents.add(fc)
 
-template new*[F: Figuro](t: typedesc[F], name: string | static string, blk: untyped): auto =
+template new*[F: Figuro](t: typedesc[F], name: string, blk: untyped): auto =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 
