@@ -18,5 +18,5 @@ proc draw*(self: Text) {.slot.} =
 
 # exportWidget(basicText, Text)
 
-template new*[F: Text](t: typedesc[F], name: untyped, blk: untyped): auto =
+template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
   widgetRegister[t](nkText, name, blk)
