@@ -319,7 +319,7 @@ template widgetRegister*[T](nkind: NodeKind, nn: string | static string, blk: un
     )
     node.contents.add(fc)
 
-template new*[F: Figuro](t: typedesc[F], name: string | static string, blk: untyped): auto =
+template new*[F: ref](t: typedesc[F], name: string | static string, blk: untyped) =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 

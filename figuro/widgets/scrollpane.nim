@@ -156,7 +156,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       fill whiteColor.darken(0.2)
     node.offset = self.window.scrollby
     node.attrs.incl scrollPanel
-    # TemplateContents(self)
+    TemplateContents(self, contents)
     scroll(self, initPosition(0, 0))
 
   if self.settings.vertical:
@@ -176,4 +176,3 @@ proc draw*(self: ScrollPane) {.slot.} =
 proc getWidgetParent*(self: ScrollPane): Figuro =
   self
 
-exportWidget(scroll, ScrollPane)

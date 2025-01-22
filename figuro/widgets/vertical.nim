@@ -20,4 +20,3 @@ proc draw*(self: Vertical) {.slot.} =
   withOptional self:
     gridAutoRows 1'fr
 
-exportWidget(vertical, Vertical)
