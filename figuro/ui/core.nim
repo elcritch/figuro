@@ -319,7 +319,7 @@ template widgetRegister*[T](nkind: NodeKind, nn: string | static string, blk: un
     )
     node.contents.add(fc)
 
-template new*[F: ref](t: typedesc[F], name: string | static string, blk: untyped) =
+template new*[F: Figuro](t: typedesc[F], name: string | static string, blk: untyped) =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 
@@ -344,34 +344,22 @@ template new*[F: ref](t: typedesc[F], name: string | static string, blk: untyped
     widgetRegister[t](nkRectangle, name, blk)
 
 {.hint[Name]: off.}
-template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
+template TemplateContents*(): untyped =
   ## marks where the widget will put any child `content`
   ## which is comparable to html template and child slots.
   # if fig.contentsDraw != nil:
   #   fig.contentsDraw(node, Figuro(fig))
-  for content in contents:
+  for content in privateWidgetContents:
     content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
-# macro contents*(args: varargs[untyped]): untyped =
-#   ## sets the contents of the node widget
-#   ## 
-#   let wargs = args.parseWidgetArgs()
-#   let (id, stateArg, parentArg, bindsArg, capturedVals, blk) = wargs
-#   let hasCaptures = newLit(not capturedVals.isNil)
+template withWidget*(self, blk: untyped) =
+  let node {.inject.} = self
+  let widget {.inject.} = self
+  let privateWidgetContents {.inject.} = move self.contents
+  self.contents.setLen(0)
 
-#   result = quote:
-#     block:
-#       when not compiles(node.typeof):
-#         {.error: "missing `var node` in node scope!".}
-#       let parentWidget = node
-#       wrapCaptures(`hasCaptures`, `capturedVals`):
-#         node.contentsDraw = proc(c, w: Figuro) =
-#           let node {.inject.} = c
-#           let widget {.inject.} = typeof(parentWidget)(w)
-#           if contentsDrawReady in widget.attrs:
-#             widget.attrs.excl contentsDrawReady
-#             `blk`
+  `blk`
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
