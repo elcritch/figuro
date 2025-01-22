@@ -155,8 +155,9 @@ proc handlePostDraw*(fig: Figuro) {.slot.} =
 proc handleTheme*(fig: Figuro) {.slot.} =
   fig.applyThemeRules()
 
-proc connectDefaults*[T](node: T) {.slot.} =
+template connectDefaults*[T](node: T) =
   ## connect default UI signals
+  echo "CONNECT DEFAULTS"
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
@@ -183,6 +184,7 @@ proc newAppFrame*[T](root: T, size: (UICoord, UICoord)): AppFrame =
   mixin draw
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
+  echo "app frame"
   connectDefaults[T](root)
 
   root.diffIndex = 0
@@ -310,6 +312,7 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
     childPreDraw: callback,
   )
   node.contents.add(fc)
+  echo "resitered contents: ", fc.repr
 
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
