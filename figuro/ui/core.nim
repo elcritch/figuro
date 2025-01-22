@@ -298,7 +298,7 @@ proc widgetInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Fig
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-template widgetRegister*[T](nkind: NodeKind = nkRectangle, nn: string | static string, blk: untyped) =
+template widgetRegister*[T](nkind: NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   block:
