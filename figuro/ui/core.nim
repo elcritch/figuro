@@ -319,7 +319,7 @@ template widgetRegister*[T](nkind: NodeKind, nn: string | static string, blk: un
     )
     node.contents.add(fc)
 
-template new*[F: Figuro](t: typedesc[F], name: string | static string, blk: untyped) =
+template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 
@@ -327,8 +327,6 @@ template new*[F: Figuro](t: typedesc[F], name: string | static string, blk: unty
   ## `Button.new` this template will change it to
   ## `Button[tuple[]].new`.
   ## 
-  static:
-    echo "NEW: ", name
   when arity(t) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
     widgetRegister[t](nkRectangle, name, blk)
@@ -349,14 +347,14 @@ template TemplateContents*(): untyped =
   ## which is comparable to html template and child slots.
   # if fig.contentsDraw != nil:
   #   fig.contentsDraw(node, Figuro(fig))
-  for content in privateWidgetContents:
+  for content in widgetContents:
     content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
 template withWidget*(self, blk: untyped) =
   let node {.inject.} = self
   let widget {.inject.} = self
-  let privateWidgetContents {.inject.} = move self.contents
+  let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
 
   `blk`
