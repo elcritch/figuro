@@ -19,6 +19,8 @@ proc btnTick*(self: Button[int]) {.slot.} =
   ## slot to increment a button on every tick 
   self.state.inc
   refresh(self)
+  # if self.state mod 10 == 0:
+  #   quit(1)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,

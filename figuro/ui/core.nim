@@ -215,10 +215,10 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   ## Process the start of the node.
 
   nodeDepth.inc()
-  echo nd(), "preNode:setup: id: ", nid, " node: ", node.getId, " parent: ", parent.getId,
-              " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
-              " cattrs: ", if node.isNil: "{}" else: $node.attrs,
-              " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
+  # echo nd(), "preNode:setup: id: ", nid, " node: ", node.getId, " parent: ", parent.getId,
+  #             " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
+  #             " cattrs: ", if node.isNil: "{}" else: $node.attrs,
+  #             " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
   template createNewNode[T](tp: typedesc[T], node: untyped) =
@@ -284,11 +284,17 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-
 proc widgetInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) =
   # echo "widgt SETUP PROC: ", name
   var node: `T` = nil
   preNode(nkRectangle, name, node, parent)
+  node.preDraw = preDraw
+  postNode(Figuro(node))
+
+proc widgetInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) =
+  # echo "widgt SETUP PROC: ", name
+  var node: `T` = nil
+  preNode(nkText, name, node, parent)
   node.preDraw = preDraw
   postNode(Figuro(node))
 
@@ -308,7 +314,7 @@ template widgetRegister*[T](nkind: NodeKind = nkRectangle, nn: string | static s
           `blk`
     let fc = FiguroContent(
       name: $(nn),
-      childInit: widgetInit[T],
+      childInit: when nkind == nkText: widgetInitText[T] else: widgetInit[T],
       childPreDraw: childPreDraw,
     )
     node.contents.add(fc)
