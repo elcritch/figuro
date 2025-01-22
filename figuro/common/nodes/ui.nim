@@ -94,9 +94,9 @@ type
     points*: seq[Position]
 
   FiguroContent* = object
-    nodeName*: string
-    childInit*: proc(parent: Figuro, content: FiguroContent) {.nimcall.}
-    childPreDraw*: proc(current: Figuro)
+    name*: string
+    childInit*: proc(parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
+    childPreDraw*: proc(current: Figuro) {.closure.}
 
   BasicFiguro* = ref object of Figuro
 

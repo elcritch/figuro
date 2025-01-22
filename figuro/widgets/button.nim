@@ -41,6 +41,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
   let contents = move self.contents
   self.contents.setLen(0)
   echo "BUTTON DRAW: ", self.name, " :: ", self.uid, " contents: ", contents.repr
+
   with self:
     clipContent true
   withOptional self:

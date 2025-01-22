@@ -146,7 +146,7 @@ proc handlePreDraw*(fig: Figuro) {.slot.} =
 
 proc handleContents*(fig: Figuro) {.slot.} =
   for content in fig.contents:
-    content.childInit(fig, content)
+    content.childInit(fig, content.name, content.childPreDraw)
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
@@ -285,11 +285,11 @@ proc postNode*(node: var Figuro) =
 import utils, macros, typetraits
 
 
-proc widgetInit*[T](parent: Figuro, fc: FiguroContent) =
+proc widgetInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) =
   # echo "widgt SETUP PROC: ", name
   var node: `T` = nil
-  preNode(nkRectangle, fc.nodeName, node, parent)
-  node.preDraw = fc.childPreDraw
+  preNode(nkRectangle, name, node, parent)
+  node.preDraw = preDraw
   postNode(Figuro(node))
 
 template widgetRegister*[T](nkind: NodeKind = nkRectangle, nn: string | static string, blk: untyped) =
@@ -307,7 +307,7 @@ template widgetRegister*[T](nkind: NodeKind = nkRectangle, nn: string | static s
           node.attrs.excl preDrawReady
           `blk`
     let fc = FiguroContent(
-      nodeName: $(nn),
+      name: $(nn),
       childInit: widgetInit[T],
       childPreDraw: childPreDraw,
     )
@@ -345,7 +345,7 @@ template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
   #   fig.contentsDraw(node, Figuro(fig))
   for content in contents:
     echo "TemplateContents PROC: ", content.repr
-    content.childInit(node, content)
+    content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
 macro contents*(args: varargs[untyped]): untyped =
