@@ -298,7 +298,7 @@ proc widgetInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Fig
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-template widgetRegister*[T](nkind: NodeKind, nn: string, blk: untyped) =
+template widgetRegister*[T](nkind: NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   block:
@@ -319,7 +319,7 @@ template widgetRegister*[T](nkind: NodeKind, nn: string, blk: untyped) =
     )
     node.contents.add(fc)
 
-template new*[F: Figuro](t: typedesc[F], name: string, blk: untyped): auto =
+template new*[F: Figuro](t: typedesc[F], name: string | static string, blk: untyped): auto =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 
@@ -353,25 +353,25 @@ template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
     content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
-macro contents*(args: varargs[untyped]): untyped =
-  ## sets the contents of the node widget
-  ## 
-  let wargs = args.parseWidgetArgs()
-  let (id, stateArg, parentArg, bindsArg, capturedVals, blk) = wargs
-  let hasCaptures = newLit(not capturedVals.isNil)
+# macro contents*(args: varargs[untyped]): untyped =
+#   ## sets the contents of the node widget
+#   ## 
+#   let wargs = args.parseWidgetArgs()
+#   let (id, stateArg, parentArg, bindsArg, capturedVals, blk) = wargs
+#   let hasCaptures = newLit(not capturedVals.isNil)
 
-  result = quote:
-    block:
-      when not compiles(node.typeof):
-        {.error: "missing `var node` in node scope!".}
-      let parentWidget = node
-      wrapCaptures(`hasCaptures`, `capturedVals`):
-        node.contentsDraw = proc(c, w: Figuro) =
-          let node {.inject.} = c
-          let widget {.inject.} = typeof(parentWidget)(w)
-          if contentsDrawReady in widget.attrs:
-            widget.attrs.excl contentsDrawReady
-            `blk`
+#   result = quote:
+#     block:
+#       when not compiles(node.typeof):
+#         {.error: "missing `var node` in node scope!".}
+#       let parentWidget = node
+#       wrapCaptures(`hasCaptures`, `capturedVals`):
+#         node.contentsDraw = proc(c, w: Figuro) =
+#           let node {.inject.} = c
+#           let widget {.inject.} = typeof(parentWidget)(w)
+#           if contentsDrawReady in widget.attrs:
+#             widget.attrs.excl contentsDrawReady
+#             `blk`
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
   ## Setups screenBoxes for the whole tree.
