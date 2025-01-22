@@ -356,6 +356,7 @@ template WidgetContents*(): untyped =
 {.hint[Name]: on.}
 
 template withWidget*(self, blk: untyped) =
+  ## sets up a draw slot for working with Figuro nodes
   let node {.inject.} = self
   let widget {.inject.} = self
   let widgetContents {.inject.} = move self.contents
