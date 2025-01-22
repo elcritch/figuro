@@ -1,11 +1,11 @@
 ## This is a simple example on how to use Stylus' tokenizer.
-import figuro/ui/basiccss
+import std/unittest
 import chroma
 import cssgrid
 import pretty
+import chronicles
 
-import std/unittest
-
+import figuro/ui/basiccss
 import figuro/widget
 import figuro/common/nodes/ui
 import figuro/common/nodes/render

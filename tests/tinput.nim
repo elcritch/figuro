@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
       fill "#2A9EEA".parseHtmlColor * 0.7
-    input "text":
+    Input.new "text":
       box node, 10'ux, 10'ux, 400'ux, 100'ux
       # fill blackColor
 

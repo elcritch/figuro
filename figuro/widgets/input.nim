@@ -1,7 +1,6 @@
 import std/unicode
 
 import commons
-import basics
 import ../ui/utils
 import ../ui/textboxes
 
@@ -168,4 +167,3 @@ proc draw*(self: Input) {.slot.} =
       fill node, node.fill.lighten(0.15)
       # this changes the color on hover!
 
-exportWidget(input, Input)
