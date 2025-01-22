@@ -20,5 +20,5 @@ proc draw*(self: Vertical) {.slot.} =
       alignItems CxStart
     withOptional self:
       gridAutoRows 1'fr
-    TemplateContents()
+    WidgetContents()
 

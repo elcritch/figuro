@@ -342,7 +342,7 @@ template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
     widgetRegister[t](nkRectangle, name, blk)
 
 {.hint[Name]: off.}
-template TemplateContents*(): untyped =
+template WidgetContents*(): untyped =
   ## marks where the widget will put any child `content`
   ## which is comparable to html template and child slots.
   # if fig.contentsDraw != nil:

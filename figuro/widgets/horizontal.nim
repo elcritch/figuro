@@ -18,6 +18,6 @@ proc draw*(self: Horizontal) {.slot.} =
       gridAutoFlow grColumn
       justifyItems CxCenter
       alignItems CxCenter
-    TemplateContents()
+    WidgetContents()
 
 # exportWidget(horizontal, Horizontal)

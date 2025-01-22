@@ -156,7 +156,7 @@ proc draw*(self: ScrollPane) {.slot.} =
         fill whiteColor.darken(0.2)
       node.offset = self.window.scrollby
       node.attrs.incl scrollPanel
-      TemplateContents()
+      WidgetContents()
       scroll(self, initPosition(0, 0))
 
     if self.settings.vertical:

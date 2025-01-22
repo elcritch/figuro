@@ -56,6 +56,6 @@ proc draw*[T](self: Button[T]) {.slot.} =
         # this changes the color on hover!
     
     rectangle "buttonInner":
-      TemplateContents()
+      WidgetContents()
 
 # exportWidget(button, Button)
