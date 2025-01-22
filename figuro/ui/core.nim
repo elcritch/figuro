@@ -322,8 +322,10 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
     node.contents.add(fc)
 
 template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
-  ## Sets up a new widget instance and fills in
-  ## `tuple[]` for missing generics of the widget type.
+  ## Sets up a new widget instance by calling widgetRegister
+  ## 
+  ## Accepts types with incomplete generics and fills
+  ## them in `tuple[]` for missing generics in the widget type.
   ## 
   ## E.g. if you have a `Button[T]` and you call
   ## `Button.new` this template will change it to
