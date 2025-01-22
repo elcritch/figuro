@@ -242,8 +242,11 @@ proc computeLayout*(node: Figuro, depth: int) =
       calcBasicConstraintPost(n, dcol, isXY = false)
       calcBasicConstraintPost(n, drow, isXY = false)
 
-  if node.box.wh != node.prevSize:
-    trace "computeLayout:post:changed: ", name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+  let currWh = node.box.wh
+  if currWh != node.prevSize:
+    trace "computeLayout:post:changed: ",
+      name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+    emit node.doLayoutResize(node, (prev: node.prevSize, curr: currWh))
     node.prevSize = node.box.wh
 
 proc computeLayout*(node: Figuro) =
