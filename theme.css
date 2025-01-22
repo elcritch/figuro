@@ -9,7 +9,7 @@ Button {
 }
 
 Button:hover {
-  background: #727272;
+  background: rgba(247, 211, 160, 0.728);
   box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
 }
 
