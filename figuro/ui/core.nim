@@ -303,23 +303,22 @@ proc nodeInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
-  block:
-    when not compiles(node.typeof):
-      {.error: "no `node` variable defined in the current scope!".}
-    
-    let childPreDraw = proc(c: Figuro) =
-        # echo "widgt PRE-DRAW INIT: ", nm
-        let node {.inject.} = ## implicit variable in each widget block that references the current widget
-          `T`(c)
-        if preDrawReady in node.attrs:
-          node.attrs.excl preDrawReady
-          `blk`
-    let fc = FiguroContent(
-      name: $(nn),
-      childInit: when nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
-      childPreDraw: childPreDraw,
-    )
-    node.contents.add(fc)
+  when not compiles(node.typeof):
+    {.error: "no `node` variable defined in the current scope!".}
+  
+  let childPreDraw = proc(c: Figuro) =
+      # echo "widgt PRE-DRAW INIT: ", nm
+      let node {.inject.} = ## implicit variable in each widget block that references the current widget
+        `T`(c)
+      if preDrawReady in node.attrs:
+        node.attrs.excl preDrawReady
+        `blk`
+  let fc = FiguroContent(
+    name: $(nn),
+    childInit: when nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
+    childPreDraw: childPreDraw,
+  )
+  node.contents.add(fc)
 
 template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
