@@ -157,7 +157,6 @@ proc handleTheme*(fig: Figuro) {.slot.} =
 
 template connectDefaults*[T](node: T) =
   ## connect default UI signals
-  echo "CONNECT DEFAULTS"
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
@@ -312,7 +311,6 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
     childPreDraw: callback,
   )
   node.contents.add(fc)
-  echo "resitered contents: ", fc.repr
 
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
@@ -320,9 +318,6 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
   when not compiles(node.typeof):
     {.error: "no `node` variable defined in the current scope!".}
   
-  static:
-    echo "WR: ", nkind, " ", nn
-
   let childPreDraw = proc(c: Figuro) =
       # echo "widgt PRE-DRAW INIT: ", nm
       let node {.inject.} = ## implicit variable in each widget block that references the current widget
