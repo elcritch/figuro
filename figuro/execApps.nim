@@ -1,16 +1,13 @@
 import std/locks
 import std/sets
 import pkg/threading/atomics
-import shared, ui/core
-import common/nodes/transfer
-import common/nodes/ui as ui
-import common/nodes/render as render
-import widget
-import sigils
-import sigils/threads
-import chronicles
+import pkg/sigils
+import pkg/sigils/threads
+import pkg/chronicles
 
-import exec
+import widget, shared, exec
+import ui/core, ui/layout
+import common/nodes/[transfer, ui, render]
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}
