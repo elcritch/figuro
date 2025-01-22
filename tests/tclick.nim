@@ -61,9 +61,10 @@ proc draw*(self: Main) {.slot.} =
         itemWidth 100'ux, gap = 20'ui
         layoutItems justify=CxCenter, align=CxCenter
 
-      for idx in 0 .. 4:
+      for idx in 0 .. 0:
         capture idx:
           Button[int].new("btn"):
+            echo "BUTTON!!"
             let btn = node
             with node:
               size 100'ux, 100'ux

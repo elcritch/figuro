@@ -37,6 +37,10 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
+  let node = self
+  let contents = move self.contentProcs
+  self.contentProcs.setLen(0)
+  echo "BUTTON DRAW: ", self.name, " :: ", self.uid, " contents: ", contents.repr
   with self:
     clipContent true
   withOptional self:
@@ -52,5 +56,9 @@ proc draw*[T](self: Button[T]) {.slot.} =
       # withOptional self:
       fill self, self.fill.lighten(0.14)
       # this changes the color on hover!
+  
+  rectangle "test":
+    echo "TEMPLATE: ", self.name, " :: ", self.uid
+    TemplateContents(self, contents)
 
 exportWidget(button, Button)

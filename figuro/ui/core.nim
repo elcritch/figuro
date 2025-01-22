@@ -144,9 +144,11 @@ proc handlePreDraw*(fig: Figuro) {.slot.} =
   if fig.preDraw != nil:
     fig.preDraw(fig)
 
-proc handlePostDraw*(fig: Figuro) {.slot.} =
+proc handleContents*(fig: Figuro) {.slot.} =
   for cp in fig.contentProcs:
     cp(fig)
+
+proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
 
@@ -158,9 +160,11 @@ proc connectDefaults*[T](node: T) {.slot.} =
   connect(node, doDraw, node, Figuro.clearDraw())
   connect(node, doDraw, node, Figuro.handlePreDraw())
   connect(node, doDraw, node, T.draw())
+  connect(node, doDraw, node, T.handleContents())
   connect(node, doDraw, node, Figuro.handlePostDraw())
   connect(node, doDraw, node, Figuro.handleTheme())
   # only activate these if custom ones have been provided 
+
   when T isnot BasicFiguro:
     when compiles(SignalTypes.initialize(T)):
       connect(node, doInitialize, node, T.initialize())
@@ -232,9 +236,9 @@ proc preNode*[T: Figuro](kind: NodeKind, name: string, node: var T, parent: Figu
     # Create Figuro.
     createNewNode(T, node)
     parent.children.add(node)
-    echo nd(),
-      fmt"create new node: {node.name} widget: {node.widgetName}",
-      fmt" new: {$node.getId}/{node.parent.getId()} n: {node.name} parent: {parent.uid}"
+    # echo nd(),
+    #   fmt"create new node: {node.name} widget: {node.widgetName}",
+    #   fmt" new: {$node.getId}/{node.parent.getId()} n: {node.name} parent: {parent.uid}"
     # refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
@@ -289,16 +293,18 @@ template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): 
   block:
     when not compiles(node.typeof):
       {.error: "no `node` variable defined in the current scope!".}
-    let preDraw = proc(c: Figuro) =
+    node.contentProcs.add proc(parent: Figuro) =
+      echo "widgt SETUP PROC: ", name
+      var node {.inject.}: `T` = nil
+      preNode(`nkind`, `name`, node, parent)
+      # node.preDraw = preDraw
+      node.preDraw = proc(c: Figuro) =
+        echo "widgt PRE-DRAW INIT: ", name
         let node {.inject.} = ## implicit variable in each widget block that references the current widget
           `T`(c)
         if preDrawReady in node.attrs:
           node.attrs.excl preDrawReady
           `blk`
-    node.contentProcs.add proc(parent: Figuro) =
-      var node {.inject.}: `T` = nil
-      preNode(`nkind`, `name`, node, parent)
-      node.preDraw = preDraw
       postNode(Figuro(node))
 
 template new*[F: ref object](t: typedesc[F], name: string, blk: untyped): auto =
@@ -341,11 +347,14 @@ template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
     widget[`T`](nkRectangle, args)
 
 {.hint[Name]: off.}
-template TemplateContents*[T](fig: T): untyped =
+template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
   ## marks where the widget will put any child `content`
   ## which is comparable to html template and child slots.
-  if fig.contentsDraw != nil:
-    fig.contentsDraw(node, Figuro(fig))
+  # if fig.contentsDraw != nil:
+  #   fig.contentsDraw(node, Figuro(fig))
+  for content in contents:
+    echo "TemplateContents PROC: ", content.repr
+    content(node)
 
 {.hint[Name]: on.}
 
