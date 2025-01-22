@@ -292,12 +292,11 @@ proc nodeInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro
   ## callback proc to initialized a new node, or re-use and existing node
   ## using the appropriate node type
   var node: `T` = nil
-  when K is NKRect: 
-    preNode(nkRectangle, name, node, parent)
-  elif K is NKText:
-    preNode(nkText, name, node, parent)
-  else:
-    {.error: "error".}
+  let kind =
+    when K is NKRect: nkRectangle
+    elif K is NKText: nkText
+    else: {.error: "error".}
+  preNode(nkRectangle, name, node, parent)
   node.preDraw = preDraw
   postNode(Figuro(node))
 
