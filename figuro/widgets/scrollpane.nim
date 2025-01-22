@@ -136,6 +136,15 @@ proc scrollBarDrag*(
       self.barx = calculateBar(self.settings, self.window, isY = false)
     refresh(self)
 
+proc layoutResize*(self: ScrollPane, child: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
+  debug "LAYOUT RESIZE: ", self = self.name, child = child.name, node = self.children[0].name,
+    prevW = resize.prev.x, prevH = resize.prev.y,
+    currW = resize.curr.x, currH = resize.curr.y
+  # self.children[0].box.w = resize.curr.x
+  # self.children[0].box.h = resize.curr.y
+  # scroll(self, initPosition(0, 0))
+  # refresh(self)
+
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
     self.listens.events.incl evScroll
@@ -146,7 +155,6 @@ proc draw*(self: ScrollPane) {.slot.} =
     rectangle "scrollBody":
       ## max-content is important here
       ## todo: do the same for horiz?
-      size node, 100'pp, 100'pp
       if self.settings.vertical:
         node.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
@@ -158,6 +166,9 @@ proc draw*(self: ScrollPane) {.slot.} =
       node.attrs.incl scrollPanel
       WidgetContents()
       scroll(self, initPosition(0, 0))
+      for child in node.children:
+        # echo "CHILD: ", child.name
+        connect(child, doLayoutResize, self, layoutResize)
 
     if self.settings.vertical:
       rectangle "scrollbar-vertical":

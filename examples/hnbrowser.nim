@@ -98,7 +98,7 @@ proc draw*(self: Main) {.slot.} =
           # offset 10'ux, 10'ux
           itemHeight cx"max-content"
 
-        for idx in 0..20:
+        for idx in 0..10:
           capture idx:
             Button.new "button":
               with node:
@@ -120,5 +120,5 @@ proc draw*(self: Main) {.slot.} =
                 node.setText({font: $story.link.title}, Left, Middle)
 
 var main = Main(name: "main")
-var frame = newAppFrame(main, size=(600'ui, 480'ui))
+var frame = newAppFrame(main, size=(600'ui, 280'ui))
 startFiguro(frame)

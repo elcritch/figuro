@@ -28,6 +28,19 @@ proc checkParent(node: Figuro) =
         $node.parent.getId,
     )
 
+proc calculateMinOrMaxes(node: Figuro, fs: static string, doMax: static bool): UICoord =
+  for n in node.children:
+    when fs == "w":
+      when doMax:
+        result = max(n.box.w + n.box.y, result)
+      else:
+        result = min(n.box.w + n.box.y, result)
+    elif fs == "h":
+      when doMax:
+        result = max(n.box.h + n.box.y, result)
+      else:
+        result = min(n.box.h + n.box.y, result)
+
 template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) =
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
@@ -61,9 +74,19 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
               parentBox.f
           res = perc.UICoord / 100.0.UICoord * ppval
         UiContentMin(cmins):
-          res = cmins.UICoord
+          # res = cmins.UICoord
+          # res = node.calculateMinOrMaxes(astToStr(f), doMax=false)
+          when astToStr(f) in ["w"]:
+            res = node.box.w
+          elif astToStr(f) in ["h"]:
+            res = node.box.h
         UiContentMax(cmaxs):
-          res = cmaxs.UICoord
+          # res = cmaxs.UICoord
+          # res = node.calculateMinOrMaxes(astToStr(f), doMax=true)
+          when astToStr(f) in ["w"]:
+            res = node.box.w
+          elif astToStr(f) in ["h"]:
+            res = node.box.h
       res
 
   let csValue =
@@ -119,18 +142,10 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
       var res: UICoord
       match val:
         UiContentMin(cmins):
-          for n in node.children:
-            when astToStr(f) in ["w"]:
-              res = min(n.box.w + n.box.y, res)
-            when astToStr(f) in ["h"]:
-              res = min(n.box.h + n.box.y, res)
+          res = node.calculateMinOrMaxes(astToStr(f), doMax=false)
         UiContentMax(cmaxs):
-          # res = cmaxs.UICoord
-          for n in node.children:
-            when astToStr(f) in ["w"]:
-              res = max(n.box.w + n.box.x, res)
-            when astToStr(f) in ["h"]:
-              res = max(n.box.h + n.box.y, res)
+          res = node.calculateMinOrMaxes(astToStr(f), doMax=true)
+          debug "CONTENT MAX: ", node = node.name, res = res, d = repr(dir), children = node.children.mapIt((it.name, it.box.w, it.box.h))
         _:
           res = node.box.f
       res
@@ -140,6 +155,8 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
       node.cxSize[dir]
     else:
       node.cxOffset[dir]
+  
+  trace "CONTENT csValue: ", node = node.name, d = repr(dir), csValue = csValue.repr
   match csValue:
     UiNone:
       discard
@@ -161,6 +178,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
       node.box.f = calcBasic(value)
     UiEnd:
       discard
+  debug "CONTENT csValue:POST ", node = node.name, w = node.box.w, h = node.box.h
 
 proc calcBasicConstraintPost(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
@@ -200,9 +218,13 @@ proc printLayout*(node: Figuro, depth = 0) =
   for c in node.children:
     printLayout(c, depth + 2)
 
+var sb: Figuro
+
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
-  trace "computeLayout", name = node.name, box = node.box.wh.repr
+  debug "computeLayout", name = node.name, box = node.box.wh.repr
+  if node.name == "scrollBody":
+    sb = node
 
   # # simple constraints
   calcBasicConstraint(node, dcol, isXY = true)
@@ -212,7 +234,7 @@ proc computeLayout*(node: Figuro, depth: int) =
 
   # css grid impl
   if not node.gridTemplate.isNil:
-    trace "computeLayout:gridTemplate", name = node.name, box = node.box.repr
+    debug "computeLayout:gridTemplate", name = node.name, box = node.box.repr
     # compute children first, then lay them out in grid
     for n in node.children:
       computeLayout(n, depth + 1)
@@ -228,9 +250,11 @@ proc computeLayout*(node: Figuro, depth: int) =
 
     for n in node.children:
       for c in n.children:
+        debug "computeLayout:gridTemplate:child:pre", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
         calcBasicConstraint(c, dcol, isXY = false)
         calcBasicConstraint(c, drow, isXY = false)
-    trace "computeLayout:gridTemplate:post", name = node.name, box = node.box.repr
+        debug "computeLayout:gridTemplate:child:post", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+    debug "computeLayout:gridTemplate:post", name = node.name, box = node.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
   else:
     for n in node.children:
       computeLayout(n, depth + 1)
@@ -241,13 +265,19 @@ proc computeLayout*(node: Figuro, depth: int) =
       calcBasicConstraintPost(n, drow, isXY = true)
       calcBasicConstraintPost(n, dcol, isXY = false)
       calcBasicConstraintPost(n, drow, isXY = false)
+      debug "calcBasicConstraintPost: ", n = n.name, w = n.box.w, h = n.box.h, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
 
+  # debug "computeLayout:post: ",
+  #   name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, children = node.children.mapIt((it.name, it.box.repr))
+
+  debug "computeLayout:post: ",
+    name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
   let currWh = node.box.wh
-  if currWh != node.prevSize:
-    trace "computeLayout:post:changed: ",
-      name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
-    emit node.doLayoutResize(node, (prev: node.prevSize, curr: currWh))
-    node.prevSize = node.box.wh
+  # if currWh != node.prevSize:
+  #   debug "computeLayout:post:changed: ",
+  #     name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+  #   emit node.doLayoutResize(node, (prev: node.prevSize, curr: currWh))
+  #   node.prevSize = node.box.wh
 
 proc computeLayout*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):
@@ -256,6 +286,8 @@ proc computeLayout*(node: Figuro) =
     )
     printLayout(node)
   computeLayout(node, 0)
+  debug "computeLayout:done: ",
+     sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
   when defined(debugLayout) or defined(figuroDebugLayout):
     stdout.styledWriteLine(
       {styleDim}, fgWhite, "computeLayout:post ", {styleDim}, fgGreen, ""
