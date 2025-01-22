@@ -215,10 +215,10 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   ## Process the start of the node.
 
   nodeDepth.inc()
-  # echo nd(), "preNode:setup: id: ", nid, " node: ", node.getId, " parent: ", parent.getId,
-  #             " diffIndex: ", parent.diffIndex, " p:c:len: ", parent.children.len,
-  #             " cattrs: ", if node.isNil: "{}" else: $node.attrs,
-  #             " pattrs: ", if parent.isNil: "{}" else: $parent.attrs
+  trace "preNode:setup", id = nid, node = node.getId, parent = parent.getId,
+              diffIndex = parent.diffIndex, parentChilds = parent.children.len,
+              cattrs = if node.isNil: "{}" else: $node.attrs,
+              pattrs = if parent.isNil: "{}" else: $parent.attrs
 
   # TODO: maybe a better node differ?
   template createNewNode[T](tp: typedesc[T], node: untyped) =
