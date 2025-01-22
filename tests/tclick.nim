@@ -66,7 +66,6 @@ proc draw*(self: Main) {.slot.} =
       for idx in 0 .. 4:
         capture idx:
           Button[int].new("btn"):
-            echo "BUTTON!!"
             let btn = node
             with node:
               size 100'ux, 100'ux
@@ -76,7 +75,6 @@ proc draw*(self: Main) {.slot.} =
             if idx == 0:
               connect(self, update, node, btnTick)
             Text.new "text":
-              echo "TEXT!!", node.name, " state: ", $(btn.state)
               with node:
                 fill blackColor
                 setText({font: $(btn.state)}, Center, Middle)

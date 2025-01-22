@@ -40,7 +40,6 @@ proc draw*[T](self: Button[T]) {.slot.} =
   let node = self
   let contents = move self.contents
   self.contents.setLen(0)
-  echo "BUTTON DRAW: ", self.name, " :: ", self.uid, " contents: ", contents.repr
 
   with self:
     clipContent true
@@ -59,7 +58,6 @@ proc draw*[T](self: Button[T]) {.slot.} =
       # this changes the color on hover!
   
   rectangle "buttonInner":
-    echo "TEMPLATE: ", self.name, "/", self.uid, " node: ", node.name
     TemplateContents(self, contents)
 
 # exportWidget(button, Button)

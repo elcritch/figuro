@@ -350,7 +350,6 @@ template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
   # if fig.contentsDraw != nil:
   #   fig.contentsDraw(node, Figuro(fig))
   for content in contents:
-    echo "TemplateContents PROC: ", content.repr
     content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
