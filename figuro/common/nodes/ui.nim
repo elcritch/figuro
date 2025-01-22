@@ -82,7 +82,7 @@ type
 
     preDraw*: proc(current: Figuro)
     postDraw*: proc(current: Figuro)
-    contents*: seq[FiguroContents]
+    contents*: seq[FiguroContent]
     # contentsDraw*: proc(current, widget: Figuro)
     # contentProcs*: seq[proc(parent: Figuro)]
 
@@ -93,8 +93,9 @@ type
     textLayout*: GlyphArrangement
     points*: seq[Position]
 
-  FiguroContents* = object
-    childInit*: proc(parent: Figuro, preDraw: proc(current: Figuro)) {.nimcall.}
+  FiguroContent* = object
+    nodeName*: string
+    childInit*: proc(parent: Figuro, content: FiguroContent) {.nimcall.}
     childPreDraw*: proc(current: Figuro)
 
   BasicFiguro* = ref object of Figuro

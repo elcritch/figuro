@@ -61,4 +61,4 @@ proc draw*[T](self: Button[T]) {.slot.} =
     echo "TEMPLATE: ", self.name, " :: ", self.uid
     TemplateContents(self, contents)
 
-exportWidget(button, Button)
+# exportWidget(button, Button)

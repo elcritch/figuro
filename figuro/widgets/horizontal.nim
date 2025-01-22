@@ -18,4 +18,4 @@ proc draw*(self: Horizontal) {.slot.} =
     justifyItems CxCenter
     alignItems CxCenter
 
-exportWidget(horizontal, Horizontal)
+# exportWidget(horizontal, Horizontal)

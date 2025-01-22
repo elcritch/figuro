@@ -146,7 +146,7 @@ proc handlePreDraw*(fig: Figuro) {.slot.} =
 
 proc handleContents*(fig: Figuro) {.slot.} =
   for content in fig.contents:
-    content.childInit(fig, content.childPreDraw)
+    content.childInit(fig, content)
 
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
@@ -287,7 +287,14 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): auto =
+proc widgetInit*[T](parent: Figuro, fc: FiguroContent) =
+  # echo "widgt SETUP PROC: ", name
+  var node: `T` = nil
+  preNode(nkRectangle, fc.nodeName, node, parent)
+  node.preDraw = fc.childPreDraw
+  postNode(Figuro(node))
+
+template widget*[T](nkind: NodeKind = nkRectangle, nm: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   block:
@@ -295,25 +302,20 @@ template widget*[T](nkind: NodeKind = nkRectangle, name: string, blk: untyped): 
       {.error: "no `node` variable defined in the current scope!".}
     
     let childPreDraw = proc(c: Figuro) =
-        echo "widgt PRE-DRAW INIT: ", name
+        echo "widgt PRE-DRAW INIT: ", nm
         let node {.inject.} = ## implicit variable in each widget block that references the current widget
           `T`(c)
         if preDrawReady in node.attrs:
           node.attrs.excl preDrawReady
           `blk`
-    let childInit = proc(parent: Figuro, pd: proc(current: Figuro)) =
-      echo "widgt SETUP PROC: ", name
-      var node {.inject.}: `T` = nil
-      preNode(`nkind`, `name`, node, parent)
-      node.preDraw = pd
-      postNode(Figuro(node))
-    let fc = FiguroContents(
-      childInit: childInit,
+    let fc = FiguroContent(
+      nodeName: nm,
+      childInit: widgetInit[T],
       childPreDraw: childPreDraw,
     )
     node.contents.add(fc)
 
-template new*[F: ref object](t: typedesc[F], name: string, blk: untyped): auto =
+template new*[F: Figuro](t: typedesc[F], nm: string | static string, blk: untyped): auto =
   ## Sets up a new widget instance and fills in
   ## `tuple[]` for missing generics of the widget type.
   ## 
@@ -323,34 +325,17 @@ template new*[F: ref object](t: typedesc[F], name: string, blk: untyped): auto =
   ## 
   when arity(t) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widget[t](nkRectangle, name, blk)
+    widget[t](nkRectangle, nm, blk)
   elif arity(t) == stripGenericParams(t).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(t).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widget[t[tuple[]]](nkRectangle, name, blk)
+      widget[t[tuple[]]](nkRectangle, nm, blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widget[t](nkRectangle, name, blk)
-
-template exportWidget*[T](name: untyped, class: typedesc[T]): auto =
-  ## exports `class` as a template `name`,
-  ## which in turn calls `widget[T](args): blk`
-  ## 
-  ## the exported widget template can take standard widget args
-  ## that `widget` can.
-  ##
-  template `name`*(args: varargs[untyped]): auto =
-    ## Instantiate a widget block for a given widget `T`
-    ## creating a new Figuro node.
-    ##
-    ## Behind the scenes this creates a new block
-    ## with new `node` and `parent` variables.
-    ## The `node` variable becomes the new widget
-    ## instance.
-    widget[`T`](nkRectangle, args)
+    widget[t](nkRectangle, nm, blk)
 
 {.hint[Name]: off.}
 template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
@@ -360,8 +345,7 @@ template TemplateContents*[T, U](n: T, contents: seq[U]): untyped =
   #   fig.contentsDraw(node, Figuro(fig))
   for content in contents:
     echo "TemplateContents PROC: ", content.repr
-    content.childInit(node, content.childPreDraw)
-
+    content.childInit(node, content)
 {.hint[Name]: on.}
 
 macro contents*(args: varargs[untyped]): untyped =
