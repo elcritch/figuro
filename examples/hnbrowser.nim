@@ -98,23 +98,23 @@ proc draw*(self: Main) {.slot.} =
           # offset 10'ux, 10'ux
           itemHeight cx"max-content"
 
-        for idx in 0..10:
-          capture idx:
-            Button.new "button":
-              with node:
-                size 1'fr, 40'ux
-              # connect(node, doHover, self, Main.hover)
-              # echo "story: ", node.uid
-              Text.new "text":
-                offset node, 10'ux, ux(18/2)
-                node.setText({font: $idx}, Left, Middle)
+        # for idx in 0..10:
+        #   capture idx:
+        #     Button.new "button":
+        #       with node:
+        #         size 1'fr, 40'ux
+        #       # connect(node, doHover, self, Main.hover)
+        #       # echo "story: ", node.uid
+        #       Text.new "text":
+        #         offset node, 10'ux, ux(18/2)
+        #         node.setText({font: $idx}, Left, Middle)
         for idx, story in self.stories:
           capture story:
             Button.new "button":
               with node:
                 size 1'fr, 40'ux
               # connect(node, doHover, self, Main.hover)
-              # echo "story: ", node.uid
+              echo "story: ", story.link.title
               Text.new "text":
                 offset node, 10'ux, ux(18/2)
                 node.setText({font: $story.link.title}, Left, Middle)

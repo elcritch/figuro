@@ -87,12 +87,13 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
       let vote = sub.findAll("a").withAttrs("id").getFirst(doNil=true)
       let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).getFirst()
       let linkA = titleTd.elems().getFirst()
-      let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit"}).getFirst()
+      let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit"}).getFirst(doNil=true)
 
       submission.link.href = linkA.attrs["href"]
       submission.link.title = linkA.innerText()
-      submission.link.siteFrom = siteSpan.findAll("a")[0].attrs["href"]
-      submission.link.siteName = siteSpan.findAll("span")[0].innerText()
+      if siteSpan != nil:
+        submission.link.siteFrom = siteSpan.findAll("a")[0].attrs["href"]
+        submission.link.siteName = siteSpan.findAll("span")[0].innerText()
 
       submission.rank = rank.innerText()
       if vote != nil:

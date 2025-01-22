@@ -96,11 +96,11 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   var window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
   window.updateScroll(wheelDelta * 10'ui)
   let windowChanged = window.hash() != self.window.hash()
-  debug "scroll: ", name = self.name, windowChanged = windowChanged
+  trace "scroll: ", name = self.name, windowChanged = windowChanged
   if windowChanged:
-    debug "scroll:window ", name = self.name, hash = self.window.hash(), 
+    trace "scroll:window ", name = self.name, hash = self.window.hash(), 
       scrollby = self.window.scrollby.repr, viewSize = self.window.viewSize.repr, contentSize = self.window.contentSize.repr, contentOverflow = self.window.contentOverflow.repr, contentViewRatio = self.window.contentViewRatio.repr
-    debug "scroll:window ", name = self.name, hash = window.hash(),
+    trace "scroll:window ", name = self.name, hash = window.hash(),
       scrollby = window.scrollby.repr, viewSize = window.viewSize.repr, contentSize = window.contentSize.repr, contentOverflow = window.contentOverflow.repr, contentViewRatio = window.contentViewRatio.repr
   if windowChanged:
     self.window = window
@@ -150,7 +150,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     self.listens.events.incl evScroll
     connect(self, doScroll, self, ScrollPane.scroll)
     self.clipContent true
-    debug "scroll:draw: ", name = self.name
+    trace "scroll:draw: ", name = self.name
 
     rectangle "scrollBody":
       ## max-content is important here

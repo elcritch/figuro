@@ -145,7 +145,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
           res = node.calculateMinOrMaxes(astToStr(f), doMax=false)
         UiContentMax(cmaxs):
           res = node.calculateMinOrMaxes(astToStr(f), doMax=true)
-          debug "CONTENT MAX: ", node = node.name, res = res, d = repr(dir), children = node.children.mapIt((it.name, it.box.w, it.box.h))
+          trace "CONTENT MAX: ", node = node.name, res = res, d = repr(dir), children = node.children.mapIt((it.name, it.box.w, it.box.h))
         _:
           res = node.box.f
       res
@@ -178,7 +178,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
       node.box.f = calcBasic(value)
     UiEnd:
       discard
-  debug "CONTENT csValue:POST ", node = node.name, w = node.box.w, h = node.box.h
+  trace "CONTENT csValue:POST ", node = node.name, w = node.box.w, h = node.box.h
 
 proc calcBasicConstraintPost(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
@@ -222,7 +222,7 @@ var sb: Figuro
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
-  debug "computeLayout", name = node.name, box = node.box.wh.repr
+  trace "computeLayout", name = node.name, box = node.box.wh.repr
   if node.name == "scrollBody":
     sb = node
 
@@ -234,7 +234,7 @@ proc computeLayout*(node: Figuro, depth: int) =
 
   # css grid impl
   if not node.gridTemplate.isNil:
-    debug "computeLayout:gridTemplate", name = node.name, box = node.box.repr
+    trace "computeLayout:gridTemplate", name = node.name, box = node.box.repr
     # compute children first, then lay them out in grid
     for n in node.children:
       computeLayout(n, depth + 1)
@@ -250,11 +250,11 @@ proc computeLayout*(node: Figuro, depth: int) =
 
     for n in node.children:
       for c in n.children:
-        debug "computeLayout:gridTemplate:child:pre", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+        trace "computeLayout:gridTemplate:child:pre", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
         calcBasicConstraint(c, dcol, isXY = false)
         calcBasicConstraint(c, drow, isXY = false)
-        debug "computeLayout:gridTemplate:child:post", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
-    debug "computeLayout:gridTemplate:post", name = node.name, box = node.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+        trace "computeLayout:gridTemplate:child:post", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+    trace "computeLayout:gridTemplate:post", name = node.name, box = node.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
   else:
     for n in node.children:
       computeLayout(n, depth + 1)
@@ -265,12 +265,12 @@ proc computeLayout*(node: Figuro, depth: int) =
       calcBasicConstraintPost(n, drow, isXY = true)
       calcBasicConstraintPost(n, dcol, isXY = false)
       calcBasicConstraintPost(n, drow, isXY = false)
-      debug "calcBasicConstraintPost: ", n = n.name, w = n.box.w, h = n.box.h, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+      trace "calcBasicConstraintPost: ", n = n.name, w = n.box.w, h = n.box.h, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
 
   # debug "computeLayout:post: ",
   #   name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, children = node.children.mapIt((it.name, it.box.repr))
 
-  debug "computeLayout:post: ",
+  trace "computeLayout:post: ",
     name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
   let currWh = node.box.wh
   # if currWh != node.prevSize:
@@ -286,8 +286,6 @@ proc computeLayout*(node: Figuro) =
     )
     printLayout(node)
   computeLayout(node, 0)
-  debug "computeLayout:done: ",
-     sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
   when defined(debugLayout) or defined(figuroDebugLayout):
     stdout.styledWriteLine(
       {styleDim}, fgWhite, "computeLayout:post ", {styleDim}, fgGreen, ""
