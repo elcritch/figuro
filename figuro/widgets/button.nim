@@ -1,5 +1,4 @@
 import ../widget
-export
 
 type
   ButtonClicks* = enum

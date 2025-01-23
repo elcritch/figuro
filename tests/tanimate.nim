@@ -2,7 +2,6 @@
 ## This minimal example shows 5 blue squares.
 
 import figuro/widgets/button
-import figuro/widget
 import figuro
 
 import std/sugar
