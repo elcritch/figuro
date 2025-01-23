@@ -113,6 +113,7 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
     frame.debugName = "Frame"
   let frameRef = frame.unsafeWeakRef()
   let renderer = initRenderer(frameRef)
+  renderer.duration = renderDuration
   appFrames[frameRef] = renderer
   frame.frameRunner = frameRunner
 
