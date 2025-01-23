@@ -79,7 +79,7 @@ var
   typefaceTable*: Table[TypefaceId, Typeface]
   fontTable* {.threadvar.}: Table[FontId, Font]
 
-proc generateGlyphImage*(arrangement: GlyphArrangement) =
+proc generateGlyphImage(arrangement: GlyphArrangement) =
   ## returns Glyph's hash, will generate glyph if needed
   ## 
   ## Font Glyphs are generated with Bottom vAlign and Center hAlign
