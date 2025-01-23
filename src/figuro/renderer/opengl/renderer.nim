@@ -38,8 +38,10 @@ proc newRenderer*(
   renderer.ctx =
     newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = app.pixelScale)
   renderer.uxInputList = newChan[AppInputs](4)
+  renderer.rendInputList = newChan[RenderCommands](20)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
+  frame[].rendInputList = renderer.rendInputList
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
