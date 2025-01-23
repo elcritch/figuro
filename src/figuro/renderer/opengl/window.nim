@@ -2,7 +2,7 @@ import std/[strformat, times, strutils]
 
 import pkg/[chroma, pixie]
 import pkg/opengl
-import pkg/windy
+import pkg/windex
 
 import utils
 import glcommons
@@ -23,11 +23,11 @@ when defined(glDebugMessageCallback):
   import strformat, strutils
 
 static:
-  ## compile check to ensure windy buttons don't change on us
-  for i in 0 .. windy.Button.high().int:
+  ## compile check to ensure windex buttons don't change on us
+  for i in 0 .. windex.Button.high().int:
     assert $Button(i) == $UiButton(i)
 
-proc toUi*(wbtn: windy.ButtonView): UiButtonView =
+proc toUi*(wbtn: windex.ButtonView): UiButtonView =
   when defined(nimscript):
     for b in set[Button](wbtn):
       result.incl UiButton(b.int)

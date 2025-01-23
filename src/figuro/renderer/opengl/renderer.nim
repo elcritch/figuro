@@ -3,7 +3,7 @@ export tables
 
 import pkg/threading/atomics
 import pkg/chroma
-import pkg/windy
+import pkg/windex
 import pkg/opengl
 from pixie import Image
 import pkg/sigils
@@ -333,7 +333,7 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
     return
 
   if poll:
-    windy.pollEvents()
+    windex.pollEvents()
   
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
