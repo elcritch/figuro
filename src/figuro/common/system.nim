@@ -27,6 +27,7 @@ when defined(nimscript):
 
 else:
   import fontutils
+  export TypeFaceKinds
   ## these are set at runtime by the opengl window
 
   proc setWindowTitle*(title: string) =
@@ -38,6 +39,9 @@ else:
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
     getTypefaceImpl(name)
+
+  proc getTypeface*(name, data: string, kind: TypeFaceKinds): TypefaceId =
+    getTypefaceImpl(name, data, kind)
 
   proc getTypeset*(
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top

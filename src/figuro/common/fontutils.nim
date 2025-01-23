@@ -128,6 +128,28 @@ proc generateGlyphImage(arrangement: GlyphArrangement) =
       except PixieError:
         discard
 
+type
+  TypeFaceKinds* = enum
+    TTF
+    OTF
+    SVG
+
+proc readTypefaceImpl(name, data: string, kind: TypeFaceKinds): Typeface {.raises: [PixieError].} =
+  ## Loads a typeface from a file.
+  try:
+    result =
+      case kind
+        of TTF:
+          parseTtf(data)
+        of OTF:
+          parseOtf(data)
+        of SVG:
+          parseSvgFont(data)
+  except IOError as e:
+    raise newException(PixieError, e.msg, e)
+
+  result.filePath = name
+
 proc getTypefaceImpl*(name: string): FontId =
   runtimeThreads:
     MainThread
@@ -142,6 +164,17 @@ proc getTypefaceImpl*(name: string): FontId =
   # echo "typefaceTable:addr: ", getThreadId()
   # echo "getTypeFace: ", result
   # echo "getTypeFace:res: ", typefaceTable[id].hash()
+
+proc getTypefaceImpl*(name, data: string, kind: TypeFaceKinds): FontId =
+  runtimeThreads:
+    MainThread
+
+  let
+    typeface = readTypefaceImpl(name, data, kind)
+    id = typeface.getId()
+
+  typefaceTable[id] = typeface
+  result = id
 
 proc convertFont*(font: UiFont): (FontId, Font) =
   runtimeThreads:
