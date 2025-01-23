@@ -108,7 +108,7 @@ proc runRenderer(renderer: Renderer) =
     if app.tickCount == app.tickCount.typeof.high:
       app.tickCount = 0
     timeIt(renderAvgTime):
-      renderer.render(false)
+      renderer.pollAndRender(false)
     os.sleep(renderDuration.inMilliseconds)
 
 proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =

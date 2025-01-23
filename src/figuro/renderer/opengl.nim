@@ -11,7 +11,7 @@ import ./opengl/utils
 import ./opengl/window
 import ./opengl/renderer
 
-export Renderer, render
+export Renderer, pollAndRender
 
 var lastMouse = Mouse()
 
@@ -29,7 +29,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onResize = proc() =
     updateWindowSize(renderer.frame, window)
-    renderer.render(updated = true, poll = false)
+    renderer.pollAndRender(updated = true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some renderer.frame[].windowSize
     discard renderer.uxInputList.trySend(uxInput)

@@ -319,7 +319,7 @@ proc renderAndSwap(renderer: Renderer, updated: bool) =
   timeIt(drawFrameSwap):
     renderer.window.swapBuffers()
 
-proc render*(renderer: Renderer, updated = false, poll = true) =
+proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
   let

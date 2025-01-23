@@ -256,7 +256,7 @@ proc getTitle*(): string =
   ## Gets window title
   getWindowTitle()
 
-template setTitle*(title: string) =
+template setTitle*(current: Figuro, title: string) =
   ## Sets window title
   if (getWindowTitle() != title):
     setWindowTitle(title)
