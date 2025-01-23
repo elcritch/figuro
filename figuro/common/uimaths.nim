@@ -148,6 +148,11 @@ proc initPosition*(x, y: float32): Position =
 proc initPosition*(x, y: UICoord): Position =
   Position(vec2(x.float32, y.float32))
 
+proc hash*(x: Position): Hash =
+  result = Hash(0)
+  for f in x.Vec2.fields(): result = result !& hash(f)
+  result = !$result
+
 genBoolOp[Position, Vec2](`==`)
 genBoolOp[Position, Vec2](`!=`)
 genBoolOp[Position, Vec2](`~=`)
@@ -215,6 +220,10 @@ template `x=`*(r: Position, v: UICoord) =
 
 template `y=`*(r: Position, v: UICoord) =
   r.Vec2.y = v.float32
+
+proc hash*(bx: Box): Hash =
+  result = hash(bx.x) !& hash(bx.y) !& hash(bx.w) !& hash(bx.h)
+  result = !$result
 
 proc `+`*(rect: Box, xy: Position): Box =
   ## offset rect with xy vec2 

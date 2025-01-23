@@ -2,6 +2,7 @@ import std/[algorithm, macros, tables, os]
 import std/with
 import chroma, bumpy, stack_strings
 import cssgrid
+import chronicles
 
 import std/[hashes]
 
@@ -94,13 +95,13 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 #   ## Note: Experimental!
 #   nodeImpl(nkDrawable, id, inner)
 
-template rectangle*(name: string, blk: untyped): auto =
+template rectangle*(name: string | static string, blk: untyped) =
   ## Starts a new rectangle.
-  widget[Rectangle](nkRectangle, name, blk)
+  widgetRegister[Rectangle](nkRectangle, name, blk)
 
-template text*(name: string, blk: untyped): auto =
+template text*(name: string | static string, blk: untyped) =
   ## Starts a new rectangle.
-  widget[Text](nkText, name, blk)
+  widgetRegister[Text](nkText, name, blk)
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
@@ -122,23 +123,23 @@ proc setName*(current: Figuro, n: string) =
 ## interacting with user interactions. 
 ## 
 
-type CSSConstraint = Constraint
+# type Constraint* = Constraint
 
-proc fltOrZero(x: int | float32 | float64 | UICoord | CSSConstraint): float32 =
-  when x is CSSConstraint: 0.0 else: x.float32
+proc fltOrZero(x: int | float32 | float64 | UICoord | Constraint): float32 =
+  when x is Constraint: 0.0 else: x.float32
 
-proc csOrFixed*(x: int | float32 | float64 | UICoord | CSSConstraint): CSSConstraint =
-  when x is CSSConstraint:
+proc csOrFixed*(x: int | float32 | float64 | UICoord | Constraint): Constraint =
+  when x is Constraint:
     x
   else:
     csFixed(x.UiScalar)
 
 proc box*(
     current: Figuro,
-    x: UICoord | CSSConstraint,
-    y: UICoord | CSSConstraint,
-    w: UICoord | CSSConstraint,
-    h: UICoord | CSSConstraint,
+    x: UICoord | Constraint,
+    y: UICoord | Constraint,
+    w: UICoord | Constraint,
+    h: UICoord | Constraint,
 ) =
   ## Sets the size and offsets at the same time
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
@@ -148,10 +149,10 @@ proc box*(
 #   ## Sets the box dimensions with integers
 #   box(rect.x, rect.y, rect.w, rect.h)
 
-proc offset*(current: Figuro, x: UICoord | CSSConstraint, y: UICoord | CSSConstraint) =
+proc offset*(current: Figuro, x: UICoord | Constraint, y: UICoord | Constraint) =
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
 
-proc size*(current: Figuro, w: UICoord | CSSConstraint, h: UICoord | CSSConstraint) =
+proc size*(current: Figuro, w: UICoord | Constraint, h: UICoord | Constraint) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
 proc boxSizeOf*(current: Figuro, node: Figuro) =
@@ -291,9 +292,11 @@ proc setText*(
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ) =
-  let thash = spans.hash()
+  let thash = getContentHash(current.box, spans, hAlign, vAlign)
   if thash != current.textLayout.contentHash:
+    trace "setText: ", nodeName = current.name, thash = thash, contentHash = current.textLayout.contentHash
     current.textLayout = internal.getTypeset(current.box, spans, hAlign, vAlign)
+    refresh(current)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
@@ -474,34 +477,35 @@ proc gridAutoRows*(current: Figuro, item: Constraint) =
 
 proc gridTemplateDebugLines*(node: Figuro, grid: Figuro, color: Color = blueColor) =
   ## helper that draws css grid lines. great for debugging layouts.
-  rectangle "grid-debug":
-    # strokeLine 3'ui, css"#0000CC"
-    # draw debug lines
-    boxOf node, grid.box
-    if not grid.gridTemplate.isNil:
-      computeLayout(grid, 0)
-      # echo "grid template post: ", grid.gridTemplate
-      let cg = grid.gridTemplate.gaps[dcol]
-      let wd = 1'ui
-      let w = grid.gridTemplate.columns[^1].start.UICoord
-      let h = grid.gridTemplate.rows[^1].start.UICoord
-      for col in grid.gridTemplate.columns[1 ..^ 2]:
-        capture col:
-          rectangle "column":
-            with node:
-              fill color
-              box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
-      for row in grid.gridTemplate.rows[1 ..^ 2]:
-        capture row:
-          rectangle "row":
-            with node:
-              fill color
-              box 0, row.start.UICoord - wd, w.UICoord, wd
-      rectangle "edge":
-        with node:
-          fill color.darken(0.5)
-          box 0'ux, 0'ux, w, 3'ux
-      rectangle "edge":
-        with node:
-          fill color.darken(0.5)
-          box 0'ux, ux(h - 3), w, 3'ux
+  when false:
+    rectangle "grid-debug":
+      # strokeLine 3'ui, css"#0000CC"
+      # draw debug lines
+      boxOf node, grid.box
+      if not grid.gridTemplate.isNil:
+        computeLayout(grid, 0)
+        # echo "grid template post: ", grid.gridTemplate
+        let cg = grid.gridTemplate.gaps[dcol]
+        let wd = 1'ui
+        let w = grid.gridTemplate.columns[^1].start.UICoord
+        let h = grid.gridTemplate.rows[^1].start.UICoord
+        for col in grid.gridTemplate.columns[1 ..^ 2]:
+          capture col:
+            rectangle "column":
+              with node:
+                fill color
+                box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
+        for row in grid.gridTemplate.rows[1 ..^ 2]:
+          capture row:
+            rectangle "row":
+              with node:
+                fill color
+                box 0, row.start.UICoord - wd, w.UICoord, wd
+        rectangle "edge":
+          with node:
+            fill color.darken(0.5)
+            box 0'ux, 0'ux, w, 3'ux
+        rectangle "edge":
+          with node:
+            fill color.darken(0.5)
+            box 0'ux, ux(h - 3), w, 3'ux

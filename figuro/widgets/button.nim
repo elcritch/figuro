@@ -37,20 +37,25 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
-  with self:
-    clipContent true
-  withOptional self:
-    cornerRadius 10.0'ui
+  withWidget(self):
 
-  if self.disabled:
+    with self:
+      clipContent true
     withOptional self:
-      fill css"#F0F0F0"
-  else:
-    withOptional self:
-      fill css"#2B9FEA"
-    self.onHover:
-      # withOptional self:
-      fill self, self.fill.lighten(0.14)
-      # this changes the color on hover!
+      cornerRadius 10.0'ui
 
-exportWidget(button, Button)
+    if self.disabled:
+      withOptional self:
+        fill css"#F0F0F0"
+    else:
+      withOptional self:
+        fill css"#2B9FEA"
+      self.onHover:
+        # withOptional self:
+        fill self, self.fill.lighten(0.14)
+        # this changes the color on hover!
+    
+    rectangle "buttonInner":
+      WidgetContents()
+
+# exportWidget(button, Button)

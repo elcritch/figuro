@@ -1,4 +1,4 @@
-import figuro/widgets/[basics, button, horizontal, basics]
+import figuro/widgets/[button, horizontal]
 import figuro/widget
 import figuro/ui/animations
 import figuro
@@ -19,6 +19,8 @@ proc btnTick*(self: Button[int]) {.slot.} =
   ## slot to increment a button on every tick 
   self.state.inc
   refresh(self)
+  # if self.state mod 10 == 0:
+  #   quit(1)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
@@ -62,6 +64,7 @@ proc draw*(self: Main) {.slot.} =
         layoutItems justify=CxCenter, align=CxCenter
 
       for idx in 0 .. 4:
+        capture idx:
           Button[int].new("btn"):
             let btn = node
             with node:

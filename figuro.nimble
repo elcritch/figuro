@@ -6,7 +6,7 @@ srcDir        = "."
 
 # Dependencies
 
-# requires "nim >= 2.0.12"
+requires "nim >= 2.0.10"
 requires "sigils >= 0.9.6"
 requires "pixie >= 5.0.1"
 requires "cssgrid >= 0.6.1"
@@ -30,4 +30,4 @@ requires "micros"
 requires "stylus"
 requires "https://github.com/elcritch/windy#macos-keyinput-fixes"
 requires "libfswatch >= 0.1.0"
-requires "chronicles >= 0.10.0"
+requires "chronicles >= 0.10.3"

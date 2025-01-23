@@ -97,9 +97,10 @@ proc setupTicker*(frame: AppFrame) =
   else:
     echo "fsmonitor not loaded"
 
-proc start(self: AppFrame) {.slot.} =
+proc start*(self: AppFrame) {.slot.} =
   self.setupTicker()
   # self.loadTheme()
+  emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
 proc runRenderer(renderer: Renderer) =
   while app.running and renderer[].frame[].running:

@@ -1,11 +1,11 @@
 ## This is a simple example on how to use Stylus' tokenizer.
-import figuro/ui/basiccss
+import std/unittest
 import chroma
 import cssgrid
 import pretty
+import chronicles
 
-import std/unittest
-
+import figuro/ui/basiccss
 import figuro/widget
 import figuro/common/nodes/ui
 import figuro/common/nodes/render
@@ -105,7 +105,7 @@ suite "css parser":
     let parser = newCssParser(src)
     let res = parse(parser)[0]
     # echo "results: ", res.repr
-    check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
+    check res.selectors[0] == CssSelector(cssType: "Button", combinator: skNone)
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
   test "missing property name":
@@ -121,7 +121,7 @@ suite "css parser":
     let parser = newCssParser(src)
     let res = parse(parser)[0]
     # echo "results: ", res.repr
-    check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
+    check res.selectors[0] == CssSelector(cssType: "Button", combinator: skNone)
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
   test "test child descent tokenizer is working":
@@ -138,7 +138,8 @@ suite "css parser":
       echo "trying to parse `>`..."
       let parser = newCssParser(src)
       let res = parse(parser)
-      echo "results: ", res.repr
+      # for r in res:
+      #   echo "results: ", r.repr
 
 type
   TMain* = ref object of Figuro

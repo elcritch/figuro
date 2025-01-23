@@ -10,13 +10,17 @@ switch("styleCheck", "hint")
 --d:printDebugTimings
 # --d:nimStrictDelete
 --deepcopy:on
+--debugger:native
+--debugInfo
+--define:"chronicles_log_level:DEBUG"
+# --define:"chronicles_log_level:TRACE"
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 
 if not defined(emscripten):
   --threads:on
 
---define:chronicles_sinks:textlines
+--define:"chronicles_sinks:textlines"
 --define:"chronicles_indent:2"
 --define:"chronicles_timestamps:NoTimestamps"
 

@@ -1,16 +1,13 @@
 import std/locks
 import std/sets
-import std/logging
 import pkg/threading/atomics
-import shared, ui/core
-import common/nodes/transfer
-import common/nodes/ui as ui
-import common/nodes/render as render
-import widget
-import sigils
-import sigils/threads
+import pkg/sigils
+import pkg/sigils/threads
+import pkg/chronicles
 
-import exec
+import widget, shared, exec
+import ui/core, ui/layout
+import common/nodes/[transfer, ui, render]
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}
@@ -42,11 +39,12 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
     app.requestedFrame.dec()
 
   if frame.redrawNodes.len() > 0:
+    trace "Frame Redraw! "
     computeEvents(frame)
-    let rn = frame.redrawNodes
+    let rn = move frame.redrawNodes
+    frame.redrawNodes.clear()
     for node in rn:
       emit node.doDraw()
-    frame.redrawNodes.clear()
     computeLayout(frame.root)
     computeScreenBox(nil, frame.root)
     appFrames.withValue(frame.unsafeWeakRef(), renderer):
@@ -59,5 +57,4 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
 proc startFiguro*(frame: var AppFrame) =
   ## Starts Fidget UI library
   ## 
-
   run(frame, AppFrame.runFrameImpl())

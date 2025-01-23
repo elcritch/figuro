@@ -59,6 +59,7 @@ type
     offset*: Position
     totalOffset*: Position
     scroll*: Position
+    prevSize*: Position
 
     attrs*: set[Attributes]
     userSetFields*: set[FieldSet]
@@ -81,7 +82,9 @@ type
 
     preDraw*: proc(current: Figuro)
     postDraw*: proc(current: Figuro)
-    contentsDraw*: proc(current, widget: Figuro)
+    contents*: seq[FiguroContent]
+    # contentsDraw*: proc(current, widget: Figuro)
+    # contentProcs*: seq[proc(parent: Figuro)]
 
     kind*: NodeKind
     shadow*: array[ShadowStyle, Shadow]
@@ -89,6 +92,11 @@ type
     image*: ImageStyle
     textLayout*: GlyphArrangement
     points*: seq[Position]
+
+  FiguroContent* = object
+    name*: string
+    childInit*: proc(parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
+    childPreDraw*: proc(current: Figuro) {.closure.}
 
   BasicFiguro* = ref object of Figuro
 
@@ -143,7 +151,12 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
 
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
+proc doInitialize*(fig: Figuro) {.signal.}
+  ## called before draw when a node is first created or reset
 proc doDraw*(fig: Figuro) {.signal.}
+  ## draws node
+proc doLayoutResize*(fig: Figuro, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.signal.}
+  ## called after layout size changes
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
 proc doClick*(fig: Figuro, kind: EventKind, keys: UiButtonView) {.signal.}

@@ -1,4 +1,7 @@
 import commons
+import std/hashes
+
+import chronicles
 
 type
   ScrollPane* = ref object of Figuro
@@ -28,6 +31,11 @@ type
     size*: Position
     start*: Position
 
+proc hash*(x: ScrollWindow): Hash =
+  result = Hash(0)
+  for f in x.fields(): result = result !& hash(f)
+  result = !$result
+
 proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow =
   let
     viewSize = viewBox.wh
@@ -35,13 +43,14 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     contentViewRatio = (viewSize / contentSize).clamp(0.0'ui, 1.0'ui)
     contentOverflow = (contentSize - viewSize).clamp(0'ui, contentSize.y)
 
-  ScrollWindow(
+  result = ScrollWindow(
     viewSize: viewSize,
     contentSize: contentSize,
     contentViewRatio: contentViewRatio,
     contentOverflow: contentOverflow,
     scrollBy: scrollby,
   )
+  trace "calculateWindow: ", window = result.repr
 
 proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false) =
   if isAbsolute:
@@ -53,6 +62,7 @@ proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false
 proc calculateBar*(
     settings: ScrollSettings, window: ScrollWindow, isY: bool
 ): ScrollBar =
+  trace "calculateBar: ", settings = settings.repr, window = window.repr
   let
     sizePercent = clamp(window.scrollby / window.contentOverflow, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio * window.viewSize
@@ -83,14 +93,26 @@ proc calculateBar*(
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
+  var window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
+  window.updateScroll(wheelDelta * 10'ui)
+  let windowChanged = window.hash() != self.window.hash()
+  trace "scroll: ", name = self.name, windowChanged = windowChanged
+  if windowChanged:
+    trace "scroll:window ", name = self.name, hash = self.window.hash(), 
+      scrollby = self.window.scrollby.repr, viewSize = self.window.viewSize.repr, contentSize = self.window.contentSize.repr, contentOverflow = self.window.contentOverflow.repr, contentViewRatio = self.window.contentViewRatio.repr
+    trace "scroll:window ", name = self.name, hash = window.hash(),
+      scrollby = window.scrollby.repr, viewSize = window.viewSize.repr, contentSize = window.contentSize.repr, contentOverflow = window.contentOverflow.repr, contentViewRatio = window.contentViewRatio.repr
+  if windowChanged:
+    self.window = window
+  let prevScrollBy = self.window.scrollby
   assert child.name == "scrollBody"
-  self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-  self.window.updateScroll(wheelDelta * 10'ui)
+  # self.window.updateScroll(wheelDelta * 10'ui)
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.window, isY = true)
   if self.settings.horizontal:
     self.barx = calculateBar(self.settings, self.window, isY = false)
-  refresh(self)
+  if windowChanged:
+    refresh(self)
 
 proc scrollBarDrag*(
     self: ScrollPane, kind: EventKind, initial: Position, cursor: Position
@@ -114,43 +136,54 @@ proc scrollBarDrag*(
       self.barx = calculateBar(self.settings, self.window, isY = false)
     refresh(self)
 
+proc layoutResize*(self: ScrollPane, child: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
+  debug "LAYOUT RESIZE: ", self = self.name, child = child.name, node = self.children[0].name,
+    prevW = resize.prev.x, prevH = resize.prev.y,
+    currW = resize.curr.x, currH = resize.curr.y
+  # self.children[0].box.w = resize.curr.x
+  # self.children[0].box.h = resize.curr.y
+  # scroll(self, initPosition(0, 0))
+  # refresh(self)
+
 proc draw*(self: ScrollPane) {.slot.} =
-  var node = self
-  self.listens.events.incl evScroll
-  connect(self, doScroll, self, ScrollPane.scroll)
-  self.clipContent true
+  withWidget(self):
+    self.listens.events.incl evScroll
+    connect(self, doScroll, self, ScrollPane.scroll)
+    self.clipContent true
+    trace "scroll:draw: ", name = self.name
 
-  rectangle "scrollBody":
-    ## max-content is important here
-    ## todo: do the same for horiz?
-    size node, 100'pp, 100'pp
+    rectangle "scrollBody":
+      ## max-content is important here
+      ## todo: do the same for horiz?
+      if self.settings.vertical:
+        node.cxSize[drow] = cx"max-content"
+      if self.settings.horizontal:
+        node.cxSize[dcol] = cx"max-content"
+
+      with node:
+        fill whiteColor.darken(0.2)
+      node.offset = self.window.scrollby
+      node.attrs.incl scrollPanel
+      WidgetContents()
+      scroll(self, initPosition(0, 0))
+      for child in node.children:
+        # echo "CHILD: ", child.name
+        connect(child, doLayoutResize, self, layoutResize)
+
     if self.settings.vertical:
-      node.cxSize[drow] = cx"max-content"
+      rectangle "scrollbar-vertical":
+        with node:
+          box self.bary.start.x, self.bary.start.y, self.bary.size.x, self.bary.size.y
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
+          connect(doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
-      node.cxSize[dcol] = cx"max-content"
-
-    with node:
-      fill whiteColor.darken(0.2)
-    node.offset = self.window.scrollby
-    node.attrs.incl scrollPanel
-    TemplateContents(self)
-    scroll(self, initPosition(0, 0))
-
-  if self.settings.vertical:
-    rectangle "scrollbar-vertical":
-      with node:
-        box self.bary.start.x, self.bary.start.y, self.bary.size.x, self.bary.size.y
-        fill css"#0000ff" * 0.4
-        cornerRadius 4'ui
-        connect(doDrag, self, scrollBarDrag)
-  if self.settings.horizontal:
-    rectangle "scrollbar-horizontal":
-      with node:
-        box self.barx.start.x, self.barx.start.y, self.barx.size.x, self.barx.size.y
-        fill css"#0000ff" * 0.4
-        cornerRadius 4'ui
+      rectangle "scrollbar-horizontal":
+        with node:
+          box self.barx.start.x, self.barx.start.y, self.barx.size.x, self.barx.size.y
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   self
 
-exportWidget(scroll, ScrollPane)
