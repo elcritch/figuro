@@ -309,8 +309,6 @@ proc renderFrame*(renderer: Renderer) =
 proc renderAndSwap(renderer: Renderer, updated: bool) =
   ## Does drawing operations.
 
-  app.tickCount.inc
-
   timeIt(drawFrame):
     renderFrame(renderer)
 
@@ -344,9 +342,6 @@ proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
   while app.running and renderer[].frame[].running:
-    app.tickCount.inc()
-    if app.tickCount == app.tickCount.typeof.high:
-      app.tickCount = 0
     timeIt(renderAvgTime):
       renderer.pollAndRender(false)
     os.sleep(renderer.duration.inMilliseconds)

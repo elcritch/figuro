@@ -13,7 +13,6 @@ proc appInit() =
   discard
 
 proc appTick*(val: AppStatePartial): AppStatePartial =
-  app.tickCount = val.tickCount
   app.uiScale = val.uiScale
   appTicker()
   result.requestedFrame = app.requestedFrame

@@ -48,7 +48,7 @@ type ScaleInfo* = object
   y*: float32
 
 type
-  AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
+  AppStatePartial* = tuple[requestedFrame: int, uiScale: float32]
 
   AppState* = object
     running*: bool
@@ -60,8 +60,6 @@ type
     autoUiScale*: bool
 
     requestedFrame*: int = 2
-    # frameCount*: int
-    tickCount*: int
 
     # windowFrame*: Vec2   ## Pixel coordinates
     pixelate*: bool ## ???
