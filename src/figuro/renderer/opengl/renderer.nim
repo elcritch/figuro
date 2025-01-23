@@ -43,7 +43,7 @@ proc newRenderer*(
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
-  # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
+  ## TODO: draw non-node stuff?
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
     let
@@ -52,9 +52,7 @@ proc renderDrawable*(ctx: Context, node: Node) =
     ctx.fillRect(bx, node.fill)
 
 proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
-  # draw characters
-  # if node.textLayout == nil:
-  # return
+  ## draw characters (glyphs)
 
   for glyph in node.textLayout.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
