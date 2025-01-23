@@ -5,9 +5,8 @@ import cssgrid
 import pretty
 import chronicles
 
-import figuro/ui/basiccss
 import figuro/widget
-import figuro/common/nodes/ui
+import figuro/common/nodes/uinodes
 import figuro/common/nodes/render
 import figuro/widgets/button
 

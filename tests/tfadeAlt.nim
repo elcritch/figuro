@@ -1,8 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/button
-import figuro/widgets/horizontal
-import figuro/widget
+import figuro/widgets/[button, horizontal]
 import figuro
 
 type

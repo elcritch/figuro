@@ -1,5 +1,4 @@
 import figuro/widgets/[button, horizontal]
-import figuro/widget
 import figuro/ui/animations
 import figuro
 

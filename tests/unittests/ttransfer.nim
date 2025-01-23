@@ -8,7 +8,7 @@ import pkg/pretty
 
 import figuro/ui/layout
 import figuro/widget
-import figuro/common/nodes/ui
+import figuro/common/nodes/uinodes
 import figuro/common/nodes/render
 import figuro/common/nodes/transfer
 
