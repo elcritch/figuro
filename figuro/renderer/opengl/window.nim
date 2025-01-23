@@ -6,7 +6,7 @@ import pkg/windy
 
 import utils
 import glcommons
-import ../../common/nodes/ui
+import ../../common/nodes/uinodes
 
 import pkg/sigils/weakrefs
 

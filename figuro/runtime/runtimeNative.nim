@@ -8,7 +8,7 @@ import pkg/chronicles
 import runtimeCore
 import ../widget, ../commons
 import ../ui/[core, layout]
-import ../common/nodes/[transfer, ui, render]
+import ../common/nodes/[transfer, uinodes, render]
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}

@@ -17,7 +17,7 @@ import sigils/threads
 
 import ../commons
 import ../ui/[core, events]
-import ../common/nodes/ui
+import ../common/nodes/uinodes
 import ../widget
 import utils/cssMonitor
 import utils/timers
