@@ -1,6 +1,7 @@
 import std/[sequtils, tables, hashes]
 import std/[options, unicode, strformat]
 import std/paths
+import std/os
 import pkg/variant
 export paths, sequtils, strformat, tables, hashes
 export variant
@@ -40,7 +41,7 @@ const
   blueColor* = color(0, 0, 1, 1)
 
 const DataDirPath* {.strdefine.} =
-  Path(currentSourcePath()).splitPath().head /../ "data".Path
+  Path(currentSourcePath()).splitPath().head / Path(".." / ".." / "data")
 
 type ScaleInfo* = object
   x*: float32
