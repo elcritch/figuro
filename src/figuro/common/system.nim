@@ -12,18 +12,6 @@ else:
 
 type MainCallback* = proc() {.closure.}
 
-# when defined(nimscript):
-#   proc setWindowTitle*(title: string) =
-#     discard
-#   proc getWindowTitle*(): string =
-#     discard
-#   proc getTypeface*(name: string): TypefaceId =
-#     discard
-#   proc getFont*(font: GlyphFont): FontId =
-#     discard
-#   proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
-#     discard
-
 when not defined(nimscript):
   import fontutils
   export TypeFaceKinds
@@ -47,3 +35,15 @@ when not defined(nimscript):
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top
   ): GlyphArrangement =
     getTypesetImpl(box, spans, hAlign, vAlign)
+
+# when defined(nimscript):
+#   proc setWindowTitle*(title: string) =
+#     discard
+#   proc getWindowTitle*(): string =
+#     discard
+#   proc getTypeface*(name: string): TypefaceId =
+#     discard
+#   proc getFont*(font: GlyphFont): FontId =
+#     discard
+#   proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
+#     discard
