@@ -129,4 +129,4 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
 
   setControlCHook(ctrlc)
 
-  runRenderer(renderer)
+  runRendererLoop(renderer)
