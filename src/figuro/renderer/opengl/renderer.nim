@@ -18,7 +18,7 @@ type Renderer* = ref object
   duration*: Duration
   window*: Window
   uxInputList*: Chan[AppInputs]
-  rdInputList*: Chan[RenderCommands]
+  rendInputList*: Chan[RenderCommands]
   frame*: WeakRef[AppFrame]
   lock*: Lock
   updated*: Atomic[bool]

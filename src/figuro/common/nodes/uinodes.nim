@@ -37,6 +37,7 @@ type
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]
+    rendInputList*: Chan[RenderCommands]
     running*, focused*, minimized*, fullscreen*: bool
 
     windowSize*: Box ## Screen size in logical coordinates.
