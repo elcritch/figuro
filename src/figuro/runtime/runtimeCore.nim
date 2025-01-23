@@ -35,7 +35,6 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 var
-  # runFrame*: proc(frame: AppFrame) {.nimcall.}
   appFrames*: Table[WeakRef[AppFrame], Renderer]
 
 const
