@@ -81,7 +81,7 @@ proc generateGlyphImage(arrangement: GlyphArrangement) =
   ## Font Glyphs are generated with Bottom vAlign and Center hAlign
   ## this puts the glyphs in the right position
   ## so that the renderer doesn't need to figure out adjustments
-  runtimeThreads:
+  threadEffects:
     AppMainThread
 
   for glyph in arrangement.glyphs():
@@ -148,7 +148,7 @@ proc readTypefaceImpl(name, data: string, kind: TypeFaceKinds): Typeface {.raise
 
 proc getTypefaceImpl*(name: string): FontId =
   ## loads a font from a file and adds it to the font index
-  runtimeThreads:
+  threadEffects:
     AppMainThread
 
   let
@@ -161,7 +161,7 @@ proc getTypefaceImpl*(name: string): FontId =
 
 proc getTypefaceImpl*(name, data: string, kind: TypeFaceKinds): FontId =
   ## loads a font from buffer and adds it to the font index
-  runtimeThreads:
+  threadEffects:
     AppMainThread
 
   let
@@ -174,7 +174,7 @@ proc getTypefaceImpl*(name, data: string, kind: TypeFaceKinds): FontId =
 proc convertFont*(font: UiFont): (FontId, Font) =
   ## does the typesetting using pixie, then converts to Figuro's internal
   ## types
-  runtimeThreads:
+  threadEffects:
     AppMainThread
 
   let
@@ -213,7 +213,7 @@ proc getTypesetImpl*(
   ## does the typesetting using pixie, then converts the typeseet results 
   ## into Figuro's own internal types
   ## Primarily done for thread safety
-  runtimeThreads:
+  threadEffects:
     AppMainThread
 
   var

@@ -74,7 +74,7 @@ template setupThread(thread, obj, sig, slot, starter: untyped) =
   frame.proxies.add proxy
 
 proc setupTicker*(frame: AppFrame) =
-  runtimeThreads:
+  threadEffects:
     AppMainThread
   var ticker = AppTicker(period: renderDuration)
   appTickThread.setupThread(
@@ -106,7 +106,7 @@ proc start*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
 proc runRenderer(renderer: Renderer) =
-  runtimeThreads:
+  threadEffects:
     RenderThread
   while app.running and renderer[].frame[].running:
     app.tickCount.inc()
@@ -117,7 +117,7 @@ proc runRenderer(renderer: Renderer) =
     os.sleep(renderDuration.inMilliseconds)
 
 proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
-  runtimeThreads:
+  threadEffects:
     RenderThread
   ## run figuro
   when defined(sigilsDebug):
