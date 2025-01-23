@@ -131,7 +131,7 @@ type
     SVG
 
 proc readTypefaceImpl(name, data: string, kind: TypeFaceKinds): Typeface {.raises: [PixieError].} =
-  ## Loads a typeface from a file.
+  ## Loads a typeface from a buffer
   try:
     result =
       case kind
@@ -147,6 +147,7 @@ proc readTypefaceImpl(name, data: string, kind: TypeFaceKinds): Typeface {.raise
   result.filePath = name
 
 proc getTypefaceImpl*(name: string): FontId =
+  ## loads a font from a file and adds it to the font index
   runtimeThreads:
     MainThread
 
@@ -157,11 +158,9 @@ proc getTypefaceImpl*(name: string): FontId =
 
   typefaceTable[id] = typeface
   result = id
-  # echo "typefaceTable:addr: ", getThreadId()
-  # echo "getTypeFace: ", result
-  # echo "getTypeFace:res: ", typefaceTable[id].hash()
 
 proc getTypefaceImpl*(name, data: string, kind: TypeFaceKinds): FontId =
+  ## loads a font from buffer and adds it to the font index
   runtimeThreads:
     MainThread
 
@@ -173,14 +172,13 @@ proc getTypefaceImpl*(name, data: string, kind: TypeFaceKinds): FontId =
   result = id
 
 proc convertFont*(font: UiFont): (FontId, Font) =
+  ## does the typesetting using pixie, then converts to Figuro's internal
+  ## types
   runtimeThreads:
     MainThread
-  # echo "convertFont: ", font.typefaceId
-  # echo "typefaceTable:addr: ", getThreadId()
   let
     id = font.getId()
     typeface = typefaceTable[font.typefaceId]
-  # echo "convertFont:res: ", typeface.hash
 
   if not fontTable.hasKey(id):
     var pxfont = newFont(typeface)
@@ -200,8 +198,6 @@ proc convertFont*(font: UiFont): (FontId, Font) =
 
     fontTable[id] = pxfont
     result = (id, pxfont)
-    # echo "getFont:input: "
-    # print font
   else:
     result = (id, fontTable[id])
 
@@ -213,6 +209,9 @@ proc getTypesetImpl*(
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ): GlyphArrangement =
+  ## does the typesetting using pixie, then converts the typeseet results 
+  ## into Figuro's own internal types
+  ## Primarily done for thread safety
   runtimeThreads:
     MainThread
 
@@ -250,10 +249,6 @@ proc getTypesetImpl*(
     va = BottomAlign
 
   let arrangement = pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va)
-
-  # echo "getTypeset:"
-  # echo "getTypeset:wh: ", wh
-  # print arrangement
 
   var
     lines = newSeqOfCap[Slice[int]](arrangement.lines.len())
