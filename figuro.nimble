@@ -1,8 +1,8 @@
-version       = "0.9.0"
+version       = "0.9.1"
 author        = "Jaremy Creechley"
 description   = "UI Engine for Nim"
 license       = "MIT"
-srcDir        = "."
+srcDir        = "src"
 
 # Dependencies
 
