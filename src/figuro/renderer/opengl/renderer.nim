@@ -22,7 +22,7 @@ type Renderer* = ref object
   frame*: WeakRef[AppFrame]
   lock*: Lock
   updated*: Atomic[bool]
-  nodes*: RenderNodes
+  nodes*: Renders
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
@@ -273,7 +273,7 @@ proc render(
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [AppMainThreadEff].} =
+proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   var img: (Hash, Image)
@@ -281,7 +281,7 @@ proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [AppMainThread
     # echo "img: ", img
     ctx.putImage(img[0], img[1])
 
-  for zlvl, list in nodes.pairs():
+  for zlvl, list in nodes.layers.pairs():
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
@@ -293,8 +293,9 @@ proc renderFrame*(renderer: Renderer) =
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  withLock(renderer.lock):
-    ctx.renderRoot(renderer.nodes)
+  # withLock(renderer.lock):
+  #   ctx.renderRoot(renderer.nodes)
+  ctx.renderRoot(renderer.nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -306,7 +307,7 @@ proc renderFrame*(renderer: Renderer) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: Renderer, updated: bool) =
+proc renderAndSwap(renderer: Renderer) =
   ## Does drawing operations.
 
   timeIt(drawFrame):
@@ -324,6 +325,7 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
   ## in via the Renderer object
   let
     renderUpdate = renderer.updated.load()
+  var
     update = renderUpdate or updated
 
   if renderer.window.closeRequested:
@@ -337,6 +339,9 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
     match cmd:
+      RenderUpdate(nlayers):
+        renderer.nodes = nlayers
+        update = true
       RenderNoop:
         discard
       RenderQuit:
@@ -347,7 +352,7 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
 
   if update:
     renderer.updated.store false
-    renderAndSwap(renderer, update)
+    renderAndSwap(renderer)
 
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:

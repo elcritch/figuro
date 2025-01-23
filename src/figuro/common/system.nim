@@ -18,8 +18,7 @@ when not defined(nimscript):
   ## these are set at runtime by the opengl window
 
   proc setWindowTitle*(frame: AppFrame, title: sink string) =
-    var cmd = RenderSetTitle(name= move title)
-    frame.rendInputList.send(cmd)
+    frame.rendInputList.send(RenderSetTitle(name= move title))
 
   proc getWindowTitle*(frame: AppFrame, ): string =
     discard

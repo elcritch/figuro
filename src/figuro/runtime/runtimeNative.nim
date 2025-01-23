@@ -50,10 +50,12 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
       emit node.doDraw()
     computeLayout(frame.root)
     computeScreenBox(nil, frame.root)
-    appFrames.withValue(frame.unsafeWeakRef(), renderer):
-      withLock(renderer.lock):
-        renderer.nodes = frame.root.copyInto()
-        renderer.updated.store true
+    var ru = RenderUpdate(n= frame.root.copyInto())
+    discard frame.rendInputList.trySend(unsafeIsolate ensureMove ru)
+    # appFrames.withValue(frame.unsafeWeakRef(), renderer):
+    #   withLock(renderer.lock):
+    #     renderer.nodes = frame.root.copyInto()
+    #     renderer.updated.store true
 
 # exec.runFrame = runFrameImpl
 

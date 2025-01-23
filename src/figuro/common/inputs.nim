@@ -3,6 +3,7 @@ import pkg/vmath
 import pkg/patty
 
 import nodes/basics
+import nodes/render
 import uimaths, keys
 export uimaths, keys
 
@@ -13,6 +14,7 @@ type
 variantp RenderCommands:
   RenderNoop
   RenderQuit
+  RenderUpdate(n: Renders)
   RenderSetTitle(name: string)
 
 type AppInputs* = object

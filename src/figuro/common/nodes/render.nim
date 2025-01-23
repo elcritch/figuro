@@ -1,3 +1,5 @@
+import std/tables
+export tables
 import pkg/stack_strings
 import basics
 import hashes
@@ -5,6 +7,13 @@ import hashes
 export basics
 
 type
+  RenderList* = object
+    nodes*: seq[Node]
+    rootIds*: seq[NodeIdx]
+
+  Renders* = ref object
+    layers*: OrderedTable[ZLevel, RenderList]
+
   NodeIdx* = distinct int
 
   Node* = object
