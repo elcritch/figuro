@@ -9,6 +9,7 @@ from pixie import Image
 import pkg/sigils
 import pkg/sigils/threads
 
+import ../../common/commands
 import window, glcommons, context, formatflippy, utils
 
 import std/locks
@@ -18,6 +19,7 @@ type Renderer* = ref object
   duration*: Duration
   window*: Window
   uxInputList*: Chan[AppInputs]
+  rdInputList*: Chan[RenderCommands]
   frame*: WeakRef[AppFrame]
   lock*: Lock
   updated*: Atomic[bool]

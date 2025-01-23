@@ -199,8 +199,6 @@ type AppInputs* = object
 
   windowSize*: Option[Box]
 
-var uxInputs* {.runtimeVar.} = AppInputs()
-
 when not defined(nimscript):
   import threading/channels
   export channels
@@ -225,6 +223,7 @@ proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
   result[KMenu] = {KeyMenu}
 
 var keyConfig* {.runtimeVar.}: array[ModifierKeys, UiButtonView] = defaultKeyConfigs()
+var uxInputs* {.runtimeVar.} = AppInputs()
 
 proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
   let ck = keys * ModifierButtons

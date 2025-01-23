@@ -252,14 +252,14 @@ template onClickOut*(current: Figuro, inner: untyped) =
 template onClickOut*(inner: untyped) =
   onClickOut(node, inner)
 
-proc getTitle*(): string =
+proc getTitle*(current: Figuro): string =
   ## Gets window title
-  getWindowTitle()
+  current.frame[].getWindowTitle()
 
 template setTitle*(current: Figuro, title: string) =
   ## Sets window title
-  if (getWindowTitle() != title):
-    setWindowTitle(title)
+  if (current.frame[].getWindowTitle() != title):
+    current.frame[].setWindowTitle(title)
     refresh(current)
 
 proc cornerRadius*(current: Figuro, radius: UICoord) =

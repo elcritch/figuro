@@ -1,6 +1,7 @@
 
 import glyphs
 export glyphs
+import nodes/uinodes
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -30,10 +31,10 @@ else:
   export TypeFaceKinds
   ## these are set at runtime by the opengl window
 
-  proc setWindowTitle*(title: string) =
+  proc setWindowTitle*(frame: AppFrame, title: string) =
     discard
 
-  proc getWindowTitle*(): string =
+  proc getWindowTitle*(frame: AppFrame, ): string =
     discard
 
   proc getTypeface*(name: string): TypefaceId =
