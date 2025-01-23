@@ -43,6 +43,7 @@ type
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2 ## Screen coordinates
     theme*: Theme
+    windowStyle*: FrameStyle
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]

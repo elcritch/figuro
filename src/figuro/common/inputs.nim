@@ -6,6 +6,10 @@ import nodes/basics
 import uimaths, keys
 export uimaths, keys
 
+type
+  FrameStyle* {.pure.} = enum
+    DecoratedResizable, DecoratedFixedSized, Undecorated, Transparent
+
 variantp RenderCommands:
   RenderNoop
   RenderQuit
