@@ -101,6 +101,8 @@ proc setupTicker*(frame: AppFrame) =
     echo "fsmonitor not loaded"
 
 proc start*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
+  threadEffects:
+    AppMainThread
   self.setupTicker()
   # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
