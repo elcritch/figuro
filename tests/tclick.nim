@@ -36,6 +36,9 @@ proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
   self.bkgFade.isActive(evtKind == Enter)
   refresh(self)
 
+proc initialize*(self: Main) {.slot.} =
+  self.setTitle("Click Test!")
+
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
   ## triggers a node or it's parents to be refreshed

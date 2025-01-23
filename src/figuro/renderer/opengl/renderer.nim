@@ -330,9 +330,20 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
     renderer.frame[].running = false
     return
 
-  timeIt(eventPolling):
-    if poll:
-      windy.pollEvents()
+  # timeIt(eventPolling):
+  if poll:
+    windy.pollEvents()
+  
+  var cmd: RenderCommands
+  while renderer.rendInputList.tryRecv(cmd):
+    match cmd:
+      RenderNoop:
+        discard
+      RenderQuit:
+        renderer.frame[].running = false
+        return
+      RenderSetTitle(name):
+        renderer.window.title = name
 
   if update:
     renderer.updated.store false
