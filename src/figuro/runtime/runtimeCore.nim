@@ -116,7 +116,7 @@ proc runRenderer(renderer: Renderer) =
       renderer.pollAndRender(false)
     os.sleep(renderDuration.inMilliseconds)
 
-proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
+proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   threadEffects:
     RenderThread
   ## run figuro

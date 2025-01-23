@@ -62,4 +62,4 @@ proc startFiguro*(frame: var AppFrame) {.forbids: [AppMainThreadEff].} =
   ## 
   threadEffects:
     RenderThread
-  run(frame, AppFrame.runFrameImpl())
+  runForever(frame, AppFrame.runFrameImpl())
