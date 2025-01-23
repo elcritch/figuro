@@ -12,7 +12,7 @@ when defined(compilervm) or defined(nimscript):
   import figuro/runtime/wrappers
   export wrappers
 else:
-  import figuro/runtime/nativeRuntime
+  import figuro/runtime/runtimeNative
   export runtimeNative
 
 when defined(macosx):
