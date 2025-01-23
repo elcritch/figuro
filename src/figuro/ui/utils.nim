@@ -31,61 +31,6 @@ type WidgetArgs* =
     blk: NimNode,
   ]
 
-proc parseWidgetArgs*(args: NimNode): WidgetArgs =
-  ## Parses widget args looking for options:
-  ## - `state(int)` 
-  ## - `captures(i, x)` 
-  args.expectKind(nnkArgList)
-
-  # echo "parseWidgetArgs: ", args.treeRepr
-  result.id = args[0]
-  result.id.expectKind(nnkStrLit)
-  result.blk = args[^1]
-
-  for arg in args[1 ..^ 2]:
-    ## iterate through the widget args looking for 
-    ## `state(int)` or `captures(i, x)` 
-    ## 
-    # if arg.kind == nnkCall:
-    #   let fname = arg[0]
-    #   # if fname.repr == "state":
-    #   #   if arg.len() != 2:
-    #   #     error "only one type var allowed"
-    #   #   result.stateArg = arg[1]
-    #   if fname.repr == "expose":
-    #     if arg.len() > 2:
-    #       error "only no arg or a single name allowed"
-    #     result.bindsArg = newLit(true)
-    #   elif fname.repr == "captures":
-    #     result.capturedVals = nnkBracket.newTree()
-    #     result.capturedVals.add arg[1..^1]
-    #   else:
-    #     error("unexpected paren arguement: " & arg.repr, arg)
-    if arg.kind == nnkExprEqExpr:
-      let fname = arg[0]
-      case fname.repr
-      of "parent":
-        result.parentArg = arg[1]
-      of "captures":
-        if arg[1].kind == nnkBracket:
-          result.capturedVals = arg[1]
-        else:
-          result.capturedVals = nnkBracket.newTree()
-          result.capturedVals.add arg[1]
-      of "expose":
-        echo "EXP: ", arg.treeRepr
-        result.bindsArg = newLit(true)
-      else:
-        error("unexpected named arguement: " & arg.treerepr, arg)
-    else:
-      error("unexpected arguement: " & arg.treerepr, arg)
-
-  if result.stateArg.isNil:
-    result.stateArg = ident"void"
-  if result.parentArg.isNil:
-    result.parentArg = ident"node"
-  # echo "parseWidgetArgs:res: ", result.repr
-
 template wrapCaptures*(hasCaptures, capturedVals, body: untyped): untyped =
   when hasCaptures:
     capture `capturedVals`:
