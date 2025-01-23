@@ -1,0 +1,27 @@
+
+Button {
+  background: #f5c480;
+  border-width: 5;
+  border-color: #ebc39a;
+  border-radius: 10;
+  /* color: #000000; */
+  box-shadow: none;
+}
+
+Button:hover {
+  background: rgba(247, 211, 160, 0.728);
+  box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
+}
+
+#story {
+  background: #f5c480;
+  border-width: 5;
+  border-color: rgba(95, 84, 0, 0.45);
+  border-radius: 10;
+  color: #ff0000;
+  height: 200;
+}
+
+#main {
+  background: #141414;
+}
