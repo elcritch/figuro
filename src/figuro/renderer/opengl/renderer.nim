@@ -332,7 +332,6 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
     renderer.frame[].running = false
     return
 
-  # timeIt(eventPolling):
   if poll:
     windy.pollEvents()
   

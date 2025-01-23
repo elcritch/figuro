@@ -51,13 +51,10 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
     computeLayout(frame.root)
     computeScreenBox(nil, frame.root)
     var ru = RenderUpdate(n= frame.root.copyInto())
-    discard frame.rendInputList.trySend(unsafeIsolate ensureMove ru)
-    # appFrames.withValue(frame.unsafeWeakRef(), renderer):
-    #   withLock(renderer.lock):
-    #     renderer.nodes = frame.root.copyInto()
-    #     renderer.updated.store true
+    let sent = frame.rendInputList.trySend(unsafeIsolate ensureMove ru)
+    if not sent:
+      app.requestedFrame.inc()
 
-# exec.runFrame = runFrameImpl
 
 proc startFiguro*(frame: var AppFrame) {.forbids: [AppMainThreadEff].} =
   ## Starts Fidget UI library
