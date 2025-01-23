@@ -1,9 +1,15 @@
 import std/[unicode, sequtils]
 import pkg/vmath
+import pkg/patty
 
 import nodes/basics
 import uimaths, keys
 export uimaths, keys
+
+variantp RenderCommands:
+  RenderNoop
+  RenderQuit
+  RenderSetTitle(name: string)
 
 type AppInputs* = object
   empty*: bool
