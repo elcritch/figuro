@@ -57,7 +57,9 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
 
 # exec.runFrame = runFrameImpl
 
-proc startFiguro*(frame: var AppFrame) =
+proc startFiguro*(frame: var AppFrame) {.forbids: [AppMainThreadEff].} =
   ## Starts Fidget UI library
   ## 
+  threadEffects:
+    RenderThread
   run(frame, AppFrame.runFrameImpl())
