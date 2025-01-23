@@ -1,8 +1,8 @@
 import std/[unicode, sequtils]
 import pkg/vmath
 
-import common/nodes/basics
-import common/uimaths
+import nodes/basics
+import uimaths
 export uimaths
 
 when defined(nimscript):

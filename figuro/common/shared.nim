@@ -1,18 +1,16 @@
 import std/[sequtils, tables, hashes]
 import std/[options, unicode, strformat]
 import std/paths
-import pkg/[variant]
-
-import common/[extras, uimaths]
-import inputs
-
-export sequtils, strformat, tables, hashes
+import pkg/variant
+export paths, sequtils, strformat, tables, hashes
 export variant
-export extras, uimaths
-export inputs
-export paths
 
-import chroma
+import extras, uimaths, inputs
+export extras, uimaths, inputs
+
+import pkg/chroma
+
+type FiguroError* = object of CatchableError
 
 type
   MainThreadEff* = object of RootEffect ## MainThr effect

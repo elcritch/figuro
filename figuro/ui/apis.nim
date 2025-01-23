@@ -1,19 +1,15 @@
-import std/[algorithm, macros, tables, os]
-import std/with
-import chroma, bumpy, stack_strings
-import cssgrid
-import chronicles
-
-import std/[hashes]
-
-import commons, core
-
+import std/[algorithm, macros, tables, os, hashes, with]
 from std/sugar import capture
+export with, capture
 
-export core, cssgrid, stack_strings
-export with
-export capture
-export constraints
+import pkg/[chroma, bumpy, stack_strings, cssgrid, chronicles]
+export cssgrid, stack_strings, constraints
+
+import ../commons
+import ../common/system
+import core
+export core
+
 
 # template nodes*[T](fig: T, blk: untyped): untyped =
 #   ## begin drawing nodes
@@ -276,7 +272,7 @@ proc cornerRadius*(current: Figuro, radius: float | float32) =
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
-  internal.getTypeface(name)
+  system.getTypeface(name)
 
 proc newFont*(typefaceId: TypefaceId): UiFont =
   result = UiFont()
@@ -295,7 +291,7 @@ proc setText*(
   let thash = getContentHash(current.box, spans, hAlign, vAlign)
   if thash != current.textLayout.contentHash:
     trace "setText: ", nodeName = current.name, thash = thash, contentHash = current.textLayout.contentHash
-    current.textLayout = internal.getTypeset(current.box, spans, hAlign, vAlign)
+    current.textLayout = system.getTypeset(current.box, spans, hAlign, vAlign)
     refresh(current)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

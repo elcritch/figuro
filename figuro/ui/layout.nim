@@ -3,9 +3,7 @@ import std/terminal
 import std/times
 import sigils
 
-import basiccss
-import commons
-export commons
+import ../commons
 import pkg/chronicles
 
 proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =

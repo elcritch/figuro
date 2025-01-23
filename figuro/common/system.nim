@@ -1,5 +1,6 @@
-import std/locks
-import common/glyphs
+
+import glyphs
+export glyphs
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -7,8 +8,6 @@ else:
   {.pragma: runtimeVar, global.}
 
 type MainCallback* = proc() {.closure.}
-
-type UiEvent* = tuple[cond: Cond, lock: Lock]
 
 when defined(nimscript):
   proc setWindowTitle*(title: string) =
@@ -27,7 +26,7 @@ when defined(nimscript):
     discard
 
 else:
-  from renderer/opengl/fontutils import getTypeface, getTypeset
+  from fontutils import getTypefaceImpl, getTypesetImpl
   ## these are set at runtime by the opengl window
 
   proc setWindowTitle*(title: string) =
@@ -38,25 +37,9 @@ else:
 
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
-    fontutils.getTypeface(name)
+    fontutils.getTypefaceImpl(name)
 
   proc getTypeset*(
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top
   ): GlyphArrangement =
-    fontutils.getTypeset(box, spans, hAlign, vAlign)
-
-  var
-    uiAppEvent* {.runtimeVar.}: UiEvent
-    uiRenderEvent* {.runtimeVar.}: UiEvent
-
-proc initUiEvent*(): UiEvent =
-  result.lock.initLock()
-  result.cond.initCond()
-
-proc trigger*(evt: var UiEvent) =
-  withLock(evt.lock):
-    signal(evt.cond)
-
-proc wait*(evt: var UiEvent) =
-  withLock(evt.lock):
-    wait(evt.cond, evt.lock)
+    fontutils.getTypesetImpl(box, spans, hAlign, vAlign)

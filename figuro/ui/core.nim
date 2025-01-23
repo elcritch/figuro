@@ -1,12 +1,15 @@
 import std/[tables, unicode, os, strformat]
 import std/terminal
 import std/times
-import sigils
-
-import basiccss
-import commons
-export commons
 import pkg/chronicles
+
+# import basiccss
+import ../commons
+import ../common/system
+export commons
+export system
+
+import csstheme
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -42,7 +45,7 @@ var
   scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
 var
-  defaultTypeface* {.runtimeVar.} = internal.getTypeface("IBMPlexSans-Regular.ttf")
+  defaultTypeface* {.runtimeVar.} = system.getTypeface("IBMPlexSans-Regular.ttf")
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
 proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =

@@ -1,4 +1,4 @@
-import common/nodes/render
+import nodes/render
 import shared
 import exec
 import runtime/jsonutils_lite

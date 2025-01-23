@@ -1,7 +1,7 @@
 from sugar import capture
 import std/sets
 import macros
-import commons
+import ../commons
 
 type
   State*[T] = object

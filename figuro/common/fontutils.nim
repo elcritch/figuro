@@ -1,4 +1,4 @@
-import std/[os, unicode, strutils, sets, hashes]
+import std/[os, unicode, sequtils, tables, strutils, sets, hashes]
 import std/isolation
 
 import pkg/vmath
@@ -7,7 +7,7 @@ import pkg/pixie/fonts
 import pkg/windy
 import pkg/threading/channels
 
-import commons
+import glyphs, extras, shared
 
 import pretty
 
@@ -128,7 +128,7 @@ proc generateGlyphImage*(arrangement: GlyphArrangement) =
       except PixieError:
         discard
 
-proc getTypeface*(name: string): FontId =
+proc getTypefaceImpl*(name: string): FontId =
   threads:
     MainThread
 
@@ -178,7 +178,7 @@ proc convertFont*(font: UiFont): (FontId, Font) =
 
 import sugar
 
-proc getTypeset*(
+proc getTypesetImpl*(
     box: Box,
     uiSpans: openArray[(UiFont, string)],
     hAlign = FontHorizontal.Left,

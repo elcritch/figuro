@@ -5,7 +5,7 @@ import cssgrid
 import stylus
 import patty
 import chroma
-import ../common/nodes/basics
+import basics
 import chronicles
 
 variantp CssValue:

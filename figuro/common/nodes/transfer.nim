@@ -1,6 +1,6 @@
 import ui as ui
 import render as render
-import ../../shared
+import ../shared
 
 type
   RenderList* = object

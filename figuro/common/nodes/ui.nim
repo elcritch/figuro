@@ -1,18 +1,18 @@
 import std/unicode
 import std/monotimes
 import std/hashes
-import basics
-import sigils
-import ../../inputs
-import ../../ui/basiccss
-import cssgrid
-import stack_strings
-import sigils/weakrefs
+import pkg/stack_strings
+import pkg/sigils/weakrefs
+import pkg/sigils
+import pkg/cssgrid
 
-export basics, inputs, cssgrid, stack_strings
+import basics
+import basiccss
+import ../inputs
+
 export unicode, monotimes
-export weakrefs
-export basiccss
+export cssgrid, stack_strings, weakrefs
+export basics, inputs, basiccss
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}

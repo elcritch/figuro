@@ -1,5 +1,4 @@
-import ../../ui/basiccss
-import ui
+import ../commons
 import pkg/pretty
 import pkg/sigils/weakrefs
 
