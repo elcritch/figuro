@@ -5,7 +5,8 @@ import pkg/sigils
 import pkg/sigils/threads
 import pkg/chronicles
 
-import widget, shared, exec
+import ../widget, ../commons
+import runtimeCore
 import ui/core, ui/layout
 import common/nodes/[transfer, ui, render]
 

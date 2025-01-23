@@ -5,8 +5,8 @@ import pkg/pixie
 import pkg/windy
 import pkg/sigils/weakrefs
 
-import ../shared
-import ../inputs
+import ../commons
+# import ../inputs
 import ./opengl/utils
 import ./opengl/window
 import ./opengl/renderer

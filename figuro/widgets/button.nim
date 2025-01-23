@@ -1,5 +1,4 @@
-import commons
-import ../ui/utils
+import ../widget
 
 type
   ButtonClicks* = enum

@@ -5,7 +5,7 @@ elif defined(blank):
   import engine/blank
   export blank
 else:
-  import renderer/opengl
+  import ../renderer/opengl
   export opengl
 
 import pkg/chronicles
@@ -15,12 +15,12 @@ import std/os
 import sigils
 import sigils/threads
 
-import shared, internal
-import ui/[core, events]
-import runtime/cssMonitor
-import common/nodes/ui
-import widget
-import timers
+import ../commons
+import ../ui/[core, events]
+import ../common/nodes/ui
+import ../widget
+import utils/cssMonitor
+import utils/timers
 
 export core, events
 
@@ -120,8 +120,8 @@ proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   appFrames[frameRef] = renderer
   frame.frameRunner = frameRunner
 
-  uiRenderEvent = initUiEvent()
-  uiAppEvent = initUiEvent()
+  # uiRenderEvent = initUiEvent()
+  # uiAppEvent = initUiEvent()
 
   appThread = newSigilThread()
   let frameProxy = frame.moveToThread(ensureMove appThread)

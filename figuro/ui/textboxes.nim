@@ -1,6 +1,6 @@
 import std/unicode
 
-import commons
+import ../commons
 import utils
 
 type
@@ -51,7 +51,7 @@ proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
   self.box = box
   self.font = font
   let spans = {self.font: $self.runes(), self.font: "."}
-  self.layout = internal.getTypeset(self.box, spans)
+  self.layout = getTypeset(self.box, spans)
   self.runes().setLen(self.runes().len() - 1)
 
 iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =

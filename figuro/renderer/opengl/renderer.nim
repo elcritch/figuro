@@ -1,4 +1,5 @@
 import std/[hashes, os, strformat, tables, times, unicode]
+export tables
 
 import pkg/threading/atomics
 import pkg/chroma
@@ -8,12 +9,7 @@ from pixie import Image
 import pkg/sigils
 import pkg/sigils/threads
 
-import window
-
-import commons, fontutils, context, formatflippy, utils
-
-export tables
-export getTypeface, getTypeset
+import window, glcommons, context, formatflippy, utils
 
 import std/locks
 

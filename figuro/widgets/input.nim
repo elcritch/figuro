@@ -1,7 +1,5 @@
 import std/unicode
 
-import commons
-import ../ui/utils
 import ../ui/textboxes
 
 type Input* = ref object of Figuro

@@ -1,19 +1,19 @@
 
-import figuro/shared
+import figuro/commons
 import figuro/ui/apis
 import figuro/widget
 import sigils
 import chronicles
 
 export chronicles
-export shared, apis, widget, sigils
+export commons, apis, widget, sigils
 
 when defined(compilervm) or defined(nimscript):
-  import figuro/wrappers
+  import figuro/runtime/wrappers
   export wrappers
 else:
-  import figuro/execApps
-  export execApps
+  import figuro/runtime/nativeRuntime
+  export runtimeNative
 
 when defined(macosx):
   {.passc: "-Wno-incompatible-function-pointer-types".}

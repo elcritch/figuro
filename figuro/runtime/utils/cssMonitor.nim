@@ -2,10 +2,8 @@ import std/paths, std/os
 import sigils
 import sigils/threads
 
-import ../ui/basiccss
-
-import ../shared
-import ../ui/[core]
+import ../../commons
+import ../../ui/core
 
 when defined(figuroFsMonitor):
   import libfswatch

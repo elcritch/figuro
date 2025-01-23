@@ -1,7 +1,4 @@
-import commons
-import ../ui/utils
 import ../widget
-export widget
 
 type Horizontal* = ref object of Figuro
 

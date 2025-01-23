@@ -1,5 +1,5 @@
 import pkg/sigils
-import commons
+import ../commons
 
 import core, utils
 
