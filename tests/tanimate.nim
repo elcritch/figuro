@@ -38,5 +38,5 @@ proc draw*(self: Main) {.slot.} =
 
 var fig = Main.new()
 
-var frame = newAppFrame(fig, size=(500'ui, 140'ui))
+var frame = newAppFrame(fig, size=(500'ui, 140'ui), style = DecoratedFixedSized)
 startFiguro(frame)

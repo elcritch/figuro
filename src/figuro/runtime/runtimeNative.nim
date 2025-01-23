@@ -18,7 +18,9 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 
 var timestamp = getMonoTime()
 
-proc runFrameImpl(frame: AppFrame) {.slot.} =
+proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
+  threadEffects:
+    AppMainThread
   # Ticks
   let last = timestamp
   timestamp = getMonoTime()
@@ -48,14 +50,15 @@ proc runFrameImpl(frame: AppFrame) {.slot.} =
       emit node.doDraw()
     computeLayout(frame.root)
     computeScreenBox(nil, frame.root)
-    appFrames.withValue(frame.unsafeWeakRef(), renderer):
-      withLock(renderer.lock):
-        renderer.nodes = frame.root.copyInto()
-        renderer.updated.store true
+    var ru = RenderUpdate(n= frame.root.copyInto())
+    let sent = frame.rendInputList.trySend(unsafeIsolate ensureMove ru)
+    if not sent:
+      app.requestedFrame.inc()
 
-# exec.runFrame = runFrameImpl
 
-proc startFiguro*(frame: var AppFrame) =
+proc startFiguro*(frame: var AppFrame) {.forbids: [AppMainThreadEff].} =
   ## Starts Fidget UI library
   ## 
-  run(frame, AppFrame.runFrameImpl())
+  threadEffects:
+    RenderThread
+  runForever(frame, AppFrame.runFrameImpl())

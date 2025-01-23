@@ -8,6 +8,27 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
+proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
+  result[KNone] = {}
+  result[KMeta] =
+    when defined(macosx):
+      {KeyLeftSuper, KeyRightSuper}
+    else:
+      {KeyLeftControl, KeyRightControl}
+  result[KAlt] = {KeyLeftAlt, KeyRightAlt}
+  result[KShift] = {KeyLeftShift, KeyRightShift}
+  result[KMenu] = {KeyMenu}
+
+var keyConfig* {.runtimeVar.}: array[ModifierKeys, UiButtonView] = defaultKeyConfigs()
+var uxInputs* {.runtimeVar.} = AppInputs()
+
+proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
+  let ck = keys * ModifierButtons
+  if ck == {} and keyConfig[commands] == {}:
+    return true
+  else:
+    ck != {} and ck < keyConfig[commands]
+
 var
   prevHovers {.runtimeVar.}: HashSet[Figuro]
   prevClicks {.runtimeVar.}: HashSet[Figuro]
@@ -38,13 +59,13 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   node.checkEvent(evDrag, prevDrags.len() > 0)
 
   if node.mouseOverlaps():
-    node.checkEvent(evClick, uxInputs.mouse.click())
-    node.checkEvent(evPress, uxInputs.mouse.down())
-    node.checkEvent(evRelease, uxInputs.mouse.release())
+    node.checkEvent(evClick, uxInputs.click())
+    node.checkEvent(evPress, uxInputs.down())
+    node.checkEvent(evRelease, uxInputs.release())
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
-    node.checkEvent(evDrag, uxInputs.mouse.down())
+    node.checkEvent(evDrag, uxInputs.down())
     node.checkEvent(evDragEnd, dragReleased)
 
   if rootWindow in node.attrs:
@@ -155,7 +176,7 @@ proc computeEvents*(frame: AppFrame) =
     return
 
   # printFiguros(node)
-  dragReleased = prevDrags.len() > 0 and uxInputs.mouse.release()
+  dragReleased = prevDrags.len() > 0 and uxInputs.release()
 
   var captured: CapturedEvents = computeNodeEvents(frame.root)
 

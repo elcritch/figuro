@@ -9,6 +9,7 @@ else:
   export opengl
 
 import pkg/chronicles
+import pkg/threading/channels
 
 import std/os
 
@@ -34,9 +35,7 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
   {.error: "Figuro requires --gc:arc or --gc:orc".}
 
 var
-  # runFrame*: proc(frame: AppFrame) {.nimcall.}
   appFrames*: Table[WeakRef[AppFrame], Renderer]
-  uxInputList*: Chan[AppInputs]
 
 const
   renderPeriodMs* {.intdefine.} = 14
@@ -73,6 +72,8 @@ template setupThread(thread, obj, sig, slot, starter: untyped) =
   frame.proxies.add proxy
 
 proc setupTicker*(frame: AppFrame) =
+  threadEffects:
+    AppMainThread
   var ticker = AppTicker(period: renderDuration)
   appTickThread.setupThread(
     ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
@@ -97,35 +98,28 @@ proc setupTicker*(frame: AppFrame) =
   else:
     echo "fsmonitor not loaded"
 
-proc start*(self: AppFrame) {.slot.} =
+proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
+  threadEffects:
+    AppMainThread
   self.setupTicker()
   # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
-proc runRenderer(renderer: Renderer) =
-  while app.running and renderer[].frame[].running:
-    app.tickCount.inc()
-    if app.tickCount == app.tickCount.typeof.high:
-      app.tickCount = 0
-    timeIt(renderAvgTime):
-      renderer.render(false)
-    os.sleep(renderDuration.inMilliseconds)
-
-proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
+proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
+  threadEffects:
+    RenderThread
   ## run figuro
   when defined(sigilsDebug):
     frame.debugName = "Frame"
   let frameRef = frame.unsafeWeakRef()
-  let renderer = setupRenderer(frameRef)
+  let renderer = frameRef.createRenderer()
+  renderer.duration = renderDuration
   appFrames[frameRef] = renderer
   frame.frameRunner = frameRunner
 
-  # uiRenderEvent = initUiEvent()
-  # uiAppEvent = initUiEvent()
-
   appThread = newSigilThread()
-  let frameProxy = frame.moveToThread(ensureMove appThread)
-  threads.connect(appThread[].agent, started, frameProxy, start)
+  let frameProxy = frame.moveToThread(appThread)
+  threads.connect(appThread[].agent, started, frameProxy, appStart)
   appThread.start()
 
   proc ctrlc() {.noconv.} =
@@ -134,4 +128,4 @@ proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
 
   setControlCHook(ctrlc)
 
-  runRenderer(renderer)
+  runRendererLoop(renderer)

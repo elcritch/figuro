@@ -8,7 +8,6 @@ switch("styleCheck", "hint")
 
 --d:windyNoHttp
 --d:printDebugTimings
-# --d:nimStrictDelete
 --deepcopy:on
 --debugger:native
 --debugInfo

@@ -1,4 +1,7 @@
+import pkg/threading/channels
 
+import nodes/uinodes
+import inputs
 import glyphs
 export glyphs
 
@@ -9,31 +12,15 @@ else:
 
 type MainCallback* = proc() {.closure.}
 
-when defined(nimscript):
-  proc setWindowTitle*(title: string) =
-    discard
-
-  proc getWindowTitle*(): string =
-    discard
-
-  proc getTypeface*(name: string): TypefaceId =
-    discard
-
-  proc getFont*(font: GlyphFont): FontId =
-    discard
-
-  proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
-    discard
-
-else:
+when not defined(nimscript):
   import fontutils
   export TypeFaceKinds
   ## these are set at runtime by the opengl window
 
-  proc setWindowTitle*(title: string) =
-    discard
+  proc setWindowTitle*(frame: AppFrame, title: sink string) =
+    frame.rendInputList.send(RenderSetTitle(name= move title))
 
-  proc getWindowTitle*(): string =
+  proc getWindowTitle*(frame: AppFrame, ): string =
     discard
 
   proc getTypeface*(name: string): TypefaceId =
@@ -47,3 +34,15 @@ else:
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top
   ): GlyphArrangement =
     getTypesetImpl(box, spans, hAlign, vAlign)
+
+# when defined(nimscript):
+#   proc setWindowTitle*(title: string) =
+#     discard
+#   proc getWindowTitle*(): string =
+#     discard
+#   proc getTypeface*(name: string): TypefaceId =
+#     discard
+#   proc getFont*(font: GlyphFont): FontId =
+#     discard
+#   proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
+#     discard

@@ -1,6 +1,7 @@
 import std/unicode
 import ../widget
 import ../ui/textboxes
+import ../ui/events
 import pkg/chronicles
 
 type Input* = ref object of Figuro

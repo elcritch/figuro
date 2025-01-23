@@ -2,13 +2,6 @@ import uinodes as ui
 import render as render
 import ../shared
 
-type
-  RenderList* = object
-    nodes*: seq[Node]
-    rootIds*: seq[NodeIdx]
-
-  RenderNodes* = OrderedTable[ZLevel, RenderList]
-
 type RenderTree* = ref object
   id*: int
   name*: string
@@ -140,7 +133,7 @@ proc convert*(current: Figuro): render.Node =
     discard
 
 proc convert*(
-    renders: var RenderNodes, current: Figuro, parent: NodeID, maxzlvl: ZLevel
+    renders: var Renders, current: Figuro, parent: NodeID, maxzlvl: ZLevel
 ) =
   # echo "convert:node: ", current.uid, " parent: ", parent
   var render = current.convert()
@@ -153,16 +146,17 @@ proc convert*(
     if chlvl != zlvl:
       render.childCount.dec()
 
-  renders.mgetOrPut(zlvl, RenderList()).add(render)
+  renders.layers.mgetOrPut(zlvl, RenderList()).add(render)
   for child in current.children:
     let chlvl = child.zlevel
     renders.convert(child, current.uid, chlvl)
 
-proc copyInto*(uis: Figuro): RenderNodes =
-  result = initOrderedTable[ZLevel, RenderList]()
+proc copyInto*(uis: Figuro): Renders =
+  result = Renders()
+  result.layers = initOrderedTable[ZLevel, RenderList]()
   result.convert(uis, -1.NodeID, 0.ZLevel)
 
-  result.sort(
+  result.layers.sort(
     proc(x, y: auto): int =
       cmp(x[0], y[0])
   )

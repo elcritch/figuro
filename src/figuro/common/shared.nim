@@ -14,17 +14,17 @@ import pkg/chroma
 type FiguroError* = object of CatchableError
 
 type
-  MainThreadEff* = object of RootEffect ## MainThr effect
+  AppMainThreadEff* = object of RootEffect ## MainThr effect
   RenderThreadEff* = object of RootEffect ## RenderThr effect
 
 {.push hint[Name]: off.}
-proc MainThread*() {.tags: [MainThreadEff].} =
+proc AppMainThread*() {.tags: [AppMainThreadEff].} =
   discard
 
 proc RenderThread*() {.tags: [RenderThreadEff].} =
   discard
 
-template runtimeThreads*(arg: typed) =
+template threadEffects*(arg: typed) =
   arg()
 
 {.pop.}
@@ -48,7 +48,7 @@ type ScaleInfo* = object
   y*: float32
 
 type
-  AppStatePartial* = tuple[tickCount, requestedFrame: int, uiScale: float32]
+  AppStatePartial* = tuple[requestedFrame: int, uiScale: float32]
 
   AppState* = object
     running*: bool
@@ -60,8 +60,6 @@ type
     autoUiScale*: bool
 
     requestedFrame*: int = 2
-    # frameCount*: int
-    tickCount*: int
 
     # windowFrame*: Vec2   ## Pixel coordinates
     pixelate*: bool ## ???

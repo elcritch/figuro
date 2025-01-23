@@ -1,4 +1,4 @@
-import std/[hashes, os, strformat, tables, times, unicode]
+import std/[hashes, os, strformat, tables, times, monotimes, unicode]
 export tables
 
 import pkg/threading/atomics
@@ -15,12 +15,14 @@ import std/locks
 
 type Renderer* = ref object
   ctx*: Context
+  duration*: Duration
   window*: Window
   uxInputList*: Chan[AppInputs]
+  rendInputList*: Chan[RenderCommands]
   frame*: WeakRef[AppFrame]
   lock*: Lock
   updated*: Atomic[bool]
-  nodes*: RenderNodes
+  nodes*: Renders
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
@@ -36,12 +38,14 @@ proc newRenderer*(
   renderer.ctx =
     newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = app.pixelScale)
   renderer.uxInputList = newChan[AppInputs](4)
+  renderer.rendInputList = newChan[RenderCommands](20)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
+  frame[].rendInputList = renderer.rendInputList
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
-  # ctx: Context, poly: seq[Vec2], weight: float32, color: Color
+  ## TODO: draw non-node stuff?
   for point in node.points:
     # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
     let
@@ -49,10 +53,8 @@ proc renderDrawable*(ctx: Context, node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-proc renderText(ctx: Context, node: Node) {.forbids: [MainThreadEff].} =
-  # draw characters
-  # if node.textLayout == nil:
-  # return
+proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
+  ## draw characters (glyphs)
 
   for glyph in node.textLayout.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
@@ -188,7 +190,7 @@ proc renderBoxes(ctx: Context, node: Node) =
 
 proc render(
     ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx
-) {.forbids: [MainThreadEff].} =
+) {.forbids: [AppMainThreadEff].} =
   template node(): auto =
     nodes[nodeIdx.int]
 
@@ -271,7 +273,7 @@ proc render(
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
+proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   var img: (Hash, Image)
@@ -279,7 +281,7 @@ proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [MainThreadEff
     # echo "img: ", img
     ctx.putImage(img[0], img[1])
 
-  for zlvl, list in nodes.pairs():
+  for zlvl, list in nodes.layers.pairs():
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
@@ -291,8 +293,9 @@ proc renderFrame*(renderer: Renderer) =
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  withLock(renderer.lock):
-    ctx.renderRoot(renderer.nodes)
+  # withLock(renderer.lock):
+  #   ctx.renderRoot(renderer.nodes)
+  ctx.renderRoot(renderer.nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -304,10 +307,8 @@ proc renderFrame*(renderer: Renderer) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: Renderer, updated: bool) =
+proc renderAndSwap(renderer: Renderer) =
   ## Does drawing operations.
-
-  app.tickCount.inc
 
   timeIt(drawFrame):
     renderFrame(renderer)
@@ -319,21 +320,41 @@ proc renderAndSwap(renderer: Renderer, updated: bool) =
   timeIt(drawFrameSwap):
     renderer.window.swapBuffers()
 
-proc render*(renderer: Renderer, updated = false, poll = true) =
+proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
   let
     renderUpdate = renderer.updated.load()
+  var
     update = renderUpdate or updated
 
   if renderer.window.closeRequested:
     renderer.frame[].running = false
     return
 
-  timeIt(eventPolling):
-    if poll:
-      windy.pollEvents()
+  if poll:
+    windy.pollEvents()
+  
+  var cmd: RenderCommands
+  while renderer.rendInputList.tryRecv(cmd):
+    match cmd:
+      RenderUpdate(nlayers):
+        renderer.nodes = nlayers
+        update = true
+      RenderQuit:
+        renderer.frame[].running = false
+        return
+      RenderSetTitle(name):
+        renderer.window.title = name
 
   if update:
     renderer.updated.store false
-    renderAndSwap(renderer, update)
+    renderAndSwap(renderer)
+
+proc runRendererLoop*(renderer: Renderer) =
+  threadEffects:
+    RenderThread
+  while app.running and renderer[].frame[].running:
+    timeIt(renderAvgTime):
+      renderer.pollAndRender(false)
+    os.sleep(renderer.duration.inMilliseconds)

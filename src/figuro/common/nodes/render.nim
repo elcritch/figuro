@@ -1,3 +1,5 @@
+import std/tables
+export tables
 import pkg/stack_strings
 import basics
 import hashes
@@ -5,6 +7,13 @@ import hashes
 export basics
 
 type
+  RenderList* = object
+    nodes*: seq[Node]
+    rootIds*: seq[NodeIdx]
+
+  Renders* = ref object
+    layers*: OrderedTable[ZLevel, RenderList]
+
   NodeIdx* = distinct int
 
   Node* = object
@@ -50,6 +59,14 @@ proc `$`*(id: NodeIdx): string =
 proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 proc `<=`*(a, b: NodeIdx): bool {.borrow.}
 proc `==`*(a, b: NodeIdx): bool {.borrow.}
+
+proc `[]`*(r: Renders, lvl: ZLevel): RenderList =
+  r.layers[lvl]
+
+template pairs*(r: Renders): auto =
+  r.layers.pairs()
+template contains*(r: Renders, lvl: ZLevel): bool =
+  r.layers.contains(lvl)
 
 iterator childIndex*(nodes: seq[Node], current: NodeIdx): NodeIdx =
   let id = nodes[current.int].uid

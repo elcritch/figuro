@@ -80,7 +80,7 @@ proc invokeVmInit*() =
 proc invokeVmTick*() =
   if intr != nil and tick != nil:
     let state: AppStatePartial = (
-      tickCount: app.tickCount, requestedFrame: app.requestedFrame, uiScale: app.uiScale
+      requestedFrame: app.requestedFrame, uiScale: app.uiScale
     )
     let ret = intr.invoke(tick, [newNode state])
     let appRet = fromVm(AppStatePartial, ret)

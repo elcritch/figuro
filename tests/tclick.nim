@@ -13,7 +13,6 @@ type
 
 proc update*(fig: Main) {.signal.}
 
-
 proc btnTick*(self: Button[int]) {.slot.} =
   ## slot to increment a button on every tick 
   self.state.inc
@@ -36,6 +35,9 @@ proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
   self.bkgFade.isActive(evtKind == Enter)
   refresh(self)
+
+proc initialize*(self: Main) {.slot.} =
+  self.setTitle("Click Test!")
 
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event

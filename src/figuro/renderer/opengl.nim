@@ -11,9 +11,20 @@ import ./opengl/utils
 import ./opengl/window
 import ./opengl/renderer
 
-export Renderer, render
+export Renderer, runRendererLoop
 
 var lastMouse = Mouse()
+
+proc convertStyle(fs: FrameStyle): WindowStyle =
+  case fs
+  of FrameStyle.DecoratedResizable:
+    WindowStyle.DecoratedResizable
+  of FrameStyle.DecoratedFixedSized:
+    WindowStyle.Decorated
+  of FrameStyle.Undecorated:
+    WindowStyle.Undecorated
+  of FrameStyle.Transparent:
+    WindowStyle.Transparent
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
@@ -29,7 +40,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onResize = proc() =
     updateWindowSize(renderer.frame, window)
-    renderer.render(updated = true, poll = false)
+    renderer.pollAndRender(updated = true, poll = false)
     var uxInput = window.copyInputs()
     uxInput.windowSize = some renderer.frame[].windowSize
     discard renderer.uxInputList.trySend(uxInput)
@@ -116,8 +127,10 @@ proc configureWindowEvents(renderer: Renderer) =
 
   renderer.frame[].running = true
 
-proc setupRenderer*[F](frame: WeakRef[F]): Renderer =
+proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   let window = newWindow("", ivec2(1280, 800))
+  let style: WindowStyle = frame[].windowStyle.convertStyle()
+  window.`style=`(style)
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, window, false, 1.0, atlasSize)
   renderer.configureWindowEvents()

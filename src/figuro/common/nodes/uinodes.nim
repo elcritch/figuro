@@ -37,11 +37,13 @@ type
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: Chan[AppInputs]
+    rendInputList*: Chan[RenderCommands]
     running*, focused*, minimized*, fullscreen*: bool
 
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2 ## Screen coordinates
     theme*: Theme
+    windowStyle*: FrameStyle
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]
