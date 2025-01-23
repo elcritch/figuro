@@ -101,6 +101,7 @@ proc draw*(self: Main) {.slot.} =
             Button.new "story":
               with node:
                 size 1'fr, 60'ux
+                fill blueColor.lighten(0.2)
               # connect(node, doHover, self, Main.hover)
               # echo "story: ", story.link.title
               Text.new "text":
