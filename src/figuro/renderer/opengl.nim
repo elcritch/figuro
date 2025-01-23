@@ -11,7 +11,7 @@ import ./opengl/utils
 import ./opengl/window
 import ./opengl/renderer
 
-export Renderer, pollAndRender
+export Renderer, runRenderer
 
 var lastMouse = Mouse()
 

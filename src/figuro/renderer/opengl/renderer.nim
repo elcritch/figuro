@@ -1,4 +1,4 @@
-import std/[hashes, os, strformat, tables, times, unicode]
+import std/[hashes, os, strformat, tables, times, monotimes, unicode]
 export tables
 
 import pkg/threading/atomics
@@ -15,6 +15,7 @@ import std/locks
 
 type Renderer* = ref object
   ctx*: Context
+  duration*: Duration
   window*: Window
   uxInputList*: Chan[AppInputs]
   frame*: WeakRef[AppFrame]
@@ -337,3 +338,14 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
   if update:
     renderer.updated.store false
     renderAndSwap(renderer, update)
+
+proc runRendererLoop*(renderer: Renderer) =
+  threadEffects:
+    RenderThread
+  while app.running and renderer[].frame[].running:
+    app.tickCount.inc()
+    if app.tickCount == app.tickCount.typeof.high:
+      app.tickCount = 0
+    timeIt(renderAvgTime):
+      renderer.pollAndRender(false)
+    os.sleep(renderer.duration.inMilliseconds)

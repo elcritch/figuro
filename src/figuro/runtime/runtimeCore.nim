@@ -100,23 +100,12 @@ proc setupTicker*(frame: AppFrame) =
   else:
     echo "fsmonitor not loaded"
 
-proc start*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
+proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   threadEffects:
     AppMainThread
   self.setupTicker()
   # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
-
-proc runRenderer(renderer: Renderer) =
-  threadEffects:
-    RenderThread
-  while app.running and renderer[].frame[].running:
-    app.tickCount.inc()
-    if app.tickCount == app.tickCount.typeof.high:
-      app.tickCount = 0
-    timeIt(renderAvgTime):
-      renderer.pollAndRender(false)
-    os.sleep(renderDuration.inMilliseconds)
 
 proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   threadEffects:
@@ -131,7 +120,7 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
 
   appThread = newSigilThread()
   let frameProxy = frame.moveToThread(appThread)
-  threads.connect(appThread[].agent, started, frameProxy, start)
+  threads.connect(appThread[].agent, started, frameProxy, appStart)
   appThread.start()
 
   proc ctrlc() {.noconv.} =
