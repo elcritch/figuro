@@ -1,7 +1,9 @@
+import pkg/threading/channels
 
+import nodes/uinodes
+import inputs
 import glyphs
 export glyphs
-import nodes/uinodes
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -27,8 +29,9 @@ when not defined(nimscript):
   export TypeFaceKinds
   ## these are set at runtime by the opengl window
 
-  proc setWindowTitle*(frame: AppFrame, title: string) =
-    discard
+  proc setWindowTitle*(frame: AppFrame, title: sink string) =
+    var cmd = RenderSetTitle(name= move title)
+    frame.rendInputList.send(cmd)
 
   proc getWindowTitle*(frame: AppFrame, ): string =
     discard
