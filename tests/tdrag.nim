@@ -1,6 +1,5 @@
 import figuro/widgets/button
 import figuro/ui/animations
-import figuro/widget
 import figuro
 
 let
