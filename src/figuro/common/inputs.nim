@@ -12,7 +12,6 @@ type
     DecoratedResizable, DecoratedFixedSized, Undecorated, Transparent
 
 variantp RenderCommands:
-  RenderNoop
   RenderQuit
   RenderUpdate(n: Renders)
   RenderSetTitle(name: string)

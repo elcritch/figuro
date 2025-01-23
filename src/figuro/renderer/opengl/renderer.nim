@@ -341,8 +341,6 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
       RenderUpdate(nlayers):
         renderer.nodes = nlayers
         update = true
-      RenderNoop:
-        discard
       RenderQuit:
         renderer.frame[].running = false
         return
