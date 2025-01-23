@@ -60,6 +60,14 @@ proc `+`*(a, b: NodeIdx): NodeIdx {.borrow.}
 proc `<=`*(a, b: NodeIdx): bool {.borrow.}
 proc `==`*(a, b: NodeIdx): bool {.borrow.}
 
+proc `[]`*(r: Renders, lvl: ZLevel): RenderList =
+  r.layers[lvl]
+
+template pairs*(r: Renders): auto =
+  r.layers.pairs()
+template contains*(r: Renders, lvl: ZLevel): bool =
+  r.layers.contains(lvl)
+
 iterator childIndex*(nodes: seq[Node], current: NodeIdx): NodeIdx =
   let id = nodes[current.int].uid
   let childCnt = nodes[current.int].childCount
