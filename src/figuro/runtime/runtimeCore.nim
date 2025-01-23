@@ -37,7 +37,6 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 var
   # runFrame*: proc(frame: AppFrame) {.nimcall.}
   appFrames*: Table[WeakRef[AppFrame], Renderer]
-  uxInputList*: Chan[AppInputs]
 
 const
   renderPeriodMs* {.intdefine.} = 14
