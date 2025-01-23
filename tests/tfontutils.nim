@@ -1,7 +1,7 @@
 
 import unittest
 import figuro
-import figuro/renderer/opengl/fontutils
+import figuro/common/fontutils
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
@@ -17,7 +17,7 @@ suite "fontutils":
     let spans = {font: "hi",
                   smallFont: "AA",
                   font: "AA"}
-    let textLayout = internal.getTypeset(box, spans, 
+    let textLayout = getTypeset(box, spans, 
               hAlign = FontHorizontal.Left,
               vAlign = FontVertical.Top)
 

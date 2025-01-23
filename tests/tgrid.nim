@@ -1,9 +1,7 @@
 import std/[math, strformat]
 
 import figuro/widgets/button
-import figuro/widget
 import figuro
-import std/with
 
 type
   GridApp = ref object of Figuro

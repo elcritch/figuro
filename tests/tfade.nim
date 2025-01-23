@@ -2,7 +2,6 @@
 ## This minimal example shows 5 blue squares.
 import figuro/widgets/[horizontal, button]
 import figuro/ui/animations
-import figuro/widget
 import figuro
 
 import sugar

@@ -1,7 +1,6 @@
-import commons
 import std/hashes
-
-import chronicles
+import pkg/chronicles
+import ../widget
 
 type
   ScrollPane* = ref object of Figuro

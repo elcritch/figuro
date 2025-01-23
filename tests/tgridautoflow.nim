@@ -1,6 +1,5 @@
 
 import figuro/widgets/button
-import figuro/widget
 import figuro
 
 type

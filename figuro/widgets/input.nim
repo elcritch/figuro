@@ -1,6 +1,7 @@
 import std/unicode
-
+import ../widget
 import ../ui/textboxes
+import pkg/chronicles
 
 type Input* = ref object of Figuro
   isActive*: bool

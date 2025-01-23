@@ -1,9 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/button
-import figuro/widgets/scrollpane
-import figuro/widgets/vertical
-import figuro/widget
+import figuro/widgets/[button, scrollpane, vertical]
 import figuro
 
 let
