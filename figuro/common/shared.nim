@@ -24,7 +24,7 @@ proc MainThread*() {.tags: [MainThreadEff].} =
 proc RenderThread*() {.tags: [RenderThreadEff].} =
   discard
 
-template threads*(arg: typed) =
+template runtimeThreads*(arg: typed) =
   arg()
 
 {.pop.}

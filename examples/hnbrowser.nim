@@ -1,7 +1,6 @@
 # Compile with nim c -d:ssl
 import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
-import figuro/widget
 import figuro
 import hnloader
 

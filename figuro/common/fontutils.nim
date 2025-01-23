@@ -85,7 +85,7 @@ proc generateGlyphImage(arrangement: GlyphArrangement) =
   ## Font Glyphs are generated with Bottom vAlign and Center hAlign
   ## this puts the glyphs in the right position
   ## so that the renderer doesn't need to figure out adjustments
-  threads:
+  runtimeThreads:
     MainThread
 
   for glyph in arrangement.glyphs():
@@ -129,7 +129,7 @@ proc generateGlyphImage(arrangement: GlyphArrangement) =
         discard
 
 proc getTypefaceImpl*(name: string): FontId =
-  threads:
+  runtimeThreads:
     MainThread
 
   let
@@ -144,7 +144,7 @@ proc getTypefaceImpl*(name: string): FontId =
   # echo "getTypeFace:res: ", typefaceTable[id].hash()
 
 proc convertFont*(font: UiFont): (FontId, Font) =
-  threads:
+  runtimeThreads:
     MainThread
   # echo "convertFont: ", font.typefaceId
   # echo "typefaceTable:addr: ", getThreadId()
@@ -184,7 +184,7 @@ proc getTypesetImpl*(
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ): GlyphArrangement =
-  threads:
+  runtimeThreads:
     MainThread
 
   var
