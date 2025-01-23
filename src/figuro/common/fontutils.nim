@@ -37,12 +37,8 @@ proc hash*(glyph: GlyphPosition): Hash {.inline.} =
 proc getId*(typeface: Typeface): TypefaceId =
   TypefaceId typeface.hash()
 
-# proc getId*(font: Font): FontId =
-#   FontId font.hash()
-
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
-  # if arrangement != nil:
 
   var mlh = 0.0 # maximum line height per row (though this does in total?)
   for f in arrangement.fonts:
@@ -76,7 +72,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           break
 
 var
-  typefaceTable*: Table[TypefaceId, Typeface]
+  typefaceTable*: Table[TypefaceId, Typeface] ## holds the table of parsed fonts
   fontTable* {.threadvar.}: Table[FontId, Font]
 
 proc generateGlyphImage(arrangement: GlyphArrangement) =
