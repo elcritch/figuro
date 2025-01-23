@@ -116,7 +116,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   renderer.frame[].running = true
 
-proc setupRenderer*[F](frame: WeakRef[F]): Renderer =
+proc initRenderer*[F](frame: WeakRef[F]): Renderer =
   let window = newWindow("", ivec2(1280, 800))
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, window, false, 1.0, atlasSize)

@@ -114,7 +114,7 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   when defined(sigilsDebug):
     frame.debugName = "Frame"
   let frameRef = frame.unsafeWeakRef()
-  let renderer = setupRenderer(frameRef)
+  let renderer = initRenderer(frameRef)
   appFrames[frameRef] = renderer
   frame.frameRunner = frameRunner
 
