@@ -14,11 +14,11 @@ import pkg/chroma
 type FiguroError* = object of CatchableError
 
 type
-  MainThreadEff* = object of RootEffect ## MainThr effect
+  AppMainThreadEff* = object of RootEffect ## MainThr effect
   RenderThreadEff* = object of RootEffect ## RenderThr effect
 
 {.push hint[Name]: off.}
-proc MainThread*() {.tags: [MainThreadEff].} =
+proc AppMainThread*() {.tags: [AppMainThreadEff].} =
   discard
 
 proc RenderThread*() {.tags: [RenderThreadEff].} =

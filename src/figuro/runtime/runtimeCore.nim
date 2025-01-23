@@ -9,6 +9,7 @@ else:
   export opengl
 
 import pkg/chronicles
+import pkg/threading/channels
 
 import std/os
 
@@ -103,6 +104,8 @@ proc start*(self: AppFrame) {.slot.} =
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
 proc runRenderer(renderer: Renderer) =
+  runtimeThreads:
+    RenderThread
   while app.running and renderer[].frame[].running:
     app.tickCount.inc()
     if app.tickCount == app.tickCount.typeof.high:
@@ -112,6 +115,8 @@ proc runRenderer(renderer: Renderer) =
     os.sleep(renderDuration.inMilliseconds)
 
 proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
+  runtimeThreads:
+    RenderThread
   ## run figuro
   when defined(sigilsDebug):
     frame.debugName = "Frame"
@@ -120,11 +125,8 @@ proc run*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   appFrames[frameRef] = renderer
   frame.frameRunner = frameRunner
 
-  # uiRenderEvent = initUiEvent()
-  # uiAppEvent = initUiEvent()
-
   appThread = newSigilThread()
-  let frameProxy = frame.moveToThread(ensureMove appThread)
+  let frameProxy = frame.moveToThread(appThread)
   threads.connect(appThread[].agent, started, frameProxy, start)
   appThread.start()
 

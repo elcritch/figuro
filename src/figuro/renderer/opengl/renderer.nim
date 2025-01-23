@@ -49,7 +49,7 @@ proc renderDrawable*(ctx: Context, node: Node) =
       bx = node.box.atXY(pos.x, pos.y)
     ctx.fillRect(bx, node.fill)
 
-proc renderText(ctx: Context, node: Node) {.forbids: [MainThreadEff].} =
+proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
   # draw characters
   # if node.textLayout == nil:
   # return
@@ -188,7 +188,7 @@ proc renderBoxes(ctx: Context, node: Node) =
 
 proc render(
     ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx
-) {.forbids: [MainThreadEff].} =
+) {.forbids: [AppMainThreadEff].} =
   template node(): auto =
     nodes[nodeIdx.int]
 
@@ -271,7 +271,7 @@ proc render(
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [MainThreadEff].} =
+proc renderRoot*(ctx: Context, nodes: var RenderNodes) {.forbids: [AppMainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   var img: (Hash, Image)
