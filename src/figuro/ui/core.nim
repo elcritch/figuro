@@ -44,14 +44,17 @@ var
   scrollBarFill* {.runtimeVar.} = rgba(187, 187, 187, 162).color
   scrollBarHighlight* {.runtimeVar.} = rgba(137, 137, 137, 162).color
 
+const DefTypefaceName* = "IBMPlexSans-Regular.ttf"
 const DefTypefaceRaw* = block:
-    let name = "IBMPlexSans-Regular.ttf"
-    let path = DataDirPath.string / name
+    let path = DataDirPath.string / DefTypefaceName
     let data = readfile(path)
-    (name: name, data: data)
+    data
+
+static:
+  echo "DefTypefaceRaw: ", DefTypefaceRaw.len
 
 var
-  defaultTypeface* {.runtimeVar.} = getTypeface(DefTypefaceRaw.name, DefTypefaceRaw.data, TTF)
+  defaultTypeface* {.runtimeVar.} = getTypeface(DefTypefaceName, DefTypefaceRaw, TTF)
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
 proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
