@@ -19,6 +19,8 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 var timestamp = getMonoTime()
 
 proc runFrameImpl(frame: AppFrame) {.slot.} =
+  runtimeThreads:
+    AppMainThread
   # Ticks
   let last = timestamp
   timestamp = getMonoTime()

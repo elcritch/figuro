@@ -74,6 +74,8 @@ template setupThread(thread, obj, sig, slot, starter: untyped) =
   frame.proxies.add proxy
 
 proc setupTicker*(frame: AppFrame) =
+  runtimeThreads:
+    AppMainThread
   var ticker = AppTicker(period: renderDuration)
   appTickThread.setupThread(
     ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
@@ -98,7 +100,7 @@ proc setupTicker*(frame: AppFrame) =
   else:
     echo "fsmonitor not loaded"
 
-proc start*(self: AppFrame) {.slot.} =
+proc start*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   self.setupTicker()
   # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
