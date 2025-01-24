@@ -27,6 +27,8 @@ suite "animations":
 
   template setupMain() =
     var main {.inject.} = TMain()
+    when defined(sigilsDebug):
+      main.debugName = "main"
     var frame = newAppFrame(main, size=(400'ui, 140'ui))
     main.frame = frame.unsafeWeakRef()
     connectDefaults(main)
@@ -35,6 +37,7 @@ suite "animations":
   test "fader":
     setupMain()
     let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
+    fader.debugName = "fader"
 
     fader.connect(fadeTick, main, TMain.fadeTick())
     fader.connect(fadeDone, main, TMain.fadeDone())
