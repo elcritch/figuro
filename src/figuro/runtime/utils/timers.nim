@@ -8,6 +8,8 @@ type
 proc logTiming(name, time: string) =
   info "timings", name = name, time = time
 
+const timeItSmoothing = 0.10
+
 proc timeItImpl*(retVar: bool, timer, blk: NimNode): NimNode =
   let name = newStrLitNode timer.repr()
   if defined(printDebugTimings):
@@ -18,8 +20,8 @@ proc timeItImpl*(retVar: bool, timer, blk: NimNode): NimNode =
       `blk`
       let b = getMonoTime()
       let res = b - a
-      let micros = res.inMicroseconds
-      `timer`.micros = 0.99 * `timer`.micros + 0.01 * micros.toBiggestFloat
+      let micros = res.inMicroseconds.toFloat
+      `timer`.micros =  timeItSmoothing * micros + (1.0-timeItSmoothing) * `timer`.micros
       `timer`.count.inc
       if `timer`.count mod 1_000 == 0:
         let num = `timer`.micros / 1_000.0
