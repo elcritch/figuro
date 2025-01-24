@@ -49,15 +49,15 @@ suite "animations":
     fader.connect(fadeDone, main, TMain.fadeDone())
     fader.addTarget(main)
 
-    var last = getMonoTime()
+    var
+      ts: MonoTime
+      dur = initDuration(milliseconds = 12)
+
     for i in 1..20:
-      os.sleep(10)
       if i == 3:
-        # fader.start(main, true)
         fader.fadeIn()
-      var ts = getMonoTime()
-      emit main.doTick(ts, ts-last)
-      last = ts
+      emit main.doTick(ts, dur)
+      ts = ts + dur
 
       if i < 7:
         check main.finished == 0
@@ -85,23 +85,21 @@ suite "animations":
     fader.connect(fadeDone, main, TMain.fadeDone())
     fader.addTarget(main)
 
-    var last = getMonoTime()
+    var
+      ts: MonoTime
+      dur = initDuration(milliseconds = 12)
     for i in 1..20:
-      os.sleep(10)
       if i == 3:
-        # fader.start(main, true)
         fader.fadeIn()
       elif i == 6:
         check main.finished == 0
-        check fader.amount >= 0.34
+        check fader.amount >= 0.30
         fader.fadeOut()
       
-      # echo "IDX: ", i
       if i == 9:
         check main.amount == 0.0
 
-      var ts = getMonoTime()
-      emit main.doTick(ts, ts-last)
-      last = ts
+      emit main.doTick(ts, dur)
+      ts = ts + dur
 
 
