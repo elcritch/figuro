@@ -1,11 +1,17 @@
 
 # Figuro
 
-A GUI toolkit for Nim that is event driven while being small and fast. It tries to incorporate the best elements of both imperitive and object oriented GUI toolkits. Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
+Figuro is a open source framework for building *beautiful*, *interactive*, and *efficient* applications. It compiles small binaries with support for multiple platforms.
+
+By building on some of the best parts of GUI development in last 15 years Figuro aims to incorporate the best elements of both imperitive and object oriented GUI toolkits.
+
+Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
 
 *Warning*: Figuro is still in an *alpha* stage and code and apis will be in flux. Some pieces still aren't completed.
 
 ## Example
+
+![Click Example](tests/scrolling-example.png)
 
 Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
@@ -60,7 +66,6 @@ var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)
 
 ```
-
 
 Currently during the early development only Atlas with `atlas.lock` files are intended to work. Nimble lock files are updated but may or may not work.
 
