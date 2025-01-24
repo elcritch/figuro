@@ -43,10 +43,22 @@ type Fader* = ref object of Agent
   node: Figuro
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
-  echo "fader tick: ", delta
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
-  self.amount = self.amount + rate * delta.inMilliseconds
-  discard
+  let dt = delta.inMilliseconds.toFloat
+  if self.fadingIn and self.amount >= self.minMax.b:
+    self.amount = self.minMax.b
+    self.active = false
+    info "fader:tick:done:in: ", amount = self.amount, maxs = self.minMax.b
+  elif not self.fadingIn and self.amount <= self.minMax.a:
+    self.amount = self.minMax.a
+    self.active = false
+    info "fader:tick:done:out: ", amount = self.amount, mins = self.minMax.b
+  else:
+    self.amount = self.amount + rate * dt
+    info "fader:tick: ", amount = self.amount
+  
+  if not self.active:
+    node.frame[].root, doTick
 
 proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
   self.active = true
@@ -58,7 +70,7 @@ proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
   if self.outTime.inMilliseconds > 0:
     self.ratePerMs.b = delta / self.outTime.inMilliseconds.toFloat
   connect(node.frame[].root, doTick, self, tick)
-  info "self: started: ", ratePerMs= self.ratePerMs, fadeOn= self.inTime, fadeOut= self.outTime
+  info "fader:started: ", ratePerMs= self.ratePerMs, fadeOn= self.inTime, fadeOut= self.outTime
 
 proc stop*(self: Fader) {.slot.} =
   self.active = true
