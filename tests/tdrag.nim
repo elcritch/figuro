@@ -51,7 +51,7 @@ proc draw*(self: Main) {.slot.} =
     with node:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
-      connect(doDrag, node, btnDragStart)
+      uinodes.connect(doDrag, node, btnDragStart)
 
     text "btnText":
       with node:
@@ -64,7 +64,7 @@ proc draw*(self: Main) {.slot.} =
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
       fill css"#9F2B00"
-      connect(doDrag, node, btnDragStop)
+      uinodes.connect(doDrag, node, btnDragStop)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))
