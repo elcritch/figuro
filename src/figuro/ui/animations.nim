@@ -34,9 +34,11 @@ type Fader* = ref object of Agent
   active*: bool = false
   amount*: float = 0.0
   minMax*: Slice[float] = 0.0..1.0
+  ts*: MonoTime
   on*: Duration
   off*: Duration
-  node*: Figuro
+  ratePerMs: Slice[float]
+  node: Figuro
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   echo "fader tick: ", delta
@@ -44,7 +46,14 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
 
 proc start*(self: Fader, node: Figuro) {.slot.} =
   self.active = true
+  self.ts = getMonoTime()
+  let delta = self.minMax.b - self.minMax.a
+  if self.on.inMilliseconds > 0:
+    self.ratePerMs.a = delta / self.on.inMilliseconds.toFloat
+  if self.off.inMilliseconds > 0:
+    self.ratePerMs.b = delta / self.off.inMilliseconds.toFloat
   connect(node.frame[].root, doTick, self, tick)
+  info "self: started: ", ratePerMs= self.ratePerMs, on= self.on, off= self.off
 
 proc stop*(self: Fader) {.slot.} =
   self.active = true
