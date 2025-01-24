@@ -38,7 +38,7 @@ suite "animations":
     connectDefaults(main)
     emit main.doDraw()
 
-  test "fader":
+  test "fader basic":
     setupMain()
     let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
     when defined(sigilsDebug):
@@ -62,15 +62,40 @@ suite "animations":
         check main.finished == 0
       elif i == 7:
         check main.finished == 1
-        echo "check finished: ", i
+        # echo "check finished: ", i
         check fader.amount == 1.0
       elif i == 8:
         fader.fadeOut()
       elif i == 8+3:
         check main.finished == 2
-        echo "check finished: ", i
+        # echo "check finished: ", i
         check fader.amount == 0.0
       elif i > 8+3:
         check main.finished == 2
         check fader.amount == 0.0
+
+  test "fader change mid":
+    setupMain()
+    let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
+    when defined(sigilsDebug):
+      fader.debugName = "fader"
+
+    fader.connect(fadeTick, main, TMain.fadeTick())
+    fader.connect(fadeDone, main, TMain.fadeDone())
+    fader.addTarget(main)
+
+    var last = getMonoTime()
+    for i in 1..20:
+      os.sleep(10)
+      if i == 3:
+        # fader.start(main, true)
+        fader.fadeIn()
+      elif i == 4:
+        check main.finished == 0
+        fader.fadeOut()
+
+      var ts = getMonoTime()
+      emit main.doTick(ts, ts-last)
+      last = ts
+
 
