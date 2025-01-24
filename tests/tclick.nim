@@ -32,9 +32,12 @@ proc btnClicked*(self: Button[int],
   ## slot to increment a button when clicked
   ## clicks have a type of `(EventKind, UiButtonView)` 
   ## which we can use to check if it's a mouse click
-  if buttons == {MouseLeft} or buttons == {DoubleClick}:
-    if kind == Enter:
+  if kind == Enter:
+    if buttons in [{MouseLeft}, {DoubleClick}, {TripleClick}]:
       self.state.inc
+      refresh(self)
+    elif buttons == {MouseRight}:
+      self.state.dec
       refresh(self)
 
 proc initialize*(self: Main) {.slot.} =
