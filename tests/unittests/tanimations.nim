@@ -46,13 +46,14 @@ suite "animations":
 
     fader.connect(fadeTick, main, TMain.fadeTick())
     fader.connect(fadeDone, main, TMain.fadeDone())
+    fader.addTarget(main)
 
     var last = getMonoTime()
     for i in 1..20:
       os.sleep(10)
       if i == 3:
         # fader.start(main, true)
-        fader.fadeIn(main)
+        fader.fadeIn()
       var ts = getMonoTime()
       emit main.doTick(ts, ts-last)
       last = ts
@@ -64,7 +65,7 @@ suite "animations":
         echo "check finished: ", i
         check fader.amount == 1.0
       elif i == 8:
-        fader.fadeOut(main)
+        fader.fadeOut()
       elif i == 8+3:
         check main.finished == 2
         echo "check finished: ", i
