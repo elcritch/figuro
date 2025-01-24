@@ -51,16 +51,16 @@ proc draw*(self: Main) {.slot.} =
   Button.new "btn":
     startBtn = node
     with node:
-      box 40'ux, 30'ux, 80'ux, 80'ux
+      box 40'ux, 30'ux, 100'ux, 100'ux
       fill css"#2B9F2B"
       uinodes.connect(doDrag, node, btnDragStart)
       # uinodes.connect(doDrag, node, btnDragStop)
 
     text "btnText":
       with node:
-        box 10'ux, 10'ux, 80'pp, 80'pp
+        box 5'ux, 5'ux, 90'pp, 90'pp
         fill blackColor
-        setText({font: "drag me"})
+        setText({font: "drag to the red block and release"}, Center)
 
   Button[(Fader, string)].new "btn":
     block fading:
@@ -69,7 +69,7 @@ proc draw*(self: Main) {.slot.} =
       connect(self.bkgFade, fadeTick, node, fading)
     # echo "button:id: ", node.getId, " ", self.bkgFade.amount
     with node:
-      box 200'ux, 30'ux, 80'ux, 80'ux
+      box 200'ux, 30'ux, 100'ux, 100'ux
       fill css"#9F2B00".spin(50*self.bkgFade.amount)
     ## TODO: how to make a better api for this
     ## we don't want evDrag, only evDragEnd
@@ -90,5 +90,5 @@ proc draw*(self: Main) {.slot.} =
         setText({font: btn.state[1]}, Center, Middle)
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(720'ui, 140'ui))
+var frame = newAppFrame(main, size=(330'ui, 180'ui))
 startFiguro(frame)
