@@ -19,7 +19,7 @@ proc btnDragStart*(node: Figuro,
                    initial: Position,
                    cursor: Position
                   ) {.slot.} =
-  discard
+  echo "btnDrag:start: ", node.getId, " ", kind
 
 proc btnDragStop*(
     node: Figuro,
@@ -27,9 +27,9 @@ proc btnDragStop*(
     initial: Position,
     cursor: Position
 ) {.slot.} =
-  # echo "btnDrag:exit: ", node.getId, " ", kind,
-  #         " change: ", initial.positionDiff(cursor),
-  #         " nodeRel: ", cursor.positionRelative(node)
+  echo "btnDrag:exit: ", node.getId, " ", kind,
+          " change: ", initial.positionDiff(cursor),
+          " nodeRel: ", cursor.positionRelative(node)
   let btn = Button[(Fader, string)](node)
   btn.state[1] = "Item dropped!"
   refresh(node)
@@ -42,11 +42,14 @@ proc draw*(self: Main) {.slot.} =
     box 0'ux, 0'ux, 400'ux, 300'ux
 
   let node = self
+  var startBtn: Figuro
   Button.new "btn":
+    startBtn = node
     with node:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
       uinodes.connect(doDrag, node, btnDragStart)
+      # uinodes.connect(doDrag, node, btnDragStop)
 
     text "btnText":
       with node:
@@ -59,13 +62,14 @@ proc draw*(self: Main) {.slot.} =
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
       fill css"#9F2B00"
-      uinodes.connect(doDrag, node, btnDragStop)
+    connect(node, doDrag, node, btnDragStop)
+    node.listens.signals.incl {evDragEnd}
     let btn = node
     proc clicked(btn: Button[(Fader, string)],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
-      if kind == Enter:
-        echo "clicked!"
+      btn.state[1] = ""
+      refresh(btn)
     uinodes.connect(node, doClick, node, clicked)
     text "btnText":
       with node:
