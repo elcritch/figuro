@@ -44,6 +44,8 @@ type Fader* = ref object of Agent
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   echo "fader tick: ", delta
+  let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
+  self.amount = self.amount + rate * delta.inMilliseconds
   discard
 
 proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
