@@ -8,8 +8,8 @@ import sugar
 
 type
   Main* = ref object of Figuro
-    bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                             incr: 0.010, decr: 0.005)
+    bkgFade* = Fader(minMax: 0.0..0.15,
+                     : 0.010, decr: 0.005)
 
 proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering

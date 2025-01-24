@@ -5,16 +5,17 @@ import ../commons
 import apis
 
 type Fader* = ref object of Agent
-  active*: bool = false
-  fadingIn*: bool = false
-  amount*: float = 0.0
   minMax*: Slice[float] = 0.0..1.0
-  ts*: MonoTime
   inTime*: Duration
   outTime*: Duration
+  fadingIn: bool = false
+  active: bool = false
+  amount: float = 0.0
+  ts: MonoTime
   ratePerMs: Slice[float]
   targets: seq[Figuro]
 
+proc amount*(fader: Fader): float = fader.amount
 proc fadeTick*(fader: Fader, value: tuple[amount, perc: float]) {.signal.}
 proc fadeDone*(fader: Fader, value: tuple[amount, perc: float]) {.signal.}
 
