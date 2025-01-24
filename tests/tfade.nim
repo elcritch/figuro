@@ -9,12 +9,24 @@ import sugar
 type
   Main* = ref object of Figuro
     bkgFade* = Fader(minMax: 0.0..0.15,
-                     : 0.010, decr: 0.005)
+                     inTimeMs: 1_000, outTimeMs: 1_000)
 
 proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
-  self.bkgFade.isActive(evtKind == Enter)
+  if evtKind == Enter:
+    self.bkgFade.fadeIn()
+  else:
+    self.bkgFade.fadeOut()
   refresh(self)
+
+proc fading*(self: Main, value: tuple[amount, perc: float]) {.slot.} =
+  refresh(self)
+  echo "fade tick: ", value.repr
+
+proc initialize*(self: Main) {.slot.} =
+  self.setTitle("Click Test!")
+  self.bkgFade.addTarget(self)
+  connect(self.bkgFade, fadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   let node = self

@@ -21,12 +21,15 @@ proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =
   # echo "TICK: ", now, " delta: ", delta
   discard
 
-proc fadeTick*(self: TMain, value: tuple[amount, perc: float]) {.slot.} =
+proc fadeTick*(self: TMain, value: tuple[amount, perc: float], finished: bool) {.slot.} =
   echo "fade:tick: ", value.repr
-proc fadeDone*(self: TMain, value: tuple[amount, perc: float]) {.slot.} =
-  echo "fade:done: ", value.repr
-  self.amount = value.amount
-  self.finished.inc()
+  if finished:
+    self.amount = value.amount
+    self.finished.inc()
+# proc fadeDone*(self: TMain, value: tuple[amount, perc: float], finished: bool) {.slot.} =
+#   echo "fade:done: ", value.repr
+#   self.amount = value.amount
+#   self.finished.inc()
 
 suite "animations":
 
@@ -46,7 +49,7 @@ suite "animations":
       fader.debugName = "fader"
 
     fader.connect(fadeTick, main, TMain.fadeTick())
-    fader.connect(fadeDone, main, TMain.fadeDone())
+    # fader.connect(fadeDone, main, TMain.fadeDone())
     fader.addTarget(main)
 
     var
@@ -82,7 +85,7 @@ suite "animations":
       fader.debugName = "fader"
 
     fader.connect(fadeTick, main, TMain.fadeTick())
-    fader.connect(fadeDone, main, TMain.fadeDone())
+    # fader.connect(fadeDone, main, TMain.fadeDone())
     fader.addTarget(main)
 
     var

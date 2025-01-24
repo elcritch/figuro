@@ -8,8 +8,8 @@ let
 
 type
   Main* = ref object of Figuro
-    bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                             incr: 0.010, decr: 0.005)
+    bkgFade* = Fader(minMax: 0.0..0.15,
+                     inTimeMs: 10, outTimeMs: 5)
 
 proc update*(fig: Main) {.signal.}
 
@@ -33,11 +33,15 @@ proc btnClicked*(self: Button[int],
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
-  self.bkgFade.isActive(evtKind == Enter)
+  if evtKind == Enter:
+    self.bkgFade.fadeIn()
+  else:
+    self.bkgFade.fadeOut()
   refresh(self)
 
 proc initialize*(self: Main) {.slot.} =
   self.setTitle("Click Test!")
+  self.bkgFade.addTarget(self)
 
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
@@ -81,7 +85,7 @@ proc draw*(self: Main) {.slot.} =
                 setText({font: $(btn.state)}, Center, Middle)
 
 proc tick*(self: Main, time: MonoTime, delta: Duration) {.slot.} =
-  self.bkgFade.tick(self)
+  # self.bkgFade.tick(self)
   emit self.update()
 
 var main = Main.new()

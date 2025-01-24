@@ -16,8 +16,7 @@ type Fader* = ref object of Agent
   targets: seq[Figuro]
 
 proc amount*(fader: Fader): float = fader.amount
-proc fadeTick*(fader: Fader, value: tuple[amount, perc: float]) {.signal.}
-proc fadeDone*(fader: Fader, value: tuple[amount, perc: float]) {.signal.}
+proc fadeTick*(fader: Fader, value: tuple[amount, perc: float], finished: bool) {.signal.}
 
 proc addTarget*(self: Fader, node: Figuro) {.slot.} =
   self.targets.addUnique(node)
@@ -42,11 +41,11 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
 
   let val = (amount: self.amount, perc: (self.amount-x)/(y-x))
   if self.active:
-    emit self.fadeTick(val)
+    emit self.fadeTick(val, false)
   else:
     for tgt in self.targets:
       disconnect(tgt.frame[].root, doTick, self)
-    emit self.fadeDone(val)
+    emit self.fadeTick(val, true)
 
 proc stop*(self: Fader) {.slot.} =
   self.active = false
