@@ -45,6 +45,7 @@ proc draw*(self: Main) {.slot.} =
     setName "main"
     fill css"#9F2B00"
     box 0'ux, 0'ux, 400'ux, 300'ux
+    setTitle "Dragging Example"
 
   let node = self
   var startBtn: Figuro
