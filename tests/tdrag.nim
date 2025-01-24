@@ -28,9 +28,9 @@ proc btnDragStop*(
     initial: Position,
     cursor: Position
 ) {.slot.} =
-  echo "btnDrag:exit: ", node.getId, " ", kind,
-          " change: ", initial.positionDiff(cursor),
-          " nodeRel: ", cursor.positionRelative(node)
+  # echo "btnDrag:exit: ", node.getId, " ", kind,
+  #         " change: ", initial.positionDiff(cursor),
+  #         " nodeRel: ", cursor.positionRelative(node)
   node.state[1] = "Item dropped!"
   node.state[0].fadeIn()
   refresh(node)
@@ -90,5 +90,5 @@ proc draw*(self: Main) {.slot.} =
         setText({font: btn.state[1]}, Center, Middle)
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(330'ui, 180'ui))
+var frame = newAppFrame(main, size=(350'ui, 180'ui))
 startFiguro(frame)
