@@ -24,6 +24,9 @@ proc btnDragStart*(node: Figuro,
                    cursor: Position
                   ) {.slot.} =
   discard
+  echo "btnDrag:exit: ", node.getId, " ", kind,
+          " change: ", initial.positionDiff(cursor),
+          " nodeRel: ", cursor.positionRelative(node)
 
 proc btnDragStop*(
     node: Figuro,
@@ -44,7 +47,7 @@ proc draw*(self: Main) {.slot.} =
     box 0'ux, 0'ux, 400'ux, 300'ux
 
   let node = self
-  rectangle "btn":
+  Button.new "btn":
     with node:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
