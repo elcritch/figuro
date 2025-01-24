@@ -61,7 +61,7 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
     if self.amount <= self.minMax.a:
       self.amount = self.minMax.a
       self.active = false
-  info "fader:tick: ", amount = self.amount
+  notice "fader:tick: ", amount = self.amount
   
   let (x,y) = if self.fadingIn: (self.minMax.b, self.minMax.a)
               else: (self.minMax.a, self.minMax.b)

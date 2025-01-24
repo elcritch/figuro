@@ -18,7 +18,8 @@ proc draw*(self: TMain) {.slot.} =
       echo "body"
 
 proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =
-  echo "TICK: ", now, " delta: ", delta
+  # echo "TICK: ", now, " delta: ", delta
+  discard
 
 proc fadeTick*(self: TMain, value: tuple[amount, perc: float]) {.slot.} =
   echo "fade:tick: ", value.repr
@@ -76,7 +77,7 @@ suite "animations":
 
   test "fader change mid":
     setupMain()
-    let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
+    let fader = Fader(inTime: initDuration(milliseconds=100), outTime: initDuration(milliseconds=100))
     when defined(sigilsDebug):
       fader.debugName = "fader"
 
@@ -90,9 +91,13 @@ suite "animations":
       if i == 3:
         # fader.start(main, true)
         fader.fadeIn()
-      elif i == 4:
+      elif i == 6:
         check main.finished == 0
         fader.fadeOut()
+      
+      # echo "IDX: ", i
+      if i == 9:
+        check main.amount == 0.0
 
       var ts = getMonoTime()
       emit main.doTick(ts, ts-last)
