@@ -293,8 +293,6 @@ proc renderFrame*(renderer: Renderer) =
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  # withLock(renderer.lock):
-  #   ctx.renderRoot(renderer.nodes)
   ctx.renderRoot(renderer.nodes)
 
   ctx.restoreTransform()
@@ -343,18 +341,21 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
         update = true
       RenderQuit:
         renderer.frame[].running = false
+        app.running = false
         return
       RenderSetTitle(name):
         renderer.window.title = name
 
   if update:
-    renderer.updated.store false
     renderAndSwap(renderer)
 
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
-  while app.running and renderer[].frame[].running:
-    timeIt(renderAvgTime):
-      renderer.pollAndRender(false)
-    os.sleep(renderer.duration.inMilliseconds)
+  while app.running:
+    let time =
+      timeItVar(renderAvgTime):
+        renderer.pollAndRender(false)
+
+    let avgMicros = time.micros.toInt() div 1_000
+    os.sleep(renderer.duration.inMilliseconds - avgMicros)

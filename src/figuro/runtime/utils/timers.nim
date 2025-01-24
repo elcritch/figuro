@@ -8,24 +8,33 @@ type
 proc logTiming(name, time: string) =
   info "timings", name = name, time = time
 
-macro timeIt*(timer, blk: untyped) =
+proc timeItImpl*(retVar: bool, timer, blk: NimNode): NimNode =
   let name = newStrLitNode timer.repr()
   if defined(printDebugTimings):
-    quote:
-      var timer {.global, threadvar.}: TimeIt
+    let timer = genSym(nskVar, "timer")
+    result = quote do:
+      var `timer` {.global, threadvar.}: TimeIt
       let a = getMonoTime()
       `blk`
       let b = getMonoTime()
       let res = b - a
       let micros = res.inMicroseconds
-      timer.micros = 0.99 * timer.micros + 0.01 * micros.toBiggestFloat
-      timer.count.inc
-      if timer.count mod 1_000 == 0:
-        let num = timer.micros / 1_000.0
+      `timer`.micros = 0.99 * `timer`.micros + 0.01 * micros.toBiggestFloat
+      `timer`.count.inc
+      if `timer`.count mod 1_000 == 0:
+        let num = `timer`.micros / 1_000.0
         logTiming($`name`, $num.formatBiggestFloat(ffDecimal, 3) & " ms")
+    if retVar:
+      result.add quote do:
+        `timer`
   else:
-    quote:
+    result = quote do:
       `blk`
+
+macro timeIt*(timer, blk: untyped) =
+  result = timeItImpl(false, timer, blk)
+macro timeItVar*(timer, blk: untyped): TimeIt =
+  result = timeItImpl(true, timer, blk)
 
 proc runEveryMillis*(ms: int, repeat: int, code: proc(idx: FrameIdx): bool) =
   when false:
