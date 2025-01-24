@@ -45,20 +45,17 @@ type Fader* = ref object of Agent
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
   let dt = delta.inMilliseconds.toFloat
+  self.amount = self.amount + rate * dt
   if self.fadingIn and self.amount >= self.minMax.b:
     self.amount = self.minMax.b
     self.active = false
-    info "fader:tick:done:in: ", amount = self.amount, maxs = self.minMax.b
   elif not self.fadingIn and self.amount <= self.minMax.a:
     self.amount = self.minMax.a
     self.active = false
-    info "fader:tick:done:out: ", amount = self.amount, mins = self.minMax.b
-  else:
-    self.amount = self.amount + rate * dt
-    info "fader:tick: ", amount = self.amount
+  info "fader:tick: ", amount = self.amount
   
   if not self.active:
-    disconnect(self.node.frame[].root, doTick, self, Fader.tick)
+    disconnect(self.node.frame[].root, doTick, self)
 
 proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
   self.node = node
