@@ -328,6 +328,7 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
 
   if renderer.window.closeRequested:
     renderer.frame[].running = false
+    app.running = false
     return
 
   if poll:
@@ -340,6 +341,7 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
         renderer.nodes = nlayers
         update = true
       RenderQuit:
+        echo "QUITTING"
         renderer.frame[].running = false
         app.running = false
         return
