@@ -1,5 +1,5 @@
 
-## This minimal example shows 5 blue squares.
+## This minimal scrollpane example
 import figuro/widgets/[button, scrollpane, vertical]
 import figuro
 
@@ -22,18 +22,16 @@ proc buttonItem(self, node: Figuro, idx: int) =
     # current.gridItem = nil
     with node:
       size 1'fr, 50'ux
-      fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*50)
+      fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20)
     if idx in [3, 7]:
       node.size 0.9'fr, 120'ux
     connect(node, doHover, self, Main.hover)
-    # Text.new "text":
-    #   node.setText({font: "TESTING"}, Center, Middle)
-    #   fill node, blackColor
 
 proc draw*(self: Main) {.slot.} =
   var node = self
   with node:
     fill css"#0000AA"
+    setTitle("Scrolling example")
   ScrollPane.new "scroll":
     with node:
       offset 2'pp, 2'pp

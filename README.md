@@ -10,10 +10,9 @@ A GUI toolkit for Nim that is event driven while being small and fast. It tries 
 Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
 ```nim
-import figuro/widgets/button
-import figuro/widgets/horizontal
-import figuro/widget
-import figuro/ui/animations
+
+## This minimal scrollpane example
+import figuro/widgets/[button, scrollpane, vertical]
 import figuro
 
 let
@@ -22,85 +21,46 @@ let
 
 type
   Main* = ref object of Figuro
-    bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                             incr: 0.010, decr: 0.005)
+    value: float
+    hasHovered: bool
 
-proc update*(fig: Main) {.signal.}
-
-
-proc btnTick*(self: Button[int]) {.slot.} =
-  ## slot to increment a button on every tick 
-  self.state.inc
+proc hover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
+  # echo "hover: ", kind
   refresh(self)
 
-proc btnClicked*(self: Button[int],
-                  kind: EventKind,
-                  buttons: UiButtonView) {.slot.} =
-  ## slot to increment a button when clicked
-  ## clicks have a type of `(EventKind, UiButtonView)` 
-  ## which we can use to check if it's a mouse click
-  if buttons == {MouseLeft} or buttons == {DoubleClick}:
-    if kind == Enter:
-      self.state.inc
-      refresh(self)
-
-proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
-  ## activate fading on hover, deactive when not hovering
-  self.bkgFade.isActive(evtKind == Enter)
-  refresh(self)
+proc buttonItem(self, node: Figuro, idx: int) =
+  Button.new "button":
+    # current.gridItem = nil
+    with node:
+      size 1'fr, 50'ux
+      fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*50)
+    if idx in [3, 7]:
+      node.size 0.9'fr, 120'ux
+    connect(node, doHover, self, Main.hover)
 
 proc draw*(self: Main) {.slot.} =
-  ## draw slot for Main widget called whenever an event
-  ## triggers a node or it's parents to be refreshed
   var node = self
-  node.setName "main"
-
-  # Calls the widget template `rectangle`.
-  # This creates a new basic widget node. Generally used to draw generic rectangles.
-  rectangle "body":
+  with node:
+    fill css"#0000AA"
+  ScrollPane.new "scroll":
     with node:
-      # sets the bounding box of this node
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      # `fill` sets the background color. Color apis use the `chroma` library
-      fill whiteColor.darken(self.bkgFade.amount)
-
-    # sets up horizontal widget node with alternate syntax
-    Horizontal.new "horiz":
+      offset 2'pp, 2'pp
+      cornerRadius 7.0'ux
+      size 96'pp, 90'pp
+    Vertical.new "":
       with node:
-        box 10'ux, 0'ux, 100'pp, 100'pp
-        # `itemWidth` is needed to set the width of items
-        # in the horizontal widget
-        itemWidth 100'ux, gap = 20'ui
-        layoutItems justify=CxCenter, align=CxCenter
-
-      for i in 0 .. 4:
-        Button[int].new("btn", captures=i):
-          let btn = node
-          with node:
-            size 100'ux, 100'ux
-            cornerRadius 5.0
-            connect(doHover, self, btnHover)
-            connect(doClick, node, btnClicked)
-          if i == 0:
-            connect(self, update, node, btnTick)
-
-          text "text":
-            with node:
-              fill blackColor
-              setText({font: $(btn.state)}, Center, Middle)
-
-
-proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
-  self.bkgFade.tick(self)
-  emit self.update()
+        offset 10'ux, 10'ux
+        itemHeight cx"max-content"
+      for idx in 0 .. 15:
+        buttonItem(self, node, idx)
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(700'ui, 200'ui))
+var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)
+
 ```
 
-![Click Example](tests/tclick-screenshot.png)
 
 Currently during the early development only Atlas with `atlas.lock` files are intended to work. Nimble lock files are updated but may or may not work.
 
