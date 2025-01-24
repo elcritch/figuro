@@ -57,7 +57,6 @@ suite "animations":
       emit main.doTick(ts, ts-last)
       last = ts
 
-      echo "index: ", i
       if i < 7:
         check main.finished == 0
       elif i == 7:
@@ -69,5 +68,8 @@ suite "animations":
       elif i == 8+3:
         check main.finished == 2
         echo "check finished: ", i
+        check fader.amount == 0.0
+      elif i > 8+3:
+        check main.finished == 2
         check fader.amount == 0.0
 
