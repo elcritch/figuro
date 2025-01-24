@@ -231,7 +231,6 @@ template connect*(
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":
-    echo "CONNECT: DO DRAG"
     a.listens.signals.incl {evDrag, evDragEnd}
   signals.connect(a, signal, b, slot, acceptVoidSlot)
 

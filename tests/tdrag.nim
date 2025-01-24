@@ -10,10 +10,6 @@ type
   Counter* = object
 
   Main* = ref object of Figuro
-    value: int
-    hasHovered: bool
-    hoveredAlpha: float
-    mainRect: Figuro
     bkgFade* = Fader(minMax: 0.0..0.18,
                      inTimeMs: 600, outTimeMs: 500)
 
@@ -24,9 +20,6 @@ proc btnDragStart*(node: Figuro,
                    cursor: Position
                   ) {.slot.} =
   discard
-  echo "btnDrag:exit: ", node.getId, " ", kind,
-          " change: ", initial.positionDiff(cursor),
-          " nodeRel: ", cursor.positionRelative(node)
 
 proc btnDragStop*(
     node: Figuro,
@@ -34,10 +27,12 @@ proc btnDragStop*(
     initial: Position,
     cursor: Position
 ) {.slot.} =
-  echo "btnDrag:exit: ", node.getId, " ", kind,
-          " change: ", initial.positionDiff(cursor),
-          " nodeRel: ", cursor.positionRelative(node)
-  let btn = Button[Fader](node)
+  # echo "btnDrag:exit: ", node.getId, " ", kind,
+  #         " change: ", initial.positionDiff(cursor),
+  #         " nodeRel: ", cursor.positionRelative(node)
+  let btn = Button[(Fader, string)](node)
+  btn.state[1] = "Item dropped!"
+  refresh(node)
 
 proc draw*(self: Main) {.slot.} =
   # var node = self
@@ -59,12 +54,23 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({font: "drag me"})
 
-  Button[Fader].new "btn":
+  Button[(Fader, string)].new "btn":
     echo "button:id: ", node.getId, " ", node.state.typeof
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
       fill css"#9F2B00"
       uinodes.connect(doDrag, node, btnDragStop)
+    let btn = node
+    proc clicked(btn: Button[(Fader, string)],
+                  kind: EventKind,
+                  buttons: UiButtonView) {.slot.} =
+      if kind == Enter:
+        echo "clicked!"
+    uinodes.connect(node, doClick, node, clicked)
+    text "btnText":
+      with node:
+        fill blackColor
+        setText({font: btn.state[1]}, Center, Middle)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))
