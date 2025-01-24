@@ -68,7 +68,7 @@ proc draw*(self: Main) {.slot.} =
                       kind: EventKind,
                       buttons: UiButtonView) {.slot.} =
         echo "Load clicked"
-        if not self.loading:
+        if kind == Enter and not self.loading:
           emit self.htmlLoad()
         self.loading = true
         refresh(self)

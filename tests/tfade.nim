@@ -8,13 +8,24 @@ import sugar
 
 type
   Main* = ref object of Figuro
-    bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                             incr: 0.010, decr: 0.005)
+    bkgFade* = Fader(minMax: 0.0..0.18,
+                     inTimeMs: 600, outTimeMs: 500)
+
+proc fading*(self: Main, value: tuple[amount, perc: float], finished: bool) {.slot.} =
+  refresh(self)
 
 proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
-  self.bkgFade.isActive(evtKind == Enter)
+  if evtKind == Enter:
+    self.bkgFade.fadeIn()
+  else:
+    self.bkgFade.fadeOut()
   refresh(self)
+
+proc initialize*(self: Main) {.slot.} =
+  self.setTitle("Click Test!")
+  self.bkgFade.addTarget(self)
+  connect(self.bkgFade, fadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   let node = self
@@ -32,8 +43,9 @@ proc draw*(self: Main) {.slot.} =
             size node, 100'ux, 100'ux
             connect(node, doHover, self, buttonHover)
 
-proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
-  self.bkgFade.tick(self)
+# proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
+#   self.bkgFade.tick(self)
+#   echo "TICK", now
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

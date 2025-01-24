@@ -9,18 +9,7 @@ type
   Counter* = object
 
   Main* = ref object of Figuro
-    value: int
-    hasHovered: bool
-    hoveredAlpha: float
     mainRect: Figuro
-
-proc btnDrag*(node: Figuro,
-              kind: EventKind,
-              initial: Position,
-              cursor: Position) {.slot.} =
-  echo "btnDrag: ", node.getId, " ", kind,
-          " change: ", initial.positionDiff(cursor),
-          " nodeRel: ", cursor.positionRelative(node)
 
 proc draw*(self: Main) {.slot.} =
   with self:

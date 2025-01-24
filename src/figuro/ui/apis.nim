@@ -234,23 +234,23 @@ template onHover*(current: Figuro, inner: untyped) =
 template onHover*(inner: untyped) =
   onHover(node, inner)
 
-template onClick*(current: Figuro, inner: untyped) =
-  ## On click event handler.
-  current.listens.events.incl(evClick)
-  if evClick in current.events.mouse and MouseLeft in uxInputs.buttonPress:
-    inner
+# template onClick*(current: Figuro, inner: untyped) =
+#   ## On click event handler.
+#   current.listens.events.incl(evClick)
+#   if evClick in current.events:
+#     inner
 
-template onClick*(inner: untyped) =
-  onClick(node, inner)
+# template onClick*(inner: untyped) =
+#   onClick(node, inner)
 
-template onClickOut*(current: Figuro, inner: untyped) =
-  ## On click event handler.
-  current.listens.events.incl(evClickOut)
-  if evClickOut in current.events.mouse and MouseLeft in uxInputs.buttonPress:
-    inner
+# template onClickOut*(current: Figuro, inner: untyped) =
+#   ## On click event handler.
+#   current.listens.events.incl(evClickOut)
+#   if evClickOut in current.events.mouse and MouseLeft in uxInputs.buttonPress:
+#     inner
 
-template onClickOut*(inner: untyped) =
-  onClickOut(node, inner)
+# template onClickOut*(inner: untyped) =
+#   onClickOut(node, inner)
 
 proc getTitle*(current: Figuro): string =
   ## Gets window title

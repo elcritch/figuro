@@ -8,17 +8,23 @@ let
 
 type
   Main* = ref object of Figuro
-    bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                             incr: 0.010, decr: 0.005)
+    bkgFade* = Fader(minMax: 0.0..0.18,
+                     inTimeMs: 600, outTimeMs: 500)
 
 proc update*(fig: Main) {.signal.}
+
+proc fading*(self: Main, value: tuple[amount, perc: float], finished: bool) {.slot.} =
+  refresh(self)
+
+proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
+  ## activate fading on hover, deactive when not hovering
+  self.bkgFade.startFade(evtKind == Enter)
+  refresh(self)
 
 proc btnTick*(self: Button[int]) {.slot.} =
   ## slot to increment a button on every tick 
   self.state.inc
   refresh(self)
-  # if self.state mod 10 == 0:
-  #   quit(1)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
@@ -26,18 +32,18 @@ proc btnClicked*(self: Button[int],
   ## slot to increment a button when clicked
   ## clicks have a type of `(EventKind, UiButtonView)` 
   ## which we can use to check if it's a mouse click
-  if buttons == {MouseLeft} or buttons == {DoubleClick}:
-    if kind == Enter:
+  if kind == Enter:
+    if buttons in [{MouseLeft}, {DoubleClick}, {TripleClick}]:
       self.state.inc
       refresh(self)
-
-proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
-  ## activate fading on hover, deactive when not hovering
-  self.bkgFade.isActive(evtKind == Enter)
-  refresh(self)
+    elif buttons == {MouseRight}:
+      self.state.dec
+      refresh(self)
 
 proc initialize*(self: Main) {.slot.} =
   self.setTitle("Click Test!")
+  self.bkgFade.addTarget(self)
+  connect(self.bkgFade, fadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
@@ -53,7 +59,7 @@ proc draw*(self: Main) {.slot.} =
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
       # `fill` sets the background color. Color apis use the `chroma` library
-      fill whiteColor.darken(self.bkgFade.amount)
+      fill blackColor * (self.bkgFade.amount)
 
     # sets up horizontal widget node with alternate syntax
     Horizontal.new "horiz": # same as `horizontal "horiz":`
@@ -81,7 +87,7 @@ proc draw*(self: Main) {.slot.} =
                 setText({font: $(btn.state)}, Center, Middle)
 
 proc tick*(self: Main, time: MonoTime, delta: Duration) {.slot.} =
-  self.bkgFade.tick(self)
+  # self.bkgFade.tick(self)
   emit self.update()
 
 var main = Main.new()
