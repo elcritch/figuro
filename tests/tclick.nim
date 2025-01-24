@@ -56,7 +56,7 @@ proc draw*(self: Main) {.slot.} =
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
       # `fill` sets the background color. Color apis use the `chroma` library
-      fill whiteColor.darken(self.bkgFade.amount)
+      fill blackColor * (self.bkgFade.amount)
 
     # sets up horizontal widget node with alternate syntax
     Horizontal.new "horiz": # same as `horizontal "horiz":`
