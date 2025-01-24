@@ -64,13 +64,13 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   if self.active:
     emit self.fadeTick(val)
   else:
-    # disconnect(self.node.frame[].root, doTick, self)
+    disconnect(self.node.frame[].root, doTick, self)
     emit self.fadeDone(val)
 
 proc stop*(self: Fader) {.slot.} =
   self.active = true
   if self.node != nil:
-    # disconnect(self.node.frame[].root, doTick, self)
+    disconnect(self.node.frame[].root, doTick, self)
     discard
 
 proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
