@@ -11,7 +11,7 @@ type
 
   Main* = ref object of Figuro
     bkgFade* = Fader(minMax: 0.0..0.18,
-                     inTimeMs: 600, outTimeMs: 500)
+                     inTimeMs: 600, outTimeMs: 900)
 
 
 proc btnDragStart*(node: Figuro,
