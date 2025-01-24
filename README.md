@@ -7,7 +7,7 @@ By building on some of the best parts of GUI development in last 15 years Figuro
 
 Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
 
-*Warning*: Figuro is still in an *alpha* stage and code and apis will be in flux. Some pieces still aren't completed.
+*Note*: Figuro is now in an *beta* stage with all the key pieces working. There's likely to be churn in the APIs but it's mostly stabalized. 
 
 ## Example
 
