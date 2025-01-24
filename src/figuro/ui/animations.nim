@@ -48,13 +48,16 @@ proc fadeDone*(fader: Fader, value: tuple[amount, perc: float]) {.signal.}
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
   let dt = delta.inMilliseconds.toFloat
-  self.amount = self.amount + rate * dt
-  if self.fadingIn and self.amount >= self.minMax.b:
-    self.amount = self.minMax.b
-    self.active = false
-  elif not self.fadingIn and self.amount <= self.minMax.a:
-    self.amount = self.minMax.a
-    self.active = false
+  if self.fadingIn:
+    self.amount = self.amount + rate * dt
+    if self.amount >= self.minMax.b:
+      self.amount = self.minMax.b
+      self.active = false
+  elif not self.fadingIn:
+    self.amount = self.amount - rate * dt
+    if self.amount <= self.minMax.a:
+      self.amount = self.minMax.a
+      self.active = false
   info "fader:tick: ", amount = self.amount
   
   let (x,y) = if self.fadingIn: (self.minMax.b, self.minMax.a)

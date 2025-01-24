@@ -8,6 +8,8 @@ import figuro
 
 type
   TMain* = ref object of Figuro
+    amount*: float
+    finished*: int
 
 proc draw*(self: TMain) {.slot.} =
   withWidget(self):
@@ -22,6 +24,8 @@ proc fadeTick*(self: TMain, value: tuple[amount, perc: float]) {.slot.} =
   echo "fade:tick: ", value.repr
 proc fadeDone*(self: TMain, value: tuple[amount, perc: float]) {.slot.} =
   echo "fade:done: ", value.repr
+  self.amount = value.amount
+  self.finished.inc()
 
 suite "animations":
 
@@ -48,7 +52,22 @@ suite "animations":
       os.sleep(10)
       if i == 3:
         # fader.start(main, true)
-        fader.fadeIn(main.Figuro)
+        fader.fadeIn(main)
       var ts = getMonoTime()
       emit main.doTick(ts, ts-last)
       last = ts
+
+      echo "index: ", i
+      if i < 7:
+        check main.finished == 0
+      elif i == 7:
+        check main.finished == 1
+        echo "check finished: ", i
+        check fader.amount == 1.0
+      elif i == 8:
+        fader.fadeOut(main)
+      elif i == 8+3:
+        check main.finished == 2
+        echo "check finished: ", i
+        check fader.amount == 0.0
+
