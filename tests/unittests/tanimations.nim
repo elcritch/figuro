@@ -18,8 +18,8 @@ proc draw*(self: TMain) {.slot.} =
 proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =
   echo "TICK: ", now, " delta: ", delta
 
-# proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =
-#   echo "TICK: ", now, " delta: ", delta
+proc fadeDone*(self: TMain, value: tuple[amount, perc: float]) {.slot.} =
+  echo "fade:done: ", value.repr
 
 suite "animations":
 
@@ -34,6 +34,7 @@ suite "animations":
     setupMain()
     let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
 
+    fader.connect(fadeDone, main, TMain.fadeDone())
     var last = getMonoTime()
     for i in 1..20:
       os.sleep(10)

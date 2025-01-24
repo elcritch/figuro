@@ -42,6 +42,9 @@ type Fader* = ref object of Agent
   ratePerMs: Slice[float]
   node: Figuro
 
+proc fadeTick*(fader: Fader, value: tuple[amount, perc: float]) {.signal.}
+proc fadeDone*(fader: Fader, value: tuple[amount, perc: float]) {.signal.}
+
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
   let dt = delta.inMilliseconds.toFloat
@@ -54,8 +57,15 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
     self.active = false
   info "fader:tick: ", amount = self.amount
   
-  if not self.active:
+  let (x,y) = if self.fadingIn: (self.minMax.b, self.minMax.a)
+              else: (self.minMax.a, self.minMax.b)
+
+  let val = (amount: self.amount, perc: (self.amount-x)/(y-x))
+  if self.active:
+    emit self.fadeTick(val)
+  else:
     disconnect(self.node.frame[].root, doTick, self)
+    emit self.fadeDone(val)
 
 proc stop*(self: Fader) {.slot.} =
   self.active = true
