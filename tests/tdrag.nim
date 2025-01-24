@@ -62,6 +62,9 @@ proc draw*(self: Main) {.slot.} =
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
       fill css"#9F2B00"
+    ## TODO: how to make a better api for this
+    ## we don't want evDrag, only evDragEnd
+    ## uinodes.connect only has doDrag signal
     connect(node, doDrag, node, btnDragStop)
     node.listens.signals.incl {evDragEnd}
     let btn = node
