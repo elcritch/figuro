@@ -14,6 +14,8 @@ type
     hasHovered: bool
     hoveredAlpha: float
     mainRect: Figuro
+    bkgFade* = Fader(minMax: 0.0..0.18,
+                     inTimeMs: 600, outTimeMs: 500)
 
 
 proc btnDragStart*(node: Figuro,
@@ -32,8 +34,7 @@ proc btnDragStop*(
   echo "btnDrag:exit: ", node.getId, " ", kind,
           " change: ", initial.positionDiff(cursor),
           " nodeRel: ", cursor.positionRelative(node)
-  let btn = Button[FadeAnimation](node)
-  # btn.state.setMax()
+  let btn = Button[Fader](node)
 
 proc draw*(self: Main) {.slot.} =
   # var node = self
@@ -55,7 +56,7 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({font: "drag me"})
 
-  Button[FadeAnimation].new "btn":
+  Button[Fader].new "btn":
     echo "button:id: ", node.getId, " ", node.state.typeof
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
