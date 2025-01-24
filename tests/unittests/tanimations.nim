@@ -25,4 +25,4 @@ suite "animations":
 
   test "fader":
     setupMain()
-    let x = 3
+    let fader = Fader(on: initDuration(milliseconds=500), off: initDuration(milliseconds=300))

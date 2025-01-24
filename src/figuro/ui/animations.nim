@@ -33,13 +33,13 @@ proc setMin*(self: var FadeAnimation) =
 type Fader* = ref object of Agent
   active*: bool = false
   amount*: float = 0.0
-  minMax*: Slice[float]
-  onDuration*: Duration
-  offDuration*: Duration
+  minMax*: Slice[float] = 0.0..1.0
+  on*: Duration
+  off*: Duration
   node*: Figuro
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
-  echo "fader tick: "
+  echo "fader tick: ", delta
   discard
 
 proc start*(self: Fader, node: Figuro) {.slot.} =
