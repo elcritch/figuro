@@ -23,7 +23,7 @@ proc btnDragStart*(node: Figuro,
   discard
 
 proc btnDragStop*(
-    node: Figuro,
+    node: Button[(Fader, string)],
     kind: EventKind,
     initial: Position,
     cursor: Position
@@ -31,9 +31,13 @@ proc btnDragStop*(
   echo "btnDrag:exit: ", node.getId, " ", kind,
           " change: ", initial.positionDiff(cursor),
           " nodeRel: ", cursor.positionRelative(node)
-  let btn = Button[(Fader, string)](node)
-  btn.state[1] = "Item dropped!"
+  node.state[1] = "Item dropped!"
+  node.state[0].fadeIn()
   refresh(node)
+
+proc fading(self: Button[(Fader, string)], value: tuple[amount, perc: float], finished: bool) {.slot.} =
+  # echo "fading: ", value.repr
+  refresh(self)
 
 proc draw*(self: Main) {.slot.} =
   # var node = self
@@ -59,10 +63,14 @@ proc draw*(self: Main) {.slot.} =
         setText({font: "drag me"})
 
   Button[(Fader, string)].new "btn":
-    echo "button:id: ", node.getId, " ", node.state.typeof
+    block fading:
+      self.bkgFade.addTarget(node)
+      node.state[0] = self.bkgFade
+      connect(self.bkgFade, fadeTick, node, fading)
+    # echo "button:id: ", node.getId, " ", self.bkgFade.amount
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
-      fill css"#9F2B00"
+      fill css"#9F2B00".spin(100*self.bkgFade.amount)
     ## TODO: how to make a better api for this
     ## we don't want evDrag, only evDragEnd
     ## uinodes.connect only has doDrag signal
@@ -73,11 +81,12 @@ proc draw*(self: Main) {.slot.} =
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
       btn.state[1] = ""
+      btn.state[0].fadeOut()
       refresh(btn)
     uinodes.connect(node, doClick, node, clicked)
     text "btnText":
       with node:
-        fill blackColor
+        fill blackColor * self.bkgFade.amount / self.bkgFade.minMax.b
         setText({font: btn.state[1]}, Center, Middle)
 
 var main = Main.new()
