@@ -90,7 +90,7 @@ proc start*(self: Fader, fadeIn: bool) {.slot.} =
     self.ratePerMs.b = delta / self.outTime.inMilliseconds.toFloat
   for tgt in self.targets:
     connect(tgt.frame[].root, doTick, self, tick)
-  info "fader:started: ", ratePerMs= self.ratePerMs, fadeOn= self.inTime, fadeOut= self.outTime
+  info "fader:started: ", amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTime, fadeOut= self.outTime
 
 proc fadeIn*(self: Fader) {.slot.} =
   self.start(true)
