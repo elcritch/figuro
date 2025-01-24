@@ -52,7 +52,7 @@ proc stop*(self: Fader) {.slot.} =
   for tgt in self.targets:
     disconnect(tgt.frame[].root, doTick, self)
 
-proc start*(self: Fader, fadeIn: bool) {.slot.} =
+proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
   self.active = true
   self.ts = getMonoTime()
   self.fadingIn = fadeIn
@@ -66,10 +66,10 @@ proc start*(self: Fader, fadeIn: bool) {.slot.} =
   # trace "fader:started: ", amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs
 
 proc fadeIn*(self: Fader) {.slot.} =
-  self.start(true)
+  self.startFade(true)
 
 proc fadeOut*(self: Fader) {.slot.} =
-  self.start(false)
+  self.startFade(false)
 
 proc setMax*(self: Fader) {.slot.} =
   self.amount = self.minMax.b

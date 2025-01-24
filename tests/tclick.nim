@@ -18,10 +18,7 @@ proc fading*(self: Main, value: tuple[amount, perc: float], finished: bool) {.sl
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
-  if evtKind == Enter:
-    self.bkgFade.fadeIn()
-  else:
-    self.bkgFade.fadeOut()
+  self.bkgFade.startFade(evtKind == Enter)
   refresh(self)
 
 proc btnTick*(self: Button[int]) {.slot.} =
