@@ -8,17 +8,26 @@ let
 
 type
   Main* = ref object of Figuro
-    bkgFade* = Fader(minMax: 0.0..0.15,
-                     inTimeMs: 10, outTimeMs: 5)
+    bkgFade* = Fader(minMax: 0.0..0.18,
+                     inTimeMs: 600, outTimeMs: 500)
 
 proc update*(fig: Main) {.signal.}
+
+proc fading*(self: Main, value: tuple[amount, perc: float], finished: bool) {.slot.} =
+  refresh(self)
+
+proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
+  ## activate fading on hover, deactive when not hovering
+  if evtKind == Enter:
+    self.bkgFade.fadeIn()
+  else:
+    self.bkgFade.fadeOut()
+  refresh(self)
 
 proc btnTick*(self: Button[int]) {.slot.} =
   ## slot to increment a button on every tick 
   self.state.inc
   refresh(self)
-  # if self.state mod 10 == 0:
-  #   quit(1)
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
@@ -31,17 +40,10 @@ proc btnClicked*(self: Button[int],
       self.state.inc
       refresh(self)
 
-proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
-  ## activate fading on hover, deactive when not hovering
-  if evtKind == Enter:
-    self.bkgFade.fadeIn()
-  else:
-    self.bkgFade.fadeOut()
-  refresh(self)
-
 proc initialize*(self: Main) {.slot.} =
   self.setTitle("Click Test!")
   self.bkgFade.addTarget(self)
+  connect(self.bkgFade, fadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
