@@ -37,7 +37,8 @@ suite "animations":
   test "fader":
     setupMain()
     let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
-    fader.debugName = "fader"
+    when defined(sigilsDebug):
+      fader.debugName = "fader"
 
     fader.connect(fadeTick, main, TMain.fadeTick())
     fader.connect(fadeDone, main, TMain.fadeDone())
