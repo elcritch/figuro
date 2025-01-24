@@ -32,8 +32,9 @@ proc draw*(self: Main) {.slot.} =
             size node, 100'ux, 100'ux
             connect(node, doHover, self, buttonHover)
 
-proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
-  self.bkgFade.tick(self)
+# proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
+#   self.bkgFade.tick(self)
+#   echo "TICK", now
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

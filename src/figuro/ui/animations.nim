@@ -1,3 +1,7 @@
+import std/[monotimes, times]
+import pkg/sigils
+import pkg/chronicles
+import ../commons
 import apis
 
 type FadeAnimation* = object
@@ -24,4 +28,29 @@ proc setMax*(self: var FadeAnimation) =
   self.amount = self.minMax.b
 
 proc setMin*(self: var FadeAnimation) =
+  self.amount = self.minMax.a
+
+type Fader* = ref object of Agent
+  active*: bool = false
+  amount*: float = 0.0
+  minMax*: Slice[float]
+  onDuration*: Duration
+  offDuration*: Duration
+  node*: Figuro
+
+proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
+  echo "fader tick: "
+  discard
+
+proc start*(self: Fader, node: Figuro) {.slot.} =
+  self.active = true
+  connect(node.frame[].root, doTick, self, tick)
+
+proc stop*(self: Fader) {.slot.} =
+  self.active = true
+
+proc setMax*(self: Fader) {.slot.} =
+  self.amount = self.minMax.b
+
+proc setMin*(self: Fader) {.slot.} =
   self.amount = self.minMax.a
