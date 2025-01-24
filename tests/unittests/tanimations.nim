@@ -41,7 +41,7 @@ suite "animations":
 
   test "fader basic":
     setupMain()
-    let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
+    let fader = Fader(inTimeMs: 50, outTimeMs: 30)
     when defined(sigilsDebug):
       fader.debugName = "fader"
 
@@ -77,7 +77,7 @@ suite "animations":
 
   test "fader change mid":
     setupMain()
-    let fader = Fader(inTime: initDuration(milliseconds=100), outTime: initDuration(milliseconds=100))
+    let fader = Fader(inTimeMs: 100, outTimeMs: 100)
     when defined(sigilsDebug):
       fader.debugName = "fader"
 

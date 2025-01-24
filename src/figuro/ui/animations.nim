@@ -6,8 +6,8 @@ import apis
 
 type Fader* = ref object of Agent
   minMax*: Slice[float] = 0.0..1.0
-  inTime*: Duration
-  outTime*: Duration
+  inTimeMs*: int
+  outTimeMs*: int
   fadingIn: bool = false
   active: bool = false
   amount: float = 0.0
@@ -58,13 +58,13 @@ proc start*(self: Fader, fadeIn: bool) {.slot.} =
   self.ts = getMonoTime()
   self.fadingIn = fadeIn
   let delta = self.minMax.b - self.minMax.a
-  if self.inTime.inMilliseconds > 0:
-    self.ratePerMs.a = delta / self.inTime.inMilliseconds.toFloat
-  if self.outTime.inMilliseconds > 0:
-    self.ratePerMs.b = delta / self.outTime.inMilliseconds.toFloat
+  if self.inTimeMs > 0:
+    self.ratePerMs.a = delta / self.inTimeMs.toFloat
+  if self.outTimeMs > 0:
+    self.ratePerMs.b = delta / self.outTimeMs.toFloat
   for tgt in self.targets:
     connect(tgt.frame[].root, doTick, self, tick)
-  info "fader:started: ", amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTime, fadeOut= self.outTime
+  info "fader:started: ", amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs
 
 proc fadeIn*(self: Fader) {.slot.} =
   self.start(true)
