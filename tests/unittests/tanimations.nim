@@ -29,13 +29,14 @@ suite "animations":
 
   test "fader":
     setupMain()
-    let fader = Fader(fadeIn: initDuration(milliseconds=50), fadeOut: initDuration(milliseconds=30))
+    let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
 
     var last = getMonoTime()
     for i in 1..12:
       os.sleep(10)
       if i == 3:
-        fader.fadeIn(main)
+        # fader.start(main, true)
+        fader.fadeIn(main.Figuro)
       var ts = getMonoTime()
       emit main.doTick(ts, ts-last)
       last = ts

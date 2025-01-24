@@ -37,8 +37,8 @@ type Fader* = ref object of Agent
   amount*: float = 0.0
   minMax*: Slice[float] = 0.0..1.0
   ts*: MonoTime
-  fadeIn*: Duration
-  fadeOut*: Duration
+  inTime*: Duration
+  outTime*: Duration
   ratePerMs: Slice[float]
   node: Figuro
 
@@ -51,12 +51,12 @@ proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
   self.ts = getMonoTime()
   self.fadingIn = fadeIn
   let delta = self.minMax.b - self.minMax.a
-  if self.fadeIn.inMilliseconds > 0:
-    self.ratePerMs.a = delta / self.fadeIn.inMilliseconds.toFloat
-  if self.fadeOut.inMilliseconds > 0:
-    self.ratePerMs.b = delta / self.fadeOut.inMilliseconds.toFloat
+  if self.inTime.inMilliseconds > 0:
+    self.ratePerMs.a = delta / self.inTime.inMilliseconds.toFloat
+  if self.outTime.inMilliseconds > 0:
+    self.ratePerMs.b = delta / self.outTime.inMilliseconds.toFloat
   connect(node.frame[].root, doTick, self, tick)
-  info "self: started: ", ratePerMs= self.ratePerMs, fadeOn= self.fadeIn, fadeOut= self.fadeOut
+  info "self: started: ", ratePerMs= self.ratePerMs, fadeOn= self.inTime, fadeOut= self.outTime
 
 proc stop*(self: Fader) {.slot.} =
   self.active = true
@@ -67,8 +67,8 @@ proc fadeIn*(self: Fader, node: Figuro) {.slot.} =
 proc fadeOut*(self: Fader, node: Figuro) {.slot.} =
   self.start(node, false)
 
-proc setMax*(self: Fader) {.slot.} =
+proc setmax*(self: Fader) {.slot.} =
   self.amount = self.minMax.b
 
-proc setMin*(self: Fader) {.slot.} =
+proc setmin*(self: Fader) {.slot.} =
   self.amount = self.minMax.a
