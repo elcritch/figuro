@@ -19,7 +19,8 @@ proc btnDragStart*(node: Figuro,
                    initial: Position,
                    cursor: Position
                   ) {.slot.} =
-  echo "btnDrag:start: ", node.getId, " ", kind
+  # echo "btnDrag:start: ", node.getId, " ", kind
+  discard
 
 proc btnDragStop*(
     node: Figuro,
