@@ -57,7 +57,14 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   if not self.active:
     disconnect(self.node.frame[].root, doTick, self)
 
+proc stop*(self: Fader) {.slot.} =
+  self.active = true
+  if self.node != nil:
+    disconnect(self.node.frame[].root, doTick, self)
+
 proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
+  if node == nil:
+    raise newException(KeyError, "node must not be nil")
   self.node = node
   self.active = true
   self.ts = getMonoTime()
@@ -69,9 +76,6 @@ proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
     self.ratePerMs.b = delta / self.outTime.inMilliseconds.toFloat
   connect(node.frame[].root, doTick, self, tick)
   info "fader:started: ", ratePerMs= self.ratePerMs, fadeOn= self.inTime, fadeOut= self.outTime
-
-proc stop*(self: Fader) {.slot.} =
-  self.active = true
 
 proc fadeIn*(self: Fader, node: Figuro) {.slot.} =
   self.start(node, true)

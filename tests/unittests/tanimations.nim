@@ -18,6 +18,9 @@ proc draw*(self: TMain) {.slot.} =
 proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =
   echo "TICK: ", now, " delta: ", delta
 
+# proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =
+#   echo "TICK: ", now, " delta: ", delta
+
 suite "animations":
 
   template setupMain() =
@@ -32,7 +35,7 @@ suite "animations":
     let fader = Fader(inTime: initDuration(milliseconds=50), outTime: initDuration(milliseconds=30))
 
     var last = getMonoTime()
-    for i in 1..12:
+    for i in 1..20:
       os.sleep(10)
       if i == 3:
         # fader.start(main, true)
