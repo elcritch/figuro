@@ -58,7 +58,7 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
     info "fader:tick: ", amount = self.amount
   
   if not self.active:
-    node.frame[].root, doTick
+    disconnect(node.frame[].root, doTick, self, tick)
 
 proc start*(self: Fader, node: Figuro, fadeIn: bool) {.slot.} =
   self.active = true
