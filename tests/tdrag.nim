@@ -70,7 +70,7 @@ proc draw*(self: Main) {.slot.} =
     # echo "button:id: ", node.getId, " ", self.bkgFade.amount
     with node:
       box 200'ux, 30'ux, 80'ux, 80'ux
-      fill css"#9F2B00".spin(100*self.bkgFade.amount)
+      fill css"#9F2B00".spin(50*self.bkgFade.amount)
     ## TODO: how to make a better api for this
     ## we don't want evDrag, only evDragEnd
     ## uinodes.connect only has doDrag signal
