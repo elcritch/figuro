@@ -93,6 +93,7 @@ suite "animations":
         fader.fadeIn()
       elif i == 6:
         check main.finished == 0
+        check fader.amount >= 0.34
         fader.fadeOut()
       
       # echo "IDX: ", i

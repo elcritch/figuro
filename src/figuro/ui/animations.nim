@@ -75,7 +75,7 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
     emit self.fadeDone(val)
 
 proc stop*(self: Fader) {.slot.} =
-  self.active = true
+  self.active = false
   for tgt in self.targets:
     disconnect(tgt.frame[].root, doTick, self)
 
