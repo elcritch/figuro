@@ -2,7 +2,7 @@ import std/[options, unicode, hashes, strformat, strutils, tables, times]
 import std/terminal
 
 import pkg/pixie
-import pkg/windy
+import pkg/windex
 import pkg/sigils/weakrefs
 
 import ../commons
@@ -68,7 +68,7 @@ proc configureWindowEvents(renderer: Renderer) =
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
     discard renderer.uxInputList.trySend(uxInput)
 
-  window.onButtonPress = proc(button: windy.Button) =
+  window.onButtonPress = proc(button: windex.Button) =
     let uxInput = window.copyInputs()
     when defined(debugEvents):
       stdout.styledWriteLine(

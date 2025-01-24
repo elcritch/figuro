@@ -3,7 +3,7 @@ export tables
 
 import pkg/threading/atomics
 import pkg/chroma
-import pkg/windy
+import pkg/windex
 import pkg/opengl
 from pixie import Image
 import pkg/sigils
@@ -293,8 +293,6 @@ proc renderFrame*(renderer: Renderer) =
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  # withLock(renderer.lock):
-  #   ctx.renderRoot(renderer.nodes)
   ctx.renderRoot(renderer.nodes)
 
   ctx.restoreTransform()
@@ -330,10 +328,11 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
 
   if renderer.window.closeRequested:
     renderer.frame[].running = false
+    app.running = false
     return
 
   if poll:
-    windy.pollEvents()
+    windex.pollEvents()
   
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
@@ -342,19 +341,23 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
         renderer.nodes = nlayers
         update = true
       RenderQuit:
+        echo "QUITTING"
         renderer.frame[].running = false
+        app.running = false
         return
       RenderSetTitle(name):
         renderer.window.title = name
 
   if update:
-    renderer.updated.store false
     renderAndSwap(renderer)
 
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
-  while app.running and renderer[].frame[].running:
-    timeIt(renderAvgTime):
-      renderer.pollAndRender(false)
-    os.sleep(renderer.duration.inMilliseconds)
+  while app.running:
+    let time =
+      timeItVar(renderAvgTime):
+        renderer.pollAndRender(false)
+
+    let avgMicros = time.micros.toInt() div 1_000
+    os.sleep(renderer.duration.inMilliseconds - avgMicros)

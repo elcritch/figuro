@@ -35,7 +35,7 @@ proc openglDebug*() =
       cast[cstring](glGetString(GL_SHADING_LANGUAGE_VERSION))
 
 proc setOpenGlHints*() =
-  # these don't work in windy?
+  # these don't work in windex?
   when defined(setOpenGlHintsEnabled):
     if msaa != msaaDisabled:
       windowHint(SAMPLES, msaa.cint)
