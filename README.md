@@ -67,9 +67,25 @@ startFiguro(frame)
 
 ```
 
-Currently during the early development only Atlas with `atlas.lock` files are intended to work. Nimble lock files are updated but may or may not work.
+## Installation - Trying it out
 
-Eventually these issues will be resolved.
+Figuro now uses Nimble by default.
+
+First install the latest Nimble version or at least version 0.16.4:
+```sh
+nimble install nimble@\#head
+```
+
+Next install Figuro: 
+```sh
+nimble install https://github.com/elcritch/figuro
+```
+
+Alternatively to run the tests you can do:
+```sh
+git clone https://github.com/elcritch/figuro
+cd figuro && nimble install --deps
+```
 
 ## Render Engine
 
@@ -212,25 +228,6 @@ assert a.value == 42
 assert b.value == 42
 ```
 
-## Installation - Trying it out
-
-Note that you *have* to follow these instructions for now. Using the normal Atlas installation *won't* give you the correct packages.
-
-```sh
-# recommended to install an up to date atlas
-nimble install 'https://github.com/nim-lang/atlas@#head'
-
-# new atlas workspace
-mkdir fig_ws && cd fig_ws
-atlas init --deps=vendor
-
-# get deps
-git clone https://github.com/elcritch/figuro.git
-
-# sync deps
-atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
-nim c -r figuro/tests/tclick.nim
-```
 
 ## Goal
 
