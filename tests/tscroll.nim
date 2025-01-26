@@ -26,22 +26,24 @@ proc buttonItem(self, node: Figuro, idx: int) =
       node.size 0.9'fr, 120'ux
     connect(node, doHover, self, Main.hover)
 
-proc draw*(self: Main) {.slot.} =
-  withWidget(self):
-    with node:
-      fill css"#0000AA"
-      setTitle("Scrolling example")
-    ScrollPane.new "scroll":
+import macros
+expandMacros:
+  proc draw*(self: Main) {.slot.} =
+    withWidget(self):
       with node:
-        offset 2'pp, 2'pp
-        cornerRadius 7.0'ux
-        size 96'pp, 90'pp
-      Vertical.new "":
+        fill css"#0000AA"
+        setTitle("Scrolling example")
+      ScrollPane.new "scroll":
         with node:
-          offset 10'ux, 10'ux
-          itemHeight cx"max-content"
-        for idx in 0 .. 15:
-          buttonItem(self, node, idx)
+          offset 2'pp, 2'pp
+          cornerRadius 7.0'ux
+          size 96'pp, 90'pp
+        Vertical.new "":
+          with node:
+            offset 10'ux, 10'ux
+            itemHeight cx"max-content"
+          for idx in 0 .. 15:
+            buttonItem(self, node, idx)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))

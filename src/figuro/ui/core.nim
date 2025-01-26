@@ -153,7 +153,7 @@ proc clearDraw*(fig: Figuro) {.slot.} =
   fig.contents.setLen(0)
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
-  if fig.preDraw != nil:
+  if fig.preDraw != nil and preDrawReady in fig.attrs:
     fig.preDraw(fig)
 
 proc handleContents*(fig: Figuro) {.slot.} =
@@ -325,6 +325,13 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
   )
   node.contents.add(fc)
 
+template withDrawReady*[T](blk: untyped) =
+  let node {.inject.} = ## implicit variable in each widget block that references the current widget
+    `T`(c)
+  if preDrawReady in node.attrs:
+    node.attrs.excl preDrawReady
+    `blk`
+
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
@@ -335,9 +342,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
       # echo "widgt PRE-DRAW INIT: ", nm
       let node {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
-      if preDrawReady in node.attrs:
-        node.attrs.excl preDrawReady
-        `blk`
+      `blk`
   widgetRegisterImpl[T](nkind, nn, node, childPreDraw)
 
 template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =

@@ -121,39 +121,6 @@ proc draw*(self: Main) {.slot.} =
       # each widget template injects a new `node` variable
 ```
 
-### Exporting a Widget Instance
-
-If the last line is `result = node` then the widget template will return the widget. Due to limitations in how the templates work, only `result = node` will work and it must be the last line of the widget: 
-
-```nim
-proc draw*(self: Main) {.slot.} =
-  let vert = vertical "vert", parent=self:
-    size node, 400'ux, 120'ux
-    result = node
-
-  echo "vertical node created: ", vert
-```
-
-### Manual Nodes
-
-It's possible to manually create nodes, but it's not encouraged. Although it can be handy to understand the how it works. The blue rectangle example above expands to:
-
-```nim
-proc draw*(self: Main) {.slot.} =
-  var node = self
-  block: # rectangle
-    let parent: Figuro = node
-    var node: BasicFiguro = nil
-    preNode(BasicFiguro, "body", node, parent)
-    node.preDraw = proc (c: Figuro) =
-      let node {.inject.} = BasicFiguro(c)
-      ...
-      # sets the bounding box of this node
-      box node, 10'ux, 10'ux, 600'ux, 120'ux
-      fill node, css"00001F"
-    postNode(Figuro(node))
-```
-
 ### Alternate Widget Syntax
 
 There's an alternative syntax that builds on a specialized `new` template. It works the same as above, but makes it a bit more clear that new widget nodes are being created:
