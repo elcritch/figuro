@@ -122,25 +122,29 @@ proc draw*(self: Main) {.slot.} =
 
 ## Manual Node Setup
 
-The follow example shows how to setup a child node without using the default `new` template. However, generally using the `new` templates
+The follow example shows how to setup a child node without using the default `new` template. However, generally using the `new` templates is encouraged as the internals may need to change.
 
 ```nim
-type Main* = ref object of Figuro
+proc draw(self: Main) {.slot.} =
+  setName self, "main"
+  fill self, css"#9F2B00"
+  box self, 0'ux, 0'ux, 400'ux, 300'ux
 
-proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  let node = self
+  let childPreDraw = proc (c: Figuro) =
+    let node {.inject.} = Button[int](c)
+    box node, 40'ux, 30'ux, 80'ux, 80'ux
+    fill node, css"#2B9F2B"
     let childPreDraw = proc (c: Figuro) =
-      let node = WidgetType(c) # important
-      # ... anything you'd put in the normal Figuro `new` block
-      offset node, 2'pp, 2'pp
-      cornerRadius node, 7.0'ux
-      size node, 96'pp, 90'pp
-    let fc = FiguroContent(
-    name: "child",
-    childInit: if nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
-    childPreDraw: childPreDraw,
-  )
-  self.contents.add(fc)
+      let node {.inject.} = Text(c)
+      box node, 10'ux, 10'ux, 80'pp, 80'pp
+      fill node, blackColor
+      setText(node, [(font, "testing")], Center, Middle)
+    widgetRegisterImpl[Text](nkText, "btnText", node, childPreDraw)
+
+  # same as: widgetRegisterImpl[Button[int]](nkRectangle, "btn", node, childPreDraw)
+  let fc = FiguroContent(name: "btn", childInit: nodeInitRect[Button[int]], childPreDraw: childPreDraw)
+  node.contents.add(fc)
 ```
 
 ## Signals and Slots
