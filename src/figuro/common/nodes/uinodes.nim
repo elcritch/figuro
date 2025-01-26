@@ -119,7 +119,7 @@ proc `=destroy`*(obj: type(Figuro()[])) =
     child.parent.pt = nil
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
-  fig{}.children
+  fig[].children
 
 proc hash*(a: AppFrame): Hash =
   a.root.hash()
@@ -161,7 +161,7 @@ proc doLayoutResize*(fig: Figuro, node: Figuro, resize: tuple[prev: Position, cu
   ## called after layout size changes
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
-proc doClick*(fig: Figuro, kind: EventKind, keys: UiButtonView) {.signal.}
+proc doMouseClick*(fig: Figuro, kind: EventKind, keys: UiButtonView) {.signal.}
 proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 proc doKeyPress*(fig: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
 proc doScroll*(fig: Figuro, wheelDelta: Position) {.signal.}
@@ -211,7 +211,7 @@ proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
 
 proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
-  emit fig.doClick(kind, buttonPress)
+  emit fig.doMouseClick(kind, buttonPress)
 
 proc doDragBubble*(
     fig: Figuro, kind: EventKind, initial: Position, latest: Position
@@ -226,8 +226,8 @@ template connect*(
     acceptVoidSlot: static bool = false,
 ): void =
   ## template override
-  when signalName(signal) == "doClick":
-    a.listens.signals.incl {evClick, evClickOut}
+  when signalName(signal) == "doMouseClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":

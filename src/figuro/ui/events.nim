@@ -33,6 +33,7 @@ var
   prevHovers {.runtimeVar.}: HashSet[Figuro]
   prevClicks {.runtimeVar.}: HashSet[Figuro]
   prevDrags {.runtimeVar.}: HashSet[Figuro]
+  prevPressed {.runtimeVar.}: HashSet[Figuro]
   dragInitial {.runtimeVar.}: Position
   dragReleased {.runtimeVar.}: bool
 
@@ -59,7 +60,8 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   node.checkEvent(evDrag, prevDrags.len() > 0)
 
   if node.mouseOverlaps():
-    node.checkEvent(evClick, uxInputs.click())
+    node.checkEvent(evClickInit, uxInputs.down())
+    node.checkEvent(evClickDone, uxInputs.click())
     node.checkEvent(evPress, uxInputs.down())
     node.checkEvent(evRelease, uxInputs.release())
     node.checkEvent(evOverlapped, true)
@@ -75,10 +77,17 @@ type
   EventsCapture* = object
     zlvl*: ZLevel
     flags*: EventFlags
-    targets*: HashSet[Figuro]
     buttons*: UiButtonView
+    targets*: HashSet[Figuro]
 
   CapturedEvents* = array[EventKinds, EventsCapture]
+
+proc `$`*(capture: EventsCapture): string =
+  result = "EventsCapture("
+  result &= $capture.zlvl & ","
+  result &= $capture.flags & ","
+  result &= $capture.buttons & ","
+  result &= $capture.targets & ")"
 
 proc maxEvt(a, b: EventsCapture): EventsCapture =
   if b.zlvl >= a.zlvl and b.flags != {}: b else: a
@@ -94,16 +103,17 @@ proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonV
     uxInputs.buttonDown.excl MouseButtons
   if evRelease in matchedEvents:
     result[evRelease] = uxInputs.buttonRelease * MouseButtons
-    uxInputs.buttonRelease.excl MouseButtons
-  if evClick in matchedEvents:
-    when defined(clickOnDown):
-      result[evPress] = uxInputs.buttonPress * MouseButtons
-      result[evClick] = result[evRelease]
-      uxInputs.buttonPress.excl MouseButtons
-    else:
-      result[evRelease] = uxInputs.buttonRelease * MouseButtons
-      result[evClick] = result[evRelease]
-      uxInputs.buttonRelease.excl MouseButtons
+    # uxInputs.buttonRelease.excl MouseButtons
+  if evClickInit in matchedEvents:
+    result[evDown] = uxInputs.buttonDown * MouseButtons
+    result[evPress] = uxInputs.buttonPress * MouseButtons
+    result[evClickInit] = result[evPress]
+    # uxInputs.buttonPress.excl MouseButtons
+  if evClickDone in matchedEvents:
+    result[evDown] = uxInputs.buttonDown * MouseButtons
+    result[evRelease] = uxInputs.buttonRelease * MouseButtons
+    result[evClickDone] = result[evRelease]
+    # uxInputs.buttonRelease.excl MouseButtons
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
@@ -166,9 +176,9 @@ proc computeEvents*(frame: AppFrame) =
   ## refactoring this all. :/
   ## 
   ## However, first tests would need to be written to ensure the
-  ## behavior is kept. Events like drag, hover, clicks all
-  ## behave pretty differently.
-  frame.root.listens.signals.incl {evClick, evClickOut, evDragEnd}
+  ## behavior is kept. Events like drag, hover, and clicks all
+  ## behave differently.
+  frame.root.listens.signals.incl {evClickInit, evClickDone, evDragEnd}
   frame.root.attrs.incl rootWindow
 
   if frame.redrawNodes.len() == 0 and uxInputs.mouse.consumed and
@@ -233,7 +243,7 @@ proc computeEvents*(frame: AppFrame) =
 
       for target in newHovers:
         target.events.incl evHover
-        emit target.doHover(Enter)
+        emit target.doHover(Init)
         refresh(target)
         prevHovers.incl target
 
@@ -243,22 +253,39 @@ proc computeEvents*(frame: AppFrame) =
         refresh(target)
         prevHovers.excl target
 
-  ## handle click events
+
   block clickEvents:
-    let click = captured[evClick]
-    if click.targets.len() > 0 and evClick in click.flags:
+    let clickInit = captured[evClickInit]
+    if clickInit.targets.len() > 0 and evClickInit in clickInit.flags:
+      let clickTargets = clickInit.targets
+      let newClicks = clickTargets
+      let delClicks = prevClicks - clickTargets
+      let pressedKeys = uxInputs.buttonPress * MouseButtons
+      let downKeys = uxInputs.buttonDown * MouseButtons
+
+      for target in newClicks:
+        target.events.incl evClickDone
+        emit target.doMouseClick(Init, downKeys)
+        prevClicks.incl target
+
+    let click = captured[evClickDone]
+    if click.targets.len() > 0 and evClickDone in click.flags:
       let clickTargets = click.targets
       let newClicks = clickTargets
       let delClicks = prevClicks - clickTargets
+      # echo "click.buttons: ", click.buttons
+      # echo "buttonRelease: ", uxInputs.buttonRelease 
+      # echo "buttonPress: ", uxInputs.buttonPress 
+      # echo "buttonDown: ", uxInputs.buttonPress 
 
       for target in delClicks:
-        target.events.excl evClick
-        emit target.doClick(Exit, click.buttons)
+        target.events.excl evClickDone
+        emit target.doMouseClick(Exit, click.buttons)
         prevClicks.excl target
 
       for target in newClicks:
-        target.events.incl evClick
-        emit target.doClick(Enter, click.buttons)
+        target.events.incl evClickDone
+        emit target.doMouseClick(Done, click.buttons)
         prevClicks.incl target
 
   ## handle drag events
@@ -271,21 +298,22 @@ proc computeEvents*(frame: AppFrame) =
       # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
         target.events.incl evDrag
-        emit target.doDrag(Enter, dragInitial, uxInputs.mouse.pos)
+        emit target.doDrag(Init, dragInitial, uxInputs.mouse.pos)
         prevDrags.incl target
 
   block dragEndEvents:
     let dragens = captured[evDragEnd]
     if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
       # echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
-      for target in prevDrags:
+      let delClicks = prevDrags - dragens.targets
+      for target in delClicks:
         emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
       prevDrags.clear()
       for target in dragens.targets:
         # echo "dragends:tgt: ", target.getId
         if rootWindow notin target.attrs:
           target.events.excl evDragEnd
-        emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
+        emit target.doDrag(Done, dragInitial, uxInputs.mouse.pos)
 
   uxInputs.buttonPress = {}
   uxInputs.buttonDown = {}

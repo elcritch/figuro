@@ -18,7 +18,7 @@ proc fading*(self: Main, value: tuple[amount, perc: float], finished: bool) {.sl
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
-  self.bkgFade.startFade(evtKind == Enter)
+  self.bkgFade.startFade(evtKind == Init)
   refresh(self)
 
 proc btnTick*(self: Button[int]) {.slot.} =
@@ -32,7 +32,7 @@ proc btnClicked*(self: Button[int],
   ## slot to increment a button when clicked
   ## clicks have a type of `(EventKind, UiButtonView)` 
   ## which we can use to check if it's a mouse click
-  if kind == Enter:
+  if kind == Done:
     if buttons in [{MouseLeft}, {DoubleClick}, {TripleClick}]:
       self.state.inc
       refresh(self)
@@ -78,7 +78,7 @@ proc draw*(self: Main) {.slot.} =
               size 100'ux, 100'ux
               cornerRadius 5.0
               connect(doHover, self, btnHover)
-              connect(doClick, node, btnClicked)
+              connect(doMouseClick, node, btnClicked)
             if idx == 0:
               connect(self, update, node, btnTick)
             Text.new "text":
@@ -87,7 +87,6 @@ proc draw*(self: Main) {.slot.} =
                 setText({font: $(btn.state)}, Center, Middle)
 
 proc tick*(self: Main, time: MonoTime, delta: Duration) {.slot.} =
-  # self.bkgFade.tick(self)
   emit self.update()
 
 var main = Main.new()

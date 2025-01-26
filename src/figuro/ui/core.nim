@@ -104,7 +104,7 @@ proc removeExtraChildren*(node: Figuro) =
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
-proc refresh*(node: Figuro) =
+proc refresh*(node: Figuro) {.slot.} =
   ## Request that the node and it's children be redrawn
   # echo "refresh: ", node.name, " :: ", getStackTrace()
   if node == nil:
@@ -112,6 +112,8 @@ proc refresh*(node: Figuro) =
   # app.requestedFrame.inc
   assert not node.frame.isNil
   node.frame[].redrawNodes.incl(node)
+  when defined(figuroDebugRefresh):
+    echo "REFRESH: ", getStackTrace()
 
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
@@ -153,7 +155,7 @@ proc clearDraw*(fig: Figuro) {.slot.} =
   fig.contents.setLen(0)
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
-  if fig.preDraw != nil:
+  if fig.preDraw != nil and preDrawReady in fig.attrs:
     fig.preDraw(fig)
 
 proc handleContents*(fig: Figuro) {.slot.} =
@@ -181,7 +183,9 @@ template connectDefaults*[T](node: T) =
     when compiles(SignalTypes.initialize(T)):
       connect(node, doInitialize, node, T.initialize())
     when compiles(SignalTypes.clicked(T)):
-      connect(node, doClick, node, T.clicked())
+      connect(node, doMouseClick, node, T.clicked())
+    when compiles(SignalTypes.dragged(T)):
+      connect(node, doDrag, node, T.dragged())
     when compiles(SignalTypes.keyInput(T)):
       connect(node, doKeyInput, node, T.keyInput())
     when compiles(SignalTypes.keyPress(T)):
@@ -298,21 +302,18 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-type
-  NKRect = object
-  NKText = object
-
-proc nodeInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) =
-  ## callback proc to initialized a new node, or re-use and existing node
-  ## using the appropriate node type
+template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
   var node: `T` = nil
-  let kind =
-    when K is NKRect: nkRectangle
-    elif K is NKText: nkText
-    else: {.error: "error".}
   preNode(kind, name, node, parent)
   node.preDraw = preDraw
   postNode(Figuro(node))
+
+proc nodeInitRect*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+  ## callback proc to initialized a new node, or re-use and existing node
+  nodeInitImpl[T](nkRectangle, parent, name, predraw)
+proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+  ## callback proc to initialized a new node, or re-use and existing node
+  nodeInitImpl[T](nkText, parent, name, predraw)
 
 proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
@@ -320,7 +321,7 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
   
   let fc = FiguroContent(
     name: $(nn),
-    childInit: when nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
+    childInit: when nkind == nkText: nodeInitText[T] else: nodeInitRect[T],
     childPreDraw: callback,
   )
   node.contents.add(fc)
@@ -335,9 +336,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
       # echo "widgt PRE-DRAW INIT: ", nm
       let node {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
-      if preDrawReady in node.attrs:
-        node.attrs.excl preDrawReady
-        `blk`
+      `blk`
   widgetRegisterImpl[T](nkind, nn, node, childPreDraw)
 
 template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =

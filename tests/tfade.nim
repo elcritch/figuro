@@ -11,21 +11,17 @@ type
     bkgFade* = Fader(minMax: 0.0..0.18,
                      inTimeMs: 600, outTimeMs: 500)
 
-proc fading*(self: Main, value: tuple[amount, perc: float], finished: bool) {.slot.} =
-  refresh(self)
+proc initialize*(self: Main) {.slot.} =
+  self.setTitle("Click Test!")
+  self.bkgFade.addTarget(self)
 
 proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
-  if evtKind == Enter:
+  if evtKind == Init:
     self.bkgFade.fadeIn()
   else:
     self.bkgFade.fadeOut()
   refresh(self)
-
-proc initialize*(self: Main) {.slot.} =
-  self.setTitle("Click Test!")
-  self.bkgFade.addTarget(self)
-  connect(self.bkgFade, fadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   let node = self

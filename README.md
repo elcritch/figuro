@@ -1,288 +1,171 @@
 
 # Figuro
 
-A GUI toolkit for Nim that is event driven while being small and fast. It tries to incorporate the best elements of both imperitive and object oriented GUI toolkits. Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
+Figuro is a open source framework for building *beautiful*, *interactive*, and *efficient* applications. It compiles small binaries with support for multiple platforms.
 
-*Warning*: Figuro is still in an *alpha* stage and code and apis will be in flux. Some pieces still aren't completed.
+By building on some of the best parts of GUI development in last 15 years Figuro aims to incorporate the best elements of both imperitive and object oriented GUI toolkits.
+
+Originally based on Fidget, Figuro has now diverged quite significantly and includes a multi-threaded core, typed widgets, reactive event system, and CSS theming.
+
+*Note*: Figuro is now in an *beta* stage with all the key pieces working. There's likely to be churn in the APIs but it's mostly stabalized. 
 
 ## Example
+
+![Click Example](tests/scrolling-example.png)
 
 Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
 ```nim
-import figuro/widgets/button
-import figuro/widgets/horizontal
-import figuro/widget
-import figuro/ui/animations
+import figuro/widgets/[button, scrollpane, vertical]
 import figuro
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22)
+  font = UiFont(typefaceId: defaultTypeface, size: 22)
 
 type
   Main* = ref object of Figuro
-    bkgFade* = FadeAnimation(minMax: 0.0..0.15,
-                             incr: 0.010, decr: 0.005)
+    value: float
+    hasHovered: bool
 
-proc update*(fig: Main) {.signal.}
-
-
-proc btnTick*(self: Button[int]) {.slot.} =
-  ## slot to increment a button on every tick 
-  self.state.inc
+proc hover*(self: Main, kind: EventKind) {.slot.} =
+  self.hasHovered = kind == Enter
   refresh(self)
 
-proc btnClicked*(self: Button[int],
-                  kind: EventKind,
-                  buttons: UiButtonView) {.slot.} =
-  ## slot to increment a button when clicked
-  ## clicks have a type of `(EventKind, UiButtonView)` 
-  ## which we can use to check if it's a mouse click
-  if buttons == {MouseLeft} or buttons == {DoubleClick}:
-    if kind == Enter:
-      self.state.inc
-      refresh(self)
-
-proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
-  ## activate fading on hover, deactive when not hovering
-  self.bkgFade.isActive(evtKind == Enter)
-  refresh(self)
+proc buttonItem(self, node: Figuro, idx: int) =
+  Button.new "button":
+    # current.gridItem = nil
+    with node:
+      size 1'fr, 50'ux
+      fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*50)
+    if idx in [3, 7]:
+      node.size 0.9'fr, 120'ux
+    connect(node, doHover, self, Main.hover)
 
 proc draw*(self: Main) {.slot.} =
-  ## draw slot for Main widget called whenever an event
-  ## triggers a node or it's parents to be refreshed
-  var node = self
-  node.setName "main"
-
-  # Calls the widget template `rectangle`.
-  # This creates a new basic widget node. Generally used to draw generic rectangles.
-  rectangle "body":
+  withWidget(self):
     with node:
-      # sets the bounding box of this node
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      # `fill` sets the background color. Color apis use the `chroma` library
-      fill whiteColor.darken(self.bkgFade.amount)
-
-    # sets up horizontal widget node with alternate syntax
-    Horizontal.new "horiz":
+      fill css"#0000AA"
+    ScrollPane.new "scroll":
       with node:
-        box 10'ux, 0'ux, 100'pp, 100'pp
-        # `itemWidth` is needed to set the width of items
-        # in the horizontal widget
-        itemWidth 100'ux, gap = 20'ui
-        layoutItems justify=CxCenter, align=CxCenter
-
-      for i in 0 .. 4:
-        Button[int].new("btn", captures=i):
-          let btn = node
-          with node:
-            size 100'ux, 100'ux
-            cornerRadius 5.0
-            connect(doHover, self, btnHover)
-            connect(doClick, node, btnClicked)
-          if i == 0:
-            connect(self, update, node, btnTick)
-
-          text "text":
-            with node:
-              fill blackColor
-              setText({font: $(btn.state)}, Center, Middle)
-
-
-proc tick*(self: Main, tick: int, time: MonoTime) {.slot.} =
-  self.bkgFade.tick(self)
-  emit self.update()
+        offset 2'pp, 2'pp
+        cornerRadius 7.0'ux
+        size 96'pp, 90'pp
+      Vertical.new "":
+        with node:
+          offset 10'ux, 10'ux
+          itemHeight cx"max-content"
+        for idx in 0 .. 15:
+          buttonItem(self, node, idx)
 
 var main = Main.new()
-let frame = newAppFrame(main, size=(700'ui, 200'ui))
+var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)
+
 ```
 
-![Click Example](tests/tclick-screenshot.png)
+## Installation - Trying it out
 
-Currently during the early development only Atlas with `atlas.lock` files are intended to work. Nimble lock files are updated but may or may not work.
+Figuro now uses Nimble by default.
 
-Eventually these issues will be resolved.
+First install the latest Nimble version or at least version 0.16.4:
+```sh
+nimble install nimble@\#head
+```
 
-## Render Engine
+Next install Figuro: 
+```sh
+nimble install https://github.com/elcritch/figuro
+```
 
-Once the UI Application has finished drawing, it "serializes" the UI Figuro Nodes into a flattened list of Render Nodes. These Render Nodes are designed to be fast to copy by reducing allocations.
+Alternatively to run the tests you can do:
+```sh
+git clone https://github.com/elcritch/figuro
+cd figuro && nimble install --deps
+```
 
-This will enable the render enginer to run on in a shared library while the widget / application layer runs in a NimScript.
+## Widgets
 
-## Widget Model
+Figuro builds Figuro (UI) nodes. Each node has a basic set of properties that can be set and a core set of events and methods somewhat similar to HTML DOM elements. The two core node types are Rectangle and Text. More node types can be created by making widgets.
 
-The GUI model builds on Figuro nodes. Each node has a basic set of properties that can be set and a core set of events and methods. Figuro nodes can also have children. Overall it's similar to HTML DOM nodes.
-
-Widgets can be create by sub-classing the `Figuro` node type and providing a custom `draw` method (slot). The common way to create a Figuro app is creating a `Main` widget.
+Widgets are nodes that sub-class a `Figuro` node type and provide a custom `draw` method (slot). The common way to create a Figuro app is creating a `Main` widget.
 
 Here's a minimal example of creating a blue rectangle:
 
 ```nim
-type
-  Main* = ref object of Figuro
+type Main* = ref object of Figuro
 
 proc draw*(self: Main) {.slot.} =
-  rectangle "body", parent=self:
-    # each widget template injects a new `node` variable
-    # that references the current widget
+  withWidget(self):
+    Rectangle.new "body":
+      # each widget template injects a new `node` variable
+      # that references the current widget
 
-    # sets the bounding box of this node
-    box node, 10'ux, 10'ux, 600'ux, 120'ux
+      # sets the bounding box of this node
+      box node, 10'ux, 10'ux, 600'ux, 120'ux
 
-    # set the fill color
-    fill node, css"00001F"
+      # set the fill color
+      fill node, css"00001F"
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(400'ui, 140'ui))
 frame.startFiguro()
 ```
 
-The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
-
-### Exporting a Widget Instance
-
-If the last line is `result = node` then the widget template will return the widget. Due to limitations in how the templates work, only `result = node` will work and it must be the last line of the widget: 
+Note that rectangle is used enough that it also has a shortcut template `rectangle` that can be used:
 
 ```nim
 proc draw*(self: Main) {.slot.} =
-  let vert = vertical "vert", parent=self:
-    size node, 400'ux, 120'ux
-    result = node
-
-  echo "vertical node created: ", vert
+  withWidget(self):
+    rectangle "body":
+      # each widget template injects a new `node` variable
 ```
 
-### Manual Nodes
+## Manual Node Setup
 
-It's possible to manually create nodes, but it's not encouraged. Although it can be handy to understand the how it works. The blue rectangle example above expands to:
+The follow example shows how to setup a child node without using the default `new` template. However, generally using the `new` templates is encouraged as the internals may need to change.
 
 ```nim
-proc draw*(self: Main) {.slot.} =
-  var node = self
-  block: # rectangle
-    let parent: Figuro = node
-    var node: BasicFiguro = nil
-    preNode(BasicFiguro, "body", node, parent)
-    node.preDraw = proc (c: Figuro) =
-      let node {.inject.} = BasicFiguro(c)
-      ...
-      # sets the bounding box of this node
-      box node, 10'ux, 10'ux, 600'ux, 120'ux
-      fill node, css"00001F"
-    postNode(Figuro(node))
+proc draw(self: Main) {.slot.} =
+  setName self, "main"
+  fill self, css"#9F2B00"
+  box self, 0'ux, 0'ux, 400'ux, 300'ux
+
+  let node = self
+  let childPreDraw = proc (c: Figuro) =
+    let node {.inject.} = Button[int](c)
+    box node, 40'ux, 30'ux, 80'ux, 80'ux
+    fill node, css"#2B9F2B"
+    let childPreDraw = proc (c: Figuro) =
+      let node {.inject.} = Text(c)
+      box node, 10'ux, 10'ux, 80'pp, 80'pp
+      fill node, blackColor
+      setText(node, [(font, "testing")], Center, Middle)
+    widgetRegisterImpl[Text](nkText, "btnText", node, childPreDraw)
+
+  # same as: widgetRegisterImpl[Button[int]](nkRectangle, "btn", node, childPreDraw)
+  let fc = FiguroContent(name: "btn", childInit: nodeInitRect[Button[int]], childPreDraw: childPreDraw)
+  node.contents.add(fc)
 ```
-
-### Alternate Widget Syntax
-
-There's an alternative syntax that builds on a specialized `new` template. It works the same as above, but makes it a bit more clear that new widget nodes are being created:
-
-```nim
-proc draw*(self: Main) {.slot.} =
-  BasicFiguro.new "body", parent=self:
-    with node:
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      fill whiteColor.darken(self.hoveredAlpha)
-    Horizontal.new "horiz":
-      offset node, 10'ux, 0'ux
-      itemWidth node, cx"min-content", gap = 20'ui
-      for i in 0 .. 4:
-        Button[int].new "btn", captures=[i]:
-          with node:
-            size 100'ux, 100'ux
-            # we need to connect the nodes onHover event
-            connect(doHover, self, buttonHover)
-```
-
-Currently both syntaxes are supported and can be mixed and matched.
 
 ## Signals and Slots
 
-Figuro uses signals and slots as more generic "methods" in place of callbacks. 
+Figuro uses [Sigils](https://github.com/elcritch/sigils) which implements methods using signals and slots. Slots are methods which are connected to Signals on a given object and are invoked when the signal is trigged on that object.
 
-They allow you to connect and disconnect signals at runtime which allows adaptable event handling. Signals and slots are shamelessly stolen from QT.
+This comes from [QT](https://doc.qt.io/qt-6/signalsandslots.html) and is a very powerful and flexible paradigm while still being very fast. It allows built-in reactive data types similar as well. It can also support "deferred" runs and support for running in threads or thread pools and largely prevents data-races.
 
-There are four main pieces to using slots and signal: `signal`, `slot`, `connect`, and `emit`. 
-
-The `signal` pragma defines the procs as signals with the signal type being equivalent to the rest of the arguments after the first one. The first argument must be a subclass of the `Agent` object. `Figuro` objects already subclass `Agent` so all `Figuro` objects can be used with signals and slots.
-
-The `slot` pragma transforms the proc into a signal handler. It can still be called as a regular proc as well. The first argument must be an `Agent` object such as a `Figuro` widget node.
-
-Next `connect` is a template of type `template connect*(sender: Agent, sig: Signal, target: Agent, slot: Slot)`. It connects any matching signals from the `sender` object to the `target` object. `connect` is typed and checks that the signal and the slot types match. However, slots that don't take arguments can be connect if you pass `acceptVoidSlot=true` argument to connect.
-
-Lastly, `emit` takes an agent object and sends a signal to each `slot` object connected to that object.
-
-```nim
-import figuro
-type
-  Counter* = ref object of Figuro
-    value: int
-    avg: int
-
-proc valueChanged*(tp: Counter, val: int) {.signal.}
-proc avgChanged*(tp: Counter, val: float) {.signal.}
-
-proc setValue*(self: Counter, value: int) {.slot.} =
-  echo "setValue! ", value
-  if self.value != value:
-    self.value = value
-  emit self.valueChanged(value)
-
-proc value*(self: Counter): int =
-  self.value
-
-var
-  a {.used.} = Counter()
-  b {.used.} = Counter()
-connect(a, valueChanged,
-        b, setValue)
-## or equivalently:
-## connect(a, valueChanged,
-##         b, Counter.setValue())
-a.setValue(42)
-assert a.value == 42
-assert b.value == 42
-```
-
-## Installation - Trying it out
-
-Note that you *have* to follow these instructions for now. Using the normal Atlas installation *won't* give you the correct packages.
-
-```sh
-# recommended to install an up to date atlas
-nimble install 'https://github.com/nim-lang/atlas@#head'
-
-# new atlas workspace
-mkdir fig_ws && cd fig_ws
-atlas init --deps=vendor
-
-# get deps
-git clone https://github.com/elcritch/figuro.git
-
-# sync deps
-atlas replay --cfgHere --ignoreUrls figuro/atlas.lock
-nim c -r figuro/tests/tclick.nim
-```
+Finally it allows Figuro to be very flexible and to provide support for network RPCs, dynamic method realoding, and browser web-assembly in the future.
 
 ## Goal
 
 Massive profits and world domination of course. ;) Failing that the ability to write cool UI apps easily, in pure Nim.
 
-## More Docs
-
-Initial docs section.
-
 ### Useful Compilation Flags
 
 - `-d:debugLayout` prints a node tree with the layout of each node before and after computing a layout
-- `-d:debugEvents` prints the events received from Windy and which nodes got the events
 
 ### Drawing model
 
-Each widget must inherit from the `Fidget` type. `Fidget` itself inherits from `Agent` which means it can work with signals & slots.
+Each widget must inherit from the `Figuro` type. `Figuro` itself inherits from `Agent` which means it can work with signals & slots.
 
 Each widget is composed of a `draw` slot and a widget-macro which is exported using `exportWidget`. Draw slots expect the widget object to already be created.
 

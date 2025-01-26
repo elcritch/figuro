@@ -235,19 +235,8 @@ template onHover*(inner: untyped) =
   onHover(node, inner)
 
 # template onClick*(current: Figuro, inner: untyped) =
-#   ## On click event handler.
-#   current.listens.events.incl(evClick)
-#   if evClick in current.events:
-#     inner
 
 # template onClick*(inner: untyped) =
-#   onClick(node, inner)
-
-# template onClickOut*(current: Figuro, inner: untyped) =
-#   ## On click event handler.
-#   current.listens.events.incl(evClickOut)
-#   if evClickOut in current.events.mouse and MouseLeft in uxInputs.buttonPress:
-#     inner
 
 # template onClickOut*(inner: untyped) =
 #   onClickOut(node, inner)
@@ -260,7 +249,6 @@ template setTitle*(current: Figuro, title: string) =
   ## Sets window title
   if (current.frame[].getWindowTitle() != title):
     current.frame[].setWindowTitle(title)
-    refresh(current)
 
 proc cornerRadius*(current: Figuro, radius: UICoord) =
   ## Sets all radius of all 4 corners.

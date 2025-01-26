@@ -1,4 +1,4 @@
-import std/[monotimes, times]
+import std/[sets, monotimes, times]
 import pkg/sigils
 import pkg/chronicles
 import ../commons
@@ -13,13 +13,18 @@ type Fader* = ref object of Agent
   amount: float = 0.0
   ts: MonoTime
   ratePerMs: Slice[float]
-  targets: seq[Figuro]
+  targets: OrderedSet[Figuro]
 
 proc amount*(fader: Fader): float = fader.amount
 proc fadeTick*(fader: Fader, value: tuple[amount, perc: float], finished: bool) {.signal.}
 
-proc addTarget*(self: Fader, node: Figuro) {.slot.} =
-  self.targets.addUnique(node)
+proc active*(self: Fader): bool =
+  self.active
+
+proc addTarget*(self: Fader, node: Figuro, noRefresh = false) =
+  self.targets.incl(node)
+  if not noRefresh:
+    connect(self, fadeTick, node, Figuro.refresh(), true)
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
@@ -45,6 +50,7 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   else:
     for tgt in self.targets:
       disconnect(tgt.frame[].root, doTick, self)
+      break
     emit self.fadeTick(val, true)
 
 proc stop*(self: Fader) {.slot.} =
@@ -53,6 +59,7 @@ proc stop*(self: Fader) {.slot.} =
     disconnect(tgt.frame[].root, doTick, self)
 
 proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
+  # echo "fade:startFade: ", fadeIn
   self.active = true
   self.ts = getMonoTime()
   self.fadingIn = fadeIn
@@ -62,7 +69,9 @@ proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
   if self.outTimeMs > 0:
     self.ratePerMs.b = delta / self.outTimeMs.toFloat
   for tgt in self.targets:
+    # echo "fader:start:connect:root: ", tgt.frame[].root.name
     connect(tgt.frame[].root, doTick, self, tick)
+    break
   # trace "fader:started: ", amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs
 
 proc fadeIn*(self: Fader) {.slot.} =
@@ -70,6 +79,15 @@ proc fadeIn*(self: Fader) {.slot.} =
 
 proc fadeOut*(self: Fader) {.slot.} =
   self.startFade(false)
+
+proc reset*(self: Fader) {.slot.} =
+  self.active = false
+  self.amount = self.minMax.a
+  for tgt in self.targets:
+    disconnect(tgt.frame[].root, doTick, self)
+    break
+  let val = (amount: self.amount, perc: 0.0)
+  emit self.fadeTick(val, true)
 
 proc setMax*(self: Fader) {.slot.} =
   self.amount = self.minMax.b

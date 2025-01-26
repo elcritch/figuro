@@ -14,7 +14,7 @@ type
     hasHovered: bool
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+  self.hasHovered = kind == Init
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =

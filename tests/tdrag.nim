@@ -19,7 +19,7 @@ proc btnDragStart*(node: Figuro,
                    initial: Position,
                    cursor: Position
                   ) {.slot.} =
-  # echo "btnDrag:start: ", node.getId, " ", kind
+  echo "btnDrag:start: ", node.getId, " ", kind
   discard
 
 proc btnDragStop*(
@@ -28,9 +28,9 @@ proc btnDragStop*(
     initial: Position,
     cursor: Position
 ) {.slot.} =
-  # echo "btnDrag:exit: ", node.getId, " ", kind,
-  #         " change: ", initial.positionDiff(cursor),
-  #         " nodeRel: ", cursor.positionRelative(node)
+  echo "btnDrag:exit: ", node.getId, " ", kind,
+          " change: ", initial.positionDiff(cursor),
+          " nodeRel: ", cursor.positionRelative(node)
   node.state[1] = "Item dropped!"
   node.state[0].fadeIn()
   refresh(node)
@@ -55,7 +55,6 @@ proc draw*(self: Main) {.slot.} =
       box 40'ux, 30'ux, 100'ux, 100'ux
       fill css"#2B9F2B"
       uinodes.connect(doDrag, node, btnDragStart)
-      # uinodes.connect(doDrag, node, btnDragStop)
 
     text "btnText":
       with node:
@@ -81,10 +80,11 @@ proc draw*(self: Main) {.slot.} =
     proc clicked(btn: Button[(Fader, string)],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
+      echo "clicked: ", btn.name, " kind: ", kind
       btn.state[1] = ""
       btn.state[0].fadeOut()
       refresh(btn)
-    uinodes.connect(node, doClick, node, clicked)
+    uinodes.connect(node, doMouseClick, node, clicked)
     text "btnText":
       with node:
         fill blackColor * self.bkgFade.amount / self.bkgFade.minMax.b
