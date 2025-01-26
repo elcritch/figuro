@@ -323,14 +323,15 @@ proc computeEvents*(frame: AppFrame) =
     let dragens = captured[evDragEnd]
     if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
       # echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
-      for target in prevDrags:
+      let delClicks = prevDrags - dragens.targets
+      for target in delClicks:
         emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
       prevDrags.clear()
       for target in dragens.targets:
         # echo "dragends:tgt: ", target.getId
         if rootWindow notin target.attrs:
           target.events.excl evDragEnd
-        emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
+        emit target.doDrag(Done, dragInitial, uxInputs.mouse.pos)
 
   uxInputs.buttonPress = {}
   uxInputs.buttonDown = {}
