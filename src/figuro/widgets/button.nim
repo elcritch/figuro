@@ -28,13 +28,13 @@ proc doButton*[T](self: Button[T]) {.signal.}
 #                   ) {.slot.} =
 #   echo "dragged: ", node.name
 proc clickPressed*[T](self: Button[T], kind: EventKind, pressed: UiButtonView, down: UiButtonView) {.slot.} =
-  echo "click pressed: ", self.name, " => ", kind, " press: ", pressed, " down: ", down
+  echo "mouseDown: ", self.name, " => ", kind, " press: ", pressed, " down: ", down
   self.fade.fadeIn()
   self.isPressed = true
   refresh(self)
 
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
+  echo "clickedDone: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
   self.isPressed = false
   if kind == Exit:
     self.fade.reset()
