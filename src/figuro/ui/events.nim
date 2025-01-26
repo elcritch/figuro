@@ -253,28 +253,6 @@ proc computeEvents*(frame: AppFrame) =
         refresh(target)
         prevHovers.excl target
 
-  ## handle click events
-  # block clickPressed:
-  #   let released = captured[evRelease]
-  #   if released.targets.len() > 0 and evPress in released.flags:
-  #     let pressedKeys = uxInputs.buttonPress * MouseButtons
-  #     let downKeys = uxInputs.buttonDown * MouseButtons
-  #     let newClicks = released.targets
-  #     let delClicks = prevPressed - released.targets
-
-  #     for target in delClicks:
-  #       prevPressed.excl target
-  #       emit target.doClickPress(Exit, pressedKeys, downKeys)
-
-  #   let pressed = captured[evPress]
-  #   if pressed.targets.len() > 0 and evPress in pressed.flags:
-  #     let pressedKeys = uxInputs.buttonPress * MouseButtons
-  #     let downKeys = uxInputs.buttonDown * MouseButtons
-
-  #     for target in pressed.targets:
-  #       emit target.doClickPress(Enter, pressedKeys, downKeys)
-  #       prevPressed.incl target
-
 
   block clickEvents:
     let clickInit = captured[evClickInit]
