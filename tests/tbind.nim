@@ -40,7 +40,7 @@ proc draw*(self: Main) {.slot.} =
         fill blackColor
         setText({largeFont: "–"}, Center, Middle)
     ## something like this:
-    self.counter.onSignal(doButton) do(counter: Property[int]):
+    self.counter.onSignal(doClicked) do(counter: Property[int]):
       counter.update(counter.value-1)
 
   Button.new "btnSub":
@@ -50,7 +50,7 @@ proc draw*(self: Main) {.slot.} =
         size 100'pp, 120'pp
         fill blackColor
         setText({largeFont: "+"}, Center, Middle)
-    self.counter.onSignal(doButton) do(counter: Property[int]):
+    self.counter.onSignal(doClicked) do(counter: Property[int]):
       counter.update(counter.value+1)
 
 

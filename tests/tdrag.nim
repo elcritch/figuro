@@ -84,7 +84,7 @@ proc draw*(self: Main) {.slot.} =
       btn.state[1] = ""
       btn.state[0].fadeOut()
       refresh(btn)
-    uinodes.connect(node, doClick, node, clicked)
+    uinodes.connect(node, doMouseClick, node, clicked)
     text "btnText":
       with node:
         fill blackColor * self.bkgFade.amount / self.bkgFade.minMax.b

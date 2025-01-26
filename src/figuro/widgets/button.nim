@@ -19,10 +19,10 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
   discard
 
-proc doButton*[T](self: Button[T]) {.signal.}
+proc doClicked*[T](self: Button[T]) {.signal.}
 
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "clicked: ", " kind: ", kind, " :: ", buttons, " id: ", self.getId, " clickOn: ", self.clickMode
+  # echo "clicked: ", " kind: ", kind, " :: ", buttons, " id: ", self.getId, " clickOn: ", self.clickMode
   case kind:
   of Init:
     self.fade.fadeIn()
@@ -41,7 +41,7 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
     echo "button:done ", buttons
 
     self.fade.fadeOut()
-    emit self.doButton()
+    emit self.doClicked()
 
 # proc handleDown*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
 

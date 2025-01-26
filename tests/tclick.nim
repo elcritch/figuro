@@ -78,7 +78,7 @@ proc draw*(self: Main) {.slot.} =
               size 100'ux, 100'ux
               cornerRadius 5.0
               connect(doHover, self, btnHover)
-              connect(doClick, node, btnClicked)
+              connect(doMouseClick, node, btnClicked)
             if idx == 0:
               connect(self, update, node, btnTick)
             Text.new "text":

@@ -265,7 +265,7 @@ proc computeEvents*(frame: AppFrame) =
 
       for target in newClicks:
         target.events.incl evClickDone
-        emit target.doClick(Init, downKeys)
+        emit target.doMouseClick(Init, downKeys)
         prevClicks.incl target
 
     let click = captured[evClickDone]
@@ -280,12 +280,12 @@ proc computeEvents*(frame: AppFrame) =
 
       for target in delClicks:
         target.events.excl evClickDone
-        emit target.doClick(Exit, click.buttons)
+        emit target.doMouseClick(Exit, click.buttons)
         prevClicks.excl target
 
       for target in newClicks:
         target.events.incl evClickDone
-        emit target.doClick(Done, click.buttons)
+        emit target.doMouseClick(Done, click.buttons)
         prevClicks.incl target
 
   ## handle drag events

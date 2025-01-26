@@ -36,7 +36,7 @@ proc initialize*(self: Main) {.slot.} =
   threads.connect(self.loader, htmlDone, self, Main.loadStories())
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+  self.hasHovered = kind == Init
   # echo "hover: ", kind
   refresh(self)
 
@@ -68,11 +68,11 @@ proc draw*(self: Main) {.slot.} =
                       kind: EventKind,
                       buttons: UiButtonView) {.slot.} =
         echo "Load clicked"
-        if kind == Enter and not self.loading:
+        if kind == Init and not self.loading:
           emit self.htmlLoad()
         self.loading = true
         refresh(self)
-      connect(node, doClick, self, clickLoad)
+      connect(node, doMouseClick, self, clickLoad)
 
       Text.new "text":
         with node:
