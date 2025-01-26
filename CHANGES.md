@@ -1,1 +1,2 @@
+- `v0.10.0` – changed EventKind to Init, Exit, and Done and changed doClick
 - `v0.9.1` – fixed setTitle
