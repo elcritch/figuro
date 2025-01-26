@@ -119,7 +119,7 @@ proc `=destroy`*(obj: type(Figuro()[])) =
     child.parent.pt = nil
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
-  fig{}.children
+  fig[].children
 
 proc hash*(a: AppFrame): Hash =
   a.root.hash()

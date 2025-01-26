@@ -46,20 +46,20 @@ proc buttonItem(self, node: Figuro, idx: int) =
     connect(node, doHover, self, Main.hover)
 
 proc draw*(self: Main) {.slot.} =
-  var node = self
-  with node:
-    fill css"#0000AA"
-  ScrollPane.new "scroll":
+  withWidget(self):
     with node:
-      offset 2'pp, 2'pp
-      cornerRadius 7.0'ux
-      size 96'pp, 90'pp
-    Vertical.new "":
+      fill css"#0000AA"
+    ScrollPane.new "scroll":
       with node:
-        offset 10'ux, 10'ux
-        itemHeight cx"max-content"
-      for idx in 0 .. 15:
-        buttonItem(self, node, idx)
+        offset 2'pp, 2'pp
+        cornerRadius 7.0'ux
+        size 96'pp, 90'pp
+      Vertical.new "":
+        with node:
+          offset 10'ux, 10'ux
+          itemHeight cx"max-content"
+        for idx in 0 .. 15:
+          buttonItem(self, node, idx)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
@@ -87,17 +87,11 @@ git clone https://github.com/elcritch/figuro
 cd figuro && nimble install --deps
 ```
 
-## Render Engine
+## Widgets
 
-Once the UI Application has finished drawing, it "serializes" the UI Figuro Nodes into a flattened list of Render Nodes. These Render Nodes are designed to be fast to copy by reducing allocations.
+Figuro builds Figuro (UI) nodes. Each node has a basic set of properties that can be set and a core set of events and methods somewhat similar to HTML DOM elements. The two core node types are Rectangle and Text. More node types can be created by making widgets.
 
-This will enable the render enginer to run on in a shared library while the widget / application layer runs in a NimScript.
-
-## Widget Model
-
-The GUI model builds on Figuro nodes. Each node has a basic set of properties that can be set and a core set of events and methods. Figuro nodes can also have children. Overall it's similar to HTML DOM nodes.
-
-Widgets can be create by sub-classing the `Figuro` node type and providing a custom `draw` method (slot). The common way to create a Figuro app is creating a `Main` widget.
+Widgets are nodes that sub-class a `Figuro` node type and provide a custom `draw` method (slot). The common way to create a Figuro app is creating a `Main` widget.
 
 Here's a minimal example of creating a blue rectangle:
 
@@ -121,7 +115,7 @@ let frame = newAppFrame(main, size=(400'ui, 140'ui))
 frame.startFiguro()
 ```
 
-The `rectangle` widget template sets up a basic widget. Widget templates create a new node, adds it as a child to the current node, and sets up the callbacks needed for a node. 
+The `rectangle` widget template sets up a basic rectangle node. It's common enough to have it's own dedicated template.
 
 ### Exporting a Widget Instance
 
