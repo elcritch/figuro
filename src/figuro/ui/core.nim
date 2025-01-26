@@ -104,7 +104,7 @@ proc removeExtraChildren*(node: Figuro) =
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
-proc refresh*(node: Figuro) =
+proc refresh*(node: Figuro) {.slot.} =
   ## Request that the node and it's children be redrawn
   # echo "refresh: ", node.name, " :: ", getStackTrace()
   if node == nil:
