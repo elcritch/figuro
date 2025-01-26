@@ -31,23 +31,24 @@ proc draw*(self: Main) {.slot.} =
     Vertical.new "menu":
       box node, 0'ux, 10'ux, 100'pp, 95'pp
       itemHeight node, cx"min-content", gap = 20'ui
-      Button.new "close":
-        size node, 120'ux, 60'ux
+      Button.new "Close":
+        size node, 120'ux, 40'ux
         connect(node, doClicked, self, deactivateSlider)
         text "text":
+          offset node, 00'ux, 7'ux
           fill node, blackColor
           setText(node, {defaultFont: "Close Menu"}, Center, Middle)
   Horizontal.new "horiz":
     offset node, 30'pp, 0'ux
     itemWidth node, cx"min-content", gap = 20'ui
-    Button.new "pen":
+    Button.new "Open":
       size node, 120'ux, 60'ux
       connect(node, doClicked, self, activateSlider)
       text "text":
         fill node, blackColor
         setText(node, {defaultFont: "Open Menu"}, Center, Middle)
 
-    Button.new "close":
+    Button.new "Close":
       size node, 120'ux, 60'ux
       connect(node, doClicked, self, deactivateSlider)
       text "text":
@@ -55,5 +56,5 @@ proc draw*(self: Main) {.slot.} =
         setText(node, {defaultFont: "Close Menu"}, Center, Middle)
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(500'ui, 300'ui))
+var frame = newAppFrame(main, size=(800'ui, 600'ui))
 startFiguro(frame)
