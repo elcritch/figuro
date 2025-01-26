@@ -164,6 +164,7 @@ proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
 proc doClick*(fig: Figuro, kind: EventKind, keys: UiButtonView) {.signal.}
 proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 proc doKeyPress*(fig: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
+proc doClickPressed*(fig: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
 proc doScroll*(fig: Figuro, wheelDelta: Position) {.signal.}
 proc doDrag*(
   fig: Figuro, kind: EventKind, initial: Position, latest: Position
@@ -227,7 +228,7 @@ template connect*(
 ): void =
   ## template override
   when signalName(signal) == "doClick":
-    a.listens.signals.incl {evClick, evClickOut}
+    a.listens.signals.incl {evClick, evPress}
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":

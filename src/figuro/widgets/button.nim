@@ -23,9 +23,11 @@ proc doButton*[T](self: Button[T]) {.signal.}
 #                    cursor: Position
 #                   ) {.slot.} =
 #   echo "dragged: ", node.name
+proc clickPressed*[T](self: Button[T], pressed: UiButtonView, down: UiButtonView) {.slot.} =
+  echo "click pressed: ", self.name, " => ", pressed, " down: ", down
 
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-  # echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
+  echo "clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
   if kind == Exit:
     return
   elif self.clickMode == {Single} and MouseLeft in buttons:
@@ -42,6 +44,9 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
 
 proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
   discard
+
+proc initialize*[T](self: Button[T]) {.slot.} =
+  connect(self, doClickPressed, self, clickPressed)
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!

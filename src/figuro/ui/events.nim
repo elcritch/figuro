@@ -75,10 +75,17 @@ type
   EventsCapture* = object
     zlvl*: ZLevel
     flags*: EventFlags
-    targets*: HashSet[Figuro]
     buttons*: UiButtonView
+    targets*: HashSet[Figuro]
 
   CapturedEvents* = array[EventKinds, EventsCapture]
+
+proc `$`*(capture: EventsCapture): string =
+  result = "EventsCapture("
+  result &= $capture.zlvl & ","
+  result &= $capture.flags & ","
+  result &= $capture.buttons & ","
+  result &= $capture.targets & ")"
 
 proc maxEvt(a, b: EventsCapture): EventsCapture =
   if b.zlvl >= a.zlvl and b.flags != {}: b else: a
@@ -96,12 +103,13 @@ proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonV
     result[evRelease] = uxInputs.buttonRelease * MouseButtons
     uxInputs.buttonRelease.excl MouseButtons
   if evClick in matchedEvents:
+    result[evDown] = uxInputs.buttonDown * MouseButtons
+    result[evPress] = uxInputs.buttonPress * MouseButtons
+    result[evRelease] = uxInputs.buttonRelease * MouseButtons
     when defined(clickOnDown):
-      result[evPress] = uxInputs.buttonPress * MouseButtons
       result[evClick] = result[evRelease]
       uxInputs.buttonPress.excl MouseButtons
     else:
-      result[evRelease] = uxInputs.buttonRelease * MouseButtons
       result[evClick] = result[evRelease]
       uxInputs.buttonRelease.excl MouseButtons
 
@@ -166,9 +174,9 @@ proc computeEvents*(frame: AppFrame) =
   ## refactoring this all. :/
   ## 
   ## However, first tests would need to be written to ensure the
-  ## behavior is kept. Events like drag, hover, clicks all
-  ## behave pretty differently.
-  frame.root.listens.signals.incl {evClick, evClickOut, evDragEnd}
+  ## behavior is kept. Events like drag, hover, and clicks all
+  ## behave differently.
+  frame.root.listens.signals.incl {evClick, evDragEnd}
   frame.root.attrs.incl rootWindow
 
   if frame.redrawNodes.len() == 0 and uxInputs.mouse.consumed and
@@ -244,6 +252,16 @@ proc computeEvents*(frame: AppFrame) =
         prevHovers.excl target
 
   ## handle click events
+  block clickPressed:
+    let pressed = captured[evPress]
+    if pressed.targets.len() > 0 and evPress in pressed.flags:
+      echo "pressed: ", pressed
+      let pressedKeys = uxInputs.buttonPress * MouseButtons
+      let downKeys = uxInputs.buttonDown * MouseButtons
+
+      for target in pressed.targets:
+        emit target.doClickPressed(pressedKeys, downKeys)
+
   block clickEvents:
     let click = captured[evClick]
     if click.targets.len() > 0 and evClick in click.flags:

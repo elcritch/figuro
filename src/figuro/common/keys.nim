@@ -39,7 +39,6 @@ type
 
   EventKinds* {.size: sizeof(int8).} = enum
     evClick
-    evClickOut
     evHover
     evOverlapped
     evPress

@@ -80,6 +80,7 @@ proc draw*(self: Main) {.slot.} =
     proc clicked(btn: Button[(Fader, string)],
                   kind: EventKind,
                   buttons: UiButtonView) {.slot.} =
+      echo "clicked: ", btn.name, " kind: ", kind
       btn.state[1] = ""
       btn.state[0].fadeOut()
       refresh(btn)
