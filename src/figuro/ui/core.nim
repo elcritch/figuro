@@ -325,13 +325,6 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
   )
   node.contents.add(fc)
 
-template withDrawReady*[T](blk: untyped) =
-  let node {.inject.} = ## implicit variable in each widget block that references the current widget
-    `T`(c)
-  if preDrawReady in node.attrs:
-    node.attrs.excl preDrawReady
-    `blk`
-
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##

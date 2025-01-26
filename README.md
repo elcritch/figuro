@@ -92,8 +92,7 @@ Widgets are nodes that sub-class a `Figuro` node type and provide a custom `draw
 Here's a minimal example of creating a blue rectangle:
 
 ```nim
-type
-  Main* = ref object of Figuro
+type Main* = ref object of Figuro
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
@@ -119,6 +118,29 @@ proc draw*(self: Main) {.slot.} =
   withWidget(self):
     rectangle "body":
       # each widget template injects a new `node` variable
+```
+
+## Manual Node Setup
+
+The follow example shows how to setup a child node without using the default `new` template. However, generally using the `new` templates
+
+```nim
+type Main* = ref object of Figuro
+
+proc draw*(self: Main) {.slot.} =
+  withWidget(self):
+    let childPreDraw = proc (c: Figuro) =
+      let node = WidgetType(c) # important
+      # ... anything you'd put in the normal Figuro `new` block
+      offset node, 2'pp, 2'pp
+      cornerRadius node, 7.0'ux
+      size node, 96'pp, 90'pp
+    let fc = FiguroContent(
+    name: "child",
+    childInit: if nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
+    childPreDraw: childPreDraw,
+  )
+  self.contents.add(fc)
 ```
 
 ## Signals and Slots
