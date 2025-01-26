@@ -74,7 +74,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
       #   fill self, self.fill.lighten(0.03)
       #   # this changes the color on hover!
 
-      echo "draw: ", self.fade.amount, " isPressed: ", self.isPressed, " fade:act: ", self.fade.active
+      # echo "draw: ", self.fade.amount, " isPressed: ", self.isPressed, " fade:act: ", self.fade.active
       if self.fade.active or self.isPressed:
         node.fill = node.fill.lighten(0.14*self.fade.amount)
     

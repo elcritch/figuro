@@ -113,9 +113,6 @@ proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonV
     result[evDown] = uxInputs.buttonDown * MouseButtons
     result[evRelease] = uxInputs.buttonRelease * MouseButtons
     result[evClickDone] = result[evRelease]
-    echo "CLICK DONE: result[evRelease]: ", result[evRelease]
-    echo "CLICK DONE: result[evDown]: ", result[evDown]
-    echo "CLICK DONE: result[evPress]: ", result[evPress]
     # uxInputs.buttonRelease.excl MouseButtons
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
@@ -298,10 +295,10 @@ proc computeEvents*(frame: AppFrame) =
       let clickTargets = click.targets
       let newClicks = clickTargets
       let delClicks = prevClicks - clickTargets
-      echo "click.buttons: ", click.buttons
-      echo "buttonRelease: ", uxInputs.buttonRelease 
-      echo "buttonPress: ", uxInputs.buttonPress 
-      echo "buttonDown: ", uxInputs.buttonPress 
+      # echo "click.buttons: ", click.buttons
+      # echo "buttonRelease: ", uxInputs.buttonRelease 
+      # echo "buttonPress: ", uxInputs.buttonPress 
+      # echo "buttonDown: ", uxInputs.buttonPress 
 
       for target in delClicks:
         target.events.excl evClickDone
