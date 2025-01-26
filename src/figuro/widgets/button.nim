@@ -17,6 +17,13 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
 
 proc doButton*[T](self: Button[T]) {.signal.}
 
+# proc dragged*[T](node: Button[T],
+#                    kind: EventKind,
+#                    initial: Position,
+#                    cursor: Position
+#                   ) {.slot.} =
+#   echo "dragged: ", node.name
+
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   # echo nd(), "button:clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
   if kind == Exit:
@@ -30,6 +37,8 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
 
   refresh(self)
   emit self.doButton()
+
+# proc handleDown*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
 
 proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
   discard

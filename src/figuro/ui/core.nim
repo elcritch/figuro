@@ -182,6 +182,8 @@ template connectDefaults*[T](node: T) =
       connect(node, doInitialize, node, T.initialize())
     when compiles(SignalTypes.clicked(T)):
       connect(node, doClick, node, T.clicked())
+    when compiles(SignalTypes.dragged(T)):
+      connect(node, doDrag, node, T.dragged())
     when compiles(SignalTypes.keyInput(T)):
       connect(node, doKeyInput, node, T.keyInput())
     when compiles(SignalTypes.keyPress(T)):
