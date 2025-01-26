@@ -249,7 +249,6 @@ template setTitle*(current: Figuro, title: string) =
   ## Sets window title
   if (current.frame[].getWindowTitle() != title):
     current.frame[].setWindowTitle(title)
-    refresh(current)
 
 proc cornerRadius*(current: Figuro, radius: UICoord) =
   ## Sets all radius of all 4 corners.

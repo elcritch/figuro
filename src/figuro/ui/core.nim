@@ -112,6 +112,8 @@ proc refresh*(node: Figuro) {.slot.} =
   # app.requestedFrame.inc
   assert not node.frame.isNil
   node.frame[].redrawNodes.incl(node)
+  when defined(figuroDebugRefresh):
+    echo "REFRESH: ", getStackTrace()
 
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
