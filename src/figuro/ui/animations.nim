@@ -18,6 +18,9 @@ type Fader* = ref object of Agent
 proc amount*(fader: Fader): float = fader.amount
 proc fadeTick*(fader: Fader, value: tuple[amount, perc: float], finished: bool) {.signal.}
 
+proc active*(self: Fader): bool =
+  self.active
+
 proc addTarget*(self: Fader, node: Figuro, noRefresh = false) =
   self.targets.incl(node)
   if not noRefresh:
@@ -47,6 +50,7 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   else:
     for tgt in self.targets:
       disconnect(tgt.frame[].root, doTick, self)
+      break
     emit self.fadeTick(val, true)
 
 proc stop*(self: Fader) {.slot.} =
@@ -75,6 +79,15 @@ proc fadeIn*(self: Fader) {.slot.} =
 
 proc fadeOut*(self: Fader) {.slot.} =
   self.startFade(false)
+
+proc reset*(self: Fader) {.slot.} =
+  self.active = false
+  self.amount = self.minMax.a
+  for tgt in self.targets:
+    disconnect(tgt.frame[].root, doTick, self)
+    break
+  let val = (amount: self.amount, perc: 0.0)
+  emit self.fadeTick(val, true)
 
 proc setMax*(self: Fader) {.slot.} =
   self.amount = self.minMax.b

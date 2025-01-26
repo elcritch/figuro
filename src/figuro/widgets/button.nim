@@ -11,8 +11,9 @@ type
     label*: string
     disabled*: bool
     clickMode*: set[ButtonClicks] = {Single}
+    isPressed*: bool
     fade* = Fader(minMax: 0.0..1.0,
-                     inTimeMs: 300, outTimeMs: 300)
+                     inTimeMs: 30, outTimeMs: 150)
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
@@ -26,14 +27,17 @@ proc doButton*[T](self: Button[T]) {.signal.}
 #                    cursor: Position
 #                   ) {.slot.} =
 #   echo "dragged: ", node.name
-proc clickPressed*[T](self: Button[T], pressed: UiButtonView, down: UiButtonView) {.slot.} =
-  echo "click pressed: ", self.name, " => ", pressed, " down: ", down
+proc clickPressed*[T](self: Button[T], kind: EventKind, pressed: UiButtonView, down: UiButtonView) {.slot.} =
+  echo "click pressed: ", self.name, " => ", kind, " press: ", pressed, " down: ", down
   self.fade.fadeIn()
+  self.isPressed = true
   refresh(self)
 
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
+  self.isPressed = false
   if kind == Exit:
+    self.fade.reset()
     return
   elif self.clickMode == {Single} and MouseLeft in buttons:
     discard
@@ -42,7 +46,7 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
   else:
     return
 
-  refresh(self)
+  self.fade.fadeOut()
   emit self.doButton()
 
 # proc handleDown*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
@@ -52,7 +56,7 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
 
 proc initialize*[T](self: Button[T]) {.slot.} =
   echo "button:initialize"
-  connect(self, doClickPressed, self, clickPressed)
+  connect(self, doClickPress, self, clickPressed)
   echo "self.fade: ", self.fade.unsafeWeakRef
   self.fade.addTarget(self)
 
@@ -69,13 +73,16 @@ proc draw*[T](self: Button[T]) {.slot.} =
       withOptional self:
         fill css"#F0F0F0"
     else:
-      echo "draw: ", self.fade.amount, " self.fade: ", self.fade.unsafeWeakRef
       withOptional self:
-        fill css"#2B9FEA".lighten(30*self.fade.amount)
+        fill css"#2B9FEA"
       self.onHover:
         # withOptional self:
-        fill self, self.fill.lighten(0.14)
+        fill self, self.fill.lighten(0.03)
         # this changes the color on hover!
+
+      echo "draw: ", self.fade.amount, " isPressed: ", self.isPressed, " fade:act: ", self.fade.active
+      if self.fade.active or self.isPressed:
+        node.fill = node.fill.lighten(0.14*self.fade.amount)
     
     rectangle "buttonInner":
       WidgetContents()
