@@ -5,7 +5,7 @@ Figuro is a open source framework for building *beautiful*, *interactive*, and *
 
 By building on some of the best parts of GUI development in last 15 years Figuro aims to incorporate the best elements of both imperitive and object oriented GUI toolkits.
 
-Originally based on Fidget it now has a multi-threaded core and improved event system. All widgets are typed and can contain their own state.
+Originally based on Fidget, Figuro has now diverged quite significantly and includes a multi-threaded core, reactive event system, and CSS theming. All widgets are typed and can contain their own state.
 
 *Note*: Figuro is now in an *beta* stage with all the key pieces working. There's likely to be churn in the APIs but it's mostly stabalized. 
 
@@ -149,69 +149,23 @@ proc draw(self: Main) {.slot.} =
 
 ## Signals and Slots
 
-Figuro uses signals and slots as more generic "methods" in place of callbacks. 
+Figuro uses [Sigils](https://github.com/elcritch/sigils) which implements methods using signals and slots. Slots are methods which are connected to Signals on a given object and are invoked when the signal is trigged on that object.
 
-They allow you to connect and disconnect signals at runtime which allows adaptable event handling. Signals and slots are shamelessly stolen from QT.
+This comes from [QT](https://doc.qt.io/qt-6/signalsandslots.html) and is a very powerful and flexible paradigm while still being very fast. It allows built-in reactive data types similar as well. It can also support "deferred" runs and support for running in threads or thread pools and largely prevents data-races.
 
-There are four main pieces to using slots and signal: `signal`, `slot`, `connect`, and `emit`. 
-
-The `signal` pragma defines the procs as signals with the signal type being equivalent to the rest of the arguments after the first one. The first argument must be a subclass of the `Agent` object. `Figuro` objects already subclass `Agent` so all `Figuro` objects can be used with signals and slots.
-
-The `slot` pragma transforms the proc into a signal handler. It can still be called as a regular proc as well. The first argument must be an `Agent` object such as a `Figuro` widget node.
-
-Next `connect` is a template of type `template connect*(sender: Agent, sig: Signal, target: Agent, slot: Slot)`. It connects any matching signals from the `sender` object to the `target` object. `connect` is typed and checks that the signal and the slot types match. However, slots that don't take arguments can be connect if you pass `acceptVoidSlot=true` argument to connect.
-
-Lastly, `emit` takes an agent object and sends a signal to each `slot` object connected to that object.
-
-```nim
-import figuro
-type
-  Counter* = ref object of Figuro
-    value: int
-    avg: int
-
-proc valueChanged*(tp: Counter, val: int) {.signal.}
-proc avgChanged*(tp: Counter, val: float) {.signal.}
-
-proc setValue*(self: Counter, value: int) {.slot.} =
-  echo "setValue! ", value
-  if self.value != value:
-    self.value = value
-  emit self.valueChanged(value)
-
-proc value*(self: Counter): int =
-  self.value
-
-var
-  a {.used.} = Counter()
-  b {.used.} = Counter()
-connect(a, valueChanged,
-        b, setValue)
-## or equivalently:
-## connect(a, valueChanged,
-##         b, Counter.setValue())
-a.setValue(42)
-assert a.value == 42
-assert b.value == 42
-```
-
+Finally it allows Figuro to be very flexible and to provide support for network RPCs, dynamic method realoding, and browser web-assembly in the future.
 
 ## Goal
 
 Massive profits and world domination of course. ;) Failing that the ability to write cool UI apps easily, in pure Nim.
 
-## More Docs
-
-Initial docs section.
-
 ### Useful Compilation Flags
 
 - `-d:debugLayout` prints a node tree with the layout of each node before and after computing a layout
-- `-d:debugEvents` prints the events received from Windy and which nodes got the events
 
 ### Drawing model
 
-Each widget must inherit from the `Fidget` type. `Fidget` itself inherits from `Agent` which means it can work with signals & slots.
+Each widget must inherit from the `Figuro` type. `Figuro` itself inherits from `Agent` which means it can work with signals & slots.
 
 Each widget is composed of a `draw` slot and a widget-macro which is exported using `exportWidget`. Draw slots expect the widget object to already be created.
 
