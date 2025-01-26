@@ -12,7 +12,7 @@ type
     hasHovered: bool
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+  self.hasHovered = kind == Init
   # echo "hover: ", kind
   refresh(self)
 

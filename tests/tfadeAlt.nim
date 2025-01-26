@@ -10,7 +10,7 @@ type
     hoveredAlpha: float = 0.0
 
 proc buttonHover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+  self.hasHovered = kind == Init
   refresh(self)
 
 proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =

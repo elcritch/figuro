@@ -17,7 +17,7 @@ proc initialize*(self: Main) {.slot.} =
 
 proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
-  if evtKind == Enter:
+  if evtKind == Init:
     self.bkgFade.fadeIn()
   else:
     self.bkgFade.fadeOut()
