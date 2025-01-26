@@ -19,7 +19,11 @@ proc amount*(fader: Fader): float = fader.amount
 proc fadeTick*(fader: Fader, value: tuple[amount, perc: float], finished: bool) {.signal.}
 
 proc addTarget*(self: Fader, node: Figuro) {.slot.} =
-  self.targets.addUnique(node)
+  when (NimMajor, NimMinor, NimPatch) < (2, 2, 0):
+    if node notin self.targets:
+      self.targets.add(node)
+  else:
+    self.targets.addUnique(node)
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
