@@ -298,21 +298,18 @@ proc postNode*(node: var Figuro) =
 
 import utils, macros, typetraits
 
-type
-  NKRect = object
-  NKText = object
-
-proc nodeInit*[T; K](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) =
-  ## callback proc to initialized a new node, or re-use and existing node
-  ## using the appropriate node type
+template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
   var node: `T` = nil
-  let kind =
-    when K is NKRect: nkRectangle
-    elif K is NKText: nkText
-    else: {.error: "error".}
   preNode(kind, name, node, parent)
   node.preDraw = preDraw
   postNode(Figuro(node))
+
+proc nodeInitRect*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+  ## callback proc to initialized a new node, or re-use and existing node
+  nodeInitImpl[T](nkRectangle, parent, name, predraw)
+proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+  ## callback proc to initialized a new node, or re-use and existing node
+  nodeInitImpl[T](nkText, parent, name, predraw)
 
 proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
@@ -320,7 +317,7 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
   
   let fc = FiguroContent(
     name: $(nn),
-    childInit: when nkind == nkText: nodeInit[T, NKText] else: nodeInit[T, NKRect],
+    childInit: when nkind == nkText: nodeInitText[T] else: nodeInitRect[T],
     childPreDraw: callback,
   )
   node.contents.add(fc)
