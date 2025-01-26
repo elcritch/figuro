@@ -21,33 +21,24 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
 
 proc doButton*[T](self: Button[T]) {.signal.}
 
-# proc dragged*[T](node: Button[T],
-#                    kind: EventKind,
-#                    initial: Position,
-#                    cursor: Position
-#                   ) {.slot.} =
-#   echo "dragged: ", node.name
-proc clickPressed*[T](self: Button[T], kind: EventKind, pressed: UiButtonView, down: UiButtonView) {.slot.} =
-  echo "mouseDown: ", self.name, " => ", kind, " press: ", pressed, " down: ", down
-  self.fade.fadeIn()
-  self.isPressed = true
-  refresh(self)
-
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "clicked: ", " kind: ", kind, " :: ", buttons, " id: ", self.getId, " clickOn: ", self.clickMode
-  self.isPressed = false
   case kind:
-  of Enter:
+  of Init:
     self.fade.fadeIn()
     self.isPressed = true
   of Exit:
+    self.isPressed = false
     self.fade.fadeOut()
     return
   of Done:
+    self.isPressed = false
+    echo "button: ", buttons
     if self.clickMode == {Double} and DoubleClick notin buttons:
       return
     elif self.clickMode == {Single} and MouseLeft notin buttons:
       return
+    echo "button:done ", buttons
 
     self.fade.fadeOut()
     emit self.doButton()
