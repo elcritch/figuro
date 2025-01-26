@@ -33,12 +33,10 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
     return
   of Done:
     self.isPressed = false
-    echo "button: ", buttons
     if self.clickMode == {Double} and DoubleClick notin buttons:
       return
     elif self.clickMode == {Single} and MouseLeft notin buttons:
       return
-    echo "button:done ", buttons
 
     self.fade.fadeOut()
     emit self.doClicked()
