@@ -164,7 +164,6 @@ proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
 proc doClick*(fig: Figuro, kind: EventKind, keys: UiButtonView) {.signal.}
 proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 proc doKeyPress*(fig: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
-proc doClickPress*(fig: Figuro, kind: EventKind, pressed: UiButtonView, down: UiButtonView) {.signal.}
 proc doScroll*(fig: Figuro, wheelDelta: Position) {.signal.}
 proc doDrag*(
   fig: Figuro, kind: EventKind, initial: Position, latest: Position

@@ -34,11 +34,10 @@ proc clickPressed*[T](self: Button[T], kind: EventKind, pressed: UiButtonView, d
   refresh(self)
 
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "clickedDone: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
+  echo "clicked: ", " kind: ", kind, " :: ", buttons, " id: ", self.getId, " clickOn: ", self.clickMode
   self.isPressed = false
   if kind == Exit:
     self.fade.fadeOut()
-    refresh(self)
     return
   elif self.clickMode == {Single} and MouseLeft in buttons:
     discard
@@ -57,7 +56,7 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
 
 proc initialize*[T](self: Button[T]) {.slot.} =
   echo "button:initialize"
-  connect(self, doClickPress, self, clickPressed)
+  # connect(self, doClickPress, self, clickPressed)
   echo "self.fade: ", self.fade.unsafeWeakRef
   self.fade.addTarget(self)
 
@@ -76,10 +75,10 @@ proc draw*[T](self: Button[T]) {.slot.} =
     else:
       withOptional self:
         fill css"#2B9FEA"
-      self.onHover:
-        # withOptional self:
-        fill self, self.fill.lighten(0.03)
-        # this changes the color on hover!
+      # self.onHover:
+      #   # withOptional self:
+      #   fill self, self.fill.lighten(0.03)
+      #   # this changes the color on hover!
 
       echo "draw: ", self.fade.amount, " isPressed: ", self.isPressed, " fade:act: ", self.fade.active
       if self.fade.active or self.isPressed:

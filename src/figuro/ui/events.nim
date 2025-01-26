@@ -243,7 +243,7 @@ proc computeEvents*(frame: AppFrame) =
 
       for target in newHovers:
         target.events.incl evHover
-        emit target.doHover(Enter)
+        emit target.doHover(Init)
         refresh(target)
         prevHovers.incl target
 
@@ -287,7 +287,7 @@ proc computeEvents*(frame: AppFrame) =
 
       for target in newClicks:
         target.events.incl evClickDone
-        emit target.doClickPress(Enter, pressedKeys, downKeys)
+        emit target.doClick(Init, downKeys)
         prevClicks.incl target
 
     let click = captured[evClickDone]
@@ -303,7 +303,7 @@ proc computeEvents*(frame: AppFrame) =
 
       for target in newClicks:
         target.events.incl evClickDone
-        emit target.doClick(Enter, click.buttons)
+        emit target.doClick(Done, click.buttons)
         prevClicks.incl target
 
   ## handle drag events
@@ -316,7 +316,7 @@ proc computeEvents*(frame: AppFrame) =
       # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
         target.events.incl evDrag
-        emit target.doDrag(Enter, dragInitial, uxInputs.mouse.pos)
+        emit target.doDrag(Init, dragInitial, uxInputs.mouse.pos)
         prevDrags.incl target
 
   block dragEndEvents:

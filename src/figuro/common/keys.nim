@@ -52,8 +52,9 @@ type
     evKeyPress
 
   EventKind* = enum
+    Done
     Exit
-    Enter
+    Init
 
   EventFlags* = set[EventKinds]
 
