@@ -13,7 +13,7 @@ type
     clickMode*: set[ButtonClicks] = {Single}
     isPressed*: bool
     fade* = Fader(minMax: 0.0..1.0,
-                     inTimeMs: 30, outTimeMs: 150)
+                     inTimeMs: 70, outTimeMs: 90)
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
