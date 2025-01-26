@@ -22,7 +22,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  self.isActive = kind == Enter
+  self.isActive = kind == Done
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
   else:

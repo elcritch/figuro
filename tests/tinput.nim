@@ -16,7 +16,7 @@ type
     mainRect: Figuro
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
-  self.hasHovered = kind == Enter
+  self.hasHovered = kind == Done
   refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
