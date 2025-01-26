@@ -5,7 +5,7 @@ Figuro is a open source framework for building *beautiful*, *interactive*, and *
 
 By building on some of the best parts of GUI development in last 15 years Figuro aims to incorporate the best elements of both imperitive and object oriented GUI toolkits.
 
-Originally based on Fidget, Figuro has now diverged quite significantly and includes a multi-threaded core, reactive event system, and CSS theming. All widgets are typed and can contain their own state.
+Originally based on Fidget, Figuro has now diverged quite significantly and includes a multi-threaded core, typed widgets, reactive event system, and CSS theming.
 
 *Note*: Figuro is now in an *beta* stage with all the key pieces working. There's likely to be churn in the APIs but it's mostly stabalized. 
 
