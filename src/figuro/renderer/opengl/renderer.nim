@@ -253,7 +253,7 @@ proc render(
       ctx.renderBoxes(node)
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    echo "inner shadow: ", node.shadow[InnerShadow].repr
+    # echo "inner shadow: ", node.shadow[InnerShadow].repr
     ctx.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)

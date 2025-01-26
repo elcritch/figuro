@@ -54,7 +54,7 @@ proc initialize*[T](self: Button[T]) {.slot.} =
   echo "button:initialize"
   connect(self, doClickPressed, self, clickPressed)
   echo "self.fade: ", self.fade.unsafeWeakRef
-  connect(self.fade, fadeTick, self, Figuro.refresh(), true)
+  self.fade.addTarget(self)
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!

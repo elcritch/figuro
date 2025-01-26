@@ -13,16 +13,17 @@ type Fader* = ref object of Agent
   amount: float = 0.0
   ts: MonoTime
   ratePerMs: Slice[float]
-  targets: HashSet[Figuro]
+  targets: OrderedSet[Figuro]
 
 proc amount*(fader: Fader): float = fader.amount
 proc fadeTick*(fader: Fader, value: tuple[amount, perc: float], finished: bool) {.signal.}
 
-proc addTarget*(self: Fader, node: Figuro) {.slot.} =
+proc addTarget*(self: Fader, node: Figuro, noRefresh = false) =
   self.targets.incl(node)
+  if not noRefresh:
+    connect(self, fadeTick, node, Figuro.refresh(), true)
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
-  echo "fader:tick: ", delta
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
   let dt = delta.inMilliseconds.toFloat
   if self.fadingIn:
@@ -54,7 +55,7 @@ proc stop*(self: Fader) {.slot.} =
     disconnect(tgt.frame[].root, doTick, self)
 
 proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
-  echo "fade:startFade: ", fadeIn
+  # echo "fade:startFade: ", fadeIn
   self.active = true
   self.ts = getMonoTime()
   self.fadingIn = fadeIn
@@ -64,7 +65,7 @@ proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
   if self.outTimeMs > 0:
     self.ratePerMs.b = delta / self.outTimeMs.toFloat
   for tgt in self.targets:
-    echo "fader:start:connect:root: ", tgt.frame[].root.name
+    # echo "fader:start:connect:root: ", tgt.frame[].root.name
     connect(tgt.frame[].root, doTick, self, tick)
     break
   # trace "fader:started: ", amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs

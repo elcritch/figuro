@@ -14,7 +14,6 @@ type
 proc initialize*(self: Main) {.slot.} =
   self.setTitle("Click Test!")
   self.bkgFade.addTarget(self)
-  connect(self.bkgFade, fadeTick, self, Figuro.refresh(), true)
 
 proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
