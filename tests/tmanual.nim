@@ -27,7 +27,10 @@ proc draw(self: Main) {.slot.} =
       fill node, blackColor
       setText(node, [(font, "testing")], Center, Middle)
     widgetRegisterImpl[Text](nkText, "btnText", node, childPreDraw)
-  widgetRegisterImpl[Button[int]](nkRectangle, "btn", node, childPreDraw)
+
+  # same as: widgetRegisterImpl[Button[int]](nkRectangle, "btn", node, childPreDraw)
+  let fc = FiguroContent(name: "btn", childInit: nodeInitRect[Button[int]], childPreDraw: childPreDraw)
+  node.contents.add(fc)
 
 
 var main = Main.new()
