@@ -1,4 +1,5 @@
 import ../widget
+import ../ui/animations
 
 type
   ButtonClicks* = enum
@@ -10,6 +11,8 @@ type
     label*: string
     disabled*: bool
     clickMode*: set[ButtonClicks] = {Single}
+    fade* = Fader(minMax: 0.0..1.0,
+                     inTimeMs: 300, outTimeMs: 300)
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
@@ -25,6 +28,8 @@ proc doButton*[T](self: Button[T]) {.signal.}
 #   echo "dragged: ", node.name
 proc clickPressed*[T](self: Button[T], pressed: UiButtonView, down: UiButtonView) {.slot.} =
   echo "click pressed: ", self.name, " => ", pressed, " down: ", down
+  self.fade.fadeIn()
+  refresh(self)
 
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "clicked: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
@@ -46,7 +51,10 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
   discard
 
 proc initialize*[T](self: Button[T]) {.slot.} =
+  echo "button:initialize"
   connect(self, doClickPressed, self, clickPressed)
+  echo "self.fade: ", self.fade.unsafeWeakRef
+  connect(self.fade, fadeTick, self, Figuro.refresh(), true)
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
@@ -61,8 +69,9 @@ proc draw*[T](self: Button[T]) {.slot.} =
       withOptional self:
         fill css"#F0F0F0"
     else:
+      echo "draw: ", self.fade.amount, " self.fade: ", self.fade.unsafeWeakRef
       withOptional self:
-        fill css"#2B9FEA"
+        fill css"#2B9FEA".lighten(30*self.fade.amount)
       self.onHover:
         # withOptional self:
         fill self, self.fill.lighten(0.14)

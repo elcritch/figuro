@@ -255,7 +255,6 @@ proc computeEvents*(frame: AppFrame) =
   block clickPressed:
     let pressed = captured[evPress]
     if pressed.targets.len() > 0 and evPress in pressed.flags:
-      echo "pressed: ", pressed
       let pressedKeys = uxInputs.buttonPress * MouseButtons
       let downKeys = uxInputs.buttonDown * MouseButtons
 
