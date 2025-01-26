@@ -37,7 +37,7 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
   echo "clickedDone: ", buttons, " kind: ", kind, " :: ", self.getId, " clickOn: ", self.clickMode
   self.isPressed = false
   if kind == Exit:
-    self.fade.reset()
+    self.fade.fadeOut()
     refresh(self)
     return
   elif self.clickMode == {Single} and MouseLeft in buttons:
