@@ -121,30 +121,6 @@ proc draw*(self: Main) {.slot.} =
       # each widget template injects a new `node` variable
 ```
 
-### Alternate Widget Syntax
-
-There's an alternative syntax that builds on a specialized `new` template. It works the same as above, but makes it a bit more clear that new widget nodes are being created:
-
-```nim
-proc draw*(self: Main) {.slot.} =
-  BasicFiguro.new "body", parent=self:
-    with node:
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      fill whiteColor.darken(self.hoveredAlpha)
-    Horizontal.new "horiz":
-      offset node, 10'ux, 0'ux
-      itemWidth node, cx"min-content", gap = 20'ui
-      for i in 0 .. 4:
-        Button[int].new "btn", captures=[i]:
-          with node:
-            size 100'ux, 100'ux
-            # we need to connect the nodes onHover event
-            connect(doHover, self, buttonHover)
-```
-
-Currently both syntaxes are supported and can be mixed and matched.
-
 ## Signals and Slots
 
 Figuro uses signals and slots as more generic "methods" in place of callbacks. 
