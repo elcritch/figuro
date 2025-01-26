@@ -7,7 +7,7 @@ import sugar
 type
   Main* = ref object of Figuro
     bkgFade* = Fader(minMax: 0.0..1.0,
-                     inTimeMs: 200, outTimeMs: 200)
+                     inTimeMs: 260, outTimeMs: 200)
 
 proc initialize*(self: Main) {.slot.} =
   self.setTitle("Click Test!")
@@ -24,7 +24,7 @@ proc draw*(self: Main) {.slot.} =
   let node = self
   rectangle "body":
     with node:
-      fill blackColor.lighten(0.7)
+      fill rgba(66, 177, 44, 197).to(Color).spin(100).darken(0.3*self.bkgFade.amount)
       zlevel 20.ZLevel
       box ux(140*self.bkgFade.amount - 140), 0'ux, 140'ux, 100'pp
       cornerRadius 0.0
