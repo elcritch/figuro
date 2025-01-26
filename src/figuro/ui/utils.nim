@@ -70,7 +70,7 @@ template printNewEventInfo*() =
             # (" consumed: ", $uxInputs.mouse.consumed),
             # ( " ", $app.frameCount),
 
-        if ek == evClick:
+        if ek == evClickDone:
           emsg.add ("pClick: ", $prevClicks)
         if ek == evHover:
           emsg.add ("pHover: ", $prevHovers)

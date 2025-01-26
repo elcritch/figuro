@@ -228,7 +228,7 @@ template connect*(
 ): void =
   ## template override
   when signalName(signal) == "doClick":
-    a.listens.signals.incl {evClick, evPress, evRelease}
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":

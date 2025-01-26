@@ -38,7 +38,8 @@ type
     selectionCursor*: int ## To which character are we selecting to
 
   EventKinds* {.size: sizeof(int8).} = enum
-    evClick
+    evClickInit
+    evClickDone
     evHover
     evOverlapped
     evPress

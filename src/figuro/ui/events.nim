@@ -60,7 +60,8 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   node.checkEvent(evDrag, prevDrags.len() > 0)
 
   if node.mouseOverlaps():
-    node.checkEvent(evClick, uxInputs.click())
+    node.checkEvent(evClickInit, uxInputs.down())
+    node.checkEvent(evClickDone, uxInputs.click())
     node.checkEvent(evPress, uxInputs.down())
     node.checkEvent(evRelease, uxInputs.release())
     node.checkEvent(evOverlapped, true)
@@ -103,16 +104,16 @@ proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonV
   if evRelease in matchedEvents:
     result[evRelease] = uxInputs.buttonRelease * MouseButtons
     uxInputs.buttonRelease.excl MouseButtons
-  if evClick in matchedEvents:
+  if evClickInit in matchedEvents:
     result[evDown] = uxInputs.buttonDown * MouseButtons
     result[evPress] = uxInputs.buttonPress * MouseButtons
+    result[evClickInit] = result[evPress]
+    uxInputs.buttonPress.excl MouseButtons
+  if evClickDone in matchedEvents:
+    result[evDown] = uxInputs.buttonDown * MouseButtons
     result[evRelease] = uxInputs.buttonRelease * MouseButtons
-    when defined(clickOnDown):
-      result[evClick] = result[evRelease]
-      uxInputs.buttonPress.excl MouseButtons
-    else:
-      result[evClick] = result[evRelease]
-      uxInputs.buttonRelease.excl MouseButtons
+    result[evClickDone] = result[evRelease]
+    uxInputs.buttonRelease.excl MouseButtons
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
@@ -177,7 +178,7 @@ proc computeEvents*(frame: AppFrame) =
   ## However, first tests would need to be written to ensure the
   ## behavior is kept. Events like drag, hover, and clicks all
   ## behave differently.
-  frame.root.listens.signals.incl {evClick, evDragEnd}
+  frame.root.listens.signals.incl {evClickInit, evClickDone, evDragEnd}
   frame.root.attrs.incl rootWindow
 
   if frame.redrawNodes.len() == 0 and uxInputs.mouse.consumed and
@@ -253,42 +254,55 @@ proc computeEvents*(frame: AppFrame) =
         prevHovers.excl target
 
   ## handle click events
-  block clickPressed:
-    let released = captured[evRelease]
-    if released.targets.len() > 0 and evPress in released.flags:
-      let pressedKeys = uxInputs.buttonPress * MouseButtons
-      let downKeys = uxInputs.buttonDown * MouseButtons
-      let newClicks = released.targets
-      let delClicks = prevPressed - released.targets
+  # block clickPressed:
+  #   let released = captured[evRelease]
+  #   if released.targets.len() > 0 and evPress in released.flags:
+  #     let pressedKeys = uxInputs.buttonPress * MouseButtons
+  #     let downKeys = uxInputs.buttonDown * MouseButtons
+  #     let newClicks = released.targets
+  #     let delClicks = prevPressed - released.targets
 
-      for target in delClicks:
-        prevPressed.excl target
-        emit target.doClickPress(Exit, pressedKeys, downKeys)
+  #     for target in delClicks:
+  #       prevPressed.excl target
+  #       emit target.doClickPress(Exit, pressedKeys, downKeys)
 
-    let pressed = captured[evPress]
-    if pressed.targets.len() > 0 and evPress in pressed.flags:
-      let pressedKeys = uxInputs.buttonPress * MouseButtons
-      let downKeys = uxInputs.buttonDown * MouseButtons
+  #   let pressed = captured[evPress]
+  #   if pressed.targets.len() > 0 and evPress in pressed.flags:
+  #     let pressedKeys = uxInputs.buttonPress * MouseButtons
+  #     let downKeys = uxInputs.buttonDown * MouseButtons
 
-      for target in pressed.targets:
-        emit target.doClickPress(Enter, pressedKeys, downKeys)
-        prevPressed.incl target
+  #     for target in pressed.targets:
+  #       emit target.doClickPress(Enter, pressedKeys, downKeys)
+  #       prevPressed.incl target
 
 
   block clickEvents:
-    let click = captured[evClick]
-    if click.targets.len() > 0 and evClick in click.flags:
+    let clickInit = captured[evClickInit]
+    if clickInit.targets.len() > 0 and evClickInit in clickInit.flags:
+      let clickTargets = clickInit.targets
+      let newClicks = clickTargets
+      let delClicks = prevClicks - clickTargets
+      let pressedKeys = uxInputs.buttonPress * MouseButtons
+      let downKeys = uxInputs.buttonDown * MouseButtons
+
+      for target in newClicks:
+        target.events.incl evClickDone
+        emit target.doClickPress(Enter, pressedKeys, downKeys)
+        prevClicks.incl target
+
+    let click = captured[evClickDone]
+    if click.targets.len() > 0 and evClickDone in click.flags:
       let clickTargets = click.targets
       let newClicks = clickTargets
       let delClicks = prevClicks - clickTargets
 
       for target in delClicks:
-        target.events.excl evClick
+        target.events.excl evClickDone
         emit target.doClick(Exit, click.buttons)
         prevClicks.excl target
 
       for target in newClicks:
-        target.events.incl evClick
+        target.events.incl evClickDone
         emit target.doClick(Enter, click.buttons)
         prevClicks.incl target
 
