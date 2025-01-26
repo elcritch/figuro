@@ -112,7 +112,14 @@ let frame = newAppFrame(main, size=(400'ui, 140'ui))
 frame.startFiguro()
 ```
 
-The `rectangle` widget template sets up a basic rectangle node. It's common enough to have it's own dedicated template.
+Note that rectangle is used enough that it also has a shortcut template `rectangle` that can be used:
+
+```nim
+proc draw*(self: Main) {.slot.} =
+  withWidget(self):
+    rectangle "body":
+      # each widget template injects a new `node` variable
+```
 
 ### Exporting a Widget Instance
 
