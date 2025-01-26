@@ -11,30 +11,23 @@ type
   Main* = ref object of Figuro
     mainRect: Figuro
 
-import macros
-expandMacros:
-  proc draw*(self: Main) {.slot.} =
-    with self:
-      setName "main"
-      fill css"#9F2B00"
-      box 0'ux, 0'ux, 400'ux, 300'ux
+proc draw(self: Main) {.slot.} =
+  setName self, "main"
+  fill self, css"#9F2B00"
+  box self, 0'ux, 0'ux, 400'ux, 300'ux
 
-    let node = self
-    Button[int].new "btn":
-      with node:
-        box 40'ux, 30'ux, 80'ux, 80'ux
-        fill css"#2B9F2B"
-      
-      node.shadow[DropShadow] = Shadow(blur: 4.0'ui, x: 2.0'ui, y: 2.0'ui,
-                                  color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.1))
-      node.shadow[InnerShadow] = Shadow(blur: 8.0'ui, x: 3.0'ui, y: 3.0'ui,
-                                  color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.5))
-
-      text "btnText":
-        with node:
-          box 10'ux, 10'ux, 80'pp, 80'pp
-          fill blackColor
-          setText({font: "testing"}, Center, Middle)
+  let node = self
+  let childPreDraw = proc (c: Figuro) =
+    let node {.inject.} = Button[int](c)
+    box node, 40'ux, 30'ux, 80'ux, 80'ux
+    fill node, css"#2B9F2B"
+    let childPreDraw = proc (c: Figuro) =
+      let node {.inject.} = Text(c)
+      box node, 10'ux, 10'ux, 80'pp, 80'pp
+      fill node, blackColor
+      setText(node, [(font, "testing")], Center, Middle)
+    widgetRegisterImpl[Text](nkText, "btnText", node, childPreDraw)
+  widgetRegisterImpl[Button[int]](nkRectangle, "btn", node, childPreDraw)
 
 
 var main = Main.new()
