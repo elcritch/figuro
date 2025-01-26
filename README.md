@@ -16,14 +16,11 @@ Originally based on Fidget it now has a multi-threaded core and improved event s
 Example drawing buttons with a fading background when any of them are hovered (see below for how it works):
 
 ```nim
-
-## This minimal scrollpane example
 import figuro/widgets/[button, scrollpane, vertical]
 import figuro
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22)
+  font = UiFont(typefaceId: defaultTypeface, size: 22)
 
 type
   Main* = ref object of Figuro
@@ -32,7 +29,6 @@ type
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Enter
-  # echo "hover: ", kind
   refresh(self)
 
 proc buttonItem(self, node: Figuro, idx: int) =
@@ -100,15 +96,16 @@ type
   Main* = ref object of Figuro
 
 proc draw*(self: Main) {.slot.} =
-  rectangle "body", parent=self:
-    # each widget template injects a new `node` variable
-    # that references the current widget
+  withWidget(self):
+    Rectangle.new "body":
+      # each widget template injects a new `node` variable
+      # that references the current widget
 
-    # sets the bounding box of this node
-    box node, 10'ux, 10'ux, 600'ux, 120'ux
+      # sets the bounding box of this node
+      box node, 10'ux, 10'ux, 600'ux, 120'ux
 
-    # set the fill color
-    fill node, css"00001F"
+      # set the fill color
+      fill node, css"00001F"
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(400'ui, 140'ui))

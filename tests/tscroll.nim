@@ -4,8 +4,7 @@ import figuro/widgets/[button, scrollpane, vertical]
 import figuro
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22)
+  font = UiFont(typefaceId: defaultTypeface, size: 22)
 
 type
   Main* = ref object of Figuro
