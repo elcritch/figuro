@@ -10,8 +10,8 @@ proc draw*(self: GridDebug) {.slot.} =
     rectangle "contents":
       WidgetContents()
 
-    if node.children.len() > 0:
-      let grid = node.children[0]
+    if node.children.len() > 0 and node.children[0].children.len() > 0:
+      let grid = node.children[0].children[0]
       echo "GRID DEBUG"
 
       ## helper that draws css grid lines. great for debugging layouts.
@@ -20,7 +20,9 @@ proc draw*(self: GridDebug) {.slot.} =
         # strokeLine 3'ui, css"#0000CC"
         # draw debug lines
         # boxOf node, grid.box
-        if not grid.gridTemplate.isNil:
+        if grid.gridTemplate.isNil:
+          echo "GRID NIL"
+        else:
           # computeLayout(grid, 0)
           # echo "grid template post: ", grid.gridTemplate
           let cg = grid.gridTemplate.gaps[dcol]
