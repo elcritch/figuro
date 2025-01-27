@@ -43,7 +43,7 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  echo "calcBasicConstraintImpl: ", node.name
+  trace "calcBasicConstraintImpl: ", name= node.name
   let parentBox =
     if node.parent.isNil:
       node.frame[].windowSize
@@ -88,7 +88,7 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
             res = node.box.h
       res
 
-  debug "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
+  trace "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
   let csValue =
     when astToStr(f) in ["w", "h"]:
       node.cxSize[dir]
@@ -115,7 +115,7 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
       node.box.f = calcBasic(value)
     UiEnd:
       discard
-  echo "calcBasicConstraintImpl:done: ", node.name, " box: ", node.box.h
+  trace "calcBasicConstraintImpl:done: ", name= node.name, boxH= node.box.h
 
 proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
@@ -224,7 +224,7 @@ proc printLayout*(node: Figuro, depth = 0) =
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
-  debug "computeLayout", name = node.name, box = node.box.wh.repr
+  trace "computeLayout", name = node.name, box = node.box.wh.repr
   # if node.name == "scrollBody":
   #   sb = node
 
@@ -241,17 +241,12 @@ proc computeLayout*(node: Figuro, depth: int) =
     for n in node.children:
       computeLayout(n, depth + 1)
 
-    # echo "adjust box to not include offset in wh"
     var box = node.box
     # adjust box to not include offset in wh
     # box.w = box.w - box.x
     # box.h = box.h - box.y
-    debug "adjusting box wh ", name = node.name, box = box.repr
     let res = node.gridTemplate.computeNodeLayout(box, node.children).Box
-    # echo "gridTemplate: ", node.gridTemplate
-    # echo "computeLayout:grid:\n\tnode.box: ", node.box, "\n\tbox: ", box, "\n\tres: ", res, "\n\toverflows: ", node.gridTemplate.overflowSizes
     node.box = res
-    debug "adjusted box wh: ", name = node.name, boxWH = box.wh.repr, res = res
 
     for n in node.children:
       for c in n.children:
@@ -262,7 +257,6 @@ proc computeLayout*(node: Figuro, depth: int) =
     trace "computeLayout:gridTemplate:post", name = node.name, box = node.box.wh.repr
   else:
     for n in node.children:
-      echo "computeLayout: recurse"
       computeLayout(n, depth + 1)
 
     # update childrens
