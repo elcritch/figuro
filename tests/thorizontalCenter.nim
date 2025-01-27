@@ -23,11 +23,13 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   var node = self
-  BasicFiguro.new "body":
+  Rectangle.new "body":
     with node:
-      box 10'ux, 10'ux, 600'ux, 120'ux
+      box 5'pp, 5'pp, 90'pp, 90'pp
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha)
+      border 3'ui, blackColor
+       
     Horizontal.new "horiz":
       offset node, 10'ux, 0'ux
       itemWidth node, cx"min-content", gap = 20'ui

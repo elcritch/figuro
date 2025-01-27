@@ -48,24 +48,10 @@ proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style
   result = ImageStyle(name: name, color: color)
 
-proc strokeLine*(current: Figuro, weight: UICoord, color: Color, alpha = 1.0'f32) =
+proc border*(current: Figuro, weight: UICoord, color: Color) =
   ## Sets stroke/border color.
   current.stroke.color = color
-  current.stroke.color.a = alpha
   current.stroke.weight = weight.float32
-
-# when not defined(js):
-#   func hAlignMode*(align: HAlign): HAlignMode =
-#     case align:
-#       of hLeft: HAlignMode.Left
-#       of hCenter: Center
-#       of hRight: HAlignMod.Right
-
-#   func vAlignMode*(align: VAlign): VAlignMode =
-#     case align:
-#       of vTop: Top
-#       of vCenter: Middle
-#       of vBottom: Bottom
 
 ## ---------------------------------------------
 ##             Basic Node Creation
