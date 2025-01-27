@@ -18,8 +18,7 @@ proc draw*(self: GridApp) {.slot.} =
       box 10'pp, 10'pp, 80'pp, 80'pp
       fill rgb(224, 239, 255).to(Color)
 
-    GridDebug.new "":
-      rectangle "css grid area":
+    rectangle "css grid area":
         # if current.gridTemplate != nil:
         #   echo "grid template: ", repr current.gridTemplate
         # setup frame for css grid
@@ -61,6 +60,8 @@ proc draw*(self: GridApp) {.slot.} =
             gridRow 1 // 3
             # some color stuff
             fill rgba(245, 129, 49, 123).to(Color)
+    GridDebug.new "debug-grid":
+      node.state = (blackColor, "css grid area")
 
 
 

@@ -250,10 +250,8 @@ proc computeLayout*(node: Figuro, depth: int) =
 
     for n in node.children:
       for c in n.children:
-        debug "computeLayout:gridTemplate:child:pre", name = c.name, box = c.box.wh.repr
         calcBasicConstraint(c, dcol, isXY = false)
         calcBasicConstraint(c, drow, isXY = false)
-        trace "computeLayout:gridTemplate:child:post", name = c.name, box = c.box.wh.repr
     trace "computeLayout:gridTemplate:post", name = node.name, box = node.box.wh.repr
   else:
     for n in node.children:
