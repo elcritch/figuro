@@ -19,16 +19,13 @@ proc draw*(self: GridDebug) {.slot.} =
     #   WidgetContents()
     var gridNode: Figuro
     for c in self.parent[].children:
-      echo "C: `", c.name, "` ", c.gridTemplate.unsafeWeakRef
       if c.name == gridName:
-        echo "C:found: `", c.name, "` ", c.gridTemplate.unsafeWeakRef
         gridNode = c
 
     rectangle "grid-debug":
 
       if gridNode != nil:
         let grid = gridNode
-        echo "GRID DEBUG: ", self.state
 
         ## helper that draws css grid lines. great for debugging layouts.
         boxOf node, grid.box
