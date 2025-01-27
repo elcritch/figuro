@@ -45,7 +45,7 @@ proc draw*(self: Main) {.slot.} =
 
     Horizontal.new "horiz2":
       offset node, 0'pp, 200'ux
-      size node, 100'pp, 70'ux
+      size node, 100'pp, 20'pp
       itemWidth node, cx"max-content", gap = 20'ui
       border node, 3'ui, css"#ff0000"
       for i in 0 .. 4:

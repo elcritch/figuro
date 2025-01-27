@@ -14,7 +14,7 @@ proc draw*(self: Vertical) {.slot.} =
       setGridCols 1'fr
       gridAutoFlow grRow
       justifyItems CxCenter
-      alignItems CxStart
+      alignItems CxCenter
     withOptional self:
       gridAutoRows 1'fr
     WidgetContents()

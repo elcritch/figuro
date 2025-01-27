@@ -133,7 +133,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
-  echo "calcBasicConstraintPostImpl: ", node.name, " box.h: ", node.box.h
+  trace "calcBasicConstraintPostImpl: ", name = node.name, boxH= node.box.h
   let parentBox =
     if node.parent.isNil:
       node.frame[].windowSize
@@ -158,7 +158,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
     else:
       node.cxOffset[dir]
   
-  debug "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
+  trace "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
   match csValue:
     UiNone:
       discard
@@ -180,8 +180,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
       node.box.f = calcBasic(value)
     UiEnd:
       discard
-  debug "CONTENT csValue:POST ", node = node.name, w = node.box.w, h = node.box.h
-  echo "calcBasicConstraintPostImpl:done: ", node.name, " box: ", node.box.h
+  trace "CONTENT csValue:POST ", node = node.name, w = node.box.w, h = node.box.h
 
 proc calcBasicConstraintPost(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
