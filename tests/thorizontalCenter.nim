@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[button, horizontal]
+import figuro/widgets/[button, horizontal, griddebug]
 import figuro
 
 type
@@ -28,14 +28,19 @@ proc draw*(self: Main) {.slot.} =
       box 5'pp, 5'pp, 90'pp, 600'ux
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha)
-      border 3'ui, blackColor
+      border 3'ui, blueColor
        
+    GridDebug.new "debug-grid":
+      node.state = (blackColor, "horiz")
+    GridDebug.new "debug-grid":
+      node.state = (blackColor, "horiz2")
+
     Horizontal.new "horiz":
       offset node, 0'ux, 0'ux
       size node, 100'pp, 200'ux
       itemWidth node, 1'fr, gap = 20'ui
       border node, 3'ui, css"#00ff00"
-      for i in 0 .. 4:
+      for i in 0 .. 3:
         capture i:
           Button[int].new "btn":
             with node:
@@ -48,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
       size node, 100'pp, 20'pp
       itemWidth node, cx"max-content", gap = 20'ui
       border node, 3'ui, css"#ff0000"
-      for i in 0 .. 4:
+      for i in 0 .. 3:
         capture i:
           Button[int].new "btn":
             with node:

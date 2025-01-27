@@ -47,8 +47,10 @@ proc draw*(self: GridDebug) {.slot.} =
           rectangle "edge":
             with node:
               fill color
+              zlevel 10.ZLevel
               box 0'ux, 0'ux, w, 3'ux
           rectangle "edge":
             with node:
               fill color
+              zlevel 10.ZLevel
               box 0'ux, ux(h - 3), w, 3'ux

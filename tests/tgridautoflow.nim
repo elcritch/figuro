@@ -13,6 +13,8 @@ type
 proc draw*(self: GridApp) {.slot.} =
   var node = self
   rectangle "autoLayout":
+    GridDebug.new "debug-grid":
+      node.state = (blackColor, "css grid area")
     # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
     with node:
       box 10'pp, 10'pp, 80'pp, 80'pp
@@ -60,8 +62,6 @@ proc draw*(self: GridApp) {.slot.} =
           gridRow 1 // 3
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
-    GridDebug.new "debug-grid":
-      node.state = (blackColor, "css grid area")
 
 
 
