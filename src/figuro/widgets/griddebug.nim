@@ -3,6 +3,10 @@ import ../ui/animations
 
 type GridDebug* = ref object of StatefulFiguro[Color]
 
+proc initialize*[T](self: GridDebug) {.slot.} =
+  echo "griddebug:initialize"
+  self.state = blackColor
+
 proc draw*(self: GridDebug) {.slot.} =
   ## button widget!
   withWidget(self):
@@ -32,6 +36,7 @@ proc draw*(self: GridDebug) {.slot.} =
           for col in grid.gridTemplate.columns[1 ..^ 2]:
             capture col:
               rectangle "column":
+                echo "COL: ", col.start.UICoord - wd
                 with node:
                   fill self.state
                   box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
