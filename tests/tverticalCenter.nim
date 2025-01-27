@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[button, horizontal]
+import figuro/widgets/[button, vertical]
 import figuro
 
 type
@@ -30,12 +30,12 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(self.hoveredAlpha)
       border 3'ui, blackColor
        
-    Horizontal.new "horiz":
+    Vertical.new "horiz":
       offset node, 0'ux, 0'ux
       size node, 100'pp, 200'ux
-      itemWidth node, 1'fr, gap = 20'ui
+      itemHeight node, 1'fr, gap = 20'ui
       border node, 3'ui, css"#00ff00"
-      for i in 0 .. 4:
+      for i in 0 .. 3:
         capture i:
           Button[int].new "btn":
             with node:
@@ -43,12 +43,12 @@ proc draw*(self: Main) {.slot.} =
               # we need to connect the nodes onHover event
               connect(doHover, self, buttonHover)
 
-    Horizontal.new "horiz2":
+    Vertical.new "horiz2":
       offset node, 0'pp, 200'ux
       size node, 100'pp, 70'ux
-      itemWidth node, cx"max-content", gap = 20'ui
+      itemHeight node, cx"max-content", gap = 20'ui
       border node, 3'ui, css"#ff0000"
-      for i in 0 .. 4:
+      for i in 0 .. 3:
         capture i:
           Button[int].new "btn":
             with node:
