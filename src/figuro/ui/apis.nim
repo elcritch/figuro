@@ -28,28 +28,12 @@ template withNodes*[T](fig: T, blk: untyped): untyped =
   ## alias for `nodes`
   nodes[T](fig, blk)
 
-proc init*(
-    tp: typedesc[Stroke], weight: float32 | UICoord, color: string, alpha = 1.0
-): Stroke =
-  ## Sets stroke/border color.
-  result.color = parseHtmlColor(color)
-  result.color.a = alpha
-  result.weight = weight.float32
-
-proc init*(
-    tp: typedesc[Stroke], weight: float32 | UICoord, color: Color, alpha = 1.0
-): Stroke =
-  ## Sets stroke/border color.
-  result.color = color
-  result.color.a = alpha
-  result.weight = weight.float32
-
 proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style
   result = ImageStyle(name: name, color: color)
 
 proc border*(current: Figuro, weight: UICoord, color: Color) =
-  ## Sets stroke/border color.
+  ## Sets border stroke & color.
   current.stroke.color = color
   current.stroke.weight = weight.float32
 
