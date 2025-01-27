@@ -31,16 +31,8 @@ proc draw*(self: GridDebug) {.slot.} =
         echo "GRID DEBUG: ", self.state
 
         ## helper that draws css grid lines. great for debugging layouts.
-        # fill node, self.state
-        # zlevel node, 10.ZLevel
-        # strokeLine 3'ui, css"#0000CC"
-        # draw debug lines
         boxOf node, grid.box
-        if grid.gridTemplate.isNil:
-          echo "GRID NIL"
-        else:
-          # computeLayout(grid, 0)
-          # echo "grid template post: ", grid.gridTemplate
+        if not grid.gridTemplate.isNil:
           let cg = grid.gridTemplate.gaps[dcol]
           let wd = 3'ui
           let w = grid.gridTemplate.columns[^1].start.UICoord
@@ -48,7 +40,6 @@ proc draw*(self: GridDebug) {.slot.} =
           for col in grid.gridTemplate.columns[1 ..^ 2]:
             capture col:
               rectangle "column":
-                echo "COL: ", col.start.UICoord - wd, " wd: ", wd
                 with node:
                   zlevel 10.ZLevel
                   fill color
@@ -56,7 +47,6 @@ proc draw*(self: GridDebug) {.slot.} =
           for row in grid.gridTemplate.rows[1 ..^ 2]:
             capture row:
               rectangle "row":
-                echo "ROW: ", row.start.UICoord - wd
                 with node:
                   zlevel 10.ZLevel
                   fill color
