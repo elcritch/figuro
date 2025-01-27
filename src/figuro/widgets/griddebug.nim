@@ -7,16 +7,12 @@ type GridDebug* = ref object of StatefulFiguro[(Color, string)]
 
 proc initialize*(self: GridDebug) {.slot.} =
   echo "griddebug:initialize"
-  # self.state = blackColor
 
 proc draw*(self: GridDebug) {.slot.} =
-  ## button widget!
   withWidget(self):
     let color = self.state[0]
     let gridName = self.state[1]
 
-    # rectangle "contents":
-    #   WidgetContents()
     var gridNode: Figuro
     for c in self.parent[].children:
       if c.name == gridName:
@@ -56,5 +52,3 @@ proc draw*(self: GridDebug) {.slot.} =
             with node:
               fill color
               box 0'ux, ux(h - 3), w, 3'ux
-
-# exportWidget(button, Button)
