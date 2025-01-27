@@ -56,7 +56,7 @@ type
     nIndex*: int
     diffIndex*: int
 
-    box*: Box
+    box: Box
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
@@ -117,6 +117,16 @@ proc `=destroy`*(obj: type(Figuro()[])) =
   for child in obj.children:
     assert objPtr == child.parent
     child.parent.pt = nil
+
+proc `box=`*[F](fig: F, box: Box) =
+  echo "set box: ", fig.name, " :: ", box
+  fig.box = box
+proc box*[F](fig: F): var Box =
+  if fig.name == "horiz2":
+    echo "get box: ", fig.name, " :: ", fig.box.h, " csSize: ", fig.cxSize[drow]
+    let se: seq[StackTraceEntry] = getStackTraceEntries()[^4..^1]
+    echo se.mapIt(($it.procname, $it.line))
+  fig.box
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig[].children

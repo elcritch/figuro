@@ -193,14 +193,21 @@ template h*(r: Box): UICoord =
 
 template `x=`*(r: Box, v: UICoord) =
   r.Rect.x = v.float32
+  # echo "\tX: ", r.Rect.x, " => ", v
 
 template `y=`*(r: Box, v: UICoord) =
   r.Rect.y = v.float32
+  # echo "\tY: ", r.Rect.y, " => ", v
 
 template `w=`*(r: Box, v: UICoord) =
   r.Rect.w = v.float32
+  # echo "\tW: ", r.Rect.w, " => ", v
 
 template `h=`*(r: Box, v: UICoord) =
+  if r.Rect.h == 70 or v == 70:
+    echo "\tH: ", r.Rect.h, " => ", v
+    let se: seq[StackTraceEntry] = getStackTraceEntries()[^4..^1]
+    echo "\tHH st: ", se.mapIt(($it.procname, $it.line))
   r.Rect.h = v.float32
 
 template xy*(r: Box): Position =

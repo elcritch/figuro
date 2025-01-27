@@ -43,6 +43,7 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
+  echo "calcBasicConstraintImpl: ", node.name
   let parentBox =
     if node.parent.isNil:
       node.frame[].windowSize
@@ -87,6 +88,7 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
             res = node.box.h
       res
 
+  debug "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
   let csValue =
     when astToStr(f) in ["w", "h"]:
       node.cxSize[dir]
@@ -113,6 +115,7 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
       node.box.f = calcBasic(value)
     UiEnd:
       discard
+  echo "calcBasicConstraintImpl:done: ", node.name, " box: ", node.box.h
 
 proc calcBasicConstraint(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
@@ -130,6 +133,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
   ## computes basic constraints for box'es when set
   ## this let's the use do things like set 90'pp (90 percent)
   ## of the box width post css grid or auto constraints layout
+  echo "calcBasicConstraintPostImpl: ", node.name, " box.h: ", node.box.h
   let parentBox =
     if node.parent.isNil:
       node.frame[].windowSize
@@ -154,7 +158,7 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
     else:
       node.cxOffset[dir]
   
-  trace "CONTENT csValue: ", node = node.name, d = repr(dir), csValue = csValue.repr
+  debug "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
   match csValue:
     UiNone:
       discard
@@ -176,7 +180,8 @@ template calcBasicConstraintPostImpl(node: Figuro, dir: static GridDir, f: untyp
       node.box.f = calcBasic(value)
     UiEnd:
       discard
-  trace "CONTENT csValue:POST ", node = node.name, w = node.box.w, h = node.box.h
+  debug "CONTENT csValue:POST ", node = node.name, w = node.box.w, h = node.box.h
+  echo "calcBasicConstraintPostImpl:done: ", node.name, " box: ", node.box.h
 
 proc calcBasicConstraintPost(node: Figuro, dir: static GridDir, isXY: static bool) =
   ## calcuate sizes of basic constraints per field x/y/w/h for each node
@@ -216,13 +221,13 @@ proc printLayout*(node: Figuro, depth = 0) =
   for c in node.children:
     printLayout(c, depth + 2)
 
-var sb: Figuro
+# var sb: Figuro
 
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
-  trace "computeLayout", name = node.name, box = node.box.wh.repr
-  if node.name == "scrollBody":
-    sb = node
+  debug "computeLayout", name = node.name, box = node.box.wh.repr
+  # if node.name == "scrollBody":
+  #   sb = node
 
   # # simple constraints
   calcBasicConstraint(node, dcol, isXY = true)
@@ -237,24 +242,28 @@ proc computeLayout*(node: Figuro, depth: int) =
     for n in node.children:
       computeLayout(n, depth + 1)
 
-    # adjust box to not include offset in wh
+    # echo "adjust box to not include offset in wh"
     var box = node.box
-    box.w = box.w - box.x
-    box.h = box.h - box.y
+    # adjust box to not include offset in wh
+    # box.w = box.w - box.x
+    # box.h = box.h - box.y
+    debug "adjusting box wh ", name = node.name, box = box.repr
     let res = node.gridTemplate.computeNodeLayout(box, node.children).Box
     # echo "gridTemplate: ", node.gridTemplate
     # echo "computeLayout:grid:\n\tnode.box: ", node.box, "\n\tbox: ", box, "\n\tres: ", res, "\n\toverflows: ", node.gridTemplate.overflowSizes
     node.box = res
+    debug "adjusted box wh: ", name = node.name, boxWH = box.wh.repr, res = res
 
     for n in node.children:
       for c in n.children:
-        trace "computeLayout:gridTemplate:child:pre", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+        debug "computeLayout:gridTemplate:child:pre", name = c.name, box = c.box.wh.repr
         calcBasicConstraint(c, dcol, isXY = false)
         calcBasicConstraint(c, drow, isXY = false)
-        trace "computeLayout:gridTemplate:child:post", name = c.name, box = c.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
-    trace "computeLayout:gridTemplate:post", name = node.name, box = node.box.wh.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+        trace "computeLayout:gridTemplate:child:post", name = c.name, box = c.box.wh.repr
+    trace "computeLayout:gridTemplate:post", name = node.name, box = node.box.wh.repr
   else:
     for n in node.children:
+      echo "computeLayout: recurse"
       computeLayout(n, depth + 1)
 
     # update childrens
@@ -263,13 +272,13 @@ proc computeLayout*(node: Figuro, depth: int) =
       calcBasicConstraintPost(n, drow, isXY = true)
       calcBasicConstraintPost(n, dcol, isXY = false)
       calcBasicConstraintPost(n, drow, isXY = false)
-      trace "calcBasicConstraintPost: ", n = n.name, w = n.box.w, h = n.box.h, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+      trace "calcBasicConstraintPost: ", n = n.name, w = n.box.w, h = n.box.h
 
   # debug "computeLayout:post: ",
   #   name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, children = node.children.mapIt((it.name, it.box.repr))
 
   trace "computeLayout:post: ",
-    name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, sb = if sb != nil: sb.box.repr else: "", sbPtr = sb.unsafeWeakRef
+    name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
   let currWh = node.box.wh
   # if currWh != node.prevSize:
   #   debug "computeLayout:post:changed: ",

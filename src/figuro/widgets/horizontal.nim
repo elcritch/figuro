@@ -13,7 +13,7 @@ proc draw*(self: Horizontal) {.slot.} =
     with self:
       setGridRows 1'fr
       gridAutoFlow grColumn
-      justifyItems CxCenter
+      justifyItems CxStretch
       alignItems CxCenter
     WidgetContents()
 
