@@ -345,7 +345,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
 template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
   widgetRegister[t](nkText, name, blk)
 
-template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
+template new*[F: Figuro](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills
@@ -378,6 +378,12 @@ template WidgetContents*(): untyped =
   for content in widgetContents:
     content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
+
+template `as`*[T: Figuro](tp: typedesc[T], name: string, blk) =
+  ## experimental alternate name for `new`
+  ## This `Widget.new "myFoo": ...` becomes `Widget as "myFoo": ...`
+
+  new(tp, name, blk)
 
 proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
   refresh(obj)
