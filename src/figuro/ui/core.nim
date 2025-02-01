@@ -380,8 +380,12 @@ template WidgetContents*(): untyped =
 {.hint[Name]: on.}
 
 template `as`*[T: Figuro](tp: typedesc[T], name: string, blk) =
-  ## experimental alternate name for `new`
-  ## This `Widget.new "myFoo": ...` becomes `Widget as "myFoo": ...`
+  ## Alternate name for `new` widgets (experimental)
+  ## 
+  ## So `Widget.new "myFoo": ...` becomes `Widget as "myFoo": ...`
+  ## 
+  ## To be read like `Widget as a node with id and code block xyz`
+  ## 
 
   new(tp, name, blk)
 
