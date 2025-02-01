@@ -9,49 +9,51 @@ let
 
 type
   Main* = ref object of Figuro
-    value: int
-    counter = Property[int]()
+    counter: Sigil[int]
+
+proc initialize*(self: Main) {.slot.} =
+  self.counter = newSigil(0)
 
 proc draw*(self: Main) {.slot.} =
-  self.name.setLen(0)
-  self.name.add "main"
-  with self:
-    fill css"#9F2B00"
-    size 100'pp, 100'pp
-
-  var node = self
-  rectangle "count":
+  withWidget(self):
+    node.name.add "main"
     with node:
-      cornerRadius 10.0
-      box 40'ux, 30'ux, 80'ux, 40'ux
-      fill css"#3B70DF"
-    text "btnText":
-      bindProp(self.counter)
-      with node:
-        box 0'pp, 0'pp, 100'pp, 120'pp
-        fill blackColor
-        setText({font: $self.counter.value & " ₿" }, Center, Middle)
+      fill css"#9F2B00"
+      size 100'pp, 100'pp
 
-  Button.new "btnAdd":
-    box node, 160'ux, 30'ux, 80'ux, 40'ux
-    text "btnText":
+    rectangle "count":
       with node:
-        size 100'pp, 120'pp
-        fill blackColor
-        setText({largeFont: "–"}, Center, Middle)
-    ## something like this:
-    self.counter.onSignal(doClicked) do(counter: Property[int]):
-      counter.update(counter.value-1)
+        cornerRadius 10.0
+        box 40'ux, 30'ux, 80'ux, 40'ux
+        fill css"#3B70DF"
+      text "btnText":
+        # bindProp(self.counter)
+        with node:
+          box 0'pp, 0'pp, 100'pp, 120'pp
+          fill blackColor
+          setText({font: $self.counter{} & " ₿" }, Center, Middle)
 
-  Button.new "btnSub":
-    box node, 240'ux, 30'ux, 80'ux, 40'ux
-    text "btnText":
-      with node:
-        size 100'pp, 120'pp
-        fill blackColor
-        setText({largeFont: "+"}, Center, Middle)
-    self.counter.onSignal(doClicked) do(counter: Property[int]):
-      counter.update(counter.value+1)
+    Button.new "btnAdd":
+      box node, 160'ux, 30'ux, 80'ux, 40'ux
+      text "btnText":
+        with node:
+          size 100'pp, 120'pp
+          fill blackColor
+          setText({largeFont: "–"}, Center, Middle)
+      ## something like this:
+      onSignal(doClicked, self.counter) do(counter: Sigil[int]):
+        # echo "getInternalSigilIdent: ", getInternalSigilIdent()
+        counter <- counter{} - 1
+
+    Button.new "btnSub":
+      box node, 240'ux, 30'ux, 80'ux, 40'ux
+      text "btnText":
+        with node:
+          size 100'pp, 120'pp
+          fill blackColor
+          setText({largeFont: "+"}, Center, Middle)
+      onSignal(doClicked, self.counter) do(counter: Sigil[int]):
+        counter <- counter{} + 1
 
 
 var main = Main.new()

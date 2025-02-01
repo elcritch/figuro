@@ -3,11 +3,14 @@ import std/terminal
 import std/times
 import pkg/chronicles
 
+import sigils/reactive
+
 # import basiccss
 import ../commons
 import ../common/system
 export commons
 export system
+export reactive
 
 import csstheme
 
@@ -128,7 +131,7 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
-template onSignal*[T](obj: T, signal: typed, cb: proc(obj: T) {.nimcall.}) =
+template onSignal*[T](signal: typed, obj: T, cb: proc(obj: T) {.nimcall.}) =
   proc handler(self: T) {.slot.} =
     `cb`(self)
 
@@ -376,11 +379,18 @@ template WidgetContents*(): untyped =
     content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
+proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
+  refresh(obj)
+
 template withWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
   let node {.inject.} = self
   let widget {.inject.} = self
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
+  template getInternalSigilIdent(): untyped =
+    ## provide this to override the default `internalSigil`
+    ## identify, for using local naming schema
+    node
 
   `blk`
