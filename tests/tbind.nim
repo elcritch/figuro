@@ -34,28 +34,28 @@ proc draw*(self: Main) {.slot.} =
           setText({font: $self.counter{} & " ₿" }, Center, Middle)
         echo "UPDATED: "
 
-    Button as "btnAdd":
+    Button as "btnSub":
       box node, 160'ux, 30'ux, 80'ux, 40'ux
+      text "btnText":
+        with node:
+          size 100'pp, 120'pp
+          fill blackColor
+          setText({largeFont: "-"}, Center, Middle)
+      onSignalIt(doClicked, self):
+        echo "MINUS"
+        it.counter <- it.counter{} - 1
+
+    Button as "btnAdd":
+      box node, 240'ux, 30'ux, 80'ux, 40'ux
       text "btnText":
         with node:
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "+"}, Center, Middle)
       ## something like this:
-      onSignal(doClicked, self):
+      onSignalIt(doClicked, self):
         echo "PLUS"
-        self.counter <- self.counter{} + 1
-
-    Button as "btnSub":
-      box node, 240'ux, 30'ux, 80'ux, 40'ux
-      text "btnText":
-        with node:
-          size 100'pp, 120'pp
-          fill blackColor
-          setText({largeFont: "-"}, Center, Middle)
-      onSignal(doClicked, self):
-        echo "MINUS"
-        self.counter <- self.counter{} - 1
+        it.counter <- it.counter{} + 1
 
 
 var main = Main.new()

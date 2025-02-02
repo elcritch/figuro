@@ -141,8 +141,9 @@ proc signalTrigger*[T](self: T, node: Figuro, signal: string) {.signal.}
 proc forward(node: Figuro) {.slot.} =
   emit node.signalTrigger(node, "")
 
-template onSignal*(signal, obj, blk: untyped) =
-  proc handler(self: typeof(`obj`)) {.slot.} =
+template onSignalIt*[T](signal: untyped, obj: T, blk: untyped) =
+  proc handler(arg: typeof(`obj`)) {.slot.} =
+    let it {.inject, used.} = arg
     unBindSigilEvents:
       `blk`
   connect(node, signalTrigger, `obj`, handler, acceptVoidSlot = true)
