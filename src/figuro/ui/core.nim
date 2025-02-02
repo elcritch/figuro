@@ -131,13 +131,17 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
+template unBindSigilEvents*(blk: untyped): auto =
+  var prevEnableSigilBinding {.compileTime.} = enableSigilBinding
+  static: enableSigilBinding = false
+  `blk`
+  static: enableSigilBinding = prevEnableSigilBinding
+
 template onSignal*[T](signal: typed, to: T, cb: proc(obj: T) {.nimcall.}) =
   proc handler(self: T) {.slot.} =
-    `cb`(self)
+    unBindSigilEvents:
+      `cb`(self)
   connect(node, signal, to, handler, acceptVoidSlot = true)
-
-template bindProp*[T](prop: Property[T]) =
-  connect(prop, doChanged, Agent(node), Figuro.changed())
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
@@ -397,9 +401,9 @@ template withWidget*(self, blk: untyped) =
   let widget {.inject.} = self
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
-  # template getInternalSigilIdent(): untyped =
-  #   ## provide this to override the default `internalSigil`
-  #   ## identify, for using local naming schema
-  #   node
+  template getInternalSigilIdent(): untyped =
+    ## provide this to override the default `internalSigil`
+    ## identify, for using local naming schema
+    node
 
   `blk`
