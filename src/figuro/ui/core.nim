@@ -131,11 +131,10 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
-template onSignal*[T](signal: typed, obj: T, cb: proc(obj: T) {.nimcall.}) =
+template onSignal*[T](signal: typed, to: T, cb: proc(obj: T) {.nimcall.}) =
   proc handler(self: T) {.slot.} =
     `cb`(self)
-
-  connect(node, signal, obj, handler, acceptVoidSlot = true)
+  connect(node, signal, to, handler, acceptVoidSlot = true)
 
 template bindProp*[T](prop: Property[T]) =
   connect(prop, doChanged, Agent(node), Figuro.changed())
@@ -345,7 +344,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
 template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
   widgetRegister[t](nkText, name, blk)
 
-template new*[F: Figuro](t: typedesc[F], name: string, blk: untyped) =
+template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills
@@ -398,9 +397,9 @@ template withWidget*(self, blk: untyped) =
   let widget {.inject.} = self
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
-  template getInternalSigilIdent(): untyped =
-    ## provide this to override the default `internalSigil`
-    ## identify, for using local naming schema
-    node
+  # template getInternalSigilIdent(): untyped =
+  #   ## provide this to override the default `internalSigil`
+  #   ## identify, for using local naming schema
+  #   node
 
   `blk`

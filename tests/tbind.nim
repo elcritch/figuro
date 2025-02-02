@@ -41,9 +41,9 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({largeFont: "–"}, Center, Middle)
       ## something like this:
-      onSignal(doClicked, self.counter) do(counter: Sigil[int]):
+      onSignal(doClicked, to=self) do(self: Main):
         # echo "getInternalSigilIdent: ", getInternalSigilIdent()
-        counter <- counter{} - 1
+        self.counter <- self.counter{} - 1
 
     Button.new "btnSub":
       box node, 240'ux, 30'ux, 80'ux, 40'ux
@@ -52,8 +52,9 @@ proc draw*(self: Main) {.slot.} =
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "+"}, Center, Middle)
-      onSignal(doClicked, self.counter) do(counter: Sigil[int]):
-        counter <- counter{} + 1
+      onSignal(doClicked, to=self) do(self: Main):
+        # echo "getInternalSigilIdent: ", getInternalSigilIdent()
+        self.counter <- self.counter{} - 1
 
 
 var main = Main.new()
