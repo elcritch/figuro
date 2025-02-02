@@ -42,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({largeFont: "+"}, Center, Middle)
       ## something like this:
-      onSignal(doClicked, to=self) do(self: Main):
+      onSignal(doClicked, to=self):
         echo "PLUS"
         self.counter <- self.counter{} + 1
 
@@ -53,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "-"}, Center, Middle)
-      onSignal(doClicked, to=self) do(self: Main):
+      onSignal(doClicked, to=self):
         echo "MINUS"
         self.counter <- self.counter{} - 1
 

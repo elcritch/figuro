@@ -136,16 +136,18 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
 #   `blk`
 #   static: discard enableSigilBinding.pop()
 
-template onSignal*[T](signal: typed, to: T, cb: proc(obj: T) {.nimcall.}) =
-  proc handler(self: T) {.slot.} =
+proc signalTrigger*[T](self: T, node: Figuro, signal: string) {.signal.}
+
+proc forward(node: Figuro) {.slot.} =
+  emit node.signalTrigger(node, "")
+
+template onSignal*(signal, to, blk: untyped) =
+  proc handler(self: typeof(to)) {.slot.} =
     unBindSigilEvents:
-      static:
-        echo "unbind: {} :: enableSigilBinding: ", enableSigilBinding
-      `cb`(self)
+      `blk`
   unBindSigilEvents:
-    static:
-      echo "unbind: {} :: enableSigilBinding: ", enableSigilBinding
-    connect(node, signal, to, handler, acceptVoidSlot = true)
+    connect(node, signalTrigger, node, Figuro.forward(), acceptVoidSlot = true)
+    # connect(node, signal, to, handler, acceptVoidSlot = true)
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
