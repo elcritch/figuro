@@ -54,6 +54,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({largeFont: "-"}, Center, Middle)
       onSignal(doClicked, to=self) do(self: Main):
+        echo "MINUS"
         self.counter <- self.counter{} - 1
 
 
