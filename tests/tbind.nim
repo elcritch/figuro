@@ -16,8 +16,8 @@ proc initialize*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
-    node.name.add "main"
     with node:
+      setName "main"
       fill css"#9F2B00"
       size 100'pp, 100'pp
 
@@ -33,27 +33,25 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({font: $self.counter{} & " ₿" }, Center, Middle)
 
-    Button.new "btnAdd":
+    Button as "btnAdd":
       box node, 160'ux, 30'ux, 80'ux, 40'ux
       text "btnText":
         with node:
           size 100'pp, 120'pp
           fill blackColor
-          setText({largeFont: "–"}, Center, Middle)
+          setText({largeFont: "+"}, Center, Middle)
       ## something like this:
       onSignal(doClicked, to=self) do(self: Main):
-        # echo "getInternalSigilIdent: ", getInternalSigilIdent()
-        self.counter <- self.counter{} - 1
+        self.counter <- self.counter{} + 1
 
-    Button.new "btnSub":
+    Button as "btnSub":
       box node, 240'ux, 30'ux, 80'ux, 40'ux
       text "btnText":
         with node:
           size 100'pp, 120'pp
           fill blackColor
-          setText({largeFont: "+"}, Center, Middle)
+          setText({largeFont: "-"}, Center, Middle)
       onSignal(doClicked, to=self) do(self: Main):
-        # echo "getInternalSigilIdent: ", getInternalSigilIdent()
         self.counter <- self.counter{} - 1
 
 
