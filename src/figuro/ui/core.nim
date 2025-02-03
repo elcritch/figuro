@@ -151,36 +151,32 @@ proc forward(node: Figuro) {.slot.} =
 
 import macros
 
-proc getParams(doBody: NimNode): (NimNode, NimNode) =
+proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
   echo "getParam: ", doBody.treeRepr
   if doBody.kind != nnkDo:
     error("Must provide a do body with 1 argument", doBody)
-  if doBody[3][0].kind != nnkEmpty:
-    error("Must not provide a return type. Found: " & $doBody[3][0] , doBody)
-  if doBody[3][1].kind != nnkIdentDefs:
-    error("Must not provide a return type. Found: " & $doBody[3][0] , doBody)
-  if doBody[3].len > 2:
-    error("Must not provide only one argument type. Found: " & $(doBody[3].len()-1), doBody)
-  if doBody[3][1].len > 3:
-    error("Must not provide only one argument type. Found: " & $(doBody[3][1].len()-2), doBody)
-  let param = doBody[3][1][0]
+  let params = doBody[3]
+  let target = params[1][0]
   let body = doBody[^1]
-  return (param, body)
+  return (target, params, body)
 
 macro onSignal*(signal: untyped, blk: untyped) =
-  let (target, body) =  getParams(blk)
+  let (target, params, body) =  getParams(blk)
+  let args = repr(params)
 
   result = quote do:
-    block:
-      let `target` = `target`
-      proc handler(arg: typeof(`target`)) {.slot.} =
-        let `target` {.inject, used.} = arg
-        unBindSigilEvents:
-          `body`
-      connect(node, signalTrigger, `target`, handler, acceptVoidSlot = true)
-      connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
-    
-  echo "result: ", result.repr
+    let `target` = `target`
+    proc handler() {.slot.} =
+      unBindSigilEvents:
+        `body`
+    when not compiles(handler(`target`)):
+      {.error: "mismatched do block argument: `" & `args` &
+               "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
+               astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
+    connect(node, signalTrigger, `target`, handler, acceptVoidSlot = true)
+    connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+  result[1].params = params
+  # echo "result: ", result.treeRepr
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
