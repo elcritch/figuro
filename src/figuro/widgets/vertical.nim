@@ -8,8 +8,8 @@ template usingVerticalLayout*() =
     gridAutoFlow grRow
     justifyItems CxCenter
     alignItems CxCenter
-  withOptional self:
-    gridAutoRows 1'fr
+  # withOptional node:
+  #   gridAutoRows 1'fr
 
 proc contentHeight*(current: Vertical, cx: Constraint, gap = -1'ui) =
   current.gridAutoRows cx
@@ -23,5 +23,6 @@ template usingVerticalLayout*(cx: Constraint, gap = -1'ui) =
 proc draw*(self: Vertical) {.slot.} =
   ## button widget!
   withWidget(self):
+    usingVerticalLayout()
     WidgetContents()
 
