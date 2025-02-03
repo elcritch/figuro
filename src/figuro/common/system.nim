@@ -2,8 +2,8 @@ import pkg/threading/channels
 
 import nodes/uinodes
 import inputs
-import glyphs
-export glyphs
+import fonttypes
+export fonttypes
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}

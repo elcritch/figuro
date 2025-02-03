@@ -2,9 +2,9 @@ import std/options
 import chroma
 
 import ../uimaths
-import ../glyphs
+import ../fonttypes
 
-export uimaths, glyphs
+export uimaths, fonttypes
 export options, chroma
 
 when defined(compilervm):
