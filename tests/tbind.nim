@@ -40,8 +40,8 @@ proc draw*(self: Main) {.slot.} =
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "–"}, Center, Middle)
-      onSignalDoThis(doClicked, self):
-        this.counter <- this.counter{} - 1
+      onSignal(doClicked, self):
+        self.counter <- self.counter{} - 1
 
     Button as "btnAdd":
       box node, 240'ux, 30'ux, 80'ux, 40'ux
@@ -51,8 +51,8 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({largeFont: "+"}, Center, Middle)
       ## something like this:
-      onSignalDoThis(doClicked, self):
-        this.counter <- this.counter{} + 1
+      onSignal(doClicked, self):
+        self.counter <- self.counter{} + 1
 
 
 var main = Main.new()
