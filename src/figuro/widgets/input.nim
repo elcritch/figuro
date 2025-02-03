@@ -11,6 +11,9 @@ type Input* = ref object of Figuro
   value: int
   cnt: int
 
+proc font*(self: Input, font: UiFont) =
+  self.text.font = font
+
 proc align*(self: Input, kind: FontVertical) =
   self.text.vAlign = kind
 

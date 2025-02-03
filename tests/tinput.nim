@@ -30,9 +30,9 @@ proc draw*(self: Main) {.slot.} =
       fill "#2A9EEA".parseHtmlColor * 0.7
     Input.new "text":
       box node, 10'ux, 10'ux, 400'ux, 100'ux
-      echo "input:box: ", node.box
-      align node, Bottom 
+      align node, Middle 
       justify node, Center
+      font node, UiFont(typefaceId: defaultTypeface, size: 20'ui)
       # fill blackColor
 
 var main = Main.new()
