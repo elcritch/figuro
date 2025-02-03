@@ -24,15 +24,15 @@ proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  let node = self
-  rectangle "body":
-    with node:
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      fill whiteColor.darken(self.bkgFade.amount)
-    Horizontal.new "horiz":
-      offset node, 10'ux, 0'ux
-      itemWidth node, cx"min-content", gap = 20'ui
+  withWidget(self):
+    rectangle "body":
+      usingHorizontalLayout cx"min-content", gap = 20'ui
+
+      with node:
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0
+        fill whiteColor.darken(self.bkgFade.amount)
+
       for i in 0 .. 4:
         capture i:
           Button.new "btn":
