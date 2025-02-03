@@ -74,7 +74,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
 
       # echo "draw: ", self.fade.amount, " isPressed: ", self.isPressed, " fade:act: ", self.fade.active
       if self.fade.active or self.isPressed:
-        node.fill = node.fill.lighten(0.14*self.fade.amount)
+        this.fill = this.fill.lighten(0.14*self.fade.amount)
     
     rectangle "buttonInner":
       WidgetContents()

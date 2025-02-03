@@ -18,39 +18,39 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  var node = self
-  rectangle "main":
-    with node:
-      cssEnable false
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      fill css"#2A9EEA" * 0.7
-    text "text":
-      with node:
-        cssEnable false
-        box 10'ux, 10'ux, 400'ux, 100'ux
-        fill blackColor
-        setText({font: "hello world!",
-                  smallFont: "It's a small world"}, vAlign=Top)
-    text "text":
-      with node:
-        box 10'ux, 10'ux, 400'ux, 100'ux
-        cssEnable false
-        fill blackColor
-        setText({font: "hello world!",
-                  smallFont: "It's a small world"}, vAlign=Middle)
-    text "text":
-      with node:
-        cssEnable false
-        box 10'ux, 10'ux, 400'ux, 100'ux
-        fill blackColor
-        setText({font: "hello world!",
-                  smallFont: "It's a small world"}, vAlign=Bottom)
+  withRootWidget(self):
     rectangle "main":
-      with node:
+      with this:
         cssEnable false
-        box 10'ux, 10'ux, 400'ux, 100'ux
-        fill whiteColor * 0.33
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0
+        fill css"#2A9EEA" * 0.7
+      text "text":
+        with this:
+          cssEnable false
+          box 10'ux, 10'ux, 400'ux, 100'ux
+          fill blackColor
+          setText({font: "hello world!",
+                    smallFont: "It's a small world"}, vAlign=Top)
+      text "text":
+        with this:
+          box 10'ux, 10'ux, 400'ux, 100'ux
+          cssEnable false
+          fill blackColor
+          setText({font: "hello world!",
+                    smallFont: "It's a small world"}, vAlign=Middle)
+      text "text":
+        with this:
+          cssEnable false
+          box 10'ux, 10'ux, 400'ux, 100'ux
+          fill blackColor
+          setText({font: "hello world!",
+                    smallFont: "It's a small world"}, vAlign=Bottom)
+      rectangle "main":
+        with this:
+          cssEnable false
+          box 10'ux, 10'ux, 400'ux, 100'ux
+          fill whiteColor * 0.33
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

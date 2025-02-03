@@ -369,15 +369,15 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
-  when not compiles(node.typeof):
-    {.error: "no `node` variable defined in the current scope!".}
+  when not compiles(this.typeof):
+    {.error: "no `this` variable defined in the current scope!".}
   
   let childPreDraw = proc(c: Figuro) =
       # echo "widgt PRE-DRAW INIT: ", nm
-      let node {.inject.} = ## implicit variable in each widget block that references the current widget
+      let this {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
       `blk`
-  widgetRegisterImpl[T](nkind, nn, node, childPreDraw)
+  widgetRegisterImpl[T](nkind, nn, this, childPreDraw)
 
 template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
   widgetRegister[t](nkText, name, blk)
@@ -431,10 +431,22 @@ proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
 
 template withWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
-  let node {.inject.} = self
+  let this {.inject.} = self
   let widget {.inject.} = self
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
 
-  bindSigilEvents(node):
+  bindSigilEvents(this):
     `blk`
+
+template withRootWidget*(self, blk: untyped) =
+  ## sets up a draw slot for working with Figuro nodes
+  let this {.inject.} = self
+  let widget {.inject.} = self
+  let widgetContents {.inject.} = move self.contents
+  self.contents.setLen(0)
+
+  rectangle "main":
+    bindSigilEvents(this):
+      `blk`
+
