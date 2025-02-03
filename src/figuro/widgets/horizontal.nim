@@ -16,7 +16,7 @@ proc contentWidth*(node: Figuro, cx: Constraint, gap = -1'ui) =
 
 template usingHorizontalLayout*(cx: Constraint, gap = -1'ui) =
   usingHorizontalLayout()
-  contentWidth(node, cs, gap)
+  contentWidth(node, cx, gap)
 
 proc draw*(self: Horizontal) {.slot.} =
   ## button widget!
