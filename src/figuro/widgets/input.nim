@@ -21,7 +21,9 @@ proc justify*(self: Input, kind: FontHorizontal) =
   self.text.hAlign = kind
 
 proc setText*(self: Input, str: string) {.slot.} =
-  self.textBox.set(str.toRunes())
+  self.text.setText(str.toRunes())
+  self.text.update(self.box)
+  refresh(self)
 
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 

@@ -5,9 +5,9 @@ import figuro/widgets/button
 import figuro
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: typeface, size: 22'ui)
-  smallFont = UiFont(typefaceId: typeface, size: 12'ui)
+  # typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  font = UiFont(typefaceId: defaultTypeface, size: 22'ui)
+  smallFont = UiFont(typefaceId: defaultTypeface, size: 12'ui)
 
 type
   Main* = ref object of Figuro
@@ -33,7 +33,6 @@ proc draw*(self: Main) {.slot.} =
       align node, Middle 
       justify node, Center
       font node, UiFont(typefaceId: defaultTypeface, size: 20'ui)
-      # fill blackColor
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))
