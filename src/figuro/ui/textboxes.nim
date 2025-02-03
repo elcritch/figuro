@@ -18,8 +18,8 @@ type
     layout*: GlyphArrangement
     font*: UiFont
     box*: Box
-    hAlign*: FontHorizontal
-    vAlign*: FontVertical
+    hAlign*: FontHorizontal = Left
+    vAlign*: FontVertical = Top
 
 proc runes*(self: TextBox): var seq[Rune] =
   self.layout.runes
@@ -53,7 +53,7 @@ proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
   self.box = box
   self.font = font
   let spans = {self.font: $self.runes(), self.font: "."}
-  self.layout = getTypeset(self.box, spans)
+  self.layout = getTypeset(self.box, spans, self.hAlign, self.vAlign)
   self.runes().setLen(self.runes().len() - 1)
 
 iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =

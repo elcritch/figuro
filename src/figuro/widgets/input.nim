@@ -130,12 +130,13 @@ proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} 
     echo "post:input: ",
       " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
 
+proc initialize*(self: Input) {.slot.} =
+  self.text = newTextBox(self.box, self.frame[].theme.font)
+
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   connect(self, doKeyCommand, self, Input.keyCommand)
 
-  if self.text.isNil:
-    self.text = newTextBox(self.box, self.frame[].theme.font)
 
   with self:
     clipContent true
