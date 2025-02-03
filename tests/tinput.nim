@@ -35,6 +35,7 @@ proc draw*(self: Main) {.slot.} =
       font node, UiFont(typefaceId: defaultTypeface, size: 20'ui)
       font node, css"darkred"
       fill node, css"grey"
+      text node, "hello world"
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

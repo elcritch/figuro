@@ -24,10 +24,13 @@ proc align*(self: Input, kind: FontVertical) =
 proc justify*(self: Input, kind: FontHorizontal) =
   self.text.hAlign = kind
 
-proc setText*(self: Input, str: string) {.slot.} =
-  self.text.setText(str.toRunes())
-  self.text.update(self.box)
-  refresh(self)
+proc text*(self: Input, str: string) {.slot.} =
+  echo "set text"
+  let runes = str.toRunes()
+  if runes != self.text.runes():
+    self.text.updateText(runes)
+    self.text.update(self.box)
+    refresh(self)
 
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 

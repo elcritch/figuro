@@ -165,7 +165,7 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
   self.runes.insert(runes, self.clamped(left))
   self.selection = toSlice(self.selection.a + runes.len())
 
-proc setText*(self: var TextBox, runes: seq[Rune]) =
+proc updateText*(self: var TextBox, runes: seq[Rune]) =
   let selection = self.selection
   self.layout.runes = runes
   self.selection.b = self.clamped(right)

@@ -1,3 +1,7 @@
+- TODO `v0.11.1` 
+  + fix auto for child-based resizing with grid
+  + add minimum button click time (?)
+  + port over to dom monitor
 - Relase `v0.11.0` 
   + add alternative as syntax for new widgets, e.g. Button[int] as "plusBtn"
   + fix textbox's box not being updated from the UI nodes
