@@ -204,21 +204,13 @@ template onHover*(current: Figuro, inner: untyped) =
 template onHover*(inner: untyped) =
   onHover(node, inner)
 
-# template onClick*(current: Figuro, inner: untyped) =
-
-# template onClick*(inner: untyped) =
-
-# template onClickOut*(inner: untyped) =
-#   onClickOut(node, inner)
-
 proc getTitle*(current: Figuro): string =
   ## Gets window title
   current.frame[].getWindowTitle()
 
 template setTitle*(current: Figuro, title: string) =
   ## Sets window title
-  if (current.frame[].getWindowTitle() != title):
-    current.frame[].setWindowTitle(title)
+  current.frame[].setWindowTitle(title)
 
 proc cornerRadius*(current: Figuro, radius: UICoord) =
   ## Sets all radius of all 4 corners.
@@ -232,6 +224,8 @@ proc cornerRadius*(current: Figuro, radius: Constraint) =
 proc cornerRadius*(current: Figuro, radius: float | float32) =
   cornerRadius(current, UICoord radius)
 
+## Fonts
+
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
   system.getTypeface(name)
@@ -241,8 +235,6 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   result.typefaceId = typefaceId
   result.size = 12
   result.lineHeight = -1'ui
-  # result.paint = newPaint(SolidPaint)
-  # result.paint.color = color(0, 0, 0, 1)
 
 proc setText*(
     current: Figuro,

@@ -53,7 +53,9 @@ proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
   self.box = box
   self.font = font
   let spans = {self.font: $self.runes(), self.font: "."}
+  echo "updateLayout: box: ", self.box
   self.layout = getTypeset(self.box, spans, self.hAlign, self.vAlign)
+  echo "updateLayout: ", self.layout.repr
   self.runes().setLen(self.runes().len() - 1)
 
 iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
@@ -109,8 +111,8 @@ proc updateSelection*(self: var TextBox) =
   self.selection = self.clamped(left) .. self.clamped(right)
   self.updateCursor()
 
-proc update*(self: var TextBox) =
-  self.updateLayout()
+proc update*(self: var TextBox, box: Box) =
+  self.updateLayout(box=box)
   self.updateSelection()
 
 proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =

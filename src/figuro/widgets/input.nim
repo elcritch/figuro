@@ -11,6 +11,12 @@ type Input* = ref object of Figuro
   value: int
   cnt: int
 
+proc align*(self: Input, kind: FontVertical) =
+  self.text.vAlign = kind
+
+proc justify*(self: Input, kind: FontHorizontal) =
+  self.text.hAlign = kind
+
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
@@ -32,7 +38,7 @@ proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
 
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
   self.text.insert(rune)
-  self.text.update()
+  self.text.update(self.box)
   refresh(self)
 
 proc getKey(p: UiButtonView): UiButton =
@@ -50,7 +56,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     of KeyBackspace:
       if self.text.hasSelection():
         self.text.delete()
-        self.text.update()
+        self.text.update(self.box)
     of KeyLeft:
       self.text.cursorLeft()
     of KeyRight:
