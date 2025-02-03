@@ -159,8 +159,8 @@ proc getParams(doBody: NimNode): (NimNode, NimNode) =
     error("Must not provide a return type. Found: " & $doBody[3][0] , doBody)
   if doBody[3][1].kind != nnkIdentDefs:
     error("Must not provide a return type. Found: " & $doBody[3][0] , doBody)
-  if doBody[3][1].len > 3:
-    error("Must not provide only one argument type. Found: " & $(doBody[3][1].len()-2), doBody)
+  if doBody[3].len > 2:
+    error("Must not provide only one argument type. Found: " & $(doBody[3].len()-1), doBody)
   if doBody[3][1].len > 3:
     error("Must not provide only one argument type. Found: " & $(doBody[3][1].len()-2), doBody)
   let param = doBody[3][1][0]

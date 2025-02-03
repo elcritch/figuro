@@ -40,7 +40,7 @@ proc draw*(self: Main) {.slot.} =
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "–"}, Center, Middle)
-      onSignal(doClicked) do (self: Main,arg: int):
+      onSignal(doClicked) do (self: Main):
         self.counter <- self.counter{} - 1
 
     Button as "btnAdd":
