@@ -122,13 +122,13 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
   refresh(self)
 
 proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
-  echo "input: ",
-    " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ",
-    self.text.growing
+  when defined(debugEvents):
+    echo "input: ",
+      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
   emit self.doKeyCommand(pressed, down)
-  echo "post:input: ",
-    " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ",
-    self.text.growing
+  when defined(debugEvents):
+    echo "post:input: ",
+      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
