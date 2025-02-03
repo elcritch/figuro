@@ -8,11 +8,15 @@ type Input* = ref object of Figuro
   isActive*: bool
   disabled*: bool
   text*: TextBox
+  color*: Color = blackColor
   value: int
   cnt: int
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
+
+proc font*(self: Input, color: Color) =
+  self.color = color
 
 proc align*(self: Input, kind: FontVertical) =
   self.text.vAlign = kind
@@ -155,11 +159,10 @@ proc draw*(self: Input) {.slot.} =
     with self:
       clipContent true
       cornerRadius 10.0
-      fill blackColor
+      # fill blackColor
 
     text "text":
-      with node:
-        fill blackColor
+      fill node, self.color
       node.textLayout = self.text.layout
       rectangle "cursor":
         with node:

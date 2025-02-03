@@ -33,7 +33,8 @@ proc draw*(self: Main) {.slot.} =
       align node, Middle 
       justify node, Center
       font node, UiFont(typefaceId: defaultTypeface, size: 20'ui)
-      fill node, css"red"
+      font node, css"red"
+      fill node, css"grey"
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))
