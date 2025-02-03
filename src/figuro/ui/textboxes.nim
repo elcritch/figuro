@@ -165,6 +165,14 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
   self.runes.insert(runes, self.clamped(left))
   self.selection = toSlice(self.selection.a + runes.len())
 
+proc setText*(self: var TextBox, runes: seq[Rune]) =
+  let selection = self.selection
+  self.layout.runes = runes
+  self.selection.b = self.clamped(right)
+  if selection.len() == 1:
+    self.selection.a = self.selection.b - selection.len() + 1
+  self.selection.a = self.clamped(left)
+
 proc cursorStart*(self: var TextBox, growSelection = false) =
   if growSelection:
     self.selection.a = 0

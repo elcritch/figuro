@@ -20,6 +20,9 @@ proc align*(self: Input, kind: FontVertical) =
 proc justify*(self: Input, kind: FontHorizontal) =
   self.text.hAlign = kind
 
+proc setText*(self: Input, str: string) {.slot.} =
+  self.textBox.set(str.toRunes())
+
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
