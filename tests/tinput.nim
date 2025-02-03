@@ -33,7 +33,7 @@ proc draw*(self: Main) {.slot.} =
       align node, Middle 
       justify node, Center
       font node, UiFont(typefaceId: defaultTypeface, size: 20'ui)
-      font node, css"red"
+      font node, css"darkred"
       fill node, css"grey"
 
 var main = Main.new()

@@ -169,9 +169,8 @@ proc draw*(self: Input) {.slot.} =
           fill blackColor
         node.fill.a = self.value.toFloat * 1.0
       WidgetContents()
-
       fill node, self.color
-
+      
       for i, selRect in self.text.selectionRects:
         capture i:
           Rectangle.new "selection":
@@ -180,9 +179,9 @@ proc draw*(self: Input) {.slot.} =
               fill css"#A0A0FF" * 0.4
 
     if self.disabled:
-      fill node, whiteColor.darken(0.4)
+      fill node, node.fill.darken(0.4)
     else:
-      fill node, whiteColor.darken(0.2)
+      fill node, node.fill.darken(0.2)
       if self.isActive:
         fill node, node.fill.lighten(0.15)
         # this changes the color on hover!
