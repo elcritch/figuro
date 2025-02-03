@@ -141,13 +141,44 @@ proc signalTrigger*[T](self: T, node: Figuro, signal: string) {.signal.}
 proc forward(node: Figuro) {.slot.} =
   emit node.signalTrigger(node, "")
 
-template onSignal*[T](signal: untyped, obj: T, blk: untyped) =
-  proc handler(arg: typeof(`obj`)) {.slot.} =
-    let `obj` {.inject, used.} = arg
-    unBindSigilEvents:
-      `blk`
-  connect(node, signalTrigger, `obj`, handler, acceptVoidSlot = true)
-  connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+# template onSignal*[T](signal: untyped, obj: T, blk: untyped) =
+#   proc handler(arg: typeof(`obj`)) {.slot.} =
+#     let `obj` {.inject, used.} = arg
+#     unBindSigilEvents:
+#       `blk`
+#   connect(node, signalTrigger, `obj`, handler, acceptVoidSlot = true)
+#   connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+
+import macros
+
+proc getParams(doBody: NimNode): (NimNode, NimNode) =
+  echo "getParam: ", doBody.treeRepr
+  if doBody.kind != nnkDo:
+    error("Must provide a do body with 1 argument", doBody)
+  if doBody[3][0].kind != nnkEmpty:
+    error("Must not provide a return type. Found: " & $doBody[3][0] , doBody)
+  if doBody[3][1].kind != nnkIdentDefs:
+    error("Must not provide a return type. Found: " & $doBody[3][0] , doBody)
+  if doBody[3].len > 2:
+    error("Must not provide only one argument type. Found: " & $doBody[3].len(), doBody)
+  let param = doBody[3][1][0]
+  let body = doBody[^1]
+  return (param, body)
+
+macro onSignal*(signal: untyped, blk: untyped) =
+  let (target, body) =  getParams(blk)
+
+  result = quote do:
+    block:
+      let `target` = `target`
+      proc handler(arg: typeof(`target`)) {.slot.} =
+        let `target` {.inject, used.} = arg
+        unBindSigilEvents:
+          `body`
+      connect(node, signalTrigger, `target`, handler, acceptVoidSlot = true)
+      connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+    
+  echo "result: ", result.repr
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
