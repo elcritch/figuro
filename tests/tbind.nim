@@ -35,13 +35,12 @@ proc draw*(self: Main) {.slot.} =
 
     Button as "btnSub":
       box node, 160'ux, 30'ux, 80'ux, 40'ux
-      echo "run"
       text "btnText":
         with node:
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "–"}, Center, Middle)
-      onSignal(doClicked) do (self: Main):
+      onSignal(doClicked) do(self: Main):
         self.counter <- self.counter{} - 1
 
     Button as "btnAdd":
@@ -52,7 +51,7 @@ proc draw*(self: Main) {.slot.} =
           fill blackColor
           setText({largeFont: "+"}, Center, Middle)
       ## something like this:
-      onSignal(doClicked) do (self: Main):
+      onSignal(doClicked) do(self: Main):
         self.counter <- self.counter{} + 1
 
 
