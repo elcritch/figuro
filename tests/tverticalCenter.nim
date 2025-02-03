@@ -33,7 +33,7 @@ proc draw*(self: Main) {.slot.} =
     Vertical.new "horiz":
       offset node, 0'ux, 0'ux
       size node, 100'pp, 200'ux
-      itemHeight node, 1'fr, gap = 20'ui
+      contentHeight node, 1'fr, gap = 20'ui
       border node, 3'ui, css"#00ff00"
       for i in 0 .. 3:
         capture i:
@@ -46,7 +46,7 @@ proc draw*(self: Main) {.slot.} =
     Vertical.new "horiz2":
       offset node, 0'pp, 200'ux
       size node, 100'pp, 200'ux
-      itemHeight node, cx"max-content", gap = 20'ui
+      contentHeight node, cx"max-content", gap = 20'ui
       border node, 3'ui, css"#ff0000"
       for i in 0 .. 1:
         capture i:

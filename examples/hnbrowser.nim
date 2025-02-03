@@ -94,7 +94,7 @@ proc draw*(self: Main) {.slot.} =
 
       Vertical.new "items":
         with node:
-          itemHeight cx"max-content"
+          contentHeight cx"max-content"
 
         for idx, story in self.stories:
           capture story:

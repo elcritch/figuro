@@ -25,7 +25,7 @@ proc draw*(self: Main) {.slot.} =
       fill whiteColor.darken(0.5)
       offset 30'ux, 10'ux
       size 400'ux, 120'ux
-      itemHeight 90'ux
+      contentHeight 90'ux
 
       fill blackColor * 0.1
       cornerRadius 20

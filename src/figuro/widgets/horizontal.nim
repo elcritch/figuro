@@ -9,16 +9,14 @@ template usingHorizontalLayout*() =
     justifyItems CxCenter
     alignItems CxCenter
 
-template usingHorizontalLayout*(cx: Constraint, gap = -1'ui) =
-  usingHorizontalLayout()
+proc contentWidth*(node: Figuro, cx: Constraint, gap = -1'ui) =
   node.gridAutoColumns cx
   if gap != -1'ui:
     node.columnGap gap
 
-proc itemWidth*(node: Figuro, cx: Constraint, gap = -1'ui) =
-  node.gridAutoColumns cx
-  if gap != -1'ui:
-    node.columnGap gap
+template usingHorizontalLayout*(cx: Constraint, gap = -1'ui) =
+  usingHorizontalLayout()
+  contentWidth(node, cs, gap)
 
 proc draw*(self: Horizontal) {.slot.} =
   ## button widget!

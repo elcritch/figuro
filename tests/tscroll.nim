@@ -39,7 +39,7 @@ proc draw*(self: Main) {.slot.} =
       Vertical.new "":
         with node:
           offset 10'ux, 10'ux
-          itemHeight cx"max-content"
+          contentHeight cx"max-content"
         for idx in 0 .. 15:
           buttonItem(self, node, idx)
 

@@ -65,9 +65,9 @@ proc draw*(self: Main) {.slot.} =
     Horizontal.new "horiz": # same as `horizontal "horiz":`
       with node:
         box 10'ux, 0'ux, 100'pp, 100'pp
-        # `itemWidth` is needed to set the width of items
+        # `contentWidth` is needed to set the width of items
         # in the horizontal widget
-        itemWidth 100'ux, gap = 20'ui
+        contentWidth 100'ux, gap = 20'ui
         layoutItems justify=CxCenter, align=CxCenter
 
       for idx in 0 .. 4:
