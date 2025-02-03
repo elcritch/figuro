@@ -35,6 +35,7 @@ proc draw*(self: Main) {.slot.} =
 
     Button as "btnSub":
       box node, 160'ux, 30'ux, 80'ux, 40'ux
+      echo "run"
       text "btnText":
         with node:
           size 100'pp, 120'pp

@@ -163,7 +163,6 @@ proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
 macro onSignal*(signal: untyped, blk: untyped) =
   let (target, params, body) =  getParams(blk)
   let args = repr(params)
-
   result = quote do:
     let `target` = `target`
     proc handler() {.slot.} =
