@@ -18,6 +18,8 @@ type
     layout*: GlyphArrangement
     font*: UiFont
     box*: Box
+    hAlign*: FontHorizontal = Left
+    vAlign*: FontVertical = Top
 
 proc runes*(self: TextBox): var seq[Rune] =
   self.layout.runes
@@ -51,7 +53,7 @@ proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
   self.box = box
   self.font = font
   let spans = {self.font: $self.runes(), self.font: "."}
-  self.layout = getTypeset(self.box, spans)
+  self.layout = getTypeset(self.box, spans, self.hAlign, self.vAlign)
   self.runes().setLen(self.runes().len() - 1)
 
 iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
@@ -107,8 +109,8 @@ proc updateSelection*(self: var TextBox) =
   self.selection = self.clamped(left) .. self.clamped(right)
   self.updateCursor()
 
-proc update*(self: var TextBox) =
-  self.updateLayout()
+proc update*(self: var TextBox, box: Box, font = self.font) =
+  self.updateLayout(box=box, font=font)
   self.updateSelection()
 
 proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
@@ -162,6 +164,14 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
     self.delete()
   self.runes.insert(runes, self.clamped(left))
   self.selection = toSlice(self.selection.a + runes.len())
+
+proc setText*(self: var TextBox, runes: seq[Rune]) =
+  let selection = self.selection
+  self.layout.runes = runes
+  self.selection.b = self.clamped(right)
+  if selection.len() == 1:
+    self.selection.a = self.selection.b - selection.len() + 1
+  self.selection.a = self.clamped(left)
 
 proc cursorStart*(self: var TextBox, growSelection = false) =
   if growSelection:

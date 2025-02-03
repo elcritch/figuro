@@ -12,10 +12,11 @@ import pretty
 
 suite "text boxes (single line)":
   setup:
-    var text = newTextBox(initBox(0,0,100,100), font)
+    var box = initBox(0,0,100,100)
+    var text = newTextBox(box, font)
     for i in 1..4:
       text.insert(Rune(96+i))
-    text.update()
+    text.update(box)
 
   test "basic setup":
     check text.runes == "abcd".toRunes()
@@ -138,6 +139,31 @@ suite "text boxes (single line)":
     check tx.selection == 3..3
     check tx.runes == "one".toRunes()
 
+  test "set text":
+    var tx = newTextBox(initBox(0,0,100,100), font)
+    tx.insert("one".toRunes)
+    tx.setText("alpha".toRunes)
+    check tx.selection == 3..3
+    check tx.runes == "alpha".toRunes()
+
+  test "set text selected":
+    var tx = newTextBox(box, font)
+    tx.insert("one".toRunes)
+    tx.selection = 0..2
+
+    tx.setText("alpha".toRunes)
+    check tx.selection == 0..2
+    check tx.runes == "alpha".toRunes()
+
+  test "set text with longer selected text":
+    var tx = newTextBox(box, font)
+    tx.insert("alpha".toRunes)
+    tx.selection = 0..4
+
+    tx.setText("one".toRunes)
+    check tx.selection == 0..3
+    check tx.runes == "one".toRunes()
+
   test "cursor grow direction handling (right)":
     text.selection = 0..0
     text.cursorRight(growSelection=true)
@@ -164,9 +190,10 @@ suite "text boxes (single line)":
 
 suite "textboxes (two line)":
   setup:
-    var text = newTextBox(initBox(0,0,100,100), font)
+    var box = initBox(0,0,100,100)
+    var text = newTextBox(box, font)
     text.insert("one\ntwos".toRunes)
-    text.update()
+    text.update(box)
 
   test "basic":
     check text.runes == "one\ntwos".toRunes()
@@ -215,9 +242,10 @@ suite "textboxes (two line)":
 
 suite "textboxes (three line)":
   setup:
-    var text = newTextBox(initBox(0,0,100,100), font)
+    var box = initBox(0,0,100,100)
+    var text = newTextBox(box, font)
     text.insert("one\ntwos\nthrees".toRunes)
-    text.update()
+    text.update(box)
 
   test "basic":
     check text.runes == "one\ntwos\nthrees".toRunes()
@@ -271,9 +299,10 @@ suite "textboxes (three line)":
 
 suite "textbox move words":
   setup:
-    var text = newTextBox(initBox(0,0,100,100), font)
+    var box = initBox(0,0,100,100)
+    var text = newTextBox(box, font)
     text.insert("one twos threes".toRunes)
-    text.update()
+    text.update(box)
 
   test "cursor word right":
     text.selection = 0..0

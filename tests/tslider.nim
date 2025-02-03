@@ -30,7 +30,7 @@ proc draw*(self: Main) {.slot.} =
       cornerRadius 0.0
     Vertical.new "menu":
       box node, 0'ux, 10'ux, 100'pp, 95'pp
-      itemHeight node, cx"min-content", gap = 20'ui
+      contentHeight node, cx"min-content", gap = 20'ui
       Button.new "Close":
         size node, 120'ux, 40'ux
         connect(node, doClicked, self, deactivateSlider)
@@ -40,7 +40,7 @@ proc draw*(self: Main) {.slot.} =
           setText(node, {defaultFont: "Close Menu"}, Center, Middle)
   Horizontal.new "horiz":
     offset node, 30'pp, 0'ux
-    itemWidth node, cx"min-content", gap = 20'ui
+    contentWidth node, cx"min-content", gap = 20'ui
     Button.new "Open":
       size node, 120'ux, 60'ux
       connect(node, doClicked, self, activateSlider)

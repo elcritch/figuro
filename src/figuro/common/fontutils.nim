@@ -7,7 +7,7 @@ import pkg/pixie/fonts
 import pkg/windex
 import pkg/threading/channels
 
-import glyphs, extras, shared
+import fonttypes, extras, shared
 
 import pretty
 

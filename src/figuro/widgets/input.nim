@@ -8,8 +8,26 @@ type Input* = ref object of Figuro
   isActive*: bool
   disabled*: bool
   text*: TextBox
+  color*: Color = blackColor
   value: int
   cnt: int
+
+proc font*(self: Input, font: UiFont) =
+  self.text.font = font
+
+proc font*(self: Input, color: Color) =
+  self.color = color
+
+proc align*(self: Input, kind: FontVertical) =
+  self.text.vAlign = kind
+
+proc justify*(self: Input, kind: FontHorizontal) =
+  self.text.hAlign = kind
+
+proc setText*(self: Input, str: string) {.slot.} =
+  self.text.setText(str.toRunes())
+  self.text.update(self.box)
+  refresh(self)
 
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 
@@ -32,7 +50,7 @@ proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
 
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
   self.text.insert(rune)
-  self.text.update()
+  self.text.update(self.box)
   refresh(self)
 
 proc getKey(p: UiButtonView): UiButton =
@@ -50,7 +68,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     of KeyBackspace:
       if self.text.hasSelection():
         self.text.delete()
-        self.text.update()
+        self.text.update(self.box)
     of KeyLeft:
       self.text.cursorLeft()
     of KeyRight:
@@ -122,48 +140,49 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
   refresh(self)
 
 proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
-  echo "input: ",
-    " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ",
-    self.text.growing
+  when defined(debugEvents):
+    echo "input: ",
+      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
   emit self.doKeyCommand(pressed, down)
-  echo "post:input: ",
-    " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ",
-    self.text.growing
+  when defined(debugEvents):
+    echo "post:input: ",
+      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
+
+proc initialize*(self: Input) {.slot.} =
+  self.text = newTextBox(self.box, self.frame[].theme.font)
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
-  connect(self, doKeyCommand, self, Input.keyCommand)
+  withWidget(self):
+    connect(self, doKeyCommand, self, Input.keyCommand)
 
-  if self.text.isNil:
-    self.text = newTextBox(self.box, self.frame[].theme.font)
+    with self:
+      clipContent true
+      cornerRadius 10.0
+      # fill blackColor
 
-  with self:
-    clipContent true
-    cornerRadius 10.0
+    text "text":
+      node.textLayout = self.text.layout
+      rectangle "cursor":
+        with node:
+          boxOf self.text.cursorRect
+          fill blackColor
+        node.fill.a = self.value.toFloat * 1.0
+      WidgetContents()
+      fill node, self.color
+      
+      for i, selRect in self.text.selectionRects:
+        capture i:
+          Rectangle.new "selection":
+            with node:
+              boxOf self.text.selectionRects[i]
+              fill css"#A0A0FF" * 0.4
 
-  var node = self
-  text "text":
-    with node:
-      fill blackColor
-    node.textLayout = self.text.layout
-    rectangle "cursor":
-      with node:
-        boxOf self.text.cursorRect
-        fill blackColor
-      node.fill.a = self.value.toFloat * 1.0
-
-    for i, selRect in self.text.selectionRects:
-      capture i:
-        Rectangle.new "selection":
-          with node:
-            boxOf self.text.selectionRects[i]
-            fill css"#A0A0FF" * 0.4
-
-  if self.disabled:
-    fill node, whiteColor.darken(0.4)
-  else:
-    fill node, whiteColor.darken(0.2)
-    if self.isActive:
-      fill node, node.fill.lighten(0.15)
-      # this changes the color on hover!
+    if self.disabled:
+      fill node, node.fill.darken(0.4)
+    else:
+      fill node, node.fill.darken(0.2)
+      if self.isActive:
+        fill node, node.fill.lighten(0.15)
+        # this changes the color on hover!
 

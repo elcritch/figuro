@@ -56,7 +56,7 @@ type
     nIndex*: int
     diffIndex*: int
 
-    box*: Box
+    box: Box
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
@@ -117,6 +117,11 @@ proc `=destroy`*(obj: type(Figuro()[])) =
   for child in obj.children:
     assert objPtr == child.parent
     child.parent.pt = nil
+
+proc `box=`*[F](fig: F, box: Box) =
+  fig.box = box
+proc box*[F](fig: F): var Box =
+  fig.box
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig[].children

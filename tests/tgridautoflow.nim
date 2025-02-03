@@ -1,5 +1,5 @@
 
-import figuro/widgets/button
+import figuro/widgets/[button, griddebug]
 import figuro
 
 type
@@ -13,6 +13,8 @@ type
 proc draw*(self: GridApp) {.slot.} =
   var node = self
   rectangle "autoLayout":
+    GridDebug.new "debug-grid":
+      node.state = (blackColor, "css grid area")
     # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
     with node:
       box 10'pp, 10'pp, 80'pp, 80'pp
@@ -61,8 +63,6 @@ proc draw*(self: GridApp) {.slot.} =
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
 
-      # draw debug lines
-      # gridTemplateDebugLines true
 
 
 var fig = GridApp.new()

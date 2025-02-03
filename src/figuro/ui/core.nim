@@ -3,11 +3,14 @@ import std/terminal
 import std/times
 import pkg/chronicles
 
+import sigils/reactive
+
 # import basiccss
 import ../commons
 import ../common/system
 export commons
 export system
+export reactive
 
 import csstheme
 
@@ -128,14 +131,51 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
-template onSignal*[T](obj: T, signal: typed, cb: proc(obj: T) {.nimcall.}) =
-  proc handler(self: T) {.slot.} =
-    `cb`(self)
+# template unBindSigilEvents*(blk: untyped): auto =
+#   static: enableSigilBinding.add false
+#   `blk`
+#   static: discard enableSigilBinding.pop()
 
-  connect(node, signal, obj, handler, acceptVoidSlot = true)
+proc signalTrigger*[T](self: T, node: Figuro, signal: string) {.signal.}
 
-template bindProp*[T](prop: Property[T]) =
-  connect(prop, doChanged, Agent(node), Figuro.changed())
+proc forward(node: Figuro) {.slot.} =
+  emit node.signalTrigger(node, "")
+
+# template onSignal*[T](signal: untyped, obj: T, blk: untyped) =
+#   proc handler(arg: typeof(`obj`)) {.slot.} =
+#     let `obj` {.inject, used.} = arg
+#     unBindSigilEvents:
+#       `blk`
+#   connect(node, signalTrigger, `obj`, handler, acceptVoidSlot = true)
+#   connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+
+import macros
+
+proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
+  echo "getParam: ", doBody.treeRepr
+  if doBody.kind != nnkDo:
+    error("Must provide a do body with 1 argument", doBody)
+  let params = doBody[3]
+  let target = params[1][0]
+  let body = doBody[^1]
+  return (target, params, body)
+
+macro onSignal*(signal: untyped, blk: untyped) =
+  let (target, params, body) =  getParams(blk)
+  let args = repr(params)
+  result = quote do:
+    let `target` = `target`
+    proc handler() {.slot.} =
+      unBindSigilEvents:
+        `body`
+    when not compiles(handler(`target`)):
+      {.error: "mismatched do block argument: `" & `args` &
+               "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
+               astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
+    connect(node, signalTrigger, `target`, handler, acceptVoidSlot = true)
+    connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+  result[1].params = params
+  # echo "result: ", result.treeRepr
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
@@ -376,6 +416,19 @@ template WidgetContents*(): untyped =
     content.childInit(node, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
+template `as`*[T: ref](tp: typedesc[T], name: string, blk) =
+  ## Alternate name for `new` widgets (experimental)
+  ## 
+  ## So `Widget.new "myFoo": ...` becomes `Widget as "myFoo": ...`
+  ## 
+  ## To be read like `Widget as a node with id and code block xyz`
+  ## 
+
+  new(tp, name, blk)
+
+proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
+  refresh(obj)
+
 template withWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
   let node {.inject.} = self
@@ -383,4 +436,5 @@ template withWidget*(self, blk: untyped) =
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
 
-  `blk`
+  bindSigilEvents(node):
+    `blk`

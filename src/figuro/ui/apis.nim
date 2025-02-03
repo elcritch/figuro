@@ -28,44 +28,14 @@ template withNodes*[T](fig: T, blk: untyped): untyped =
   ## alias for `nodes`
   nodes[T](fig, blk)
 
-proc init*(
-    tp: typedesc[Stroke], weight: float32 | UICoord, color: string, alpha = 1.0
-): Stroke =
-  ## Sets stroke/border color.
-  result.color = parseHtmlColor(color)
-  result.color.a = alpha
-  result.weight = weight.float32
-
-proc init*(
-    tp: typedesc[Stroke], weight: float32 | UICoord, color: Color, alpha = 1.0
-): Stroke =
-  ## Sets stroke/border color.
-  result.color = color
-  result.color.a = alpha
-  result.weight = weight.float32
-
 proc imageStyle*(name: string, color: Color): ImageStyle =
   # Image style
   result = ImageStyle(name: name, color: color)
 
-proc strokeLine*(current: Figuro, weight: UICoord, color: Color, alpha = 1.0'f32) =
-  ## Sets stroke/border color.
+proc border*(current: Figuro, weight: UICoord, color: Color) =
+  ## Sets border stroke & color.
   current.stroke.color = color
-  current.stroke.color.a = alpha
   current.stroke.weight = weight.float32
-
-# when not defined(js):
-#   func hAlignMode*(align: HAlign): HAlignMode =
-#     case align:
-#       of hLeft: HAlignMode.Left
-#       of hCenter: Center
-#       of hRight: HAlignMod.Right
-
-#   func vAlignMode*(align: VAlign): VAlignMode =
-#     case align:
-#       of vTop: Top
-#       of vCenter: Middle
-#       of vBottom: Bottom
 
 ## ---------------------------------------------
 ##             Basic Node Creation
@@ -234,21 +204,13 @@ template onHover*(current: Figuro, inner: untyped) =
 template onHover*(inner: untyped) =
   onHover(node, inner)
 
-# template onClick*(current: Figuro, inner: untyped) =
-
-# template onClick*(inner: untyped) =
-
-# template onClickOut*(inner: untyped) =
-#   onClickOut(node, inner)
-
 proc getTitle*(current: Figuro): string =
   ## Gets window title
   current.frame[].getWindowTitle()
 
 template setTitle*(current: Figuro, title: string) =
   ## Sets window title
-  if (current.frame[].getWindowTitle() != title):
-    current.frame[].setWindowTitle(title)
+  current.frame[].setWindowTitle(title)
 
 proc cornerRadius*(current: Figuro, radius: UICoord) =
   ## Sets all radius of all 4 corners.
@@ -262,6 +224,8 @@ proc cornerRadius*(current: Figuro, radius: Constraint) =
 proc cornerRadius*(current: Figuro, radius: float | float32) =
   cornerRadius(current, UICoord radius)
 
+## Fonts
+
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
   system.getTypeface(name)
@@ -271,8 +235,6 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   result.typefaceId = typefaceId
   result.size = 12
   result.lineHeight = -1'ui
-  # result.paint = newPaint(SolidPaint)
-  # result.paint.color = color(0, 0, 0, 1)
 
 proc setText*(
     current: Figuro,
@@ -463,37 +425,3 @@ proc gridAutoRows*(current: Figuro, item: Constraint) =
   current.gridTemplate.autos[drow] = item
   current.userSetFields.incl fsGridAutoRows
 
-proc gridTemplateDebugLines*(node: Figuro, grid: Figuro, color: Color = blueColor) =
-  ## helper that draws css grid lines. great for debugging layouts.
-  when false:
-    rectangle "grid-debug":
-      # strokeLine 3'ui, css"#0000CC"
-      # draw debug lines
-      boxOf node, grid.box
-      if not grid.gridTemplate.isNil:
-        computeLayout(grid, 0)
-        # echo "grid template post: ", grid.gridTemplate
-        let cg = grid.gridTemplate.gaps[dcol]
-        let wd = 1'ui
-        let w = grid.gridTemplate.columns[^1].start.UICoord
-        let h = grid.gridTemplate.rows[^1].start.UICoord
-        for col in grid.gridTemplate.columns[1 ..^ 2]:
-          capture col:
-            rectangle "column":
-              with node:
-                fill color
-                box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
-        for row in grid.gridTemplate.rows[1 ..^ 2]:
-          capture row:
-            rectangle "row":
-              with node:
-                fill color
-                box 0, row.start.UICoord - wd, w.UICoord, wd
-        rectangle "edge":
-          with node:
-            fill color.darken(0.5)
-            box 0'ux, 0'ux, w, 3'ux
-        rectangle "edge":
-          with node:
-            fill color.darken(0.5)
-            box 0'ux, ux(h - 3), w, 3'ux
