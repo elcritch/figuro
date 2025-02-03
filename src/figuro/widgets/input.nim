@@ -162,7 +162,6 @@ proc draw*(self: Input) {.slot.} =
       # fill blackColor
 
     text "text":
-      fill node, self.color
       node.textLayout = self.text.layout
       rectangle "cursor":
         with node:
@@ -170,6 +169,8 @@ proc draw*(self: Input) {.slot.} =
           fill blackColor
         node.fill.a = self.value.toFloat * 1.0
       WidgetContents()
+
+      fill node, self.color
 
       for i, selRect in self.text.selectionRects:
         capture i:
