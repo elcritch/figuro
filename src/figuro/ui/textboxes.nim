@@ -18,6 +18,8 @@ type
     layout*: GlyphArrangement
     font*: UiFont
     box*: Box
+    hAlign*: FontHorizontal
+    vAlign*: FontVertical
 
 proc runes*(self: TextBox): var seq[Rune] =
   self.layout.runes
