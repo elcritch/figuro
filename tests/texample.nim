@@ -48,7 +48,6 @@ proc draw*(self: Main) {.slot.} =
           setText({font: "test2"}, Center, Middle)
           fill css"#FFFFFF"
   
-  node.gridTemplateDebugLines vert
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(440'ui, 440'ui))
