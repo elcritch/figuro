@@ -141,16 +141,13 @@ proc signalTrigger*[T](self: T, node: Figuro, signal: string) {.signal.}
 proc forward(node: Figuro) {.slot.} =
   emit node.signalTrigger(node, "")
 
-template onSignal*[T](node, signal: untyped, obj: T, blk: untyped) =
+template onSignal*[T](signal: untyped, obj: T, blk: untyped) =
   proc handler(arg: typeof(`obj`)) {.slot.} =
     let `obj` {.inject, used.} = arg
     unBindSigilEvents:
       `blk`
   connect(node, signalTrigger, `obj`, handler, acceptVoidSlot = true)
   connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
-
-template onSignal*[T](signal: untyped, obj: T, blk: untyped) =
-  onSignal[T](node, signal, obj, blk)
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
