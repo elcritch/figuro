@@ -2,7 +2,7 @@ import apisImpl
 export apisImpl
 
 import macros
-macro wrapThis(p: untyped): auto =
+macro wrapThis*(p: untyped): auto =
   var args: seq[NimNode]
   args.add ident("this")
   for arg in p[3][1..^1]:
@@ -19,6 +19,14 @@ macro wrapThis(p: untyped): auto =
 ## Core Fidget Node APIs. These are the main ways to create
 ## Fidget nodes. 
 ## 
+
+template connect*(
+    signal: typed,
+    b: Figuro,
+    slot: typed,
+    acceptVoidSlot: static bool = false,
+): void =
+  uinodes.connect(this, signal, b, slot, acceptVoidSlot)
 
 template boxFrom*(x, y, w, h: float32) {.wrapThis.}
   ## Sets the box dimensions.

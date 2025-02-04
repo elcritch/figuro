@@ -24,6 +24,14 @@ proc align*(node: Text, kind: FontVertical) =
 proc justify*(node: Text, kind: FontHorizontal) =
   node.hAlign = kind
 
+template textChanged*(txt: string): bool {.wrapThis.}
+template text*(spans: openArray[(UiFont, string)]) {.wrapThis.}
+template text*(text: string) {.wrapThis.}
+template font*(font: UiFont) {.wrapThis.}
+template foreground*(color: Color) {.wrapThis.}
+template align*(kind: FontVertical) {.wrapThis.}
+template justify*(kind: FontHorizontal) {.wrapThis.}
+
 proc draw*(self: Text) {.slot.} =
   ## Input widget!
   withWidget(self):

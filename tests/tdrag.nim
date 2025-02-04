@@ -13,7 +13,6 @@ type
     bkgFade* = Fader(minMax: 0.0..0.18,
                      inTimeMs: 600, outTimeMs: 900)
 
-
 proc btnDragStart*(this: Figuro,
                    kind: EventKind,
                    initial: Position,
@@ -41,25 +40,22 @@ proc fading(self: Button[(Fader, string)], value: tuple[amount, perc: float], fi
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
-    with this:
-      setName "main"
-      fill css"#9F2B00"
-      box 0'ux, 0'ux, 400'ux, 300'ux
-      setTitle "Dragging Example"
+    setName "main"
+    fill css"#9F2B00"
+    box 0'ux, 0'ux, 400'ux, 300'ux
+    setTitle "Dragging Example"
 
     var startBtn: Figuro
     Button.new "btn":
       startBtn = this
-      with this:
-        box 40'ux, 30'ux, 100'ux, 100'ux
-        fill css"#2B9F2B"
-        uinodes.connect(doDrag, this, btnDragStart)
+      box 40'ux, 30'ux, 100'ux, 100'ux
+      fill css"#2B9F2B"
+      connect(doDrag, this, btnDragStart)
 
       Text.new "btnText":
-        with this:
-          align Middle
-          justify Center
-          text({font: "drag to the red block and release"})
+        align Middle
+        justify Center
+        text({font: "drag to the red block and release"})
 
     Button[(Fader, string)].new "btn":
       block fading:
@@ -67,9 +63,8 @@ proc draw*(self: Main) {.slot.} =
         this.state[0] = self.bkgFade
         connect(self.bkgFade, fadeTick, this, fading)
       # echo "button:id: ", this.getId, " ", self.bkgFade.amount
-      with this:
-        box 200'ux, 30'ux, 100'ux, 100'ux
-        fill css"#9F2B00".spin(50*self.bkgFade.amount)
+      box 200'ux, 30'ux, 100'ux, 100'ux
+      fill css"#9F2B00".spin(50*self.bkgFade.amount)
       ## TODO: how to make a better api for this
       ## we don't want evDrag, only evDragEnd
       ## uithiss.connect only has doDrag signal
