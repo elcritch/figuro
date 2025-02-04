@@ -155,17 +155,17 @@ proc draw*(self: ScrollPane) {.slot.} =
       ## max-content is important here
       ## todo: do the same for horiz?
       if self.settings.vertical:
-        node.cxSize[drow] = cx"max-content"
+        this.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
-        node.cxSize[dcol] = cx"max-content"
+        this.cxSize[dcol] = cx"max-content"
 
       with this:
         fill whiteColor.darken(0.2)
-      node.offset = self.window.scrollby
-      node.attrs.incl scrollPanel
+      this.offset = self.window.scrollby
+      this.attrs.incl scrollPanel
       WidgetContents()
       scroll(self, initPosition(0, 0))
-      for child in node.children:
+      for child in this.children:
         # echo "CHILD: ", child.name
         connect(child, doLayoutResize, self, layoutResize)
 
