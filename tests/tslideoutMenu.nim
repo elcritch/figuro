@@ -32,7 +32,7 @@ proc draw*(self: Main) {.slot.} =
         contentHeight this, cx"min-content", gap = 20'ui
         Button.new "Close":
           size 120'ux, 40'ux
-          connect(this, doClicked, self, deactivateSlider)
+          connect(doClicked, self, deactivateSlider)
           Text.new "text":
             foreground blackColor
             justify Center
