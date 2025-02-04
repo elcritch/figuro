@@ -379,8 +379,8 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
       `blk`
   widgetRegisterImpl[T](nkind, nn, this, childPreDraw)
 
-template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
-  widgetRegister[t](nkText, name, blk)
+# template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
+#   widgetRegister[t](nkText, name, blk)
 
 template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister

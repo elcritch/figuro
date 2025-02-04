@@ -114,6 +114,7 @@ type
     hAlign*: FontHorizontal = Left
     vAlign*: FontVertical = Top
     font*: UiFont
+    color*: Color
 
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy

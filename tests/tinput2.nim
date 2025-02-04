@@ -31,8 +31,10 @@ proc draw*(self: Main) {.slot.} =
       Text.new "time":
         with this:
           size 40'pp, 50'ux
-          fill css"red"
+          fill css"white"
+          foreground css"black"
           border 1'ui, css"#000000"
+          cornerRadius 10.0
           justify FontHorizontal.Center
           align FontVertical.Middle
           font defaultFont
@@ -49,7 +51,7 @@ proc draw*(self: Main) {.slot.} =
           font defaultFont
           fill css"black"
           border 1'ui, css"black"
-          cornerRadius 0.0
+          cornerRadius 10.0
         if not this.textChanged(""):
           # set default
           echo "SET DEFAULT TEXT"

@@ -8,11 +8,15 @@ type Input* = ref object of Figuro
   isActive*: bool
   disabled*: bool
   text*: TextBox
+  color*: Color
   value: int
   cnt: int
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
+
+proc foreground*(node: Input, color: Color) =
+  node.color = color
 
 proc align*(self: Input, kind: FontVertical) =
   self.text.vAlign = kind
@@ -169,9 +173,8 @@ proc draw*(self: Input) {.slot.} =
 
     withOptional self:
       cornerRadius 10.0
-      # fill blackColor
 
-    Text.new "text":
+    widgetRegister[BasicFiguro](nkText, "text"):
       this.textLayout = self.text.layout
       rectangle "cursor":
         with this:
@@ -179,8 +182,7 @@ proc draw*(self: Input) {.slot.} =
           fill blackColor
         this.fill.a = self.value.toFloat * 1.0
       WidgetContents()
-      fill this, self.fill
-      fill self, clearColor
+      fill this, self.color
       
       for i, selRect in self.text.selectionRects:
         capture i:
