@@ -1,4 +1,5 @@
 import std/paths, std/os
+import pkg/threading/channels
 import sigils
 import sigils/threads
 
@@ -22,6 +23,7 @@ else:
 
 when not defined(noFiguroDmonMonitor):
   var watcherSelf: WeakRef[CssLoader]
+  var cssUpdates = newChan[string](10)
 
   proc watchCallback(
       watchId: WatchId,
@@ -30,17 +32,24 @@ when not defined(noFiguroDmonMonitor):
       userData: pointer,
   ) {.gcsafe.} =
     {.cast(gcsafe).}:
-      echo "theme watcher callback! "
+      info "THEME watcher callback", rootDir = rootDir, filePath = filepath
       let file = rootDir / filepath
-      let cssRules = loadTheme(file)
-      emit watcherSelf.cssUpdate(cssRules)
-      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-      emit watcherSelf.cssUpdate(cssRules)
+      discard cssUpdates.trySend(file)
+
 
   proc cssWatcher*(self: CssLoader) {.slot.} =
-    notice "Starting CSS Watcher"
+    notice "Starting CSS Watcher: "
     initDmon()
     startDmonThread()
 
     let defaultTheme = themePath().splitFile()
     let watchId: WatchId = watch(defaultTheme.dir, watchCallback, {}, nil)
+    notice "Started CSS Watcher: ", defaultTheme = themePath()
+
+    var file: string
+    while cssUpdates.tryRecv(file):
+      notice "CSS Updated: ", file = file
+      let cssRules = loadTheme(file)
+      emit watcherSelf.cssUpdate(cssRules)
+      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+      emit watcherSelf.cssUpdate(cssRules)
