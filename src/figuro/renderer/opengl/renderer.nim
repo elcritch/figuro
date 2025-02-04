@@ -64,7 +64,7 @@ proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
 
     let
       glyphId = glyph.hash()
-      charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*5/6)
+      charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*0.84)
     if glyphId notin ctx.entries:
       echo "no glyph in context: ",
         glyphId, " glyph: `", glyph.rune, "`", " (", repr(glyph.rune), ")"
