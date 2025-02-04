@@ -17,7 +17,7 @@ type
 
 proc setLabel(current: Figuro, zlvl: ZLevel; left=false) =
   var node = current
-  text "text":
+  Text.new "text":
     if left:
       box node, 3'pp, 30'pp, 30'pp, 22
     else:
@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
       box 3'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0
       clipContent false
-    text "text":
+    Text.new "text":
       with this:
         box 10'pp, 10'ux, 70'pp, 22'ux
         fill blackColor
@@ -63,7 +63,7 @@ proc draw*(self: Main) {.slot.} =
       box 50'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0
       clipContent true
-    text "text":
+    Text.new "text":
       with this:
         box 10'pp, 10'ux, 70'pp, 22'ux
         fill blackColor

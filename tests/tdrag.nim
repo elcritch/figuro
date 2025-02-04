@@ -56,7 +56,7 @@ proc draw*(self: Main) {.slot.} =
       fill css"#2B9F2B"
       uinodes.connect(doDrag, node, btnDragStart)
 
-    text "btnText":
+    Text.new "btnText":
       with this:
         box 5'ux, 5'ux, 90'pp, 90'pp
         fill blackColor
@@ -85,10 +85,12 @@ proc draw*(self: Main) {.slot.} =
       btn.state[0].fadeOut()
       refresh(btn)
     uinodes.connect(node, doMouseClick, node, clicked)
-    text "btnText":
+    Text.new "btnText":
       with this:
         fill blackColor * self.bkgFade.amount / self.bkgFade.minMax.b
-        setText({font: btn.state[1]}, Center, Middle)
+        justify Center
+        align Middle
+        text({font: btn.state[1]})
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(350'ui, 180'ui))

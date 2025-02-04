@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
       Button.new "Close":
         size node, 120'ux, 40'ux
         connect(node, doClicked, self, deactivateSlider)
-        text "text":
+        Text.new "text":
           offset node, 00'ux, 7'ux
           fill node, blackColor
           justify Center
@@ -46,7 +46,7 @@ proc draw*(self: Main) {.slot.} =
     Button.new "Open":
       size node, 120'ux, 60'ux
       connect(node, doClicked, self, activateSlider)
-      text "text":
+      Text.new "text":
         fill node, blackColor
         justify Center
         align Middle
@@ -55,7 +55,7 @@ proc draw*(self: Main) {.slot.} =
     Button.new "Close":
       size node, 120'ux, 60'ux
       connect(node, doClicked, self, deactivateSlider)
-      text "text":
+      Text.new "text":
         fill node, blackColor
         justify Center
         align Middle

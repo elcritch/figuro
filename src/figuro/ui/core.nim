@@ -172,8 +172,8 @@ macro onSignal*(signal: untyped, blk: untyped) =
       {.error: "mismatched do block argument: `" & `args` &
                "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
                astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
-    connect(node, signalTrigger, `target`, handler, acceptVoidSlot = true)
-    connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+    connect(this, signalTrigger, `target`, handler, acceptVoidSlot = true)
+    connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
   result[1].params = params
   # echo "result: ", result.treeRepr
 

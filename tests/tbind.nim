@@ -26,30 +26,36 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius 10.0
         box 40'ux, 30'ux, 80'ux, 40'ux
         fill css"#3B70DF"
-      text "btnText":
+      Text.new "btnText":
         # bindProp(self.counter)
         with this:
-          box 0'pp, 0'pp, 100'pp, 120'pp
-          fill blackColor
-          setText({font: $self.counter{} & " ₿" }, Center, Middle)
+          size 100'pp, 100'pp
+          foreground blackColor
+          justify Center
+          align Middle
+          text({font: $self.counter{} & " ₿" })
 
     Button as "btnSub":
-      box node, 160'ux, 30'ux, 80'ux, 40'ux
-      text "btnText":
+      box this, 160'ux, 30'ux, 80'ux, 40'ux
+      Text.new "btnText":
         with this:
-          size 100'pp, 120'pp
-          fill blackColor
-          setText({largeFont: "–"}, Center, Middle)
+          size 100'pp, 100'pp
+          foreground blackColor
+          justify Center
+          align Middle
+          text({largeFont: "–"})
       onSignal(doClicked) do(self: Main):
         self.counter <- self.counter{} - 1
 
     Button as "btnAdd":
-      box node, 240'ux, 30'ux, 80'ux, 40'ux
-      text "btnText":
+      box this, 240'ux, 30'ux, 80'ux, 40'ux
+      Text.new "btnText":
         with this:
-          size 100'pp, 120'pp
-          fill blackColor
-          setText({largeFont: "+"}, Center, Middle)
+          size 100'pp, 100'pp
+          foreground blackColor
+          justify Center
+          align Middle
+          text({largeFont: "+"})
       ## something like this:
       onSignal(doClicked) do(self: Main):
         self.counter <- self.counter{} + 1

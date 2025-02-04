@@ -28,11 +28,13 @@ proc draw*(self: Main) {.slot.} =
     node.shadow[InnerShadow] = Shadow(blur: 8.0'ui, x: 3.0'ui, y: 3.0'ui,
                                 color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.5))
 
-    text "btnText":
+    Text.new "btnText":
       with this:
         box 10'ux, 10'ux, 80'pp, 80'pp
         fill blackColor
-        setText({font: "testing"}, Center, Middle)
+        justify Center
+        align Middle
+        text({font: "testing"})
 
 
 var main = Main.new()
