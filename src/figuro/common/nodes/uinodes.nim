@@ -114,7 +114,7 @@ type
     hAlign*: FontHorizontal = Left
     vAlign*: FontVertical = Top
     font*: UiFont
-    color*: Color
+    color*: Color = parseHtmlColor("black")
 
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy
