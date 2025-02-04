@@ -271,11 +271,11 @@ proc computeLayout*(node: Figuro, depth: int) =
   trace "computeLayout:post: ",
     name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
   let currWh = node.box.wh
-  # if currWh != node.prevSize:
-  #   debug "computeLayout:post:changed: ",
-  #     name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
-  #   emit node.doLayoutResize(node, (prev: node.prevSize, curr: currWh))
-  #   node.prevSize = node.box.wh
+  if currWh != node.prevSize:
+    # info "computeLayout:post:changed: ",
+    #   name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+    emit node.doLayoutResize(node, (prev: node.prevSize, curr: currWh))
+    node.prevSize = node.box.wh
 
 proc computeLayout*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):

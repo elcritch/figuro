@@ -12,6 +12,7 @@ type
   Main* = ref object of Figuro
     value: float
     hasHovered: bool
+    lastText = ""
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
@@ -49,7 +50,9 @@ proc draw*(self: Main) {.slot.} =
           fill css"black"
           border 1'ui, css"black"
           cornerRadius 0.0
-          text("00:00:00")
+        if not this.textChanged(""):
+          # set default
+          this.text("00:00:00")
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

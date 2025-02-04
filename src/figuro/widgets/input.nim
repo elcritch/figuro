@@ -20,6 +20,10 @@ proc align*(self: Input, kind: FontVertical) =
 proc justify*(self: Input, kind: FontHorizontal) =
   self.text.hAlign = kind
 
+proc textChanged*(self: Input, txt: string): bool =
+  let runes = txt.toRunes()
+  result = runes != self.text.runes()
+
 proc text*(self: Input, str: string) {.slot.} =
   echo "set text"
   let runes = str.toRunes()
@@ -147,8 +151,14 @@ proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} 
     echo "post:input: ",
       " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
 
+proc layoutResize*(self: Input, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
+  echo "RESIZE"
+  self.text.update(self.box)
+  refresh(self)
+
 proc initialize*(self: Input) {.slot.} =
   self.text = newTextBox(self.box, self.frame[].theme.font)
+  connect(self, doLayoutResize, self, layoutResize)
 
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
@@ -170,6 +180,7 @@ proc draw*(self: Input) {.slot.} =
       WidgetContents()
       fill this, self.fill
       fill self, clearColor
+      connect(this, doLayoutResize, self, layoutResize)
       
       for i, selRect in self.text.selectionRects:
         capture i:
