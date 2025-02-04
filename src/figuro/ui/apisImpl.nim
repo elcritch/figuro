@@ -201,7 +201,7 @@ proc cornerRadius*(current: Figuro, radius: Constraint) =
 ## These APIs provide font APIs for Fidget nodes.
 ## 
 
-proc loadTypeFace*(name: string): TypefaceId =
+proc loadTypeFaceImpl*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
   system.getTypeface(name)
 
