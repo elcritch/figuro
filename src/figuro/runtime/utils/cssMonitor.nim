@@ -38,12 +38,3 @@ when defined(figuroFsMonitor):
     mon.addPath(defaultTheme)
     mon.setCallback(fsmonCallback)
     mon.start()
-
-proc cssLoader*(self: CssLoader) {.slot.} =
-  notice "Starting CSS Loader"
-  while true:
-    let cssRules = loadTheme()
-    emit self.cssUpdate(cssRules)
-    os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-    emit self.cssUpdate(cssRules)
-    os.sleep(300_000)

@@ -43,7 +43,6 @@ const
 
 var
   appTickThread*: ptr SigilThreadImpl
-  cssLoaderThread*: ptr SigilThreadImpl
   cssWatcherThread*: ptr SigilThreadImpl
   appThread*: ptr SigilThreadImpl
 
@@ -79,15 +78,10 @@ proc setupTicker*(frame: AppFrame) =
     ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
   )
 
-  var cssLoader = CssLoader(period: renderDuration)
-  cssLoaderThread.setupThread(
-    cssLoader,
-    sig = cssUpdate,
-    slot = AppFrame.updateTheme(),
-    starter = CssLoader.cssLoader(),
-  )
+  let cssRules = loadTheme()
+  frame.updateTheme(cssRules)
 
-  when defined(figuroFsMonitor):
+  when not defined(noFiguroDmonMonitor):
     var cssWatcher = CssLoader(period: renderDuration)
     cssWatcherThread.setupThread(
       cssWatcher,
@@ -96,7 +90,7 @@ proc setupTicker*(frame: AppFrame) =
       starter = CssLoader.cssWatcher(),
     )
   else:
-    echo "fsmonitor not loaded"
+    echo "dmon file monitor not loaded"
 
 proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   threadEffects:
