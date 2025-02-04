@@ -49,11 +49,6 @@ proc draw*(self: Main) {.slot.} =
           align Bottom
           text({font: "hello world!",
                 smallFont: "It's a small world"})
-      Rectangle.new "main":
-        with this:
-          cssEnable false
-          box 10'ux, 10'ux, 400'ux, 100'ux
-          fill whiteColor * 0.33
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

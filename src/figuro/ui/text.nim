@@ -27,6 +27,6 @@ proc justify*(node: Text, kind: FontHorizontal) =
 proc draw*(self: Text) {.slot.} =
   ## Input widget!
   withWidget(self):
-    basicText "text":
+    basicText "basicText":
       WidgetContents()
       fill this, self.color

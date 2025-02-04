@@ -171,19 +171,16 @@ proc draw*(self: Input) {.slot.} =
   withWidget(self):
     connect(self, doKeyCommand, self, Input.keyCommand)
 
-    withOptional self:
-      cornerRadius 10.0
-
-    widgetRegister[BasicFiguro](nkText, "text"):
+    basicText "basicText":
       this.textLayout = self.text.layout
+      WidgetContents()
+      fill this, self.color
+      
       rectangle "cursor":
         with this:
           boxOf self.text.cursorRect
           fill blackColor
         this.fill.a = self.value.toFloat * 1.0
-      WidgetContents()
-      fill this, self.color
-      
       for i, selRect in self.text.selectionRects:
         capture i:
           Rectangle.new "selection":
