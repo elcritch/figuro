@@ -2,7 +2,7 @@ import apisImpl
 export apisImpl
 
 import macros
-macro wrapThis*(p: untyped): auto =
+macro thisWrapper*(p: untyped): auto =
   # echo "WRAP THIS: ", p.treeRepr
   let isProc = p.kind == nnkProcDef
   result = newStmtList()
@@ -39,7 +39,7 @@ template connect*(
 ): void =
   uinodes.connect(this, signal, b, slot, acceptVoidSlot)
 
-template boxFrom*(x, y, w, h: float32) {.wrapThis.}
+template boxFrom*(x, y, w, h: float32) {.thisWrapper.}
   ## Sets the box dimensions.
 
 
@@ -60,17 +60,17 @@ template box*(
 ) =
   box(this, csOrFixed(x), csOrFixed(y), csOrFixed(w), csOrFixed(h))
 
-template offset*(x: UICoord | Constraint, y: UICoord | Constraint) {.wrapThis.}
+template offset*(x: UICoord | Constraint, y: UICoord | Constraint) {.thisWrapper.}
 
-template size*(w: UICoord | Constraint, h: UICoord | Constraint) {.wrapThis.}
+template size*(w: UICoord | Constraint, h: UICoord | Constraint) {.thisWrapper.}
 
-template boxSizeOf*(node: Figuro) {.wrapThis.}
+template boxSizeOf*(node: Figuro) {.thisWrapper.}
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
 
-template boxOf*(node: Figuro) {.wrapThis.}
+template boxOf*(node: Figuro) {.thisWrapper.}
 
-template boxOf*(box: Box) {.wrapThis.}
+template boxOf*(box: Box) {.thisWrapper.}
   ## Sets the node's size to the given box.
 
 ## ---------------------------------------------
@@ -89,43 +89,43 @@ template imageStyle*(name: string, color: Color): ImageStyle =
   # Sets teh image style.
   result = ImageStyle(name: name, color: color)
 
-template setName*(n: string) {.wrapThis.}
+template setName*(n: string) {.thisWrapper.}
   ## sets current node name
 
-template border*(weight: UICoord, color: Color) {.wrapThis.}
+template border*(weight: UICoord, color: Color) {.thisWrapper.}
   ## Sets border stroke & color on the given node.
 
-template cssEnable*(enable: bool) {.wrapThis.}
+template cssEnable*(enable: bool) {.thisWrapper.}
   ## Causes the parent to clip the children.
 
-template clipContent*(clip: bool) {.wrapThis.}
+template clipContent*(clip: bool) {.thisWrapper.}
   ## Causes the parent to clip the children.
 
-template fill*(color: Color) {.wrapThis.}
+template fill*(color: Color) {.thisWrapper.}
   ## Sets background color.
 
-template zlevel*(zlvl: ZLevel) {.wrapThis.}
+template zlevel*(zlvl: ZLevel) {.thisWrapper.}
   ## Sets the z-level (layer) height of the given node.
 
-template fillHover*(color: Color) {.wrapThis.}
+template fillHover*(color: Color) {.thisWrapper.}
   ## Sets background color.
 
-template fillHover*(color: Color, alpha: float32) {.wrapThis.}
+template fillHover*(color: Color, alpha: float32) {.thisWrapper.}
   ## Sets background color.
 
-template onHover*(inner: untyped) {.wrapThis.}
+template onHover*(inner: untyped) {.thisWrapper.}
   ## Code in the block will run when this box is hovered.
 
-template getTitle*(): string {.wrapThis.}
+template getTitle*(): string {.thisWrapper.}
   ## Gets window title
 
-template setTitle*(title: string) {.wrapThis.}
+template setTitle*(title: string) {.thisWrapper.}
   ## Sets window title
 
-template cornerRadius*(radius: UICoord) {.wrapThis.}
+template cornerRadius*(radius: UICoord) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
-template cornerRadius*(radius: Constraint) {.wrapThis.}
+template cornerRadius*(radius: Constraint) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
 ## ---------------------------------------------
@@ -154,7 +154,7 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
 ## setting up layouts and constraingts. 
 ## 
 
-template setGridCols*(args: untyped) {.wrapThis.}
+template setGridCols*(args: untyped) {.thisWrapper.}
   ## configure columns for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -172,7 +172,7 @@ template setGridCols*(args: untyped) {.wrapThis.}
   ## 
   # layout lmGrid
 
-template setGridRows*(args: untyped) {.wrapThis.}
+template setGridRows*(args: untyped) {.thisWrapper.}
   ## configure rows for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -191,60 +191,60 @@ template setGridRows*(args: untyped) {.wrapThis.}
   ## 
   # layout lmGrid
 
-template findGridColumn*(index: GridIndex): GridLine {.wrapThis.}
+template findGridColumn*(index: GridIndex): GridLine {.thisWrapper.}
 
-template findGridRow*(index: GridIndex): GridLine {.wrapThis.}
+template findGridRow*(index: GridIndex): GridLine {.thisWrapper.}
 
-template span*(idx: int | string): GridIndex {.wrapThis.}
+template span*(idx: int | string): GridIndex {.thisWrapper.}
 
-template columnStart*[T](idx: T) {.wrapThis.}
+template columnStart*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid starting column.
 
-template columnEnd*[T](idx: T) {.wrapThis.}
+template columnEnd*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-template gridColumn*[T](val: T) {.wrapThis.}
+template gridColumn*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-template rowStart*[T](idx: T) {.wrapThis.}
+template rowStart*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid starting row.
 
-template rowEnd*[T](idx: T) {.wrapThis.}
+template rowEnd*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid ending row.
 
-template gridRow*[T](val: T) {.wrapThis.}
+template gridRow*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-template gridArea*[T](r, c: T) {.wrapThis.}
+template gridArea*[T](r, c: T) {.thisWrapper.}
   ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
 
-template gridColumnGap*(value: UICoord) {.wrapThis.}
+template gridColumnGap*(value: UICoord) {.thisWrapper.}
   ## Set CSS Grid column gap.
 
-template gridRowGap*(value: UICoord) {.wrapThis.}
+template gridRowGap*(value: UICoord) {.thisWrapper.}
   ## Set CSS Grid column gap.
 
-template justifyItems*(con: ConstraintBehavior) {.wrapThis.}
+template justifyItems*(con: ConstraintBehavior) {.thisWrapper.}
   ## Justify items on CSS Grid (horizontal)
 
-template alignItems*(con: ConstraintBehavior) {.wrapThis.}
+template alignItems*(con: ConstraintBehavior) {.thisWrapper.}
   ## Align items on CSS Grid (vertical).
 
-template layoutItems*(con: ConstraintBehavior) {.wrapThis.}
+template layoutItems*(con: ConstraintBehavior) {.thisWrapper.}
   ## Set justification and alignment on child items.
 
-template layoutItems*(justify, align: ConstraintBehavior) {.wrapThis.}
+template layoutItems*(justify, align: ConstraintBehavior) {.thisWrapper.}
   ## Set justification and alignment on child items.
 
-template gridAutoFlow*(item: GridFlow) {.wrapThis.}
+template gridAutoFlow*(item: GridFlow) {.thisWrapper.}
   ## Sets the CSS Grid auto-flow style.
   ## 
   ## When you have grid items that aren't explicitly placed on the grid,
   ## the auto-placement algorithm kicks in to automatically place the items. 
 
-template gridAutoColumns*(item: Constraint) {.wrapThis.}
+template gridAutoColumns*(item: Constraint) {.thisWrapper.}
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
 
-template gridAutoRows*(item: Constraint) {.wrapThis.}
+template gridAutoRows*(item: Constraint) {.thisWrapper.}
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
 
