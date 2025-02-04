@@ -1,4 +1,4 @@
-import figuro/widgets/[basics, button, horizontal]
+import figuro/widgets/[button, horizontal]
 import figuro/ui/animations
 import figuro
 
@@ -83,7 +83,7 @@ proc draw*(self: Main) {.slot.} =
                 connect(self, update, this, btnTick)
               Text as "":
                 with this:
-                  fill blackColor
+                  foreground blackColor
                   align Middle
                   justify Center
                   text({font: $(btn.state)})
