@@ -22,11 +22,11 @@ proc draw*(self: Main) {.slot.} =
     # Time display background
     rectangle "time-background":
       with this:
-        size 100'pp, 50'ux
+        box 20'pp, 10'pp, 60'pp, 80'pp
         fill css"#ffffff"
         border 1'ui, css"#000000"
 
-      usingHorizontalLayout cx"min-content", gap = 20'ui
+      usingVerticalLayout cx"min-content", gap = 20'ui
       # Time display text
       Text.new "time":
         with this:
@@ -56,5 +56,5 @@ proc draw*(self: Main) {.slot.} =
           text(this, "00:00:00")
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(720'ui, 140'ui))
+var frame = newAppFrame(main, size=(720'ui, 240'ui))
 startFiguro(frame)

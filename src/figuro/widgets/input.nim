@@ -21,18 +21,13 @@ proc justify*(self: Input, kind: FontHorizontal) =
   self.text.hAlign = kind
 
 proc textChanged*(self: Input, runes: seq[Rune]): bool =
-  echo "text changed: ", self.box
-  echo "text changed:text.box: ", self.text.box
   result = runes != self.text.runes()
-  echo "text changed: ", result, " runes: ", runes != self.text.runes(), " box: ", self.box != self.text.box
 
 proc textChanged*(self: Input, txt: string): bool =
   result = textChanged(self, txt.toRunes())
 
 proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
-  echo "SET text: ", self.box
   if self.textChanged(runes):
-    echo "SET text:changed "
     self.text.updateText(runes)
     self.text.update(self.box)
     # refresh(self)
@@ -170,11 +165,9 @@ proc initialize*(self: Input) {.slot.} =
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
-    echo "\nDRAW: INPUT: ", self.box
     connect(self, doKeyCommand, self, Input.keyCommand)
 
     withOptional self:
-      clipContent true
       cornerRadius 10.0
       # fill blackColor
 

@@ -11,14 +11,14 @@ template usingVerticalLayout*() =
   # withOptional node:
   #   gridAutoRows 1'fr
 
-proc contentHeight*(current: Vertical, cx: Constraint, gap = -1'ui) =
+proc contentHeight*(current: Figuro, cx: Constraint, gap = -1'ui) =
   current.gridAutoRows cx
   if gap != -1'ui:
     current.rowGap gap
 
 template usingVerticalLayout*(cx: Constraint, gap = -1'ui) =
   usingVerticalLayout()
-  contentHeight(this, cs, gap)
+  contentHeight(this, cx, gap)
 
 proc draw*(self: Vertical) {.slot.} =
   ## button widget!
