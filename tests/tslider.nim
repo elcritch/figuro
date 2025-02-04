@@ -37,7 +37,9 @@ proc draw*(self: Main) {.slot.} =
         text "text":
           offset node, 00'ux, 7'ux
           fill node, blackColor
-          setText(node, {defaultFont: "Close Menu"}, Center, Middle)
+          justify Center
+          align Middle
+          text({defaultFont: "Close Menu"})
   Horizontal.new "horiz":
     offset node, 30'pp, 0'ux
     contentWidth node, cx"min-content", gap = 20'ui
@@ -46,14 +48,18 @@ proc draw*(self: Main) {.slot.} =
       connect(node, doClicked, self, activateSlider)
       text "text":
         fill node, blackColor
-        setText(node, {defaultFont: "Open Menu"}, Center, Middle)
+        justify Center
+        align Middle
+        text({defaultFont: "Open Menu"})
 
     Button.new "Close":
       size node, 120'ux, 60'ux
       connect(node, doClicked, self, deactivateSlider)
       text "text":
         fill node, blackColor
-        setText(node, {defaultFont: "Close Menu"}, Center, Middle)
+        justify Center
+        align Middle
+        text({defaultFont: "Close Menu"})
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(800'ui, 600'ui))
