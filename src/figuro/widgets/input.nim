@@ -21,18 +21,18 @@ proc justify*(self: Input, kind: FontHorizontal) =
   self.text.hAlign = kind
 
 proc textChanged*(self: Input, runes: seq[Rune]): bool =
-  echo "Text Changed: ", self.box
-  echo "Text Changed:text.box: ", self.text.box
+  echo "text changed: ", self.box
+  echo "text changed:text.box: ", self.text.box
   result = runes != self.text.runes() or self.box != self.text.box
-  echo "Text Changed: ", result, "runes: ", runes != self.text.runes(), " box: ", self.box != self.text.box
+  echo "text changed: ", result, " runes: ", runes != self.text.runes(), " box: ", self.box != self.text.box
 
 proc textChanged*(self: Input, txt: string): bool =
   result = textChanged(self, txt.toRunes())
 
 proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
-  echo "set text: ", self.box
+  echo "SET text: ", self.box
   if self.textChanged(runes):
-    echo "set text:changed "
+    echo "SET text:changed "
     self.text.updateText(runes)
     self.text.update(self.box)
     refresh(self)

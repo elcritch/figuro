@@ -44,14 +44,12 @@ proc newTextBox*(box: Box, font: UiFont): TextBox =
   result.font = font
   result.layout = GlyphArrangement()
 
-proc updateLayout*(self: var TextBox, box = self.box, font = self.font) =
+proc updateLayout*(self: var TextBox) =
   ## Update layout from runes.
   ## 
   ## This appends an extra character at the end to get the cursor
   ## position at the end, which depends on the next character.
   ## Otherwise, this character is ignored.
-  self.box = box
-  self.font = font
   let spans = {self.font: $self.runes(), self.font: "."}
   self.layout = getTypeset(self.box, spans, self.hAlign, self.vAlign)
   self.runes().setLen(self.runes().len() - 1)
@@ -110,7 +108,9 @@ proc updateSelection*(self: var TextBox) =
   self.updateCursor()
 
 proc update*(self: var TextBox, box: Box, font = self.font) =
-  self.updateLayout(box=box, font=font)
+  self.box = box
+  self.font = font
+  self.updateLayout()
   self.updateSelection()
 
 proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
