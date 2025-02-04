@@ -14,20 +14,6 @@ export commons, system, uinodes
 import core
 export core
 
-
-template withNodes*[T](fig: T, blk: untyped): untyped =
-  ## alias for `nodes`
-  nodes[T](fig, blk)
-
-proc imageStyle*(name: string, color: Color): ImageStyle =
-  # Image style
-  result = ImageStyle(name: name, color: color)
-
-proc border*(current: Figuro, weight: UICoord, color: Color) =
-  ## Sets border stroke & color.
-  current.stroke.color = color
-  current.stroke.weight = weight.float32
-
 ## ---------------------------------------------
 ##             Basic Node Creation
 ## ---------------------------------------------
@@ -57,25 +43,22 @@ template basicText*(name: string | static string, blk: untyped) =
   ## Starts a new rectangle.
   widgetRegister[BasicFiguro](nkText, name, blk)
 
-## ---------------------------------------------
-##             Fidget Node APIs
-## ---------------------------------------------
-## 
-## These APIs provide the APIs for Fidget nodes.
-## 
-
-proc setName*(current: Figuro, n: string) =
-  ## sets current node name
-  current.name.setLen(0)
-  current.name.add(n)
-
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-##             Node User Interactions
+##        Dimension Helpers
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## 
-## These APIs provide the basic functionality for
-## interacting with user interactions. 
+## These provide basic dimension units and helpers 
+## similar to those available in HTML. They help
+## specify details like: "set node width to 100% of it's parents size."
 ## 
+
+proc csFixed*(coord: UICoord): Constraint =
+  ## Sets a fixed UI Constraint size.
+  csFixed(coord.UiScalar)
+
+proc ux*(coord: SomeNumber | UICoord): Constraint =
+  ## Alias for `csFixed`, sets a fixed UI Constraint size.
+  csFixed(coord.UiScalar)
 
 proc csOrFixed*(x: int | float32 | float64 | UICoord | Constraint): Constraint =
   when x is Constraint:
@@ -113,6 +96,27 @@ proc boxOf*(current: Figuro, box: Box) =
   ## Sets the node's size to the given box.
   current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
   current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
+
+## ---------------------------------------------
+##             Fidget Node APIs
+## ---------------------------------------------
+## 
+## These APIs provide styling APIs for Fidget nodes.
+## 
+
+proc setName*(current: Figuro, n: string) =
+  ## sets current node name
+  current.name.setLen(0)
+  current.name.add(n)
+
+proc imageStyle*(name: string, color: Color): ImageStyle =
+  # Sets teh image style.
+  result = ImageStyle(name: name, color: color)
+
+proc border*(current: Figuro, weight: UICoord, color: Color) =
+  ## Sets border stroke & color on the given node.
+  current.stroke.color = color
+  current.stroke.weight = weight.float32
 
 template css*(color: static string): Color =
   ## Parses a CSS style color at compile time.
@@ -200,7 +204,12 @@ proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
   cornerRadius(current, UICoord radius.value.coord)
 
-## Fonts
+## ---------------------------------------------
+##             Fidget Text APIs
+## ---------------------------------------------
+## 
+## These APIs provide font APIs for Fidget nodes.
+## 
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
@@ -235,32 +244,6 @@ proc setInnerText*(
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
     refresh(node)
 
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-##        Dimension Helpers
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-## 
-## These provide basic dimension units and helpers 
-## similar to those available in HTML. They help
-## specify details like: "set node width to 100% of it's parents size."
-## 
-
-proc csFixed*(coord: UICoord): Constraint =
-  ## Sets a fixed UI Constraint size.
-  csFixed(coord.UiScalar)
-
-proc ux*(coord: SomeNumber | UICoord): Constraint =
-  ## Alias for `csFixed`, sets a fixed UI Constraint size.
-  csFixed(coord.UiScalar)
-
-# proc findRoot*(node: Figuro): Figuro =
-#   result = node
-#   var cnt = 0
-#   while not result.parent.isNil() and result.unsafeWeakRef() != result.parent:
-#     withRef result.parent, parent:
-#       result = parent
-#       cnt.inc
-#       if cnt > 10_000:
-#         raise newException(IndexDefect, "error finding root")
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
