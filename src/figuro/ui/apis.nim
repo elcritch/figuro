@@ -69,10 +69,6 @@ template rectangle*(name: string | static string, blk: untyped) =
   ## Starts a new rectangle.
   widgetRegister[Rectangle](nkRectangle, name, blk)
 
-template text*(name: string | static string, blk: untyped) =
-  ## Starts a new rectangle.
-  widgetRegister[Text](nkText, name, blk)
-
 ## ---------------------------------------------
 ##             Fidget Node APIs
 ## ---------------------------------------------
@@ -236,17 +232,25 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   result.size = 12
   result.lineHeight = -1'ui
 
-proc setText*(
-    current: Figuro,
+proc hasInnerTextChanged*(
+    node: Figuro,
+    spans: openArray[(UiFont, string)],
+    hAlign = FontHorizontal.Left,
+    vAlign = FontVertical.Top,
+): bool =
+  let thash = getContentHash(node.box, spans, hAlign, vAlign)
+  result = thash != node.textLayout.contentHash
+
+proc setInnerText*(
+    node: Figuro,
     spans: openArray[(UiFont, string)],
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ) =
-  let thash = getContentHash(current.box, spans, hAlign, vAlign)
-  if thash != current.textLayout.contentHash:
-    trace "setText: ", nodeName = current.name, thash = thash, contentHash = current.textLayout.contentHash
-    current.textLayout = system.getTypeset(current.box, spans, hAlign, vAlign)
-    refresh(current)
+  if hasInnerTextChanged(node, spans, hAlign, vAlign):
+    trace "setText: ", nodeName = node.name, thash = thash, contentHash = current.textLayout.contentHash
+    node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
+    refresh(node)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers

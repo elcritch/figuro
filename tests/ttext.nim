@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/button
+import figuro/widgets/[basics, button]
 import figuro
 
 let
@@ -25,28 +25,31 @@ proc draw*(self: Main) {.slot.} =
         box 10'ux, 10'ux, 600'ux, 120'ux
         cornerRadius 10.0
         fill css"#2A9EEA" * 0.7
-      text "text":
+      Text.new "text":
         with this:
           cssEnable false
           box 10'ux, 10'ux, 400'ux, 100'ux
           fill blackColor
-          setText({font: "hello world!",
-                    smallFont: "It's a small world"}, vAlign=Top)
-      text "text":
+          align Top
+          text({font: "hello world!",
+                smallFont: "It's a small world"})
+      Text.new "text":
         with this:
           box 10'ux, 10'ux, 400'ux, 100'ux
           cssEnable false
           fill blackColor
-          setText({font: "hello world!",
-                    smallFont: "It's a small world"}, vAlign=Middle)
-      text "text":
+          align Middle
+          text({font: "hello world!",
+                smallFont: "It's a small world"})
+      Text.new "text":
         with this:
           cssEnable false
           box 10'ux, 10'ux, 400'ux, 100'ux
           fill blackColor
-          setText({font: "hello world!",
-                    smallFont: "It's a small world"}, vAlign=Bottom)
-      rectangle "main":
+          align Bottom
+          text({font: "hello world!",
+                smallFont: "It's a small world"})
+      Rectangle.new "main":
         with this:
           cssEnable false
           box 10'ux, 10'ux, 400'ux, 100'ux

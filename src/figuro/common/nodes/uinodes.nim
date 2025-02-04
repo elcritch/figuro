@@ -109,7 +109,11 @@ type
     value*: T
 
   Rectangle* = ref object of BasicFiguro
+
   Text* = ref object of BasicFiguro
+    hAlign*: FontHorizontal = Left
+    vAlign*: FontVertical = Top
+    font*: UiFont
 
 proc `=destroy`*(obj: type(Figuro()[])) =
   ## destroy

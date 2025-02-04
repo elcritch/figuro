@@ -35,7 +35,13 @@ proc hash*(glyph: GlyphPosition): Hash {.inline.} =
   result = hash((2344, glyph.fontId, glyph.rune))
 
 proc getId*(typeface: Typeface): TypefaceId =
-  TypefaceId typeface.hash()
+  result = TypefaceId typeface.hash()
+  for i in 1..100:
+    if result.int == 0:
+      result = TypefaceId(typeface.hash() !& hash(i))
+    else:
+      break
+  doAssert result.int != 0, "Typeface hash results in invalid id"
 
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
@@ -156,6 +162,9 @@ proc getTypefaceImpl*(name: string): FontId =
     typeface = readTypeface(typefacePath)
     id = typeface.getId()
 
+  doAssert id != 0
+  if id in typefaceTable:
+    doAssert typefaceTable[id] == typeface
   typefaceTable[id] = typeface
   result = id
 

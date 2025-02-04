@@ -413,7 +413,7 @@ template WidgetContents*(): untyped =
   # if fig.contentsDraw != nil:
   #   fig.contentsDraw(node, Figuro(fig))
   for content in widgetContents:
-    content.childInit(node, content.name, content.childPreDraw)
+    content.childInit(this, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
 template `as`*[T: ref](tp: typedesc[T], name: string, blk) =
@@ -432,7 +432,6 @@ proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
 template withWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
   let this {.inject.} = self
-  let widget {.inject.} = self
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
 
@@ -442,11 +441,10 @@ template withWidget*(self, blk: untyped) =
 template withRootWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
   let this {.inject.} = self
-  let widget {.inject.} = self
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
 
-  rectangle "main":
+  Rectangle.new "main":
     bindSigilEvents(this):
       `blk`
 
