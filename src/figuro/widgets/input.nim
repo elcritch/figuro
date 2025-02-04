@@ -23,7 +23,7 @@ proc justify*(self: Input, kind: FontHorizontal) =
 proc textChanged*(self: Input, runes: seq[Rune]): bool =
   echo "text changed: ", self.box
   echo "text changed:text.box: ", self.text.box
-  result = runes != self.text.runes() or self.box != self.text.box
+  result = runes != self.text.runes()
   echo "text changed: ", result, " runes: ", runes != self.text.runes(), " box: ", self.box != self.text.box
 
 proc textChanged*(self: Input, txt: string): bool =
@@ -35,7 +35,7 @@ proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
     echo "SET text:changed "
     self.text.updateText(runes)
     self.text.update(self.box)
-    refresh(self)
+    # refresh(self)
 
 proc text*(self: Input, txt: string) {.slot.} =
   runes(self, txt.toRunes())
@@ -205,4 +205,7 @@ proc draw*(self: Input) {.slot.} =
       if self.isActive:
         fill this, this.fill.lighten(0.15)
         # this changes the color on hover!
+    
+    if self.text.box != self.box:
+      self.text.update(self.box)
 
