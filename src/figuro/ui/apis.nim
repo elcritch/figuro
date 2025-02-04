@@ -1,4 +1,4 @@
-import std/[algorithm, macros, tables, os, hashes, with]
+import std/[macros, tables, with]
 from std/sugar import capture
 export with, capture
 
