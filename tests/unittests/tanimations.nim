@@ -13,7 +13,7 @@ type
 
 proc draw*(self: TMain) {.slot.} =
   withWidget(self):
-    node.name = "main"
+    this.setName "main"
     rectangle "body":
       echo "body"
 

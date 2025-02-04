@@ -142,7 +142,7 @@ suite "text boxes (single line)":
   test "set text":
     var tx = newTextBox(initBox(0,0,100,100), font)
     tx.insert("one".toRunes)
-    tx.setText("alpha".toRunes)
+    tx.replaceText("alpha".toRunes)
     check tx.selection == 3..3
     check tx.runes == "alpha".toRunes()
 
@@ -151,7 +151,7 @@ suite "text boxes (single line)":
     tx.insert("one".toRunes)
     tx.selection = 0..2
 
-    tx.setText("alpha".toRunes)
+    tx.replaceText("alpha".toRunes)
     check tx.selection == 0..2
     check tx.runes == "alpha".toRunes()
 
@@ -160,7 +160,7 @@ suite "text boxes (single line)":
     tx.insert("alpha".toRunes)
     tx.selection = 0..4
 
-    tx.setText("one".toRunes)
+    tx.replaceText("one".toRunes)
     check tx.selection == 0..3
     check tx.runes == "one".toRunes()
 
