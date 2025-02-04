@@ -1,4 +1,4 @@
-- TODO `v0.12.1`
+- TODO `v0.12.2`
   + fix auto for child-based resizing with grid
   + add minimum button click time (?)
   + port over to dom monitor
