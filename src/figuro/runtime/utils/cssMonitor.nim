@@ -32,24 +32,24 @@ when not defined(noFiguroDmonMonitor):
       userData: pointer,
   ) {.gcsafe.} =
     {.cast(gcsafe).}:
-      info "THEME watcher callback", rootDir = rootDir, filePath = filepath
       let file = rootDir / filepath
-      discard cssUpdates.trySend(file)
+      let res = cssUpdates.trySend(file)
+      info "THEME watcher callback", rootDir = rootDir, filePath = filepath, sendRes = res
 
 
   proc cssWatcher*(self: CssLoader) {.slot.} =
-    notice "Starting CSS Watcher: "
+    notice "Starting CSS Watcher"
     initDmon()
     startDmonThread()
 
     let defaultTheme = themePath().splitFile()
     let watchId: WatchId = watch(defaultTheme.dir, watchCallback, {}, nil)
-    notice "Started CSS Watcher: ", defaultTheme = themePath()
+    notice "Started CSS Watcher", defaultTheme = themePath()
 
-    var file: string
-    while cssUpdates.tryRecv(file):
+    while true:
+      let file = cssUpdates.recv()
       notice "CSS Updated: ", file = file
       let cssRules = loadTheme(file)
-      emit watcherSelf.cssUpdate(cssRules)
+      emit self.cssUpdate(cssRules)
       os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-      emit watcherSelf.cssUpdate(cssRules)
+      emit self.cssUpdate(cssRules)
