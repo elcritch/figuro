@@ -52,6 +52,7 @@ proc draw*(self: Main) {.slot.} =
           cornerRadius 0.0
         if not this.textChanged(""):
           # set default
+          echo "SET DEFAULT TEXT"
           text(this, "00:00:00")
 
 var main = Main.new()
