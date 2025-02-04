@@ -54,7 +54,7 @@ proc draw*(self: Main) {.slot.} =
   # Calls the widget template `rectangle`.
   # This creates a new basic widget node. Generally used to draw generic rectangles.
   Rectangle.new "body":
-    with node:
+    with this:
       # sets the bounding box of this node
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
@@ -63,7 +63,7 @@ proc draw*(self: Main) {.slot.} =
 
     # sets up horizontal widget node with alternate syntax
     Horizontal.new "horiz": # same as `horizontal "horiz":`
-      with node:
+      with this:
         box 10'ux, 0'ux, 100'pp, 100'pp
         # `contentWidth` is needed to set the width of items
         # in the horizontal widget
@@ -74,7 +74,7 @@ proc draw*(self: Main) {.slot.} =
         capture idx:
           Button[int].new("btn"):
             let btn = node
-            with node:
+            with this:
               size 100'ux, 100'ux
               cornerRadius 5.0
               connect(doHover, self, btnHover)
@@ -82,7 +82,7 @@ proc draw*(self: Main) {.slot.} =
             if idx == 0:
               connect(self, update, node, btnTick)
             Text.new "text":
-              with node:
+              with this:
                 fill blackColor
                 setText({font: $(btn.state)}, Center, Middle)
 

@@ -33,24 +33,24 @@ proc draw*(self: GridDebug) {.slot.} =
           for col in grid.gridTemplate.columns[1 ..^ 2]:
             capture col:
               rectangle "column":
-                with node:
+                with this:
                   zlevel 10.ZLevel
                   fill color
                   box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
           for row in grid.gridTemplate.rows[1 ..^ 2]:
             capture row:
               rectangle "row":
-                with node:
+                with this:
                   zlevel 10.ZLevel
                   fill color
                   box 0, row.start.UICoord - wd, w.UICoord, wd
           rectangle "edge":
-            with node:
+            with this:
               fill color
               zlevel 10.ZLevel
               box 0'ux, 0'ux, w, 3'ux
           rectangle "edge":
-            with node:
+            with this:
               fill color
               zlevel 10.ZLevel
               box 0'ux, ux(h - 3), w, 3'ux

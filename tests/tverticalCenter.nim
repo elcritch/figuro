@@ -24,7 +24,7 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   var node = self
   Rectangle.new "body":
-    with node:
+    with this:
       box 5'pp, 5'pp, 90'pp, 600'ux
       cornerRadius 10.0
       fill whiteColor.darken(self.hoveredAlpha)
@@ -38,7 +38,7 @@ proc draw*(self: Main) {.slot.} =
       for i in 0 .. 3:
         capture i:
           Button[int].new "btn":
-            with node:
+            with this:
               size 100'ux, 100'ux
               # we need to connect the nodes onHover event
               connect(doHover, self, buttonHover)
@@ -51,7 +51,7 @@ proc draw*(self: Main) {.slot.} =
       for i in 0 .. 1:
         capture i:
           Button[int].new "btn":
-            with node:
+            with this:
               fill blackColor
               size 50'ux, 50'ux
               # we need to connect the nodes onHover event

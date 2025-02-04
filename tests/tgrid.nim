@@ -14,11 +14,11 @@ type
 proc draw*(self: GridApp) {.slot.} =
   # echo "\n\n=================================\n"
   var node = self
-  with node:
+  with this:
     fill clearColor
   rectangle "main":
     # echo "windowSize: ", self.frame[].windowSize
-    with node:
+    with this:
       fill css"#D7D7D9"
       cornerRadius 10
       box 10'pp, 10'pp, 80'pp, 80'pp
@@ -42,13 +42,13 @@ proc draw*(self: GridApp) {.slot.} =
                   ["edge-r"]
 
     rectangle "bar":
-      with node:
+      with this:
         fill css"#1010D0"
         gridRow "top" // "middle-top"
         gridColumn "outer-l" // "outer-r"
 
     rectangle "btn":
-      with node:
+      with this:
         # currently rendering sub-text with css grids
         # is a bit broken due to the order constraints
         # are computed. There's a fix for this 
@@ -58,7 +58,7 @@ proc draw*(self: GridApp) {.slot.} =
         gridColumn "button-la" // "button-lb"
 
       Button.new "btn":
-        with node:
+        with this:
           # label fmt"Clicked1: {self.count:4d}"
           # size 100'ux, 30'ux
           size 50'pp, 100'pp
@@ -68,7 +68,7 @@ proc draw*(self: GridApp) {.slot.} =
         #   self.count.inc()
 
     Button.new "grid":
-      with node:
+      with this:
         gridRow "middle" // "bottom"
         gridColumn "button-ra" // "button-rb"
         fill css"#00D000"

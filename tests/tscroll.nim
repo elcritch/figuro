@@ -19,7 +19,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc buttonItem(self, node: Figuro, idx: int) =
   Button.new "button":
     # current.gridItem = nil
-    with node:
+    with this:
       size 1'fr, 50'ux
       fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20)
     if idx in [3, 7]:
@@ -28,16 +28,16 @@ proc buttonItem(self, node: Figuro, idx: int) =
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
-    with node:
+    with this:
       fill css"#0000AA"
       setTitle("Scrolling example")
     ScrollPane.new "scroll":
-      with node:
+      with this:
         offset 2'pp, 2'pp
         cornerRadius 7.0'ux
         size 96'pp, 90'pp
       Vertical.new "":
-        with node:
+        with this:
           offset 10'ux, 10'ux
           contentHeight cx"max-content"
         for idx in 0 .. 15:

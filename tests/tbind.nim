@@ -16,19 +16,19 @@ proc initialize*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
-    with node:
+    with this:
       setName "main"
       fill css"#9F2B00"
       size 100'pp, 100'pp
 
     rectangle "count":
-      with node:
+      with this:
         cornerRadius 10.0
         box 40'ux, 30'ux, 80'ux, 40'ux
         fill css"#3B70DF"
       text "btnText":
         # bindProp(self.counter)
-        with node:
+        with this:
           box 0'pp, 0'pp, 100'pp, 120'pp
           fill blackColor
           setText({font: $self.counter{} & " ₿" }, Center, Middle)
@@ -36,7 +36,7 @@ proc draw*(self: Main) {.slot.} =
     Button as "btnSub":
       box node, 160'ux, 30'ux, 80'ux, 40'ux
       text "btnText":
-        with node:
+        with this:
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "–"}, Center, Middle)
@@ -46,7 +46,7 @@ proc draw*(self: Main) {.slot.} =
     Button as "btnAdd":
       box node, 240'ux, 30'ux, 80'ux, 40'ux
       text "btnText":
-        with node:
+        with this:
           size 100'pp, 120'pp
           fill blackColor
           setText({largeFont: "+"}, Center, Middle)

@@ -16,7 +16,7 @@ proc draw*(self: GridApp) {.slot.} =
     GridDebug.new "debug-grid":
       node.state = (blackColor, "css grid area")
     # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
-    with node:
+    with this:
       box 10'pp, 10'pp, 80'pp, 80'pp
       fill rgb(224, 239, 255).to(Color)
 
@@ -24,7 +24,7 @@ proc draw*(self: GridApp) {.slot.} =
       # if current.gridTemplate != nil:
       #   echo "grid template: ", repr current.gridTemplate
       # setup frame for css grid
-      with node:
+      with this:
         box 5'pp, 5'pp, 90'pp, 90'pp
         # size 100'pp, 100'pp
         fill css"#FFFFFF"
@@ -38,7 +38,7 @@ proc draw*(self: GridApp) {.slot.} =
 
       rectangle "item a":
         # Setup CSS Grid Template
-        with node:
+        with this:
           cornerRadius 10
           gridColumn 1 // 2
           gridRow 1 // 3
@@ -49,14 +49,14 @@ proc draw*(self: GridApp) {.slot.} =
         capture i:
           rectangle "items b":
             # Setup CSS Grid Template
-            with node:
+            with this:
               cornerRadius 6
               # some color stuff
               fill rgba(66, 177, 44, 167).to(Color).spin(i.toFloat*50)
 
       rectangle "item e":
         # Setup CSS Grid Template
-        with node:
+        with this:
           cornerRadius 6
           gridColumn 5 // 6
           gridRow 1 // 3

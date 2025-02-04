@@ -51,13 +51,13 @@ proc draw*(self: Main) {.slot.} =
   var startBtn: Figuro
   Button.new "btn":
     startBtn = node
-    with node:
+    with this:
       box 40'ux, 30'ux, 100'ux, 100'ux
       fill css"#2B9F2B"
       uinodes.connect(doDrag, node, btnDragStart)
 
     text "btnText":
-      with node:
+      with this:
         box 5'ux, 5'ux, 90'pp, 90'pp
         fill blackColor
         setText({font: "drag to the red block and release"}, Center)
@@ -68,7 +68,7 @@ proc draw*(self: Main) {.slot.} =
       node.state[0] = self.bkgFade
       connect(self.bkgFade, fadeTick, node, fading)
     # echo "button:id: ", node.getId, " ", self.bkgFade.amount
-    with node:
+    with this:
       box 200'ux, 30'ux, 100'ux, 100'ux
       fill css"#9F2B00".spin(50*self.bkgFade.amount)
     ## TODO: how to make a better api for this
@@ -86,7 +86,7 @@ proc draw*(self: Main) {.slot.} =
       refresh(btn)
     uinodes.connect(node, doMouseClick, node, clicked)
     text "btnText":
-      with node:
+      with this:
         fill blackColor * self.bkgFade.amount / self.bkgFade.minMax.b
         setText({font: btn.state[1]}, Center, Middle)
 

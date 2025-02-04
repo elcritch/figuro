@@ -370,7 +370,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
   ## sets up a new instance of a widget of type `T`.
   ##
   when not compiles(this.typeof):
-    {.error: "no `this` variable defined in the current scope!".}
+    {.error: "No `this` variable found in the current scope! Figuro's APIs rely on an having a `this` variable referring to the current widget or node. Check that you have `withWidget` or `withRootWidget` at the top of your widget draw slots.".}
   
   let childPreDraw = proc(c: Figuro) =
       # echo "widgt PRE-DRAW INIT: ", nm

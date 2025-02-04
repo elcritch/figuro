@@ -19,7 +19,7 @@ proc draw*(self: Main) {.slot.} =
 
   let node = self
   Button[int] as "btn":
-    with node:
+    with this:
       box 40'ux, 30'ux, 80'ux, 80'ux
       fill css"#2B9F2B"
     
@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
                                 color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.5))
 
     text "btnText":
-      with node:
+      with this:
         box 10'ux, 10'ux, 80'pp, 80'pp
         fill blackColor
         setText({font: "testing"}, Center, Middle)

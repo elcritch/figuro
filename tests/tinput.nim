@@ -24,7 +24,7 @@ proc draw*(self: Main) {.slot.} =
   # self.theme.font = UiFont(typefaceId: self.frame[].theme.font.typefaceId, size: 22)
   rectangle "body":
     self.mainRect = node
-    with node:
+    with this:
       box 10'ux, 10'ux, 600'ux, 120'ux
       cornerRadius 10.0
       fill "#2A9EEA".parseHtmlColor * 0.7

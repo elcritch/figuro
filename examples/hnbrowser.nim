@@ -42,11 +42,11 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   var node = self
-  with node:
+  with this:
     fill css"#0000AA"
 
   rectangle "outer":
-    with node:
+    with this:
       offset 10'ux, 10'ux
       setGridCols 1'fr
       setGridRows ["top"] 70'ux \
@@ -60,7 +60,7 @@ proc draw*(self: Main) {.slot.} =
       alignItems CxStart
 
     Button.new "Load":
-      with node:
+      with this:
         size 0.5'fr, 50'ux
         gridRow "top" // "items"
         gridColumn "left" // "right"
@@ -75,7 +75,7 @@ proc draw*(self: Main) {.slot.} =
       connect(node, doMouseClick, self, clickLoad)
 
       Text.new "text":
-        with node:
+        with this:
           fill blackColor
           offset 0'ux, 10'ux
         case self.loading:
@@ -85,7 +85,7 @@ proc draw*(self: Main) {.slot.} =
           node.setText({font: "Loading..."}, Center, Middle)
 
     ScrollPane.new "scroll":
-      with node:
+      with this:
         gridRow "items" // "bottom"
         gridColumn 1 // 2
         offset 2'pp, 2'pp
@@ -93,13 +93,13 @@ proc draw*(self: Main) {.slot.} =
         size 96'pp, 90'pp
 
       Vertical.new "items":
-        with node:
+        with this:
           contentHeight cx"max-content"
 
         for idx, story in self.stories:
           capture story:
             Button.new "story":
-              with node:
+              with this:
                 size 1'fr, 60'ux
                 fill blueColor.lighten(0.2)
               # connect(node, doHover, self, Main.hover)

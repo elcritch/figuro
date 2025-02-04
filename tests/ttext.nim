@@ -31,15 +31,16 @@ proc draw*(self: Main) {.slot.} =
           box 10'ux, 10'ux, 400'ux, 100'ux
           foreground blackColor
           align Top
-          text({font: "hello world!",
+          text({font: "|O' hello world!",
                 smallFont: "It's a small world"})
       Text.new "text":
         with this:
           box 10'ux, 10'ux, 400'ux, 100'ux
           cssEnable false
           foreground blackColor
+          border 1'ui, css"green"
           align Middle
-          text({font: "hello world!",
+          text({font: "|O' hello world!",
                 smallFont: "It's a small world"})
       Text.new "text":
         with this:
@@ -47,7 +48,7 @@ proc draw*(self: Main) {.slot.} =
           box 10'ux, 10'ux, 400'ux, 100'ux
           foreground blackColor
           align Bottom
-          text({font: "hello world!",
+          text({font: "|_O' hello world!",
                 smallFont: "It's a small world"})
 
 var main = Main.new()

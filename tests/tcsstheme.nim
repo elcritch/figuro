@@ -150,25 +150,25 @@ proc draw*(self: TMain) {.slot.} =
     rectangle "child1":
       discard
       Button[int].new "btnC":
-        with node:
+        with this:
           box 40'ux, 30'ux, 80'ux, 80'ux
           fill css"#FFFFFF"
 
     Button[int].new "btnA":
-      with node:
+      with this:
         box 40'ux, 30'ux, 80'ux, 80'ux
         fill css"#FFFFFF"
   
     rectangle "child2":
       Button[int].new "btnB":
-        with node:
+        with this:
           box 40'ux, 30'ux, 80'ux, 80'ux
           fill css"#FFFFFF"
 
     rectangle "child3":
       rectangle "child30":
         Button[int].new "btnD":
-          with node:
+          with this:
             box 40'ux, 30'ux, 80'ux, 80'ux
             fill css"#FFFFFF"
 
