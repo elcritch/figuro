@@ -77,7 +77,6 @@ proc draw*(self: Main) {.slot.} =
         Text.new "text":
           with this:
             foreground blackColor
-            offset 0'ux, 10'ux
           case self.loading:
           of false:
             with this:
