@@ -9,7 +9,7 @@ template usingHorizontalLayout*() =
     justifyItems CxCenter
     alignItems CxCenter
 
-proc contentWidth*(node: Figuro, cx: Constraint, gap = -1'ui) =
+proc contentWidth*(node: Figuro, cx: Constraint, gap = -1'ui) {.thisWrapper.} =
   node.gridAutoColumns cx
   if gap != -1'ui:
     node.gridColumnGap gap
