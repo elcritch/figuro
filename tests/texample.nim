@@ -18,7 +18,7 @@ proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     var vert: Vertical
     Vertical.new "vert":
-      vert = node
+      vert = this
       with this:
         fill whiteColor.darken(0.5)
         offset 30'ux, 10'ux
@@ -32,19 +32,23 @@ proc draw*(self: Main) {.slot.} =
         with this:
           size 200'ux, 45'ux
           fill css"#00A0AA"
-        text "txt1":
+        Text as "txt1":
           with this:
-            setText({font: "test1"}, Center, Middle)
-            fill css"#FFFFFF"
+            align Middle
+            justify Center
+            text {font: "test2"}
+            foreground css"#FFFFFF"
       rectangle "slider":
         with this:
           size 0.5'fr, 0.5'fr
           fill css"#A000AA"
-        text "txt2":
+        Text as "txt2":
           # size 100'pp, 100'pp
           with this:
-            setText({font: "test2"}, Center, Middle)
-            fill css"#FFFFFF"
+            align Middle
+            justify Center
+            text {font: "test2"}
+            foreground css"#FFFFFF"
     
 
 var main = Main.new()
