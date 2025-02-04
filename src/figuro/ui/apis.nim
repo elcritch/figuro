@@ -15,15 +15,6 @@ import core
 export core
 
 
-# template nodes*[T](fig: T, blk: untyped): untyped =
-#   ## begin drawing nodes
-#   ## 
-#   ## sets up the required `current` variable to `fig`
-#   ## so that the methods from `ui/apis.nim` can 
-#   ## be used.
-#   var node {.inject, used.} = fig
-#   `blk`
-
 template withNodes*[T](fig: T, blk: untyped): untyped =
   ## alias for `nodes`
   nodes[T](fig, blk)
@@ -48,13 +39,6 @@ proc border*(current: Figuro, weight: UICoord, color: Color) =
 proc boxFrom*(current: Figuro, x, y, w, h: float32) =
   ## Sets the box dimensions.
   current.box = initBox(x, y, w, h)
-
-# template frame*(id: static string, args: varargs[untyped]): untyped =
-#   ## Starts a new frame.
-#   nodeImpl(nkFrame, id, args):
-#     # boxSizeOf parent
-#     discard
-#     # current.cxSize = [csAuto(), csAuto()]
 
 # template drawable*(id: static string, inner: untyped): untyped =
 #   ## Starts a drawable node. These don't draw a normal rectangle.
@@ -93,11 +77,6 @@ proc setName*(current: Figuro, n: string) =
 ## interacting with user interactions. 
 ## 
 
-# type Constraint* = Constraint
-
-proc fltOrZero(x: int | float32 | float64 | UICoord | Constraint): float32 =
-  when x is Constraint: 0.0 else: x.float32
-
 proc csOrFixed*(x: int | float32 | float64 | UICoord | Constraint): Constraint =
   when x is Constraint:
     x
@@ -115,10 +94,6 @@ proc box*(
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
-# template box*(rect: Box) =
-#   ## Sets the box dimensions with integers
-#   box(rect.x, rect.y, rect.w, rect.h)
-
 proc offset*(current: Figuro, x: UICoord | Constraint, y: UICoord | Constraint) =
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
 
@@ -135,10 +110,12 @@ proc boxOf*(current: Figuro, node: Figuro) =
   current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
 
 proc boxOf*(current: Figuro, box: Box) =
+  ## Sets the node's size to the given box.
   current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
   current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
 
 template css*(color: static string): Color =
+  ## Parses a CSS style color at compile time.
   const c = parseHtmlColor(color)
   c
 
@@ -162,6 +139,7 @@ proc fill*(current: Figuro, color: Color) =
   current.userSetFields.incl fsFill
 
 proc zlevel*(current: Figuro, zlvl: ZLevel) =
+  ## Sets the z-level (layer) height of the given node.
   current.zlevel = zlvl
 
 proc fillHover*(current: Figuro, color: Color) =
@@ -202,6 +180,7 @@ template onHover*(current: Figuro, inner: untyped) =
     inner
 
 template onHover*(inner: untyped) =
+  ## Sets and onHover behavior.
   onHover(node, inner)
 
 proc getTitle*(current: Figuro): string =
@@ -228,6 +207,7 @@ proc loadTypeFace*(name: string): TypefaceId =
   system.getTypeface(name)
 
 proc newFont*(typefaceId: TypefaceId): UiFont =
+  ## Creates a new UI Font from a given typeface.
   result = UiFont()
   result.typefaceId = typefaceId
   result.size = 12
@@ -239,6 +219,7 @@ proc hasInnerTextChanged*(
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ): bool =
+  ## Checks if the text layout has changed.
   let thash = getContentHash(node.box, spans, hAlign, vAlign)
   result = thash != node.textLayout.contentHash
 
@@ -248,6 +229,7 @@ proc setInnerText*(
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ) =
+  ## Set the text on an item.
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
     trace "setText: ", nodeName = node.name, thash = thash, contentHash = current.textLayout.contentHash
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
@@ -263,20 +245,22 @@ proc setInnerText*(
 ## 
 
 proc csFixed*(coord: UICoord): Constraint =
+  ## Sets a fixed UI Constraint size.
   csFixed(coord.UiScalar)
 
 proc ux*(coord: SomeNumber | UICoord): Constraint =
+  ## Alias for `csFixed`, sets a fixed UI Constraint size.
   csFixed(coord.UiScalar)
 
-proc findRoot*(node: Figuro): Figuro =
-  result = node
-  var cnt = 0
-  while not result.parent.isNil() and result.unsafeWeakRef() != result.parent:
-    withRef result.parent, parent:
-      result = parent
-      cnt.inc
-      if cnt > 10_000:
-        raise newException(IndexDefect, "error finding root")
+# proc findRoot*(node: Figuro): Figuro =
+#   result = node
+#   var cnt = 0
+#   while not result.parent.isNil() and result.unsafeWeakRef() != result.parent:
+#     withRef result.parent, parent:
+#       result = parent
+#       cnt.inc
+#       if cnt > 10_000:
+#         raise newException(IndexDefect, "error finding root")
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
