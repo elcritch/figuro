@@ -23,45 +23,41 @@ proc deactivateSlider*(self: Main) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
     rectangle "body":
-      with this:
-        fill rgba(66, 177, 44, 197).to(Color).spin(100).darken(0.3*self.bkgFade.amount)
-        zlevel 20.ZLevel
-        box ux(140*self.bkgFade.amount - 140), 0'ux, 140'ux, 100'pp
-        cornerRadius 0.0'ui
+      fill rgba(66, 177, 44, 197).to(Color).spin(100).darken(0.3*self.bkgFade.amount)
+      zlevel 20.ZLevel
+      box ux(140*self.bkgFade.amount - 140), 0'ux, 140'ux, 100'pp
+      cornerRadius 0.0'ui
       Vertical.new "menu":
-        box this, 0'ux, 10'ux, 100'pp, 95'pp
+        box 0'ux, 10'ux, 100'pp, 95'pp
         contentHeight this, cx"auto", gap = 20'ui
         Button.new "Close":
-          size this, 120'ux, 40'ux
+          size 120'ux, 40'ux
           connect(this, doClicked, self, deactivateSlider)
           Text.new "text":
-            with this:
-              foreground blackColor
-              justify Center
-              align Middle
-              text({defaultFont: "Close Menu"})
-    Horizontal.new "horiz":
-      offset this, 30'pp, 0'ux
-      contentWidth this, cx"auto", gap = 20'ui
-      Button.new "Open":
-        size this, 120'ux, 60'ux
-        connect(this, doClicked, self, activateSlider)
-        Text.new "text":
-          with this:
             foreground blackColor
             justify Center
             align Middle
-            text({defaultFont: "Open Menu"})
+            text({defaultFont: "Close Menu"})
+    Horizontal.new "horiz":
+      offset 30'pp, 0'ux
+      contentWidth this, cx"auto", gap = 20'ui
+      Button.new "Open":
+        size 120'ux, 60'ux
+        connect(this, doClicked, self, activateSlider)
+        Text.new "text":
+          foreground blackColor
+          justify Center
+          align Middle
+          text({defaultFont: "Open Menu"})
 
       Button.new "Close":
         size this, 120'ux, 60'ux
         connect(this, doClicked, self, deactivateSlider)
         Text.new "text":
-          with this:
-            foreground blackColor
-            justify Center
-            align Middle
-            text({defaultFont: "Close Menu"})
+          foreground blackColor
+          justify Center
+          align Middle
+          text({defaultFont: "Close Menu"})
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(800'ui, 600'ui))

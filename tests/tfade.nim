@@ -36,7 +36,7 @@ proc draw*(self: Main) {.slot.} =
         capture i:
           Button.new "btn":
             size 100'ux, 100'ux
-            connect(this, doHover, self, buttonHover)
+            connect(doHover, self, buttonHover)
 
 # proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
 #   self.bkgFade.tick(self)

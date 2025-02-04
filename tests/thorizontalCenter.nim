@@ -46,7 +46,7 @@ proc draw*(self: Main) {.slot.} =
               with this:
                 size 100'ux, 100'ux
                 # we need to connect the nodes onHover event
-                connect(doHover, self, buttonHover)
+              connect(doHover, self, buttonHover)
 
       Horizontal.new "horiz2":
         offset this, 0'pp, 200'ux
@@ -60,7 +60,7 @@ proc draw*(self: Main) {.slot.} =
                 fill blackColor
                 size 50'ux, 50'ux
                 # we need to connect the nodes onHover event
-                connect(doHover, self, buttonHover)
+              connect(doHover, self, buttonHover)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 640'ui))
