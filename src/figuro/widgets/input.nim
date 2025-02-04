@@ -165,7 +165,7 @@ proc draw*(self: Input) {.slot.} =
   withWidget(self):
     connect(self, doKeyCommand, self, Input.keyCommand)
 
-    with self:
+    withOptional self:
       clipContent true
       cornerRadius 10.0
       # fill blackColor

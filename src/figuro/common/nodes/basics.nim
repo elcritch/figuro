@@ -57,6 +57,7 @@ type
     fsZLevel
     fsRotation
     fsCornerRadius
+    fsClipContent
     fsFill
     fsFillHover
     fsHighlight
