@@ -5,9 +5,8 @@ import sigils/threads
 import ../../commons
 import ../../ui/core
 
-when defined(figuroFsMonitor):
-  import libfswatch
-  import libfswatch/fswatch
+when not defined(noFiguroDmonMonitor):
+  import dmon
 
 import pkg/chronicles
 
@@ -21,20 +20,27 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-when defined(figuroFsMonitor):
+when not defined(noFiguroDmonMonitor):
   var watcherSelf: WeakRef[CssLoader]
 
-  proc fsmonCallback(event: fsw_cevent, eventNum: cuint) =
-    let cssRules = loadTheme()
-    emit watcherSelf.cssUpdate(cssRules)
-    os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-    emit watcherSelf.cssUpdate(cssRules)
+  proc watchCallback(
+      watchId: WatchId,
+      action: DmonAction,
+      rootDir, filepath, oldfilepath: string,
+      userData: pointer,
+  ) {.gcsafe.} =
+    {.cast(gcsafe).}:
+      echo "theme watcher callback! "
+      let file = rootDir / filepath
+      let cssRules = loadTheme(file)
+      emit watcherSelf.cssUpdate(cssRules)
+      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+      emit watcherSelf.cssUpdate(cssRules)
 
   proc cssWatcher*(self: CssLoader) {.slot.} =
     notice "Starting CSS Watcher"
-    watcherSelf = self.unsafeWeakRef()
-    let defaultTheme = themePath()
-    var mon = newMonitor()
-    mon.addPath(defaultTheme)
-    mon.setCallback(fsmonCallback)
-    mon.start()
+    initDmon()
+    startDmonThread()
+
+    let defaultTheme = themePath().splitFile()
+    let watchId: WatchId = watch(defaultTheme.dir, watchCallback, {}, nil)
