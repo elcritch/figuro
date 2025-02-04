@@ -3,14 +3,25 @@ export apisImpl
 
 import macros
 macro wrapThis*(p: untyped): auto =
+  # echo "WRAP THIS: ", p.treeRepr
+  let isProc = p.kind == nnkProcDef
+  result = newStmtList()
+  if isProc:
+    result.add p
+
   var args: seq[NimNode]
   args.add ident("this")
   for arg in p[3][1..^1]:
     for id in arg[0..^3]:
       args.add(id)
-  result = nnkTemplateDef.newTree(p[0..^1])
-  result[^1] = nnkStmtList.newTree(newCall(result[0][1], args))
-  echo "THIS WRAPPER:result: ", result.repr
+  var tmpl = nnkTemplateDef.newTree(p[0..^1])
+  if isProc:
+    tmpl[3].del(1)
+    args.delete(1)
+  tmpl[^1] = nnkStmtList.newTree(newCall(tmpl[0][1], args))
+  result.add tmpl
+  # echo "THIS WRAPPER:result: ", result.treeRepr
+  # echo "THIS WRAPPER:result: ", result.repr
 
 ## ---------------------------------------------
 ##             Basic Node Creation

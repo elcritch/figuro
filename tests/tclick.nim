@@ -85,8 +85,8 @@ proc draw*(self: Main) {.slot.} =
                 with this:
                   foreground blackColor
                   justify Center
-                  align Middle
-                  text({font: $(btn.state)})
+                align Middle
+                text({font: $(btn.state)})
 
 proc tick*(self: Main, time: MonoTime, delta: Duration) {.slot.} =
   emit self.update()
