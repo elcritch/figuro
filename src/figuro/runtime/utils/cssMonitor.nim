@@ -42,12 +42,19 @@ when not defined(noFiguroDmonMonitor):
     initDmon()
     startDmonThread()
 
-    let defaultTheme = themePath().splitFile()
-    let watchId: WatchId = watch(defaultTheme.dir, watchCallback, {}, nil)
-    notice "Started CSS Watcher", defaultTheme = themePath()
+    let defaultTheme = themePath()
+    let watchId1: WatchId = watch(defaultTheme.splitFile.dir, watchCallback, {}, nil)
 
+    var appFile = os.getAppFilename().replace(".exe", "") & ".css"
+    let watchId2: WatchId = watch(appFile.splitFile.dir, watchCallback, {}, nil)
+    notice "Started CSS Watcher", theme = themePath()
+
+    let cssFiles = @[defaultTheme, appFile]
     while true:
       let file = cssUpdates.recv()
+      if file notin cssFiles:
+        notice "CSS Skipping", file = file
+        continue
       notice "CSS Updated: ", file = file
       let cssRules = loadTheme(file)
       emit self.cssUpdate(cssRules)
