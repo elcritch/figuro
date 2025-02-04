@@ -49,7 +49,6 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
 proc initialize*[T](self: Button[T]) {.slot.} =
   echo "button:initialize"
   # connect(self, doClickPress, self, clickPressed)
-  echo "self.fade: ", self.fade.unsafeWeakRef
   self.fade.addTarget(self)
 
 proc draw*[T](self: Button[T]) {.slot.} =
