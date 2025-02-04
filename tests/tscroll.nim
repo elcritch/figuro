@@ -11,11 +11,10 @@ type
 
 proc buttonItem(self, this: Figuro, idx: int) =
   Button.new "button":
-    with this:
-      size 1'fr, 50'ux
-      fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20)
+    size 1'fr, 50'ux
+    fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20)
     if idx in [3, 7]:
-      this.size 0.9'fr, 120'ux
+      size 0.9'fr, 120'ux
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
