@@ -20,17 +20,25 @@ proc align*(self: Input, kind: FontVertical) =
 proc justify*(self: Input, kind: FontHorizontal) =
   self.text.hAlign = kind
 
-proc textChanged*(self: Input, txt: string): bool =
-  let runes = txt.toRunes()
-  result = runes != self.text.runes()
+proc textChanged*(self: Input, runes: seq[Rune]): bool =
+  echo "Text Changed: ", self.box
+  echo "Text Changed:text.box: ", self.text.box
+  echo "Text Changed: ", "runes: ", runes != self.text.runes(), " box: ", self.box != self.text.box
+  result = runes != self.text.runes() or self.box != self.text.box
 
-proc text*(self: Input, txt: string) {.slot.} =
+proc textChanged*(self: Input, txt: string): bool =
+  result = textChanged(self, txt.toRunes())
+
+proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
   echo "set text: ", self.box
-  let runes = txt.toRunes()
-  if runes != self.text.runes():
+  if self.textChanged(runes):
+    echo "set text:changed "
     self.text.updateText(runes)
     self.text.update(self.box)
     refresh(self)
+
+proc text*(self: Input, txt: string) {.slot.} =
+  runes(self, txt.toRunes())
 
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 
@@ -163,6 +171,7 @@ proc initialize*(self: Input) {.slot.} =
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
+    echo "\nDRAW: INPUT: ", self.box
     connect(self, doKeyCommand, self, Input.keyCommand)
 
     withOptional self:
