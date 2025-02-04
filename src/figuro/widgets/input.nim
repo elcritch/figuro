@@ -32,7 +32,7 @@ proc textChanged*(self: Input, txt: string): bool =
 
 proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
   if self.textChanged(runes):
-    self.text.updateText(runes)
+    self.text.replaceText(runes)
     self.text.update(self.box)
     # refresh(self)
 
