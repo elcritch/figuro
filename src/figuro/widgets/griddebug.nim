@@ -24,7 +24,7 @@ proc draw*(self: GridDebug) {.slot.} =
         let grid = gridNode
 
         ## helper that draws css grid lines. great for debugging layouts.
-        boxOf node, grid.box
+        boxOf this, grid.box
         if not grid.gridTemplate.isNil:
           let cg = grid.gridTemplate.gaps[dcol]
           let wd = 3'ui
