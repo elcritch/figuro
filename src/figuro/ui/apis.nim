@@ -3,46 +3,20 @@ export nodeapis
 
 import macros
 macro thisWrapper(p: untyped): auto =
-  echo "THIS WRAPPER: ", p.treeRepr
-  echo "THIS WRAPPER:args: ", p[3].treeRepr
+  # echo "THIS WRAPPER: ", p.treeRepr
+  # echo "THIS WRAPPER:args: ", p[3].treeRepr
   var args: seq[NimNode]
+  args.add ident("this")
   for arg in p[3][1..^1]:
-    for id in arg[0..^2]:
+    for id in arg[0..^3]:
       args.add(id)
   result = nnkTemplateDef.newTree(p[0..^1])
-  result[3].del(1)
+  # result[3].del(1)
+  # echo "THIS: tree: ", result[0].treeRepr
   result[^1] = nnkStmtList.newTree(
     newCall(result[0][1], args)
   )
   echo "THIS WRAPPER:result: ", result.repr
-
-# THIS WRAPPER: ProcDef
-#   Postfix
-#     Ident "*"
-#     Ident "boxFrom1"
-#   Empty
-#   Empty
-#   FormalParams
-#     Empty
-#     IdentDefs
-#       Ident "x"
-#       Ident "float32"
-#       Empty
-#     IdentDefs
-#       Ident "y"
-#       Ident "float32"
-#       Empty
-#     IdentDefs
-#       Ident "w"
-#       Ident "float32"
-#       Empty
-#     IdentDefs
-#       Ident "h"
-#       Ident "float32"
-#       Empty
-#   Empty
-#   Empty
-#   Empty
 
 ## ---------------------------------------------
 ##             Basic Node Creation
@@ -52,7 +26,7 @@ macro thisWrapper(p: untyped): auto =
 ## Fidget nodes. 
 ## 
 
-proc boxFrom*(x, y, w, h: float32) {.thisWrapper.}
+template boxFrom*(x, y, w, h: float32) {.thisWrapper.}
   ## Sets the box dimensions.
 
 
@@ -65,25 +39,25 @@ proc boxFrom*(x, y, w, h: float32) {.thisWrapper.}
 ## specify details like: "set node width to 100% of it's parents size."
 ## 
 
-proc box*(
+template box*(
     x: UICoord | Constraint,
     y: UICoord | Constraint,
     w: UICoord | Constraint,
     h: UICoord | Constraint,
-) {.thisWrapper.}
+) =
+  box(this, csOrFixed(x), csOrFixed(y), csOrFixed(w), csOrFixed(h))
 
-proc offset*(x: UICoord | Constraint, y: UICoord | Constraint) {.thisWrapper.}
+template offset*(x: UICoord | Constraint, y: UICoord | Constraint) {.thisWrapper.}
 
-proc size*(w: UICoord | Constraint, h: UICoord | Constraint) {.thisWrapper.}
+template size*(w: UICoord | Constraint, h: UICoord | Constraint) {.thisWrapper.}
 
-proc boxSizeOf*(node: Figuro) {.thisWrapper.}
+template boxSizeOf*(node: Figuro) {.thisWrapper.}
   ## Sets current node's box from another node
   ## e.g. `boxOf(parent)`
 
-proc boxOf*(node: Figuro) {.thisWrapper.} =
-  discard
+template boxOf*(node: Figuro) {.thisWrapper.}
 
-proc boxOf*(box: Box) {.thisWrapper.}
+template boxOf*(box: Box) {.thisWrapper.}
   ## Sets the node's size to the given box.
 
 ## ---------------------------------------------
@@ -98,41 +72,41 @@ template css*(color: static string): Color =
   const c = parseHtmlColor(color)
   c
 
-proc imageStyle*(name: string, color: Color): ImageStyle =
+template imageStyle*(name: string, color: Color): ImageStyle =
   # Sets teh image style.
   result = ImageStyle(name: name, color: color)
 
-proc setName*(n: string) {.thisWrapper.}
+template setName*(n: string) {.thisWrapper.}
   ## sets current node name
 
-proc border*(weight: UICoord, color: Color) {.thisWrapper.}
+template border*(weight: UICoord, color: Color) {.thisWrapper.}
   ## Sets border stroke & color on the given node.
 
-proc cssEnable*(enable: bool) {.thisWrapper.}
+template cssEnable*(enable: bool) {.thisWrapper.}
   ## Causes the parent to clip the children.
 
-proc clipContent*(clip: bool) {.thisWrapper.}
+template clipContent*(clip: bool) {.thisWrapper.}
   ## Causes the parent to clip the children.
 
-proc fill*(color: Color) {.thisWrapper.}
+template fill*(color: Color) {.thisWrapper.}
   ## Sets background color.
 
-proc zlevel*(zlvl: ZLevel) {.thisWrapper.}
+template zlevel*(zlvl: ZLevel) {.thisWrapper.}
   ## Sets the z-level (layer) height of the given node.
 
-proc fillHover*(color: Color) {.thisWrapper.}
+template fillHover*(color: Color) {.thisWrapper.}
   ## Sets background color.
 
-proc fillHover*(color: Color, alpha: float32) {.thisWrapper.}
+template fillHover*(color: Color, alpha: float32) {.thisWrapper.}
   ## Sets background color.
 
-proc positionDiff*(initial: Position, point: Position): Position =
+template positionDiff*(initial: Position, point: Position): Position {.thisWrapper.}
   ## computes relative position of the mouse to the node position
 
-proc positionRelative*(point: Position, node: Figuro): Position =
+template positionRelative*(point: Position, node: Figuro): Position {.thisWrapper.}
   ## computes relative position of the mouse to the node position
 
-proc positionRatio*(node: Figuro, point: Position, clamped = false): Position =
+template positionRatio*(node: Figuro, point: Position, clamped = false): Position {.thisWrapper.}
   ## computes relative fraction of the mouse's position to the node's area
 
 template onHover*(inner: untyped) {.thisWrapper.}
@@ -141,16 +115,16 @@ template onHover*(inner: untyped) {.thisWrapper.}
 template onHover*(inner: untyped) {.thisWrapper.}
   ## Sets and onHover behavior.
 
-proc getTitle*(): string =
+template getTitle*(): string {.thisWrapper.}
   ## Gets window title
 
 template setTitle*(title: string) {.thisWrapper.}
   ## Sets window title
 
-proc cornerRadius*(radius: UICoord) {.thisWrapper.}
+template cornerRadius*(radius: UICoord) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
-proc cornerRadius*(radius: Constraint) {.thisWrapper.}
+template cornerRadius*(radius: Constraint) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
 ## ---------------------------------------------
@@ -160,27 +134,12 @@ proc cornerRadius*(radius: Constraint) {.thisWrapper.}
 ## These APIs provide font APIs for Fidget nodes.
 ## 
 
-proc loadTypeFace*(name: string): TypefaceId =
+template loadTypeFace*(name: string): TypefaceId {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
-proc newFont*(typefaceId: TypefaceId): UiFont =
+template newFont*(typefaceId: TypefaceId): UiFont {.thisWrapper.}
   ## Creates a new UI Font from a given typeface.
 
-proc hasInnerTextChanged*(
-    node: Figuro,
-    spans: openArray[(UiFont, string)],
-    hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top,
-): bool =
-  ## Checks if the text layout has changed.
-
-proc setInnerText*(
-    node: Figuro,
-    spans: openArray[(UiFont, string)],
-    hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top,
-) {.thisWrapper.}
-  ## Set the text on an item.
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
@@ -229,60 +188,58 @@ template setGridRows*(args: untyped) {.thisWrapper.}
 
 template findGridColumn*(index: GridIndex): GridLine {.thisWrapper.}
 
-proc findGridRow*(index: GridIndex): GridLine {.thisWrapper.}
+template findGridRow*(index: GridIndex): GridLine {.thisWrapper.}
 
-proc getGridItem(): var GridItem {.thisWrapper.}
+template span*(idx: int | string): GridIndex {.thisWrapper.}
 
-proc span*(idx: int | string): GridIndex {.thisWrapper.}
-
-proc columnStart*[T](idx: T) {.thisWrapper.}
+template columnStart*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid starting column.
 
-proc columnEnd*[T](idx: T) {.thisWrapper.}
+template columnEnd*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-proc gridColumn*[T](val: T) {.thisWrapper.}
+template gridColumn*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-proc rowStart*[T](idx: T) {.thisWrapper.}
+template rowStart*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid starting row.
 
-proc rowEnd*[T](idx: T) {.thisWrapper.}
+template rowEnd*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid ending row.
 
-proc gridRow*[T](val: T) {.thisWrapper.}
+template gridRow*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-proc gridArea*[T](r, c: T) {.thisWrapper.}
+template gridArea*[T](r, c: T) {.thisWrapper.}
   ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
 
-proc gridColumnGap*(value: UICoord) {.thisWrapper.}
+template gridColumnGap*(value: UICoord) {.thisWrapper.}
   ## Set CSS Grid column gap.
 
-proc gridRowGap*(value: UICoord) {.thisWrapper.}
+template gridRowGap*(value: UICoord) {.thisWrapper.}
   ## Set CSS Grid column gap.
 
-proc justifyItems*(con: ConstraintBehavior) {.thisWrapper.}
+template justifyItems*(con: ConstraintBehavior) {.thisWrapper.}
   ## Justify items on CSS Grid (horizontal)
 
-proc alignItems*(con: ConstraintBehavior) {.thisWrapper.}
+template alignItems*(con: ConstraintBehavior) {.thisWrapper.}
   ## Align items on CSS Grid (vertical).
 
-proc layoutItems*(con: ConstraintBehavior) {.thisWrapper.}
+template layoutItems*(con: ConstraintBehavior) {.thisWrapper.}
   ## Set justification and alignment on child items.
 
-proc layoutItems*(justify, align: ConstraintBehavior) {.thisWrapper.}
+template layoutItems*(justify, align: ConstraintBehavior) {.thisWrapper.}
   ## Set justification and alignment on child items.
 
-proc gridAutoFlow*(item: GridFlow) {.thisWrapper.}
+template gridAutoFlow*(item: GridFlow) {.thisWrapper.}
   ## Sets the CSS Grid auto-flow style.
   ## 
   ## When you have grid items that aren't explicitly placed on the grid,
   ## the auto-placement algorithm kicks in to automatically place the items. 
 
-proc gridAutoColumns*(item: Constraint) {.thisWrapper.}
+template gridAutoColumns*(item: Constraint) {.thisWrapper.}
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
 
-proc gridAutoRows*(item: Constraint) {.thisWrapper.}
+template gridAutoRows*(item: Constraint) {.thisWrapper.}
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
 
