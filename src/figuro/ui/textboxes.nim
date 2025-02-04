@@ -50,7 +50,7 @@ proc updateLayout*(self: var TextBox) =
   ## This appends an extra character at the end to get the cursor
   ## position at the end, which depends on the next character.
   ## Otherwise, this character is ignored.
-  let spans = {self.font: $self.runes(), self.font: "."}
+  let spans = {self.font: $self.runes(), self.font: " "}
   self.layout = getTypeset(self.box, spans, self.hAlign, self.vAlign)
   self.runes().setLen(self.runes().len() - 1)
 
