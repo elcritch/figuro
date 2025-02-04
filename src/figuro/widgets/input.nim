@@ -23,8 +23,8 @@ proc justify*(self: Input, kind: FontHorizontal) =
 proc textChanged*(self: Input, runes: seq[Rune]): bool =
   echo "Text Changed: ", self.box
   echo "Text Changed:text.box: ", self.text.box
-  echo "Text Changed: ", "runes: ", runes != self.text.runes(), " box: ", self.box != self.text.box
   result = runes != self.text.runes() or self.box != self.text.box
+  echo "Text Changed: ", result, "runes: ", runes != self.text.runes(), " box: ", self.box != self.text.box
 
 proc textChanged*(self: Input, txt: string): bool =
   result = textChanged(self, txt.toRunes())
