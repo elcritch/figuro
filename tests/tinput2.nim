@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[basics, input, button, vertical, horizontal]
+import figuro/widgets/[input, button, vertical, horizontal]
 import figuro
 
 let
@@ -31,7 +31,7 @@ proc draw*(self: Main) {.slot.} =
       Text.new "time":
         with this:
           size 40'pp, 50'ux
-          fill css"black"
+          fill css"white"
           foreground css"red"
           border 1'ui, css"#000000"
           cornerRadius 10.0
@@ -49,7 +49,8 @@ proc draw*(self: Main) {.slot.} =
           align Middle
           justify Center
           font defaultFont
-          fill css"black"
+          foreground css"black"
+          fill css"white"
           border 1'ui, css"black"
           cornerRadius 10.0
         if not this.textChanged(""):
