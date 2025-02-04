@@ -164,28 +164,28 @@ proc draw*(self: Input) {.slot.} =
       cornerRadius 10.0
       # fill blackColor
 
-    text "text":
-      node.textLayout = self.text.layout
+    Text.new "text":
+      this.textLayout = self.text.layout
       rectangle "cursor":
-        with node:
+        with this:
           boxOf self.text.cursorRect
           fill blackColor
-        node.fill.a = self.value.toFloat * 1.0
+        this.fill.a = self.value.toFloat * 1.0
       WidgetContents()
-      fill node, self.color
+      fill this, self.color
       
       for i, selRect in self.text.selectionRects:
         capture i:
           Rectangle.new "selection":
-            with node:
+            with this:
               boxOf self.text.selectionRects[i]
               fill css"#A0A0FF" * 0.4
 
     if self.disabled:
-      fill node, node.fill.darken(0.4)
+      fill this, this.fill.darken(0.4)
     else:
-      fill node, node.fill.darken(0.2)
+      fill this, this.fill.darken(0.2)
       if self.isActive:
-        fill node, node.fill.lighten(0.15)
+        fill this, this.fill.lighten(0.15)
         # this changes the color on hover!
 

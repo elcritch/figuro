@@ -3,7 +3,7 @@ import ../widget
 type Vertical* = ref object of Figuro
 
 template usingVerticalLayout*() =
-  with node:
+  with this:
     setGridCols 1'fr
     gridAutoFlow grRow
     justifyItems CxCenter
@@ -18,7 +18,7 @@ proc contentHeight*(current: Vertical, cx: Constraint, gap = -1'ui) =
 
 template usingVerticalLayout*(cx: Constraint, gap = -1'ui) =
   usingVerticalLayout()
-  contentHeight(node, cs, gap)
+  contentHeight(this, cs, gap)
 
 proc draw*(self: Vertical) {.slot.} =
   ## button widget!
