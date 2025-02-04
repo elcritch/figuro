@@ -31,8 +31,8 @@ proc draw*(self: Main) {.slot.} =
       Text.new "time":
         with this:
           size 40'pp, 50'ux
-          fill css"white"
-          foreground css"black"
+          fill css"black"
+          foreground css"red"
           border 1'ui, css"#000000"
           cornerRadius 10.0
           justify FontHorizontal.Center

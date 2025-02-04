@@ -28,4 +28,5 @@ proc draw*(self: Text) {.slot.} =
   withWidget(self):
     widgetRegister[BasicFiguro](nkText, "text"):
       WidgetContents()
+      echo "TEXT: color: ", self.color
       fill this, self.color
