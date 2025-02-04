@@ -16,15 +16,15 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   # echo "hover: ", kind
   refresh(self)
 
-proc buttonItem(self, node: Figuro, idx: int) =
+proc buttonItem(self, this: Figuro, idx: int) =
   Button.new "button":
     # current.gridItem = nil
     with this:
       size 1'fr, 50'ux
       fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20)
     if idx in [3, 7]:
-      node.size 0.9'fr, 120'ux
-    connect(node, doHover, self, Main.hover)
+      this.size 0.9'fr, 120'ux
+    connect(this, doHover, self, Main.hover)
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
@@ -41,7 +41,7 @@ proc draw*(self: Main) {.slot.} =
           offset 10'ux, 10'ux
           contentHeight cx"max-content"
         for idx in 0 .. 15:
-          buttonItem(self, node, idx)
+          buttonItem(self, this, idx)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))

@@ -225,8 +225,6 @@ proc printLayout*(node: Figuro, depth = 0) =
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
   trace "computeLayout", name = node.name, box = node.box.wh.repr
-  # if this.setName = "scrollBody":
-  #   sb = node
 
   # # simple constraints
   calcBasicConstraint(node, dcol, isXY = true)
