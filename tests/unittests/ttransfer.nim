@@ -32,27 +32,27 @@ proc draw(fig: TestBasic) {.slot.} =
 
 proc draw(fig: TestFig) {.slot.} =
   withWidget(fig):
-    node.zlevel = 20
-    # discard node.name.tryAdd("root")
-    node.name = "root"
+    this.zlevel = 20
+    # discard this.name.tryAdd("root")
+    this.name = "root"
     rectangle "body":
       rectangle "child0":
         discard
         rectangle "child01":
           discard
     rectangle "child1":
-      node.zlevel = 30
+      this.zlevel = 30
       rectangle "child11":
         discard
       rectangle "child12":
         discard
       rectangle "child13":
-        node.zlevel = -10
+        this.zlevel = -10
         rectangle "child131":
           discard
     rectangle "body2":
       rectangle "child21":
-        node.zlevel = -10
+        this.zlevel = -10
 
 
 suite "test layers":
@@ -91,13 +91,13 @@ suite "test layers":
   #         rectangle "child01":
   #           discard
   #       rectangle "child1":
-  #         node.zlevel = 11
+  #         this.zlevel = 11
   #       rectangle "child2":
   #         discard
   #       rectangle "child3":
   #         discard
   #     rectangle "body":
-  #       node.zlevel = 12
+  #       this.zlevel = 12
   #       rectangle "child4":
   #         discard
 
