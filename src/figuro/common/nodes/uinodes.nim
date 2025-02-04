@@ -40,6 +40,7 @@ type
     rendInputList*: Chan[RenderCommands]
     running*, focused*, minimized*, fullscreen*: bool
 
+    windowTitle*: string
     windowSize*: Box ## Screen size in logical coordinates.
     windowRawSize*: Vec2 ## Screen coordinates
     theme*: Theme

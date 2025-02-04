@@ -17,6 +17,7 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    setTitle "Animation Example"
     box this, -100'ui, 0'ui, 600'ui, 140'ui
     fill css"#0F0F0F"
     let j = 1

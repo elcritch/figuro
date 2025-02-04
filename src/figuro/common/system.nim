@@ -17,11 +17,12 @@ when not defined(nimscript):
   export TypeFaceKinds
   ## these are set at runtime by the opengl window
 
-  proc setWindowTitle*(frame: AppFrame, title: sink string) =
-    frame.rendInputList.send(RenderSetTitle(name= move title))
+  proc getWindowTitle*(frame: AppFrame): string =
+    frame.windowTitle
 
-  proc getWindowTitle*(frame: AppFrame, ): string =
-    discard
+  proc setWindowTitle*(frame: AppFrame, title: sink string) =
+    if frame.getWindowTitle() != title:
+      frame.rendInputList.send(RenderSetTitle(name= move title))
 
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
@@ -34,15 +35,3 @@ when not defined(nimscript):
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top
   ): GlyphArrangement =
     getTypesetImpl(box, spans, hAlign, vAlign)
-
-# when defined(nimscript):
-#   proc setWindowTitle*(title: string) =
-#     discard
-#   proc getWindowTitle*(): string =
-#     discard
-#   proc getTypeface*(name: string): TypefaceId =
-#     discard
-#   proc getFont*(font: GlyphFont): FontId =
-#     discard
-#   proc getTypeset*(text: string, font: FontId, box: Box): GlyphArrangement =
-#     discard
