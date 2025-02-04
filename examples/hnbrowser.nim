@@ -41,73 +41,81 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  var node = self
-  with node:
-    fill css"#0000AA"
+  withRootWidget(self):
+    with this:
+      fill css"#0000AA"
 
-  rectangle "outer":
-    with node:
-      offset 10'ux, 10'ux
-      setGridCols 1'fr
-      setGridRows ["top"] 70'ux \
-                  ["items"] 1'fr \
-                  ["bottom"] 20'ux
-      setGridCols ["left"]  1'fr \
-                  ["right"] 0'ux
-      gridColumn 1 // 1
-      gridAutoFlow grRow
-      justifyItems CxCenter
-      alignItems CxStart
+    rectangle "outer":
+      with this:
+        offset 10'ux, 10'ux
+        setGridCols 1'fr
+        setGridRows ["top"] 70'ux \
+                    ["items"] 1'fr \
+                    ["bottom"] 20'ux
+        setGridCols ["left"]  1'fr \
+                    ["right"] 0'ux
+        gridColumn 1 // 1
+        gridAutoFlow grRow
+        justifyItems CxCenter
+        alignItems CxStart
 
-    Button.new "Load":
-      with node:
-        size 0.5'fr, 50'ux
-        gridRow "top" // "items"
-        gridColumn "left" // "right"
-      proc clickLoad(self: Main,
-                      kind: EventKind,
-                      buttons: UiButtonView) {.slot.} =
-        echo "Load clicked"
-        if kind == Init and not self.loading:
-          emit self.htmlLoad()
-        self.loading = true
-        refresh(self)
-      connect(node, doMouseClick, self, clickLoad)
+      Button.new "Load":
+        with this:
+          size 0.5'fr, 50'ux
+          gridRow "top" // "items"
+          gridColumn "left" // "right"
+        proc clickLoad(self: Main,
+                        kind: EventKind,
+                        buttons: UiButtonView) {.slot.} =
+          echo "Load clicked"
+          if kind == Init and not self.loading:
+            emit self.htmlLoad()
+          self.loading = true
+          refresh(self)
+        this.connect(doMouseClick, self, clickLoad)
 
-      Text.new "text":
-        with node:
-          fill blackColor
-          offset 0'ux, 10'ux
-        case self.loading:
-        of false:
-          node.setText({font: "Load"}, Center, Middle)
-        of true:
-          node.setText({font: "Loading..."}, Center, Middle)
+        Text.new "text":
+          with this:
+            foreground blackColor
+          case self.loading:
+          of false:
+            with this:
+              align Middle
+              justify Center
+              text({font: "Load"})
+          of true:
+            with this:
+              align Middle
+              justify Center
+              text({font: "Loading..."})
 
-    ScrollPane.new "scroll":
-      with node:
-        gridRow "items" // "bottom"
-        gridColumn 1 // 2
-        offset 2'pp, 2'pp
-        cornerRadius 7.0'ux
-        size 96'pp, 90'pp
+      ScrollPane.new "scroll":
+        with this:
+          gridRow "items" // "bottom"
+          gridColumn 1 // 2
+          offset 2'pp, 2'pp
+          cornerRadius 7.0'ux
+          size 96'pp, 90'pp
 
-      Vertical.new "items":
-        with node:
-          contentHeight cx"max-content"
+        Vertical.new "items":
+          with this:
+            contentHeight cx"max-content"
 
-        for idx, story in self.stories:
-          capture story:
-            Button.new "story":
-              with node:
-                size 1'fr, 60'ux
-                fill blueColor.lighten(0.2)
-              # connect(node, doHover, self, Main.hover)
-              # echo "story: ", story.link.title
-              Text.new "text":
-                offset node, 10'ux, ux(18/2)
-                node.setText({font: $story.link.title}, Left, Middle)
-                fill node, blackColor
+          for idx, story in self.stories:
+            capture story:
+              Button.new "story":
+                with this:
+                  size 1'fr, 60'ux
+                  fill blueColor.lighten(0.2)
+                # connect(node, doHover, self, Main.hover)
+                # echo "story: ", story.link.title
+                Text.new "text":
+                  with this:
+                    offset 10'ux, 0'ux
+                    foreground blackColor
+                    justify Left
+                    align Middle
+                    text({font: $story.link.title})
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))

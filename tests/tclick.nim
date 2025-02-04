@@ -47,44 +47,46 @@ proc initialize*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
-  ## triggers a node or it's parents to be refreshed
-  var node = self
-  node.setName "main"
+  ## triggers a this or it's parents to be refreshed
+  withWidget(self):
+    this.setName "main"
 
-  # Calls the widget template `rectangle`.
-  # This creates a new basic widget node. Generally used to draw generic rectangles.
-  Rectangle.new "body":
-    with node:
-      # sets the bounding box of this node
-      box 10'ux, 10'ux, 600'ux, 120'ux
-      cornerRadius 10.0
-      # `fill` sets the background color. Color apis use the `chroma` library
-      fill blackColor * (self.bkgFade.amount)
+    # Calls the widget template `rectangle`.
+    # This creates a new basic widget this. Generally used to draw generic rectangles.
+    Rectangle.new "body":
+      with this:
+        # sets the bounding box of this this
+        box 10'ux, 10'ux, 600'ux, 120'ux
+        cornerRadius 10.0'ui
+        # `fill` sets the background color. Color apis use the `chroma` library
+        fill blackColor * (self.bkgFade.amount)
 
-    # sets up horizontal widget node with alternate syntax
-    Horizontal.new "horiz": # same as `horizontal "horiz":`
-      with node:
-        box 10'ux, 0'ux, 100'pp, 100'pp
-        # `contentWidth` is needed to set the width of items
-        # in the horizontal widget
-        contentWidth 100'ux, gap = 20'ui
-        layoutItems justify=CxCenter, align=CxCenter
+      # sets up horizontal widget this with alternate syntax
+      Horizontal.new "horiz": # same as `horizontal "horiz":`
+        with this:
+          box 10'ux, 0'ux, 100'pp, 100'pp
+          # `contentWidth` is needed to set the width of items
+          # in the horizontal widget
+          contentWidth 100'ux, gap = 20'ui
+          layoutItems justify=CxCenter, align=CxCenter
 
-      for idx in 0 .. 4:
-        capture idx:
-          Button[int].new("btn"):
-            let btn = node
-            with node:
-              size 100'ux, 100'ux
-              cornerRadius 5.0
-              connect(doHover, self, btnHover)
-              connect(doMouseClick, node, btnClicked)
-            if idx == 0:
-              connect(self, update, node, btnTick)
-            Text.new "text":
-              with node:
-                fill blackColor
-                setText({font: $(btn.state)}, Center, Middle)
+        for idx in 0 .. 4:
+          capture idx:
+            Button[int].new("btn"):
+              let btn = this
+              with this:
+                size 100'ux, 100'ux
+                cornerRadius 5.0'ui
+                connect(doHover, self, btnHover)
+                connect(doMouseClick, this, btnClicked)
+              if idx == 0:
+                connect(self, update, this, btnTick)
+              Text.new "text":
+                with this:
+                  foreground blackColor
+                  justify Center
+                align Middle
+                text({font: $(btn.state)})
 
 proc tick*(self: Main, time: MonoTime, delta: Duration) {.slot.} =
   emit self.update()

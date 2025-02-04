@@ -172,8 +172,8 @@ macro onSignal*(signal: untyped, blk: untyped) =
       {.error: "mismatched do block argument: `" & `args` &
                "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
                astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
-    connect(node, signalTrigger, `target`, handler, acceptVoidSlot = true)
-    connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
+    connect(this, signalTrigger, `target`, handler, acceptVoidSlot = true)
+    connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
   result[1].params = params
   # echo "result: ", result.treeRepr
 
@@ -369,18 +369,18 @@ proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, ca
 template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
-  when not compiles(node.typeof):
-    {.error: "no `node` variable defined in the current scope!".}
+  when not compiles(this.typeof):
+    {.error: "No `this` variable found in the current scope! Figuro's APIs rely on an having a `this` variable referring to the current widget or node. Check that you have `withWidget` or `withRootWidget` at the top of your widget draw slots.".}
   
   let childPreDraw = proc(c: Figuro) =
       # echo "widgt PRE-DRAW INIT: ", nm
-      let node {.inject.} = ## implicit variable in each widget block that references the current widget
+      let this {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
       `blk`
-  widgetRegisterImpl[T](nkind, nn, node, childPreDraw)
+  widgetRegisterImpl[T](nkind, nn, this, childPreDraw)
 
-template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
-  widgetRegister[t](nkText, name, blk)
+# template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
+#   widgetRegister[t](nkText, name, blk)
 
 template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
@@ -413,7 +413,7 @@ template WidgetContents*(): untyped =
   # if fig.contentsDraw != nil:
   #   fig.contentsDraw(node, Figuro(fig))
   for content in widgetContents:
-    content.childInit(node, content.name, content.childPreDraw)
+    content.childInit(this, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
 template `as`*[T: ref](tp: typedesc[T], name: string, blk) =
@@ -431,10 +431,20 @@ proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
 
 template withWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
-  let node {.inject.} = self
-  let widget {.inject.} = self
+  let this {.inject.} = self
   let widgetContents {.inject.} = move self.contents
   self.contents.setLen(0)
 
-  bindSigilEvents(node):
+  bindSigilEvents(this):
     `blk`
+
+template withRootWidget*(self, blk: untyped) =
+  ## sets up a draw slot for working with Figuro nodes
+  let this {.inject.} = self
+  let widgetContents {.inject.} = move self.contents
+  self.contents.setLen(0)
+
+  Rectangle.new "main":
+    bindSigilEvents(this):
+      `blk`
+

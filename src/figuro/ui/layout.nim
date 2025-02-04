@@ -73,19 +73,9 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
               parentBox.f
           res = perc.UICoord / 100.0.UICoord * ppval
         UiContentMin(cmins):
-          # res = cmins.UICoord
-          # res = node.calculateMinOrMaxes(astToStr(f), doMax=false)
-          when astToStr(f) in ["w"]:
-            res = node.box.w
-          elif astToStr(f) in ["h"]:
-            res = node.box.h
+          res = node.calculateMinOrMaxes(astToStr(f), doMax=false)
         UiContentMax(cmaxs):
-          # res = cmaxs.UICoord
-          # res = node.calculateMinOrMaxes(astToStr(f), doMax=true)
-          when astToStr(f) in ["w"]:
-            res = node.box.w
-          elif astToStr(f) in ["h"]:
-            res = node.box.h
+          res = node.calculateMinOrMaxes(astToStr(f), doMax=true)
       res
 
   trace "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
@@ -225,8 +215,6 @@ proc printLayout*(node: Figuro, depth = 0) =
 proc computeLayout*(node: Figuro, depth: int) =
   ## Computes constraints and auto-layout.
   trace "computeLayout", name = node.name, box = node.box.wh.repr
-  # if node.name == "scrollBody":
-  #   sb = node
 
   # # simple constraints
   calcBasicConstraint(node, dcol, isXY = true)
@@ -269,13 +257,13 @@ proc computeLayout*(node: Figuro, depth: int) =
   #   name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, children = node.children.mapIt((it.name, it.box.repr))
 
   trace "computeLayout:post: ",
-    name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+    name = node.name, wh = node.box.wh, prevSize = node.prevSize
   let currWh = node.box.wh
-  # if currWh != node.prevSize:
-  #   debug "computeLayout:post:changed: ",
-  #     name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
-  #   emit node.doLayoutResize(node, (prev: node.prevSize, curr: currWh))
-  #   node.prevSize = node.box.wh
+  if currWh != node.prevSize:
+    # info "computeLayout:post:changed: ",
+    #   name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+    emit node.doLayoutResize(node, (prev: node.prevSize, curr: currWh))
+    node.prevSize = node.box.wh
 
 proc computeLayout*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):

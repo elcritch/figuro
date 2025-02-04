@@ -1,41 +1,27 @@
-import std/[algorithm, macros, tables, os, hashes, with]
-from std/sugar import capture
-export with, capture
+import apisImpl
+export apisImpl
 
-import pkg/[chroma, bumpy, stack_strings, cssgrid, chronicles]
-export cssgrid, stack_strings, constraints
+import macros
+macro thisWrapper*(p: untyped): auto =
+  # echo "WRAP THIS: ", p.treeRepr
+  let isProc = p.kind == nnkProcDef
+  result = newStmtList()
+  if isProc:
+    result.add p
 
-import ../commons
-import ../common/system
-import ../common/system
-import ../common/nodes/[uinodes, basics]
-export commons, system, uinodes
-
-import core
-export core
-
-
-# template nodes*[T](fig: T, blk: untyped): untyped =
-#   ## begin drawing nodes
-#   ## 
-#   ## sets up the required `current` variable to `fig`
-#   ## so that the methods from `ui/apis.nim` can 
-#   ## be used.
-#   var node {.inject, used.} = fig
-#   `blk`
-
-template withNodes*[T](fig: T, blk: untyped): untyped =
-  ## alias for `nodes`
-  nodes[T](fig, blk)
-
-proc imageStyle*(name: string, color: Color): ImageStyle =
-  # Image style
-  result = ImageStyle(name: name, color: color)
-
-proc border*(current: Figuro, weight: UICoord, color: Color) =
-  ## Sets border stroke & color.
-  current.stroke.color = color
-  current.stroke.weight = weight.float32
+  var args: seq[NimNode]
+  args.add ident("this")
+  for arg in p[3][1..^1]:
+    for id in arg[0..^3]:
+      args.add(id)
+  var tmpl = nnkTemplateDef.newTree(p[0..^1])
+  if isProc:
+    tmpl[3].del(1)
+    args.delete(1)
+  tmpl[^1] = nnkStmtList.newTree(newCall(tmpl[0][1], args))
+  result.add tmpl
+  # echo "THIS WRAPPER:result: ", result.treeRepr
+  # echo "THIS WRAPPER:result: ", result.repr
 
 ## ---------------------------------------------
 ##             Basic Node Creation
@@ -45,208 +31,17 @@ proc border*(current: Figuro, weight: UICoord, color: Color) =
 ## Fidget nodes. 
 ## 
 
-proc boxFrom*(current: Figuro, x, y, w, h: float32) =
+template connect*(
+    signal: typed,
+    b: Figuro,
+    slot: typed,
+    acceptVoidSlot: static bool = false,
+): void =
+  uinodes.connect(this, signal, b, slot, acceptVoidSlot)
+
+template boxFrom*(x, y, w, h: float32) {.thisWrapper.}
   ## Sets the box dimensions.
-  current.box = initBox(x, y, w, h)
 
-# template frame*(id: static string, args: varargs[untyped]): untyped =
-#   ## Starts a new frame.
-#   nodeImpl(nkFrame, id, args):
-#     # boxSizeOf parent
-#     discard
-#     # current.cxSize = [csAuto(), csAuto()]
-
-# template drawable*(id: static string, inner: untyped): untyped =
-#   ## Starts a drawable node. These don't draw a normal rectangle.
-#   ## Instead they draw a list of points set in `current.points`
-#   ## using the nodes fill/stroke. The size of the drawable node
-#   ## is used for the point sizes, etc. 
-#   ## 
-#   ## Note: Experimental!
-#   nodeImpl(nkDrawable, id, inner)
-
-template rectangle*(name: string | static string, blk: untyped) =
-  ## Starts a new rectangle.
-  widgetRegister[Rectangle](nkRectangle, name, blk)
-
-template text*(name: string | static string, blk: untyped) =
-  ## Starts a new rectangle.
-  widgetRegister[Text](nkText, name, blk)
-
-## ---------------------------------------------
-##             Fidget Node APIs
-## ---------------------------------------------
-## 
-## These APIs provide the APIs for Fidget nodes.
-## 
-
-proc setName*(current: Figuro, n: string) =
-  ## sets current node name
-  current.name.setLen(0)
-  current.name.add(n)
-
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-##             Node User Interactions
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-## 
-## These APIs provide the basic functionality for
-## interacting with user interactions. 
-## 
-
-# type Constraint* = Constraint
-
-proc fltOrZero(x: int | float32 | float64 | UICoord | Constraint): float32 =
-  when x is Constraint: 0.0 else: x.float32
-
-proc csOrFixed*(x: int | float32 | float64 | UICoord | Constraint): Constraint =
-  when x is Constraint:
-    x
-  else:
-    csFixed(x.UiScalar)
-
-proc box*(
-    current: Figuro,
-    x: UICoord | Constraint,
-    y: UICoord | Constraint,
-    w: UICoord | Constraint,
-    h: UICoord | Constraint,
-) =
-  ## Sets the size and offsets at the same time
-  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
-  current.cxSize = [csOrFixed(w), csOrFixed(h)]
-
-# template box*(rect: Box) =
-#   ## Sets the box dimensions with integers
-#   box(rect.x, rect.y, rect.w, rect.h)
-
-proc offset*(current: Figuro, x: UICoord | Constraint, y: UICoord | Constraint) =
-  current.cxOffset = [csOrFixed(x), csOrFixed(y)]
-
-proc size*(current: Figuro, w: UICoord | Constraint, h: UICoord | Constraint) =
-  current.cxSize = [csOrFixed(w), csOrFixed(h)]
-
-proc boxSizeOf*(current: Figuro, node: Figuro) =
-  ## Sets current node's box from another node
-  ## e.g. `boxOf(parent)`
-  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
-
-proc boxOf*(current: Figuro, node: Figuro) =
-  current.cxOffset = [csOrFixed(node.box.x), csOrFixed(node.box.y)]
-  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
-
-proc boxOf*(current: Figuro, box: Box) =
-  current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
-  current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
-
-template css*(color: static string): Color =
-  const c = parseHtmlColor(color)
-  c
-
-proc cssEnable*(current: Figuro, enable: bool) =
-  ## Causes the parent to clip the children.
-  if enable:
-    current.attrs.excl skipCss
-  else:
-    current.attrs.incl skipCss
-
-proc clipContent*(current: Figuro, clip: bool) =
-  ## Causes the parent to clip the children.
-  if clip:
-    current.attrs.incl clipContent
-  else:
-    current.attrs.excl clipContent
-
-proc fill*(current: Figuro, color: Color) =
-  ## Sets background color.
-  current.fill = color
-  current.userSetFields.incl fsFill
-
-proc zlevel*(current: Figuro, zlvl: ZLevel) =
-  current.zlevel = zlvl
-
-proc fillHover*(current: Figuro, color: Color) =
-  ## Sets background color.
-  current.fill = color
-  current.userSetFields.incl {fsFill, fsFillHover}
-
-proc fillHover*(current: Figuro, color: Color, alpha: float32) =
-  ## Sets background color.
-  current.fill = color
-  current.fill.a = alpha
-  current.userSetFields.incl {fsFill, fsFillHover}
-
-proc positionDiff*(initial: Position, point: Position): Position =
-  ## computes relative position of the mouse to the node position
-  let x = point.x - initial.x
-  let y = point.y - initial.y
-  result = initPosition(x.float32, y.float32)
-
-proc positionRelative*(point: Position, node: Figuro): Position =
-  ## computes relative position of the mouse to the node position
-  let x = point.x - node.screenBox.x
-  let y = point.y - node.screenBox.y
-  result = initPosition(x.float32, y.float32)
-
-proc positionRatio*(node: Figuro, point: Position, clamped = false): Position =
-  ## computes relative fraction of the mouse's position to the node's area
-  let track = node.box.wh - point
-  result = (point.positionRelative(node) - point / 2) / track
-  if clamped:
-    result.x = result.x.clamp(0'ui, 1'ui)
-    result.y = result.y.clamp(0'ui, 1'ui)
-
-template onHover*(current: Figuro, inner: untyped) =
-  ## Code in the block will run when this box is hovered.
-  current.listens.events.incl(evHover)
-  if evHover in current.events:
-    inner
-
-template onHover*(inner: untyped) =
-  onHover(node, inner)
-
-proc getTitle*(current: Figuro): string =
-  ## Gets window title
-  current.frame[].getWindowTitle()
-
-template setTitle*(current: Figuro, title: string) =
-  ## Sets window title
-  current.frame[].setWindowTitle(title)
-
-proc cornerRadius*(current: Figuro, radius: UICoord) =
-  ## Sets all radius of all 4 corners.
-  current.cornerRadius = radius
-  current.userSetFields.incl fsCornerRadius
-
-proc cornerRadius*(current: Figuro, radius: Constraint) =
-  ## Sets all radius of all 4 corners.
-  cornerRadius(current, UICoord radius.value.coord)
-
-proc cornerRadius*(current: Figuro, radius: float | float32) =
-  cornerRadius(current, UICoord radius)
-
-## Fonts
-
-proc loadTypeFace*(name: string): TypefaceId =
-  ## Sets all radius of all 4 corners.
-  system.getTypeface(name)
-
-proc newFont*(typefaceId: TypefaceId): UiFont =
-  result = UiFont()
-  result.typefaceId = typefaceId
-  result.size = 12
-  result.lineHeight = -1'ui
-
-proc setText*(
-    current: Figuro,
-    spans: openArray[(UiFont, string)],
-    hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top,
-) =
-  let thash = getContentHash(current.box, spans, hAlign, vAlign)
-  if thash != current.textLayout.contentHash:
-    trace "setText: ", nodeName = current.name, thash = thash, contentHash = current.textLayout.contentHash
-    current.textLayout = system.getTypeset(current.box, spans, hAlign, vAlign)
-    refresh(current)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
@@ -257,21 +52,99 @@ proc setText*(
 ## specify details like: "set node width to 100% of it's parents size."
 ## 
 
-proc csFixed*(coord: UICoord): Constraint =
-  csFixed(coord.UiScalar)
+template box*(
+    x: UICoord | Constraint,
+    y: UICoord | Constraint,
+    w: UICoord | Constraint,
+    h: UICoord | Constraint,
+) =
+  box(this, csOrFixed(x), csOrFixed(y), csOrFixed(w), csOrFixed(h))
 
-proc ux*(coord: SomeNumber | UICoord): Constraint =
-  csFixed(coord.UiScalar)
+template offset*(x: UICoord | Constraint, y: UICoord | Constraint) {.thisWrapper.}
 
-proc findRoot*(node: Figuro): Figuro =
-  result = node
-  var cnt = 0
-  while not result.parent.isNil() and result.unsafeWeakRef() != result.parent:
-    withRef result.parent, parent:
-      result = parent
-      cnt.inc
-      if cnt > 10_000:
-        raise newException(IndexDefect, "error finding root")
+template size*(w: UICoord | Constraint, h: UICoord | Constraint) {.thisWrapper.}
+
+template boxSizeOf*(node: Figuro) {.thisWrapper.}
+  ## Sets current node's box from another node
+  ## e.g. `boxOf(parent)`
+
+template boxOf*(node: Figuro) {.thisWrapper.}
+
+template boxOf*(box: Box) {.thisWrapper.}
+  ## Sets the node's size to the given box.
+
+## ---------------------------------------------
+##             Fidget Node APIs
+## ---------------------------------------------
+## 
+## These APIs provide styling APIs for Fidget nodes.
+## 
+
+template css*(color: static string): Color =
+  ## Parses a CSS style color at compile time.
+  const c = parseHtmlColor(color)
+  c
+
+template imageStyle*(name: string, color: Color): ImageStyle =
+  # Sets teh image style.
+  result = ImageStyle(name: name, color: color)
+
+template setName*(n: string) {.thisWrapper.}
+  ## sets current node name
+
+template border*(weight: UICoord, color: Color) {.thisWrapper.}
+  ## Sets border stroke & color on the given node.
+
+template cssEnable*(enable: bool) {.thisWrapper.}
+  ## Causes the parent to clip the children.
+
+template clipContent*(clip: bool) {.thisWrapper.}
+  ## Causes the parent to clip the children.
+
+template fill*(color: Color) {.thisWrapper.}
+  ## Sets background color.
+
+template zlevel*(zlvl: ZLevel) {.thisWrapper.}
+  ## Sets the z-level (layer) height of the given node.
+
+template fillHover*(color: Color) {.thisWrapper.}
+  ## Sets background color.
+
+template fillHover*(color: Color, alpha: float32) {.thisWrapper.}
+  ## Sets background color.
+
+template onHover*(inner: untyped) {.thisWrapper.}
+  ## Code in the block will run when this box is hovered.
+
+template getTitle*(): string {.thisWrapper.}
+  ## Gets window title
+
+template setTitle*(title: string) {.thisWrapper.}
+  ## Sets window title
+
+template cornerRadius*(radius: UICoord) {.thisWrapper.}
+  ## Sets all radius of all 4 corners.
+
+template cornerRadius*(radius: Constraint) {.thisWrapper.}
+  ## Sets all radius of all 4 corners.
+
+## ---------------------------------------------
+##             Fidget Text APIs
+## ---------------------------------------------
+## 
+## These APIs provide font APIs for Fidget nodes.
+## 
+
+proc loadTypeFace*(name: string): TypefaceId =
+  ## Sets all radius of all 4 corners.
+  loadTypeFaceImpl(name)
+
+proc newFont*(typefaceId: TypefaceId): UiFont =
+  ## Creates a new UI Font from a given typeface.
+  result = UiFont()
+  result.typefaceId = typefaceId
+  result.size = 12
+  result.lineHeight = -1'ui
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
@@ -281,8 +154,8 @@ proc findRoot*(node: Figuro): Figuro =
 ## setting up layouts and constraingts. 
 ## 
 
-template setGridCols*(current: Figuro, args: untyped) =
-  ## configure columns for CSS grid template 
+template setGridCols*(args: untyped) {.thisWrapper.}
+  ## configure columns for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
   ## where
@@ -290,7 +163,7 @@ template setGridCols*(current: Figuro, args: untyped) =
   ##   - `40''ui` is a require size for the grid line track
   ## 
   ## the size options are:
-  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
   ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
@@ -298,10 +171,9 @@ template setGridCols*(current: Figuro, args: untyped) =
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
   # layout lmGrid
-  parseGridTemplateColumns(current.gridTemplate, args)
 
-template setGridRows*(current: Figuro, args: untyped) =
-  ## configure rows for CSS grid template 
+template setGridRows*(args: untyped) {.thisWrapper.}
+  ## configure rows for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
   ## 
@@ -310,118 +182,69 @@ template setGridRows*(current: Figuro, args: untyped) =
   ##   - `40''ui` is a require size for the grid line track
   ## 
   ## the size options are:
-  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
   ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
   ## names can include multiple names (aliaes):
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
-  parseGridTemplateRows(current.gridTemplate, args)
   # layout lmGrid
 
-proc defaultGridTemplate(current: Figuro) =
-  if current.gridTemplate.isNil:
-    current.gridTemplate = newGridTemplate()
+template findGridColumn*(index: GridIndex): GridLine {.thisWrapper.}
 
-proc findGridColumn*(current: Figuro, index: GridIndex): GridLine =
-  current.defaultGridTemplate()
-  current.gridTemplate.getLine(dcol, index)
+template findGridRow*(index: GridIndex): GridLine {.thisWrapper.}
 
-proc findGridRow*(current: Figuro, index: GridIndex): GridLine =
-  current.defaultGridTemplate()
-  current.gridTemplate.getLine(drow, index)
+template span*(idx: int | string): GridIndex {.thisWrapper.}
 
-proc getGridItem(current: Figuro): var GridItem =
-  if current.gridItem.isNil:
-    current.gridItem = newGridItem()
-  current.gridItem
+template columnStart*[T](idx: T) {.thisWrapper.}
+  ## Set CSS Grid starting column.
 
-proc span*(idx: int | string): GridIndex =
-  mkIndex(idx, isSpan = true)
+template columnEnd*[T](idx: T) {.thisWrapper.}
+  ## Set CSS Grid ending column.
 
-proc columnStart*[T](current: Figuro, idx: T) =
-  ## set CSS grid starting column
-  current.getGridItem().index[dcol].a = idx.mkIndex()
+template gridColumn*[T](val: T) {.thisWrapper.}
+  ## Set CSS Grid ending column.
 
-proc columnEnd*[T](current: Figuro, idx: T) =
-  ## set CSS grid ending column
-  current.getGridItem().index[dcol].b = idx.mkIndex()
+template rowStart*[T](idx: T) {.thisWrapper.}
+  ## Set CSS Grid starting row.
 
-proc gridColumn*[T](current: Figuro, val: T) =
-  ## set CSS grid ending column
-  current.getGridItem().column = val
+template rowEnd*[T](idx: T) {.thisWrapper.}
+  ## Set CSS Grid ending row.
 
-proc rowStart*[T](current: Figuro, idx: T) =
-  ## set CSS grid starting row
-  current.getGridItem().index[drow].a = idx.mkIndex()
+template gridRow*[T](val: T) {.thisWrapper.}
+  ## Set CSS Grid ending column.
 
-proc rowEnd*[T](current: Figuro, idx: T) =
-  ## set CSS grid ending row
-  current.getGridItem().index[drow].b = idx.mkIndex()
+template gridArea*[T](r, c: T) {.thisWrapper.}
+  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
 
-proc gridRow*[T](current: Figuro, val: T) =
-  ## set CSS grid ending column
-  current.getGridItem().row = val
+template gridColumnGap*(value: UICoord) {.thisWrapper.}
+  ## Set CSS Grid column gap.
 
-proc gridArea*[T](current: Figuro, r, c: T) =
-  current.getGridItem().row = r
-  current.getGridItem().column = c
+template gridRowGap*(value: UICoord) {.thisWrapper.}
+  ## Set CSS Grid column gap.
 
-proc columnGap*(current: Figuro, value: UICoord) =
-  ## set CSS grid column gap
-  current.defaultGridTemplate()
-  current.gridTemplate.gaps[dcol] = value.UiScalar
+template justifyItems*(con: ConstraintBehavior) {.thisWrapper.}
+  ## Justify items on CSS Grid (horizontal)
 
-proc rowGap*(current: Figuro, value: UICoord) =
-  ## set CSS grid column gap
-  current.defaultGridTemplate()
-  current.gridTemplate.gaps[drow] = value.UiScalar
+template alignItems*(con: ConstraintBehavior) {.thisWrapper.}
+  ## Align items on CSS Grid (vertical).
 
-proc justifyItems*(current: Figuro, con: ConstraintBehavior) =
-  ## justify items on css grid (horizontal)
-  current.defaultGridTemplate()
-  current.gridTemplate.justifyItems = con
+template layoutItems*(con: ConstraintBehavior) {.thisWrapper.}
+  ## Set justification and alignment on child items.
 
-proc alignItems*(current: Figuro, con: ConstraintBehavior) =
-  ## align items on css grid (vertical)
-  current.defaultGridTemplate()
-  current.gridTemplate.alignItems = con
+template layoutItems*(justify, align: ConstraintBehavior) {.thisWrapper.}
+  ## Set justification and alignment on child items.
 
-# template justify*(con: ConstraintBehavior) =
-#   ## justify items on css grid (horizontal)
-#   defaultGridTemplate()
-#   current.gridItem.justify = con
-# template align*(con: ConstraintBehavior) =
-#   ## align items on css grid (vertical)
-#   defaultGridTemplate()
-#   current.gridItem.align = con
-proc layoutItems*(current: Figuro, con: ConstraintBehavior) =
-  ## set justification and alignment on child items
-  current.defaultGridTemplate()
-  current.gridTemplate.justifyItems = con
-  current.gridTemplate.alignItems = con
-  current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
+template gridAutoFlow*(item: GridFlow) {.thisWrapper.}
+  ## Sets the CSS Grid auto-flow style.
+  ## 
+  ## When you have grid items that aren't explicitly placed on the grid,
+  ## the auto-placement algorithm kicks in to automatically place the items. 
 
-proc layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
-  ## set justification and alignment on child items
-  current.defaultGridTemplate()
-  current.gridTemplate.justifyItems = justify
-  current.gridTemplate.alignItems = align
-  current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
+template gridAutoColumns*(item: Constraint) {.thisWrapper.}
+  ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
 
-proc gridAutoFlow*(current: Figuro, item: GridFlow) =
-  current.defaultGridTemplate()
-  current.gridTemplate.autoFlow = item
-  current.userSetFields.incl fsGridAutoFlow
-
-proc gridAutoColumns*(current: Figuro, item: Constraint) =
-  current.defaultGridTemplate()
-  current.gridTemplate.autos[dcol] = item
-  current.userSetFields.incl fsGridAutoColumns
-
-proc gridAutoRows*(current: Figuro, item: Constraint) =
-  current.defaultGridTemplate()
-  current.gridTemplate.autos[drow] = item
-  current.userSetFields.incl fsGridAutoRows
+template gridAutoRows*(item: Constraint) {.thisWrapper.}
+  ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
 

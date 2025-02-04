@@ -28,16 +28,15 @@ proc draw*(self: Main) {.slot.} =
     rectangle "body":
       usingHorizontalLayout cx"min-content", gap = 20'ui
 
-      with node:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
-        fill whiteColor.darken(self.bkgFade.amount)
+      box 10'ui, 10'ui, 600'ui, 120'ui
+      cornerRadius 10.0'ui
+      fill whiteColor.darken(self.bkgFade.amount)
 
       for i in 0 .. 4:
         capture i:
           Button.new "btn":
-            size node, 100'ux, 100'ux
-            connect(node, doHover, self, buttonHover)
+            size 100'ux, 100'ux
+            connect(doHover, self, buttonHover)
 
 # proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
 #   self.bkgFade.tick(self)

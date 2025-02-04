@@ -309,11 +309,11 @@ proc clamp*[U, V](v: Position, a: U, b: V): Position =
   v.clamp(a, b)
 
 proc `$`*(a: Position): string =
-  &"Position<{a.x:2.2s}, {a.y:2.2s}>"
+  &"Position<{a.x:4.4s}, {a.y:4.4s}>"
 
 proc `$`*(b: Box): string =
   let a = b.Rect
-  &"Box<{a.x:2.2f}, {a.y:2.2f}; {a.x+a.w:2.2f}, {a.y+a.h:2.2f} [{a.w:2.2f} x {a.h:2.2f}]>"
+  &"Box<{a.x:4.4f}, {a.y:4.4f}; {a.x+a.w:4.4f}, {a.y+a.h:4.4f} [{a.w:4.4f} x {a.h:4.4f}]>"
 
 # proc toJsonHook*(self: var Position; opt = initToJsonOptions()): JsonNode =
 #   var x: float = self.x.float

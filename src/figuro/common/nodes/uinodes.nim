@@ -109,14 +109,19 @@ type
     value*: T
 
   Rectangle* = ref object of BasicFiguro
-  Text* = ref object of BasicFiguro
 
-proc `=destroy`*(obj: type(Figuro()[])) =
-  ## destroy
-  let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
-  for child in obj.children:
-    assert objPtr == child.parent
-    child.parent.pt = nil
+  Text* = ref object of BasicFiguro
+    hAlign*: FontHorizontal = Left
+    vAlign*: FontVertical = Top
+    font*: UiFont
+    color*: Color = parseHtmlColor("black")
+
+# proc `=destroy`*(obj: type(Figuro()[])) =
+#   ## destroy
+#   let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
+#   for child in obj.children:
+#     assert objPtr == child.parent
+#     child.parent.pt = nil
 
 proc `box=`*[F](fig: F, box: Box) =
   fig.box = box

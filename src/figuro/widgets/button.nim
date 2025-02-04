@@ -47,16 +47,14 @@ proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
   discard
 
 proc initialize*[T](self: Button[T]) {.slot.} =
-  echo "button:initialize"
-  # connect(self, doClickPress, self, clickPressed)
-  echo "self.fade: ", self.fade.unsafeWeakRef
+  ## initialize the widget
   self.fade.addTarget(self)
 
 proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   withWidget(self):
 
-    with self:
+    with this:
       clipContent true
     withOptional self:
       cornerRadius 10.0'ui
@@ -67,16 +65,9 @@ proc draw*[T](self: Button[T]) {.slot.} =
     else:
       withOptional self:
         fill css"#2B9FEA"
-      # self.onHover:
-      #   # withOptional self:
-      #   fill self, self.fill.lighten(0.03)
-      #   # this changes the color on hover!
 
-      # echo "draw: ", self.fade.amount, " isPressed: ", self.isPressed, " fade:act: ", self.fade.active
       if self.fade.active or self.isPressed:
-        node.fill = node.fill.lighten(0.14*self.fade.amount)
+        this.fill = this.fill.lighten(0.14*self.fade.amount)
     
     rectangle "buttonInner":
       WidgetContents()
-
-# exportWidget(button, Button)
