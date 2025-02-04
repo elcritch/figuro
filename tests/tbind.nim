@@ -16,50 +16,43 @@ proc initialize*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
-    with this:
-      setName "main"
-      fill css"#9F2B00"
-      size 100'pp, 100'pp
+    setName "main"
+    fill css"#9F2B00"
+    size 100'pp, 100'pp
 
     rectangle "count":
-      with this:
-        cornerRadius 10.0'ui
-        box 40'ux, 30'ux, 80'ux, 40'ux
-        fill css"#3B70DF"
+      cornerRadius 10.0'ui
+      box 40'ux, 30'ux, 80'ux, 40'ux
+      fill css"#3B70DF"
       Text.new "btnText":
-        # bindProp(self.counter)
-        with this:
-          size 100'pp, 100'pp
-          foreground blackColor
-          justify Center
-          align Middle
-          text({font: $self.counter{} & " ₿" })
+        size 100'pp, 100'pp
+        foreground blackColor
+        justify Center
+        align Middle
+        text({font: $self.counter{} & " ₿" })
 
     Button as "btnSub":
-      box this, 160'ux, 30'ux, 80'ux, 40'ux
+      box 160'ux, 30'ux, 80'ux, 40'ux
       Text.new "btnText":
-        with this:
-          size 100'pp, 100'pp
-          foreground blackColor
-          justify Center
-          align Middle
-          text({largeFont: "–"})
+        size 100'pp, 100'pp
+        foreground blackColor
+        justify Center
+        align Middle
+        text({largeFont: "–"})
       onSignal(doClicked) do(self: Main):
         self.counter <- self.counter{} - 1
 
     Button as "btnAdd":
-      box this, 240'ux, 30'ux, 80'ux, 40'ux
+      box 240'ux, 30'ux, 80'ux, 40'ux
       Text.new "btnText":
-        with this:
-          size 100'pp, 100'pp
-          foreground blackColor
-          justify Center
-          align Middle
-          text({largeFont: "+"})
+        size 100'pp, 100'pp
+        foreground blackColor
+        justify Center
+        align Middle
+        text({largeFont: "+"})
       ## something like this:
       onSignal(doClicked) do(self: Main):
         self.counter <- self.counter{} + 1
-
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(400'ui, 140'ui))
