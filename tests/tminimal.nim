@@ -15,22 +15,19 @@ type
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
     Rectangle.new "body":
-      with this:
-        fill css"#D0D0D0"
-        box 10'pp, 10'pp, 80'pp, 80'pp
-        cornerRadius 10.0'ui
+      fill css"#D0D0D0"
+      box 10'pp, 10'pp, 80'pp, 80'pp
+      cornerRadius 10.0'ui
 
       Button[int].new "btn":
-        with this:
-          box 10'pp, 60'pp, 80'pp, 10'pp
-          fill css"#2B9FEA"
+        box 10'pp, 60'pp, 80'pp, 10'pp
+        fill css"#2B9FEA"
 
       for i in 1..2:
         capture i:
           Button.new "btn":
-            with this:
-              box 10'pp, UICoord(40 * i + 10), 80'pp, 10'pp
-              fill css"#2B9FEA"
+            box 10'pp, UICoord(40 * i + 10), 80'pp, 10'pp
+            fill css"#2B9FEA"
 
 
 var main = Main.new()
