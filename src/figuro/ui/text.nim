@@ -29,4 +29,4 @@ proc draw*(self: Text) {.slot.} =
   withWidget(self):
     basicText "text":
       WidgetContents()
-      fill this, css"black"
+      fill this, self.color
