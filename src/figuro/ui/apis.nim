@@ -69,6 +69,10 @@ template rectangle*(name: string | static string, blk: untyped) =
   ## Starts a new rectangle.
   widgetRegister[Rectangle](nkRectangle, name, blk)
 
+template basicText*(name: string | static string, blk: untyped) =
+  ## Starts a new rectangle.
+  widgetRegister[BasicFiguro](nkText, name, blk)
+
 ## ---------------------------------------------
 ##             Fidget Node APIs
 ## ---------------------------------------------

@@ -1,12 +1,13 @@
-import ../widget
-import ../ui/animations
+import apis
+import animations
 import chronicles
 
 proc textChanged*(node: Text, txt: string): bool =
   node.hasInnerTextChanged({node.font: txt}, node.hAlign, node.vAlign)
 
 proc text*(node: Text, spans: openArray[(UiFont, string)]) =
-  setInnerText(node, spans, node.hAlign, node.vAlign)
+  if node.children.len() == 1:
+    setInnerText(node.children[0], spans, node.hAlign, node.vAlign)
 
 proc text*(node: Text, text: string) =
   text(node, {node.font: text})
@@ -26,7 +27,6 @@ proc justify*(node: Text, kind: FontHorizontal) =
 proc draw*(self: Text) {.slot.} =
   ## Input widget!
   withWidget(self):
-    widgetRegister[BasicFiguro](nkText, "text"):
+    basicText "text":
       WidgetContents()
-      echo "TEXT: color: ", self.color
-      fill this, self.color
+      fill this, css"black"
