@@ -8,8 +8,6 @@ template usingVerticalLayout*() =
     gridAutoFlow grRow
     justifyItems CxCenter
     alignItems CxCenter
-  # withOptional node:
-  #   gridAutoRows 1'fr
 
 proc contentHeight*(current: Figuro, cx: Constraint, gap = -1'ui) =
   current.gridAutoRows cx
@@ -25,4 +23,3 @@ proc draw*(self: Vertical) {.slot.} =
   withWidget(self):
     usingVerticalLayout()
     WidgetContents()
-

@@ -23,5 +23,3 @@ proc draw*(self: Horizontal) {.slot.} =
   withWidget(self):
     usingHorizontalLayout()
     WidgetContents()
-
-# exportWidget(horizontal, Horizontal)
