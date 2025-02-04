@@ -144,33 +144,33 @@ type
   TMain* = ref object of Figuro
 
 proc draw*(self: TMain) {.slot.} =
-  let node = self
-  self.name = "main"
-  rectangle "body":
-    rectangle "child1":
-      discard
-      Button[int].new "btnC":
-        with this:
-          box 40'ux, 30'ux, 80'ux, 80'ux
-          fill css"#FFFFFF"
-
-    Button[int].new "btnA":
-      with this:
-        box 40'ux, 30'ux, 80'ux, 80'ux
-        fill css"#FFFFFF"
-  
-    rectangle "child2":
-      Button[int].new "btnB":
-        with this:
-          box 40'ux, 30'ux, 80'ux, 80'ux
-          fill css"#FFFFFF"
-
-    rectangle "child3":
-      rectangle "child30":
-        Button[int].new "btnD":
+  withRootWidget(self):
+    this.name = "main"
+    rectangle "body":
+      rectangle "child1":
+        discard
+        Button[int].new "btnC":
           with this:
             box 40'ux, 30'ux, 80'ux, 80'ux
             fill css"#FFFFFF"
+
+      Button[int].new "btnA":
+        with this:
+          box 40'ux, 30'ux, 80'ux, 80'ux
+          fill css"#FFFFFF"
+    
+      rectangle "child2":
+        Button[int].new "btnB":
+          with this:
+            box 40'ux, 30'ux, 80'ux, 80'ux
+            fill css"#FFFFFF"
+
+      rectangle "child3":
+        rectangle "child30":
+          Button[int].new "btnD":
+            with this:
+              box 40'ux, 30'ux, 80'ux, 80'ux
+              fill css"#FFFFFF"
 
 const
   initialColor = parseHtmlColor "#FFFFFF"

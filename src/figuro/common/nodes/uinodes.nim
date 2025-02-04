@@ -116,12 +116,12 @@ type
     font*: UiFont
     color*: Color = parseHtmlColor("black")
 
-proc `=destroy`*(obj: type(Figuro()[])) =
-  ## destroy
-  let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
-  for child in obj.children:
-    assert objPtr == child.parent
-    child.parent.pt = nil
+# proc `=destroy`*(obj: type(Figuro()[])) =
+#   ## destroy
+#   let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
+#   for child in obj.children:
+#     assert objPtr == child.parent
+#     child.parent.pt = nil
 
 proc `box=`*[F](fig: F, box: Box) =
   fig.box = box

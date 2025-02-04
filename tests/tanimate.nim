@@ -16,25 +16,25 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
   self.value = clamp(self.value mod 1.0, 0, 1.0)
 
 proc draw*(self: Main) {.slot.} =
-  let node = self
-  rectangle "main":
-    box node, -100'ui, 0'ui, 600'ui, 140'ui
-    let j = 1
-    for i in 0 .. 9:
-      capture i, j:
-        rectangle "":
-          cssEnable node, false
-          let value = self.value
-          fill node, css"#AA0000".spin(i.toFloat*20.0)
-          node.onHover:
-            fill node, node.fill.lighten(0.1)
-          let xval = (i.toFloat * 60 + value*600) mod 600.0
-          box node,
-              ux(xval),
-              ux(30 + 20 * sin(xval/640*2*3.14)),
-              60'ui, 60'ui
-          if i == 0:
-            node.fill.a = value * 1.0
+  withWidget(self):
+    rectangle "main":
+      box this, -100'ui, 0'ui, 600'ui, 140'ui
+      let j = 1
+      for i in 0 .. 9:
+        capture i, j:
+          rectangle "":
+            cssEnable this, false
+            let value = self.value
+            fill this, css"#AA0000".spin(i.toFloat*20.0)
+            this.onHover:
+              fill this, this.fill.lighten(0.1)
+            let xval = (i.toFloat * 60 + value*600) mod 600.0
+            box this,
+                ux(xval),
+                ux(30 + 20 * sin(xval/640*2*3.14)),
+                60'ui, 60'ui
+            if i == 0:
+              this.fill.a = value * 1.0
 
 var fig = Main.new()
 

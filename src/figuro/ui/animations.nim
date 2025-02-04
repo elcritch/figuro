@@ -80,7 +80,7 @@ proc fadeIn*(self: Fader) {.slot.} =
 proc fadeOut*(self: Fader) {.slot.} =
   self.startFade(false)
 
-proc reset*(self: Fader) {.slot.} =
+proc resets*(self: Fader) {.slot.} =
   self.active = false
   self.amount = self.minMax.a
   for tgt in self.targets:
