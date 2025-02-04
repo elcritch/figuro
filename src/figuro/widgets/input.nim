@@ -8,15 +8,11 @@ type Input* = ref object of Figuro
   isActive*: bool
   disabled*: bool
   text*: TextBox
-  color*: Color = blackColor
   value: int
   cnt: int
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
-
-proc font*(self: Input, color: Color) =
-  self.color = color
 
 proc align*(self: Input, kind: FontVertical) =
   self.text.vAlign = kind
@@ -172,7 +168,8 @@ proc draw*(self: Input) {.slot.} =
           fill blackColor
         this.fill.a = self.value.toFloat * 1.0
       WidgetContents()
-      fill this, self.color
+      fill this, self.fill
+      fill self, clearColor
       
       for i, selRect in self.text.selectionRects:
         capture i:
