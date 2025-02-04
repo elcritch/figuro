@@ -102,23 +102,8 @@ template fillHover*(color: Color) {.wrapThis.}
 template fillHover*(color: Color, alpha: float32) {.wrapThis.}
   ## Sets background color.
 
-template positionDiff*(initial: Position, point: Position): Position =
-  ## computes relative position of the mouse to the node position
-  positionDiffImpl(initial, point)
-
-template positionRelative*(point: Position, node: Figuro): Position =
-  ## computes relative position of the mouse to the node position
-  positionRelativeImpl(point, node)
-
-template positionRatio*(node: Figuro, point: Position, clamped = false): Position =
-  ## computes relative fraction of the mouse's position to the node's area
-  positionRatioImpl(node, point, clamped)
-
 template onHover*(inner: untyped) {.wrapThis.}
   ## Code in the block will run when this box is hovered.
-
-template onHover*(inner: untyped) {.wrapThis.}
-  ## Sets and onHover behavior.
 
 template getTitle*(): string {.wrapThis.}
   ## Gets window title
