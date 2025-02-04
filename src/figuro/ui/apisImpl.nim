@@ -147,22 +147,22 @@ proc fillHover*(current: Figuro, color: Color, alpha: float32) =
   current.fill.a = alpha
   current.userSetFields.incl {fsFill, fsFillHover}
 
-proc positionDiff*(initial: Position, point: Position): Position =
+proc positionDiffImpl*(initial: Position, point: Position): Position =
   ## computes relative position of the mouse to the node position
   let x = point.x - initial.x
   let y = point.y - initial.y
   result = initPosition(x.float32, y.float32)
 
-proc positionRelative*(point: Position, node: Figuro): Position =
+proc positionRelativeImpl*(point: Position, node: Figuro): Position =
   ## computes relative position of the mouse to the node position
   let x = point.x - node.screenBox.x
   let y = point.y - node.screenBox.y
   result = initPosition(x.float32, y.float32)
 
-proc positionRatio*(node: Figuro, point: Position, clamped = false): Position =
+proc positionRatioImpl*(node: Figuro, point: Position, clamped = false): Position =
   ## computes relative fraction of the mouse's position to the node's area
   let track = node.box.wh - point
-  result = (point.positionRelative(node) - point / 2) / track
+  result = (point.positionRelativeImpl(node) - point / 2) / track
   if clamped:
     result.x = result.x.clamp(0'ui, 1'ui)
     result.y = result.y.clamp(0'ui, 1'ui)

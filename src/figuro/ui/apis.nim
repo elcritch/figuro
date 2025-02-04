@@ -94,14 +94,17 @@ template fillHover*(color: Color) {.wrapThis.}
 template fillHover*(color: Color, alpha: float32) {.wrapThis.}
   ## Sets background color.
 
-template positionDiff*(initial: Position, point: Position): Position {.wrapThis.}
+template positionDiff*(initial: Position, point: Position): Position =
   ## computes relative position of the mouse to the node position
+  positionDiffImpl(initial, point)
 
-template positionRelative*(point: Position, node: Figuro): Position {.wrapThis.}
+template positionRelative*(point: Position, node: Figuro): Position =
   ## computes relative position of the mouse to the node position
+  positionRelativeImpl(point, node)
 
-template positionRatio*(node: Figuro, point: Position, clamped = false): Position {.wrapThis.}
+template positionRatio*(node: Figuro, point: Position, clamped = false): Position =
   ## computes relative fraction of the mouse's position to the node's area
+  positionRatioImpl(node, point, clamped)
 
 template onHover*(inner: untyped) {.wrapThis.}
   ## Code in the block will run when this box is hovered.

@@ -35,7 +35,7 @@ proc draw*(self: Main) {.slot.} =
       for i in 0 .. 4:
         capture i:
           Button.new "btn":
-            size this, 100'ux, 100'ux
+            size 100'ux, 100'ux
             connect(this, doHover, self, buttonHover)
 
 # proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
