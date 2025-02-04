@@ -1,0 +1,56 @@
+
+## This minimal example shows 5 blue squares.
+import figuro/widgets/[basics, input, button, vertical, horizontal]
+import figuro
+
+let
+  # typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  font = UiFont(typefaceId: defaultTypeface, size: 22'ui)
+  smallFont = UiFont(typefaceId: defaultTypeface, size: 12'ui)
+
+type
+  Main* = ref object of Figuro
+    value: float
+    hasHovered: bool
+
+proc draw*(self: Main) {.slot.} =
+  withRootWidget(self):
+    fill this, css"blue"
+    box this, 0'ux, 0'ux, 100'pp, 100'pp
+    
+    # Time display background
+    rectangle "time-background":
+      with this:
+        size 100'pp, 50'ux
+        fill css"#ffffff"
+        border 1'ui, css"#000000"
+
+      usingHorizontalLayout cx"min-content", gap = 20'ui
+      # Time display text
+      Text.new "time":
+        with this:
+          size 40'pp, 50'ux
+          fill css"red"
+          border 1'ui, css"#000000"
+          justify FontHorizontal.Center
+          align FontVertical.Middle
+          font defaultFont
+        if this.textChanged(""):
+          # set default
+          this.text("00:00:00")
+
+      # Test text input
+      Input.new "input":
+        with this:
+          size 40'pp, 50'ux
+          align Middle
+          justify Center
+          font defaultFont
+          fill css"black"
+          border 1'ui, css"black"
+          cornerRadius 0.0
+          text("00:00:00")
+
+var main = Main.new()
+var frame = newAppFrame(main, size=(720'ui, 140'ui))
+startFiguro(frame)
