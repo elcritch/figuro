@@ -373,12 +373,12 @@ proc gridArea*[T](current: Figuro, r, c: T) =
   current.getGridItem().row = r
   current.getGridItem().column = c
 
-proc columnGap*(current: Figuro, value: UICoord) =
+proc gridColumnGap*(current: Figuro, value: UICoord) =
   ## set CSS grid column gap
   current.defaultGridTemplate()
   current.gridTemplate.gaps[dcol] = value.UiScalar
 
-proc rowGap*(current: Figuro, value: UICoord) =
+proc gridRowGap*(current: Figuro, value: UICoord) =
   ## set CSS grid column gap
   current.defaultGridTemplate()
   current.gridTemplate.gaps[drow] = value.UiScalar

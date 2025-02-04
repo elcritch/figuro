@@ -14,7 +14,7 @@ template usingVerticalLayout*() =
 proc contentHeight*(current: Figuro, cx: Constraint, gap = -1'ui) =
   current.gridAutoRows cx
   if gap != -1'ui:
-    current.rowGap gap
+    current.gridRowGap gap
 
 template usingVerticalLayout*(cx: Constraint, gap = -1'ui) =
   usingVerticalLayout()

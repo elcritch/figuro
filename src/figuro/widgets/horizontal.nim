@@ -12,7 +12,7 @@ template usingHorizontalLayout*() =
 proc contentWidth*(node: Figuro, cx: Constraint, gap = -1'ui) =
   node.gridAutoColumns cx
   if gap != -1'ui:
-    node.columnGap gap
+    node.gridColumnGap gap
 
 template usingHorizontalLayout*(cx: Constraint, gap = -1'ui) =
   usingHorizontalLayout()
