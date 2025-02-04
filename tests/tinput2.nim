@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
         fill css"#ffffff"
         border 1'ui, css"#000000"
 
-      usingVerticalLayout cx"min-content", gap = 20'ui
+      usingVerticalLayout cx"auto", gap = 20'ui
       # Time display text
       Text.new "time":
         with this:

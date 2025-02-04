@@ -73,19 +73,9 @@ template calcBasicConstraintImpl(node: Figuro, dir: static GridDir, f: untyped) 
               parentBox.f
           res = perc.UICoord / 100.0.UICoord * ppval
         UiContentMin(cmins):
-          # res = cmins.UICoord
-          # res = node.calculateMinOrMaxes(astToStr(f), doMax=false)
-          when astToStr(f) in ["w"]:
-            res = node.box.w
-          elif astToStr(f) in ["h"]:
-            res = node.box.h
+          res = node.calculateMinOrMaxes(astToStr(f), doMax=false)
         UiContentMax(cmaxs):
-          # res = cmaxs.UICoord
-          # res = node.calculateMinOrMaxes(astToStr(f), doMax=true)
-          when astToStr(f) in ["w"]:
-            res = node.box.w
-          elif astToStr(f) in ["h"]:
-            res = node.box.h
+          res = node.calculateMinOrMaxes(astToStr(f), doMax=true)
       res
 
   trace "CONTENT csValue: ", node = node.name, d = repr(dir), w = node.box.w, h = node.box.h
