@@ -29,8 +29,8 @@ proc draw*(self: Main) {.slot.} =
       usingHorizontalLayout cx"min-content", gap = 20'ui
 
       with this:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
+        box 10'ui, 10'ui, 600'ui, 120'ui
+        cornerRadius 10.0'ui
         fill whiteColor.darken(self.bkgFade.amount)
 
       for i in 0 .. 4:

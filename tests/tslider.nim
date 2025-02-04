@@ -27,7 +27,7 @@ proc draw*(self: Main) {.slot.} =
         fill rgba(66, 177, 44, 197).to(Color).spin(100).darken(0.3*self.bkgFade.amount)
         zlevel 20.ZLevel
         box ux(140*self.bkgFade.amount - 140), 0'ux, 140'ux, 100'pp
-        cornerRadius 0.0
+        cornerRadius 0.0'ui
       Vertical.new "menu":
         box this, 0'ux, 10'ux, 100'pp, 95'pp
         contentHeight this, cx"auto", gap = 20'ui

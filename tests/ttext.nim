@@ -23,7 +23,7 @@ proc draw*(self: Main) {.slot.} =
       with this:
         cssEnable false
         box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         fill css"#2A9EEA" * 0.7
       Text.new "text":
         with this:

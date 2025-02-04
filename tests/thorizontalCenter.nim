@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "body":
       with this:
         box 5'pp, 5'pp, 90'pp, 600'ux
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         fill whiteColor.darken(self.hoveredAlpha)
         border 3'ui, blueColor
         

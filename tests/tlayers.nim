@@ -31,7 +31,7 @@ proc draw*(self: Main) {.slot.} =
       with this:
         fill css"#D0D0D0"
         box 3'pp, 10'pp, 30'pp, 80'pp
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         clipContent false
       Text.new "text":
         with this:
@@ -60,7 +60,7 @@ proc draw*(self: Main) {.slot.} =
       with this:
         fill css"#D0D0D0"
         box 50'pp, 10'pp, 30'pp, 80'pp
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         clipContent true
       Text.new "text":
         with this:

@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
       self.mainRect = this
       with this:
         box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         fill "#2A9EEA".parseHtmlColor * 0.7
       Input.new "input":
         box this, 10'ux, 10'ux, 400'ux, 100'ux

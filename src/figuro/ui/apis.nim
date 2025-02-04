@@ -221,9 +221,6 @@ proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
   cornerRadius(current, UICoord radius.value.coord)
 
-proc cornerRadius*(current: Figuro, radius: float | float32) =
-  cornerRadius(current, UICoord radius)
-
 ## Fonts
 
 proc loadTypeFace*(name: string): TypefaceId =

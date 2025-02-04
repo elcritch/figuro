@@ -57,7 +57,7 @@ proc draw*(self: Main) {.slot.} =
       with this:
         # sets the bounding box of this this
         box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         # `fill` sets the background color. Color apis use the `chroma` library
         fill blackColor * (self.bkgFade.amount)
 
@@ -76,7 +76,7 @@ proc draw*(self: Main) {.slot.} =
               let btn = this
               with this:
                 size 100'ux, 100'ux
-                cornerRadius 5.0
+                cornerRadius 5.0'ui
                 connect(doHover, self, btnHover)
                 connect(doMouseClick, this, btnClicked)
               if idx == 0:

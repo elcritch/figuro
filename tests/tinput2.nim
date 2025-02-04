@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
           fill css"white"
           foreground css"red"
           border 1'ui, css"#000000"
-          cornerRadius 10.0
+          cornerRadius 10.0'ui
           justify FontHorizontal.Center
           align FontVertical.Middle
           font defaultFont
@@ -52,7 +52,7 @@ proc draw*(self: Main) {.slot.} =
           foreground css"black"
           fill css"white"
           border 1'ui, css"black"
-          cornerRadius 10.0
+          cornerRadius 10.0'ui
         if not this.textChanged(""):
           # set default
           echo "SET DEFAULT TEXT"

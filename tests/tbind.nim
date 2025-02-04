@@ -23,7 +23,7 @@ proc draw*(self: Main) {.slot.} =
 
     rectangle "count":
       with this:
-        cornerRadius 10.0
+        cornerRadius 10.0'ui
         box 40'ux, 30'ux, 80'ux, 40'ux
         fill css"#3B70DF"
       Text.new "btnText":
