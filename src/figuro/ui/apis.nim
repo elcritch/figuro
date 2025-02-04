@@ -254,7 +254,7 @@ proc setInnerText*(
 ## 
 
 template setGridCols*(current: Figuro, args: untyped) =
-  ## configure columns for CSS grid template 
+  ## configure columns for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
   ## where
@@ -262,7 +262,7 @@ template setGridCols*(current: Figuro, args: untyped) =
   ##   - `40''ui` is a require size for the grid line track
   ## 
   ## the size options are:
-  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
   ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
@@ -273,7 +273,7 @@ template setGridCols*(current: Figuro, args: untyped) =
   parseGridTemplateColumns(current.gridTemplate, args)
 
 template setGridRows*(current: Figuro, args: untyped) =
-  ## configure rows for CSS grid template 
+  ## configure rows for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
   ## 
@@ -282,7 +282,7 @@ template setGridRows*(current: Figuro, args: untyped) =
   ##   - `40''ui` is a require size for the grid line track
   ## 
   ## the size options are:
-  ## - `1'fr` for css grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
   ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
@@ -310,72 +310,76 @@ proc getGridItem(current: Figuro): var GridItem =
   current.gridItem
 
 proc span*(idx: int | string): GridIndex =
+  ## Makes a CSS Grid span item.
   mkIndex(idx, isSpan = true)
 
 proc columnStart*[T](current: Figuro, idx: T) =
-  ## set CSS grid starting column
+  ## Set CSS Grid starting column.
   current.getGridItem().index[dcol].a = idx.mkIndex()
 
 proc columnEnd*[T](current: Figuro, idx: T) =
-  ## set CSS grid ending column
+  ## Set CSS Grid ending column.
   current.getGridItem().index[dcol].b = idx.mkIndex()
 
 proc gridColumn*[T](current: Figuro, val: T) =
-  ## set CSS grid ending column
+  ## Set CSS Grid ending column.
   current.getGridItem().column = val
 
 proc rowStart*[T](current: Figuro, idx: T) =
-  ## set CSS grid starting row
+  ## Set CSS Grid starting row.
   current.getGridItem().index[drow].a = idx.mkIndex()
 
 proc rowEnd*[T](current: Figuro, idx: T) =
-  ## set CSS grid ending row
+  ## Set CSS Grid ending row.
   current.getGridItem().index[drow].b = idx.mkIndex()
 
 proc gridRow*[T](current: Figuro, val: T) =
-  ## set CSS grid ending column
+  ## Set CSS Grid ending column.
   current.getGridItem().row = val
 
 proc gridArea*[T](current: Figuro, r, c: T) =
+  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
   current.getGridItem().row = r
   current.getGridItem().column = c
 
 proc gridColumnGap*(current: Figuro, value: UICoord) =
-  ## set CSS grid column gap
+  ## Set CSS Grid column gap.
   current.defaultGridTemplate()
   current.gridTemplate.gaps[dcol] = value.UiScalar
 
 proc gridRowGap*(current: Figuro, value: UICoord) =
-  ## set CSS grid column gap
+  ## Set CSS Grid column gap.
   current.defaultGridTemplate()
   current.gridTemplate.gaps[drow] = value.UiScalar
 
 proc justifyItems*(current: Figuro, con: ConstraintBehavior) =
-  ## justify items on css grid (horizontal)
+  ## Justify items on CSS Grid (horizontal)
   current.defaultGridTemplate()
   current.gridTemplate.justifyItems = con
 
 proc alignItems*(current: Figuro, con: ConstraintBehavior) =
-  ## align items on css grid (vertical)
+  ## Align items on CSS Grid (vertical).
   current.defaultGridTemplate()
   current.gridTemplate.alignItems = con
 
 proc layoutItems*(current: Figuro, con: ConstraintBehavior) =
-  ## set justification and alignment on child items
+  ## Set justification and alignment on child items.
   current.defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
 proc layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
-  ## set justification and alignment on child items
+  ## Set justification and alignment on child items.
   current.defaultGridTemplate()
   current.gridTemplate.justifyItems = justify
   current.gridTemplate.alignItems = align
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
 proc gridAutoFlow*(current: Figuro, item: GridFlow) =
-  ## If you have grid items that you don’t explicitly place on the grid,
+  ## Sets the CSS Grid auto-flow style.
+  ## 
+  ## When you have grid items that aren't explicitly placed on the grid,
   ## the auto-placement algorithm kicks in to automatically place the items. 
   current.defaultGridTemplate()
   current.gridTemplate.autoFlow = item
