@@ -408,16 +408,20 @@ proc layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
   current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
 
 proc gridAutoFlow*(current: Figuro, item: GridFlow) =
+  ## If you have grid items that you don’t explicitly place on the grid,
+  ## the auto-placement algorithm kicks in to automatically place the items. 
   current.defaultGridTemplate()
   current.gridTemplate.autoFlow = item
   current.userSetFields.incl fsGridAutoFlow
 
 proc gridAutoColumns*(current: Figuro, item: Constraint) =
+  ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
   current.userSetFields.incl fsGridAutoColumns
 
 proc gridAutoRows*(current: Figuro, item: Constraint) =
+  ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
   current.userSetFields.incl fsGridAutoRows
