@@ -268,8 +268,8 @@ proc computeLayout*(node: Figuro, depth: int) =
   # debug "computeLayout:post: ",
   #   name = node.name, box = node.box.repr, prevSize = node.prevSize.repr, children = node.children.mapIt((it.name, it.box.repr))
 
-  trace "computeLayout:post: ",
-    name = node.name, box = node.box.repr, prevSize = node.prevSize.repr
+  info "computeLayout:post: ",
+    name = node.name, wh = node.box.wh, prevSize = node.prevSize
   let currWh = node.box.wh
   if currWh != node.prevSize:
     # info "computeLayout:post:changed: ",

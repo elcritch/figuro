@@ -52,7 +52,7 @@ proc draw*(self: Main) {.slot.} =
           cornerRadius 0.0
         if not this.textChanged(""):
           # set default
-          this.text("00:00:00")
+          text(this, "00:00:00")
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

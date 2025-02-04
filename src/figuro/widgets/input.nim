@@ -24,9 +24,9 @@ proc textChanged*(self: Input, txt: string): bool =
   let runes = txt.toRunes()
   result = runes != self.text.runes()
 
-proc text*(self: Input, str: string) {.slot.} =
-  echo "set text"
-  let runes = str.toRunes()
+proc text*(self: Input, txt: string) {.slot.} =
+  echo "set text: ", self.box
+  let runes = txt.toRunes()
   if runes != self.text.runes():
     self.text.updateText(runes)
     self.text.update(self.box)
@@ -152,7 +152,7 @@ proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} 
       " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
 
 proc layoutResize*(self: Input, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
-  echo "RESIZE"
+  echo "RESIZE: ", self.box, " => ", resize
   self.text.update(self.box)
   refresh(self)
 
