@@ -1,4 +1,4 @@
-- TODO `v0.12.2`
+- TODO:
   + add auto-fill for child-based resizing with grid
   + fix align/justify center in Horizontal/Vertical
   + add minimum button click time (?)
