@@ -257,8 +257,8 @@ var lastModificationTime: times.Time
 proc themePath*(): string =
   result = "theme.css".absolutePath()
 
-proc loadTheme*(): seq[CssBlock] =
-  let defaultTheme = themePath()
+proc loadTheme*(defaultTheme: string = themePath()): seq[CssBlock] =
+  # let defaultTheme = themePath()
   if defaultTheme.fileExists():
     let ts = getLastModificationTime(defaultTheme)
     if ts > lastModificationTime:

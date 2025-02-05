@@ -144,7 +144,7 @@ type
   TMain* = ref object of Figuro
 
 proc draw*(self: TMain) {.slot.} =
-  withRootWidget(self):
+  withWidget(self):
     this.name = "main"
     rectangle "body":
       rectangle "child1":

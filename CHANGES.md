@@ -1,6 +1,8 @@
-- TODO `v0.12.1`
-  + fix auto for child-based resizing with grid
+- TODO:
+  + add auto-fill for child-based resizing with grid
+  + fix align/justify center in Horizontal/Vertical
   + add minimum button click time (?)
+- Release `v0.12.2`
   + port over to dom monitor
 - Release `v0.12.0`
   + switched to using `this` instead of `node` for the implicit variable

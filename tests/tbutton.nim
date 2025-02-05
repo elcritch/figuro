@@ -35,7 +35,6 @@ proc draw*(self: Main) {.slot.} =
           align Middle
           text({font: "testing"})
 
-
 var main = Main.new()
-var frame = newAppFrame(main, size=(400'ui, 140'ui))
+var frame = newAppFrame(main, size=(400'ui, 200'ui))
 startFiguro(frame)
