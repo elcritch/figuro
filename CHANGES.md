@@ -3,6 +3,8 @@
   + fix align/justify center in Horizontal/Vertical
   + add minimum button click time (?)
 - Release `v0.12.2`
+  + move to CSS Grid compute
+- Release `v0.12.2`
   + port over to dom monitor
 - Release `v0.12.0`
   + switched to using `this` instead of `node` for the implicit variable
