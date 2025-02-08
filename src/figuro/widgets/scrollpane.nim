@@ -21,10 +21,10 @@ type
 
   ScrollWindow* = object
     scrollby*: Position
-    viewSize*: Position
-    contentSize*: Position
-    contentOverflow*: Position
-    contentViewRatio*: Position
+    viewSize*: Size
+    contentSize*: Size
+    contentOverflow*: Size
+    contentViewRatio*: Size
 
   ScrollBar* = object
     size*: Position
@@ -40,7 +40,7 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     viewSize = viewBox.wh
     contentSize = childBox.wh
     contentViewRatio = (viewSize / contentSize).clamp(0.0'ui, 1.0'ui)
-    contentOverflow = (contentSize - viewSize).clamp(0'ui, contentSize.y)
+    contentOverflow = (contentSize - viewSize).clamp(0'ui, contentSize.w)
 
   result = ScrollWindow(
     viewSize: viewSize,

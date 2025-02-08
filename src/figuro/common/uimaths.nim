@@ -41,9 +41,9 @@ proc initPosition*(x, y: UiScalar): Position =
 proc initPosition*(x, y: float32): Position =
   initPosition(x.UiScalar, y.UiScalar)
 
-proc initSize*(x, y: UiScalar): Position =
-  uiPos(x, y).Position
-proc initSize*(x, y: float32): Position =
+proc initSize*(x, y: UiScalar): Size =
+  uiPos(x, y).Size
+proc initSize*(x, y: float32): Size =
   initSize(x.UiScalar, y.UiScalar)
 
 proc hash*(p: Position): Hash =
@@ -106,17 +106,17 @@ proc clamp*(v: Position, a, b: Position): Position =
 proc clamp*(v: Size, a, b: Size): Size =
   uiSize(v.w.clamp(a.w, b.w).float32, v.h.clamp(a.h, b.h).float32)
 
-proc clamp*[U, V](v: Position, a: U, b: V): Position =
-  when U isnot Position:
+proc clamp*(v: Position, a: UiScalar | Position, b: UiScalar | Position): Position =
+  when typeof(a) isnot Position:
     let a = initPosition(a, a)
-  when V isnot Position:
+  when typeof(b) isnot Position:
     let b = initPosition(b, b)
   v.clamp(a, b)
 
-proc clamp*[U, V](v: Size, a: U, b: V): Size =
-  when U isnot Size:
+proc clamp*(v: Size, a: UiScalar | Size, b: UiScalar | Size): Size =
+  when typeof(a) isnot Size:
     let a = initSize(a, a)
-  when V isnot Size:
+  when typeof(b) isnot Size:
     let b = initSize(b, b)
   v.clamp(a, b)
 
