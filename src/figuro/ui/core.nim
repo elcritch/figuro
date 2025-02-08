@@ -382,7 +382,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
 # template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
 #   widgetRegister[t](nkText, name, blk)
 
-template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
+template new*[F](t: typedesc[F], name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills

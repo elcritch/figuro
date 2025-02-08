@@ -24,10 +24,11 @@ proc draw*(self: Main) {.slot.} =
         fill css"#2B9FEA"
 
       for i in 1..2:
-        capture i:
-          Button.new "btn":
-            box 10'pp, UiScalar(40 * i + 10), 80'pp, 10'pp
-            fill css"#2B9FEA"
+        echo "I: ", i
+        # capture i:
+        #   Button.new "btn":
+        #     box 10'pp, UiScalar(40 * i + 10), 80'pp, 10'pp
+        #     fill css"#2B9FEA"
 
 
 var main = Main.new()

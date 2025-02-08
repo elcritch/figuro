@@ -59,7 +59,7 @@ template getParentBoxOrWindows*(node: Figuro): Box =
   if node.parent.isNil:
     node.frame[].windowSize
   else:
-    node.parent.box
+    node.parent[].box
 
 proc computeLayouts*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):
