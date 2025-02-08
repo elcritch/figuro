@@ -416,7 +416,7 @@ template WidgetContents*(): untyped =
     content.childInit(this, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
-template `as`*[T: ref](tp: typedesc[T], name: string, blk) =
+template `new`*(tp: typedesc, name: string, blk) =
   ## Alternate name for `new` widgets (experimental)
   ## 
   ## So `Widget.new "myFoo": ...` becomes `Widget as "myFoo": ...`
