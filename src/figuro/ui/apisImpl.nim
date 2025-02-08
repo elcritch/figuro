@@ -161,7 +161,7 @@ proc positionRelative*(point: Position, node: Figuro): Position =
 
 proc positionRatio*(node: Figuro, point: Position, clamped = false): Position =
   ## computes relative fraction of the mouse's position to the node's area
-  let track = node.box.wh - point
+  let track = node.box.wh.toPos() - point
   result = (point.positionRelative(node) - point / 2) / track
   if clamped:
     result.x = result.x.clamp(0'ui, 1'ui)
