@@ -2,7 +2,7 @@ import std/[strformat, strutils, math, hashes, macros, typetraits]
 import macroutils, vmath, bumpy
 import cssgrid/numberTypes
 
-export math, vmath, bumpy
+export math, vmath, numberTypes
 
 template borrowMaths*(typ, base: typedesc) =
   proc `+`*(x, y: typ): typ =
@@ -67,7 +67,7 @@ template borrowMaths*(typ, base: typedesc) =
   proc `/=`*(x: var typ, y: typ) {.borrow.}
   proc `*=`*(x: var typ, y: typ) {.borrow.}
   proc `$`*(x: typ): string {.borrow.}
-  proc `hash`*(x: typ): Hash {.borrow.}
+  # proc `hash`*(x: typ): Hash {.borrow.}
 
 template borrowMathsMixed*(typ: typedesc) =
   proc `*`*(x: typ, y: distinctBase(typ)): typ {.borrow.}
@@ -120,11 +120,6 @@ type
   Percent* = distinct float32
   Percentages* = tuple[value: float32, kind: PercKind]
 
-borrowMaths(Percent, float32)
-# borrowMathsMixed(Percent)
-
-# borrowMaths(ScaledCoord)
-borrowMaths(UiScalar, float32)
 
 converter toUis*[F: float | int | float32](x: static[F]): UiScalar =
   UiScalar x
