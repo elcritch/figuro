@@ -13,7 +13,7 @@ type
     dragStart*: Option[Position]
 
   ScrollSettings* = object
-    size* = initPosition(10'ui, 10.0'ui)
+    size* = initSize(10'ui, 10.0'ui)
     horizontal*: bool = false
     vertical*: bool = true
     barLeft*: bool
@@ -23,11 +23,11 @@ type
     scrollby*: Position
     viewSize*: Size
     contentSize*: Size
-    contentOverflow*: Size
-    contentViewRatio*: Size
+    contentViewRatio*: Position
+    contentOverflow*: Position
 
   ScrollBar* = object
-    size*: Position
+    size*: Size
     start*: Position
 
 proc hash*(x: ScrollWindow): Hash =
@@ -45,8 +45,8 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
   result = ScrollWindow(
     viewSize: viewSize,
     contentSize: contentSize,
-    contentViewRatio: contentViewRatio,
-    contentOverflow: contentOverflow,
+    contentViewRatio: contentViewRatio.toPos(),
+    contentOverflow: contentOverflow.toPos(),
     scrollBy: scrollby,
   )
   trace "calculateWindow: ", window = result.repr
@@ -64,29 +64,29 @@ proc calculateBar*(
   trace "calculateBar: ", settings = settings.repr, window = window.repr
   let
     sizePercent = clamp(window.scrollby / window.contentOverflow, 0'ui, 1'ui)
-    scrollBarSize = window.contentViewRatio * window.viewSize
+    scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
   if isY:
     let
       barX =
         if settings.barLeft:
           0'ui
         else:
-          window.viewSize.x - settings.size.y
-      barY = sizePercent.y * (window.viewSize.y - scrollBarSize.y)
+          window.viewSize.w - settings.size.h
+      barY = sizePercent.y * (window.viewSize.h - scrollBarSize.h)
     ScrollBar(
-      size: initPosition(settings.size.y, scrollBarSize.y),
+      size: initSize(settings.size.h, scrollBarSize.h),
       start: initPosition(barX, barY),
     )
   else:
     let
-      barX = sizePercent.x * (window.viewSize.x - scrollBarSize.x)
+      barX = sizePercent.x * (window.viewSize.w - scrollBarSize.w)
       barY =
         if settings.barTop:
           0'ui
         else:
-          window.viewSize.y - settings.size.x
+          window.viewSize.h - settings.size.w
     ScrollBar(
-      size: initPosition(scrollBarSize.x, settings.size.x),
+      size: initSize(scrollBarSize.w, settings.size.w),
       start: initPosition(barX, barY),
     )
 
@@ -172,14 +172,14 @@ proc draw*(self: ScrollPane) {.slot.} =
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
         with this:
-          box self.bary.start.x, self.bary.start.y, self.bary.size.x, self.bary.size.y
+          box self.bary.start.x, self.bary.start.y, self.bary.size.w, self.bary.size.h
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
           connect(doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
       rectangle "scrollbar-horizontal":
         with this:
-          box self.barx.start.x, self.barx.start.y, self.barx.size.x, self.barx.size.y
+          box self.barx.start.x, self.barx.start.y, self.barx.size.w, self.barx.size.h
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
 
