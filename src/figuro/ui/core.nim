@@ -416,16 +416,6 @@ template WidgetContents*(): untyped =
     content.childInit(this, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
-template `new`*(tp: typedesc, name: string, blk) =
-  ## Alternate name for `new` widgets (experimental)
-  ## 
-  ## So `Widget.new "myFoo": ...` becomes `Widget as "myFoo": ...`
-  ## 
-  ## To be read like `Widget as a node with id and code block xyz`
-  ## 
-
-  new(tp, name, blk)
-
 proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
   refresh(obj)
 
