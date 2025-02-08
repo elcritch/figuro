@@ -10,7 +10,7 @@ proc logTiming(name, time: string) =
 
 const
   timeItSmoothing {.intdefine.} = 10
-  alpha {.intdefine.} = 1.0 / timeItSmoothing.toFloat
+  alpha = 1.0 / timeItSmoothing.toFloat
 
 proc timeItImpl*(retVar: bool, timer, blk: NimNode): NimNode =
   let name = newStrLitNode timer.repr()

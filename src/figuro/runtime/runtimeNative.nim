@@ -48,7 +48,7 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
     frame.redrawNodes.clear()
     for node in rn:
       emit node.doDraw()
-    computeLayout(frame.root)
+    computeLayouts(frame.root)
     computeScreenBox(nil, frame.root)
     var ru = RenderUpdate(n= frame.root.copyInto())
     let sent = frame.rendInputList.trySend(unsafeIsolate ensureMove ru)
