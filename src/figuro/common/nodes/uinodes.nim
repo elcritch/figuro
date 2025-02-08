@@ -57,8 +57,8 @@ type
     nIndex*: int
     diffIndex*: int
 
-    box: Box
-    screenBox*: Box
+    box: UiBox
+    screenBox*: UiBox
     offset*: Position
     totalOffset*: Position
     scroll*: Position

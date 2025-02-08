@@ -61,7 +61,7 @@ template getParentBoxOrWindows*(node: Figuro): Box =
   else:
     node.parent.box
 
-proc computeLayout*(node: Figuro) =
+proc computeLayouts*(node: Figuro) =
   when defined(debugLayout) or defined(figuroDebugLayout):
     stdout.styledWriteLine(
       {styleDim}, fgWhite, "computeLayout:pre ", {styleDim}, fgGreen, ""

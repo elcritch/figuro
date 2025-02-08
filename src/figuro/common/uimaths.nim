@@ -1,5 +1,6 @@
 import std/[strformat, strutils, math, hashes, macros, typetraits]
 import macroutils, vmath, bumpy
+import cssgrid/numberTypes
 
 export math, vmath, bumpy
 
@@ -140,22 +141,25 @@ proc `'ui`*(n: string): UICoord {.compileTime.} =
 ## Distinct vec types
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
-type Position* = distinct Vec2
+type Position* = distinct GVec2[UiScalar]
+
+# type Position* = distinct Vec2
+
+proc initPosition*(x, y: UiScalar): Position =
+  gvec2(x, y).Position
 
 proc initPosition*(x, y: float32): Position =
-  Position(vec2(x, y))
+  initPosition(x.UiScalar, y.UiScalar)
 
-proc initPosition*(x, y: UICoord): Position =
-  Position(vec2(x.float32, y.float32))
-
-proc hash*(x: Position): Hash =
+proc hash*(p: Position): Hash =
   result = Hash(0)
-  for f in x.Vec2.fields(): result = result !& hash(f)
+  result = result !& hash(p.x)
+  result = result !& hash(p.y)
   result = !$result
 
-genBoolOp[Position, Vec2](`==`)
-genBoolOp[Position, Vec2](`!=`)
-genBoolOp[Position, Vec2](`~=`)
+genBoolOp[Position, GVec2[UiScalar]](`==`)
+genBoolOp[Position, GVec2[UiScalar]](`!=`)
+genBoolOp[Position, GVec2[UiScalar]](`~=`)
 
 applyOps(Position, Vec2, genOp, `+`, `-`, `/`, `*`, `mod`, `zmod`, `min`, `zmod`)
 applyOps(Position, Vec2, genEqOp, `+=`, `-=`, `*=`, `/=`)
