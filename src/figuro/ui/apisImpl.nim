@@ -53,17 +53,17 @@ template basicText*(name: string | static string, blk: untyped) =
 
 proc csFixed*(coord: UiScalar): Constraint =
   ## Sets a fixed UI Constraint size.
-  csFixed(coord.UiScalar)
+  cssgrid.csFixed(coord.UiScalar)
 
 proc ux*(coord: SomeNumber | UiScalar): Constraint =
   ## Alias for `csFixed`, sets a fixed UI Constraint size.
-  csFixed(coord.UiScalar)
+  cssgrid.csFixed(coord.UiScalar)
 
 proc csOrFixed*(x: int | float32 | float64 | UiScalar | Constraint): Constraint =
   when x is Constraint:
     x
   else:
-    csFixed(x.UiScalar)
+    cssgrid.csFixed(x.UiScalar)
 
 proc box*(
     current: Figuro,
