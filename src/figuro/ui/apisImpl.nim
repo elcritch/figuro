@@ -51,15 +51,15 @@ template basicText*(name: string | static string, blk: untyped) =
 ## specify details like: "set node width to 100% of it's parents size."
 ## 
 
-proc csFixed*(coord: UICoord): Constraint =
+proc csFixed*(coord: UiScalar): Constraint =
   ## Sets a fixed UI Constraint size.
   csFixed(coord.UiScalar)
 
-proc ux*(coord: SomeNumber | UICoord): Constraint =
+proc ux*(coord: SomeNumber | UiScalar): Constraint =
   ## Alias for `csFixed`, sets a fixed UI Constraint size.
   csFixed(coord.UiScalar)
 
-proc csOrFixed*(x: int | float32 | float64 | UICoord | Constraint): Constraint =
+proc csOrFixed*(x: int | float32 | float64 | UiScalar | Constraint): Constraint =
   when x is Constraint:
     x
   else:
@@ -67,19 +67,19 @@ proc csOrFixed*(x: int | float32 | float64 | UICoord | Constraint): Constraint =
 
 proc box*(
     current: Figuro,
-    x: UICoord | Constraint,
-    y: UICoord | Constraint,
-    w: UICoord | Constraint,
-    h: UICoord | Constraint,
+    x: UiScalar | Constraint,
+    y: UiScalar | Constraint,
+    w: UiScalar | Constraint,
+    h: UiScalar | Constraint,
 ) =
   ## Sets the size and offsets at the same time
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
-proc offset*(current: Figuro, x: UICoord | Constraint, y: UICoord | Constraint) =
+proc offset*(current: Figuro, x: UiScalar | Constraint, y: UiScalar | Constraint) =
   current.cxOffset = [csOrFixed(x), csOrFixed(y)]
 
-proc size*(current: Figuro, w: UICoord | Constraint, h: UICoord | Constraint) =
+proc size*(current: Figuro, w: UiScalar | Constraint, h: UiScalar | Constraint) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
 proc boxSizeOf*(current: Figuro, node: Figuro) =
@@ -108,7 +108,7 @@ proc setName*(current: Figuro, n: string) =
   current.name.setLen(0)
   current.name.add(n)
 
-proc border*(current: Figuro, weight: UICoord, color: Color) =
+proc border*(current: Figuro, weight: UiScalar, color: Color) =
   ## Sets border stroke & color on the given node.
   current.stroke.color = color
   current.stroke.weight = weight.float32
@@ -185,14 +185,14 @@ template setTitle*(current: Figuro, title: string) =
   ## Sets window title
   current.frame[].setWindowTitle(title)
 
-proc cornerRadius*(current: Figuro, radius: UICoord) =
+proc cornerRadius*(current: Figuro, radius: UiScalar) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = radius
   current.userSetFields.incl fsCornerRadius
 
 proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
-  cornerRadius(current, UICoord radius.value.coord)
+  cornerRadius(current, UiScalar radius.value.coord)
 
 ## ---------------------------------------------
 ##             Fidget Text APIs
@@ -253,7 +253,7 @@ template setGridCols*(current: Figuro, args: untyped) =
   ## 
   ## the size options are:
   ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
-  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
   ## names can include multiple names (aliaes):
@@ -273,7 +273,7 @@ template setGridRows*(current: Figuro, args: untyped) =
   ## 
   ## the size options are:
   ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
-  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
   ## names can include multiple names (aliaes):
@@ -332,12 +332,12 @@ proc gridArea*[T](current: Figuro, r, c: T) =
   current.getGridItem().row = r
   current.getGridItem().column = c
 
-proc gridColumnGap*(current: Figuro, value: UICoord) =
+proc gridColumnGap*(current: Figuro, value: UiScalar) =
   ## Set CSS Grid column gap.
   current.defaultGridTemplate()
   current.gridTemplate.gaps[dcol] = value.UiScalar
 
-proc gridRowGap*(current: Figuro, value: UICoord) =
+proc gridRowGap*(current: Figuro, value: UiScalar) =
   ## Set CSS Grid column gap.
   current.defaultGridTemplate()
   current.gridTemplate.gaps[drow] = value.UiScalar

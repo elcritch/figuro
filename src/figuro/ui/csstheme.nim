@@ -92,10 +92,10 @@ proc apply*(prop: CssProperty, node: Figuro) =
     MissingCssValue:
       raise newException(ValueError, "missing css value!")
     CssShadow(style, x, y, blur, spread, color):
-      setCxFixed(x, node.shadow[style].x, UICoord)
-      setCxFixed(y, node.shadow[style].y, UICoord)
-      setCxFixed(blur, node.shadow[style].blur, UICoord)
-      setCxFixed(spread, node.shadow[style].spread, UICoord)
+      setCxFixed(x, node.shadow[style].x, UiScalar)
+      setCxFixed(y, node.shadow[style].y, UiScalar)
+      setCxFixed(blur, node.shadow[style].blur, UiScalar)
+      setCxFixed(spread, node.shadow[style].spread, UiScalar)
       node.shadow[style].color = color
     CssColor(c):
       # echo "\tapply color: ", c.repr
@@ -121,7 +121,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
       of "border-width":
         setCxFixed(cx, node.stroke.weight)
       of "border-radius":
-        setCxFixed(cx, node.cornerRadius, UICoord)
+        setCxFixed(cx, node.cornerRadius, UiScalar)
       of "width":
         node.cxSize[dcol] = cx
       of "height":

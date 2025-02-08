@@ -26,7 +26,7 @@ proc draw*(self: Main) {.slot.} =
       for i in 1..2:
         capture i:
           Button.new "btn":
-            box 10'pp, UICoord(40 * i + 10), 80'pp, 10'pp
+            box 10'pp, UiScalar(40 * i + 10), 80'pp, 10'pp
             fill css"#2B9FEA"
 
 

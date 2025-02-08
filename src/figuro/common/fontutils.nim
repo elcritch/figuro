@@ -199,7 +199,7 @@ proc convertFont*(font: UiFont): (FontId, Font) =
     for pn, a in fieldPairs(pxfont[]):
       for fn, b in fieldPairs(font):
         when pn == fn:
-          when b is UICoord:
+          when b is UiScalar:
             a = b.scaled()
           else:
             a = b

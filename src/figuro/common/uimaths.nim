@@ -80,7 +80,7 @@ template genBoolOp[T, B](op: untyped) =
     `op`(B(a), B(b))
 
 template genFloatOp[T, B](op: untyped) =
-  proc `op`*(a: T, b: UICoord): T =
+  proc `op`*(a: T, b: UiScalar): T =
     T(`op`(B(a), b.float32))
 
 template genEqOp[T, B](op: untyped) =
@@ -125,17 +125,17 @@ borrowMaths(Percent, float32)
 
 type
   # ScaledCoord* = distinct float32
-  UICoord* = distinct float32
+  UiScalar* = distinct float32
 
 # borrowMaths(ScaledCoord)
-borrowMaths(UICoord, float32)
+borrowMaths(UiScalar, float32)
 
-converter toUis*[F: float | int | float32](x: static[F]): UICoord =
-  UICoord x
+converter toUis*[F: float | int | float32](x: static[F]): UiScalar =
+  UiScalar x
 
-proc `'ui`*(n: string): UICoord {.compileTime.} =
+proc `'ui`*(n: string): UiScalar {.compileTime.} =
   ## numeric literal UI Coordinate unit
-  result = UICoord(parseFloat(n))
+  result = UiScalar(parseFloat(n))
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 ## Distinct vec types
@@ -160,10 +160,10 @@ proc hash*(p: Position): Hash =
 
 proc atXY*[T: Box](rect: T, x, y: int | float32): T =
   result = rect
-  result.x = UICoord(x)
-  result.y = UICoord(y)
+  result.x = UiScalar(x)
+  result.y = UiScalar(y)
 
-proc atXY*[T: Box](rect: T, x, y: UICoord): T =
+proc atXY*[T: Box](rect: T, x, y: UiScalar): T =
   result = rect
   result.x = x
   result.y = y
@@ -180,18 +180,18 @@ proc `~=`*(rect: Vec2, val: float32): bool =
 # proc `$`*(a: Box): string {.borrow.}
 
 proc overlaps*(a, b: Position): bool =
-  overlaps(Vec2(a), Vec2(b))
+  overlaps(a.toVec(), b.toVec())
 
 proc overlaps*(a: Position, b: Box): bool =
-  overlaps(Vec2(a), Rect(b))
+  overlaps(a.toVec(), b.toRect())
 
 proc overlaps*(a: Box, b: Position): bool =
-  overlaps(Rect(a), Vec2(b))
+  overlaps(a.toRect(), b.toVec())
 
 proc overlaps*(a: Box, b: Box): bool =
-  overlaps(Rect(a), Rect(b))
+  overlaps(a.toRect(), b.toRect())
 
-proc sum*(rect: Position): UICoord =
+proc sum*(rect: Position): UiScalar =
   result = rect.x + rect.y
 
 proc sum*(rect: Rect): float32 =
@@ -200,10 +200,10 @@ proc sum*(rect: Rect): float32 =
 proc sum*(rect: (float32, float32, float32, float32)): float32 =
   result = rect[0] + rect[1] + rect[2] + rect[3]
 
-proc sum*(rect: Box): UICoord =
+proc sum*(rect: Box): UiScalar =
   result = rect.x + rect.y + rect.w + rect.h
 
-proc sum*(rect: (UICoord, UICoord, UICoord, UICoord)): UICoord =
+proc sum*(rect: (UiScalar, UiScalar, UiScalar, UiScalar)): UiScalar =
   result = rect[0] + rect[1] + rect[2] + rect[3]
 
 proc clamp*(v: Position, a, b: Position): Position =

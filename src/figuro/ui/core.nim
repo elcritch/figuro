@@ -37,7 +37,7 @@ var
 
   nodeLookup* {.runtimeVar.}: Table[string, Figuro]
 
-  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UICoord
+  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UiScalar
     ##\
     ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
   adjustTopTextFactor* {.runtimeVar.} = 1 / 16.0
@@ -60,7 +60,7 @@ var
   defaultTypeface* {.runtimeVar.} = getTypeface(DefTypefaceName, DefTypefaceRaw, TTF)
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
-proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
+proc setSize*(frame: AppFrame, size: (UiScalar, UiScalar)) =
   frame.windowSize.w = size[0]
   frame.windowSize.h = size[1]
   frame.windowRawSize = frame.windowSize.wh.scaled()
@@ -235,7 +235,7 @@ template connectDefaults*[T](node: T) =
     when compiles(SignalTypes.tick(T)):
       connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
-proc newAppFrame*[T](root: T, size: (UICoord, UICoord), style = DecoratedResizable): AppFrame =
+proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResizable): AppFrame =
   mixin draw
   if root == nil:
     raise newException(NilAccessDefect, "must set root")

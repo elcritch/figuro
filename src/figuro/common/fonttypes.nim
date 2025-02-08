@@ -33,8 +33,8 @@ type
 
   UiFont* = object
     typefaceId*: TypefaceId
-    size*: UICoord ## Font size in pixels.
-    lineHeight*: UICoord = -1.0'ui
+    size*: UiScalar ## Font size in pixels.
+    lineHeight*: UiScalar = -1.0'ui
       ## The line height in pixels or autoLineHeight for the font's default line height.
     fontCase*: FontCase
     underline*: bool ## Apply an underline.

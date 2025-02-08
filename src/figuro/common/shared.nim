@@ -78,22 +78,22 @@ type
     data*: TableRef[TypeId, Variant]
 
 template scaled*(a: Box): Rect =
-  Rect(a * app.uiScale.UICoord)
+  Rect(a * app.uiScale.UiScalar)
 
 template descaled*(a: Rect): Box =
   Box(a / app.uiScale)
 
 template scaled*(a: Position): Vec2 =
-  Vec2(a * app.uiScale.UICoord)
+  Vec2(a * app.uiScale.UiScalar)
 
 template descaled*(a: Vec2): Position =
   Position(a / app.uiScale)
 
-template scaled*(a: UICoord): float32 =
+template scaled*(a: UiScalar): float32 =
   a.float32 * app.uiScale
 
-template descaled*(a: float32): UICoord =
-  UICoord(a / app.uiScale)
+template descaled*(a: float32): UiScalar =
+  UiScalar(a / app.uiScale)
 
 template dispatchEvent*(evt: typed) =
   result.add(evt)
