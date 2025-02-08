@@ -382,7 +382,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
 # template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
 #   widgetRegister[t](nkText, name, blk)
 
-template new*[F](tp: typedesc[F], name: string, blk: untyped) =
+template new*(tp: typedesc, name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills
@@ -397,7 +397,7 @@ template new*[F](tp: typedesc[F], name: string, blk: untyped) =
     widgetRegister[tp](nkRectangle, name, blk)
   elif arity(tp) == stripGenericParams(tp).typeof().arity():
     # partial generics, these are generics that aren't specified
-    when stripGenericParams(t).typeof().arity() == 2:
+    when stripGenericParams(tp).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
       widgetRegister[tp[tuple[]]](nkRectangle, name, blk)
     else:
