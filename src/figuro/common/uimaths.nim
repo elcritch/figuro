@@ -123,10 +123,6 @@ type
 borrowMaths(Percent, float32)
 # borrowMathsMixed(Percent)
 
-type
-  # ScaledCoord* = distinct float32
-  UiScalar* = distinct float32
-
 # borrowMaths(ScaledCoord)
 borrowMaths(UiScalar, float32)
 
@@ -147,7 +143,7 @@ type Position* = UiPos
 # type Position* = distinct Vec2
 
 proc initPosition*(x, y: UiScalar): Position =
-  gvec2(x, y).Position
+  uiPos(x, y).Position
 
 proc initPosition*(x, y: float32): Position =
   initPosition(x.UiScalar, y.UiScalar)
@@ -215,13 +211,6 @@ proc clamp*[U, V](v: Position, a: U, b: V): Position =
   when V isnot Position:
     let b = initPosition(b, b)
   v.clamp(a, b)
-
-proc `$`*(a: Position): string =
-  &"Position<{a.x:4.4s}, {a.y:4.4s}>"
-
-proc `$`*(b: Box): string =
-  let a = b.Rect
-  &"Box<{a.x:4.4f}, {a.y:4.4f}; {a.x+a.w:4.4f}, {a.y+a.h:4.4f} [{a.w:4.4f} x {a.h:4.4f}]>"
 
 # proc toJsonHook*(self: var Position; opt = initToJsonOptions()): JsonNode =
 #   var x: float = self.x.float
