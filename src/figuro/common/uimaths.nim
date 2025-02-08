@@ -141,7 +141,8 @@ proc `'ui`*(n: string): UICoord {.compileTime.} =
 ## Distinct vec types
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
 
-type Position* = distinct GVec2[UiScalar]
+type Box* = UiBox
+type Position* = UiPos
 
 # type Position* = distinct Vec2
 
@@ -157,97 +158,6 @@ proc hash*(p: Position): Hash =
   result = result !& hash(p.y)
   result = !$result
 
-genBoolOp[Position, GVec2[UiScalar]](`==`)
-genBoolOp[Position, GVec2[UiScalar]](`!=`)
-genBoolOp[Position, GVec2[UiScalar]](`~=`)
-
-applyOps(Position, Vec2, genOp, `+`, `-`, `/`, `*`, `mod`, `zmod`, `min`, `zmod`)
-applyOps(Position, Vec2, genEqOp, `+=`, `-=`, `*=`, `/=`)
-applyOps(
-  Position, Vec2, genMathFn, `-`, sin, cos, tan, arcsin, arccos, arctan, sinh, cosh,
-  tanh,
-)
-applyOps(Position, Vec2, genMathFn, exp, ln, log2, sqrt, floor, ceil, abs)
-applyOps(Position, Vec2, genFloatOp, `*`, `/`)
-
-type Box* = distinct Rect
-
-proc initBox*(x, y, w, h: float32): Box =
-  Box(rect(x, y, w, h))
-
-proc initBox*(x, y, w, h: UICoord): Box =
-  Box(rect(x.float32, y.float32, w.float32, h.float32))
-
-applyOps(Box, Rect, genOp, `+`)
-applyOps(Box, Rect, genFloatOp, `*`, `/`)
-genBoolOp[Box, Rect](`==`)
-genEqOpC[Box, Rect, Vec2](`xy=`)
-
-template x*(r: Box): UICoord =
-  r.Rect.x.UICoord
-
-template y*(r: Box): UICoord =
-  r.Rect.y.UICoord
-
-template w*(r: Box): UICoord =
-  r.Rect.w.UICoord
-
-template h*(r: Box): UICoord =
-  r.Rect.h.UICoord
-
-template `x=`*(r: Box, v: UICoord) =
-  r.Rect.x = v.float32
-  # echo "\tX: ", r.Rect.x, " => ", v
-
-template `y=`*(r: Box, v: UICoord) =
-  r.Rect.y = v.float32
-  # echo "\tY: ", r.Rect.y, " => ", v
-
-template `w=`*(r: Box, v: UICoord) =
-  r.Rect.w = v.float32
-  # echo "\tW: ", r.Rect.w, " => ", v
-
-template `h=`*(r: Box, v: UICoord) =
-  if r.Rect.h == 70 or v == 70:
-    echo "\tH: ", r.Rect.h, " => ", v
-    let se: seq[StackTraceEntry] = getStackTraceEntries()[^4..^1]
-    echo "\tHH st: ", se.mapIt(($it.procname, $it.line))
-  r.Rect.h = v.float32
-
-template xy*(r: Box): Position =
-  Position r.Rect.xy
-
-template wh*(r: Box): Position =
-  initPosition(r.w.float32, r.h.float32)
-
-template x*(r: Position): UICoord =
-  r.Vec2.x.UICoord
-
-template y*(r: Position): UICoord =
-  r.Vec2.y.UICoord
-
-template `x=`*(r: Position, v: UICoord) =
-  r.Vec2.x = v.float32
-
-template `y=`*(r: Position, v: UICoord) =
-  r.Vec2.y = v.float32
-
-proc hash*(bx: Box): Hash =
-  result = hash(bx.x) !& hash(bx.y) !& hash(bx.w) !& hash(bx.h)
-  result = !$result
-
-proc `+`*(rect: Box, xy: Position): Box =
-  ## offset rect with xy vec2 
-  result = rect
-  result.x += xy.x
-  result.y += xy.y
-
-proc `-`*(rect: Box, xy: Position): Box =
-  ## offset rect with xy vec2 
-  result = rect
-  result.x -= xy.x
-  result.y -= xy.y
-
 proc atXY*[T: Box](rect: T, x, y: int | float32): T =
   result = rect
   result.x = UICoord(x)
@@ -262,12 +172,6 @@ proc atXY*[T: Rect](rect: T, x, y: int | float32): T =
   result = rect
   result.x = x
   result.y = y
-
-proc `+`*(rect: Rect, xy: Vec2): Rect =
-  ## offset rect with xy vec2 
-  result = rect
-  result.x += xy.x
-  result.y += xy.y
 
 proc `~=`*(rect: Vec2, val: float32): bool =
   result = rect.x ~= val and rect.y ~= val
