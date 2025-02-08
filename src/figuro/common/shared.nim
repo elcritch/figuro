@@ -77,22 +77,29 @@ type
   Events*[T] = object
     data*: TableRef[TypeId, Variant]
 
-template scaled*(a: Box): Rect =
-  Rect(a * app.uiScale.UiScalar)
+proc scaled*(a: Box): Rect =
+  toRect(a * app.uiScale.UiScalar)
 
-template descaled*(a: Rect): Box =
-  Box(a / app.uiScale)
+proc descaled*(a: Rect): Box =
+  let a = a / app.uiScale
+  result.x = a.x
+  result.y = a.y
+  result.w = a.w
+  result.h = a.h
 
-template scaled*(a: Position): Vec2 =
-  Vec2(a * app.uiScale.UiScalar)
+proc scaled*(a: Position): Vec2 =
+  toVec(a * app.uiScale.UiScalar)
 
-template descaled*(a: Vec2): Position =
+proc scaled*(a: UiSize): Vec2 =
+  toVec(a * app.uiScale.UiScalar)
+
+proc descaled*(a: Vec2): Position =
   Position(a / app.uiScale)
 
-template scaled*(a: UiScalar): float32 =
+proc scaled*(a: UiScalar): float32 =
   a.float32 * app.uiScale
 
-template descaled*(a: float32): UiScalar =
+proc descaled*(a: float32): UiScalar =
   UiScalar(a / app.uiScale)
 
 template dispatchEvent*(evt: typed) =
