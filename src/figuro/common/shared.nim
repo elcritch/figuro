@@ -82,10 +82,10 @@ proc scaled*(a: Box): Rect =
 
 proc descaled*(a: Rect): Box =
   let a = a / app.uiScale
-  result.x = a.x
-  result.y = a.y
-  result.w = a.w
-  result.h = a.h
+  result.x = a.x.UiScalar
+  result.y = a.y.UiScalar
+  result.w = a.w.UiScalar
+  result.h = a.h.UiScalar
 
 proc scaled*(a: Position): Vec2 =
   toVec(a * app.uiScale.UiScalar)
@@ -94,7 +94,9 @@ proc scaled*(a: UiSize): Vec2 =
   toVec(a * app.uiScale.UiScalar)
 
 proc descaled*(a: Vec2): Position =
-  Position(a / app.uiScale)
+  let a = a / app.uiScale
+  result.x = a.x.UiScalar
+  result.y = a.y.UiScalar
 
 proc scaled*(a: UiScalar): float32 =
   a.float32 * app.uiScale
