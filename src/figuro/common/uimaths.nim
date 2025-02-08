@@ -32,6 +32,8 @@ type Box* = UiBox
 type Position* = UiPos
 
 # type Position* = distinct Vec2
+proc initBox*(x, y, w, h: UiScalar | SomeNumber): Box =
+  uiBox(x.UiScalar, y.UiScalar, w.UiScalar, h.UiScalar).Box
 
 proc initPosition*(x, y: UiScalar): Position =
   uiPos(x, y).Position
