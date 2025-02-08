@@ -30,6 +30,7 @@ proc `'ui`*(n: string): UiScalar {.compileTime.} =
 
 type Box* = UiBox
 type Position* = UiPos
+type Size* = UiSize
 
 # type Position* = distinct Vec2
 proc initBox*(x, y, w, h: UiScalar | SomeNumber): Box =
@@ -37,9 +38,13 @@ proc initBox*(x, y, w, h: UiScalar | SomeNumber): Box =
 
 proc initPosition*(x, y: UiScalar): Position =
   uiPos(x, y).Position
-
 proc initPosition*(x, y: float32): Position =
   initPosition(x.UiScalar, y.UiScalar)
+
+proc initSize*(x, y: UiScalar): Position =
+  uiPos(x, y).Position
+proc initSize*(x, y: float32): Position =
+  initSize(x.UiScalar, y.UiScalar)
 
 proc hash*(p: Position): Hash =
   result = Hash(0)
@@ -98,11 +103,21 @@ proc sum*(rect: (UiScalar, UiScalar, UiScalar, UiScalar)): UiScalar =
 proc clamp*(v: Position, a, b: Position): Position =
   initPosition(v.x.clamp(a.x, b.x).float32, v.y.clamp(a.y, b.y).float32)
 
+proc clamp*(v: Size, a, b: Size): Size =
+  uiSize(v.w.clamp(a.w, b.w).float32, v.h.clamp(a.h, b.h).float32)
+
 proc clamp*[U, V](v: Position, a: U, b: V): Position =
   when U isnot Position:
     let a = initPosition(a, a)
   when V isnot Position:
     let b = initPosition(b, b)
+  v.clamp(a, b)
+
+proc clamp*[U, V](v: Size, a: U, b: V): Size =
+  when U isnot Size:
+    let a = initSize(a, a)
+  when V isnot Size:
+    let b = initSize(b, b)
   v.clamp(a, b)
 
 # proc toJsonHook*(self: var Position; opt = initToJsonOptions()): JsonNode =
