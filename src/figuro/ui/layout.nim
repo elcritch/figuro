@@ -55,9 +55,9 @@ proc printLayout*(node: Figuro, depth = 0) =
 
 # var sb: Figuro
 
-template getParentBoxOrWindows*(node: GridNode): UiBox =
+template getParentBoxOrWindows*(node: Figuro): Box =
   if node.parent.isNil:
-    node.frame.windowSize
+    node.frame[].windowSize
   else:
     node.parent.box
 
