@@ -154,7 +154,7 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
 ## setting up layouts and constraingts. 
 ## 
 
-template setGridCols*(args: untyped) {.thisWrapper.}
+template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -171,8 +171,9 @@ template setGridCols*(args: untyped) {.thisWrapper.}
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
   # layout lmGrid
+  parseGridTemplateColumns(this.gridTemplate, args)
 
-template setGridRows*(args: untyped) {.thisWrapper.}
+template gridRows*(args: untyped) =
   ## configure rows for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -190,6 +191,7 @@ template setGridRows*(args: untyped) {.thisWrapper.}
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
   # layout lmGrid
+  parseGridTemplateRows(this.gridTemplate, args)
 
 template findGridColumn*(index: GridIndex): GridLine {.thisWrapper.}
 

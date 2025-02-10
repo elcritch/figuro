@@ -24,17 +24,16 @@ proc draw*(self: GridApp) {.slot.} =
         # if current.gridTemplate != nil:
         #   echo "grid template: ", repr current.gridTemplate
         # setup frame for css grid
-        with this:
-          box 5'pp, 5'pp, 90'pp, 90'pp
-          # size 100'pp, 100'pp
-          fill css"#FFFFFF"
-          cornerRadius 10
-          clipContent true
-          
-          # Setup CSS Grid Template
-          setGridCols 1'fr  1'fr  1'fr  1'fr  1'fr
-          setGridRows 1'fr 1'fr
-          justifyItems CxStart
+        box 5'pp, 5'pp, 90'pp, 90'pp
+        # size 100'pp, 100'pp
+        fill css"#FFFFFF"
+        cornerRadius 10
+        clipContent true
+        
+        # Setup CSS Grid Template
+        gridCols 1'fr 1'fr 1'fr 1'fr 1'fr
+        gridRows 1'fr 1'fr
+        justifyItems CxStart
 
         rectangle "item a":
           # Setup CSS Grid Template
