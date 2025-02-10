@@ -39,7 +39,7 @@ proc draw*(self: GridApp) {.slot.} =
           # Setup CSS Grid Template
           with this:
             cornerRadius 10
-            gridColumn 1 // 2
+            gridCol 1 // 2
             gridRow 1 // 3
             # some color stuff
             fill rgba(245, 129, 49, 123).to(Color)
@@ -57,7 +57,7 @@ proc draw*(self: GridApp) {.slot.} =
           # Setup CSS Grid Template
           with this:
             cornerRadius 6
-            gridColumn 5 // 6
+            gridCol 5 // 6
             gridRow 1 // 3
             # some color stuff
             fill rgba(245, 129, 49, 123).to(Color)

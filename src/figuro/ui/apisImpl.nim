@@ -315,6 +315,10 @@ proc gridColumn*[T](current: Figuro, val: T) =
   ## Set CSS Grid ending column.
   current.getGridItem().column = val
 
+proc gridCol*[T](current: Figuro, val: T) =
+  ## Set CSS Grid ending column.
+  current.getGridItem().column = val
+
 proc rowStart*[T](current: Figuro, idx: T) =
   ## Set CSS Grid starting row.
   current.getGridItem().index[drow].a = idx.mkIndex()

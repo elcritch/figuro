@@ -208,6 +208,9 @@ template columnEnd*[T](idx: T) {.thisWrapper.}
 template gridColumn*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
+template gridCol*[T](val: T) {.thisWrapper.}
+  ## Set CSS Grid ending column.
+
 template rowStart*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid starting row.
 
