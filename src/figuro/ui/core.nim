@@ -406,6 +406,9 @@ template new*(tp: typedesc, name: string, blk: untyped) =
     # fully typed generics
     widgetRegister[tp](nkRectangle, name, blk)
 
+template `as`*(tp: typedesc, name: string, blk: untyped) =
+  new(tp, name, blk)
+
 {.hint[Name]: off.}
 template WidgetContents*(): untyped =
   ## marks where the widget will put any child `content`
