@@ -67,7 +67,7 @@ proc computeLayouts*(node: Figuro) =
       {styleDim}, fgWhite, "computeLayout:pre ", {styleDim}, fgGreen, ""
     )
     printLayout(node)
-  computeLayout(node, 0)
+  computeLayout(node)
   when defined(debugLayout) or defined(figuroDebugLayout):
     stdout.styledWriteLine(
       {styleDim}, fgWhite, "computeLayout:post ", {styleDim}, fgGreen, ""

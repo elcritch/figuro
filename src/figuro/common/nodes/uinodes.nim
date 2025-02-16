@@ -58,6 +58,7 @@ type
     diffIndex*: int
 
     box*: Box
+    bmin*, bmax*: Size
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
@@ -69,6 +70,8 @@ type
 
     cxSize*: array[GridDir, Constraint]
     cxOffset*: array[GridDir, Constraint]
+    cxMin*: array[GridDir, Constraint]
+    cxMax*: array[GridDir, Constraint]
 
     events*: EventFlags
     listens*: ListenEvents
