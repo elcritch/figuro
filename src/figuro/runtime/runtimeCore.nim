@@ -96,6 +96,7 @@ proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   threadEffects:
     AppMainThread
   self.setupTicker()
+  self.root.cxSize = [csAuto(), csAuto()]
   # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 

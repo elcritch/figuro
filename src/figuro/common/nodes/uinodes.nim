@@ -68,10 +68,10 @@ type
     attrs*: set[Attributes]
     userSetFields*: set[FieldSet]
 
-    cxSize*: array[GridDir, Constraint]
-    cxOffset*: array[GridDir, Constraint]
-    cxMin*: array[GridDir, Constraint]
-    cxMax*: array[GridDir, Constraint]
+    cxSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxMin*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxMax*: array[GridDir, Constraint] = [csAuto(), csAuto()]
 
     events*: EventFlags
     listens*: ListenEvents

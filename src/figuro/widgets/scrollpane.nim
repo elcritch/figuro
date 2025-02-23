@@ -155,9 +155,9 @@ proc draw*(self: ScrollPane) {.slot.} =
       ## max-content is important here
       ## todo: do the same for horiz?
       if self.settings.vertical:
-        this.cxSize[drow] = cx"max-content"
+        this.cxSize[drow] = cx"auto"
       if self.settings.horizontal:
-        this.cxSize[dcol] = cx"max-content"
+        this.cxSize[dcol] = cx"auto"
 
       with this:
         fill whiteColor.darken(0.2)

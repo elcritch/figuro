@@ -57,11 +57,15 @@ proc printLayout*(node: Figuro, depth = 0) =
 
 template getParentBoxOrWindows*(node: Figuro): Box =
   if node.parent.isNil:
+    # echo "getParentBoxOrWindows:FRAME: ", node.frame[].windowSize
     node.frame[].windowSize
   else:
     node.parent[].box
 
 proc computeLayouts*(node: Figuro) =
+  doAssert node.cxSize[drow] == csAuto()
+  doAssert node.cxSize[dcol] == csAuto()
+
   when defined(debugLayout) or defined(figuroDebugLayout):
     stdout.styledWriteLine(
       {styleDim}, fgWhite, "computeLayout:pre ", {styleDim}, fgGreen, ""

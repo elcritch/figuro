@@ -1,6 +1,7 @@
 
 import figuro/widgets/[button, griddebug]
 import figuro
+import cssgrid/prettyprints
 
 type
   GridApp = ref object of Figuro
@@ -11,7 +12,8 @@ type
     value: float
 
 proc draw*(self: GridApp) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
+    # prettyPrintWriteMode = cmTerminal
     rectangle "autoLayout":
       GridDebug.new "debug-grid":
         this.state = (blackColor, "css grid area")
