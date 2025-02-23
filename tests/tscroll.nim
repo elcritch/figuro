@@ -2,6 +2,7 @@
 ## This minimal scrollpane example
 import figuro/widgets/[button, scrollpane, vertical]
 import figuro
+import cssgrid/prettyprints
 
 let
   font = UiFont(typefaceId: defaultTypeface, size: 22)
@@ -18,16 +19,17 @@ proc buttonItem(self, this: Figuro, idx: int) =
       size 0.9'fr, 120'ux
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
+    prettyPrintWriteMode = cmTerminal
     fill css"#0000AA"
     setTitle("Scrolling example")
     ScrollPane.new "scroll":
       offset 2'pp, 2'pp
       cornerRadius 7.0'ux
       size 96'pp, 90'pp
-      Vertical.new "":
+      Vertical.new "vertical":
         offset 10'ux, 10'ux
-        contentHeight cx"auto"
+        contentHeight cx"min-content"
         for idx in 0 .. 15:
           buttonItem(self, this, idx)
 

@@ -70,8 +70,8 @@ type
 
     cxSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
     cxOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
-    cxMin*: array[GridDir, Constraint] = [csAuto(), csAuto()]
-    cxMax*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxMin*: array[GridDir, Constraint] = [csNone(), csNone()]
+    cxMax*: array[GridDir, Constraint] = [csNone(), csNone()]
 
     events*: EventFlags
     listens*: ListenEvents

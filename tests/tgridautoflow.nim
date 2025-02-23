@@ -13,7 +13,6 @@ type
 
 proc draw*(self: GridApp) {.slot.} =
   withRootWidget(self):
-    # prettyPrintWriteMode = cmTerminal
     rectangle "autoLayout":
       GridDebug.new "debug-grid":
         this.state = (blackColor, "css grid area")
