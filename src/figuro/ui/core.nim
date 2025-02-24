@@ -424,8 +424,8 @@ proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
 
 template withWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
-  let this {.inject.} = self
-  let widgetContents {.inject.} = move self.contents
+  let this {.inject, used.} = self
+  let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
 
   bindSigilEvents(this):
@@ -433,8 +433,8 @@ template withWidget*(self, blk: untyped) =
 
 template withRootWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
-  let this {.inject.} = self
-  let widgetContents {.inject.} = move self.contents
+  let this {.inject, used.} = self
+  let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
 
   Rectangle.new "main":
