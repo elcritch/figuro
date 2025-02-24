@@ -230,7 +230,7 @@ proc setInnerText*(
 ) =
   ## Set the text on an item.
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
-    trace "setText: ", nodeName = node.name, thash = thash, contentHash = current.textLayout.contentHash
+    trace "setText: ", nodeName = node.name
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
     refresh(node)
 

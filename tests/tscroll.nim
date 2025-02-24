@@ -20,7 +20,7 @@ proc buttonItem(self, this: Figuro, idx: int) =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    prettyPrintWriteMode = cmTerminal
+    # prettyPrintWriteMode = cmTerminal
     fill css"#0000AA"
     setTitle("Scrolling example")
     ScrollPane.new "scroll":
@@ -36,3 +36,17 @@ proc draw*(self: Main) {.slot.} =
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)
+
+# node:  [xy: 0.0x0.0; wh:600.0x480.0]
+#   node: main [xy: 0.0x0.0; wh:600.0x480.0]
+#     node: scroll [xy: 12.0x9.6; wh:576.0x432.0]
+#       node: scrollBody [xy: 0.0x0.0; wh:576.0x432.0]
+#         node: vertical [xy: 10.0x10.0; wh:566.0x940.0]
+#           node: button [xy: 0.0x0.0; wh:566.0x50.0]
+#             node: buttonInner [xy: 0.0x0.0; wh:566.0x50.0]
+#           node: button [xy: 0.0x50.0; wh:566.0x50.0]
+#             node: buttonInner [xy: 0.0x0.0; wh:566.0x50.0]
+#           node: button [xy: 0.0x100.0; wh:566.0x50.0]
+#             node: buttonInner [xy: 0.0x0.0; wh:566.0x50.0]
+#           node: button [xy: 28.3x150.0; wh:509.4x120.0]
+#             node: buttonInner [xy: 0.0x0.0; wh:509.4x120.0]

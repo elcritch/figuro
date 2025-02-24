@@ -49,7 +49,8 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     contentOverflow: contentOverflow.toPos(),
     scrollBy: scrollby,
   )
-  trace "calculateWindow: ", window = result.repr
+  info "calculateWindow:child ", childBoxWh = childBox.wh, viewBoxWh= viewBox.wh
+  info "calculateWindow: ", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow, scrollBy= result.scrollby
 
 proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false) =
   if isAbsolute:
@@ -61,10 +62,22 @@ proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false
 proc calculateBar*(
     settings: ScrollSettings, window: ScrollWindow, isY: bool
 ): ScrollBar =
-  trace "calculateBar: ", settings = settings.repr, window = window.repr
+  debug "calculateBar: ", settings = settings.repr
+  debug "calculateBar: ", window = window.repr
   let
-    sizePercent = clamp(window.scrollby / window.contentOverflow, 0'ui, 1'ui)
+    sizePercent =
+      if isY:
+        if window.contentOverFlow.y == 0'ui:
+          0'ui
+        else:
+          clamp(window.scrollby.y / window.contentOverflow.y, 0'ui, 1'ui)
+      else:
+        if window.contentOverFlow.x == 0'ui:
+          0'ui
+        else:
+          clamp(window.scrollby.x / window.contentOverflow.x, 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
+  debug "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= window.scrollby, contentOverFlow= window.contentOverflow
   if isY:
     let
       barX =
@@ -72,23 +85,25 @@ proc calculateBar*(
           0'ui
         else:
           window.viewSize.w - settings.size.h
-      barY = sizePercent.y * (window.viewSize.h - scrollBarSize.h)
-    ScrollBar(
+      barY = sizePercent * (window.viewSize.h - scrollBarSize.h)
+    debug "calculateBar:barY: ", barY = barY, sizePerY= sizePercent, viewSizeH= window.viewSize.h, scrollBarhH= scrollBarSize.h
+    result = ScrollBar(
       size: initSize(settings.size.h, scrollBarSize.h),
       start: initPosition(barX, barY),
     )
   else:
     let
-      barX = sizePercent.x * (window.viewSize.w - scrollBarSize.w)
+      barX = sizePercent * (window.viewSize.w - scrollBarSize.w)
       barY =
         if settings.barTop:
           0'ui
         else:
           window.viewSize.h - settings.size.w
-    ScrollBar(
+    result = ScrollBar(
       size: initSize(scrollBarSize.w, settings.size.w),
       start: initPosition(barX, barY),
     )
+  info "calculateBar: ", scrollBar = result
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
