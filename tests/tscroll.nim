@@ -30,6 +30,7 @@ proc draw*(self: Main) {.slot.} =
       fill css"white"
       Vertical.new "vertical":
         offset 10'ux, 10'ux
+        size 100'pp-20'ux, 100'pp
         contentHeight cx"min-content"
         for idx in 0 .. 15:
           buttonItem(self, this, idx)
