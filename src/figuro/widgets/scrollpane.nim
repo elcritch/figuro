@@ -62,8 +62,8 @@ proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false
 proc calculateBar*(
     settings: ScrollSettings, window: ScrollWindow, isY: bool
 ): ScrollBar =
-  debug "calculateBar: ", settings = settings.repr
-  debug "calculateBar: ", window = window.repr
+  trace "calculateBar: ", settings = settings.repr
+  trace "calculateBar: ", window = window.repr
   let dir = if isY: drow else: dcol
   let perp = if not isY: drow else: dcol
 
@@ -71,7 +71,7 @@ proc calculateBar*(
     sizePercent = if window.contentOverFlow[dir] == 0'ui: 0'ui
                   else: clamp(window.scrollby[dir] / window.contentOverflow[dir], 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
-  debug "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= window.scrollby, contentOverFlow= window.contentOverflow
+  trace "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= window.scrollby, contentOverFlow= window.contentOverflow
   let
     barPerp =
       if settings.barLeft:
@@ -80,7 +80,7 @@ proc calculateBar*(
         window.viewSize.w - settings.size.h
     barDir = sizePercent * (window.viewSize[dir] - scrollBarSize[dir])
 
-  debug "calculateBar:barY: ", barDir= barDir, sizePer= sizePercent, viewSize= window.viewSize[dir], scrollBarh= scrollBarSize[dir]
+  trace "calculateBar:barY: ", barDir= barDir, sizePer= sizePercent, viewSize= window.viewSize[dir], scrollBarh= scrollBarSize[dir]
   result = ScrollBar(
     size: initSize(settings.size[dir], scrollBarSize[dir]),
     start: initPosition(barPerp, barDir),
@@ -133,7 +133,7 @@ proc scrollBarDrag*(
     refresh(self)
 
 proc layoutResize*(self: ScrollPane, child: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
-  debug "LAYOUT RESIZE: ", self = self.name, child = child.name, node = self.children[0].name,
+  trace "LAYOUT RESIZE: ", self = self.name, child = child.name, node = self.children[0].name,
     prevW = resize.prev.x, prevH = resize.prev.y,
     currW = resize.curr.x, currH = resize.curr.y
   # self.children[0].box.w = resize.curr.x

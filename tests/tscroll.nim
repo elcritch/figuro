@@ -20,7 +20,7 @@ proc buttonItem(self, this: Figuro, idx: int) =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    prettyPrintWriteMode = cmTerminal
+    # prettyPrintWriteMode = cmTerminal
     fill css"#0000AA"
     setTitle("Scrolling example")
     ScrollPane.new "scroll":
