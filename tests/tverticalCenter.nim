@@ -22,7 +22,7 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     Rectangle.new "body":
       with this:
         box 5'pp, 5'pp, 90'pp, 600'ux
@@ -33,7 +33,7 @@ proc draw*(self: Main) {.slot.} =
       Vertical.new "horiz":
         offset this, 0'ux, 0'ux
         size this, 100'pp, 200'ux
-        contentHeight this, 1'fr, gap = 20'ui
+        contentHeight this, cx"auto", gap = 20'ui
         border this, 3'ui, css"#00ff00"
         for i in 0 .. 3:
           capture i:
@@ -46,7 +46,7 @@ proc draw*(self: Main) {.slot.} =
       Vertical.new "horiz2":
         offset this, 0'pp, 200'ux
         size this, 100'pp, 200'ux
-        contentHeight this, cx"max-content", gap = 20'ui
+        contentHeight this, cx"auto", gap = 20'ui
         border this, 3'ui, css"#ff0000"
         for i in 0 .. 1:
           capture i:
@@ -56,6 +56,7 @@ proc draw*(self: Main) {.slot.} =
                 size 50'ux, 50'ux
                 # we need to connect the nodes onHover event
                 connect(doHover, self, buttonHover)
+              # this.cxMin = [50'ux, 50'ux]
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 640'ui))

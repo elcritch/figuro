@@ -1,6 +1,7 @@
 
 import figuro/widgets/[button, griddebug]
 import figuro
+import cssgrid/prettyprints
 
 type
   GridApp = ref object of Figuro
@@ -11,7 +12,7 @@ type
     value: float
 
 proc draw*(self: GridApp) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     rectangle "autoLayout":
       GridDebug.new "debug-grid":
         this.state = (blackColor, "css grid area")
@@ -24,23 +25,22 @@ proc draw*(self: GridApp) {.slot.} =
         # if current.gridTemplate != nil:
         #   echo "grid template: ", repr current.gridTemplate
         # setup frame for css grid
-        with this:
-          box 5'pp, 5'pp, 90'pp, 90'pp
-          # size 100'pp, 100'pp
-          fill css"#FFFFFF"
-          cornerRadius 10
-          clipContent true
-          
-          # Setup CSS Grid Template
-          setGridCols 1'fr  1'fr  1'fr  1'fr  1'fr
-          setGridRows 1'fr 1'fr
-          justifyItems CxStart
+        box 5'pp, 5'pp, 90'pp, 90'pp
+        # size 100'pp, 100'pp
+        fill css"#FFFFFF"
+        cornerRadius 10
+        clipContent true
+        
+        # Setup CSS Grid Template
+        gridCols 1'fr 1'fr 1'fr 1'fr 1'fr
+        gridRows 1'fr 1'fr
+        justifyItems CxStart
 
         rectangle "item a":
           # Setup CSS Grid Template
           with this:
             cornerRadius 10
-            gridColumn 1 // 2
+            gridCol 1 // 2
             gridRow 1 // 3
             # some color stuff
             fill rgba(245, 129, 49, 123).to(Color)
@@ -58,7 +58,7 @@ proc draw*(self: GridApp) {.slot.} =
           # Setup CSS Grid Template
           with this:
             cornerRadius 6
-            gridColumn 5 // 6
+            gridCol 5 // 6
             gridRow 1 // 3
             # some color stuff
             fill rgba(245, 129, 49, 123).to(Color)

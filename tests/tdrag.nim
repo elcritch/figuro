@@ -39,10 +39,7 @@ proc fading(self: Button[(Fader, string)], value: tuple[amount, perc: float], fi
   refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
-    setName "main"
-    fill css"#9F2B00"
-    box 0'ux, 0'ux, 400'ux, 300'ux
+  withRootWidget(self):
     setTitle "Dragging Example"
 
     var startBtn: Figuro

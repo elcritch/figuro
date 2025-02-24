@@ -53,16 +53,16 @@ template boxFrom*(x, y, w, h: float32) {.thisWrapper.}
 ## 
 
 template box*(
-    x: UICoord | Constraint,
-    y: UICoord | Constraint,
-    w: UICoord | Constraint,
-    h: UICoord | Constraint,
+    x: UiScalar | Constraint,
+    y: UiScalar | Constraint,
+    w: UiScalar | Constraint,
+    h: UiScalar | Constraint,
 ) =
   box(this, csOrFixed(x), csOrFixed(y), csOrFixed(w), csOrFixed(h))
 
-template offset*(x: UICoord | Constraint, y: UICoord | Constraint) {.thisWrapper.}
+template offset*(x: UiScalar | Constraint, y: UiScalar | Constraint) {.thisWrapper.}
 
-template size*(w: UICoord | Constraint, h: UICoord | Constraint) {.thisWrapper.}
+template size*(w: UiScalar | Constraint, h: UiScalar | Constraint) {.thisWrapper.}
 
 template boxSizeOf*(node: Figuro) {.thisWrapper.}
   ## Sets current node's box from another node
@@ -92,7 +92,7 @@ template imageStyle*(name: string, color: Color): ImageStyle =
 template setName*(n: string) {.thisWrapper.}
   ## sets current node name
 
-template border*(weight: UICoord, color: Color) {.thisWrapper.}
+template border*(weight: UiScalar, color: Color) {.thisWrapper.}
   ## Sets border stroke & color on the given node.
 
 template cssEnable*(enable: bool) {.thisWrapper.}
@@ -122,7 +122,7 @@ template getTitle*(): string {.thisWrapper.}
 template setTitle*(title: string) {.thisWrapper.}
   ## Sets window title
 
-template cornerRadius*(radius: UICoord) {.thisWrapper.}
+template cornerRadius*(radius: UiScalar) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
 template cornerRadius*(radius: Constraint) {.thisWrapper.}
@@ -139,13 +139,6 @@ proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
   loadTypeFaceImpl(name)
 
-proc newFont*(typefaceId: TypefaceId): UiFont =
-  ## Creates a new UI Font from a given typeface.
-  result = UiFont()
-  result.typefaceId = typefaceId
-  result.size = 12
-  result.lineHeight = -1'ui
-
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -154,7 +147,7 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
 ## setting up layouts and constraingts. 
 ## 
 
-template setGridCols*(args: untyped) {.thisWrapper.}
+template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -164,15 +157,16 @@ template setGridCols*(args: untyped) {.thisWrapper.}
   ## 
   ## the size options are:
   ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
-  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
   ## names can include multiple names (aliaes):
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
   # layout lmGrid
+  parseGridTemplateColumns(this.gridTemplate, args)
 
-template setGridRows*(args: untyped) {.thisWrapper.}
+template gridRows*(args: untyped) =
   ## configure rows for CSS Grid template 
   ## 
   ## the format is `["name"] 40'ui` for each grid line
@@ -183,13 +177,14 @@ template setGridRows*(args: untyped) {.thisWrapper.}
   ## 
   ## the size options are:
   ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
-  ## - `40'ui` UICoord (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
   ## 
   ## names can include multiple names (aliaes):
   ## - `["name", "header-line", "col1" ]` to make layout easier
   ## 
   # layout lmGrid
+  parseGridTemplateRows(this.gridTemplate, args)
 
 template findGridColumn*(index: GridIndex): GridLine {.thisWrapper.}
 
@@ -206,6 +201,9 @@ template columnEnd*[T](idx: T) {.thisWrapper.}
 template gridColumn*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
+template gridCol*[T](val: T) {.thisWrapper.}
+  ## Set CSS Grid ending column.
+
 template rowStart*[T](idx: T) {.thisWrapper.}
   ## Set CSS Grid starting row.
 
@@ -218,10 +216,10 @@ template gridRow*[T](val: T) {.thisWrapper.}
 template gridArea*[T](r, c: T) {.thisWrapper.}
   ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
 
-template gridColumnGap*(value: UICoord) {.thisWrapper.}
+template gridColumnGap*(value: UiScalar) {.thisWrapper.}
   ## Set CSS Grid column gap.
 
-template gridRowGap*(value: UICoord) {.thisWrapper.}
+template gridRowGap*(value: UiScalar) {.thisWrapper.}
   ## Set CSS Grid column gap.
 
 template justifyItems*(con: ConstraintBehavior) {.thisWrapper.}

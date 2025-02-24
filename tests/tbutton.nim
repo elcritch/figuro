@@ -12,11 +12,7 @@ type
     mainRect: Figuro
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
-    with self:
-      setName "main"
-      fill css"#9F2B00"
-      box 0'ux, 0'ux, 400'ux, 300'ux
+  withRootWidget(self):
 
     Button[int] as "btn":
       with this:

@@ -58,10 +58,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune = arrangement.runes[idx]
           selection = arrangement.selectionRects[idx]
 
-        let descent = gfont.lineHeight + (mlh - gfont.lineHeight) / 4
-          ## adjust the line height for varying sized fonts based
-          ## off the max line height and the current font's lh
-          ## the 1/4 is empirical, but sorta makes sense
+        let descent = gfont.lineHeight - gfont.descentAdj
 
         yield GlyphPosition(
           fontId: gfont.fontId,
@@ -199,12 +196,13 @@ proc convertFont*(font: UiFont): (FontId, Font) =
     for pn, a in fieldPairs(pxfont[]):
       for fn, b in fieldPairs(font):
         when pn == fn:
-          when b is UICoord:
+          when b is UiScalar:
             a = b.scaled()
           else:
             a = b
-    if font.lineHeight < 0.0'ui:
-      pxfont.lineHeight = pxfont.defaultLineHeight()
+    if font.lineHeightOverride == -1.0'ui:
+      pxfont.lineHeight = font.lineHeightScale * pxfont.defaultLineHeight()
+      echo "PIXIE LH: ", pxfont.lineHeight
 
     fontTable[id] = pxfont
     result = (id, pxfont)
@@ -238,7 +236,16 @@ proc getTypesetImpl*(
     pfs.add(pf)
     spans.add(newSpan(txt, pf))
     assert not pf.typeface.isNil
-    gfonts.add GlyphFont(fontId: uiFont.getId(), lineHeight: pf.lineHeight)
+    # There's gotta be a better way. Need to lookup the font formulas or equations or something
+    # let lhAdj = max(pf.lineHeight - pf.size, 0.0)
+    let lhAdj = (pf.lineHeight - pf.size * pf.lineHeight / pf.defaultLineHeight()) / 2
+    # echo "LH ADJ: ", lhAdj, " DEF_LH: ", pf.defaultLineHeight(),
+    #       " SZ: ", pf.size, " LH: ", pf.lineHeight,
+    #       " RATIO: ", pf.lineHeight / pf.defaultLineHeight()
+    gfonts.add GlyphFont(fontId: uiFont.getId(), lineHeight: pf.lineHeight, descentAdj: lhAdj)
+
+    # font:  56.0  65.69
+    # font: 100.0  91.0
 
   var ha: HorizontalAlignment
   case hAlign
@@ -286,8 +293,8 @@ proc getTypesetImpl*(
   # print result
 
   result.generateGlyphImage()
-  # echo "font: "
-  # print arrangement.fonts[0].size
-  # print arrangement.fonts[0].lineHeight
-  # echo "arrangement: "
-  # print result
+  echo "font: "
+  print arrangement.fonts[0].size
+  print arrangement.fonts[0].lineHeight
+  echo "arrangement: "
+  print result

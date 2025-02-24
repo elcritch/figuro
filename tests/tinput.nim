@@ -4,11 +4,6 @@ import figuro/widgets/input
 import figuro/widgets/button
 import figuro
 
-let
-  # typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: defaultTypeface, size: 22'ui)
-  smallFont = UiFont(typefaceId: defaultTypeface, size: 12'ui)
-
 type
   Main* = ref object of Figuro
     value: float
@@ -20,7 +15,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     # self.theme.font = UiFont(typefaceId: self.frame[].theme.font.typefaceId, size: 22)
     rectangle "body":
       self.mainRect = this
@@ -32,11 +27,11 @@ proc draw*(self: Main) {.slot.} =
         box this, 10'ux, 10'ux, 400'ux, 100'ux
         align this, Middle 
         justify this, Center
-        font this, UiFont(typefaceId: defaultTypeface, size: 20'ui)
+        font this, UiFont(typefaceId: defaultTypeface, size: 28'ui)
         foreground this, css"darkred"
-        fill this, css"grey"
-        if not this.textChanged(""):
-          text this, "hello world"
+        fill this, css"white"
+        # if not this.textChanged(""):
+        #   text this, "hello world"
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

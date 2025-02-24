@@ -9,3 +9,5 @@ nimcache
 .tool-versions
 *.dSYM/
 /*.png
+nimble.develop
+nimble.paths

@@ -57,7 +57,8 @@ type
     nIndex*: int
     diffIndex*: int
 
-    box: Box
+    box*: Box
+    bmin*, bmax*: Size
     screenBox*: Box
     offset*: Position
     totalOffset*: Position
@@ -67,8 +68,10 @@ type
     attrs*: set[Attributes]
     userSetFields*: set[FieldSet]
 
-    cxSize*: array[GridDir, Constraint]
-    cxOffset*: array[GridDir, Constraint]
+    cxSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxMin*: array[GridDir, Constraint] = [csNone(), csNone()]
+    cxMax*: array[GridDir, Constraint] = [csNone(), csNone()]
 
     events*: EventFlags
     listens*: ListenEvents
@@ -91,7 +94,7 @@ type
 
     kind*: NodeKind
     shadow*: array[ShadowStyle, Shadow]
-    cornerRadius*: UICoord
+    cornerRadius*: UiScalar
     image*: ImageStyle
     textLayout*: GlyphArrangement
     points*: seq[Position]
@@ -124,10 +127,10 @@ type
 #     assert objPtr == child.parent
 #     child.parent.pt = nil
 
-proc `box=`*[F](fig: F, box: Box) =
-  fig.box = box
-proc box*[F](fig: F): var Box =
-  fig.box
+# proc `box=`*[F](fig: F, box: Box) =
+#   fig.box = box
+# proc box*[F](fig: F): var Box =
+#   fig.box
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig[].children

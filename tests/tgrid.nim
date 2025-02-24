@@ -12,7 +12,7 @@ type
     value: float
 
 proc draw*(self: GridApp) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     with this:
       fill clearColor
     rectangle "main":

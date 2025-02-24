@@ -37,9 +37,6 @@ var
 
   nodeLookup* {.runtimeVar.}: Table[string, Figuro]
 
-  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UICoord
-    ##\
-    ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
   adjustTopTextFactor* {.runtimeVar.} = 1 / 16.0
     # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
 
@@ -60,7 +57,7 @@ var
   defaultTypeface* {.runtimeVar.} = getTypeface(DefTypefaceName, DefTypefaceRaw, TTF)
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
-proc setSize*(frame: AppFrame, size: (UICoord, UICoord)) =
+proc setSize*(frame: AppFrame, size: (UiScalar, UiScalar)) =
   frame.windowSize.w = size[0]
   frame.windowSize.h = size[1]
   frame.windowRawSize = frame.windowSize.wh.scaled()
@@ -235,7 +232,7 @@ template connectDefaults*[T](node: T) =
     when compiles(SignalTypes.tick(T)):
       connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
-proc newAppFrame*[T](root: T, size: (UICoord, UICoord), style = DecoratedResizable): AppFrame =
+proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResizable): AppFrame =
   mixin draw
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
@@ -382,7 +379,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
 # template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
 #   widgetRegister[t](nkText, name, blk)
 
-template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
+template new*(tp: typedesc, name: string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills
@@ -392,19 +389,22 @@ template new*[F: ref](t: typedesc[F], name: string, blk: untyped) =
   ## `Button.new` this template will change it to
   ## `Button[tuple[]].new`.
   ## 
-  when arity(t) in [0, 1]:
+  when arity(tp) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widgetRegister[t](nkRectangle, name, blk)
-  elif arity(t) == stripGenericParams(t).typeof().arity():
+    widgetRegister[tp](nkRectangle, name, blk)
+  elif arity(tp) == stripGenericParams(tp).typeof().arity():
     # partial generics, these are generics that aren't specified
-    when stripGenericParams(t).typeof().arity() == 2:
+    when stripGenericParams(tp).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widgetRegister[t[tuple[]]](nkRectangle, name, blk)
+      widgetRegister[tp[tuple[]]](nkRectangle, name, blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widgetRegister[t](nkRectangle, name, blk)
+    widgetRegister[tp](nkRectangle, name, blk)
+
+template `as`*(tp: typedesc, name: string, blk: untyped) =
+  new(tp, name, blk)
 
 {.hint[Name]: off.}
 template WidgetContents*(): untyped =
@@ -416,23 +416,13 @@ template WidgetContents*(): untyped =
     content.childInit(this, content.name, content.childPreDraw)
 {.hint[Name]: on.}
 
-template `as`*[T: ref](tp: typedesc[T], name: string, blk) =
-  ## Alternate name for `new` widgets (experimental)
-  ## 
-  ## So `Widget.new "myFoo": ...` becomes `Widget as "myFoo": ...`
-  ## 
-  ## To be read like `Widget as a node with id and code block xyz`
-  ## 
-
-  new(tp, name, blk)
-
 proc recompute*(obj: Figuro, attrs: set[SigilAttributes]) {.slot.} =
   refresh(obj)
 
 template withWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
-  let this {.inject.} = self
-  let widgetContents {.inject.} = move self.contents
+  let this {.inject, used.} = self
+  let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
 
   bindSigilEvents(this):
@@ -440,8 +430,8 @@ template withWidget*(self, blk: untyped) =
 
 template withRootWidget*(self, blk: untyped) =
   ## sets up a draw slot for working with Figuro nodes
-  let this {.inject.} = self
-  let widgetContents {.inject.} = move self.contents
+  let this {.inject, used.} = self
+  let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
 
   Rectangle.new "main":

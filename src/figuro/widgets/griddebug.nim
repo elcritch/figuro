@@ -28,22 +28,22 @@ proc draw*(self: GridDebug) {.slot.} =
         if not grid.gridTemplate.isNil:
           let cg = grid.gridTemplate.gaps[dcol]
           let wd = 3'ui
-          let w = grid.gridTemplate.columns[^1].start.UICoord
-          let h = grid.gridTemplate.rows[^1].start.UICoord
+          let w = grid.gridTemplate.columns[^1].start.UiScalar
+          let h = grid.gridTemplate.rows[^1].start.UiScalar
           for col in grid.gridTemplate.columns[1 ..^ 2]:
             capture col:
               rectangle "column":
                 with this:
                   zlevel 10.ZLevel
                   fill color
-                  box ux(col.start.UICoord - wd), 0'ux, wd.ux(), h.ux()
+                  box ux(col.start.UiScalar - wd), 0'ux, wd.ux(), h.ux()
           for row in grid.gridTemplate.rows[1 ..^ 2]:
             capture row:
               rectangle "row":
                 with this:
                   zlevel 10.ZLevel
                   fill color
-                  box 0, row.start.UICoord - wd, w.UICoord, wd
+                  box 0, row.start.UiScalar - wd, w.UiScalar, wd
           rectangle "edge":
             with this:
               fill color

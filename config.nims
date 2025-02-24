@@ -73,3 +73,8 @@ task test, "compile tests":
     if k != pcDir and f.startsWith("t") and f.endsWith(".nim"):
       # echo "F: ", f
       exec "nim c " & f
+
+# begin Nimble config (version 2)
+when withDir(thisDir(), system.fileExists("nimble.paths")):
+  include "nimble.paths"
+# end Nimble config

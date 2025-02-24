@@ -26,7 +26,7 @@ proc setLabel(current: Figuro, zlvl: ZLevel; left=false) =
     text(this, {font: "zlevel " & $zlvl})
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     rectangle "container":
       with this:
         fill css"#D0D0D0"
