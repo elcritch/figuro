@@ -6,7 +6,7 @@ import figuro
 
 let
   # typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: defaultTypeface, size: 22'ui, lineHeight: 2'ui)
+  font = UiFont(typefaceId: defaultTypeface, size: 22'ui, lineHeightScale: 0.75)
   smallFont = UiFont(typefaceId: defaultTypeface, size: 12'ui)
 
 type
@@ -32,7 +32,8 @@ proc draw*(self: Main) {.slot.} =
         box this, 10'ux, 10'ux, 400'ux, 100'ux
         align this, Middle 
         justify this, Center
-        font this, UiFont(typefaceId: defaultTypeface, size: 20'ui, )
+        # font this, UiFont(typefaceId: defaultTypeface, size: 28'ui, lineHeightScale: 0.9)
+        font this, UiFont(typefaceId: defaultTypeface, size: 28'ui)
         foreground this, css"darkred"
         fill this, css"white"
         # if not this.textChanged(""):

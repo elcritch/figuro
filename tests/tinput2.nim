@@ -21,7 +21,7 @@ type
     input_enabled: bool
 
 let
-  defaultFont = UiFont(typefaceId: defaultTypeface, size: 50'ui)
+  defaultFont = UiFont(typefaceId: defaultTypeface, size: 50'ui, lineHeightScale: 0.75)
   buttonFont = UiFont(typefaceId: defaultTypeface, size: 30'ui)
 
 proc update*(fig: Main) {.signal.}

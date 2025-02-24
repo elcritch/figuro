@@ -37,9 +37,6 @@ var
 
   nodeLookup* {.runtimeVar.}: Table[string, Figuro]
 
-  defaultlineHeightRatio* {.runtimeVar.} = 1.618.UiScalar
-    ##\
-    ## see https://medium.com/@zkareemz/golden-ratio-62b3b6d4282a
   adjustTopTextFactor* {.runtimeVar.} = 1 / 16.0
     # adjust top of text box for visual balance with descender's -- about 1/8 of fonts, so 1/2 that
 

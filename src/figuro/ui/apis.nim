@@ -139,13 +139,6 @@ proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
   loadTypeFaceImpl(name)
 
-proc newFont*(typefaceId: TypefaceId): UiFont =
-  ## Creates a new UI Font from a given typeface.
-  result = UiFont()
-  result.typefaceId = typefaceId
-  result.size = 12
-  result.lineHeight = -1'ui
-
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

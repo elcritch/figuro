@@ -210,7 +210,8 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   result = UiFont()
   result.typefaceId = typefaceId
   result.size = 12
-  result.lineHeight = -1'ui
+  result.lineHeightScale = 1.0
+  result.lineHeightOverride = -1.0'ui
 
 proc hasInnerTextChanged*(
     node: Figuro,

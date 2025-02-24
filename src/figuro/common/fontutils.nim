@@ -58,7 +58,8 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           rune = arrangement.runes[idx]
           selection = arrangement.selectionRects[idx]
 
-        let descent = gfont.lineHeight + (mlh - gfont.lineHeight) / 4
+        let descent = gfont.lineHeight
+        # let descent = gfont.lineHeight + (mlh - gfont.lineHeight) / 4
           ## adjust the line height for varying sized fonts based
           ## off the max line height and the current font's lh
           ## the 1/4 is empirical, but sorta makes sense
@@ -203,8 +204,8 @@ proc convertFont*(font: UiFont): (FontId, Font) =
             a = b.scaled()
           else:
             a = b
-    if font.lineHeight < 0.0'ui:
-      pxfont.lineHeight = pxfont.defaultLineHeight()
+    if font.lineHeightOverride == -1.0'ui:
+      pxfont.lineHeight = font.lineHeightScale * pxfont.defaultLineHeight()
 
     fontTable[id] = pxfont
     result = (id, pxfont)

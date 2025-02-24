@@ -33,8 +33,9 @@ type
 
   UiFont* = object
     typefaceId*: TypefaceId
-    size*: UiScalar ## Font size in pixels.
-    lineHeight*: UiScalar = -1.0'ui
+    size*: UiScalar = 12.0'ui ## Font size in pixels.
+    lineHeightScale*: float32 = 0.9
+    lineHeightOverride*: UiScalar = -1.0'ui
       ## The line height in pixels or autoLineHeight for the font's default line height.
     fontCase*: FontCase
     underline*: bool ## Apply an underline.
@@ -53,12 +54,6 @@ type
   TextSpan* = object
     text*: string
     font*: UiFont
-
-proc newFont*(typeface: TypefaceId): UiFont {.raises: [].} =
-  result = UiFont()
-  result.typefaceId = typeface
-  result.size = 12'ui
-  result.lineHeight = -1.0'ui
 
 proc hash*(fnt: UiFont): Hash =
   var h = Hash(0)
