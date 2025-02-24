@@ -13,7 +13,7 @@ type
     mainRect: Figuro
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     Rectangle.new "body":
       fill css"#D0D0D0"
       box 10'pp, 10'pp, 80'pp, 80'pp

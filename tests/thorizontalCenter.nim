@@ -22,7 +22,7 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
     refresh(self)
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     Rectangle.new "body":
       with this:
         box 5'pp, 5'pp, 90'pp, 600'ux

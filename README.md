@@ -120,21 +120,21 @@ proc draw(self: Main) {.slot.} =
   fill self, css"#9F2B00"
   box self, 0'ux, 0'ux, 400'ux, 300'ux
 
-  let node = self
+  let this = self
   let childPreDraw = proc (c: Figuro) =
-    let node {.inject.} = Button[int](c)
-    box node, 40'ux, 30'ux, 80'ux, 80'ux
-    fill node, css"#2B9F2B"
+    let this {.inject.} = Button[int](c)
+    box this, 40'ux, 30'ux, 80'ux, 80'ux
+    fill this, css"#2B9F2B"
     let childPreDraw = proc (c: Figuro) =
-      let node {.inject.} = Text(c)
-      box node, 10'ux, 10'ux, 80'pp, 80'pp
-      fill node, blackColor
-      setText(node, [(font, "testing")], Center, Middle)
-    widgetRegisterImpl[Text](nkText, "btnText", node, childPreDraw)
+      let this {.inject.} = Text(c)
+      box this, 10'ux, 10'ux, 80'pp, 80'pp
+      fill this, blackColor
+      setText(this, [(font, "testing")], Center, Middle)
+    widgetRegisterImpl[Text](nkText, "btnText", this, childPreDraw)
 
-  # same as: widgetRegisterImpl[Button[int]](nkRectangle, "btn", node, childPreDraw)
+  # same as: widgetRegisterImpl[Button[int]](nkRectangle, "btn", this, childPreDraw)
   let fc = FiguroContent(name: "btn", childInit: nodeInitRect[Button[int]], childPreDraw: childPreDraw)
-  node.contents.add(fc)
+  this.contents.add(fc)
 ```
 
 ## Signals and Slots

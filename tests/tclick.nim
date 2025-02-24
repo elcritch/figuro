@@ -48,7 +48,7 @@ proc initialize*(self: Main) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
   ## triggers a this or it's parents to be refreshed
-  withWidget(self):
+  withRootWidget(self):
     this.setName "main"
 
     # Calls the widget template `rectangle`.

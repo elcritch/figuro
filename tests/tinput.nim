@@ -20,7 +20,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   refresh(self.mainRect)
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     # self.theme.font = UiFont(typefaceId: self.frame[].theme.font.typefaceId, size: 22)
     rectangle "body":
       self.mainRect = this

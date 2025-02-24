@@ -21,7 +21,7 @@ proc deactivateSlider*(self: Main) {.slot.} =
   self.bkgFade.fadeOut()
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     rectangle "body":
       fill rgba(66, 177, 44, 197).to(Color).spin(100).darken(0.3*self.bkgFade.amount)
       zlevel 20.ZLevel
