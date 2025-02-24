@@ -79,7 +79,8 @@ proc calculateBar*(
       else:
         window.viewSize.w - settings.size.h
     barDir = sizePercent * (window.viewSize[dir] - scrollBarSize[dir])
-  debug "calculateBar:barY: ", barDir = barDir, sizePerY= sizePercent, viewSizeH= window.viewSize.h, scrollBarhH= scrollBarSize.h
+
+  debug "calculateBar:barY: ", barDir= barDir, sizePer= sizePercent, viewSize= window.viewSize[dir], scrollBarh= scrollBarSize[dir]
   result = ScrollBar(
     size: initSize(settings.size[dir], scrollBarSize[dir]),
     start: initPosition(barPerp, barDir),
@@ -148,12 +149,12 @@ proc draw*(self: ScrollPane) {.slot.} =
     trace "scroll:draw: ", name = self.name
 
     rectangle "scrollBody":
-      ## max-content is important here
+      ## min-content is important here
       ## todo: do the same for horiz?
       if self.settings.vertical:
-        this.cxSize[drow] = cx"min-content"
+        this.cxSize[drow] = cx"max-content"
       if self.settings.horizontal:
-        this.cxSize[dcol] = cx"min-content"
+        this.cxSize[dcol] = cx"max-content"
 
       with this:
         fill whiteColor.darken(0.2)
@@ -168,7 +169,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     if self.settings.vertical:
       rectangle "scrollbar-vertical":
         with this:
-          box self.bary.start.x, self.bary.start.y, self.bary.size.w, self.bary.size.h
+          box self.bary.start.x, self.bary.start.y, self.settings.size.w, self.bary.size.h
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
           connect(doDrag, self, scrollBarDrag)
