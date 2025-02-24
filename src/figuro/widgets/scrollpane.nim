@@ -64,45 +64,26 @@ proc calculateBar*(
 ): ScrollBar =
   debug "calculateBar: ", settings = settings.repr
   debug "calculateBar: ", window = window.repr
+  let dir = if isY: drow else: dcol
+  let perp = if not isY: drow else: dcol
+
   let
-    sizePercent =
-      if isY:
-        if window.contentOverFlow.y == 0'ui:
-          0'ui
-        else:
-          clamp(window.scrollby.y / window.contentOverflow.y, 0'ui, 1'ui)
-      else:
-        if window.contentOverFlow.x == 0'ui:
-          0'ui
-        else:
-          clamp(window.scrollby.x / window.contentOverflow.x, 0'ui, 1'ui)
+    sizePercent = if window.contentOverFlow[dir] == 0'ui: 0'ui
+                  else: clamp(window.scrollby[dir] / window.contentOverflow[dir], 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
   debug "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= window.scrollby, contentOverFlow= window.contentOverflow
-  if isY:
-    let
-      barX =
-        if settings.barLeft:
-          0'ui
-        else:
-          window.viewSize.w - settings.size.h
-      barY = sizePercent * (window.viewSize.h - scrollBarSize.h)
-    debug "calculateBar:barY: ", barY = barY, sizePerY= sizePercent, viewSizeH= window.viewSize.h, scrollBarhH= scrollBarSize.h
-    result = ScrollBar(
-      size: initSize(settings.size.h, scrollBarSize.h),
-      start: initPosition(barX, barY),
-    )
-  else:
-    let
-      barX = sizePercent * (window.viewSize.w - scrollBarSize.w)
-      barY =
-        if settings.barTop:
-          0'ui
-        else:
-          window.viewSize.h - settings.size.w
-    result = ScrollBar(
-      size: initSize(scrollBarSize.w, settings.size.w),
-      start: initPosition(barX, barY),
-    )
+  let
+    barPerp =
+      if settings.barLeft:
+        0'ui
+      else:
+        window.viewSize.w - settings.size.h
+    barDir = sizePercent * (window.viewSize[dir] - scrollBarSize[dir])
+  debug "calculateBar:barY: ", barDir = barDir, sizePerY= sizePercent, viewSizeH= window.viewSize.h, scrollBarhH= scrollBarSize.h
+  result = ScrollBar(
+    size: initSize(settings.size[dir], scrollBarSize[dir]),
+    start: initPosition(barPerp, barDir),
+  )
   info "calculateBar: ", scrollBar = result
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
@@ -170,9 +151,9 @@ proc draw*(self: ScrollPane) {.slot.} =
       ## max-content is important here
       ## todo: do the same for horiz?
       if self.settings.vertical:
-        this.cxSize[drow] = cx"auto"
+        this.cxSize[drow] = cx"min-content"
       if self.settings.horizontal:
-        this.cxSize[dcol] = cx"auto"
+        this.cxSize[dcol] = cx"min-content"
 
       with this:
         fill whiteColor.darken(0.2)

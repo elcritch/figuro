@@ -27,6 +27,7 @@ proc draw*(self: Main) {.slot.} =
       offset 2'pp, 2'pp
       cornerRadius 7.0'ux
       size 96'pp, 90'pp
+      fill css"white"
       Vertical.new "vertical":
         offset 10'ux, 10'ux
         contentHeight cx"min-content"
