@@ -28,7 +28,7 @@ proc draw*(self: Main) {.slot.} =
         align this, Middle 
         justify this, Center
         # font this, UiFont(typefaceId: defaultTypeface, size: 28'ui, lineHeightScale: 0.9)
-        font this, UiFont(typefaceId: defaultTypeface, size: 28'ui)
+        font this, UiFont(typefaceId: defaultTypeface, size: 28'ui, lineHeightScale: 1.0)
         foreground this, css"darkred"
         fill this, css"white"
         # if not this.textChanged(""):

@@ -243,13 +243,11 @@ proc getTypesetImpl*(
     pfs.add(pf)
     spans.add(newSpan(txt, pf))
     assert not pf.typeface.isNil
-    # let lhAdj =  pf.lineHeight - pf.defaultLineHeight()*0.75
-    let lhAdj = max(pf.lineHeight - pf.size, 0.0)
-    # let lhAdj = pf.lineHeight - pf.size
-    # echo "LH ADJ: ", lhAdj, " DEF_LH: ", pf.defaultLineHeight(),
-    #       " SZ: ", pf.size, " LH: ", pf.lineHeight,
-    #       " RATIO: ", pf.lineHeight / pf.defaultLineHeight()
-    # gfonts.add GlyphFont(fontId: uiFont.getId(), lineHeight: pf.lineHeight, descentAdj: pf.lineHeight / pf.defaultLineHeight())
+    # let lhAdj = max(pf.lineHeight - pf.size, 0.0)
+    let lhAdj = (pf.lineHeight - pf.size * pf.lineHeight / pf.defaultLineHeight()) / 2
+    echo "LH ADJ: ", lhAdj, " DEF_LH: ", pf.defaultLineHeight(),
+          " SZ: ", pf.size, " LH: ", pf.lineHeight,
+          " RATIO: ", pf.lineHeight / pf.defaultLineHeight()
     gfonts.add GlyphFont(fontId: uiFont.getId(), lineHeight: pf.lineHeight, descentAdj: lhAdj)
 
     # font:  56.0  65.69
