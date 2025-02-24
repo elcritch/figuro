@@ -4,11 +4,6 @@ import figuro/widgets/input
 import figuro/widgets/button
 import figuro
 
-let
-  # typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-  font = UiFont(typefaceId: defaultTypeface, size: 22'ui, lineHeightScale: 0.75)
-  smallFont = UiFont(typefaceId: defaultTypeface, size: 12'ui)
-
 type
   Main* = ref object of Figuro
     value: float

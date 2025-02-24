@@ -29,6 +29,7 @@ type
     fontId*: FontId
     size*: float32 ## Font size in pixels.
     lineHeight*: float32 = -1.0
+    descentAdj*: float32 = 0.0
       ## The line height in pixels or autoLineHeight for the font's default line height.
 
   UiFont* = object
