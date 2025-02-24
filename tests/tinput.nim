@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
         justify this, Center
         font this, UiFont(typefaceId: defaultTypeface, size: 20'ui)
         foreground this, css"darkred"
-        fill this, css"grey"
+        fill this, css"white"
         # if not this.textChanged(""):
         #   text this, "hello world"
 
