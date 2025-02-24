@@ -53,6 +53,7 @@ proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
   self.isActive = kind == Done
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
+    self.value = 1
   else:
     self.listens.signals.excl {evKeyboardInput, evKeyPress}
     self.value = 0
