@@ -8,7 +8,6 @@ template usingVerticalLayout*() =
     gridAutoFlow grRow
     justifyItems CxCenter
     alignItems CxCenter
-    gridAutoRows cx"max-content"
 
 proc contentHeight*(current: Figuro, cx: Constraint, gap = -1'ui) {.thisWrapper.} =
   current.gridAutoRows cx
