@@ -293,8 +293,8 @@ proc getTypesetImpl*(
   # print result
 
   result.generateGlyphImage()
-  echo "font: "
-  print arrangement.fonts[0].size
-  print arrangement.fonts[0].lineHeight
-  echo "arrangement: "
-  print result
+  # echo "font: "
+  # print arrangement.fonts[0].size
+  # print arrangement.fonts[0].lineHeight
+  # echo "arrangement: "
+  # print result
