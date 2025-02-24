@@ -63,8 +63,7 @@ template getParentBoxOrWindows*(node: Figuro): Box =
     node.parent[].box
 
 proc computeLayouts*(node: Figuro) =
-  doAssert node.cxSize[drow] == csAuto()
-  doAssert node.cxSize[dcol] == csAuto()
+  doAssert node.cxSize[drow] == csAuto() and node.cxSize[dcol] == csAuto(), "Your root widget must call `withRootWidget` in it's draw method to run correctly!"
 
   when defined(debugLayout) or defined(figuroDebugLayout):
     stdout.styledWriteLine(

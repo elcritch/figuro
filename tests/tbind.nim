@@ -15,7 +15,7 @@ proc initialize*(self: Main) {.slot.} =
   self.counter = newSigil(0)
 
 proc draw*(self: Main) {.slot.} =
-  withWidget(self):
+  withRootWidget(self):
     setName "main"
     fill css"#9F2B00"
     size 100'pp, 100'pp
