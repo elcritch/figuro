@@ -49,8 +49,8 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     contentOverflow: contentOverflow.toPos(),
     scrollBy: scrollby,
   )
-  info "calculateWindow:child ", childBoxWh = childBox.wh, viewBoxWh= viewBox.wh
-  info "calculateWindow: ", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow, scrollBy= result.scrollby
+  trace "calculateWindow:child ", childBoxWh = childBox.wh, viewBoxWh= viewBox.wh
+  trace "calculateWindow: ", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow, scrollBy= result.scrollby
 
 proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false) =
   if isAbsolute:
@@ -85,7 +85,7 @@ proc calculateBar*(
     size: initSize(settings.size[dir], scrollBarSize[dir]),
     start: initPosition(barPerp, barDir),
   )
-  info "calculateBar: ", scrollBar = result
+  trace "calculateBar: ", scrollBar = result
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
