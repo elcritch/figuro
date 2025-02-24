@@ -35,8 +35,8 @@ proc draw*(self: Main) {.slot.} =
         font this, UiFont(typefaceId: defaultTypeface, size: 20'ui)
         foreground this, css"darkred"
         fill this, css"grey"
-        if not this.textChanged(""):
-          text this, "hello world"
+        # if not this.textChanged(""):
+        #   text this, "hello world"
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))
