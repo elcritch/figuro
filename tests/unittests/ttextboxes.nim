@@ -14,8 +14,8 @@ suite "text boxes (single line)":
   setup:
     var box = initBox(0,0,100,100)
     var text = newTextBox(box, font)
-    for i in 1..4:
-      text.insert(Rune(96+i))
+    for c in ['a', 'b', 'c', 'd']:
+      text.insert(Rune(c))
     text.update(box)
 
   test "basic setup":
@@ -154,6 +154,28 @@ suite "text boxes (single line)":
     tx.replaceText("alpha".toRunes)
     check tx.selection == 0..2
     check tx.runes == "alpha".toRunes()
+
+  test "set text overwrite":
+    text.options.incl Overwrite
+
+    text.selection = 0..0
+    text.insert("o".runeAt(0))
+    check text.runes == "obcd".toRunes()
+    text.insert("u".runeAt(0))
+    check text.runes == "ubcd".toRunes()
+
+    text.selection = 1..1
+    text.insert("x".runeAt(0))
+    check text.runes == "uxcd".toRunes()
+    text.insert("y".runeAt(0))
+    check text.runes == "uycd".toRunes()
+
+  test "set text overwrite multiple":
+    text.options.incl Overwrite
+
+    text.selection = 0..0
+    text.insert("xy".toRunes())
+    check text.runes == "xycd".toRunes()
 
   test "set text with longer selected text":
     var tx = newTextBox(box, font)

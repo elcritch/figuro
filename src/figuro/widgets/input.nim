@@ -10,7 +10,6 @@ export textboxes
 type
   InputOptions* = enum
     IgnoreDelete
-    Overwrite
     Active
     Disabled
     OnlyAllowDigits

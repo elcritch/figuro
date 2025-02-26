@@ -8,8 +8,12 @@ type
     left
     right
 
+  TextOptions* = enum
+    Overwrite
+
   TextBox* = object
     selection*: Slice[int]
+    options*: set[TextOptions]
     growing*: TextDirection
       # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
@@ -155,14 +159,23 @@ proc delete*(self: var TextBox) =
 proc insert*(self: var TextBox, rune: Rune) =
   if self.selection.len() > 1:
     self.delete()
-  self.runes.insert(rune, self.clamped(left))
-  self.selection = toSlice(self.selection.a + 1)
+
+  if Overwrite in self.options:
+    self.runes[self.clamped(left)] = rune
+  else:
+    self.runes.insert(rune, self.clamped(left))
+    self.selection = toSlice(self.selection.a + 1)
 
 proc insert*(self: var TextBox, runes: seq[Rune]) =
   if self.selection.len() > 1:
     self.delete()
-  self.runes.insert(runes, self.clamped(left))
-  self.selection = toSlice(self.selection.a + runes.len())
+
+  if Overwrite in self.options:
+    for i in 0..<runes.len():
+      self.runes[self.clamped(left) + i] = runes[i]
+  else:
+    self.runes.insert(runes, self.clamped(left))
+    self.selection = toSlice(self.selection.a + runes.len())
 
 proc replaceText*(self: var TextBox, runes: seq[Rune]) =
   let selection = self.selection
