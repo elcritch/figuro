@@ -28,6 +28,11 @@ proc disabled*(self: Input): bool =
 proc `disabled`*(self: Input, state: bool) =
   if state: self.options.incl Disabled
   else: self.options.excl Disabled
+proc overwrite*(self: Input): bool =
+  Overwrite in self.text.options
+proc overwrite*(self: Input, state: bool) =
+  if state: self.text.options.incl Overwrite
+  else: self.text.options.excl Overwrite
 
 proc `active=`*(self: Input, state: bool) =
   if state: self.options.incl Active

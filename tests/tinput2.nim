@@ -75,6 +75,7 @@ proc draw*(self: Main) {.slot.} =
               fill css"white"
               border 1'ui, css"black"
               disabled self.running
+              overwrite true
             proc onUpdateInput(this: Input, text: TextBox, rune: Rune) {.slot.} =
               if rune <=% Rune('9') and rune.char in {'0'..'9'}:
                 # ignore non-digits

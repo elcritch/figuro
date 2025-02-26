@@ -22,6 +22,13 @@ suite "text boxes (single line)":
     check text.runes == "abcd".toRunes()
     check text.selection == 4..4
 
+  test "selection":
+    check text.selected() == "".toRunes()
+    text.selection = 0..1
+    check text.selected() == "a".toRunes()
+    text.selection = 0..2
+    check text.selected() == "ab".toRunes()
+
   test "basic insert extra":
     for i in 5..9:
       text.insert(Rune(96+i))

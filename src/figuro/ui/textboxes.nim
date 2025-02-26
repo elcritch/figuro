@@ -37,6 +37,10 @@ proc toSlice[T](a: T): Slice[T] =
 proc hasSelection*(self: TextBox): bool =
   self.selection != 0 .. 0 and self.layout.runes.len() > 0
 
+proc selected*(self: TextBox): seq[Rune] =
+  for i in self.selection.a ..< self.selection.b:
+    result.add self.layout.runes[i]
+
 proc clamped*(self: TextBox, dir = right, offset = 0): int =
   let ln = self.layout.runes.len()
   case dir
