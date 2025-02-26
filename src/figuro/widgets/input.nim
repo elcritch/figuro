@@ -13,6 +13,7 @@ type
     Overwrite
     Active
     Disabled
+    OnlyAllowDigits
 
   Input* = ref object of Figuro
     options*: set[InputOptions]
@@ -25,12 +26,13 @@ proc isActive*(self: Input): bool =
   Active in self.options
 proc disabled*(self: Input): bool =
   Disabled in self.options
+proc `disabled=`*(self: Input, state: bool) =
+  if state: self.options.incl Disabled
+  else: self.options.excl Disabled
 
-proc setActive*(self: Input, state: bool) =
-  if state:
-    self.options.incl Active
-  else:
-    self.options.excl Active
+proc `active=`*(self: Input, state: bool) =
+  if state: self.options.incl Active
+  else: self.options.excl Active
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
@@ -78,7 +80,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  self.setActive(kind == Done and not self.disabled)
+  self.active = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
     self.cursorTick = 1
