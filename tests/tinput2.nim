@@ -75,6 +75,10 @@ proc draw*(self: Main) {.slot.} =
               fill css"white"
               border 1'ui, css"black"
             this.disabled = self.running
+            proc onUpdateInput(this: Input, text: TextBox, rune: Rune) {.slot.} =
+              if rune.char in {'0'..'9'}:
+                this.updateInput(text, rune)
+            connect(this, doUpdateInput, this, onUpdateInput)
             if not this.textChanged(""):
               # set default
               text(this, "00:00:00")
