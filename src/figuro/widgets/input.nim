@@ -21,6 +21,7 @@ type
     color*: Color
     cursorTick: int
     cursorCnt: int
+    skipOnInput*: HashSet[Rune]
 
 proc options*(self: Input, opt: set[InputOptions], state = true) =
   if state: self.opts.incl opt
@@ -65,6 +66,13 @@ proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
     self.text.update(self.box)
     # refresh(self)
 
+proc skipSelectedRune*(self: Input, skips: HashSet[Rune] = self.skipOnInput) =
+  ## skips the given runes on input
+  let cr = self.text.runeAtCursor()
+  if cr in skips:
+    self.text.cursorNext()
+    self.text.updateSelection()
+
 proc text*(self: Input, txt: string) {.slot.} =
   runes(self, txt.toRunes())
 
@@ -102,6 +110,7 @@ proc keyInput*(self: Input, rune: Rune) {.slot.} =
   emit self.doUpdateInput(rune)
 
 proc updateInput*(self: Input, rune: Rune) {.slot.} =
+  self.skipSelectedRune()
   self.text.insert(rune)
   self.text.update(self.box)
   refresh(self)
