@@ -29,7 +29,7 @@ type
 
   Theme* = ref object
     font*: UiFont
-    cssRules*: seq[CssBlock]
+    css*: CssTheme
 
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]

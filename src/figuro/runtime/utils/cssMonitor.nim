@@ -47,16 +47,28 @@ when not defined(noFiguroDmonMonitor):
 
     var appFile = os.getAppFilename().replace(".exe", "") & ".css"
     let watchId2: WatchId = watch(appFile.splitFile.dir, watchCallback, {}, nil)
-    notice "Started CSS Watcher", theme = themePath()
+    notice "Started CSS Watcher", theme = themePath(), appTheme= appFile
 
-    let cssFiles = @[defaultTheme, appFile]
-    while true:
-      let file = cssUpdates.recv()
-      if file notin cssFiles:
-        notice "CSS Skipping", file = file
-        continue
+    proc updateTheme(file: string) =
       notice "CSS Updated: ", file = file
       let cssRules = loadTheme(file)
       emit self.cssUpdate(cssRules)
       os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
       emit self.cssUpdate(cssRules)
+
+    let cssFiles = @[defaultTheme, appFile]
+    var currTheme = ""
+    for file in cssFiles:
+      if file.existsFile():
+        currTheme = file
+
+    if currTheme.fileExists():
+      currTheme.updateTheme()
+
+    while true:
+      let file = cssUpdates.recv()
+      if file notin cssFiles:
+        notice "CSS Skipping", file = file
+        continue
+      else:
+        file.updateTheme()

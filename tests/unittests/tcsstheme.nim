@@ -183,9 +183,9 @@ suite "css exec":
     main.frame = frame.unsafeWeakRef()
     main.frame[].theme = Theme(font: defaultFont)
     let parser = newCssParser(themeSrc)
-    let cssTheme = parse(parser)
+    let rules = parse(parser)
     # print cssTheme
-    main.frame[].theme.cssRules = cssTheme
+    main.frame[].theme.css = CssTheme(rules: rules)
     connectDefaults(main)
     emit main.doDraw()
     let btnA {.inject, used.} = main.children[0].children[1]
@@ -463,8 +463,7 @@ suite "css exec":
 
     """
     let parser = newCssParser(themeSrc2)
-    let cssTheme = parse(parser)
-    main.frame[].theme.cssRules = cssTheme
+    main.frame[].theme.css = parser.loadTheme()
     emit main.doDraw()
 
     check btnB.fill == parseHtmlColor("#0000FF")
@@ -502,8 +501,7 @@ suite "css exec":
 
     """
     let parser = newCssParser(themeSrc2)
-    let cssTheme = parse(parser)
-    main.frame[].theme.cssRules = cssTheme
+    main.frame[].theme.css = parser.loadTheme()
     emit main.doDraw()
 
     check btnB.fill == parseHtmlColor("#0000FF")

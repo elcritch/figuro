@@ -57,9 +57,9 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
+proc updateTheme*(self: AppFrame, css: CssTheme) =
   debug "CSS theme into app", numberOfCssRules = cssRules.len()
-  self.theme.cssRules = cssRules
+  self.theme.cssRules = css
   refresh(self.root)
 
 template setupThread(thread, obj, sig, slot, starter: untyped) =

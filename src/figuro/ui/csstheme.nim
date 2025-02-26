@@ -199,5 +199,5 @@ proc applyThemeRules*(node: Figuro) =
   if skipCss in node.attrs:
     return
   if not node.frame[].theme.isNil:
-    for rule in node.frame[].theme.cssRules:
+    for rule in node.frame[].theme.css.rules():
       rule.eval(node)
