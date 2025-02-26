@@ -91,7 +91,8 @@ proc draw*(self: Main) {.slot.} =
 
       let lh = font.getLineHeight()
 
-      ScrollPane.new "scroll":
+      Rectangle.new "pane":
+        ## FIXME: there seems to be a bug with a scrollpane as a grid child
         with this:
           gridRow "items" // "bottom"
           gridColumn 1 // 2
@@ -99,23 +100,29 @@ proc draw*(self: Main) {.slot.} =
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
 
-        Vertical.new "items":
-          with this:
-            contentHeight cx"max-content"
+        ScrollPane.new "scroll":
+          offset 2'pp, 2'pp
+          cornerRadius 7.0'ux
+          size 96'pp, 90'pp
+          fill css"white"
 
-          for idx, story in self.stories:
-            capture story:
-              Button.new "story":
-                with this:
-                  size 1'fr, 2*lh
-                  fill blueColor.lighten(0.2)
-                Text.new "text":
+          Vertical.new "items":
+            with this:
+              contentHeight cx"max-content", 3'ui
+
+            for idx, story in self.stories:
+              capture story:
+                Button.new "story":
                   with this:
-                    offset 10'ux, 0'ux
-                    foreground blackColor
-                    justify Left
-                    align Middle
-                    text({font: $story.link.title})
+                    size 1'fr, 2*lh
+                    fill blueColor.lighten(0.2)
+                  Text.new "text":
+                    with this:
+                      offset 10'ux, 0'ux
+                      foreground blackColor
+                      justify Left
+                      align Middle
+                      text({font: $story.link.title})
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
