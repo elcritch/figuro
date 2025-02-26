@@ -115,7 +115,7 @@ proc getAppConfigFile(): string =
   else:
     trace "Figuro configuration directory already exists at: ", configPath
   
-  let appFile = os.getAppFilename().replace(".exe", "")
+  let appFile = os.getAppFilename().splitFile().name
   let configFile = configPath / appFile & ".json"
   notice "Figuro", configFile = configFile
   return configFile
@@ -127,11 +127,11 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   when defined(sigilsDebug):
     frame.debugName = "Frame"
   let frameRef = frame.unsafeWeakRef()
+  frameRef[].configFile = getAppConfigFile()
   let renderer = frameRef.createRenderer()
   renderer.duration = renderDuration
   appFrames[frameRef] = renderer
   frame.frameRunner = frameRunner
-  frame.configFile = getAppConfigFile()
 
   appThread = newSigilThread()
   let frameProxy = frame.moveToThread(appThread)

@@ -1,4 +1,5 @@
 import std/[options, unicode, hashes, strformat, strutils, tables, times]
+import std/[os, json]
 import std/terminal
 
 import pkg/pixie
@@ -35,15 +36,48 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonDown = toUi window.buttonDown()
   result.buttonToggle = toUi window.buttonToggle()
 
+type
+  WindowConfig* = object
+    pos*: IVec2 = ivec2(0, 0)
+    size*: IVec2 = ivec2(0, 0)
+
+proc windowCfgFile*(frame: WeakRef[AppFrame]): string = 
+  frame[].configFile & ".window"
+
+proc loadLastWindow*(frame: WeakRef[AppFrame]): WindowConfig =
+  result = WindowConfig()
+  if frame.windowCfgFile().fileExists():
+    try:
+      let jn = parseFile(frame.windowCfgFile())
+      result = jn.to(WindowConfig)
+    except Defect, CatchableError:
+      discard
+  notice "loadLastWindow", config= result
+
+proc writeWindowConfig*(window: Window, winCfgFile: string) =
+    try:
+      let wc = WindowConfig(pos: window.pos, size: window.size)
+      let jn = %*(wc)
+      writeFile(winCfgFile, $(jn))
+    except Defect, CatchableError:
+      debug "error writing window position"
+
 proc configureWindowEvents(renderer: Renderer) =
   let window = renderer.window
+  let winCfgFile = renderer.frame.windowCfgFile()
 
   window.runeInputEnabled = true
 
+  let winCfg = renderer.frame.loadLastWindow()
+  window.pos = winCfg.pos
+  # if winCfg.size.x != 0 and winCfg.size.y != 0:
+  #   window.size = winCfg.size
+
   window.onCloseRequest = proc() =
-    echo "onCloseRequest"
+    notice "onCloseRequest"
 
   window.onMove = proc() =
+    writeWindowConfig(window, winCfgFile)
     debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
@@ -52,6 +86,8 @@ proc configureWindowEvents(renderer: Renderer) =
     var uxInput = window.copyInputs()
     uxInput.windowSize = some renderer.frame[].windowSize
     discard renderer.uxInputList.trySend(uxInput)
+    writeWindowConfig(window, winCfgFile)
+    debug "window resize: ", size= window.size
 
   window.onFocusChange = proc() =
     renderer.frame[].focused = window.focused
