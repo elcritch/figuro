@@ -12,7 +12,7 @@ export commons
 export system
 export reactive
 
-import csstheme
+import cssengine
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -243,7 +243,6 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   mixin draw
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
-  echo "app frame"
   connectDefaults[T](root)
 
   root.diffIndex = 0
