@@ -76,7 +76,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
 
 var
   typefaceTable*: Table[TypefaceId, Typeface] ## holds the table of parsed fonts
-  fontTable* {.threadvar.}: Table[FontId, Font]
+  fontTable* {.threadvar.}: Table[FontId, pixie.Font]
 
 proc generateGlyphImage(arrangement: GlyphArrangement) =
   ## returns Glyph's hash, will generate glyph if needed
@@ -209,7 +209,9 @@ proc convertFont*(font: UiFont): (FontId, Font) =
   else:
     result = (id, fontTable[id])
 
-import sugar
+proc getLineHeightImpl*(font: UiFont): UiScalar =
+  let (_, pf) = font.convertFont()
+  result = pf.lineHeight.descaled()
 
 proc getTypesetImpl*(
     box: Box,

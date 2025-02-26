@@ -31,6 +31,9 @@ when not defined(nimscript):
   proc getTypeface*(name, data: string, kind: TypeFaceKinds): TypefaceId =
     getTypefaceImpl(name, data, kind)
 
+  proc getLineHeight*(font: UiFont): UiScalar =
+    getLineHeightImpl(font)
+
   proc getTypeset*(
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top
   ): GlyphArrangement =

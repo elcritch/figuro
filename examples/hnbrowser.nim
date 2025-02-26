@@ -89,6 +89,8 @@ proc draw*(self: Main) {.slot.} =
               justify Center
               text({font: "Loading..."})
 
+      let lh = font.getLineHeight()
+
       ScrollPane.new "scroll":
         with this:
           gridRow "items" // "bottom"
@@ -105,10 +107,8 @@ proc draw*(self: Main) {.slot.} =
             capture story:
               Button.new "story":
                 with this:
-                  size 1'fr, 60'ux
+                  size 1'fr, 2*lh
                   fill blueColor.lighten(0.2)
-                # connect(node, doHover, self, Main.hover)
-                # echo "story: ", story.link.title
                 Text.new "text":
                   with this:
                     offset 10'ux, 0'ux
