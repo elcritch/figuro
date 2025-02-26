@@ -49,6 +49,9 @@ proc clamped*(self: TextBox, dir = right, offset = 0): int =
   of right:
     result = clamp(self.selection.b + offset, 0, ln)
 
+proc runeAtCursor*(self: TextBox): Rune =
+  result = self.layout.runes[self.clamped(self.growing, -1)]
+
 proc newTextBox*(box: Box, font: UiFont): TextBox =
   result = TextBox()
   result.box = box

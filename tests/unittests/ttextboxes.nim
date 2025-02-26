@@ -28,6 +28,15 @@ suite "text boxes (single line)":
     check text.selected() == "a".toRunes()
     text.selection = 0..2
     check text.selected() == "ab".toRunes()
+    text.selection = 0..0
+
+  test "rune at cursor":
+    text.selection = 0..0
+    check text.runeAtCursor() == "a".runeAt(0)
+    text.selection = 0..1
+    check text.runeAtCursor() == "a".runeAt(0)
+    text.selection = 4..4
+    check text.runeAtCursor() == "d".runeAt(0)
 
   test "basic insert extra":
     for i in 5..9:
