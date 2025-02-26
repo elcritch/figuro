@@ -42,8 +42,8 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    with this:
-      fill css"#0000AA"
+    # with this:
+    #   fill css"#0000AA"
 
     rectangle "outer":
       with this:
@@ -104,7 +104,7 @@ proc draw*(self: Main) {.slot.} =
           offset 2'pp, 2'pp
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
-          fill css"white"
+          # fill css"white"
 
           Vertical.new "items":
             with this:
@@ -115,7 +115,7 @@ proc draw*(self: Main) {.slot.} =
                 Button.new "story":
                   with this:
                     size 1'fr, 2*lh
-                    fill blueColor.lighten(0.2)
+                    # fill blueColor.lighten(0.2)
                   Text.new "text":
                     with this:
                       offset 10'ux, 0'ux
