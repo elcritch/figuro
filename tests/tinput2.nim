@@ -76,6 +76,7 @@ proc draw*(self: Main) {.slot.} =
               border 1'ui, css"black"
               disabled self.running
               overwrite true
+              options {IgnoreDelete}
             proc onUpdateInput(this: Input, text: TextBox, rune: Rune) {.slot.} =
               echo "RUNE: ", text.runeAtCursor(), " SELF RUNE: ", this.text.runeAtCursor(), " SEL: ", text.selection, " SEL:THIS: ", this.text.selection
 

@@ -13,7 +13,7 @@ type
 
   TextBox* = object
     selection*: Slice[int]
-    options*: set[TextOptions]
+    opts*: set[TextOptions]
     growing*: TextDirection
       # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
@@ -25,9 +25,9 @@ type
     hAlign*: FontHorizontal = Left
     vAlign*: FontVertical = Top
 
-proc setOption*(self: var TextBox, opt: TextOptions, state = true) =
-  if state: self.options.incl opt
-  else: self.options.excl opt
+proc options*(self: var TextBox, opt: set[TextOptions], state = true) =
+  if state: self.opts.incl opt
+  else: self.opts.excl opt
 
 proc runes*(self: var TextBox): var seq[Rune] =
   self.layout.runes
@@ -172,7 +172,7 @@ proc insert*(self: var TextBox, rune: Rune) =
   if self.selection.len() > 1:
     self.delete()
 
-  if Overwrite in self.options:
+  if Overwrite in self.opts:
     let idx = self.clamped(left)
     if idx < self.runes.len():
       self.runes[idx] = rune
@@ -185,7 +185,7 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
   if manySelected:
     self.delete()
 
-  if Overwrite in self.options and not manySelected:
+  if Overwrite in self.opts and not manySelected:
     for i in 0..<runes.len():
       let idx = self.clamped(left) + i
       if idx < self.runes.len():

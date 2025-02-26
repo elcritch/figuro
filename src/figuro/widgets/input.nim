@@ -15,31 +15,30 @@ type
     OnlyAllowDigits
 
   Input* = ref object of Figuro
-    options*: set[InputOptions]
+    opts*: set[InputOptions]
     text*: TextBox
     color*: Color
     cursorTick: int
     cursorCnt: int
 
-proc setOption*(self: Input, opt: InputOptions, state = true) =
-  if state: self.options.incl opt
-  else: self.options.excl opt
+proc options*(self: Input, opt: set[InputOptions], state = true) =
+  if state: self.opts.incl opt
+  else: self.opts.excl opt
 
 proc isActive*(self: Input): bool =
-  Active in self.options
+  Active in self.opts
 proc disabled*(self: Input): bool =
-  Disabled in self.options
+  Disabled in self.opts
 proc `disabled`*(self: Input, state: bool) =
-  self.setOption(Disabled, state)
+  self.options({Disabled}, state)
 
 proc overwrite*(self: Input): bool =
-  Overwrite in self.text.options
+  Overwrite in self.text.opts
 proc overwrite*(self: Input, state: bool) =
-  self.text.setOption(Overwrite, state)
+  self.text.options({Overwrite}, state)
 
 proc `active=`*(self: Input, state: bool) =
-  if state: self.options.incl Active
-  else: self.options.excl Active
+  self.options({Active}, state)
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
@@ -121,7 +120,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     var update = true
     case pressed.getKey
     of KeyBackspace, KeyDelete:
-      if self.text.hasSelection() and IgnoreDelete notin self.options:
+      if self.text.hasSelection() and IgnoreDelete notin self.opts:
         self.text.delete()
         self.text.update(self.box)
     of KeyLeft:
