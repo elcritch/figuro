@@ -2,11 +2,16 @@ import apis
 import chronicles
 
 proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =
-  node.hasInnerTextChanged({node.font: txt}, node.hAlign, node.vAlign)
+  if node.children.len() == 1:
+    node.children[0].hasInnerTextChanged({node.font: txt}, node.hAlign, node.vAlign)
+  else:
+    true
 
 proc text*(node: Text, spans: openArray[(UiFont, string)]) {.thisWrapper.} =
   if node.children.len() == 1:
     setInnerText(node.children[0], spans, node.hAlign, node.vAlign)
+  else:
+    refresh(node)
 
 proc text*(node: Text, text: string) {.thisWrapper.} =
   text(node, {node.font: text})
