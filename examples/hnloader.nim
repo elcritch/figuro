@@ -61,7 +61,7 @@ proc htmlDone*(tp: HtmlLoader, stories: seq[Submission]) {.signal.}
 proc loadPage*(loader: HtmlLoader) {.slot.} =
   try:
     echo "Starting page load..."
-    when isMainModule:
+    when false and isMainModule:
       let document = loadHtml("examples/hn.html")
     else:
       let client = newHttpClient()

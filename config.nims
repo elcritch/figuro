@@ -53,10 +53,12 @@ elif defined(macosx):
   # --d:pixieNoSimd
   --d:kqueueUserEvent
   --threads:on
-  when gorge("brew --prefix fswatch").dirExists():
-    --define:figuroFsMonitor
-    --passL:"-Wl,-rpath,/opt/homebrew/opt/fswatch/lib"
-    --passL:"-Wl,-rpath,/usr/local/homebrew/opt/fswatch/lib"
+  # generally add homebrew
+  switch("passL", "-L/opt/homebrew/lib -Wl,-rpath,/opt/homebrew/lib/")
+  # when gorge("brew --prefix fswatch").dirExists():
+  #   --define:figuroFsMonitor
+  #   --passL:"-Wl,-rpath,/opt/homebrew/opt/fswatch/lib"
+  #   --passL:"-Wl,-rpath,/usr/local/homebrew/opt/fswatch/lib"
 
 import std/os
 import std/strutils
