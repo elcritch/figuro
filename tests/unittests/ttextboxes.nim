@@ -35,7 +35,7 @@ suite "text boxes (single line)":
     check text.runeAtCursor() == "a".runeAt(0)
     text.selection = 0..1
     check text.runeAtCursor() == "a".runeAt(0)
-    text.selection = 4..4
+    text.selection = 3..3
     check text.runeAtCursor() == "d".runeAt(0)
 
   test "basic insert extra":
@@ -186,6 +186,17 @@ suite "text boxes (single line)":
     text.insert("y".runeAt(0))
     check text.runes == "uycd".toRunes()
 
+  test "set text overwrite end":
+    text.options.incl Overwrite
+
+    text.selection = 4..4
+    text.insert("x".runeAt(0))
+    check text.runes == "abcd".toRunes()
+
+    text.selection = 3..3
+    text.insert("x".runeAt(0))
+    check text.runes == "abcx".toRunes()
+
   test "set text overwrite selected":
     text.options.incl Overwrite
     text.selection = 2..3
@@ -197,6 +208,12 @@ suite "text boxes (single line)":
     text.selection = 2..4
     text.insert("xy".toRunes())
     check text.runes == "abxy".toRunes()
+
+  test "set text overwrite many selected":
+    text.options.incl Overwrite
+    text.selection = 4..4
+    text.insert("x".toRunes())
+    check text.runes == "abcd".toRunes()
 
   test "set text overwrite single":
     text.options.incl Overwrite

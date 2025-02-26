@@ -77,8 +77,11 @@ proc draw*(self: Main) {.slot.} =
               disabled self.running
               overwrite true
             proc onUpdateInput(this: Input, text: TextBox, rune: Rune) {.slot.} =
-              if rune <=% Rune('9') and rune.char in {'0'..'9'}:
-                # ignore non-digits
+              echo "RUNE: ", text.runeAtCursor(), " SELF RUNE: ", this.text.runeAtCursor(), " SEL: ", text.selection, " SEL:THIS: ", this.text.selection
+
+              let isDigit = rune <=% Rune('9') and rune.char in {'0'..'9'}
+              let lastCharNotColon = this.text.runeAtCursor() != Rune(':')
+              if isDigit and lastCharNotColon:
                 this.updateInput(text, rune)
             connect(this, doUpdateInput, this, onUpdateInput)
             if not this.textChanged(""):

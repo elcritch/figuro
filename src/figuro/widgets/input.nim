@@ -21,18 +21,21 @@ type
     cursorTick: int
     cursorCnt: int
 
+proc setOption*(self: Input, opt: InputOptions, state = true) =
+  if state: self.options.incl opt
+  else: self.options.excl opt
+
 proc isActive*(self: Input): bool =
   Active in self.options
 proc disabled*(self: Input): bool =
   Disabled in self.options
 proc `disabled`*(self: Input, state: bool) =
-  if state: self.options.incl Disabled
-  else: self.options.excl Disabled
+  self.setOption(Disabled, state)
+
 proc overwrite*(self: Input): bool =
   Overwrite in self.text.options
 proc overwrite*(self: Input, state: bool) =
-  if state: self.text.options.incl Overwrite
-  else: self.text.options.excl Overwrite
+  self.text.setOption(Overwrite, state)
 
 proc `active=`*(self: Input, state: bool) =
   if state: self.options.incl Active

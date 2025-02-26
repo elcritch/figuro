@@ -25,6 +25,10 @@ type
     hAlign*: FontHorizontal = Left
     vAlign*: FontVertical = Top
 
+proc setOption*(self: var TextBox, opt: TextOptions, state = true) =
+  if state: self.options.incl opt
+  else: self.options.excl opt
+
 proc runes*(self: var TextBox): var seq[Rune] =
   self.layout.runes
 
@@ -50,7 +54,7 @@ proc clamped*(self: TextBox, dir = right, offset = 0): int =
     result = clamp(self.selection.b + offset, 0, ln)
 
 proc runeAtCursor*(self: TextBox): Rune =
-  result = self.layout.runes[self.clamped(self.growing, -1)]
+  result = self.layout.runes[self.clamped(left, 0)]
 
 proc newTextBox*(box: Box, font: UiFont): TextBox =
   result = TextBox()
@@ -168,7 +172,9 @@ proc insert*(self: var TextBox, rune: Rune) =
     self.delete()
 
   if Overwrite in self.options:
-    self.runes[self.clamped(left)] = rune
+    let idx = self.clamped(left)
+    if idx < self.runes.len():
+      self.runes[idx] = rune
   else:
     self.runes.insert(rune, self.clamped(left))
     self.selection = toSlice(self.selection.a + 1)
@@ -180,7 +186,9 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
 
   if Overwrite in self.options and not manySelected:
     for i in 0..<runes.len():
-      self.runes[self.clamped(left) + i] = runes[i]
+      let idx = self.clamped(left) + i
+      if idx < self.runes.len():
+        self.runes[idx] = runes[i]
   else:
     self.runes.insert(runes, self.clamped(left))
     self.selection = toSlice(self.selection.a + runes.len())
