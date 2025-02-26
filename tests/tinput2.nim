@@ -77,7 +77,7 @@ proc draw*(self: Main) {.slot.} =
               disabled self.running
               overwrite true
               options {NoErase, NoSelection}
-              skipOnInput = [Rune(':')].toHashSet()
+              skipOnInput ':'
             proc overrideUpdateInput(this: Input, rune: Rune) {.slot.} =
               let isDigit = rune <=% Rune('9') and rune.char in {'0'..'9'}
               template currCharColon(): bool = this.text.runeAtCursor() == Rune(':')
