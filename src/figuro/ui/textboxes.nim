@@ -45,8 +45,9 @@ proc selected*(self: TextBox): seq[Rune] =
   for i in self.selection.a ..< self.selection.b:
     result.add self.layout.runes[i]
 
-proc clamped*(self: TextBox, dir = right, offset = 0): int =
-  let ln = self.layout.runes.len()
+proc clamped*(self: TextBox, dir = right, offset = 0, inclusive=true): int =
+  let endj = if inclusive: 0 else: 1
+  let ln = self.layout.runes.len() - endj
   case dir
   of left:
     result = clamp(self.selection.a + offset, 0, ln)
@@ -54,7 +55,7 @@ proc clamped*(self: TextBox, dir = right, offset = 0): int =
     result = clamp(self.selection.b + offset, 0, ln)
 
 proc runeAtCursor*(self: TextBox): Rune =
-  result = self.layout.runes[self.clamped(left, 0)]
+  result = self.layout.runes[self.clamped(left, 0, inclusive=false)]
 
 proc newTextBox*(box: Box, font: UiFont): TextBox =
   result = TextBox()
