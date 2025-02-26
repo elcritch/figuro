@@ -8,7 +8,7 @@ type
     left
     right
 
-  TextBox* = ref object
+  TextBox* = object
     selection*: Slice[int]
     growing*: TextDirection
       # Text editors store selection direction to control how keys behave
@@ -21,7 +21,10 @@ type
     hAlign*: FontHorizontal = Left
     vAlign*: FontVertical = Top
 
-proc runes*(self: TextBox): var seq[Rune] =
+proc runes*(self: var TextBox): var seq[Rune] =
+  self.layout.runes
+
+proc runes*(self: TextBox): seq[Rune] =
   self.layout.runes
 
 proc toSlice[T](a: T): Slice[T] =

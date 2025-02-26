@@ -2,6 +2,7 @@
     Shutdown app test using the Figuro library
 ]#
 
+import std/times
 import figuro/widgets/button
 import figuro/widgets/input
 import figuro/widgets/vertical
@@ -18,7 +19,8 @@ type
     value: float
     hasHovered: bool
     bkgFade = Fader(minMax: 0.0 .. 0.18, inTimeMs: 600, outTimeMs: 500)
-    input_enabled: bool
+    running: bool
+    count: Duration
 
 let
   defaultFont = UiFont(typefaceId: defaultTypeface, size: 50'ui, lineHeightScale: 0.7692)
@@ -29,11 +31,8 @@ proc update*(fig: Main) {.signal.}
 proc fading*(self: Main, value: tuple[amount, perc: float], finished: bool) {.slot.} =
   refresh(self)
 
-proc btnClicked*(self: Main, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  if kind == Done:
-    if buttons in [{MouseLeft}, {DoubleClick}, {TripleClick}]:
-      self.input_enabled = not self.input_enabled
-      refresh(self)
+proc parseCount*(text: string): Duration =
+  echo "parse count: ", text
 
 proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
   ## activate fading on hover, deactive when not hovering
@@ -43,14 +42,13 @@ proc btnHover*(self: Main, evtKind: EventKind) {.slot.} =
 proc initialize*(self: Main) {.slot.} =
   self.setTitle(title)
   self.bkgFade.addTarget(self)
-  self.input_enabled = true
+  self.running = false
   connect(self.bkgFade, fadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   
   withRootWidget(self):
     fill this, css"#f0f0f0"
-    box this, 0'ux, 0'ux, window_size.width, window_size.height
 
     # Time display background
     rectangle("time-background"):
@@ -65,7 +63,7 @@ proc draw*(self: Main) {.slot.} =
           size 100'pp, 100'pp
           contentHeight cx"auto", gap = 0'ui
         
-        if self.input_enabled:
+        block:
           # Test text input
           Input.new("time-input"):
             with this:
@@ -76,39 +74,34 @@ proc draw*(self: Main) {.slot.} =
               foreground css"black"
               fill css"white"
               border 1'ui, css"black"
-              cornerRadius 0.0'ui
+            this.disabled = self.running
             if not this.textChanged(""):
               # set default
               text(this, "00:00:00")
-        else:
-          # Time display text
-          Text.new("time-display"):
-            with this:
-              size 90'pp, 30'pp
-              fill css"white"
-              foreground css"red"
-              border 1'ui, css"#000000"
-              cornerRadius 0.0'ui
-              justify FontHorizontal.Center
-              align FontVertical.Middle
-              font defaultFont
-            if this.textChanged(""):
-              # set default
-              this.text("00:00:00")
 
         Button[bool].new("countdown-button"):
+          proc btnClicked(self: Main, kind: EventKind, buttons: UiButtonView) {.slot.} =
+            if kind == Done:
+              if buttons in [{MouseLeft}, {DoubleClick}, {TripleClick}]:
+                self.running = not self.running
+                # self.count = this.text().parseCount()
+                refresh(self)
           with this:
-            size 40'pp, 30'pp
+            size 50'pp, 30'pp
             border 1'ui, css"#000000"
             cornerRadius 4.0'ui
             connect(doHover, self, btnHover)
             connect(doMouseClick, self, btnClicked)
+
           Text.new "text":
             with this:
               foreground blackColor
               justify Center
             align Middle
-            text({buttonFont: "COUNTDOWN"})
+            if not self.running:
+              text({buttonFont: "COUNTDOWN"})
+            else:
+              text({buttonFont: "CANCEL"})
 
 var main = Main.new()
 var frame = newAppFrame(main, size = window_size, style = DecoratedFixedSized)

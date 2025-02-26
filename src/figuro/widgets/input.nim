@@ -39,7 +39,15 @@ proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
 proc text*(self: Input, txt: string) {.slot.} =
   runes(self, txt.toRunes())
 
+proc runes*(self: Input): seq[Rune] =
+  self.text.runes()
+
+proc text*(self: Input): string =
+  $self.text.runes()
+
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
+
+proc doInput*(self: Input, rune: Rune) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
   if self.isActive:
@@ -50,7 +58,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  self.isActive = kind == Done
+  self.isActive = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
     self.value = 1
@@ -60,8 +68,11 @@ proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
   refresh(self)
 
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
-  self.text.insert(rune)
-  self.text.update(self.box)
+  when defined(debugEvents):
+    echo "\nInput:keyInput: ", " rune: ", $run, " :: ", self.text.selection
+  var text = self.text
+  text.insert(rune)
+  text.update(self.box)
   refresh(self)
 
 proc getKey(p: UiButtonView): UiButton =
@@ -72,7 +83,7 @@ proc getKey(p: UiButtonView): UiButton =
 proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
     echo "\nInput:keyPress: ",
-      " pressed: ", $pressed, " down: ", $down, " :: ", self.selection
+      " pressed: ", $pressed, " down: ", $down, " :: ", self.text.selection
   if down == KNone:
     var update = true
     case pressed.getKey
@@ -155,9 +166,6 @@ proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} 
     echo "input: ",
       " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
   emit self.doKeyCommand(pressed, down)
-  when defined(debugEvents):
-    echo "post:input: ",
-      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
 
 # proc layoutResize*(self: Input, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
 #   self.text.update(self.box)
