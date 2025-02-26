@@ -10,6 +10,7 @@ type
 
   TextOptions* = enum
     Overwrite
+    Rtl # this needs more work
 
   TextBox* = object
     selection*: Slice[int]
@@ -241,6 +242,12 @@ proc cursorRight*(self: var TextBox, growSelection = false) =
   else:
     # if self.selection.len != 1 and growing == right:
     self.selection = toSlice self.clamped(self.growing, offset = 1)
+
+proc cursorNext*(self: var TextBox, growSelection = false) =
+  if Rtl notin self.opts:
+    self.cursorRight(growSelection)
+  else:
+    self.cursorLeft(growSelection)
 
 proc cursorDown*(self: var TextBox, growSelection = false) =
   ## Move cursor or selection down

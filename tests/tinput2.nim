@@ -76,15 +76,22 @@ proc draw*(self: Main) {.slot.} =
               border 1'ui, css"black"
               disabled self.running
               overwrite true
-              options {IgnoreDelete}
-            proc onUpdateInput(this: Input, text: TextBox, rune: Rune) {.slot.} =
-              echo "RUNE: ", text.runeAtCursor(), " SELF RUNE: ", this.text.runeAtCursor(), " SEL: ", text.selection, " SEL:THIS: ", this.text.selection
-
+              options {NoErase, NoSelection}
+            proc overrideUpdateInput(this: Input, rune: Rune) {.slot.} =
               let isDigit = rune <=% Rune('9') and rune.char in {'0'..'9'}
-              let lastCharNotColon = this.text.runeAtCursor() != Rune(':')
-              if isDigit and lastCharNotColon:
-                this.updateInput(text, rune)
-            connect(this, doUpdateInput, this, onUpdateInput)
+              template currCharColon(): bool = this.text.runeAtCursor() == Rune(':')
+              if isDigit:
+                if currCharColon():
+                  this.text.cursorNext()
+                  this.text.updateSelection()
+                this.updateInput(rune)
+                this.text.cursorNext()
+                this.text.updateSelection()
+                if currCharColon():
+                  this.text.cursorNext()
+                  this.text.updateSelection()
+
+            connect(this, doUpdateInput, this, overrideUpdateInput)
             if not this.textChanged(""):
               # set default
               text(this, "00:00:00")

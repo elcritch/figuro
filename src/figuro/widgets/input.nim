@@ -9,7 +9,8 @@ export textboxes
 
 type
   InputOptions* = enum
-    IgnoreDelete
+    NoErase
+    NoSelection
     Active
     Disabled
     OnlyAllowDigits
@@ -75,7 +76,7 @@ proc text*(self: Input): string =
 
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
 
-proc doUpdateInput*(self: Input, text: TextBox, rune: Rune) {.signal.}
+proc doUpdateInput*(self: Input, rune: Rune) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
   if self.isActive:
@@ -98,12 +99,10 @@ proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
   when defined(debugEvents):
     echo "\nInput:keyInput: ", " rune: ", $run, " :: ", self.text.selection
-  var text = self.text
-  text.insert(rune)
-  emit self.doUpdateInput(text, rune)
+  emit self.doUpdateInput(rune)
 
-proc updateInput*(self: Input, text: TextBox, rune: Rune) {.slot.} =
-  self.text = text
+proc updateInput*(self: Input, rune: Rune) {.slot.} =
+  self.text.insert(rune)
   self.text.update(self.box)
   refresh(self)
 
@@ -116,11 +115,12 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
   when defined(debugEvents):
     echo "\nInput:keyPress: ",
       " pressed: ", $pressed, " down: ", $down, " :: ", self.text.selection
+  let multiSelect = NoSelection notin self.opts
   if down == KNone:
     var update = true
     case pressed.getKey
     of KeyBackspace, KeyDelete:
-      if self.text.hasSelection() and IgnoreDelete notin self.opts:
+      if self.text.hasSelection() and NoErase notin self.opts:
         self.text.delete()
         self.text.update(self.box)
     of KeyLeft:
@@ -157,17 +157,17 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
   elif down == KShift:
     case pressed.getKey
     of KeyLeft:
-      self.text.cursorLeft(growSelection = true)
+      self.text.cursorLeft(growSelection = multiSelect)
     of KeyRight:
-      self.text.cursorRight(growSelection = true)
+      self.text.cursorRight(growSelection = multiSelect)
     of KeyUp:
-      self.text.cursorUp(growSelection = true)
+      self.text.cursorUp(growSelection = multiSelect)
     of KeyDown:
-      self.text.cursorDown(growSelection = true)
+      self.text.cursorDown(growSelection = multiSelect)
     of KeyHome:
-      self.text.cursorStart(growSelection = true)
+      self.text.cursorStart(growSelection = multiSelect)
     of KeyEnd:
-      self.text.cursorEnd(growSelection = true)
+      self.text.cursorEnd(growSelection = multiSelect)
     else:
       discard
     self.text.updateSelection()
