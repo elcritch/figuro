@@ -149,29 +149,36 @@ proc forward(node: Figuro) {.slot.} =
 import macros
 
 proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
-  echo "getParam: ", doBody.treeRepr
+  # echo "getParam: ", doBody.treeRepr
   if doBody.kind != nnkDo:
-    error("Must provide a do body with 1 argument", doBody)
+    error("Must provide a do body with at least 1 argument", doBody)
   let params = doBody[3]
   let target = params[1][0]
   let body = doBody[^1]
-  return (target, params, body)
+  result = (target, params, body)
+  echo "ON SIGNAL: ", params.treeRepr
 
 macro onSignal*(signal: untyped, blk: untyped) =
+  ## magic for creating a slot and connecting it to an event. 
+  ## 
+  ## the target object is taken from the first argument of the `do()` handler. 
+  ## so `onSignal(doClicked) do(self: main): ...` connect to `self` in the local
+  ## scope.
+  ## 
+  ## experimental, may be removed or changed in the future to be less magic
   let (target, params, body) =  getParams(blk)
   let args = repr(params)
   result = quote do:
-    let `target` = `target`
-    proc handler() {.slot.} =
-      unBindSigilEvents:
-        `body`
-    when not compiles(handler(`target`)):
-      {.error: "mismatched do block argument: `" & `args` &
-               "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
-               astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
-    connect(this, signalTrigger, `target`, handler, acceptVoidSlot = true)
-    connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
-  result[1].params = params
+      proc handler() {.slot.} =
+        unBindSigilEvents:
+          `body`
+      # when not compiles(handler(`target`)):
+      #   {.error: "mismatched do block argument: `" & `args` &
+      #            "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
+      #            astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
+      # connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
+      connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
+  result[0].params = params
   # echo "result: ", result.treeRepr
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =

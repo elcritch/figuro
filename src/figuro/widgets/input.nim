@@ -4,13 +4,56 @@ import ../ui/textboxes
 import ../ui/events
 import pkg/chronicles
 
-type Input* = ref object of Figuro
-  isActive*: bool
-  disabled*: bool
-  text*: TextBox
-  color*: Color
-  value: int
-  cnt: int
+export textboxes
+
+
+type
+  InputOptions* = enum
+    NoErase
+    NoSelection
+    Active
+    Disabled
+    OnlyAllowDigits
+
+  Input* = ref object of Figuro
+    opts*: set[InputOptions]
+    text*: TextBox
+    color*: Color
+    cursorTick: int
+    cursorCnt: int
+    skipOnInput*: HashSet[Rune]
+
+proc options*(self: Input, opt: set[InputOptions], state = true) =
+  if state: self.opts.incl opt
+  else: self.opts.excl opt
+
+proc skipOnInput*(self: Input, runes: HashSet[Rune]) =
+  ## skips the given runes and advances the cursor to the 
+  ## next rune when a user inputs a key
+  ## 
+  ## useful for skipping "decorative" tokens like ':' in a time
+  self.skipOnInput = runes
+proc skipOnInput*(self: Input, msg: varargs[char]) =
+  ## skips the given runes and advances the cursor to the 
+  ## next rune when a user inputs a key
+  ## 
+  ## useful for skipping "decorative" tokens like ':' in a time
+  self.skipOnInput = msg.toRunes().toHashSet()
+
+proc isActive*(self: Input): bool =
+  Active in self.opts
+proc disabled*(self: Input): bool =
+  Disabled in self.opts
+proc `disabled`*(self: Input, state: bool) =
+  self.options({Disabled}, state)
+
+proc overwrite*(self: Input): bool =
+  Overwrite in self.text.opts
+proc overwrite*(self: Input, state: bool) =
+  self.text.options({Overwrite}, state)
+
+proc `active=`*(self: Input, state: bool) =
+  self.options({Active}, state)
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
@@ -36,30 +79,51 @@ proc runes*(self: Input, runes: seq[Rune]) {.slot.} =
     self.text.update(self.box)
     # refresh(self)
 
+proc skipSelectedRune*(self: Input, skips: HashSet[Rune] = self.skipOnInput) =
+  ## skips the given runes on input
+  let cr = self.text.runeAtCursor()
+  if cr in skips:
+    self.text.cursorNext()
+    self.text.updateSelection()
+
 proc text*(self: Input, txt: string) {.slot.} =
   runes(self, txt.toRunes())
 
+proc runes*(self: Input): seq[Rune] =
+  self.text.runes()
+
+proc text*(self: Input): string =
+  $self.text.runes()
+
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
+
+proc doUpdateInput*(self: Input, rune: Rune) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
   if self.isActive:
-    self.cnt.inc()
-    self.cnt = self.cnt mod 33
-    if self.cnt == 0:
-      self.value = (self.value + 1) mod 2
+    self.cursorCnt.inc()
+    self.cursorCnt = self.cursorCnt mod 33
+    if self.cursorCnt == 0:
+      self.cursorTick = (self.cursorTick + 1) mod 2
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  self.isActive = kind == Done
+  self.active = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
-    self.value = 1
+    self.cursorTick = 1
   else:
     self.listens.signals.excl {evKeyboardInput, evKeyPress}
-    self.value = 0
+    self.cursorTick = 0
   refresh(self)
 
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
+  when defined(debugEvents):
+    echo "\nInput:keyInput: ", " rune: ", $run, " :: ", self.text.selection
+  emit self.doUpdateInput(rune)
+
+proc updateInput*(self: Input, rune: Rune) {.slot.} =
+  self.skipSelectedRune()
   self.text.insert(rune)
   self.text.update(self.box)
   refresh(self)
@@ -72,12 +136,13 @@ proc getKey(p: UiButtonView): UiButton =
 proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
     echo "\nInput:keyPress: ",
-      " pressed: ", $pressed, " down: ", $down, " :: ", self.selection
+      " pressed: ", $pressed, " down: ", $down, " :: ", self.text.selection
+  let multiSelect = NoSelection notin self.opts
   if down == KNone:
     var update = true
     case pressed.getKey
-    of KeyBackspace:
-      if self.text.hasSelection():
+    of KeyBackspace, KeyDelete:
+      if self.text.hasSelection() and NoErase notin self.opts:
         self.text.delete()
         self.text.update(self.box)
     of KeyLeft:
@@ -97,9 +162,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     of KeyEnter:
       self.keyInput Rune '\n'
     else:
-      update = false
-    if update:
-      self.text.updateSelection()
+      discard
   elif down == KMeta:
     case pressed.getKey
     of KeyA:
@@ -110,24 +173,22 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorEnd()
     else:
       discard
-    self.text.updateSelection()
   elif down == KShift:
     case pressed.getKey
     of KeyLeft:
-      self.text.cursorLeft(growSelection = true)
+      self.text.cursorLeft(growSelection = multiSelect)
     of KeyRight:
-      self.text.cursorRight(growSelection = true)
+      self.text.cursorRight(growSelection = multiSelect)
     of KeyUp:
-      self.text.cursorUp(growSelection = true)
+      self.text.cursorUp(growSelection = multiSelect)
     of KeyDown:
-      self.text.cursorDown(growSelection = true)
+      self.text.cursorDown(growSelection = multiSelect)
     of KeyHome:
-      self.text.cursorStart(growSelection = true)
+      self.text.cursorStart(growSelection = multiSelect)
     of KeyEnd:
-      self.text.cursorEnd(growSelection = true)
+      self.text.cursorEnd(growSelection = multiSelect)
     else:
       discard
-    self.text.updateSelection()
 
   ## todo finish moving to 
   # elif down == KAlt:
@@ -146,7 +207,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
   #       self.updateLayout()
   #   else: discard
 
-  self.value = 1
+  self.cursorTick = 1
   # self.text.updateSelection()
   refresh(self)
 
@@ -155,9 +216,6 @@ proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} 
     echo "input: ",
       " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
   emit self.doKeyCommand(pressed, down)
-  when defined(debugEvents):
-    echo "post:input: ",
-      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
 
 # proc layoutResize*(self: Input, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
 #   self.text.update(self.box)
@@ -170,7 +228,10 @@ proc initialize*(self: Input) {.slot.} =
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
-    connect(self, doKeyCommand, self, Input.keyCommand)
+    if not connected(self, doKeyCommand, self, keyCommand):
+      connect(self, doKeyCommand, self, Input.keyCommand)
+    if not connected(self, doUpdateInput, self):
+      connect(self, doUpdateInput, self, updateInput)
 
     basicText "basicText":
       this.textLayout = self.text.layout
@@ -181,7 +242,7 @@ proc draw*(self: Input) {.slot.} =
         with this:
           boxOf self.text.cursorRect
           fill blackColor
-        this.fill.a = self.value.toFloat * 1.0
+        this.fill.a = self.cursorTick.toFloat * 1.0
       for i, selRect in self.text.selectionRects:
         capture i:
           Rectangle.new "selection":
@@ -189,14 +250,6 @@ proc draw*(self: Input) {.slot.} =
               boxOf self.text.selectionRects[i]
               fill css"#A0A0FF" * 0.4
 
-    if self.disabled:
-      fill this, this.fill.darken(0.4)
-    else:
-      fill this, this.fill.darken(0.2)
-      if self.isActive:
-        fill this, this.fill.lighten(0.15)
-        # this changes the color on hover!
-    
     if self.text.box != self.box:
       self.text.update(self.box)
 

@@ -14,13 +14,29 @@ suite "text boxes (single line)":
   setup:
     var box = initBox(0,0,100,100)
     var text = newTextBox(box, font)
-    for i in 1..4:
-      text.insert(Rune(96+i))
+    for c in ['a', 'b', 'c', 'd']:
+      text.insert(Rune(c))
     text.update(box)
 
   test "basic setup":
     check text.runes == "abcd".toRunes()
     check text.selection == 4..4
+
+  test "selection":
+    check text.selected() == "".toRunes()
+    text.selection = 0..1
+    check text.selected() == "a".toRunes()
+    text.selection = 0..2
+    check text.selected() == "ab".toRunes()
+    text.selection = 0..0
+
+  test "rune at cursor":
+    text.selection = 0..0
+    check text.runeAtCursor() == "a".runeAt(0)
+    text.selection = 0..1
+    check text.runeAtCursor() == "a".runeAt(0)
+    text.selection = 3..3
+    check text.runeAtCursor() == "d".runeAt(0)
 
   test "basic insert extra":
     for i in 5..9:
@@ -58,7 +74,7 @@ suite "text boxes (single line)":
     check text.runes == "aBcd".toRunes()
 
   test "re-insert at end":
-    text.selection = 4..4
+    text.selectionImpl = 4..4
     text.insert(Rune('E'))
     check text.selection == 5..5
     check text.runes == "abcdE".toRunes()
@@ -154,6 +170,63 @@ suite "text boxes (single line)":
     tx.replaceText("alpha".toRunes)
     check tx.selection == 0..2
     check tx.runes == "alpha".toRunes()
+
+  test "set text overwrite":
+    text.opts.incl Overwrite
+
+    text.selection = 0..0
+    text.insert("o".runeAt(0))
+    check text.runes == "obcd".toRunes()
+    text.insert("u".runeAt(0))
+    check text.runes == "ubcd".toRunes()
+
+    text.selection = 1..1
+    text.insert("x".runeAt(0))
+    check text.runes == "uxcd".toRunes()
+    text.insert("y".runeAt(0))
+    check text.runes == "uycd".toRunes()
+
+  test "set text overwrite end":
+    text.opts.incl Overwrite
+
+    text.selection = 4..4
+    text.insert("x".runeAt(0))
+    check text.runes == "abcd".toRunes()
+
+    text.selection = 3..3
+    text.insert("x".runeAt(0))
+    check text.runes == "abcx".toRunes()
+
+  test "set text overwrite selected":
+    text.opts.incl Overwrite
+    text.selection = 2..3
+    text.insert("o".runeAt(0))
+    check text.runes == "abo".toRunes()
+
+  test "set text overwrite many selected":
+    text.opts.incl Overwrite
+    text.selection = 2..4
+    text.insert("xy".toRunes())
+    check text.runes == "abxy".toRunes()
+
+  test "set text overwrite many selected":
+    text.opts.incl Overwrite
+    text.selection = 4..4
+    text.insert("x".toRunes())
+    check text.runes == "abcd".toRunes()
+
+  test "set text overwrite single":
+    text.opts.incl Overwrite
+    text.selection = 0..0
+    text.insert("x".toRunes())
+    check text.runes == "xbcd".toRunes()
+
+  test "set text overwrite multiple":
+    text.opts.incl Overwrite
+
+    text.selection = 0..0
+    text.insert("xy".toRunes())
+    check text.runes == "xycd".toRunes()
 
   test "set text with longer selected text":
     var tx = newTextBox(box, font)
