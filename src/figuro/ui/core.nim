@@ -260,7 +260,7 @@ var lastModificationTime: times.Time
 proc themePath*(): string =
   result = "theme.css".absolutePath()
 
-proc loadTheme*(defaultTheme: string = themePath()): seq[CssBlock] =
+proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
   # let defaultTheme = themePath()
   if defaultTheme.fileExists():
     let ts = getLastModificationTime(defaultTheme)
@@ -268,8 +268,7 @@ proc loadTheme*(defaultTheme: string = themePath()): seq[CssBlock] =
       lastModificationTime = ts
       notice "Loading CSS file", cssFile = defaultTheme
       let parser = newCssParser(Path(defaultTheme))
-      let cssTheme = parse(parser)
-      result = cssTheme
+      result = parser.loadTheme()
       notice "Loaded CSS file", cssFile = defaultTheme
 
 proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figuro) =

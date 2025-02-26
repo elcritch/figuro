@@ -57,9 +57,9 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc updateTheme*(self: AppFrame, css: CssTheme) =
-  debug "CSS theme into app", numberOfCssRules = cssRules.len()
-  self.theme.cssRules = css
+proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
+  debug "CSS theme into app", numberOfCssRules = css.rules().toSeq().len()
+  self.theme.css = css
   refresh(self.root)
 
 template setupThread(thread, obj, sig, slot, starter: untyped) =
@@ -78,8 +78,8 @@ proc setupTicker*(frame: AppFrame) =
     ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
   )
 
-  let cssRules = loadTheme()
-  frame.updateTheme(cssRules)
+  let css = loadTheme()
+  frame.updateTheme(css)
 
   when not defined(noFiguroDmonMonitor):
     var cssWatcher = CssLoader(period: renderDuration)

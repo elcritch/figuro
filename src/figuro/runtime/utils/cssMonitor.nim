@@ -14,7 +14,7 @@ import pkg/chronicles
 type CssLoader* = ref object of Agent
   period*: Duration
 
-proc cssUpdate*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
+proc cssUpdate*(tp: CssLoader, css: CssTheme) {.signal.}
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -49,7 +49,7 @@ when not defined(noFiguroDmonMonitor):
     let watchId2: WatchId = watch(appFile.splitFile.dir, watchCallback, {}, nil)
     notice "Started CSS Watcher", theme = themePath(), appTheme= appFile
 
-    proc updateTheme(file: string) =
+    proc update(file: string) =
       notice "CSS Updated: ", file = file
       let cssRules = loadTheme(file)
       emit self.cssUpdate(cssRules)
@@ -63,7 +63,7 @@ when not defined(noFiguroDmonMonitor):
         currTheme = file
 
     if currTheme.fileExists():
-      currTheme.updateTheme()
+      currTheme.update()
 
     while true:
       let file = cssUpdates.recv()
@@ -71,4 +71,4 @@ when not defined(noFiguroDmonMonitor):
         notice "CSS Skipping", file = file
         continue
       else:
-        file.updateTheme()
+        file.update()
