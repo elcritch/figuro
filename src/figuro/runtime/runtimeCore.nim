@@ -99,6 +99,27 @@ proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
+proc getAppConfigFile(): string =
+  # Build the full path to the Figuro config directory
+  let configPath = joinPath(getConfigDir(), "figuro")
+  
+  # Check if directory exists
+  if not dirExists(configPath):
+    try:
+      # Create directory if it doesn't exist
+      createDir(configPath)
+      debug "Created Figuro configuration directory at: ", configPath
+    except OSError:
+      debug "Error creating Figuro configuration directory at: ", configPath
+      return ""
+  else:
+    trace "Figuro configuration directory already exists at: ", configPath
+  
+  let appFile = os.getAppFilename().replace(".exe", "")
+  let configFile = configPath / appFile & ".json"
+  notice "Figuro", configFile = configFile
+  return configFile
+
 proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   threadEffects:
     RenderThread
@@ -110,6 +131,7 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   renderer.duration = renderDuration
   appFrames[frameRef] = renderer
   frame.frameRunner = frameRunner
+  frame.configFile = getAppConfigFile()
 
   appThread = newSigilThread()
   let frameProxy = frame.moveToThread(appThread)
@@ -122,4 +144,5 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
 
   setControlCHook(ctrlc)
 
+  info "Running renderer"
   runRendererLoop(renderer)

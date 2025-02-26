@@ -5,6 +5,8 @@ import pkg/pixie
 import pkg/windex
 import pkg/sigils/weakrefs
 
+import pkg/chronicles 
+
 import ../commons
 # import ../inputs
 import ./opengl/utils
@@ -37,6 +39,12 @@ proc configureWindowEvents(renderer: Renderer) =
   let window = renderer.window
 
   window.runeInputEnabled = true
+
+  window.onCloseRequest = proc() =
+    echo "onCloseRequest"
+
+  window.onMove = proc() =
+    debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
     updateWindowSize(renderer.frame, window)

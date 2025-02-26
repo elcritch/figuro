@@ -46,6 +46,8 @@ type
     theme*: Theme
     windowStyle*: FrameStyle
 
+    configFile*: string
+
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]

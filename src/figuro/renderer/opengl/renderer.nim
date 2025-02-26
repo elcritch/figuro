@@ -356,7 +356,7 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
-  while app.running:
+  while app.running and not renderer.window.closeRequested:
     let time =
       timeItVar(renderAvgTime):
         renderer.pollAndRender(false)
