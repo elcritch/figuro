@@ -74,7 +74,7 @@ suite "text boxes (single line)":
     check text.runes == "aBcd".toRunes()
 
   test "re-insert at end":
-    text.selection = 4..4
+    text.selectionImpl = 4..4
     text.insert(Rune('E'))
     check text.selection == 5..5
     check text.runes == "abcdE".toRunes()

@@ -155,9 +155,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     of KeyEnter:
       self.keyInput Rune '\n'
     else:
-      update = false
-    if update:
-      self.text.updateSelection()
+      discard
   elif down == KMeta:
     case pressed.getKey
     of KeyA:
@@ -168,7 +166,6 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorEnd()
     else:
       discard
-    self.text.updateSelection()
   elif down == KShift:
     case pressed.getKey
     of KeyLeft:
@@ -185,7 +182,6 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorEnd(growSelection = multiSelect)
     else:
       discard
-    self.text.updateSelection()
 
   ## todo finish moving to 
   # elif down == KAlt:

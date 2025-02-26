@@ -84,7 +84,6 @@ proc draw*(self: Main) {.slot.} =
               if isDigit:
                 this.updateInput(rune)
                 this.text.cursorNext()
-                this.text.updateSelection()
 
             connect(this, doUpdateInput, this, overrideUpdateInput)
             if not this.textChanged(""):
