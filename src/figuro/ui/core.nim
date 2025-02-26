@@ -159,6 +159,13 @@ proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
   echo "ON SIGNAL: ", params.treeRepr
 
 macro onSignal*(signal: untyped, blk: untyped) =
+  ## magic for creating a slot and connecting it to an event. 
+  ## 
+  ## the target object is taken from the first argument of the `do()` handler. 
+  ## so `onSignal(doClicked) do(self: main): ...` connect to `self` in the local
+  ## scope.
+  ## 
+  ## experimental, may be removed or changed in the future to be less magic
   let (target, params, body) =  getParams(blk)
   let args = repr(params)
   result = quote do:

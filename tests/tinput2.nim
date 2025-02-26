@@ -74,9 +74,10 @@ proc draw*(self: Main) {.slot.} =
               foreground css"black"
               fill css"white"
               border 1'ui, css"black"
-            this.disabled = self.running
+              disabled self.running
             proc onUpdateInput(this: Input, text: TextBox, rune: Rune) {.slot.} =
-              if rune.toUTF8().len() == 1 and rune.char in {'0'..'9'}:
+              if rune <=% Rune('9') and rune.char in {'0'..'9'}:
+                # ignore non-digits
                 this.updateInput(text, rune)
             connect(this, doUpdateInput, this, onUpdateInput)
             if not this.textChanged(""):

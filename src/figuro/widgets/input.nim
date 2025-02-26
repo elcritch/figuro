@@ -26,7 +26,7 @@ proc isActive*(self: Input): bool =
   Active in self.options
 proc disabled*(self: Input): bool =
   Disabled in self.options
-proc `disabled=`*(self: Input, state: bool) =
+proc `disabled`*(self: Input, state: bool) =
   if state: self.options.incl Disabled
   else: self.options.excl Disabled
 
