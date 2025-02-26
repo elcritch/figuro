@@ -228,6 +228,7 @@ proc cursorLeft*(self: var TextBox, growSelection = false) =
       self.selection.b = self.clamped(right, offset = -1)
   else:
     self.selection = toSlice self.clamped(self.growing, offset = -1)
+  self.updateSelection()
 
 proc cursorRight*(self: var TextBox, growSelection = false) =
   if growSelection:

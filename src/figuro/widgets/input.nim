@@ -27,6 +27,12 @@ proc options*(self: Input, opt: set[InputOptions], state = true) =
   if state: self.opts.incl opt
   else: self.opts.excl opt
 
+proc skipOnInput*(self: Input, runes: HashSet[Rune]): bool =
+  ## skips the given runes and advances the cursor to the 
+  ## next rune when a user inputs a key
+  ## 
+  ## useful for skipping "decorative" tokens like ':' in a time
+  self.skipOnInput = runes
 proc isActive*(self: Input): bool =
   Active in self.opts
 proc disabled*(self: Input): bool =

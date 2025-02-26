@@ -82,7 +82,6 @@ proc draw*(self: Main) {.slot.} =
               let isDigit = rune <=% Rune('9') and rune.char in {'0'..'9'}
               template currCharColon(): bool = this.text.runeAtCursor() == Rune(':')
               if isDigit:
-                # this.skipSelectedRune(this.skipOnInput)
                 this.updateInput(rune)
                 this.text.cursorNext()
                 this.text.updateSelection()

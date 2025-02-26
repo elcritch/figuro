@@ -172,7 +172,7 @@ suite "text boxes (single line)":
     check tx.runes == "alpha".toRunes()
 
   test "set text overwrite":
-    text.options.incl Overwrite
+    text.opts.incl Overwrite
 
     text.selection = 0..0
     text.insert("o".runeAt(0))
@@ -187,7 +187,7 @@ suite "text boxes (single line)":
     check text.runes == "uycd".toRunes()
 
   test "set text overwrite end":
-    text.options.incl Overwrite
+    text.opts.incl Overwrite
 
     text.selection = 4..4
     text.insert("x".runeAt(0))
@@ -198,31 +198,31 @@ suite "text boxes (single line)":
     check text.runes == "abcx".toRunes()
 
   test "set text overwrite selected":
-    text.options.incl Overwrite
+    text.opts.incl Overwrite
     text.selection = 2..3
     text.insert("o".runeAt(0))
     check text.runes == "abo".toRunes()
 
   test "set text overwrite many selected":
-    text.options.incl Overwrite
+    text.opts.incl Overwrite
     text.selection = 2..4
     text.insert("xy".toRunes())
     check text.runes == "abxy".toRunes()
 
   test "set text overwrite many selected":
-    text.options.incl Overwrite
+    text.opts.incl Overwrite
     text.selection = 4..4
     text.insert("x".toRunes())
     check text.runes == "abcd".toRunes()
 
   test "set text overwrite single":
-    text.options.incl Overwrite
+    text.opts.incl Overwrite
     text.selection = 0..0
     text.insert("x".toRunes())
     check text.runes == "xbcd".toRunes()
 
   test "set text overwrite multiple":
-    text.options.incl Overwrite
+    text.opts.incl Overwrite
 
     text.selection = 0..0
     text.insert("xy".toRunes())
