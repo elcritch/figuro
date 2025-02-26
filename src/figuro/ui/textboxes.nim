@@ -167,10 +167,11 @@ proc insert*(self: var TextBox, rune: Rune) =
     self.selection = toSlice(self.selection.a + 1)
 
 proc insert*(self: var TextBox, runes: seq[Rune]) =
-  if self.selection.len() > 1:
+  let manySelected = self.selection.len() > 1
+  if manySelected:
     self.delete()
 
-  if Overwrite in self.options:
+  if Overwrite in self.options and not manySelected:
     for i in 0..<runes.len():
       self.runes[self.clamped(left) + i] = runes[i]
   else:

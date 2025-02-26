@@ -170,6 +170,24 @@ suite "text boxes (single line)":
     text.insert("y".runeAt(0))
     check text.runes == "uycd".toRunes()
 
+  test "set text overwrite selected":
+    text.options.incl Overwrite
+    text.selection = 2..3
+    text.insert("o".runeAt(0))
+    check text.runes == "abo".toRunes()
+
+  test "set text overwrite many selected":
+    text.options.incl Overwrite
+    text.selection = 2..4
+    text.insert("xy".toRunes())
+    check text.runes == "abxy".toRunes()
+
+  test "set text overwrite single":
+    text.options.incl Overwrite
+    text.selection = 0..0
+    text.insert("x".toRunes())
+    check text.runes == "xbcd".toRunes()
+
   test "set text overwrite multiple":
     text.options.incl Overwrite
 
