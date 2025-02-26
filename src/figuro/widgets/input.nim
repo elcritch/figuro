@@ -250,14 +250,6 @@ proc draw*(self: Input) {.slot.} =
               boxOf self.text.selectionRects[i]
               fill css"#A0A0FF" * 0.4
 
-    if self.disabled:
-      fill this, this.fill.darken(0.4)
-    else:
-      fill this, this.fill.darken(0.2)
-      if self.isActive:
-        fill this, this.fill.lighten(0.15)
-        # this changes the color on hover!
-    
     if self.text.box != self.box:
       self.text.update(self.box)
 
