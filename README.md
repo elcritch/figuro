@@ -262,3 +262,10 @@ type
     UiEnd ## marks end track of a CSS Grid layout
 ```
 
+### CSS Grid Layout Examples
+
+Example layouts using CSS Grid:
+- https://css-irl.info/solving-a-tricky-layout-problem/
+- https://apiumhub.com/tech-blog-barcelona/css-grid/
+
+
