@@ -3,6 +3,7 @@ import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro
 import hnloader
+import cssgrid/prettyprints
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
@@ -108,21 +109,28 @@ proc draw*(self: Main) {.slot.} =
 
           Vertical.new "items":
             with this:
-              contentHeight cx"max-content", 3'ui
+              contentHeight cx"min-content", 3'ui
 
             for idx, story in self.stories:
               capture story:
                 Button.new "story":
                   with this:
-                    size 1'fr, 2*lh
+                    # size 1'fr, max(ux(2*lh), cx"min-content")
+                    size 1'fr, cx"min-content"
                     # fill blueColor.lighten(0.2)
+                  # if this.children.len() > 0:
+                  #   this.cxMin = this.children[0].cxMin
                   Text.new "text":
                     with this:
+                      size 1'fr, max(ux(1.5*lh.float), cx"min-content")
                       offset 10'ux, 0'ux
                       foreground blackColor
                       justify Left
                       align Middle
                       text({font: $story.link.title})
+
+
+          printLayout(this, cmTerminal)
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))

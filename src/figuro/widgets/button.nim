@@ -69,5 +69,4 @@ proc draw*[T](self: Button[T]) {.slot.} =
       if self.fade.active or self.isPressed:
         this.fill = this.fill.lighten(0.14*self.fade.amount)
     
-    rectangle "buttonInner":
-      WidgetContents()
+    WidgetContents()
