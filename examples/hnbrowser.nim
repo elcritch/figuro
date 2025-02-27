@@ -63,15 +63,12 @@ proc draw*(self: Main) {.slot.} =
           size 0.5'fr, 50'ux
           gridRow "top" // "items"
           gridColumn "left" // "right"
-        proc clickLoad(self: Main,
-                        kind: EventKind,
-                        buttons: UiButtonView) {.slot.} =
-          echo "Load clicked"
-          if kind == Init and not self.loading:
+        onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+          echo "Load clicked: ", kind
+          if kind == Done and not self.loading:
             emit self.htmlLoad()
-          self.loading = true
-          refresh(self)
-        this.connect(doMouseClick, self, clickLoad)
+            self.loading = true
+            refresh(self)
 
         Text.new "text":
           with this:
