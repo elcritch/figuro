@@ -9,6 +9,10 @@ Originally based on Fidget, Figuro has now diverged quite significantly and incl
 
 *Note*: Figuro is now in an *beta* stage with all the key pieces working. There's likely to be churn in the APIs but it's mostly stabalized. 
 
+## Demo: HNBrowser
+
+![HNBrowser](examples/figuro-hnbrowser-demo.jp2)
+
 ## Example
 
 ![Click Example](tests/scrolling-example.png)
