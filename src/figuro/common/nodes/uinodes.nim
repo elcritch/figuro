@@ -122,17 +122,10 @@ type
     font*: UiFont
     color*: Color = parseHtmlColor("black")
 
-# proc `=destroy`*(obj: type(Figuro()[])) =
-#   ## destroy
-#   let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
-#   for child in obj.children:
-#     assert objPtr == child.parent
-#     child.parent.pt = nil
-
-# proc `box=`*[F](fig: F, box: Box) =
-#   fig.box = box
-# proc box*[F](fig: F): var Box =
-#   fig.box
+# proc changed*(f: Figuro): Hash =
+#   var h = Hash(0)
+#   h = h !& hash tp.filePath
+#   result = !$h
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig[].children

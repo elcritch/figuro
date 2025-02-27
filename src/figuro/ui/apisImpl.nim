@@ -235,8 +235,8 @@ proc setInnerText*(
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
     let maxPos = node.textLayout.maxPosition
     node.cxMin = [csFixed(maxPos.w), csFixed(maxPos.h)]
-    debug "innertText:", node= node.name, cxMin= node.cxMin
-    refresh(node)
+    debug "innertText:", node= node.name, uid= node.uid, spans= spans[0][1][0..3]
+    refresh(node.parent[])
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

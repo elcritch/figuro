@@ -1,5 +1,6 @@
 import ../commons
 import pkg/sigils/weakrefs
+import pkg/chronicles
 
 template has(val: string): bool =
   val.len() > 0
@@ -188,17 +189,17 @@ proc eval*(rule: CssBlock, node: Figuro) =
     prevCombinator = sel.combinator
 
   if matched:
-    # echo "matched node: ", node.uid
+    debug "cssengine", name= node.name, matchedNode= node.uid
     # print rule.selectors
     # echo "setting properties:"
     for prop in rule.properties:
       # print rule.properties
       prop.apply(node)
-    refresh(node)
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
   if skipCss in node.attrs:
     return
+  let node = if node of Text: node.parent[] else: node
   for rule in node.frame[].theme.css.rules():
     rule.eval(node)

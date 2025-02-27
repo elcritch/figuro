@@ -27,7 +27,7 @@ type
   CssTheme* = ref object
     rules*: seq[CssBlock]
 
-  CssBlock* = ref object
+  CssBlock* = object
     selectors*: seq[CssSelector]
     properties*: seq[CssProperty]
 
@@ -38,29 +38,29 @@ type
     skPseudo
     skSelectorList
 
-  CssSelector* = ref object
+  CssSelector* = object
     cssType*: string
     class*: string
     id*: string
     combinator*: CssSelectorKind
 
-  CssProperty* = ref object
+  CssProperty* = object
     name*: string
     value*: CssValue
 
-proc `==`*(a, b: CssSelector): bool =
-  if a.isNil and b.isNil:
-    return true
-  if a.isNil or b.isNil:
-    return false
-  a[] == b[]
+# proc `==`*(a, b: CssSelector): bool =
+#   if a.isNil and b.isNil:
+#     return true
+#   if a.isNil or b.isNil:
+#     return false
+#   a[] == b[]
 
-proc `==`*(a, b: CssProperty): bool =
-  if a.isNil and b.isNil:
-    return true
-  if a.isNil or b.isNil:
-    return false
-  a[] == b[]
+# proc `==`*(a, b: CssProperty): bool =
+#   if a.isNil and b.isNil:
+#     return true
+#   if a.isNil or b.isNil:
+#     return false
+#   a[] == b[]
 
 proc `$`*(val: CssValue): string =
   match val:
