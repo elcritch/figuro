@@ -13,6 +13,8 @@ Originally based on Fidget, Figuro has now diverged quite significantly and incl
 
 ![HNBrowser](examples/figuro-hnbrowser-demo.jpg)
 
+Example theming:
+
 ![Theming](https://i.ibb.co/jPNGZkL7/HNBrowser.gif)
 
 ## Example
