@@ -68,10 +68,6 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.runeInputEnabled = true
 
-  let winCfg = renderer.frame.loadLastWindow()
-  window.pos = winCfg.pos
-  # if winCfg.size.x != 0 and winCfg.size.y != 0:
-  #   window.size = winCfg.size
 
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
@@ -172,9 +168,22 @@ proc configureWindowEvents(renderer: Renderer) =
   renderer.frame[].running = true
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
-  let window = newWindow("", ivec2(1280, 800))
+
+  let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
   let style: WindowStyle = frame[].windowStyle.convertStyle()
+  let winCfg = frame.loadLastWindow()
+
+  if app.autoUiScale:
+    let scale = window.getScaleInfo()
+    app.uiScale = min(scale.x, scale.y)
+
   window.`style=`(style)
+  window.`pos=`(winCfg.pos)
+  if winCfg.size.x != 0 and winCfg.size.y != 0:
+    let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
+    frame[].windowSize.w = sz.x.UiScalar
+    frame[].windowSize.h = sz.y.UiScalar
+
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, window, false, 1.0, atlasSize)
   renderer.configureWindowEvents()

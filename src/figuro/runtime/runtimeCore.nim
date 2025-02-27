@@ -124,6 +124,7 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   threadEffects:
     RenderThread
   ## run figuro
+
   when defined(sigilsDebug):
     frame.debugName = "Frame"
   let frameRef = frame.unsafeWeakRef()
