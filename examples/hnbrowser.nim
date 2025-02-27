@@ -44,8 +44,6 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
 
-    fill css"black"
-
     rectangle "outer":
       with this:
         offset 10'ux, 10'ux

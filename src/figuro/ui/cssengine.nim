@@ -73,8 +73,34 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
 
   return true
 
+proc colorValue(value: CssValue): Color =
+  match value:
+    CssColor(c):
+      result = c
+    CssVarName(n):
+      try:
+        result = parseHtmlColor(n)
+      except InvalidColor:
+        raise newException(ValueError, "not a css color!")
+    _:
+      raise newException(ValueError, "css expected color! Got: " & $value)
+
+proc sizeValue(value: CssValue): Constraint =
+  match value:
+    CssSize(cx):
+      result = cx
+    _:
+      raise newException(ValueError, "css expected size! Got: " & $value)
+
+proc shadowValue(value: CssValue): tuple[sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color] =
+  match value:
+    CssShadow(style, x, y, blur, spread, color):
+      result = (style, x, y, blur, spread, color)
+    _:
+      raise newException(ValueError, "css expected size! Got: " & $value)
+
 proc apply*(prop: CssProperty, node: Figuro) =
-  # echo "\napply node: ", node.uid, " ", node.name, " wn: ", node.widgetName, " prop: ", prop.repr
+  trace "cssengine:apply", uid= node.uid, name= node.name, wn= node.widgetName, prop= prop.repr
 
   template setCxFixed(cx, field: untyped, tp = float32) =
     match cx:
@@ -88,52 +114,47 @@ proc apply*(prop: CssProperty, node: Figuro) =
       _:
         discard
 
-  match prop.value:
-    MissingCssValue:
-      raise newException(ValueError, "missing css value!")
-    CssShadow(style, x, y, blur, spread, color):
-      setCxFixed(x, node.shadow[style].x, UiScalar)
-      setCxFixed(y, node.shadow[style].y, UiScalar)
-      setCxFixed(blur, node.shadow[style].blur, UiScalar)
-      setCxFixed(spread, node.shadow[style].spread, UiScalar)
-      node.shadow[style].color = color
-    CssColor(c):
-      # echo "\tapply color: ", c.repr
-      case prop.name
-      of "color":
-        # is color in CSS really only for fonts?
-        if node of Text:
-          for child in node.children:
-            child.fill = c
-        else:
-          for child in node.children:
-            if child of Text:
-              for gc in child.children:
-                gc.fill = c
-      of "background", "background-color":
-        node.fill = c
-      of "border-color":
-        node.stroke.color = c
-      else:
-        # echo "warning: ", "unhandled css property: ", prop.repr
-        discard
-    CssSize(cx):
-      # echo "\tapply size: ", cx.repr
-      case prop.name
-      of "border-width":
-        setCxFixed(cx, node.stroke.weight)
-      of "border-radius":
-        setCxFixed(cx, node.cornerRadius, UiScalar)
-      of "width":
-        node.cxSize[dcol] = cx
-      of "height":
-        node.cxSize[drow] = cx
-      else:
-        # echo "warning: ", "unhandled css property: ", prop.repr
-        discard
-    CssVarName(n):
-      once:
-        echo "Warning: ", "unhandled css variable: ", prop.repr
+  case prop.name
+  of "color":
+    # is color in CSS really only for fonts?
+    let color = colorValue(prop.value)
+    if node of Text:
+      for child in node.children:
+        child.fill = color
+    else:
+      for child in node.children:
+        if child of Text:
+          for gc in child.children:
+            gc.fill = color
+  of "background", "background-color":
+    let color = colorValue(prop.value)
+    node.fill = color
+  of "border-color":
+    let color = colorValue(prop.value)
+    node.stroke.color = color
+  of "border-width":
+    let cx = sizeValue(prop.value)
+    setCxFixed(cx, node.stroke.weight)
+  of "border-radius":
+    let cx = sizeValue(prop.value)
+    setCxFixed(cx, node.cornerRadius, UiScalar)
+  of "width":
+    let cx = sizeValue(prop.value)
+    node.cxSize[dcol] = cx
+  of "height":
+    let cx = sizeValue(prop.value)
+    node.cxSize[drow] = cx
+  of "box-shadow":
+    let shadow = shadowValue(prop.value)
+    let style = shadow.sstyle
+    setCxFixed(shadow.sx, node.shadow[style].x, UiScalar)
+    setCxFixed(shadow.sy, node.shadow[style].y, UiScalar)
+    setCxFixed(shadow.sblur, node.shadow[style].blur, UiScalar)
+    setCxFixed(shadow.sspread, node.shadow[style].spread, UiScalar)
+    node.shadow[style].color = shadow.scolor
+  else:
+    debug "cssengine", error= "unhandled css property", propertyName= prop.name
+    discard
 
 import std/terminal
 
@@ -189,7 +210,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
     prevCombinator = sel.combinator
 
   if matched:
-    debug "cssengine", name= node.name, matchedNode= node.uid, rule= rule
+    trace "cssengine", name= node.name, matchedNode= node.uid, rule= rule
     # print rule.selectors
     # echo "setting properties:"
     for prop in rule.properties:
