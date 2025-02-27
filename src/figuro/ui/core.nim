@@ -104,16 +104,16 @@ proc removeExtraChildren*(node: Figuro) =
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
-proc refresh*(node: Figuro) {.slot.} =
-  ## Request that the node and it's children be redrawn
-  # echo "refresh: ", node.name, " :: ", getStackTrace()
-  if node == nil:
-    return
-  # app.requestedFrame.inc
-  assert not node.frame.isNil
-  node.frame[].redrawNodes.incl(node)
-  when defined(figuroDebugRefresh):
-    echo "REFRESH: ", getStackTrace()
+# proc refresh*(node: Figuro) {.slot.} =
+#   ## Request that the node and it's children be redrawn
+#   # echo "refresh: ", node.name, " :: ", getStackTrace()
+#   if node == nil:
+#     return
+#   # app.requestedFrame.inc
+#   assert not node.frame.isNil
+#   node.frame[].redrawNodes.incl(node)
+#   when defined(figuroDebugRefresh):
+#     echo "REFRESH: ", getStackTrace()
 
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
@@ -248,8 +248,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   root.diffIndex = 0
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
-  if frame.theme.isNil:
-    frame.theme = Theme(font: defaultFont)
+  frame.theme = Theme(font: defaultFont)
   frame.setSize(size)
   frame.windowStyle = style
   refresh(root)
@@ -296,7 +295,7 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
     trace "preNode:create:", nd = nd(),
       name= node.name, widget= node.widgetName,
       new = fmt"{$node.getId}/{node.parent.getId()}", n= node.name, parent= parent.uid
-    # refresh(node)
+    refresh(node)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
     createNewNode(T, node)

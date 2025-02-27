@@ -1,5 +1,4 @@
 import ../commons
-import pkg/pretty
 import pkg/sigils/weakrefs
 
 template has(val: string): bool =
@@ -110,7 +109,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
             if child of Text:
               for gc in child.children:
                 gc.fill = c
-      of "background":
+      of "background", "background-color":
         node.fill = c
       of "border-color":
         node.stroke.color = c
@@ -195,11 +194,11 @@ proc eval*(rule: CssBlock, node: Figuro) =
     for prop in rule.properties:
       # print rule.properties
       prop.apply(node)
+    refresh(node)
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
   if skipCss in node.attrs:
     return
-  if not node.frame[].theme.isNil:
-    for rule in node.frame[].theme.css.rules():
-      rule.eval(node)
+  for rule in node.frame[].theme.css.rules():
+    rule.eval(node)

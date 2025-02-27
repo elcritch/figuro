@@ -43,8 +43,6 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    # with this:
-    #   fill css"#0000AA"
 
     rectangle "outer":
       with this:
@@ -105,7 +103,6 @@ proc draw*(self: Main) {.slot.} =
           offset 2'pp, 2'pp
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
-          # fill css"white"
 
           Vertical.new "items":
             with this:
@@ -116,10 +113,6 @@ proc draw*(self: Main) {.slot.} =
                 Button.new "story":
                   with this:
                     size 1'fr, max(ux(2*lh), cx"min-content")
-                    # size 1'fr, cx"min-content"
-                    # fill blueColor.lighten(0.2)
-                  # if this.children.len() > 0:
-                  #   this.cxMin = this.children[0].cxMin
                   Text.new "text":
                     with this:
                       size 1'fr, max(ux(1.5*lh.float), cx"min-content")
@@ -128,9 +121,7 @@ proc draw*(self: Main) {.slot.} =
                       justify Left
                       align Middle
                       text({font: $story.link.title})
-
-
-          printLayout(this, cmTerminal)
+          # printLayout(this, cmTerminal)
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))

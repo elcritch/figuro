@@ -14,15 +14,20 @@ Button:hover {
 }
 
 #story {
-  background: #f5c480;
+  background: black;
   border-width: 5;
   border-color: rgba(95, 84, 0, 0.45);
   border-radius: 10;
-  color: #bdc0a0;
+  color: #ddd;
   background: rgb(50, 50, 47);
   height: 40;
 }
 
+/* .subtext, .subtext * {
+  color: #888;
+} */
+
 #main {
-  background: #141414;
+  background-color: black;
+  /* color: #ddd; */
 }

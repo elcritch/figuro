@@ -27,7 +27,7 @@ type
     events*: EventFlags
     signals*: EventFlags
 
-  Theme* = ref object
+  Theme* = object
     font*: UiFont
     css*: CssTheme
 
@@ -267,3 +267,14 @@ proc printFiguros*(n: Figuro, depth = 0) =
     $n.zlevel
   for ci in n.children:
     printFiguros(ci, depth + 1)
+
+proc refresh*(node: Figuro) {.slot.} =
+  ## Request that the node and it's children be redrawn
+  # echo "refresh: ", node.name, " :: ", getStackTrace()
+  if node == nil:
+    return
+  # app.requestedFrame.inc
+  assert not node.frame.isNil
+  node.frame[].redrawNodes.incl(node)
+  when defined(figuroDebugRefresh):
+    echo "REFRESH: ", getStackTrace()
