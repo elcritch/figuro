@@ -50,11 +50,13 @@ when not defined(noFiguroDmonMonitor):
     notice "Started CSS Watcher", theme = themePath(), appTheme= appFile
 
     proc update(file: string) =
-      notice "CSS Updated: ", file = file
-      let cssRules = loadTheme(file)
-      emit self.cssUpdate(cssRules)
-      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-      emit self.cssUpdate(cssRules)
+      let css = loadTheme(file)
+      if css != nil:
+        notice "CSS Updated: ", file = file, css = css.rules().toSeq.len()
+        emit self.cssUpdate(css)
+        os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+        notice "CSS Updated: second: ", file = file, css = css.rules().toSeq.len()
+        emit self.cssUpdate(css)
 
     let cssFiles = @[defaultTheme, appFile]
     var currTheme = ""
