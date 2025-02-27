@@ -27,6 +27,10 @@ Button:hover {
   color: #888;
 } */
 
+#scroll {
+  background-color: black;
+}
+
 #main {
   background-color: black;
   color: #ddd;
