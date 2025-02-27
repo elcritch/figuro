@@ -1,9 +1,12 @@
 import std/[options, unicode, hashes, strformat, strutils, tables, times]
+import std/[os, json]
 import std/terminal
 
 import pkg/pixie
 import pkg/windex
 import pkg/sigils/weakrefs
+
+import pkg/chronicles 
 
 import ../commons
 # import ../inputs
@@ -33,10 +36,45 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonDown = toUi window.buttonDown()
   result.buttonToggle = toUi window.buttonToggle()
 
+type
+  WindowConfig* = object
+    pos*: IVec2 = ivec2(0, 0)
+    size*: IVec2 = ivec2(0, 0)
+
+proc windowCfgFile*(frame: WeakRef[AppFrame]): string = 
+  frame[].configFile & ".window"
+
+proc loadLastWindow*(frame: WeakRef[AppFrame]): WindowConfig =
+  result = WindowConfig()
+  if frame.windowCfgFile().fileExists():
+    try:
+      let jn = parseFile(frame.windowCfgFile())
+      result = jn.to(WindowConfig)
+    except Defect, CatchableError:
+      discard
+  notice "loadLastWindow", config= result
+
+proc writeWindowConfig*(window: Window, winCfgFile: string) =
+    try:
+      let wc = WindowConfig(pos: window.pos, size: window.size)
+      let jn = %*(wc)
+      writeFile(winCfgFile, $(jn))
+    except Defect, CatchableError:
+      debug "error writing window position"
+
 proc configureWindowEvents(renderer: Renderer) =
   let window = renderer.window
+  let winCfgFile = renderer.frame.windowCfgFile()
 
   window.runeInputEnabled = true
+
+
+  window.onCloseRequest = proc() =
+    notice "onCloseRequest"
+
+  window.onMove = proc() =
+    writeWindowConfig(window, winCfgFile)
+    debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
     updateWindowSize(renderer.frame, window)
@@ -44,6 +82,8 @@ proc configureWindowEvents(renderer: Renderer) =
     var uxInput = window.copyInputs()
     uxInput.windowSize = some renderer.frame[].windowSize
     discard renderer.uxInputList.trySend(uxInput)
+    writeWindowConfig(window, winCfgFile)
+    debug "window resize: ", size= window.size
 
   window.onFocusChange = proc() =
     renderer.frame[].focused = window.focused
@@ -128,9 +168,22 @@ proc configureWindowEvents(renderer: Renderer) =
   renderer.frame[].running = true
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
-  let window = newWindow("", ivec2(1280, 800))
+
+  let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
   let style: WindowStyle = frame[].windowStyle.convertStyle()
+  let winCfg = frame.loadLastWindow()
+
+  if app.autoUiScale:
+    let scale = window.getScaleInfo()
+    app.uiScale = min(scale.x, scale.y)
+
   window.`style=`(style)
+  window.`pos=`(winCfg.pos)
+  if winCfg.size.x != 0 and winCfg.size.y != 0:
+    let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
+    frame[].windowSize.w = sz.x.UiScalar
+    frame[].windowSize.h = sz.y.UiScalar
+
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, window, false, 1.0, atlasSize)
   renderer.configureWindowEvents()

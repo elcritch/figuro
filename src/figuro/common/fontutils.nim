@@ -293,6 +293,13 @@ proc getTypesetImpl*(
 
   # echo "arrangement:\n", result.repr
   # print result
+  var maxPosition = vec2(float32.low, float32.low)
+  for selRect in result.selectionRects:
+    maxPosition.x = max(selRect.x + selRect.w, maxPosition.x)
+    maxPosition.y = max(selRect.y + selRect.h, maxPosition.y)
+
+  result.maxPosition.w = maxPosition.x.descaled() 
+  result.maxPosition.h = maxPosition.y.descaled() 
 
   result.generateGlyphImage()
   # echo "font: "

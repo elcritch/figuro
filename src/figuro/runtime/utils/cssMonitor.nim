@@ -14,7 +14,7 @@ import pkg/chronicles
 type CssLoader* = ref object of Agent
   period*: Duration
 
-proc cssUpdate*(tp: CssLoader, cssRules: seq[CssBlock]) {.signal.}
+proc cssUpdate*(tp: CssLoader, css: CssTheme) {.signal.}
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -47,16 +47,30 @@ when not defined(noFiguroDmonMonitor):
 
     var appFile = os.getAppFilename().replace(".exe", "") & ".css"
     let watchId2: WatchId = watch(appFile.splitFile.dir, watchCallback, {}, nil)
-    notice "Started CSS Watcher", theme = themePath()
+    notice "Started CSS Watcher", theme = themePath(), appTheme= appFile
+
+    proc update(file: string) =
+      let css = loadTheme(file)
+      if css != nil:
+        notice "CSS Updated: ", file = file, css = css.rules().toSeq.len()
+        emit self.cssUpdate(css)
+        os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+        notice "CSS Updated: second: ", file = file, css = css.rules().toSeq.len()
+        emit self.cssUpdate(css)
 
     let cssFiles = @[defaultTheme, appFile]
+    var currTheme = ""
+    for file in cssFiles:
+      if file.existsFile():
+        currTheme = file
+
+    if currTheme.fileExists():
+      currTheme.update()
+
     while true:
       let file = cssUpdates.recv()
       if file notin cssFiles:
         notice "CSS Skipping", file = file
         continue
-      notice "CSS Updated: ", file = file
-      let cssRules = loadTheme(file)
-      emit self.cssUpdate(cssRules)
-      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-      emit self.cssUpdate(cssRules)
+      else:
+        file.update()

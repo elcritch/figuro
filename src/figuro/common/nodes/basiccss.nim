@@ -24,6 +24,9 @@ type
     buff: seq[Token]
     tokenizer: Tokenizer
 
+  CssTheme* = ref object
+    rules*: seq[CssBlock]
+
   CssBlock* = ref object
     selectors*: seq[CssSelector]
     properties*: seq[CssProperty]
@@ -83,6 +86,11 @@ proc `$`*(vals: seq[CssValue]): string =
   for val in vals:
     result &= " "
     result &= $val
+
+iterator rules*(theme: CssTheme): CssBlock =
+  if theme != nil:
+    for rule in theme.rules:
+      yield rule
 
 proc newCssParser*(src: string): CssParser =
   let tokenizer = newTokenizer(src)
@@ -391,3 +399,6 @@ proc parse*(parser: CssParser): seq[CssBlock] =
     except ValueError as e:
       error "CSS: error parsing css body", error = e.msg
       continue
+
+proc loadTheme*(parser: CssParser): CssTheme =
+  result = CssTheme(rules: parser.parse())

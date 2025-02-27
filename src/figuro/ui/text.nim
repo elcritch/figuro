@@ -10,6 +10,7 @@ proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =
 proc text*(node: Text, spans: openArray[(UiFont, string)]) {.thisWrapper.} =
   if node.children.len() == 1:
     setInnerText(node.children[0], spans, node.hAlign, node.vAlign)
+    node.cxMin = node.children[0].cxMin
   else:
     refresh(node)
 
@@ -34,3 +35,4 @@ proc draw*(self: Text) {.slot.} =
     basicText "basicText":
       WidgetContents()
       fill this, self.color
+      # this.parent[].cxMin = this.cxMin

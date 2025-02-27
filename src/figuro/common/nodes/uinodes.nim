@@ -29,7 +29,7 @@ type
 
   Theme* = ref object
     font*: UiFont
-    cssRules*: seq[CssBlock]
+    css*: CssTheme
 
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]
@@ -45,6 +45,8 @@ type
     windowRawSize*: Vec2 ## Screen coordinates
     theme*: Theme
     windowStyle*: FrameStyle
+
+    configFile*: string
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]

@@ -57,9 +57,9 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc updateTheme*(self: AppFrame, cssRules: seq[CssBlock]) {.slot.} =
-  debug "CSS theme into app", numberOfCssRules = cssRules.len()
-  self.theme.cssRules = cssRules
+proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
+  debug "CSS theme into app", numberOfCssRules = css.rules().toSeq().len()
+  self.theme.css = css
   refresh(self.root)
 
 template setupThread(thread, obj, sig, slot, starter: untyped) =
@@ -78,8 +78,8 @@ proc setupTicker*(frame: AppFrame) =
     ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
   )
 
-  let cssRules = loadTheme()
-  frame.updateTheme(cssRules)
+  let css = loadTheme()
+  frame.updateTheme(css)
 
   when not defined(noFiguroDmonMonitor):
     var cssWatcher = CssLoader(period: renderDuration)
@@ -99,13 +99,36 @@ proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
+proc getAppConfigFile(): string =
+  # Build the full path to the Figuro config directory
+  let configPath = joinPath(getConfigDir(), "figuro")
+  
+  # Check if directory exists
+  if not dirExists(configPath):
+    try:
+      # Create directory if it doesn't exist
+      createDir(configPath)
+      debug "Created Figuro configuration directory at: ", configPath
+    except OSError:
+      debug "Error creating Figuro configuration directory at: ", configPath
+      return ""
+  else:
+    trace "Figuro configuration directory already exists at: ", configPath
+  
+  let appFile = os.getAppFilename().splitFile().name
+  let configFile = configPath / appFile & ".json"
+  notice "Figuro", configFile = configFile
+  return configFile
+
 proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   threadEffects:
     RenderThread
   ## run figuro
+
   when defined(sigilsDebug):
     frame.debugName = "Frame"
   let frameRef = frame.unsafeWeakRef()
+  frameRef[].configFile = getAppConfigFile()
   let renderer = frameRef.createRenderer()
   renderer.duration = renderDuration
   appFrames[frameRef] = renderer
@@ -122,4 +145,5 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
 
   setControlCHook(ctrlc)
 
+  info "Running renderer"
   runRendererLoop(renderer)

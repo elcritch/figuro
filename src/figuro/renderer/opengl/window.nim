@@ -61,17 +61,14 @@ proc updateWindowSize*(frame: WeakRef[AppFrame], window: Window) =
   frame[].windowSize.h = sz.y
 
 proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
-  let scale = window.getScaleInfo()
-
-  if app.autoUiScale:
-    app.uiScale = min(scale.x, scale.y)
-
   assert not frame.isNil
   if frame[].fullscreen:
     window.fullscreen = frame[].fullscreen
   else:
     frame[].windowRawSize = frame[].windowSize.wh.scaled()
     window.size = ivec2(frame[].windowRawSize)
+
+  window.visible = true
 
   if window.isNil:
     quit(

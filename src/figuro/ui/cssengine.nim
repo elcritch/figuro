@@ -103,11 +103,13 @@ proc apply*(prop: CssProperty, node: Figuro) =
       of "color":
         # is color in CSS really only for fonts?
         if node of Text:
-          node.fill = c
+          for child in node.children:
+            child.fill = c
         else:
           for child in node.children:
             if child of Text:
-              child.fill = c
+              for gc in child.children:
+                gc.fill = c
       of "background":
         node.fill = c
       of "border-color":
@@ -199,5 +201,5 @@ proc applyThemeRules*(node: Figuro) =
   if skipCss in node.attrs:
     return
   if not node.frame[].theme.isNil:
-    for rule in node.frame[].theme.cssRules:
+    for rule in node.frame[].theme.css.rules():
       rule.eval(node)
