@@ -231,12 +231,11 @@ proc setInnerText*(
 ) =
   ## Set the text on an item.
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
-    trace "setText: ", nodeName = node.name
+    trace "setInnertText: ", name = node.name, uid= node.uid
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
     let maxPos = node.textLayout.maxPosition
     node.cxMin = [csFixed(maxPos.w), csFixed(maxPos.h)]
-    debug "innertText:", node= node.name, cxMin= node.cxMin
-    refresh(node)
+    refresh(node.parent[])
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

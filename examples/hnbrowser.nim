@@ -43,8 +43,6 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    # with this:
-    #   fill css"#0000AA"
 
     rectangle "outer":
       with this:
@@ -65,15 +63,12 @@ proc draw*(self: Main) {.slot.} =
           size 0.5'fr, 50'ux
           gridRow "top" // "items"
           gridColumn "left" // "right"
-        proc clickLoad(self: Main,
-                        kind: EventKind,
-                        buttons: UiButtonView) {.slot.} =
-          echo "Load clicked"
-          if kind == Init and not self.loading:
+        onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+          echo "Load clicked: ", kind
+          if kind == Done and not self.loading:
             emit self.htmlLoad()
-          self.loading = true
-          refresh(self)
-        this.connect(doMouseClick, self, clickLoad)
+            self.loading = true
+            refresh(self)
 
         Text.new "text":
           with this:
@@ -105,7 +100,6 @@ proc draw*(self: Main) {.slot.} =
           offset 2'pp, 2'pp
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
-          # fill css"white"
 
           Vertical.new "items":
             with this:
@@ -115,22 +109,17 @@ proc draw*(self: Main) {.slot.} =
               capture story:
                 Button.new "story":
                   with this:
-                    size 1'fr, max(ux(2*lh), cx"min-content")
-                    # size 1'fr, cx"min-content"
-                    # fill blueColor.lighten(0.2)
-                  # if this.children.len() > 0:
-                  #   this.cxMin = this.children[0].cxMin
+                    size 1'fr, ux(2*lh)
                   Text.new "text":
                     with this:
-                      size 1'fr, max(ux(1.5*lh.float), cx"min-content")
+                      size 1'fr, ux(2*lh)
+                      # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
                       offset 10'ux, 0'ux
                       foreground blackColor
                       justify Left
                       align Middle
                       text({font: $story.link.title})
-
-
-          printLayout(this, cmTerminal)
+          # printLayout(this, cmTerminal)
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))

@@ -27,7 +27,7 @@ type
     events*: EventFlags
     signals*: EventFlags
 
-  Theme* = ref object
+  Theme* = object
     font*: UiFont
     css*: CssTheme
 
@@ -122,17 +122,10 @@ type
     font*: UiFont
     color*: Color = parseHtmlColor("black")
 
-# proc `=destroy`*(obj: type(Figuro()[])) =
-#   ## destroy
-#   let objPtr = unsafeWeakRef(cast[Figuro](addr(obj)))
-#   for child in obj.children:
-#     assert objPtr == child.parent
-#     child.parent.pt = nil
-
-# proc `box=`*[F](fig: F, box: Box) =
-#   fig.box = box
-# proc box*[F](fig: F): var Box =
-#   fig.box
+# proc changed*(f: Figuro): Hash =
+#   var h = Hash(0)
+#   h = h !& hash tp.filePath
+#   result = !$h
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig[].children
@@ -267,3 +260,14 @@ proc printFiguros*(n: Figuro, depth = 0) =
     $n.zlevel
   for ci in n.children:
     printFiguros(ci, depth + 1)
+
+proc refresh*(node: Figuro) {.slot.} =
+  ## Request that the node and it's children be redrawn
+  # echo "refresh: ", node.name, " :: ", getStackTrace()
+  if node == nil:
+    return
+  # app.requestedFrame.inc
+  assert not node.frame.isNil
+  node.frame[].redrawNodes.incl(node)
+  when defined(figuroDebugRefresh):
+    echo "REFRESH: ", getStackTrace()
