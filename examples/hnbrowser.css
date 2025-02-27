@@ -18,8 +18,8 @@ Button:hover {
   border-width: 5;
   border-color: rgba(95, 84, 0, 0.45);
   border-radius: 10;
-  /* color: #ff0000; */
-  background: #f5c480;
+  color: #000000;
+  background: rgb(246, 246, 239);
   height: 40;
 }
 

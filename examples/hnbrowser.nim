@@ -115,8 +115,8 @@ proc draw*(self: Main) {.slot.} =
               capture story:
                 Button.new "story":
                   with this:
-                    # size 1'fr, max(ux(2*lh), cx"min-content")
-                    size 1'fr, cx"min-content"
+                    size 1'fr, max(ux(2*lh), cx"min-content")
+                    # size 1'fr, cx"min-content"
                     # fill blueColor.lighten(0.2)
                   # if this.children.len() > 0:
                   #   this.cxMin = this.children[0].cxMin
