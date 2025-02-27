@@ -189,7 +189,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
     prevCombinator = sel.combinator
 
   if matched:
-    trace "cssengine", name= node.name, matchedNode= node.uid
+    debug "cssengine", name= node.name, matchedNode= node.uid, rule= rule
     # print rule.selectors
     # echo "setting properties:"
     for prop in rule.properties:
