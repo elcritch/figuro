@@ -11,7 +11,7 @@ Originally based on Fidget, Figuro has now diverged quite significantly and incl
 
 ## Demo: HNBrowser
 
-![HNBrowser](examples/figuro-hnbrowser-demo.jp2)
+![HNBrowser](examples/figuro-hnbrowser-demo.jpg)
 
 ## Example
 
