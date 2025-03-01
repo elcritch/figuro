@@ -100,22 +100,26 @@ proc draw*(self: Main) {.slot.} =
           offset 2'pp, 2'pp
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
+          echo "\n"
+          printLayout(this, cmTerminal)
 
           Vertical.new "items":
             with this:
               contentHeight cx"min-content", 3'ui
 
             for idx, story in self.stories:
+              if idx > 5:
+                break
               capture story, idx:
                 Button.new "story" & $idx:
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
                   with this:
                     size 1'fr, ux(2*lh)
+                  this.cxPadOffset[drow] = 20'ux
+                  this.cxPadSize[drow] = 20'ux
 
                   Text.new "text":
-                    this.cxPadOffset[drow] = 20'ux
-                    this.cxPadSize[drow] = 20'ux
                     with this:
                       size 1'fr, ux(2*lh)
                       # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
