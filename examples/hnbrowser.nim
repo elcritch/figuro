@@ -106,11 +106,16 @@ proc draw*(self: Main) {.slot.} =
               contentHeight cx"min-content", 3'ui
 
             for idx, story in self.stories:
-              capture story:
+              capture story, idx:
                 Button.new "story":
+                  onSignal(doRightClick) do(this: Button[tuple[]]):
+                    printLayout(this, cmTerminal)
                   with this:
                     size 1'fr, ux(2*lh)
+
                   Text.new "text":
+                    this.cxPadOffset[drow] = 20'ux
+                    this.cxPadSize[drow] = 20'ux
                     with this:
                       size 1'fr, ux(2*lh)
                       # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
@@ -119,7 +124,6 @@ proc draw*(self: Main) {.slot.} =
                       justify Left
                       align Middle
                       text({font: $story.link.title})
-          # printLayout(this, cmTerminal)
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
