@@ -55,12 +55,12 @@ proc printLayout*(node: Figuro, depth = 0) =
 
 # var sb: Figuro
 
-template getParentBoxOrWindows*(node: Figuro): Box =
+template getParentBoxOrWindows*(node: Figuro): tuple[box, padding: Box] =
   if node.parent.isNil:
     # echo "getParentBoxOrWindows:FRAME: ", node.frame[].windowSize
-    node.frame[].windowSize
+    (box: node.frame[].windowSize, padding: uiBox(0,0,0,0))
   else:
-    node.parent[].box
+    (box: node.parent[].box, padding: node.parent[].bpad)
 
 proc computeLayouts*(node: Figuro) =
   # doAssert node.cxSize[drow] == csAuto() and node.cxSize[dcol] == csAuto(), "Your root widget must call `withRootWidget` in it's draw method to run correctly!"

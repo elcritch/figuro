@@ -222,5 +222,5 @@ proc applyThemeRules*(node: Figuro) =
   if skipCss in node.attrs:
     return
   let node = if node of Text: node.parent[] else: node
-  for rule in node.frame[].theme.css.rules():
+  for rule in rules(node.frame[].theme.css):
     rule.eval(node)

@@ -173,9 +173,9 @@ template onHover*(current: Figuro, inner: untyped) =
   if evHover in current.events:
     inner
 
-template onHover*(inner: untyped) =
-  ## Sets and onHover behavior.
-  onHover(node, inner)
+# template onHover*(inner: untyped) =
+#   ## Sets and onHover behavior.
+#   onHover(node, inner)
 
 proc getTitle*(current: Figuro): string =
   ## Gets window title

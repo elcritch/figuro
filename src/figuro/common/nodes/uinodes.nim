@@ -59,7 +59,7 @@ type
     nIndex*: int
     diffIndex*: int
 
-    box*: Box
+    box*, bpad*: Box
     bmin*, bmax*: Size
     screenBox*: Box
     offset*: Position
@@ -72,6 +72,8 @@ type
 
     cxSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
     cxOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxPadSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxPadOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
     cxMin*: array[GridDir, Constraint] = [csNone(), csNone()]
     cxMax*: array[GridDir, Constraint] = [csNone(), csNone()]
 

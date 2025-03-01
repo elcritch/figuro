@@ -58,7 +58,7 @@ proc tick*(self: AppTicker) {.slot.} =
     os.sleep(self.period.inMilliseconds)
 
 proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
-  debug "CSS theme into app", numberOfCssRules = css.rules().toSeq().len()
+  debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
   self.theme.css = css
   refresh(self.root)
 
