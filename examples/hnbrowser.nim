@@ -107,7 +107,7 @@ proc draw*(self: Main) {.slot.} =
 
             for idx, story in self.stories:
               capture story, idx:
-                Button.new "story":
+                Button.new "story" & $idx:
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
                   with this:
