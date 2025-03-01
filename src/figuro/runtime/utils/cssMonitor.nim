@@ -52,10 +52,10 @@ when not defined(noFiguroDmonMonitor):
     proc update(file: string) =
       let css = loadTheme(file)
       if css != nil:
-        notice "CSS Updated: ", file = file, css = css.rules().toSeq.len()
+        notice "CSS Updated: ", file = file, css = rules(css).toSeq.len()
         emit self.cssUpdate(css)
         os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-        notice "CSS Updated: second: ", file = file, css = css.rules().toSeq.len()
+        notice "CSS Updated: second: ", file = file, css = rules(css).toSeq.len()
         emit self.cssUpdate(css)
 
     let cssFiles = @[defaultTheme, appFile]

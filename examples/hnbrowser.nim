@@ -105,19 +105,19 @@ proc draw*(self: Main) {.slot.} =
 
           Vertical.new "items":
             with this:
-              contentHeight cx"min-content", 3'ui
+              contentHeight cx"max-content", 3'ui
 
             for idx, story in self.stories:
-              if idx > 5:
-                break
+              # if idx > 5: break
               capture story, idx:
                 Button.new "story" & $idx:
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
                   with this:
-                    size 1'fr, ux(2*lh)
-                  this.cxPadOffset[drow] = 20'ux
-                  this.cxPadSize[drow] = 20'ux
+                    # size 1'fr, ux(2*lh)
+                    size 1'fr, max(ux(2.0*lh.float), cx"min-content")
+                  # this.cxPadOffset[drow] = 20'ux
+                  # this.cxPadSize[drow] = 20'ux
 
                   Text.new "text":
                     with this:
