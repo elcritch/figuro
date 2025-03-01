@@ -100,16 +100,25 @@ proc draw*(self: Main) {.slot.} =
           offset 2'pp, 2'pp
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
+          echo "\n"
+          printLayout(this, cmTerminal)
 
           Vertical.new "items":
             with this:
-              contentHeight cx"min-content", 3'ui
+              contentHeight cx"max-content", 3'ui
 
             for idx, story in self.stories:
-              capture story:
-                Button.new "story":
+              # if idx > 5: break
+              capture story, idx:
+                Button.new "story" & $idx:
+                  onSignal(doRightClick) do(this: Button[tuple[]]):
+                    printLayout(this, cmTerminal)
                   with this:
-                    size 1'fr, ux(2*lh)
+                    # size 1'fr, ux(2*lh)
+                    size 1'fr, max(ux(2.0*lh.float), cx"min-content")
+                  # this.cxPadOffset[drow] = 20'ux
+                  # this.cxPadSize[drow] = 20'ux
+
                   Text.new "text":
                     with this:
                       size 1'fr, ux(2*lh)
@@ -119,7 +128,6 @@ proc draw*(self: Main) {.slot.} =
                       justify Left
                       align Middle
                       text({font: $story.link.title})
-          # printLayout(this, cmTerminal)
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
