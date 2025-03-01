@@ -10,6 +10,7 @@ jobs:
       matrix:
         nimversion:
           - '2.x'
+          - '2.0.x'
         os:
           - ubuntu-latest
     steps:
