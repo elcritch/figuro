@@ -120,7 +120,12 @@ when isMainModule:
                 foreground blackColor
                 justify Left
                 align Middle
-                text({deffont: "some long story " & $idx})
+              if idx == 1:
+                this.text({deffont: "hello world"})
+              if idx == 2:
+                this.text({deffont: "hello world my old friend"})
+              if idx == 3:
+                this.text({deffont: "hello world my old friend. how are you?"})
 
 
   suite "text suite":
