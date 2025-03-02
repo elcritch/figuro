@@ -40,7 +40,7 @@ suite "fontutils":
 
   test "long line":
     let box = initBox(0, 0, 200, 50)
-    let spans = {font: "hello world my old friend"}
+    let spans = {font: " hello world   my old friend"}
     let textLayout = getTypeset(box, spans, 
               hAlign = FontHorizontal.Left,
               vAlign = FontVertical.Top)
@@ -56,8 +56,8 @@ suite "fontutils":
       fontId = textLayout.fonts[0].fontId
       glyphs = textLayout.glyphs().toSeq()
 
-    for glyph in glyphs:
-      print glyph
+    # for glyph in glyphs:
+    #   print glyph
 
     check glyphs[0].fontId == fontId 
     check glyphs[1].fontId == fontId 

@@ -293,9 +293,30 @@ proc getTypesetImpl*(
 
   # echo "arrangement:\n", result.repr
   # print result
+  var longestWord: Slice[int]
+
   var maxPosition = vec2(float32.low, float32.low)
-  for selRect in result.selectionRects:
-    maxPosition = max(selRect.xy + selRect.wh, maxPosition.xy)
+  # for selRect in result.selectionRects:
+  #   maxPosition = max(selRect.xy + selRect.wh, maxPosition.xy)
+  var words = 0
+  var curr: Slice[int]
+
+  for idx, rune in result.runes:
+    if rune.isWhiteSpace:
+      curr = idx..idx
+    else:
+      if curr.len() == 1:
+        words.inc
+      curr.b = idx
+
+    if curr.len() > longestWord.len():
+      longestWord = curr
+
+    echo "RUNE: ", rune, " alpha: ", isWhiteSpace(rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, " currLen: ", curr.len() - 1
+
+  if longestWord.len() - 1 > 0:
+    longestWord.a.inc()
+  echo "LONGEST WORD: ", longestWord, " cnt: ", words
 
   result.maxSize.w = maxPosition.x.descaled() 
   result.maxSize.h = maxPosition.y.descaled() 
