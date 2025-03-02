@@ -215,34 +215,32 @@ proc getLineHeightImpl*(font: UiFont): UiScalar =
   result = pf.lineHeight.descaled()
 
 proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: UiSize] =
+  ## estimate the maximum and minimum size of a given typesetting 
 
-  # echo "arrangement:\n", result.repr
-  # print result
-  # var fontHeights: Table[FontId, float]
   var longestWord: Slice[int]
   var longestWordLen: float
 
-  # for font in textLayout.fonts:
-
-  var maxPosition = vec2(float32.low, float32.low)
-  # for selRect in result.selectionRects:
-  #   maxPosition = max(selRect.xy + selRect.wh, maxPosition.xy)
   var words = 0
+  var wordsHeight = 0.0
   var curr: Slice[int]
   var currLen: float
+  var maxWidth: float
 
+  # find longest word and count the number of words
+  # herein min content width is longest word
+  # herein max content height is a word on each line
   var idx = 0
   for glyph in textLayout.glyphs():
-    # print glyph
 
-    # for idx, rune in textLayout.runes:
-    let rune = glyph.rune
-    if rune.isWhiteSpace:
+    maxWidth += glyph.rect.w
+
+    if glyph.rune.isWhiteSpace:
       curr = idx+1..idx
       currLen = 0.0
     else:
       if curr.len() == 1:
         words.inc
+        wordsHeight += glyph.lineHeight
       curr.b = idx
       currLen += glyph.rect.w
 
@@ -250,13 +248,22 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
       longestWord = curr
       longestWordLen = currLen
 
-    echo "RUNE: ", rune, " alpha: ", isWhiteSpace(rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, "#", curr.len, " currLen: ", currLen, " x:", glyph.rect
+    echo "RUNE: ", glyph.rune, " alpha: ", isWhiteSpace(glyph.rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, "#", curr.len, " currLen: ", currLen, " x:", glyph.rect
     idx.inc()
 
-  echo "LONGEST WORD: ", longestWord, " len: ", longestWordLen, " cnt: ", words
+  echo "LONGEST WORD: ", longestWord, " len: ", longestWordLen, " word cnt: ", words, " height: ", wordsHeight
 
-  result.maxSize.w = maxPosition.x.descaled() 
-  result.maxSize.h = maxPosition.y.descaled() 
+  # find tallest font
+  var maxLine = 0.0
+  for font in textLayout.fonts:
+    maxLine = max(maxLine, font.lineHeight) 
+
+  result.minSize.w = longestWordLen.descaled()
+  result.minSize.h = maxLine.descaled()
+
+  result.maxSize.w = maxWidth.descaled()
+  result.maxSize.h = wordsHeight.descaled()
+
 
 proc getTypesetImpl*(
     box: Box,

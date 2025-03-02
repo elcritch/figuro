@@ -61,4 +61,3 @@ suite "fontutils":
 
     check glyphs[0].fontId == fontId 
     check glyphs[1].fontId == fontId 
-
