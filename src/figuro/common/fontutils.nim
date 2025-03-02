@@ -248,16 +248,16 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
       longestWord = curr
       longestWordLen = currLen
 
-    echo "RUNE: ", glyph.rune, " alpha: ", isWhiteSpace(glyph.rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, "#", curr.len, " currLen: ", currLen, " x:", glyph.rect
+    # echo "RUNE: ", glyph.rune, " alpha: ", isWhiteSpace(glyph.rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, "#", curr.len, " currLen: ", currLen, " x:", glyph.rect
     idx.inc()
-
-  echo "LONGEST WORD: ", longestWord, " len: ", longestWordLen, " word cnt: ", words, " height: ", wordsHeight
+  # echo "LONGEST WORD: ", longestWord, " len: ", longestWordLen, " word cnt: ", words, " height: ", wordsHeight
 
   # find tallest font
   var maxLine = 0.0
   for font in textLayout.fonts:
     maxLine = max(maxLine, font.lineHeight) 
 
+  # set results
   result.minSize.w = longestWordLen.descaled()
   result.minSize.h = maxLine.descaled()
 
