@@ -105,7 +105,7 @@ when isMainModule:
         let lh = deffont.getLineHeight()
 
         for idx in 1..3:
-          Rectangle.new "story" & $idx:
+          Rectangle.new "item" & $idx:
             with this:
               size 1'fr, max(ux(1.0*lh.float), cx"max-content")
 
@@ -137,10 +137,12 @@ when isMainModule:
       connectDefaults(main)
       emit main.doDraw()
       let scroll {.inject, used.} = main.children[0]
-      let items {.inject, used.} = main.children[0].children[0].children[0]
+      let item1 {.inject, used.} = scroll.children[0]
+      let item2 {.inject, used.} = scroll.children[1]
+      let item3 {.inject, used.} = scroll.children[2]
 
     test "basic":
       setupMain()
-      check scroll.name == "scroll"
-      check items.name == "items"
+      check scroll.name == "pane"
+      check item1.name == "item1"
       printLayout(main, cmTerminal)
