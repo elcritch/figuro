@@ -13,11 +13,11 @@ import pretty
 
 type GlyphPosition* = ref object ## Represents a glyph position after typesetting.
   fontId*: FontId
-  # fontSize*: float32
   rune*: Rune
   pos*: Vec2 # Where to draw the image character.
   rect*: Rect
   descent*: float32
+  lineHeight*: float32
 
 var
   glyphImageChan* = newChan[(Hash, Image)](1000)
@@ -46,9 +46,9 @@ proc getId*(typeface: Typeface): TypefaceId =
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
 
-  var mlh = 0.0 # maximum line height per row (though this does in total?)
-  for f in arrangement.fonts:
-    mlh = max(f.lineHeight, mlh)
+  # var mlh = 0.0 # maximum line height per row (though this does in total?)
+  # for f in arrangement.fonts:
+  #   mlh = max(f.lineHeight, mlh)
 
   block:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
@@ -67,6 +67,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
           pos: pos,
           rect: selection,
           descent: descent,
+          lineHeight: gfont.lineHeight,
         )
 
         # echo "GLYPH: ", rune, " pos: ", pos, " sel: ", selection, " lh: ", gfont.lineHeight, " mlh: ", flh, " : ", flh - gfont.lineHeight
@@ -213,6 +214,50 @@ proc getLineHeightImpl*(font: UiFont): UiScalar =
   let (_, pf) = font.convertFont()
   result = pf.lineHeight.descaled()
 
+proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: UiSize] =
+
+  # echo "arrangement:\n", result.repr
+  # print result
+  # var fontHeights: Table[FontId, float]
+  var longestWord: Slice[int]
+  var longestWordLen: float
+
+  # for font in textLayout.fonts:
+
+  var maxPosition = vec2(float32.low, float32.low)
+  # for selRect in result.selectionRects:
+  #   maxPosition = max(selRect.xy + selRect.wh, maxPosition.xy)
+  var words = 0
+  var curr: Slice[int]
+  var currLen: float
+
+  var idx = 0
+  for glyph in textLayout.glyphs():
+    # print glyph
+
+    # for idx, rune in textLayout.runes:
+    let rune = glyph.rune
+    if rune.isWhiteSpace:
+      curr = idx+1..idx
+      currLen = 0.0
+    else:
+      if curr.len() == 1:
+        words.inc
+      curr.b = idx
+      currLen += glyph.rect.w
+
+    if currLen > longestWordLen:
+      longestWord = curr
+      longestWordLen = currLen
+
+    echo "RUNE: ", rune, " alpha: ", isWhiteSpace(rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, "#", curr.len, " currLen: ", currLen, " x:", glyph.rect
+    idx.inc()
+
+  echo "LONGEST WORD: ", longestWord, " len: ", longestWordLen, " cnt: ", words
+
+  result.maxSize.w = maxPosition.x.descaled() 
+  result.maxSize.h = maxPosition.y.descaled() 
+
 proc getTypesetImpl*(
     box: Box,
     uiSpans: openArray[(UiFont, string)],
@@ -291,35 +336,9 @@ proc getTypesetImpl*(
     selectionRects: selectionRects,
   )
 
-  # echo "arrangement:\n", result.repr
-  # print result
-  var longestWord: Slice[int]
-
-  var maxPosition = vec2(float32.low, float32.low)
-  # for selRect in result.selectionRects:
-  #   maxPosition = max(selRect.xy + selRect.wh, maxPosition.xy)
-  var words = 0
-  var curr: Slice[int]
-
-  for idx, rune in result.runes:
-    if rune.isWhiteSpace:
-      curr = idx..idx
-    else:
-      if curr.len() == 1:
-        words.inc
-      curr.b = idx
-
-    if curr.len() > longestWord.len():
-      longestWord = curr
-
-    echo "RUNE: ", rune, " alpha: ", isWhiteSpace(rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, " currLen: ", curr.len() - 1
-
-  if longestWord.len() - 1 > 0:
-    longestWord.a.inc()
-  echo "LONGEST WORD: ", longestWord, " cnt: ", words
-
-  result.maxSize.w = maxPosition.x.descaled() 
-  result.maxSize.h = maxPosition.y.descaled() 
+  let content = result.calcMinMaxContent()
+  result.minSize = content.minSize
+  result.maxSize = content.maxSize
 
   result.generateGlyphImage()
   # echo "font: "
