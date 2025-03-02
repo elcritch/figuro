@@ -116,9 +116,9 @@ proc draw*(self: Main) {.slot.} =
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
                   with this:
-                    size 1'fr, max(ux(2.0*lh.float), cx"min-content")
-                  this.cxPadOffset[drow] = 20'ux
-                  this.cxPadSize[drow] = 20'ux
+                    size 1'fr, max(ux(1.0*lh.float), cx"max-content")
+                  this.cxPadOffset[drow] = 10'ux
+                  this.cxPadSize[drow] = 10'ux
 
                   Text.new "text":
                     with this:
