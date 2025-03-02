@@ -233,8 +233,10 @@ proc setInnerText*(
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
     trace "setInnertText: ", name = node.name, uid= node.uid
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
-    let maxPos = node.textLayout.maxSize
-    node.cxMin = [csFixed(maxPos.w), csFixed(maxPos.h)]
+    let minSize = node.textLayout.minSize
+    let maxSize = node.textLayout.maxSize
+    node.cxMin = [csFixed(minSize.w), csFixed(minSize.h)]
+    node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
     refresh(node.parent[])
 
 
