@@ -111,13 +111,14 @@ proc draw*(self: Main) {.slot.} =
               # if idx > 5: break
               capture story, idx:
                 Button.new "story" & $idx:
+                  if idx == 0:
+                    printLayout(this, cmTerminal)
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
                   with this:
-                    # size 1'fr, ux(2*lh)
                     size 1'fr, max(ux(2.0*lh.float), cx"min-content")
-                  # this.cxPadOffset[drow] = 20'ux
-                  # this.cxPadSize[drow] = 20'ux
+                  this.cxPadOffset[drow] = 20'ux
+                  this.cxPadSize[drow] = 20'ux
 
                   Text.new "text":
                     with this:
