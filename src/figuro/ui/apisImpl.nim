@@ -231,7 +231,7 @@ proc setInnerText*(
 ) =
   ## Set the text on an item.
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
-    trace "setInnertText: ", name = node.name, uid= node.uid
+    debug "setInnertText: ", name = node.name, uid= node.uid, box= node.box, cxSize= node.cxSize
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
     let minSize = node.textLayout.minSize
     let maxSize = node.textLayout.maxSize

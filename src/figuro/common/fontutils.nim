@@ -214,7 +214,7 @@ proc getLineHeightImpl*(font: UiFont): UiScalar =
   let (_, pf) = font.convertFont()
   result = pf.lineHeight.descaled()
 
-proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: UiSize] =
+proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: UiSize, bounding: UiBox] =
   ## estimate the maximum and minimum size of a given typesetting 
 
   var longestWord: Slice[int]
@@ -225,6 +225,7 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
   var curr: Slice[int]
   var currLen: float
   var maxWidth: float
+  var box: Rect = rect(float32.high, float32.high, 0, 0)
 
   # find longest word and count the number of words
   # herein min content width is longest word
@@ -233,6 +234,10 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
   for glyph in textLayout.glyphs():
 
     maxWidth += glyph.rect.w
+    box.x = min(box.x, glyph.rect.x)
+    box.y = min(box.y, glyph.rect.y)
+    box.w = max(box.w, glyph.rect.x+glyph.rect.w)
+    box.h = max(box.h, glyph.rect.y+glyph.rect.h)
 
     if glyph.rune.isWhiteSpace:
       curr = idx+1..idx
@@ -263,6 +268,8 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
 
   result.maxSize.w = maxWidth.descaled()
   result.maxSize.h = wordsHeight.descaled()
+
+  result.bounding = box.descaled()
 
 
 proc getTypesetImpl*(
@@ -346,6 +353,7 @@ proc getTypesetImpl*(
   let content = result.calcMinMaxContent()
   result.minSize = content.minSize
   result.maxSize = content.maxSize
+  result.bounding = content.bounding
 
   result.generateGlyphImage()
   # echo "font: "

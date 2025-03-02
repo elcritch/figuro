@@ -53,6 +53,7 @@ type
     selectionRects*: seq[Rect] ## The selection rects for each glyph.
     maxSize*: UiSize
     minSize*: UiSize
+    bounding*: UiBox
 
   TextSpan* = object
     text*: string

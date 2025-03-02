@@ -126,7 +126,8 @@ proc draw*(self: Main) {.slot.} =
                     this.cxPadOffset[drow] = 10'ux
                     this.cxPadSize[drow] = 10'ux
                     with this:
-                      size 1'fr, ux(2*lh)
+                      # size 1'fr, ux(2*lh)
+                      size cx"auto", cx"fit-content"
                       # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
                       offset 10'ux, 0'ux
                       foreground blackColor

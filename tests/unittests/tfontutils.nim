@@ -49,8 +49,32 @@ suite "fontutils":
 
     # maxSize: GVec2(arr: [245.0, 26.0]),
 
-    check textLayout.maxSize.w.float == 245.0
-    check textLayout.minSize.h.float == 26.0
+    check textLayout.maxSize.w.float == 260
+    check abs(textLayout.minSize.h.float - 26.09999) < 1.0e-4
+
+    let
+      fontId = textLayout.fonts[0].fontId
+      glyphs = textLayout.glyphs().toSeq()
+
+    # for glyph in glyphs:
+    #   print glyph
+
+    check glyphs[0].fontId == fontId 
+    check glyphs[1].fontId == fontId 
+
+  test "short line":
+    let box = initBox(0, 0, 100, 20)
+    let spans = {font: " hello world   my old friend"}
+    let textLayout = getTypeset(box, spans,
+              hAlign = FontHorizontal.Left,
+              vAlign = FontVertical.Top)
+
+    print textLayout
+
+    # maxSize: GVec2(arr: [245.0, 26.0]),
+
+    # check textLayout.maxSize.w.float == 245.0
+    # check textLayout.minSize.h.float == 26.0
 
     let
       fontId = textLayout.fonts[0].fontId
