@@ -105,14 +105,15 @@ proc draw*(self: Main) {.slot.} =
           onSignal(doMouseClick) do(this: ScrollPane,
                         kind: EventKind,
                         buttons: UiButtonView):
-            printLayout(this, cmTerminal)
+            if kind == Done:
+              printLayout(this, cmTerminal)
 
           Vertical.new "items":
             with this:
               contentHeight cx"min-content", 3'ui
 
             for idx, story in self.stories:
-              if idx > 3: break
+              if idx > 6: break
               capture story, idx:
                 Button.new "story" & $idx:
                   # if idx == 0:
@@ -127,7 +128,7 @@ proc draw*(self: Main) {.slot.} =
                     this.cxPadSize[drow] = 10'ux
                     with this:
                       # size 1'fr, ux(2*lh)
-                      size cx"auto", cx"fit-content"
+                      size cx"auto", cx"min-content"
                       # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
                       offset 10'ux, 0'ux
                       foreground blackColor

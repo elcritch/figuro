@@ -213,32 +213,6 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   result.lineHeightScale = 1.0
   result.lineHeightOverride = -1.0'ui
 
-proc hasInnerTextChanged*(
-    node: Figuro,
-    spans: openArray[(UiFont, string)],
-    hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top,
-): bool =
-  ## Checks if the text layout has changed.
-  let thash = getContentHash(node.box, spans, hAlign, vAlign)
-  result = thash != node.textLayout.contentHash
-
-proc setInnerText*(
-    node: Figuro,
-    spans: openArray[(UiFont, string)],
-    hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top,
-) =
-  ## Set the text on an item.
-  if hasInnerTextChanged(node, spans, hAlign, vAlign):
-    debug "setInnertText: ", name = node.name, uid= node.uid, box= node.box, cxSize= node.cxSize
-    node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
-    let minSize = node.textLayout.minSize
-    let maxSize = node.textLayout.maxSize
-    node.cxMin = [csFixed(minSize.w), csFixed(minSize.h)]
-    node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
-    refresh(node.parent[])
-
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
