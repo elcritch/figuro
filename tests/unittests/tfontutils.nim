@@ -85,3 +85,13 @@ suite "fontutils":
 
     check glyphs[0].fontId == fontId 
     check glyphs[1].fontId == fontId 
+
+  test "line width progression":
+    for i in 1..10:
+      let box = initBox(0, 0, 20*i, 20)
+      let spans = {font: " hello world   my old friend"}
+      let textLayout = getTypeset(box, spans,
+                hAlign = FontHorizontal.Left,
+                vAlign = FontVertical.Top)
+
+      echo "bounding: ", "box: ", box, " textBox: ", textLayout.bounding
