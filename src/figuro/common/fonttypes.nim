@@ -51,7 +51,8 @@ type
     runes*: seq[Rune] ## The runes of the text.
     positions*: seq[Vec2] ## The positions of the glyphs for each rune.
     selectionRects*: seq[Rect] ## The selection rects for each glyph.
-    maxPosition*: UiSize
+    maxSize*: UiSize
+    minSize*: UiSize
 
   TextSpan* = object
     text*: string

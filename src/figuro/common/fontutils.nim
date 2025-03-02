@@ -13,7 +13,7 @@ import pretty
 
 type GlyphPosition* = ref object ## Represents a glyph position after typesetting.
   fontId*: FontId
-  fontSize*: float32
+  # fontSize*: float32
   rune*: Rune
   pos*: Vec2 # Where to draw the image character.
   rect*: Rect
@@ -62,7 +62,7 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
 
         yield GlyphPosition(
           fontId: gfont.fontId,
-          fontSize: gfont.size,
+          # fontSize: gfont.size,
           rune: rune,
           pos: pos,
           rect: selection,
@@ -295,11 +295,10 @@ proc getTypesetImpl*(
   # print result
   var maxPosition = vec2(float32.low, float32.low)
   for selRect in result.selectionRects:
-    maxPosition.x = max(selRect.x + selRect.w, maxPosition.x)
-    maxPosition.y = max(selRect.y + selRect.h, maxPosition.y)
+    maxPosition = max(selRect.xy + selRect.wh, maxPosition.xy)
 
-  result.maxPosition.w = maxPosition.x.descaled() 
-  result.maxPosition.h = maxPosition.y.descaled() 
+  result.maxSize.w = maxPosition.x.descaled() 
+  result.maxSize.h = maxPosition.y.descaled() 
 
   result.generateGlyphImage()
   # echo "font: "

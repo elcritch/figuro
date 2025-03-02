@@ -101,26 +101,30 @@ proc draw*(self: Main) {.slot.} =
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
           echo "\n"
-          printLayout(this, cmTerminal)
+          # printLayout(this, cmTerminal)
+          onSignal(doMouseClick) do(this: ScrollPane,
+                        kind: EventKind,
+                        buttons: UiButtonView):
+            printLayout(this, cmTerminal)
 
           Vertical.new "items":
             with this:
-              contentHeight cx"max-content", 3'ui
+              contentHeight cx"min-content", 3'ui
 
             for idx, story in self.stories:
-              # if idx > 5: break
+              if idx > 3: break
               capture story, idx:
                 Button.new "story" & $idx:
-                  if idx == 0:
-                    printLayout(this, cmTerminal)
+                  # if idx == 0:
+                  #   printLayout(this, cmTerminal)
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
                   with this:
                     size 1'fr, max(ux(1.0*lh.float), cx"max-content")
-                  this.cxPadOffset[drow] = 10'ux
-                  this.cxPadSize[drow] = 10'ux
 
                   Text.new "text":
+                    this.cxPadOffset[drow] = 10'ux
+                    this.cxPadSize[drow] = 10'ux
                     with this:
                       size 1'fr, ux(2*lh)
                       # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
