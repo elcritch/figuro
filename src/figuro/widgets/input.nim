@@ -108,7 +108,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "clicked..."
+  echo "clicked... ", self.isActive, " kind ", kind, " disabled ", self.disabled
   self.active = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -237,19 +237,20 @@ proc draw*(self: Input) {.slot.} =
     Text.new "basicText":
       this.textLayout = self.text.layout
       WidgetContents()
-      fill this, self.color
+      foreground this, self.color
       
-      rectangle "cursor":
-        with this:
-          boxOf self.text.cursorRect
-          fill blackColor
-        this.fill.a = self.cursorTick.toFloat * 1.0
-      for i, selRect in self.text.selectionRects:
-        capture i:
-          Rectangle.new "selection":
-            with this:
-              boxOf self.text.selectionRects[i]
-              fill css"#A0A0FF" * 0.4
+    rectangle "cursor":
+      with this:
+        boxOf self.text.cursorRect
+        fill blackColor
+      this.fill.a = self.cursorTick.toFloat * 1.0
+
+    for i, selRect in self.text.selectionRects:
+      capture i:
+        Rectangle.new "selection":
+          with this:
+            boxOf self.text.selectionRects[i]
+            fill css"#A0A0FF" * 0.4
 
     if self.text.box != self.box:
       self.text.update(self.box)

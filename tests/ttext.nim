@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
         with this:
           cssEnable false
           box 10'ux, 10'ux, 400'ux, 100'ux
-          foreground blackColor
+          foreground css"green"
           align Top
           text({font: "|O' hello world!",
                 smallFont: "It's a small world"})
