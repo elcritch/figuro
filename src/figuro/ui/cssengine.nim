@@ -23,7 +23,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
 
   # echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
   if has(sel.id):
-    if sel.id in node.name:
+    if sel.id == node.name:
       # echo "matched class! node: ", $node
       discard
     else:
@@ -210,7 +210,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
     prevCombinator = sel.combinator
 
   if matched:
-    trace "cssengine", name= node.name, matchedNode= node.uid, rule= rule
+    debug "cssengine", name= node.name, matchedNode= node.uid, rule= rule
     # print rule.selectors
     # echo "setting properties:"
     for prop in rule.properties:

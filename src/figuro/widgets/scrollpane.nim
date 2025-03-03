@@ -167,14 +167,14 @@ proc draw*(self: ScrollPane) {.slot.} =
         connect(child, doLayoutResize, self, layoutResize)
 
     if self.settings.vertical:
-      rectangle "scrollbar-vertical":
+      Rectangle.new "scrollbar-vertical":
         with this:
           box self.bary.start.x, self.bary.start.y, self.settings.size.w, self.bary.size.h
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
           connect(doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
-      rectangle "scrollbar-horizontal":
+      Rectangle.new "scrollbar-horizontal":
         with this:
           box self.barx.start.x, self.barx.start.y, self.barx.size.w, self.barx.size.h
           fill css"#0000ff" * 0.4

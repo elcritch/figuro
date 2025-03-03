@@ -114,12 +114,14 @@ proc draw*(self: Main) {.slot.} =
 
           Vertical.new "items":
             with this:
+              offset 0'ux, 0'ux
+              size 100'pp-10'ux, cx"max-content"
               contentHeight cx"min-content", 3'ui
 
             for idx, story in self.stories:
-              if idx > 6: break
+              # if idx > 6: break
               capture story, idx:
-                Button.new "story" & $idx:
+                Button.new "story":
                   # if idx == 0:
                   #   printLayout(this, cmTerminal)
                   onSignal(doRightClick) do(this: Button[tuple[]]):
