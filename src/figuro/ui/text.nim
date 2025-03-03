@@ -31,8 +31,8 @@ proc setInnerText*(
   ## Set the text on an item.
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
     let box = node.textBoxBox()
-    debug "setInnertText: ", name = node.name, uid= node.uid, box= box
-    debug "setInnertText: ", name = node.name, uid= node.uid, cxSize= node.cxSize
+    trace "setInnertText", name = node.name, uid= node.uid, box= box
+    trace "setInnertText", name = node.name, uid= node.uid, cxSize= node.cxSize
     node.textLayout = system.getTypeset(box, spans, hAlign, vAlign)
     let minSize = node.textLayout.minSize
     let maxSize = node.textLayout.maxSize
@@ -43,7 +43,7 @@ proc setInnerText*(
     if node.cxSize[drow] == csNone():
       # node.cxSize[drow] = csFixed(bounding.h)
       node.cxMin[drow] = csFixed(bounding.h)
-    debug "setInnertText: ", name = node.name, uid= node.uid, textLayoutBox= node.textLayout.bounding
+    trace "setInnertText", name = node.name, uid= node.uid, textLayoutBox= node.textLayout.bounding
     refresh(node.parent[])
 
 proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =

@@ -44,23 +44,28 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
 
-    Rectangle.new "outer":
-      with this:
-        size cx"auto", cx"auto"
-        offset 10'ux, 10'ux
-        setGridCols 1'fr
-        setGridRows ["top"] 70'ux \
-                    ["items"] 1'fr \
-                    ["bottom"] 20'ux
-        setGridCols ["left"]  1'fr \
-                    ["right"] 0'ux
-        gridColumn 1 // 1
-        gridAutoFlow grRow
-        justifyItems CxCenter
-        alignItems CxStart
+    # Rectangle.new "outer":
+    #   with this:
+    #     size 100'pp, 100'pp
 
+    #     setGridCols 1'fr
+    #     setGridRows ["top"] 70'ux \
+    #                 ["items"] 0.5'fr \
+    #                 ["bottom"] 40'ux \
+    #                 ["end"] 0'ux
+    #     setGridCols ["left"]  1'fr \
+    #                 ["right"] 0'ux
+    #     gridAutoFlow grRow
+    #     justifyItems CxCenter
+    #     alignItems CxStart
+
+    Rectangle.new "outer":
+      size 100'pp-10'ux, 100'pp
+      # contentHeight cx"auto", 3'ui
+
+      # setPrettyPrintMode(cmTerminal)
       # printLayout(this, cmTerminal)
-      onSignal(doMouseClick) do(this: Rectangle,
+      onSignal(doMouseClick) do(this: Figuro,
                     kind: EventKind,
                     buttons: UiButtonView):
         if kind == Done:
@@ -68,9 +73,10 @@ proc draw*(self: Main) {.slot.} =
 
       Button.new "Load":
         with this:
-          size 0.5'fr, 50'ux
-          gridRow "top" // "items"
-          gridColumn "left" // "right"
+          size 50'pp, 50'ux
+          offset 25'pp, 0'pp
+          # gridRow "top" // "items"
+          # gridColumn "left" // "right"
 
         onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
           echo "Load clicked: ", kind
@@ -98,13 +104,13 @@ proc draw*(self: Main) {.slot.} =
       let lh = font.getLineHeight()
 
       Rectangle.new "pane":
+        offset 10'ux, 70'ux
+        size cx"auto", 100'pp - 100'ux
         ## FIXME: there seems to be a bug with a scrollpane as a grid child
         with this:
-          gridRow "items" // "bottom"
-          gridColumn 1 // 2
-          offset 2'pp, 2'pp
+          # gridRow "items" // "bottom"
+          # gridColumn 1 // 2
           cornerRadius 7.0'ux
-          size 96'pp, 90'pp
 
         ScrollPane.new "scroll":
           offset 0'pp, 0'pp
