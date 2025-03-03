@@ -107,16 +107,15 @@ proc draw*(self: Main) {.slot.} =
           size 96'pp, 90'pp
 
         ScrollPane.new "scroll":
-          offset 2'pp, 2'pp
+          offset 0'pp, 0'pp
           cornerRadius 7.0'ux
-          size 96'pp, 90'pp
-          echo "\n"
+          size 100'pp, 100'pp
 
           Vertical.new "items":
             with this:
               offset 0'ux, 0'ux
               size 100'pp-10'ux, cx"max-content"
-              contentHeight cx"min-content", 3'ui
+              contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
               # if idx > 6: break
@@ -126,8 +125,7 @@ proc draw*(self: Main) {.slot.} =
                   #   printLayout(this, cmTerminal)
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
-                  with this:
-                    size 1'fr, cx"auto"
+                  size 1'fr, cx"auto"
                   this.cxPadOffset[drow] = 10'ux
                   this.cxPadSize[drow] = 10'ux
 
