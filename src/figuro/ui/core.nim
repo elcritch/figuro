@@ -169,6 +169,7 @@ macro onSignal*(signal: untyped, blk: untyped) =
   let (target, params, body) =  getParams(blk)
   let args = repr(params)
   result = quote do:
+    block:
       proc handler() {.slot.} =
         unBindSigilEvents:
           `body`
@@ -178,7 +179,8 @@ macro onSignal*(signal: untyped, blk: untyped) =
       #            astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
       # connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
       connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
-  result[0].params = params
+  # echo "result: ", result.treeRepr
+  result[1][0].params = params
   # echo "result: ", result.treeRepr
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =

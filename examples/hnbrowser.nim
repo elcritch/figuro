@@ -121,11 +121,15 @@ proc draw*(self: Main) {.slot.} =
             for idx, story in self.stories:
               # if idx > 6: break
               capture story, idx:
-                Button.new "story":
+                Button[Submission].new "story":
+                  this.state = story
                   # if idx == 0:
                   #   printLayout(this, cmTerminal)
-                  onSignal(doRightClick) do(this: Button[tuple[]]):
+                  onSignal(doRightClick) do(this: Button[Submission]):
                     printLayout(this, cmTerminal)
+                  onSignal(doSingleClick) do(this: Button[Submission]):
+                    echo "HN Story: "
+                    echo this.state
                   size 1'fr, cx"auto"
                   this.cxPadOffset[drow] = 10'ux
                   this.cxPadSize[drow] = 10'ux
