@@ -136,7 +136,15 @@ proc draw*(self: Main) {.slot.} =
 
                   Text.new "text":
                     with this:
-                      offset 10'ux, 0'ux
+                      offset 0'ux, 0'ux
+                      foreground blackColor
+                      justify Left
+                      align Middle
+                      text({font: $story.rank})
+
+                  Text.new "text":
+                    with this:
+                      offset 20'ux, 0'ux
                       foreground blackColor
                       justify Left
                       align Middle
