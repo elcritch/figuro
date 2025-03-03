@@ -125,13 +125,13 @@ proc draw*(self: Main) {.slot.} =
                     printLayout(this, cmTerminal)
                   with this:
                     size 1'fr, cx"auto"
+                  this.cxPadOffset[drow] = 10'ux
+                  this.cxPadSize[drow] = 10'ux
 
                   Text.new "text":
-                    this.cxPadOffset[drow] = 10'ux
-                    this.cxPadSize[drow] = 10'ux
                     with this:
                       # size 1'fr, ux(2*lh)
-                      size cx"auto", cx"min-content"
+                      # size cx"auto", cx"min-content"
                       # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
                       offset 10'ux, 0'ux
                       foreground blackColor
