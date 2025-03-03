@@ -130,9 +130,6 @@ proc draw*(self: Main) {.slot.} =
 
                   Text.new "text":
                     with this:
-                      # size 1'fr, ux(2*lh)
-                      # size cx"auto", cx"min-content"
-                      # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
                       offset 10'ux, 0'ux
                       foreground blackColor
                       justify Left

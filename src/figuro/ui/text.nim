@@ -40,8 +40,10 @@ proc setInnerText*(
 
     node.cxMin = [csFixed(minSize.w), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
+    if node.cxSize[drow] == csNone():
+      # node.cxSize[drow] = csFixed(bounding.h)
+      node.cxMin[drow] = csFixed(bounding.h)
     debug "setInnertText: ", name = node.name, uid= node.uid, textLayoutBox= node.textLayout.bounding
-    echo "setInnertText: "
     echo ""
     refresh(node.parent[])
 

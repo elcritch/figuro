@@ -38,7 +38,17 @@ proc draw*(self: TMain) {.slot.} =
           this.cxPadSize[drow] = 10'ux
 
           Text.new "text":
-            text({deffont: "hello world my old friend. how are you?"})
+            text({deffont: "hello world"})
+            # this.cxSize[drow] = 100'ux
+
+        Rectangle.new "item2":
+          with this:
+            size 1'fr, cx"auto"
+          this.cxPadOffset[drow] = 10'ux
+          this.cxPadSize[drow] = 10'ux
+
+          Text.new "text":
+            text({deffont: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."})
             # this.cxSize[drow] = 100'ux
 
 when isMainModule:
@@ -71,9 +81,10 @@ when isMainModule:
     let item3 {.inject, used.} = scroll.children[0]
 
   block:
-    prettyPrintWriteMode = cmTerminal
-    defer: prettyPrintWriteMode = cmNone
+    # setPrettyPrintMode(cmTerminal)
+    defer: setPrettyPrintMode(cmNone)
     setupMain()
+    printLayout(main, cmTerminal)
     # check scroll.name == "pane"
     # check item1.name == "item1"
     echo "DONE"
