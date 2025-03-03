@@ -108,6 +108,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
+  echo "clicked..."
   self.active = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -119,7 +120,7 @@ proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
 
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
   when defined(debugEvents):
-    echo "\nInput:keyInput: ", " rune: ", $run, " :: ", self.text.selection
+    echo "\nInput:keyInput: ", " rune: ", $rune, " :: ", self.text.selection
   emit self.doUpdateInput(rune)
 
 proc updateInput*(self: Input, rune: Rune) {.slot.} =
@@ -233,7 +234,7 @@ proc draw*(self: Input) {.slot.} =
     if not connected(self, doUpdateInput, self):
       connect(self, doUpdateInput, self, updateInput)
 
-    basicText "basicText":
+    Text.new "basicText":
       this.textLayout = self.text.layout
       WidgetContents()
       fill this, self.color
