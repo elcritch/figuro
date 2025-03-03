@@ -81,6 +81,7 @@ proc draw*(self: Main) {.slot.} =
 
         Text.new "text":
           with this:
+            size 100'pp, 100'pp
             foreground blackColor
           case self.loading:
           of false:
