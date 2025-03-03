@@ -44,8 +44,9 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
 
-    rectangle "outer":
+    Rectangle.new "outer":
       with this:
+        size cx"auto", cx"auto"
         offset 10'ux, 10'ux
         setGridCols 1'fr
         setGridRows ["top"] 70'ux \
@@ -58,11 +59,19 @@ proc draw*(self: Main) {.slot.} =
         justifyItems CxCenter
         alignItems CxStart
 
+      # printLayout(this, cmTerminal)
+      onSignal(doMouseClick) do(this: Rectangle,
+                    kind: EventKind,
+                    buttons: UiButtonView):
+        if kind == Done:
+          printLayout(this.frame[].root, cmTerminal)
+
       Button.new "Load":
         with this:
           size 0.5'fr, 50'ux
           gridRow "top" // "items"
           gridColumn "left" // "right"
+
         onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
           echo "Load clicked: ", kind
           if kind == Done and not self.loading:
@@ -101,12 +110,6 @@ proc draw*(self: Main) {.slot.} =
           cornerRadius 7.0'ux
           size 96'pp, 90'pp
           echo "\n"
-          # printLayout(this, cmTerminal)
-          onSignal(doMouseClick) do(this: ScrollPane,
-                        kind: EventKind,
-                        buttons: UiButtonView):
-            if kind == Done:
-              printLayout(this, cmTerminal)
 
           Vertical.new "items":
             with this:
@@ -121,7 +124,7 @@ proc draw*(self: Main) {.slot.} =
                   onSignal(doRightClick) do(this: Button[tuple[]]):
                     printLayout(this, cmTerminal)
                   with this:
-                    size 1'fr, max(ux(1.0*lh.float), cx"max-content")
+                    size 1'fr, cx"auto"
 
                   Text.new "text":
                     this.cxPadOffset[drow] = 10'ux

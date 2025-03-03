@@ -36,11 +36,11 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 
 template rectangle*(name: string | static string, blk: untyped) =
   ## Starts a new rectangle.
-  widgetRegister[Rectangle](nkRectangle, name, blk)
+  widgetRegister[Rectangle](name, blk)
 
-template basicText*(name: string | static string, blk: untyped) =
+template textContents*(blk: untyped) =
   ## Starts a new rectangle.
-  widgetRegister[BasicFiguro](nkText, name, blk)
+  widgetRegister[Text]("text", blk)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers

@@ -119,13 +119,13 @@ proc apply*(prop: CssProperty, node: Figuro) =
     # is color in CSS really only for fonts?
     let color = colorValue(prop.value)
     if node of Text:
-      for child in node.children:
-        child.fill = color
+      # for child in node.children:
+      node.fill = color
     else:
       for child in node.children:
         if child of Text:
-          for gc in child.children:
-            gc.fill = color
+          # for gc in child.children:
+          child.fill = color
   of "background", "background-color":
     let color = colorValue(prop.value)
     node.fill = color

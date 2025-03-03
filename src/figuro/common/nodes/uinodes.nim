@@ -70,7 +70,7 @@ type
     attrs*: set[Attributes]
     userSetFields*: set[FieldSet]
 
-    cxSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxSize*: array[GridDir, Constraint] = [csAuto(), csNone()]
     cxOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
     cxPadSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
     cxPadOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]

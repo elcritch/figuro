@@ -151,10 +151,10 @@ proc draw*(self: ScrollPane) {.slot.} =
     rectangle "scrollBody":
       ## min-content is important here
       ## todo: do the same for horiz?
-      # if self.settings.vertical:
-      #   this.cxSize[drow] = cx"max-content"
-      # if self.settings.horizontal:
-      #   this.cxSize[dcol] = cx"max-content"
+      if self.settings.vertical:
+        this.cxSize[drow] = cx"max-content"
+      if self.settings.horizontal:
+        this.cxSize[dcol] = cx"max-content"
 
       with this:
         fill whiteColor.darken(0.2)

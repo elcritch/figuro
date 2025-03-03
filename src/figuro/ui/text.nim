@@ -4,10 +4,10 @@ import ../common/system
 
 proc textBoxBox(node: Figuro): UiBox =
   var box = node.box
-  if box.w == UiScalar.high or box.w == UiScalar.low:
-    box.w = 0.UiScalar
-  if box.h == UiScalar.high or box.h == UiScalar.low:
-    box.h = 0.UiScalar
+  # if box.w == UiScalar.high or box.w == UiScalar.low:
+  #   box.w = 0.UiScalar
+  # if box.h == UiScalar.high or box.h == UiScalar.low:
+  #   box.h = 0.UiScalar
   result = box
   result.x = 0
   result.y = 0
@@ -41,6 +41,7 @@ proc setInnerText*(
     node.cxMin = [csFixed(minSize.w), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
     debug "setInnertText: ", name = node.name, uid= node.uid, textLayoutBox= node.textLayout.bounding
+    echo "setInnertText: "
     echo ""
     refresh(node.parent[])
 
@@ -51,11 +52,7 @@ proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =
     true
 
 proc text*(node: Text, spans: openArray[(UiFont, string)]) {.thisWrapper.} =
-  if node.children.len() == 1:
-    setInnerText(node.children[0], spans, node.hAlign, node.vAlign)
-    node.cxMin = node.children[0].cxMin
-  else:
-    refresh(node)
+  setInnerText(node, spans, node.hAlign, node.vAlign)
 
 proc text*(node: Text, text: string) {.thisWrapper.} =
   text(node, {node.font: text})
@@ -75,74 +72,5 @@ proc justify*(node: Text, kind: FontHorizontal) {.thisWrapper.} =
 proc draw*(self: Text) {.slot.} =
   ## Input widget!
   withWidget(self):
-    basicText "basicText":
-      this.cxSize[drow] = max(cx"auto", cx"min-content")
-      fill this, self.color
-      # this.parent[].cxMin = this.cxMin
-
-when isMainModule:
-  import std/unittest
-  import cssgrid/prettyprints
-
-  let
-    typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
-    deffont = UiFont(typefaceId: typeface, size: 18)
-
-  type TMain* = ref object of Figuro
-
-  proc draw*(self: TMain) {.slot.} =
-    withWidget(self):
-      Rectangle.new "pane":
-        with this:
-          setGridCols 1'fr
-          gridAutoFlow grRow
-          justifyItems CxCenter
-          alignItems CxCenter
-        with this:
-          gridAutoRows cx"min-content"
-          gridRowGap 3'ui
-
-        let lh = deffont.getLineHeight()
-
-        for idx in 1..3:
-          Rectangle.new "item" & $idx:
-            with this:
-              size 1'fr, max(ux(1.0*lh.float), cx"max-content")
-
-            Text.new "text":
-              this.cxPadOffset[drow] = 10'ux
-              this.cxPadSize[drow] = 10'ux
-              with this:
-                # size 1'fr, ux(2*lh)
-                size cx"auto", cx"min-content"
-                # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
-                offset 10'ux, 0'ux
-                foreground blackColor
-                justify Left
-                align Middle
-              if idx == 1:
-                this.text({deffont: "hello world"})
-              if idx == 2:
-                this.text({deffont: "hello world my old friend"})
-              if idx == 3:
-                this.text({deffont: "hello world my old friend. how are you?"})
-
-
-  suite "text suite":
-    template setupMain() =
-      var main {.inject.} = TMain.new()
-      var frame = newAppFrame(main, size=(400'ui, 140'ui))
-      main.frame = frame.unsafeWeakRef()
-      main.frame[].theme = Theme(font: defaultFont)
-      connectDefaults(main)
-      emit main.doDraw()
-      let scroll {.inject, used.} = main.children[0]
-      let item1 {.inject, used.} = scroll.children[0]
-      let item2 {.inject, used.} = scroll.children[1]
-      let item3 {.inject, used.} = scroll.children[2]
-
-    test "basic":
-      setupMain()
-      check scroll.name == "pane"
-      check item1.name == "item1"
-      printLayout(main, cmTerminal)
+    fill this, self.color
+    # this.parent[].cxMin = this.cxMin

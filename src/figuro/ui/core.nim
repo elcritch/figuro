@@ -246,6 +246,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   connectDefaults[T](root)
 
   root.diffIndex = 0
+  root.cxSize = [cx"auto", cx"auto"]
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
   frame.theme = Theme(font: defaultFont)
@@ -349,25 +350,32 @@ template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-proc nodeInitRect*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+proc nodeInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
   ## callback proc to initialized a new node, or re-use and existing node
-  nodeInitImpl[T](nkRectangle, parent, name, predraw)
-proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
-  ## callback proc to initialized a new node, or re-use and existing node
-  nodeInitImpl[T](nkText, parent, name, predraw)
+  var node: `T` = nil
+  const kind = when T is Text: nkText else: nkRectangle
+  static:
+    echo "NODE INIT: ", $T, " kind: ", kind
+  preNode(kind, name, node, parent)
+  node.preDraw = preDraw
+  postNode(Figuro(node))
 
-proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
+# proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+#   ## callback proc to initialized a new node, or re-use and existing node
+#   nodeInitImpl[T](nkText, parent, name, predraw)
+
+proc widgetRegisterImpl*[T](nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
   ##
   
   let fc = FiguroContent(
     name: $(nn),
-    childInit: when nkind == nkText: nodeInitText[T] else: nodeInitRect[T],
+    childInit: nodeInit[T],
     childPreDraw: callback,
   )
   node.contents.add(fc)
 
-template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
+template widgetRegister*[T](nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   when not compiles(this.typeof):
@@ -378,7 +386,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
       let this {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
       `blk`
-  widgetRegisterImpl[T](nkind, nn, this, childPreDraw)
+  widgetRegisterImpl[T](nn, this, childPreDraw)
 
 # template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
 #   widgetRegister[t](nkText, name, blk)
@@ -395,17 +403,17 @@ template new*(tp: typedesc, name: string, blk: untyped) =
   ## 
   when arity(tp) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widgetRegister[tp](nkRectangle, name, blk)
+    widgetRegister[tp](name, blk)
   elif arity(tp) == stripGenericParams(tp).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(tp).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widgetRegister[tp[tuple[]]](nkRectangle, name, blk)
+      widgetRegister[tp[tuple[]]](name, blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widgetRegister[tp](nkRectangle, name, blk)
+    widgetRegister[tp](name, blk)
 
 template `as`*(tp: typedesc, name: string, blk: untyped) =
   new(tp, name, blk)
@@ -439,6 +447,7 @@ template withRootWidget*(self, blk: untyped) =
   self.contents.setLen(0)
 
   Rectangle.new "main":
+    this.cxSize = [cx"auto", cx"auto"]
     bindSigilEvents(this):
       `blk`
 
