@@ -126,7 +126,7 @@ proc draw*(self: Main) {.slot.} =
                   with this:
                     size 1'fr, cx"auto"
                   this.cxPadOffset[drow] = 10'ux
-                  this.cxPadSize[drow] = 10'ux
+                  # this.cxPadSize[drow] = 10'ux
 
                   Text.new "text":
                     with this:
