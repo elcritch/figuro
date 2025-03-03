@@ -136,7 +136,7 @@ proc draw*(self: Main) {.slot.} =
 
                   Text.new "text":
                     with this:
-                      offset 0'ux, 0'ux
+                      offset 5'ux, 0'ux
                       foreground blackColor
                       justify Left
                       align Middle
@@ -144,7 +144,7 @@ proc draw*(self: Main) {.slot.} =
 
                   Text.new "text":
                     with this:
-                      offset 20'ux, 0'ux
+                      offset 40'ux, 0'ux
                       foreground blackColor
                       justify Left
                       align Middle
