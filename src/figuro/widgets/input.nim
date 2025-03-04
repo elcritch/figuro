@@ -22,6 +22,7 @@ type
     skipOnInput*: HashSet[Rune]
 
   Cursor* = ref object of Figuro
+  Selection* = ref object of Figuro
 
 proc options*(self: Input, opt: set[InputOptions], state = true) =
   if state: self.opts.incl opt
@@ -233,6 +234,11 @@ proc draw*(self: Cursor) {.slot.} =
   withWidget(self):
     WidgetContents()
 
+proc draw*(self: Selection) {.slot.} =
+  ## Cursor widget!
+  withWidget(self):
+    WidgetContents()
+
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
@@ -245,7 +251,7 @@ proc draw*(self: Input) {.slot.} =
       this.textLayout = self.text.layout
       WidgetContents()
       foreground this, self.color
-      
+
     Cursor.new "input-cursor":
       with this:
         boxOf self.text.cursorRect
@@ -254,7 +260,7 @@ proc draw*(self: Input) {.slot.} =
 
     for i, selRect in self.text.selectionRects:
       capture i:
-        Rectangle.new "selection":
+        Selection.new "selection":
           with this:
             boxOf self.text.selectionRects[i]
             fill css"#A0A0FF" * 0.4
