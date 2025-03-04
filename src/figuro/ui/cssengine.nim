@@ -59,10 +59,15 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   case pseudo.cssType
   of "hover":
     if evHover in node.events:
-      # echo "matched pseudo hover! node: ", $node.name
-      discard
+      trace "cssengine:matched pseudo hover", node= $node.name
     else:
-      # echo "failed pseudo hover! node: ", $node.name, " evt: ", node.events
+      trace "cssengine:failed pseudo hover!", node= $node.name, evt= node.events
+      return
+  of "active":
+    if Active in node.userAttrs:
+      trace "cssengine:matched pseudo active", node= $node.name
+    else:
+      trace "cssengine:failed pseudo active!", node= $node.name, evt= node.events
       return
   else:
     once:
