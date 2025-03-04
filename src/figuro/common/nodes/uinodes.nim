@@ -84,7 +84,6 @@ type
     rotation*: float32
     fill*: Color
     highlight*: Color
-    transparency*: float32
     stroke*: Stroke
 
     gridTemplate*: GridTemplate

@@ -98,7 +98,6 @@ proc convert*(current: Figuro): render.Node =
   result.rotation = current.rotation
   result.fill = current.fill
   result.highlight = current.highlight
-  result.transparency = current.transparency
   result.stroke = current.stroke
 
   case current.kind

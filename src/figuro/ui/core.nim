@@ -72,7 +72,6 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.screenBox = rect(0,0,0,0)
   # node.offset = vec2(0, 0)
   node.fill = clearColor
-  node.transparency = 0
   node.stroke = Stroke(weight: 0, color: clearColor)
   # node.textStyle = TextStyle()
   # node.image = ImageStyle(name: "", color: whiteColor)
@@ -323,7 +322,6 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
 
   node.kind = kind
   node.highlight = parent.highlight
-  node.transparency = parent.transparency
   node.zlevel = parent.zlevel
   # node.theme = parent.theme
 

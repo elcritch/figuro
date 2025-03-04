@@ -55,7 +55,6 @@ type
     fsFill
     fsFillHover
     fsHighlight
-    fsTransparency
     fsStroke
     fsImage
     fsShadow
