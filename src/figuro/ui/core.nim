@@ -278,8 +278,8 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   nodeDepth.inc()
   trace "preNode:setup", nd= nd(), id= nid, node= node.getId, parent = parent.getId,
               diffIndex = parent.diffIndex, parentChilds = parent.children.len,
-              cattrs = if node.isNil: "{}" else: $node.attrs,
-              pattrs = if parent.isNil: "{}" else: $parent.attrs
+              cattrs = if node.isNil: "{}" else: $node.flags,
+              pattrs = if parent.isNil: "{}" else: $parent.flags
 
   # TODO: maybe a better node differ?
   template createNewNode[T](tp: typedesc[T], node: untyped) =

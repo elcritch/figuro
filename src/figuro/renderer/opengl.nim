@@ -38,7 +38,7 @@ proc copyInputs(window: Window): AppInputs =
 
 type
   WindowConfig* = object
-    pos*: IVec2 = ivec2(0, 0)
+    pos*: IVec2 = ivec2(100, 100)
     size*: IVec2 = ivec2(0, 0)
 
 proc windowCfgFile*(frame: WeakRef[AppFrame]): string = 
