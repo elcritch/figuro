@@ -28,10 +28,10 @@ proc draw(self: Main) {.slot.} =
       justify this, Center
       align this, Middle
       text(this, {font: "testing"})
-    widgetRegisterImpl[Text](nkText, "btnText", node, childPreDraw)
+    widgetRegisterImpl[Text]("btnText", node, childPreDraw)
 
   # same as: widgetRegisterImpl[Button[int]](nkRectangle, "btn", node, childPreDraw)
-  let fc = FiguroContent(name: "btn", childInit: nodeInitRect[Button[int]], childPreDraw: childPreDraw)
+  let fc = FiguroContent(name: "btn", childInit: nodeInit[Button[int]], childPreDraw: childPreDraw)
   node.contents.add(fc)
 
 
