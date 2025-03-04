@@ -82,7 +82,7 @@ proc draw*(self: Main) {.slot.} =
               skipOnInput ':'
             if this.disabled:
               fill this.fill.darken(0.4)
-              this.foreground css"grey"
+              foreground css"grey"
             proc overrideUpdateInput(this: Input, rune: Rune) {.slot.} =
               let isDigit = rune <=% Rune('9') and rune.char in {'0'..'9'}
               template currCharColon(): bool = this.text.runeAtCursor() == Rune(':')

@@ -61,8 +61,12 @@ proc text*(node: Text, text: string) {.thisWrapper.} =
 proc font*(node: Text, font: UiFont) {.thisWrapper.} =
   node.font = font
 
-proc foreground*(node: Text, color: Color) {.thisWrapper.} =
+proc foreground*(node: Text, color: Color) =
   node.color = color
+
+template foreground*(color: Color)  =
+  mixin foreground
+  this.foreground(color)
 
 proc align*(node: Text, kind: FontVertical) {.thisWrapper.} =
   node.vAlign = kind
