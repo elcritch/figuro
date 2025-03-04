@@ -370,3 +370,7 @@ proc gridAutoRows*(current: Figuro, item: Constraint) =
   current.gridTemplate.autos[drow] = item
   current.userAttrs.incl fsGridAutoRows
 
+proc attributes*(self: Figuro, opt: set[Attributes], state = true) =
+  if state: self.userAttrs.incl opt
+  else: self.userAttrs.excl opt
+

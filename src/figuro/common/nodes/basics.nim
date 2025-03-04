@@ -39,6 +39,7 @@ type
   Attributes* = enum
     SkipCss
     Disabled
+    Active
     Highlighted
 
     ## For tracking which fields have been set by the widget user code.

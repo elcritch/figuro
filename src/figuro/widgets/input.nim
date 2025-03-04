@@ -11,8 +11,6 @@ type
   InputOptions* = enum
     NoErase
     NoSelection
-    Active
-    Disabled
     OnlyAllowDigits
 
   Input* = ref object of Figuro
@@ -43,19 +41,21 @@ proc skipOnInput*(self: Input, msg: varargs[char]) =
   self.skipOnInput = msg.toRunes().toHashSet()
 
 proc isActive*(self: Input): bool =
-  Active in self.opts
+  Active in self.userAttrs
+
 proc disabled*(self: Input): bool =
-  Disabled in self.opts
+  Disabled in self.userAttrs
+
+proc `active=`*(self: Input, state: bool) =
+  self.attributes({Active}, state)
+
 proc `disabled`*(self: Input, state: bool) =
-  self.options({Disabled}, state)
+  self.attributes({Disabled}, state)
 
 proc overwrite*(self: Input): bool =
   Overwrite in self.text.opts
 proc overwrite*(self: Input, state: bool) =
   self.text.options({Overwrite}, state)
-
-proc `active=`*(self: Input, state: bool) =
-  self.options({Active}, state)
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
