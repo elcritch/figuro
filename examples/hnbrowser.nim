@@ -135,7 +135,7 @@ proc draw*(self: Main) {.slot.} =
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":
-                      size 100'pp, cx"max-content"
+                      # size 100'pp, cx"max-content"
                       Text.new "id":
                         offset 5'ux, 0'ux
                         foreground blackColor
@@ -151,7 +151,7 @@ proc draw*(self: Main) {.slot.} =
                         text({font: $story.link.title})
 
                     Rectangle.new "info-box":
-                      size 100'pp, ux(1.5*lh.float)
+                      size 100'pp, ux(1.1*lh.float)
 
                       Text.new "id":
                         offset 5'ux, 0'ux
