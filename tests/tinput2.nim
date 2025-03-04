@@ -109,10 +109,11 @@ proc draw*(self: Main) {.slot.} =
             connect(doMouseClick, self, btnClicked)
 
           Text.new "text":
+            size 100'pp, 100'pp
             with this:
               foreground blackColor
               justify Center
-            align Middle
+              align Middle
             if not self.running:
               text({buttonFont: "COUNTDOWN"})
             else:
