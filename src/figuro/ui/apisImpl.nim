@@ -96,6 +96,22 @@ proc boxOf*(current: Figuro, box: Box) =
   current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
   current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
 
+proc padding*(current: Figuro, left, right, top, bottom: UiScalar | Constraint) =
+  current.cxPadOffset = [left, top]
+  current.cxPadSize = [bottom, right]
+proc paddingLeft*(current: Figuro, v: Constraint) =
+  current.cxPadOffset[dcol] = v
+proc paddingTop*(current: Figuro, v: Constraint) =
+  current.cxPadOffset[drow] = v
+proc paddingRight*(current: Figuro, v: Constraint) =
+  current.cxPadSize[dcol] = v
+proc paddingBottom*(current: Figuro, v: Constraint) =
+  current.cxPadSize[drow] = v
+
+proc paddingXY*(current: Figuro, top, bottom: Constraint) =
+  current.cxPadOffset[drow] = top
+  current.cxPadSize[drow] = bottom
+
 ## ---------------------------------------------
 ##             Fidget Node APIs
 ## ---------------------------------------------

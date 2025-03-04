@@ -73,6 +73,14 @@ template boxOf*(node: Figuro) {.thisWrapper.}
 template boxOf*(box: Box) {.thisWrapper.}
   ## Sets the node's size to the given box.
 
+template padding*(left, right, top, bottom: Constraint) {.thisWrapper.}
+
+template paddingLeft*(v: Constraint) {.thisWrapper.}
+template paddingTop*(v: Constraint) {.thisWrapper.}
+template paddingRight*(v: Constraint) {.thisWrapper.}
+template paddingBottom*(v: Constraint) {.thisWrapper.}
+template paddingXY*(t, b: Constraint) {.thisWrapper.}
+
 ## ---------------------------------------------
 ##             Fidget Node APIs
 ## ---------------------------------------------
