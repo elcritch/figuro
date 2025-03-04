@@ -101,11 +101,10 @@ proc draw*(self: Main) {.slot.} =
 
       Rectangle.new "pane":
         ## FIXME: there seems to be a bug with a scrollpane as a grid child
-        with this:
-          gridRow "items" // "bottom"
-          gridColumn 1 // 2
-          cornerRadius 7.0'ux
-          size cx"auto", cx"none"
+        gridRow "items" // "bottom"
+        gridColumn 1 // 2
+        cornerRadius 7.0'ux
+        size cx"auto", cx"none"
 
         ScrollPane.new "scroll":
           offset 0'pp, 0'pp
@@ -113,41 +112,53 @@ proc draw*(self: Main) {.slot.} =
           size 100'pp, 100'pp
 
           Vertical.new "items":
-            with this:
-              offset 0'ux, 0'ux
-              size 100'pp, cx"max-content"
-              contentHeight cx"auto", 3'ui
+            offset 0'ux, 0'ux
+            size 100'pp, cx"max-content"
+            contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
               # if idx > 6: break
               capture story, idx:
                 Button[Submission].new "story":
+                  size 1'fr, cx"auto"
+                  paddingXY 10'ux, 10'ux
+
                   this.state = story
-                  # if idx == 0:
-                  #   printLayout(this, cmTerminal)
                   onSignal(doRightClick) do(this: Button[Submission]):
                     printLayout(this, cmTerminal)
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
                     echo this.state
-                  size 1'fr, cx"auto"
-                  paddingXY 10'ux, 10'ux
 
-                  Text.new "text":
-                    with this:
-                      offset 5'ux, 0'ux
-                      foreground blackColor
-                      justify Left
-                      align Middle
-                      text({font: $story.rank})
+                  Vertical.new "story-fields":
+                    size cx"auto", cx"max-content"
+                    contentHeight cx"auto"
 
-                  Text.new "text":
-                    with this:
-                      offset 40'ux, 0'ux
-                      foreground blackColor
-                      justify Left
-                      align Middle
-                      text({font: $story.link.title})
+                    Rectangle.new "title-box":
+                      size 100'pp, cx"max-content"
+                      Text.new "id":
+                        offset 5'ux, 0'ux
+                        foreground blackColor
+                        justify Left
+                        align Middle
+                        text({font: $story.rank})
+
+                      Text.new "title":
+                        offset 40'ux, 0'ux
+                        foreground blackColor
+                        justify Left
+                        align Middle
+                        text({font: $story.link.title})
+
+                    Rectangle.new "info-box":
+                      size 100'pp, ux(1.5*lh.float)
+
+                      Text.new "id":
+                        offset 5'ux, 0'ux
+                        foreground blackColor
+                        justify Left
+                        align Middle
+                        text({font: $story.upvote.id})
 
 var main = Main(name: "main")
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
