@@ -212,7 +212,7 @@ proc render(
   ##
   ## Note that visiable draw calls need to check they're on the current
   ## active ZLevel (z-index).
-  if disableRender in node.attrs:
+  if NfDisableRender in node.flags:
     return
 
   # setup the opengl context to match the current node size and position
@@ -239,7 +239,7 @@ proc render(
     ctx.renderDropShadows(node)
 
   # handle clipping children content based on this node
-  ifrender clipContent in node.attrs:
+  ifrender NfClipContent in node.flags:
     ctx.beginMask()
     ctx.drawMasks(node)
     ctx.endMask()
@@ -261,7 +261,7 @@ proc render(
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifrender scrollPanel in node.attrs:
+  ifrender NfScrollPanel in node.flags:
     # handles scrolling panel
     ctx.saveTransform()
     ctx.translate(-node.offset)

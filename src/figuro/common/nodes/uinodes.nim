@@ -67,10 +67,10 @@ type
     scroll*: Position
     prevSize*: Position
 
-    attrs*: set[Attributes]
-    userSetFields*: set[FieldSet]
+    flags*: set[NodeFlags]
+    userAttrs*: set[Attributes]
 
-    cxSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
+    cxSize*: array[GridDir, Constraint] = [csAuto(), csNone()]
     cxOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
     cxPadSize*: array[GridDir, Constraint] = [csAuto(), csAuto()]
     cxPadOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
@@ -84,7 +84,6 @@ type
     rotation*: float32
     fill*: Color
     highlight*: Color
-    transparency*: float32
     stroke*: Stroke
 
     gridTemplate*: GridTemplate

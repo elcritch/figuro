@@ -63,11 +63,13 @@ proc draw*(self: Main) {.slot.} =
           size 100'pp, 100'pp
           contentHeight cx"auto", gap = 0'ui
         
-        block:
+        Rectangle.new "input-outer":
           # Test text input
+          border 1'ui, css"black"
+          size 90'pp, 30'pp
           Input.new("time-input"):
             with this:
-              size 90'pp, 30'pp
+              size 100'pp, 100'pp
               align Middle
               justify Center
               font defaultFont
@@ -80,6 +82,7 @@ proc draw*(self: Main) {.slot.} =
               skipOnInput ':'
             if this.disabled:
               fill this.fill.darken(0.4)
+              foreground this, css"grey"
             proc overrideUpdateInput(this: Input, rune: Rune) {.slot.} =
               let isDigit = rune <=% Rune('9') and rune.char in {'0'..'9'}
               template currCharColon(): bool = this.text.runeAtCursor() == Rune(':')
@@ -107,10 +110,11 @@ proc draw*(self: Main) {.slot.} =
             connect(doMouseClick, self, btnClicked)
 
           Text.new "text":
+            size 100'pp, 100'pp
             with this:
               foreground blackColor
               justify Center
-            align Middle
+              align Middle
             if not self.running:
               text({buttonFont: "COUNTDOWN"})
             else:

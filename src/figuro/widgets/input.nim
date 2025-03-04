@@ -11,8 +11,6 @@ type
   InputOptions* = enum
     NoErase
     NoSelection
-    Active
-    Disabled
     OnlyAllowDigits
 
   Input* = ref object of Figuro
@@ -22,6 +20,9 @@ type
     cursorTick: int
     cursorCnt: int
     skipOnInput*: HashSet[Rune]
+
+  Cursor* = ref object of Figuro
+  Selection* = ref object of Figuro
 
 proc options*(self: Input, opt: set[InputOptions], state = true) =
   if state: self.opts.incl opt
@@ -41,19 +42,21 @@ proc skipOnInput*(self: Input, msg: varargs[char]) =
   self.skipOnInput = msg.toRunes().toHashSet()
 
 proc isActive*(self: Input): bool =
-  Active in self.opts
+  Active in self.userAttrs
+
 proc disabled*(self: Input): bool =
-  Disabled in self.opts
+  Disabled in self.userAttrs
+
+proc `active=`*(self: Input, state: bool) =
+  self.attributes({Active}, state)
+
 proc `disabled`*(self: Input, state: bool) =
-  self.options({Disabled}, state)
+  self.attributes({Disabled}, state)
 
 proc overwrite*(self: Input): bool =
   Overwrite in self.text.opts
 proc overwrite*(self: Input, state: bool) =
   self.text.options({Overwrite}, state)
-
-proc `active=`*(self: Input, state: bool) =
-  self.options({Active}, state)
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font
@@ -108,6 +111,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
+  echo "clicked... ", self.isActive, " kind ", kind, " disabled ", self.disabled
   self.active = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -119,7 +123,7 @@ proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
 
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
   when defined(debugEvents):
-    echo "\nInput:keyInput: ", " rune: ", $run, " :: ", self.text.selection
+    echo "\nInput:keyInput: ", " rune: ", $rune, " :: ", self.text.selection
   emit self.doUpdateInput(rune)
 
 proc updateInput*(self: Input, rune: Rune) {.slot.} =
@@ -225,6 +229,16 @@ proc initialize*(self: Input) {.slot.} =
   self.text = newTextBox(self.box, self.frame[].theme.font)
   # connect(self, doLayoutResize, self, layoutResize)
 
+proc draw*(self: Cursor) {.slot.} =
+  ## Cursor widget!
+  withWidget(self):
+    WidgetContents()
+
+proc draw*(self: Selection) {.slot.} =
+  ## Cursor widget!
+  withWidget(self):
+    WidgetContents()
+
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
@@ -233,22 +247,24 @@ proc draw*(self: Input) {.slot.} =
     if not connected(self, doUpdateInput, self):
       connect(self, doUpdateInput, self, updateInput)
 
-    basicText "basicText":
+    Text.new "basicText":
       this.textLayout = self.text.layout
       WidgetContents()
-      fill this, self.color
-      
-      rectangle "cursor":
-        with this:
-          boxOf self.text.cursorRect
-          fill blackColor
-        this.fill.a = self.cursorTick.toFloat * 1.0
-      for i, selRect in self.text.selectionRects:
-        capture i:
-          Rectangle.new "selection":
-            with this:
-              boxOf self.text.selectionRects[i]
-              fill css"#A0A0FF" * 0.4
+      foreground this, self.color
+
+    Cursor.new "input-cursor":
+      with this:
+        boxOf self.text.cursorRect
+        fill blackColor
+      this.fill.a = self.cursorTick.toFloat * 1.0
+      this.attributes({Active}, self.cursorTick == 1)
+
+    for i, selRect in self.text.selectionRects:
+      capture i:
+        Selection.new "selection":
+          with this:
+            boxOf self.text.selectionRects[i]
+            fill css"#A0A0FF" * 0.4
 
     if self.text.box != self.box:
       self.text.update(self.box)

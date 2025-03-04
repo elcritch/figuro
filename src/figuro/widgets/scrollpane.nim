@@ -40,7 +40,7 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     viewSize = viewBox.wh
     contentSize = childBox.wh
     contentViewRatio = (viewSize / contentSize).clamp(0.0'ui, 1.0'ui)
-    contentOverflow = (contentSize - viewSize).clamp(0'ui, contentSize.w)
+    contentOverflow = (contentSize - viewSize).clamp(0'ui, contentSize)
 
   result = ScrollWindow(
     viewSize: viewSize,
@@ -159,7 +159,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       with this:
         fill whiteColor.darken(0.2)
       this.offset = self.window.scrollby
-      this.attrs.incl scrollPanel
+      this.flags.incl NfScrollPanel
       WidgetContents()
       scroll(self, initPosition(0, 0))
       for child in this.children:
@@ -167,14 +167,14 @@ proc draw*(self: ScrollPane) {.slot.} =
         connect(child, doLayoutResize, self, layoutResize)
 
     if self.settings.vertical:
-      rectangle "scrollbar-vertical":
+      Rectangle.new "scrollbar-vertical":
         with this:
           box self.bary.start.x, self.bary.start.y, self.settings.size.w, self.bary.size.h
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
           connect(doDrag, self, scrollBarDrag)
     if self.settings.horizontal:
-      rectangle "scrollbar-horizontal":
+      Rectangle.new "scrollbar-horizontal":
         with this:
           box self.barx.start.x, self.barx.start.y, self.barx.size.w, self.barx.size.h
           fill css"#0000ff" * 0.4

@@ -72,7 +72,6 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.screenBox = rect(0,0,0,0)
   # node.offset = vec2(0, 0)
   node.fill = clearColor
-  node.transparency = 0
   node.stroke = Stroke(weight: 0, color: clearColor)
   # node.textStyle = TextStyle()
   # node.image = ImageStyle(name: "", color: whiteColor)
@@ -80,19 +79,19 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.shadow = Shadow.none()
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
-  node.attrs = {}
+  node.userAttrs = {}
 
 var nodeDepth = 0
 proc nd*(): string =
   for i in 0 .. nodeDepth:
     result &= "   "
 
-proc disable(fig: Figuro) =
+proc markDead(fig: Figuro) =
   if not fig.isNil:
     fig.parent.pt = nil
-    fig.attrs.incl inactive
+    fig.flags.incl NfDead
     for child in fig.children:
-      disable(child)
+      markDead(child)
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
@@ -100,7 +99,7 @@ proc removeExtraChildren*(node: Figuro) =
     return
   echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
   for i in node.diffIndex ..< node.children.len:
-    disable(node.children[i])
+    markDead(node.children[i])
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
@@ -169,6 +168,7 @@ macro onSignal*(signal: untyped, blk: untyped) =
   let (target, params, body) =  getParams(blk)
   let args = repr(params)
   result = quote do:
+    block:
       proc handler() {.slot.} =
         unBindSigilEvents:
           `body`
@@ -178,7 +178,8 @@ macro onSignal*(signal: untyped, blk: untyped) =
       #            astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
       # connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
       connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
-  result[0].params = params
+  # echo "result: ", result.treeRepr
+  result[1][0].params = params
   # echo "result: ", result.treeRepr
 
 proc sibling*(self: Figuro, name: string): Option[Figuro] =
@@ -193,13 +194,13 @@ template sibling*(name: string): Option[Figuro] =
   node.sibling(name)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
-  fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
-  fig.userSetFields = {}
+  fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
+  fig.userAttrs = {}
   fig.diffIndex = 0
   fig.contents.setLen(0)
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
-  if fig.preDraw != nil and preDrawReady in fig.attrs:
+  if fig.preDraw != nil and NfPreDrawReady in fig.flags:
     fig.preDraw(fig)
 
 proc handleContents*(fig: Figuro) {.slot.} =
@@ -246,6 +247,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   connectDefaults[T](root)
 
   root.diffIndex = 0
+  root.cxSize = [cx"auto", cx"auto"]
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
   frame.theme = Theme(font: defaultFont)
@@ -276,8 +278,8 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   nodeDepth.inc()
   trace "preNode:setup", nd= nd(), id= nid, node= node.getId, parent = parent.getId,
               diffIndex = parent.diffIndex, parentChilds = parent.children.len,
-              cattrs = if node.isNil: "{}" else: $node.attrs,
-              pattrs = if parent.isNil: "{}" else: $parent.attrs
+              cattrs = if node.isNil: "{}" else: $node.flags,
+              pattrs = if parent.isNil: "{}" else: $parent.flags
 
   # TODO: maybe a better node differ?
   template createNewNode[T](tp: typedesc[T], node: untyped) =
@@ -320,7 +322,6 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
 
   node.kind = kind
   node.highlight = parent.highlight
-  node.transparency = parent.transparency
   node.zlevel = parent.zlevel
   # node.theme = parent.theme
 
@@ -333,9 +334,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   connectDefaults[T](node)
 
 proc postNode*(node: var Figuro) =
-  if initialized notin node.attrs:
+  if NfInitialized notin node.flags:
     emit node.doInitialize()
-    node.attrs.incl initialized
+    node.flags.incl NfInitialized
   emit node.doDraw()
 
   node.removeExtraChildren()
@@ -349,25 +350,32 @@ template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-proc nodeInitRect*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+proc nodeInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
   ## callback proc to initialized a new node, or re-use and existing node
-  nodeInitImpl[T](nkRectangle, parent, name, predraw)
-proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
-  ## callback proc to initialized a new node, or re-use and existing node
-  nodeInitImpl[T](nkText, parent, name, predraw)
+  var node: `T` = nil
+  const kind = when T is Text: nkText else: nkRectangle
+  static:
+    echo "NODE INIT: ", $T, " kind: ", kind
+  preNode(kind, name, node, parent)
+  node.preDraw = preDraw
+  postNode(Figuro(node))
 
-proc widgetRegisterImpl*[T](nkind: static NodeKind, nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
+# proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+#   ## callback proc to initialized a new node, or re-use and existing node
+#   nodeInitImpl[T](nkText, parent, name, predraw)
+
+proc widgetRegisterImpl*[T](nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
   ##
   
   let fc = FiguroContent(
     name: $(nn),
-    childInit: when nkind == nkText: nodeInitText[T] else: nodeInitRect[T],
+    childInit: nodeInit[T],
     childPreDraw: callback,
   )
   node.contents.add(fc)
 
-template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, blk: untyped) =
+template widgetRegister*[T](nn: string | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   when not compiles(this.typeof):
@@ -378,7 +386,7 @@ template widgetRegister*[T](nkind: static NodeKind, nn: string | static string, 
       let this {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
       `blk`
-  widgetRegisterImpl[T](nkind, nn, this, childPreDraw)
+  widgetRegisterImpl[T](nn, this, childPreDraw)
 
 # template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
 #   widgetRegister[t](nkText, name, blk)
@@ -395,17 +403,17 @@ template new*(tp: typedesc, name: string, blk: untyped) =
   ## 
   when arity(tp) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widgetRegister[tp](nkRectangle, name, blk)
+    widgetRegister[tp](name, blk)
   elif arity(tp) == stripGenericParams(tp).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(tp).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widgetRegister[tp[tuple[]]](nkRectangle, name, blk)
+      widgetRegister[tp[tuple[]]](name, blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widgetRegister[tp](nkRectangle, name, blk)
+    widgetRegister[tp](name, blk)
 
 template `as`*(tp: typedesc, name: string, blk: untyped) =
   new(tp, name, blk)
@@ -439,6 +447,7 @@ template withRootWidget*(self, blk: untyped) =
   self.contents.setLen(0)
 
   Rectangle.new "main":
+    this.cxSize = [cx"auto", cx"auto"]
     bindSigilEvents(this):
       `blk`
 

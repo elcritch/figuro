@@ -44,34 +44,46 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
 
-    rectangle "outer":
+    Rectangle.new "outer":
       with this:
-        offset 10'ux, 10'ux
+        size 100'pp, 100'pp
         setGridCols 1'fr
         setGridRows ["top"] 70'ux \
                     ["items"] 1'fr \
-                    ["bottom"] 20'ux
+                    ["bottom"] 40'ux \
+                    ["end"] 0'ux
         setGridCols ["left"]  1'fr \
                     ["right"] 0'ux
-        gridColumn 1 // 1
         gridAutoFlow grRow
-        justifyItems CxCenter
-        alignItems CxStart
+        justifyItems CxStretch
+        alignItems CxStretch
 
-      Button.new "Load":
-        with this:
-          size 0.5'fr, 50'ux
-          gridRow "top" // "items"
-          gridColumn "left" // "right"
-        onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
-          echo "Load clicked: ", kind
-          if kind == Done and not self.loading:
-            emit self.htmlLoad()
-            self.loading = true
-            refresh(self)
+      # setPrettyPrintMode(cmTerminal)
+      # printLayout(this, cmTerminal)
+      onSignal(doMouseClick) do(this: Figuro,
+                    kind: EventKind,
+                    buttons: UiButtonView):
+        if kind == Done:
+          printLayout(this.frame[].root, cmTerminal)
+
+      Rectangle.new "top":
+        gridRow "top" // "items"
+        gridColumn "left" // "right"
+
+        Button.new "Load":
+          with this:
+            size 50'pp, 50'ux
+            offset 25'pp, 10'ux
+          onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+            echo "Load clicked: ", kind
+            if kind == Done and not self.loading:
+              emit self.htmlLoad()
+              self.loading = true
+              refresh(self)
 
         Text.new "text":
           with this:
+            size 100'pp, 100'pp
             foreground blackColor
           case self.loading:
           of false:
@@ -92,38 +104,47 @@ proc draw*(self: Main) {.slot.} =
         with this:
           gridRow "items" // "bottom"
           gridColumn 1 // 2
-          offset 2'pp, 2'pp
           cornerRadius 7.0'ux
-          size 96'pp, 90'pp
+          size cx"auto", cx"none"
 
         ScrollPane.new "scroll":
-          offset 2'pp, 2'pp
+          offset 0'pp, 0'pp
           cornerRadius 7.0'ux
-          size 96'pp, 90'pp
-          echo "\n"
-          printLayout(this, cmTerminal)
+          size 100'pp, 100'pp
 
           Vertical.new "items":
             with this:
-              contentHeight cx"max-content", 3'ui
+              offset 0'ux, 0'ux
+              size 100'pp-10'ux, cx"max-content"
+              contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
-              # if idx > 5: break
+              # if idx > 6: break
               capture story, idx:
-                Button.new "story" & $idx:
-                  onSignal(doRightClick) do(this: Button[tuple[]]):
+                Button[Submission].new "story":
+                  this.state = story
+                  # if idx == 0:
+                  #   printLayout(this, cmTerminal)
+                  onSignal(doRightClick) do(this: Button[Submission]):
                     printLayout(this, cmTerminal)
-                  with this:
-                    # size 1'fr, ux(2*lh)
-                    size 1'fr, max(ux(2.0*lh.float), cx"min-content")
-                  # this.cxPadOffset[drow] = 20'ux
-                  # this.cxPadSize[drow] = 20'ux
+                  onSignal(doSingleClick) do(this: Button[Submission]):
+                    echo "HN Story: "
+                    echo this.state
+                  size 1'fr, cx"auto"
+                  this.cxPadOffset[drow] = 10'ux
+                  this.cxPadSize[drow] = 10'ux
 
                   Text.new "text":
                     with this:
-                      size 1'fr, ux(2*lh)
-                      # size 1'fr, max(ux(1.5*lh.float), cx"min-content")
-                      offset 10'ux, 0'ux
+                      offset 5'ux, 0'ux
+                      foreground blackColor
+                      justify Left
+                      align Middle
+                      text({font: $story.rank})
+
+                  Text.new "text":
+                    with this:
+                      offset 40'ux, 0'ux
                       foreground blackColor
                       justify Left
                       align Middle

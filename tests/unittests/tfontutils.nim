@@ -21,15 +21,15 @@ suite "fontutils":
               hAlign = FontHorizontal.Left,
               vAlign = FontVertical.Top)
 
-    print textLayout
+    # print textLayout
 
     let
       fontId = textLayout.fonts[0].fontId
       smallFontId = textLayout.fonts[1].fontId
       glyphs = textLayout.glyphs().toSeq()
 
-    for glyph in glyphs:
-      print glyph
+    # for glyph in glyphs:
+    #   print glyph
 
     check glyphs[0].fontId == fontId 
     check glyphs[1].fontId == fontId 
@@ -37,3 +37,61 @@ suite "fontutils":
     check glyphs[3].fontId == smallFontId 
     check glyphs[4].fontId == fontId 
     check glyphs[5].fontId == fontId 
+
+  test "long line":
+    let box = initBox(0, 0, 200, 50)
+    let spans = {font: " hello world   my old friend"}
+    let textLayout = getTypeset(box, spans, 
+              hAlign = FontHorizontal.Left,
+              vAlign = FontVertical.Top)
+
+    print textLayout
+
+    # maxSize: GVec2(arr: [245.0, 26.0]),
+
+    check textLayout.maxSize.w.float == 260
+    check abs(textLayout.minSize.h.float - 26.09999) < 1.0e-4
+
+    let
+      fontId = textLayout.fonts[0].fontId
+      glyphs = textLayout.glyphs().toSeq()
+
+    # for glyph in glyphs:
+    #   print glyph
+
+    check glyphs[0].fontId == fontId 
+    check glyphs[1].fontId == fontId 
+
+  test "short line":
+    let box = initBox(0, 0, 100, 20)
+    let spans = {font: " hello world   my old friend"}
+    let textLayout = getTypeset(box, spans,
+              hAlign = FontHorizontal.Left,
+              vAlign = FontVertical.Top)
+
+    print textLayout
+
+    # maxSize: GVec2(arr: [245.0, 26.0]),
+
+    # check textLayout.maxSize.w.float == 245.0
+    # check textLayout.minSize.h.float == 26.0
+
+    let
+      fontId = textLayout.fonts[0].fontId
+      glyphs = textLayout.glyphs().toSeq()
+
+    # for glyph in glyphs:
+    #   print glyph
+
+    check glyphs[0].fontId == fontId 
+    check glyphs[1].fontId == fontId 
+
+  test "line width progression":
+    for i in 1..10:
+      let box = initBox(0, 0, 20*i, 20)
+      let spans = {font: " hello world   my old friend"}
+      let textLayout = getTypeset(box, spans,
+                hAlign = FontHorizontal.Left,
+                vAlign = FontVertical.Top)
+
+      echo "bounding: ", "box: ", box, " textBox: ", textLayout.bounding

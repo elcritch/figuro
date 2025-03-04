@@ -24,30 +24,24 @@ type
     nkScrollBar
     nkImage
 
-  Attributes* = enum
-    clipContent
-    disableRender
-    scrollPanel
-    inactive
-    preDrawReady
-    postDrawReady
-    contentsDrawReady
-    rxWindowResize
-    rootWindow
-    initialized
-    # style attributes
-    zLevelSet
-    rotationSet
-    fillSet
-    fillHoverSet
-    highlightSet
-    transparencySet
-    strokeSet
-    imageSet
-    shadowSet
-    skipCss
+  NodeFlags* = enum
+    NfClipContent
+    NfDisableRender
+    NfScrollPanel
+    NfDead
+    NfPreDrawReady
+    NfPostDrawReady
+    NfContentsDrawReady
+    NfRootWindow
+    NfInitialized
+    # user facing attributes
 
-  FieldSet* = enum
+  Attributes* = enum
+    SkipCss
+    Disabled
+    Active
+    Highlighted
+
     ## For tracking which fields have been set by the widget user code.
     ## 
     ## An example is setting `fill` in a button's code. We want this
@@ -61,7 +55,6 @@ type
     fsFill
     fsFillHover
     fsHighlight
-    fsTransparency
     fsStroke
     fsImage
     fsShadow

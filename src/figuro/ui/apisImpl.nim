@@ -36,11 +36,11 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 
 template rectangle*(name: string | static string, blk: untyped) =
   ## Starts a new rectangle.
-  widgetRegister[Rectangle](nkRectangle, name, blk)
+  widgetRegister[Rectangle](name, blk)
 
-template basicText*(name: string | static string, blk: untyped) =
+template textContents*(blk: untyped) =
   ## Starts a new rectangle.
-  widgetRegister[BasicFiguro](nkText, name, blk)
+  widgetRegister[Text]("text", blk)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
@@ -116,21 +116,21 @@ proc border*(current: Figuro, weight: UiScalar, color: Color) =
 proc cssEnable*(current: Figuro, enable: bool) =
   ## Causes the parent to clip the children.
   if enable:
-    current.attrs.excl skipCss
+    current.userAttrs.excl SkipCss
   else:
-    current.attrs.incl skipCss
+    current.userAttrs.incl SkipCss
 
 proc clipContent*(current: Figuro, clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
-    current.attrs.incl clipContent
+    current.flags.incl NfClipContent
   else:
-    current.attrs.excl clipContent
+    current.flags.excl NfClipContent
 
 proc fill*(current: Figuro, color: Color) =
   ## Sets background color.
   current.fill = color
-  current.userSetFields.incl fsFill
+  current.userAttrs.incl fsFill
 
 proc zlevel*(current: Figuro, zlvl: ZLevel) =
   ## Sets the z-level (layer) height of the given node.
@@ -139,13 +139,13 @@ proc zlevel*(current: Figuro, zlvl: ZLevel) =
 proc fillHover*(current: Figuro, color: Color) =
   ## Sets background color.
   current.fill = color
-  current.userSetFields.incl {fsFill, fsFillHover}
+  # current.userAttrs.incl {fsFill, fsFillHover}
 
 proc fillHover*(current: Figuro, color: Color, alpha: float32) =
   ## Sets background color.
   current.fill = color
   current.fill.a = alpha
-  current.userSetFields.incl {fsFill, fsFillHover}
+  # current.userAttrs.incl {fsFill, fsFillHover}
 
 proc positionDiff*(initial: Position, point: Position): Position =
   ## computes relative position of the mouse to the node position
@@ -188,7 +188,7 @@ template setTitle*(current: Figuro, title: string) =
 proc cornerRadius*(current: Figuro, radius: UiScalar) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = radius
-  current.userSetFields.incl fsCornerRadius
+  current.userAttrs.incl fsCornerRadius
 
 proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
@@ -212,30 +212,6 @@ proc newFont*(typefaceId: TypefaceId): UiFont =
   result.size = 12
   result.lineHeightScale = 1.0
   result.lineHeightOverride = -1.0'ui
-
-proc hasInnerTextChanged*(
-    node: Figuro,
-    spans: openArray[(UiFont, string)],
-    hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top,
-): bool =
-  ## Checks if the text layout has changed.
-  let thash = getContentHash(node.box, spans, hAlign, vAlign)
-  result = thash != node.textLayout.contentHash
-
-proc setInnerText*(
-    node: Figuro,
-    spans: openArray[(UiFont, string)],
-    hAlign = FontHorizontal.Left,
-    vAlign = FontVertical.Top,
-) =
-  ## Set the text on an item.
-  if hasInnerTextChanged(node, spans, hAlign, vAlign):
-    trace "setInnertText: ", name = node.name, uid= node.uid
-    node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign)
-    let maxPos = node.textLayout.maxPosition
-    node.cxMin = [csFixed(maxPos.w), csFixed(maxPos.h)]
-    refresh(node.parent[])
 
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -364,14 +340,14 @@ proc layoutItems*(current: Figuro, con: ConstraintBehavior) =
   current.defaultGridTemplate()
   current.gridTemplate.justifyItems = con
   current.gridTemplate.alignItems = con
-  current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
+  # current.userAttrs.incl {fsGridAutoColumns, fsGridAutoRows}
 
 proc layoutItems*(current: Figuro, justify, align: ConstraintBehavior) =
   ## Set justification and alignment on child items.
   current.defaultGridTemplate()
   current.gridTemplate.justifyItems = justify
   current.gridTemplate.alignItems = align
-  current.userSetFields.incl {fsGridAutoColumns, fsGridAutoRows}
+  # current.userAttrs.incl {fsGridAutoColumns, fsGridAutoRows}
 
 proc gridAutoFlow*(current: Figuro, item: GridFlow) =
   ## Sets the CSS Grid auto-flow style.
@@ -380,17 +356,21 @@ proc gridAutoFlow*(current: Figuro, item: GridFlow) =
   ## the auto-placement algorithm kicks in to automatically place the items. 
   current.defaultGridTemplate()
   current.gridTemplate.autoFlow = item
-  current.userSetFields.incl fsGridAutoFlow
+  current.userAttrs.incl fsGridAutoFlow
 
 proc gridAutoColumns*(current: Figuro, item: Constraint) =
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
-  current.userSetFields.incl fsGridAutoColumns
+  current.userAttrs.incl fsGridAutoColumns
 
 proc gridAutoRows*(current: Figuro, item: Constraint) =
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
-  current.userSetFields.incl fsGridAutoRows
+  current.userAttrs.incl fsGridAutoRows
+
+proc attributes*(self: Figuro, opt: set[Attributes], state = true) =
+  if state: self.userAttrs.incl opt
+  else: self.userAttrs.excl opt
 

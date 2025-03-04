@@ -13,6 +13,14 @@ Button:hover {
   box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
 }
 
+#items {
+  background: #5b5b5b;
+}
+
+#scrollbar-vertical {
+  background-color: rgb(57, 51, 1);
+}
+
 #story {
   background: black;
   border-width: 3;
@@ -20,7 +28,7 @@ Button:hover {
   border-radius: 6;
   color: #ddd;
   background: rgb(50, 50, 47);
-  height: 40;
+  /* height: 40; */
 }
 
 #story:hover {

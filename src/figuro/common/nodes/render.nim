@@ -29,13 +29,12 @@ type
     offset*: Vec2
     totalOffset*: Vec2
     scroll*: Vec2
-    attrs*: set[Attributes]
+    flags*: set[NodeFlags]
 
     zlevel*: ZLevel
     rotation*: float32
     fill*: Color
     highlight*: Color
-    transparency*: float32
     stroke*: Stroke
 
     case kind*: NodeKind

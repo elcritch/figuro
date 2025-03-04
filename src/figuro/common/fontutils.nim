@@ -13,11 +13,11 @@ import pretty
 
 type GlyphPosition* = ref object ## Represents a glyph position after typesetting.
   fontId*: FontId
-  fontSize*: float32
   rune*: Rune
   pos*: Vec2 # Where to draw the image character.
   rect*: Rect
   descent*: float32
+  lineHeight*: float32
 
 var
   glyphImageChan* = newChan[(Hash, Image)](1000)
@@ -46,9 +46,9 @@ proc getId*(typeface: Typeface): TypefaceId =
 iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
   var idx = 0
 
-  var mlh = 0.0 # maximum line height per row (though this does in total?)
-  for f in arrangement.fonts:
-    mlh = max(f.lineHeight, mlh)
+  # var mlh = 0.0 # maximum line height per row (though this does in total?)
+  # for f in arrangement.fonts:
+  #   mlh = max(f.lineHeight, mlh)
 
   block:
     for i, (span, gfont) in zip(arrangement.spans, arrangement.fonts):
@@ -62,11 +62,12 @@ iterator glyphs*(arrangement: GlyphArrangement): GlyphPosition =
 
         yield GlyphPosition(
           fontId: gfont.fontId,
-          fontSize: gfont.size,
+          # fontSize: gfont.size,
           rune: rune,
           pos: pos,
           rect: selection,
           descent: descent,
+          lineHeight: gfont.lineHeight,
         )
 
         # echo "GLYPH: ", rune, " pos: ", pos, " sel: ", selection, " lh: ", gfont.lineHeight, " mlh: ", flh, " : ", flh - gfont.lineHeight
@@ -213,6 +214,64 @@ proc getLineHeightImpl*(font: UiFont): UiScalar =
   let (_, pf) = font.convertFont()
   result = pf.lineHeight.descaled()
 
+proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: UiSize, bounding: UiBox] =
+  ## estimate the maximum and minimum size of a given typesetting 
+
+  var longestWord: Slice[int]
+  var longestWordLen: float
+
+  var words = 0
+  var wordsHeight = 0.0
+  var curr: Slice[int]
+  var currLen: float
+  var maxWidth: float
+  var box: Rect = rect(float32.high, float32.high, 0, 0)
+
+  # find longest word and count the number of words
+  # herein min content width is longest word
+  # herein max content height is a word on each line
+  var idx = 0
+  for glyph in textLayout.glyphs():
+
+    maxWidth += glyph.rect.w
+    box.x = min(box.x, glyph.rect.x)
+    box.y = min(box.y, glyph.rect.y)
+    box.w = max(box.w, glyph.rect.x+glyph.rect.w)
+    box.h = max(box.h, glyph.rect.y+glyph.rect.h)
+
+    if glyph.rune.isWhiteSpace:
+      curr = idx+1..idx
+      currLen = 0.0
+    else:
+      if curr.len() == 1:
+        words.inc
+        wordsHeight += glyph.lineHeight
+      curr.b = idx
+      currLen += glyph.rect.w
+
+    if currLen > longestWordLen:
+      longestWord = curr
+      longestWordLen = currLen
+
+    # echo "RUNE: ", glyph.rune, " alpha: ", isWhiteSpace(glyph.rune), " idx: ", idx, " lw: ", longestWord, " curr: ", curr, "#", curr.len, " currLen: ", currLen, " x:", glyph.rect
+    idx.inc()
+  # echo "LONGEST WORD: ", longestWord, " len: ", longestWordLen, " word cnt: ", words, " height: ", wordsHeight
+
+  # find tallest font
+  var maxLine = 0.0
+  for font in textLayout.fonts:
+    maxLine = max(maxLine, font.lineHeight) 
+
+  # set results
+  result.minSize.w = longestWordLen.descaled()
+  result.minSize.h = maxLine.descaled()
+
+  result.maxSize.w = maxWidth.descaled()
+  result.maxSize.h = wordsHeight.descaled()
+
+  result.bounding = box.descaled()
+
+
 proc getTypesetImpl*(
     box: Box,
     uiSpans: openArray[(UiFont, string)],
@@ -291,15 +350,10 @@ proc getTypesetImpl*(
     selectionRects: selectionRects,
   )
 
-  # echo "arrangement:\n", result.repr
-  # print result
-  var maxPosition = vec2(float32.low, float32.low)
-  for selRect in result.selectionRects:
-    maxPosition.x = max(selRect.x + selRect.w, maxPosition.x)
-    maxPosition.y = max(selRect.y + selRect.h, maxPosition.y)
-
-  result.maxPosition.w = maxPosition.x.descaled() 
-  result.maxPosition.h = maxPosition.y.descaled() 
+  let content = result.calcMinMaxContent()
+  result.minSize = content.minSize
+  result.maxSize = content.maxSize
+  result.bounding = content.bounding
 
   result.generateGlyphImage()
   # echo "font: "

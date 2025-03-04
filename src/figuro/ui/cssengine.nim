@@ -23,7 +23,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
 
   # echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
   if has(sel.id):
-    if sel.id in node.name:
+    if sel.id == node.name:
       # echo "matched class! node: ", $node
       discard
     else:
@@ -59,10 +59,15 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   case pseudo.cssType
   of "hover":
     if evHover in node.events:
-      # echo "matched pseudo hover! node: ", $node.name
-      discard
+      trace "cssengine:matched pseudo hover", node= $node.name
     else:
-      # echo "failed pseudo hover! node: ", $node.name, " evt: ", node.events
+      trace "cssengine:failed pseudo hover!", node= $node.name, evt= node.events
+      return
+  of "active":
+    if Active in node.userAttrs:
+      trace "cssengine:matched pseudo active", node= $node.name
+    else:
+      trace "cssengine:failed pseudo active!", node= $node.name, evt= node.events
       return
   else:
     once:
@@ -119,13 +124,13 @@ proc apply*(prop: CssProperty, node: Figuro) =
     # is color in CSS really only for fonts?
     let color = colorValue(prop.value)
     if node of Text:
-      for child in node.children:
-        child.fill = color
+      # for child in node.children:
+      node.fill = color
     else:
       for child in node.children:
         if child of Text:
-          for gc in child.children:
-            gc.fill = color
+          # for gc in child.children:
+          child.fill = color
   of "background", "background-color":
     let color = colorValue(prop.value)
     node.fill = color
@@ -219,7 +224,7 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
-  if skipCss in node.attrs:
+  if SkipCss in node.userAttrs:
     return
   let node = if node of Text: node.parent[] else: node
   for rule in rules(node.frame[].theme.css):
