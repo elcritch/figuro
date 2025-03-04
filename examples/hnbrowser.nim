@@ -115,7 +115,7 @@ proc draw*(self: Main) {.slot.} =
           Vertical.new "items":
             with this:
               offset 0'ux, 0'ux
-              size 100'pp-10'ux, cx"max-content"
+              size 100'pp, cx"max-content"
               contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
@@ -131,8 +131,7 @@ proc draw*(self: Main) {.slot.} =
                     echo "HN Story: "
                     echo this.state
                   size 1'fr, cx"auto"
-                  this.cxPadOffset[drow] = 10'ux
-                  this.cxPadSize[drow] = 10'ux
+                  paddingXY 10'ux, 10'ux
 
                   Text.new "text":
                     with this:
