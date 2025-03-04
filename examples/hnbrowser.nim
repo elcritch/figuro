@@ -121,7 +121,7 @@ proc draw*(self: Main) {.slot.} =
               capture story, idx:
                 Button[Submission].new "story":
                   size 1'fr, cx"auto"
-                  paddingXY 10'ux, 10'ux
+                  paddingXY 0'ux, 0'ux
 
                   this.state = story
                   onSignal(doRightClick) do(this: Button[Submission]):
@@ -131,7 +131,7 @@ proc draw*(self: Main) {.slot.} =
                     echo this.state
 
                   Vertical.new "story-fields":
-                    size cx"auto", cx"max-content"
+                    size cx"auto", cx"auto"
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":
