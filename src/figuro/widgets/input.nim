@@ -257,6 +257,7 @@ proc draw*(self: Input) {.slot.} =
         boxOf self.text.cursorRect
         fill blackColor
       this.fill.a = self.cursorTick.toFloat * 1.0
+      this.attributes({Active}, self.cursorTick == 1)
 
     for i, selRect in self.text.selectionRects:
       capture i:
