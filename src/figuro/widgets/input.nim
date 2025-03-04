@@ -23,6 +23,8 @@ type
     cursorCnt: int
     skipOnInput*: HashSet[Rune]
 
+  Cursor* = ref object of Figuro
+
 proc options*(self: Input, opt: set[InputOptions], state = true) =
   if state: self.opts.incl opt
   else: self.opts.excl opt
@@ -226,6 +228,11 @@ proc initialize*(self: Input) {.slot.} =
   self.text = newTextBox(self.box, self.frame[].theme.font)
   # connect(self, doLayoutResize, self, layoutResize)
 
+proc draw*(self: Cursor) {.slot.} =
+  ## Cursor widget!
+  withWidget(self):
+    WidgetContents()
+
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
@@ -239,7 +246,7 @@ proc draw*(self: Input) {.slot.} =
       WidgetContents()
       foreground this, self.color
       
-    rectangle "cursor":
+    Cursor.new "input-cursor":
       with this:
         boxOf self.text.cursorRect
         fill blackColor
