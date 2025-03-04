@@ -70,7 +70,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evDrag, uxInputs.down())
     node.checkEvent(evDragEnd, dragReleased)
 
-  if rootWindow in node.attrs:
+  if RootWindow in node.attrs:
     node.checkEvent(evDragEnd, dragReleased)
 
 type
@@ -119,8 +119,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
   ## 
 
-  if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
-    refresh(node)
+  # if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
+  #   refresh(node)
 
   for n in node.children.reverse:
     let child = computeNodeEvents(n)
@@ -139,7 +139,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       targets: toHashSet([node]),
     )
 
-    if clipContent in node.attrs and result[ek].zlvl <= node.zlevel and ek != evDrag and
+    if ClipContent in node.attrs and result[ek].zlvl <= node.zlevel and ek != evDrag and
         not node.mouseOverlaps(false):
       ## this node clips events, so it must overlap child events, 
       ## e.g. ignore child captures if this node isn't also overlapping 
@@ -179,7 +179,7 @@ proc computeEvents*(frame: AppFrame) =
   ## behavior is kept. Events like drag, hover, and clicks all
   ## behave differently.
   frame.root.listens.signals.incl {evClickInit, evClickDone, evDragEnd}
-  frame.root.attrs.incl rootWindow
+  frame.root.attrs.incl RootWindow
 
   if frame.redrawNodes.len() == 0 and uxInputs.mouse.consumed and
       uxInputs.keyboard.rune.isNone and prevHovers.len == 0 and prevDrags.len == 0:
@@ -311,7 +311,7 @@ proc computeEvents*(frame: AppFrame) =
       prevDrags.clear()
       for target in dragens.targets:
         # echo "dragends:tgt: ", target.getId
-        if rootWindow notin target.attrs:
+        if RootWindow notin target.attrs:
           target.events.excl evDragEnd
         emit target.doDrag(Done, dragInitial, uxInputs.mouse.pos)
 

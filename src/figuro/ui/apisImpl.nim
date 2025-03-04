@@ -116,16 +116,16 @@ proc border*(current: Figuro, weight: UiScalar, color: Color) =
 proc cssEnable*(current: Figuro, enable: bool) =
   ## Causes the parent to clip the children.
   if enable:
-    current.attrs.excl skipCss
+    current.attrs.excl SkipCss
   else:
-    current.attrs.incl skipCss
+    current.attrs.incl SkipCss
 
 proc clipContent*(current: Figuro, clip: bool) =
   ## Causes the parent to clip the children.
   if clip:
-    current.attrs.incl clipContent
+    current.attrs.incl ClipContent
   else:
-    current.attrs.excl clipContent
+    current.attrs.excl ClipContent
 
 proc fill*(current: Figuro, color: Color) =
   ## Sets background color.

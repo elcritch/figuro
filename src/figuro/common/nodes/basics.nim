@@ -25,27 +25,19 @@ type
     nkImage
 
   Attributes* = enum
-    clipContent
-    disableRender
-    scrollPanel
-    inactive
-    preDrawReady
-    postDrawReady
-    contentsDrawReady
-    rxWindowResize
-    rootWindow
-    initialized
-    # style attributes
-    zLevelSet
-    rotationSet
-    fillSet
-    fillHoverSet
-    highlightSet
-    transparencySet
-    strokeSet
-    imageSet
-    shadowSet
-    skipCss
+    ClipContent
+    DisableRender
+    ScrollPanel
+    Dead
+    PreDrawReady
+    PostDrawReady
+    ContentsDrawReady
+    RootWindow
+    Initialized
+    # user facing attributes
+    SkipCss
+    Disabled
+    Highlighted
 
   FieldSet* = enum
     ## For tracking which fields have been set by the widget user code.

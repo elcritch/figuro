@@ -87,12 +87,12 @@ proc nd*(): string =
   for i in 0 .. nodeDepth:
     result &= "   "
 
-proc disable(fig: Figuro) =
+proc markDead(fig: Figuro) =
   if not fig.isNil:
     fig.parent.pt = nil
-    fig.attrs.incl inactive
+    fig.attrs.incl Dead
     for child in fig.children:
-      disable(child)
+      markDead(child)
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
@@ -100,7 +100,7 @@ proc removeExtraChildren*(node: Figuro) =
     return
   echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
   for i in node.diffIndex ..< node.children.len:
-    disable(node.children[i])
+    markDead(node.children[i])
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
@@ -195,13 +195,13 @@ template sibling*(name: string): Option[Figuro] =
   node.sibling(name)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
-  fig.attrs.incl {preDrawReady, postDrawReady, contentsDrawReady}
+  fig.attrs.incl {PreDrawReady, PostDrawReady, ContentsDrawReady}
   fig.userSetFields = {}
   fig.diffIndex = 0
   fig.contents.setLen(0)
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
-  if fig.preDraw != nil and preDrawReady in fig.attrs:
+  if fig.preDraw != nil and PreDrawReady in fig.attrs:
     fig.preDraw(fig)
 
 proc handleContents*(fig: Figuro) {.slot.} =
@@ -336,9 +336,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   connectDefaults[T](node)
 
 proc postNode*(node: var Figuro) =
-  if initialized notin node.attrs:
+  if Initialized notin node.attrs:
     emit node.doInitialize()
-    node.attrs.incl initialized
+    node.attrs.incl Initialized
   emit node.doDraw()
 
   node.removeExtraChildren()
