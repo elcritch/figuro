@@ -159,7 +159,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       with this:
         fill whiteColor.darken(0.2)
       this.offset = self.window.scrollby
-      this.attrs.incl scrollPanel
+      this.flags.incl NfScrollPanel
       WidgetContents()
       scroll(self, initPosition(0, 0))
       for child in this.children:

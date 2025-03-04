@@ -92,7 +92,7 @@ proc convert*(current: Figuro): render.Node =
   result.offset = current.offset.scaled
   result.totalOffset = current.totalOffset.scaled
   result.scroll = current.scroll.scaled
-  result.attrs = current.attrs
+  result.flags = current.flags
 
   result.zlevel = current.zlevel
   result.rotation = current.rotation

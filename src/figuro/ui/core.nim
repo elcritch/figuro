@@ -80,7 +80,7 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   # node.shadow = Shadow.none()
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
-  node.attrs = {}
+  node.userAttrs = {}
 
 var nodeDepth = 0
 proc nd*(): string =
@@ -90,7 +90,7 @@ proc nd*(): string =
 proc markDead(fig: Figuro) =
   if not fig.isNil:
     fig.parent.pt = nil
-    fig.attrs.incl Dead
+    fig.flags.incl NfDead
     for child in fig.children:
       markDead(child)
 
@@ -195,13 +195,13 @@ template sibling*(name: string): Option[Figuro] =
   node.sibling(name)
 
 proc clearDraw*(fig: Figuro) {.slot.} =
-  fig.attrs.incl {PreDrawReady, PostDrawReady, ContentsDrawReady}
-  fig.userSetFields = {}
+  fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
+  fig.userAttrs = {}
   fig.diffIndex = 0
   fig.contents.setLen(0)
 
 proc handlePreDraw*(fig: Figuro) {.slot.} =
-  if fig.preDraw != nil and PreDrawReady in fig.attrs:
+  if fig.preDraw != nil and NfPreDrawReady in fig.flags:
     fig.preDraw(fig)
 
 proc handleContents*(fig: Figuro) {.slot.} =
@@ -336,9 +336,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   connectDefaults[T](node)
 
 proc postNode*(node: var Figuro) =
-  if Initialized notin node.attrs:
+  if NfInitialized notin node.flags:
     emit node.doInitialize()
-    node.attrs.incl Initialized
+    node.flags.incl NfInitialized
   emit node.doDraw()
 
   node.removeExtraChildren()

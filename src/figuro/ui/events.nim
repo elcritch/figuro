@@ -70,7 +70,7 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     node.checkEvent(evDrag, uxInputs.down())
     node.checkEvent(evDragEnd, dragReleased)
 
-  if RootWindow in node.attrs:
+  if NfRootWindow in node.flags:
     node.checkEvent(evDragEnd, dragReleased)
 
 type
@@ -139,7 +139,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
       targets: toHashSet([node]),
     )
 
-    if ClipContent in node.attrs and result[ek].zlvl <= node.zlevel and ek != evDrag and
+    if NfClipContent in node.flags and result[ek].zlvl <= node.zlevel and ek != evDrag and
         not node.mouseOverlaps(false):
       ## this node clips events, so it must overlap child events, 
       ## e.g. ignore child captures if this node isn't also overlapping 
@@ -179,7 +179,7 @@ proc computeEvents*(frame: AppFrame) =
   ## behavior is kept. Events like drag, hover, and clicks all
   ## behave differently.
   frame.root.listens.signals.incl {evClickInit, evClickDone, evDragEnd}
-  frame.root.attrs.incl RootWindow
+  frame.root.flags.incl NfRootWindow
 
   if frame.redrawNodes.len() == 0 and uxInputs.mouse.consumed and
       uxInputs.keyboard.rune.isNone and prevHovers.len == 0 and prevDrags.len == 0:
@@ -311,7 +311,7 @@ proc computeEvents*(frame: AppFrame) =
       prevDrags.clear()
       for target in dragens.targets:
         # echo "dragends:tgt: ", target.getId
-        if RootWindow notin target.attrs:
+        if NfRootWindow notin target.flags:
           target.events.excl evDragEnd
         emit target.doDrag(Done, dragInitial, uxInputs.mouse.pos)
 

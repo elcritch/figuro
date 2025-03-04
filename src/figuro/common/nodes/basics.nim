@@ -24,22 +24,23 @@ type
     nkScrollBar
     nkImage
 
-  Attributes* = enum
-    ClipContent
-    DisableRender
-    ScrollPanel
-    Dead
-    PreDrawReady
-    PostDrawReady
-    ContentsDrawReady
-    RootWindow
-    Initialized
+  NodeFlags* = enum
+    NfClipContent
+    NfDisableRender
+    NfScrollPanel
+    NfDead
+    NfPreDrawReady
+    NfPostDrawReady
+    NfContentsDrawReady
+    NfRootWindow
+    NfInitialized
     # user facing attributes
+
+  Attributes* = enum
     SkipCss
     Disabled
     Highlighted
 
-  FieldSet* = enum
     ## For tracking which fields have been set by the widget user code.
     ## 
     ## An example is setting `fill` in a button's code. We want this

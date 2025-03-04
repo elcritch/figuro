@@ -67,8 +67,8 @@ type
     scroll*: Position
     prevSize*: Position
 
-    attrs*: set[Attributes]
-    userSetFields*: set[FieldSet]
+    flags*: set[NodeFlags]
+    userAttrs*: set[Attributes]
 
     cxSize*: array[GridDir, Constraint] = [csAuto(), csNone()]
     cxOffset*: array[GridDir, Constraint] = [csAuto(), csAuto()]
