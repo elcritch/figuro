@@ -1,208 +1,321 @@
 {
   "items": {
-    "assume": {
-      "dir": "$deps/assume",
-      "url": "https://github.com/disruptek/assume",
-      "commit": "ebed5f2b726134400a4aca489d39e54a2e6dcd95",
-      "version": "0.7.2"
-    },
-    "ws": {
-      "dir": "$deps/ws",
-      "url": "https://github.com/treeform/ws",
-      "commit": "5ac521b72d7d4860fb394e5e1f9f08cf480e9822",
-      "version": "0.5.0"
-    },
-    "urlly": {
-      "dir": "$deps/urlly",
-      "url": "https://github.com/treeform/urlly",
-      "commit": "99784779f05649df25fd9c33003d8ef6de027345",
-      "version": "1.1.1"
-    },
-    "pixie": {
-      "dir": "$deps/pixie",
-      "url": "https://github.com/treeform/pixie",
-      "commit": "523b364fcaa288d23ecb3f34c795da97d3637117",
-      "version": "5.0.6"
-    },
-    "macroutils": {
-      "dir": "$deps/macroutils",
-      "url": "https://github.com/PMunch/macroutils",
-      "commit": "4f178a21e57cb842f112a965d25cda93ac4d68e5",
-      "version": "1.1.0"
-    },
-    "bumpy": {
-      "dir": "$deps/bumpy",
-      "url": "https://github.com/treeform/bumpy",
-      "commit": "e6237d8a307fe27a4c9ceb74ba2ab8b80949b026",
-      "version": "1.1.2"
-    },
-    "vmath": {
-      "dir": "$deps/vmath",
-      "url": "https://github.com/treeform/vmath",
-      "commit": "7282ae1247f2f384ebeaec3826d7fa38fd0e1df1",
-      "version": "2.0.0"
-    },
-    "crunchy": {
-      "dir": "$deps/crunchy",
-      "url": "https://github.com/guzba/crunchy",
-      "commit": "d0c9ad33ae72aece49093d7688fc78a7101aa4b0",
-      "version": "0.1.9"
-    },
     "nimsimd": {
-      "dir": "$deps/nimsimd",
+      "dir": "/Volumes/projects/nims/cssgrid/deps/nimsimd",
       "url": "https://github.com/guzba/nimsimd",
-      "commit": "156e424306756a106442aca985eed61a8d12097b",
-      "version": "1.2.6"
+      "commit": "3f6b2668ffb0867d0bf786a658b817763e611350",
+      "version": ""
     },
-    "flatty": {
-      "dir": "$deps/flatty",
-      "url": "https://github.com/treeform/flatty",
-      "commit": "07f6ba8ab96238e5bd1264cf0cea1d1746abb00c",
-      "version": "0.3.4"
+    "cssgrid": {
+      "dir": "/Volumes/projects/nims/cssgrid",
+      "url": "link:///Volumes/projects/nims/cssgrid/cssgrid.nimble",
+      "commit": "3a8637254ecfd21ba4a83bc7f53c59efb878624b",
+      "version": ""
     },
-    "zippy": {
-      "dir": "$deps/zippy",
-      "url": "https://github.com/guzba/zippy",
-      "commit": "a3fd6f0458ffdd7cbbd416be99f2ca80a7852d82",
-      "version": "0.10.10"
+    "threading": {
+      "dir": "$deps/threading",
+      "url": "https://github.com/nim-lang/threading",
+      "commit": "c5a39a039f24d48ba9503dcb9a0aee68a0fbb36d",
+      "version": ""
     },
     "chroma": {
-      "dir": "$deps/chroma",
+      "dir": "/Volumes/projects/nims/cssgrid/deps/chroma",
       "url": "https://github.com/treeform/chroma",
       "commit": "b2e71179174e040884ebf6a16cbac711c84620b9",
-      "version": "0.2.7"
+      "version": ""
+    },
+    "macroutils": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/macroutils",
+      "url": "https://github.com/PMunch/macroutils",
+      "commit": "b460c6804c97df8cfdc80c308b574ae90b30ac61",
+      "version": ""
+    },
+    "pixie": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/pixie",
+      "url": "https://github.com/treeform/pixie",
+      "commit": "3b65ca5605a1156987041bf0295449e4c56128cf",
+      "version": ""
+    },
+    "supersnappy": {
+      "dir": "$deps/supersnappy",
+      "url": "https://github.com/guzba/supersnappy",
+      "commit": "e4df8cb5468dd96fc5a4764028e20c8a3942f16a",
+      "version": ""
+    },
+    "chronicles": {
+      "dir": "$deps/chronicles",
+      "url": "https://github.com/status-im/nim-chronicles",
+      "commit": "32ac8679680ea699f7dbc046e8e0131cac97d41a",
+      "version": ""
+    },
+    "sigils": {
+      "dir": "$deps/sigils",
+      "url": "https://github.com/elcritch/sigils",
+      "commit": "2d9f97ad301bccfc8d898c8863aefd9e2e316130",
+      "version": ""
+    },
+    "patty": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/patty",
+      "url": "https://github.com/andreaferretti/patty",
+      "commit": "31bb61b990b8b3bae1cba2f353fb978448942318",
+      "version": ""
+    },
+    "cdecl": {
+      "dir": "$deps/cdecl",
+      "url": "https://github.com/elcritch/cdecl",
+      "commit": "29811e54f2b190c68c3fdcaa4c45adbfb6e5315c",
+      "version": ""
+    },
+    "dmon": {
+      "dir": "$deps/dmon",
+      "url": "https://github.com/elcritch/dmon-nim",
+      "commit": "b068e274bd5a45e44ef91a337261dd3eee7423b5",
+      "version": ""
+    },
+    "stack_strings": {
+      "dir": "$deps/stack_strings",
+      "url": "https://github.com/termermc/nim-stack-strings",
+      "commit": "8fa11c46787a7754d6fc13df1e51f7193bbab5e8",
+      "version": ""
     },
     "micros": {
       "dir": "$deps/micros",
       "url": "https://github.com/beef331/micros",
-      "commit": "6791af3cacfdf1c098dc404376b09865c1a1d2cc",
-      "version": "0.1.14"
+      "commit": "4dfeac6a47ba8b6287081b048158981a07832063",
+      "version": ""
     },
-    "stack_strings": {
-      "dir": "$deps/nim-stack-strings",
-      "url": "https://github.com/termermc/nim-stack-strings/",
-      "commit": "98df4cefe32fc55cf02ca3895252b1951f16dfd5",
-      "version": "1.1.0"
+    "opengl": {
+      "dir": "$deps/opengl",
+      "url": "https://github.com/nim-lang/opengl",
+      "commit": "8e2e098f82dc5eefd874488c37b5830233cd18f4",
+      "version": ""
+    },
+    "pretty": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/pretty",
+      "url": "https://github.com/treeform/pretty",
+      "commit": "9e770046c5cdf23d395d6b21c4657345481b1c76",
+      "version": ""
     },
     "msgpack4nim": {
       "dir": "$deps/msgpack4nim",
       "url": "https://github.com/jangko/msgpack4nim",
       "commit": "f4cc097ca9694f17feced9f82994f583ef7911fe",
-      "version": "0.4.4"
+      "version": ""
     },
-    "nimscripter": {
-      "dir": "$deps/nimscripter",
+    "Nimscripter": {
+      "dir": "$deps/Nimscripter",
       "url": "https://github.com/beef331/nimscripter",
-      "commit": "70926d2e383d3d239605573935468efcb470b7b1",
-      "version": "1.1.2"
+      "commit": "581485c65262d6395559dd2f6cbe4200c91ef078",
+      "version": ""
     },
-    "threading": {
-      "dir": "$deps/threading",
-      "url": "https://github.com/nim-lang/threading",
-      "commit": "bcc284991ba928d1ed299a81a93b7113cc7de04f",
-      "version": "0.2.0"
+    "zippy": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/zippy",
+      "url": "https://github.com/guzba/zippy",
+      "commit": "a99f6a7d8a8e3e0213b3cad0daf0ea974bf58e3f",
+      "version": ""
     },
-    "windy": {
-      "dir": "$deps/windy.elcritch.github.com",
-      "url": "https://github.com/elcritch/windy",
-      "commit": "9e3a30259f75c514d1b59963631825f8c74ae5fe",
-      "version": "0.0.0"
+    "bumpy": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/bumpy",
+      "url": "https://github.com/treeform/bumpy",
+      "commit": "d7eaf00c24820ad0317c9926737402e62431e931",
+      "version": ""
+    },
+    "windex.elcritch.github.com": {
+      "dir": "$deps/windex.elcritch.github.com",
+      "url": "https://github.com/elcritch/windex",
+      "commit": "6109fd8391e1b07082665e60e750afc4937e7eb3",
+      "version": ""
     },
     "asynctools": {
       "dir": "$deps/asynctools",
       "url": "https://github.com/cheatfate/asynctools",
-      "commit": "a1a17d06713727d97810cad291e29dd7c672738f",
-      "version": "0.1.1"
+      "commit": "a314fb8d18a08954fc7ea43e40673acb348ce7cc",
+      "version": ""
     },
-    "cdecl": {
-      "dir": "$deps/cdecl",
-      "url": "https://github.com/elcritch/cdecl",
-      "commit": "45e5fb28a5d6c03c2e9892b1d024b1c3689ae56a",
-      "version": "0.7.5"
-    },
-    "patty": {
-      "dir": "$deps/patty",
-      "url": "https://github.com/andreaferretti/patty",
-      "commit": "31bb61b990b8b3bae1cba2f353fb978448942318",
-      "version": "0.3.5"
-    },
-    "opengl": {
-      "dir": "$deps/opengl",
-      "url": "https://github.com/nim-lang/opengl",
-      "commit": "a6fb649e5bd94d8420d4a11287092a4dc3e922b4",
-      "version": "1.2.6"
+    "stylus": {
+      "dir": "$deps/stylus",
+      "url": "https://github.com/ferus-web/stylus",
+      "commit": "d9182090b0b280d0232e056a2f12469a4ee27cbe",
+      "version": ""
     },
     "variant": {
       "dir": "$deps/variant",
       "url": "https://github.com/yglukhov/variant",
-      "commit": "59caff018ed3b8b04c0e45ac260b4dc8fdef6ac3",
-      "version": "0.3.0"
+      "commit": "097031a499d18d5f4b1fe2f4c16d3f1ded8c7f45",
+      "version": ""
     },
-    "supersnappy": {
-      "dir": "$deps/supersnappy",
-      "url": "https://github.com/guzba/supersnappy",
-      "commit": "9d019a184b59dcb7aaa479cb0603f4f3464a0bc3",
-      "version": "2.1.3"
+    "flatty": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/flatty",
+      "url": "https://github.com/treeform/flatty",
+      "commit": "07f6ba8ab96238e5bd1264cf0cea1d1746abb00c",
+      "version": ""
     },
-    "pretty": {
-      "dir": "$deps/pretty",
-      "url": "https://github.com/treeform/pretty",
-      "commit": "a792f139dbb756288a87e77a5043725390665931",
-      "version": "0.1.0"
+    "ws": {
+      "dir": "$deps/ws",
+      "url": "https://github.com/treeform/ws",
+      "commit": "9536bf99ddf5948db221ccb7bb3663aa238a8e21",
+      "version": ""
     },
-    "cssgrid": {
-      "dir": "$deps/cssgrid",
-      "url": "https://github.com/elcritch/cssgrid",
-      "commit": "a0010a6a28eb033678efb7aa05a2dfb6df97bd5d",
-      "version": "0.6.0"
+    "json_serialization": {
+      "dir": "$deps/json_serialization",
+      "url": "https://github.com/status-im/nim-json-serialization",
+      "commit": "6eadb6e939ffa7882ff5437033c11a9464d3385c",
+      "version": ""
+    },
+    "results": {
+      "dir": "$deps/results",
+      "url": "https://github.com/arnetheduck/nim-results",
+      "commit": "df8113dda4c2d74d460a8fa98252b0b771bf1f27",
+      "version": ""
+    },
+    "assume.disruptek.github.com": {
+      "dir": "$deps/assume.disruptek.github.com",
+      "url": "https://github.com/disruptek/assume",
+      "commit": "ebed5f2b726134400a4aca489d39e54a2e6dcd95",
+      "version": ""
+    },
+    "urlly": {
+      "dir": "$deps/urlly",
+      "url": "https://github.com/treeform/urlly",
+      "commit": "94e9f864115c64debcfcce5db04c636838a4b408",
+      "version": ""
+    },
+    "winim": {
+      "dir": "$deps/winim",
+      "url": "https://github.com/khchen/winim",
+      "commit": "6fdee629140baa0d7060ddf86662457d11f50d35",
+      "version": ""
+    },
+    "testutils": {
+      "dir": "$deps/testutils",
+      "url": "https://github.com/status-im/nim-testutils",
+      "commit": "94d68e796c045d5b37cabc6be32d7bfa168f8857",
+      "version": ""
+    },
+    "crunchy": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/crunchy",
+      "url": "https://github.com/guzba/crunchy",
+      "commit": "98eb6526982bb8aae8eec6e8781f4539fa19e049",
+      "version": ""
+    },
+    "macosutils": {
+      "dir": "$deps/macosutils",
+      "url": "https://github.com/elcritch/macosutils",
+      "commit": "bb2c2ca53b6650a4a82f63db09b527e6fd570ac8",
+      "version": ""
+    },
+    "vmath": {
+      "dir": "/Volumes/projects/nims/cssgrid/deps/vmath",
+      "url": "https://github.com/treeform/vmath",
+      "commit": "7282ae1247f2f384ebeaec3826d7fa38fd0e1df1",
+      "version": ""
+    },
+    "serialization": {
+      "dir": "$deps/serialization",
+      "url": "https://github.com/status-im/nim-serialization",
+      "commit": "2086c99608b4bf472e1ef5fe063710f280243396",
+      "version": ""
+    },
+    "unittest2": {
+      "dir": "$deps/unittest2",
+      "url": "https://github.com/status-im/nim-unittest2",
+      "commit": "9c716f162ad4f44def506dcdf9f6ebd0563991dc",
+      "version": ""
+    },
+    "stew": {
+      "dir": "$deps/stew",
+      "url": "https://github.com/status-im/nim-stew",
+      "commit": "79e4fa5a9d3374db17ed63622714d3e1094c7f34",
+      "version": ""
+    },
+    "faststreams": {
+      "dir": "$deps/faststreams",
+      "url": "https://github.com/status-im/nim-faststreams",
+      "commit": "3a0ab42573e566ce52625760f6bbf7e0bbb6ebc4",
+      "version": ""
+    },
+    "chronos": {
+      "dir": "$deps/chronos",
+      "url": "https://github.com/status-im/nim-chronos",
+      "commit": "0646c444fce7c7ed08ef6f2c9a7abfd172ffe655",
+      "version": ""
+    },
+    "httputils": {
+      "dir": "$deps/httputils",
+      "url": "https://github.com/status-im/nim-http-utils",
+      "commit": "4b113176de2534be63377de68f31302a3c1f770e",
+      "version": ""
+    },
+    "bearssl": {
+      "dir": "$deps/bearssl",
+      "url": "https://github.com/status-im/nim-bearssl",
+      "commit": "667b40440a53a58e9f922e29e20818720c62d9ac",
+      "version": ""
     }
   },
   "nimcfg": [
     "############# begin Atlas config section ##########",
     "--noNimblePath",
-    "--path:\"vendor/assume\"",
-    "--path:\"vendor/ws/src\"",
-    "--path:\"vendor/urlly/src\"",
-    "--path:\"vendor/pixie/src\"",
-    "--path:\"vendor/macroutils/src\"",
-    "--path:\"vendor/bumpy/src\"",
-    "--path:\"vendor/vmath/src\"",
-    "--path:\"vendor/crunchy/src\"",
-    "--path:\"vendor/nimsimd/src\"",
-    "--path:\"vendor/flatty/src\"",
-    "--path:\"vendor/zippy/src\"",
-    "--path:\"vendor/chroma/src\"",
-    "--path:\"vendor/micros/src\"",
-    "--path:\"vendor/nim-stack-strings\"",
-    "--path:\"vendor/msgpack4nim/src\"",
-    "--path:\"vendor/nimscripter/src\"",
-    "--path:\"vendor/threading\"",
-    "--path:\"vendor/windy.elcritch.github.com/src\"",
-    "--path:\"vendor/asynctools\"",
-    "--path:\"vendor/cdecl/src\"",
-    "--path:\"vendor/patty\"",
-    "--path:\"vendor/opengl/src\"",
-    "--path:\"vendor/variant\"",
-    "--path:\"vendor/supersnappy/src\"",
-    "--path:\"vendor/pretty/src\"",
-    "--path:\"vendor/cssgrid/src\"",
+    "--path:\"../cssgrid/deps/nimsimd/src\"",
+    "--path:\"../cssgrid/src\"",
+    "--path:\"deps/threading\"",
+    "--path:\"../cssgrid/deps/chroma/src\"",
+    "--path:\"../cssgrid/deps/macroutils/src\"",
+    "--path:\"../cssgrid/deps/pixie/src\"",
+    "--path:\"deps/supersnappy/src\"",
+    "--path:\"deps/chronicles\"",
+    "--path:\"deps/sigils\"",
+    "--path:\"../cssgrid/deps/patty\"",
+    "--path:\"deps/cdecl/src\"",
+    "--path:\"deps/dmon/src\"",
+    "--path:\"deps/stack_strings\"",
+    "--path:\"deps/micros/src\"",
+    "--path:\"deps/opengl/src\"",
+    "--path:\"../cssgrid/deps/pretty/src\"",
+    "--path:\"deps/msgpack4nim/src\"",
+    "--path:\"deps/Nimscripter/src\"",
+    "--path:\"../cssgrid/deps/zippy/src\"",
+    "--path:\"../cssgrid/deps/bumpy/src\"",
+    "--path:\"deps/windex.elcritch.github.com/src\"",
+    "--path:\"deps/asynctools\"",
+    "--path:\"deps/stylus/src\"",
+    "--path:\"deps/variant\"",
+    "--path:\"../cssgrid/deps/flatty/src\"",
+    "--path:\"deps/ws/src\"",
+    "--path:\"deps/json_serialization\"",
+    "--path:\"deps/results\"",
+    "--path:\"deps/assume.disruptek.github.com\"",
+    "--path:\"deps/urlly/src\"",
+    "--path:\"deps/winim\"",
+    "--path:\"deps/testutils\"",
+    "--path:\"../cssgrid/deps/crunchy/src\"",
+    "--path:\"deps/macosutils/src\"",
+    "--path:\"../cssgrid/deps/vmath/src\"",
+    "--path:\"deps/serialization\"",
+    "--path:\"deps/unittest2\"",
+    "--path:\"deps/stew\"",
+    "--path:\"deps/faststreams\"",
+    "--path:\"deps/chronos\"",
+    "--path:\"deps/httputils\"",
+    "--path:\"deps/bearssl\"",
     "############# end Atlas config section   ##########",
     ""
   ],
   "nimbleFile": {
     "filename": "figuro.nimble",
     "content": [
-      "version       = \"0.6.0\"",
+      "version       = \"0.12.11\"",
       "author        = \"Jaremy Creechley\"",
       "description   = \"UI Engine for Nim\"",
       "license       = \"MIT\"",
-      "srcDir        = \".\"",
+      "srcDir        = \"src\"",
       "",
       "# Dependencies",
       "",
-      "requires \"nim >= 1.6.5\"",
+      "requires \"nim >= 2.0.10\"",
+      "requires \"sigils >= 0.11.8\"",
       "requires \"pixie >= 5.0.1\"",
-      "requires \"cssgrid >= 0.4.0\"",
+      "requires \"cssgrid >= 0.10.0\"",
       "requires \"chroma >= 0.2.7\"",
       "requires \"bumpy\"",
       "requires \"pretty\"",
@@ -215,18 +328,21 @@
       "requires \"cdecl >= 0.7.5\"",
       "requires \"asynctools >= 0.1.1\"",
       "requires \"nimsimd >= 1.2.5\"",
-      "requires \"https://github.com/elcritch/windy#macos-keyinput-fixes\"",
-      "requires \"threading\"",
-      "requires \"nimscripter#dll\"",
+      "requires \"threading >= 0.2.1\"",
+      "requires \"nimscripter >= 1.1.5\"",
       "requires \"msgpack4nim\"",
       "requires \"stack_strings\"",
       "requires \"micros\"",
+      "requires \"stylus\"",
+      "requires \"https://github.com/elcritch/windex >= 0.1.0\"",
+      "requires \"chronicles >= 0.10.3\"",
+      "requires \"dmon >= 0.4.0\"",
       ""
     ]
   },
   "hostOS": "macosx",
   "hostCPU": "arm64",
-  "nimVersion": "2.0.1 d30565f810ba5165ea2e5bcd91ea3dee9950051f",
+  "nimVersion": "2.2.2",
   "gccVersion": "",
   "clangVersion": ""
 }

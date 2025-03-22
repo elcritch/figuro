@@ -11,3 +11,4 @@ nimcache
 /*.png
 nimble.develop
 nimble.paths
+deps
