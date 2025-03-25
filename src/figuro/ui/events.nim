@@ -195,7 +195,7 @@ proc computeEvents*(frame: AppFrame) =
   if uxInputs.window.isSome():
     frame.window = uxInputs.window.get()
     uxInputs.window = AppWindow.none
-    debug "events: window size: ", frame= frame.window.box
+    debug "events: window size: ", frame= frame.window.box, scaled= frame.window.box.wh.scaled()
 
   # set mouse event flags in targets
   for ek in EventKinds:
