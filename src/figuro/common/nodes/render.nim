@@ -50,8 +50,6 @@ type
     else:
       discard
 
-import pretty
-
 proc `$`*(id: NodeIdx): string =
   "NodeIdx(" & $(int(id)) & ")"
 
