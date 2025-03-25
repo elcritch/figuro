@@ -62,6 +62,18 @@ proc writeWindowConfig*(window: Window, winCfgFile: string) =
     except Defect, CatchableError:
       debug "error writing window position"
 
+proc getWindowInfo*(window: Window): AppWindow =
+    app.requestedFrame.inc
+
+    result.minimized = window.minimized()
+    result.pixelRatio = window.contentScale()
+
+    var cwidth, cheight: cint
+    let size = window.size()
+
+    result.box.w = size.x.float32.descaled()
+    result.box.h = size.y.float32.descaled()
+
 proc configureWindowEvents(renderer: Renderer) =
   let window = renderer.window
   let winCfgFile = renderer.frame.windowCfgFile()
@@ -77,17 +89,17 @@ proc configureWindowEvents(renderer: Renderer) =
     debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
-    updateWindowSize(renderer.frame, window)
-    renderer.pollAndRender(updated = true, poll = false)
+    # updateWindowSize(renderer.frame, window)
+    # renderer.pollAndRender(updated = true, poll = false)
     var uxInput = window.copyInputs()
-    uxInput.windowSize = some renderer.frame[].windowSize
+    uxInput.window = some getWindowInfo(window)
     discard renderer.uxInputList.trySend(uxInput)
-    writeWindowConfig(window, winCfgFile)
-    debug "window resize: ", size= window.size
+    # writeWindowConfig(window, winCfgFile)
+    # debug "window resize: ", size= window.size
 
   window.onFocusChange = proc() =
-    renderer.frame[].focused = window.focused
-    let uxInput = window.copyInputs()
+    var uxInput = window.copyInputs()
+    uxInput.window = some getWindowInfo(window)
     discard renderer.uxInputList.trySend(uxInput)
 
   window.onMouseMove = proc() =
@@ -167,7 +179,7 @@ proc configureWindowEvents(renderer: Renderer) =
       )
     discard renderer.uxInputList.trySend(uxInput)
 
-  renderer.frame[].running = true
+  renderer.frame[].window.running = true
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
@@ -183,11 +195,11 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   window.`pos=`(winCfg.pos)
   if winCfg.size.x != 0 and winCfg.size.y != 0:
     let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
-    frame[].windowSize.w = sz.x.UiScalar
-    frame[].windowSize.h = sz.y.UiScalar
+    frame[].window.box.w = sz.x.UiScalar
+    frame[].window.box.h = sz.y.UiScalar
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
-  let renderer = newRenderer(frame, window, false, 1.0, atlasSize)
+  let renderer = newRenderer(frame, window, 1.0, atlasSize)
   renderer.configureWindowEvents()
   app.requestedFrame.inc
 

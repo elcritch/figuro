@@ -38,14 +38,10 @@ type
     root*: Figuro
     uxInputList*: Chan[AppInputs]
     rendInputList*: Chan[RenderCommands]
-    running*, focused*, minimized*, fullscreen*: bool
-
+    window*: AppWindow
     windowTitle*: string
-    windowSize*: Box ## Screen size in logical coordinates.
-    windowRawSize*: Vec2 ## Screen coordinates
-    theme*: Theme
     windowStyle*: FrameStyle
-
+    theme*: Theme
     configFile*: string
 
   Figuro* = ref object of Agent

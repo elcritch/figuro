@@ -16,6 +16,12 @@ variantp RenderCommands:
   RenderUpdate(n: Renders)
   RenderSetTitle(name: string)
 
+type
+  AppWindow* = object
+    box*: Box ## Screen size in logical coordinates.
+    running*, focused*, minimized*, fullscreen*: bool
+    pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
+
 type AppInputs* = object
   empty*: bool
   mouse*: Mouse
@@ -26,7 +32,7 @@ type AppInputs* = object
   buttonRelease*: UiButtonView
   buttonToggle*: UiButtonView
 
-  windowSize*: Option[Box]
+  window*: Option[AppWindow]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

@@ -3,6 +3,8 @@ import ../commons
 
 import core, utils
 
+import chronicles
+
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:
@@ -190,7 +192,10 @@ proc computeEvents*(frame: AppFrame) =
 
   var captured: CapturedEvents = computeNodeEvents(frame.root)
 
-  uxInputs.windowSize = Box.none
+  if uxInputs.window.isSome():
+    frame.window = uxInputs.window.get()
+    uxInputs.window = AppWindow.none
+    debug "window size: ", frame= frame.window.box
 
   # set mouse event flags in targets
   for ek in EventKinds:
