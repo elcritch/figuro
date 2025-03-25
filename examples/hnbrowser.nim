@@ -154,7 +154,7 @@ proc draw*(self: Main) {.slot.} =
                       size 100'pp, ux(1.1*lh.float)
 
                       Text.new "id":
-                        offset 5'ux, 0'ux
+                        offset 40'ux, 0'ux
                         foreground blackColor
                         justify Left
                         align Middle
