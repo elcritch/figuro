@@ -292,9 +292,8 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  echo "renderFrame: ", "frameSize= ", renderer.renderWindow.box.wh.scaled()
-  let window = renderer.window.size.vec2()
-  ctx.beginFrame(window)
+  echo "renderFrame: ", "frameSize= ", renderer.renderWindow.box.wh.scaled(), "windowSize= ", renderer.window.size()
+  ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -350,7 +349,6 @@ proc pollAndRender*(renderer: Renderer, poll = true): bool =
 
   if update:
     renderAndSwap(renderer)
-  echo "renderer: pollAndRender: done: ", renderer.renderWindow.box.wh.scaled()
 
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:

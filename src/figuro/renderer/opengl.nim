@@ -83,6 +83,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
+    app.running = false
 
   window.onMove = proc() =
     writeWindowConfig(window, winCfgFile)
@@ -93,12 +94,12 @@ proc configureWindowEvents(renderer: Renderer) =
     let windowState = getWindowInfo(window)
     var uxInput = window.copyInputs()
     uxInput.window = some windowState
-    discard renderer.uxInputList.trySend(uxInput)
-    echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled()
+    let sent = renderer.uxInputList.trySend(uxInput)
+    # echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled(), " sent: ", sent
     # writeWindowConfig(window, winCfgFile)
     # debug "window resize: ", size= window.size
     discard renderer.pollAndRender(poll = false)
-    echo "RENDER LOOP: resize: done: ", windowState.box.wh.scaled()
+    # echo "RENDER LOOP: resize: done: ", windowState.box.wh.scaled(), " sent: ", sent
 
   window.onFocusChange = proc() =
     var uxInput = window.copyInputs()
