@@ -1,4 +1,4 @@
-version       = "0.12.11"
+version       = "0.12.12"
 author        = "Jaremy Creechley"
 description   = "UI Engine for Nim"
 license       = "MIT"
