@@ -80,7 +80,6 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.runeInputEnabled = true
 
-
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
     app.running = false
@@ -94,7 +93,7 @@ proc configureWindowEvents(renderer: Renderer) =
     let windowState = getWindowInfo(window)
     var uxInput = window.copyInputs()
     uxInput.window = some windowState
-    renderer.uxInputList.send(uxInput, overwrite = true)
+    renderer.uxInputList.push(uxInput)
     # echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled(), " sent: ", sent
     # writeWindowConfig(window, winCfgFile)
     # debug "window resize: ", size= window.size
@@ -104,7 +103,7 @@ proc configureWindowEvents(renderer: Renderer) =
   window.onFocusChange = proc() =
     var uxInput = window.copyInputs()
     uxInput.window = some getWindowInfo(window)
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =
     var uxInput = AppInputs()
@@ -114,7 +113,7 @@ proc configureWindowEvents(renderer: Renderer) =
     uxInput.mouse.prev = prevPos.descaled()
     uxInput.mouse.consumed = false
     lastMouse = uxInput.mouse
-    renderer.uxInputList.send(uxInput, overwrite = true)
+    renderer.uxInputList.push(uxInput)
 
   window.onFocusChange = proc() =
     warn "onFocusChange"
@@ -123,7 +122,7 @@ proc configureWindowEvents(renderer: Renderer) =
     var uxInput = AppInputs(mouse: lastMouse)
     uxInput.mouse.consumed = false
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.push(uxInput)
 
   window.onButtonPress = proc(button: windex.Button) =
     let uxInput = window.copyInputs()
@@ -145,7 +144,7 @@ proc configureWindowEvents(renderer: Renderer) =
         fgGreen,
         $uxInput.buttonDown,
       ) # fgBlue, " time: " & $(time - lastButtonRelease) )
-    renderer.uxInputList.send(uxInput, overwrite = true)
+    renderer.uxInputList.push(uxInput)
 
   window.onButtonRelease = proc(button: Button) =
     let uxInput = window.copyInputs()
@@ -171,7 +170,7 @@ proc configureWindowEvents(renderer: Renderer) =
         fgGreen,
         $uxInput.buttonPress,
       )
-    renderer.uxInputList.send(uxInput, overwrite = true)
+    renderer.uxInputList.push(uxInput)
 
   window.onRune = proc(rune: Rune) =
     var uxInput = AppInputs(mouse: lastMouse)
@@ -180,7 +179,7 @@ proc configureWindowEvents(renderer: Renderer) =
       stdout.styledWriteLine(
         {styleDim}, fgWhite, "keyboardInput: ", {styleDim}, fgGreen, $rune
       )
-    renderer.uxInputList.send(uxInput, overwrite = true)
+    renderer.uxInputList.push(uxInput)
 
   renderer.frame[].window.running = true
 
