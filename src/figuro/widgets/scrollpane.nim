@@ -61,12 +61,8 @@ proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false
   window.scrollby = window.scrollby.clamp(0'ui, window.contentOverflow)
 
 proc calculateBar*(
-    settings: ScrollSettings, window: ScrollWindow, isY: bool
+    settings: ScrollSettings, window: ScrollWindow, dir: GridDir
 ): ScrollBar =
-  # debug "calculateBar: ", settings = settings.repr
-  # debug "calculateBar: ", window = window.repr
-  let dir = if isY: drow else: dcol
-  let perp = if not isY: drow else: dcol
 
   let
     sizePercent = if window.contentOverFlow[dir] == 0'ui: 0'ui
@@ -74,11 +70,6 @@ proc calculateBar*(
     scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
   trace "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= window.scrollby, contentOverFlow= window.contentOverflow
   let
-    barPerp =
-      if settings.barLeft:
-        0'ui
-      else:
-        window.viewSize.w - settings.size.h
     # barDir = sizePercent * (window.viewSize[dir] - scrollBarSize[dir])
     barDir = sizePercent * window.viewSize[dir] * (1.0'ui - window.contentViewRatio[dir])
 
@@ -107,9 +98,9 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   assert child.name == "scrollBody"
   # self.window.updateScroll(wheelDelta * 10'ui)
   if self.settings.vertical:
-    self.bary = calculateBar(self.settings, self.window, isY = true)
+    self.bary = calculateBar(self.settings, self.window, drow)
   if self.settings.horizontal:
-    self.barx = calculateBar(self.settings, self.window, isY = false)
+    self.barx = calculateBar(self.settings, self.window, dcol)
   if windowChanged:
     refresh(self)
 
@@ -130,9 +121,9 @@ proc scrollBarDrag*(
     self.window.updateScroll(offset, isAbsolute = true)
 
     if self.settings.vertical:
-      self.bary = calculateBar(self.settings, self.window, isY = true)
+      self.bary = calculateBar(self.settings, self.window, drow)
     if self.settings.horizontal:
-      self.barx = calculateBar(self.settings, self.window, isY = false)
+      self.barx = calculateBar(self.settings, self.window, dcol)
     refresh(self)
 
 proc layoutResize*(self: ScrollPane, child: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
