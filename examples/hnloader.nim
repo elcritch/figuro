@@ -40,10 +40,33 @@ iterator withAttrs*(
       if filt:
         yield c
 
+proc hasAttr*(n: XmlNode, attr: string): bool =
+  if n.attrs.isNil:
+    return false
+  return n.attrs.hasKey(attr)
+
+proc getAttr*(n: XmlNode, attr: string, default = ""): string =
+  if n.attrs.isNil:
+    result = default
+  else:
+    result = n.attrs[attr]
+
+template getFirst(item: untyped, doNil = false): auto =
+  let s = item.toSeq()
+  if s.len == 0:
+    if doNil:
+      nil.XmlNode
+    else:
+      raise newException(ValueError, "no item found for " & astToStr(item))
+  else:
+    s[0]
+
+
 type
   Upvote* = object
     id*: string
     href*: string
+    votes*: int
 
   Link* = object
     title*: string
@@ -56,6 +79,10 @@ type
     upvote*: Upvote
     link*: Link
 
+  TableSubmission* = ref object
+    subTr*: XmlNode
+    subTextTr*: XmlNode
+
 proc htmlDone*(tp: HtmlLoader, stories: seq[Submission]) {.signal.}
 
 proc loadPage*(loader: HtmlLoader) {.slot.} =
@@ -67,27 +94,37 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
       let client = newHttpClient()
       let res = client.get(loader.url)
       let document = parseHTML(res.bodyStream)
-    var subs: seq[XmlNode] =
-      document.findAll("tr").withAttrs({"class": "athing submission"}).toSeq()
 
-    template getFirst(item: untyped, doNil = false): auto =
-      let s = item.toSeq()
-      if s.len == 0:
-        if doNil:
-          nil.XmlNode
-        else:
-          raise newException(ValueError, "no item found for " & astToStr(item))
-      else:
-        s[0]
+    let table: XmlNode = document.findAll("table").toSeq()[2]
+
+    echo "TABLE: "
+    var subs: seq[TableSubmission]
+    var sub: TableSubmission = nil
+    for elem in table.elems():
+
+      if "submission" in getAttr(elem, "class"):
+        if sub != nil: subs.add(move sub)
+        sub = TableSubmission(subTr: elem)
+      
+      if sub != nil and elem.attrs == nil:
+        sub.subTextTr = elem
+
+    echo "SUBS: "
+    for sub in subs:
+      echo "SUB: ", sub.subTr == nil, " ", sub.subTextTr == nil
+
+    # var subs: seq[XmlNode] =
+    #   table.findAll("tr").withAttrs({"class": "athing submission"}).toSeq()
+
     var submissions: seq[Submission]
     for sub in subs:
       var submission: Submission
       # echo "story:\n\t", sub
-      let rank = sub.findAll("span").withAttrs({"class": "rank"}).getFirst()
-      let vote = sub.findAll("a").withAttrs("id").getFirst(doNil=true)
-      let titleTd = sub.findAll("span").withAttrs({"class": "titleline"}).getFirst()
+      let rank = sub.subTr.findAll("span").withAttrs({"class": "rank"}).getFirst()
+      let vote = sub.subTr.findAll("a").withAttrs("id").getFirst(doNil=true)
+      let titleTd = sub.subTr.findAll("span").withAttrs({"class": "titleline"}).getFirst()
       let linkA = titleTd.elems().getFirst()
-      let siteSpan = sub.findAll("span").withAttrs({"class": "sitebit"}).getFirst(doNil=true)
+      let siteSpan = sub.subTr.findAll("span").withAttrs({"class": "sitebit"}).getFirst(doNil=true)
 
       submission.link.href = linkA.attrs["href"]
       submission.link.title = linkA.innerText()
