@@ -8,6 +8,7 @@ import cssgrid/prettyprints
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 18)
+  smallFont = UiFont(typefaceId: typeface, size: 15)
 
 type
   Main* = ref object of Figuro
@@ -121,7 +122,7 @@ proc draw*(self: Main) {.slot.} =
               capture story, idx:
                 Button[Submission].new "story":
                   size 1'fr, cx"auto"
-                  paddingXY 5'ux, 5'ux
+                  paddingXY 5'ux, 0'ux
 
                   this.state = story
                   onSignal(doRightClick) do(this: Button[Submission]):
@@ -136,6 +137,7 @@ proc draw*(self: Main) {.slot.} =
 
                     Rectangle.new "title-box":
                       # size 100'pp, cx"max-content"
+                      paddingXY 0'ux, 5'ux
                       Text.new "id":
                         offset 5'ux, 0'ux
                         foreground blackColor
@@ -151,14 +153,13 @@ proc draw*(self: Main) {.slot.} =
                         text({font: $story.link.title})
 
                     Rectangle.new "info-box":
-                      size 100'pp, ux(1.1*lh.float)
 
                       Text.new "id":
                         offset 40'ux, 0'ux
                         foreground blackColor
                         justify Left
                         align Middle
-                        text({font: $story.upvote.id})
+                        text({smallFont: $story.upvote.id})
 
 var main = Main()
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
