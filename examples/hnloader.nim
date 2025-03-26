@@ -136,25 +136,26 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
         submission.upvote.id = vote.attrs["id"]
         submission.upvote.href = vote.attrs["href"]
 
-      let points = sub.subTextTr.findAll("span").withAttrs({"class": "score"}).getFirst()
-      if points != nil:
-        let points = points.innerText().split(" ")
-        submission.subText.votes = parseInt(points[0])
+      if sub.subTextTr != nil:
+        let points = sub.subTextTr.findAll("span").withAttrs({"class": "score"}).getFirst(true)
+        if points != nil:
+          let points = points.innerText().split(" ")
+          submission.subText.votes = parseInt(points[0])
 
-      let user = sub.subTextTr.findAll("a").withAttrs({"class": "hnuser"}).getFirst()
-      if user != nil:
-        submission.subText.user = user.innerText()
+        let user = sub.subTextTr.findAll("a").withAttrs({"class": "hnuser"}).getFirst(true)
+        if user != nil:
+          submission.subText.user = user.innerText()
 
-      let time = sub.subTextTr.findAll("span").withAttrs({"class": "age"}).getFirst()
-      if time != nil:
-        submission.subText.time = time.innerText()
+        let time = sub.subTextTr.findAll("span").withAttrs({"class": "age"}).getFirst(true)
+        if time != nil:
+          submission.subText.time = time.innerText()
 
-      let comments = sub.subTextTr.findAll("a")
-      for comment in comments:
-        if comment.innerText().endsWith("comments"):
-          var txt = comment.innerText().replace("&nbsp;", " ").replace("\194\160", " ")
-          let txts = txt.split(" ")
-          submission.subText.comments = parseInt(txts[0])
+        let comments = sub.subTextTr.findAll("a")
+        for comment in comments:
+          if comment.innerText().endsWith("comments"):
+            var txt = comment.innerText().replace("&nbsp;", " ").replace("\194\160", " ")
+            let txts = txt.split(" ")
+            submission.subText.comments = parseInt(txts[0])
 
       submissions.add(submission)
     

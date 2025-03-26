@@ -157,8 +157,8 @@ proc draw*(self: Main) {.slot.} =
                       Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
-                          setGridCols 40'ux ["upvotes"] 1'fr 20'ux \
-                                      ["comments"] 1'fr 20'ux \
+                          setGridCols 40'ux ["upvotes"] 1'fr 10'ux \
+                                      ["comments"] 1'fr 10'ux \
                                       ["user"] 4'fr
                           setGridRows 1'fr
                           # gridAutoFlow grColumn
