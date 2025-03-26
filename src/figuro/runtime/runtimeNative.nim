@@ -48,14 +48,10 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
     frame.redrawNodes.clear()
     for node in rn:
       emit node.doDraw()
-    debug "computeLayouts: ", node= frame.root.name
     computeLayouts(frame.root)
     computeScreenBox(nil, frame.root)
     var ru = RenderUpdate(n= frame.root.copyInto(), window= frame.window)
-    let sent = frame.rendInputList.trySend(unsafeIsolate ensureMove ru)
-    if not sent:
-      debug "failed to send render update"
-      app.requestedFrame.inc()
+    frame.rendInputList.send(unsafeIsolate ensureMove ru, overwrite = true)
 
 
 proc startFiguro*(frame: var AppFrame) {.forbids: [AppMainThreadEff].} =

@@ -292,7 +292,6 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  echo "renderFrame: ", "frameSize= ", renderer.renderWindow.box.wh.scaled(), "windowSize= ", renderer.window.size()
   ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)

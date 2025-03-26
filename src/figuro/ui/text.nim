@@ -41,9 +41,8 @@ proc setInnerText*(
     node.cxMin = [csFixed(minSize.w), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
     if node.cxSize[drow] == csNone():
-      # node.cxSize[drow] = csFixed(bounding.h)
       node.cxMin[drow] = csFixed(bounding.h)
-    trace "setInnertText", name = node.name, uid= node.uid, textLayoutBox= node.textLayout.bounding
+    # debug "setInnertText:done", name = node.name, uid= node.uid, box= node.box, textLayoutBox= node.textLayout.bounding
     refresh(node.parent[])
 
 proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =

@@ -94,7 +94,7 @@ proc configureWindowEvents(renderer: Renderer) =
     let windowState = getWindowInfo(window)
     var uxInput = window.copyInputs()
     uxInput.window = some windowState
-    let sent = renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.send(uxInput, overwrite = true)
     # echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled(), " sent: ", sent
     # writeWindowConfig(window, winCfgFile)
     # debug "window resize: ", size= window.size
@@ -114,8 +114,7 @@ proc configureWindowEvents(renderer: Renderer) =
     uxInput.mouse.prev = prevPos.descaled()
     uxInput.mouse.consumed = false
     lastMouse = uxInput.mouse
-    if not renderer.uxInputList.trySend(uxInput):
-      info "warning: mouse event blocked!"
+    renderer.uxInputList.send(uxInput, overwrite = true)
 
   window.onFocusChange = proc() =
     warn "onFocusChange"
@@ -146,7 +145,7 @@ proc configureWindowEvents(renderer: Renderer) =
         fgGreen,
         $uxInput.buttonDown,
       ) # fgBlue, " time: " & $(time - lastButtonRelease) )
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.send(uxInput, overwrite = true)
 
   window.onButtonRelease = proc(button: Button) =
     let uxInput = window.copyInputs()
@@ -172,7 +171,7 @@ proc configureWindowEvents(renderer: Renderer) =
         fgGreen,
         $uxInput.buttonPress,
       )
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.send(uxInput, overwrite = true)
 
   window.onRune = proc(rune: Rune) =
     var uxInput = AppInputs(mouse: lastMouse)
@@ -181,7 +180,7 @@ proc configureWindowEvents(renderer: Renderer) =
       stdout.styledWriteLine(
         {styleDim}, fgWhite, "keyboardInput: ", {styleDim}, fgGreen, $rune
       )
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.send(uxInput, overwrite = true)
 
   renderer.frame[].window.running = true
 
