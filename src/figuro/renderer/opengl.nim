@@ -87,7 +87,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onMove = proc() =
     writeWindowConfig(window, winCfgFile)
-    debug "window moved: ", pos= window.pos
+    # debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
     # updateWindowSize(renderer.frame, window)

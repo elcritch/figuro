@@ -57,7 +57,7 @@ proc printLayout*(node: Figuro, depth = 0) =
 
 template getParentBoxOrWindows*(node: Figuro): tuple[box, padding: Box] =
   if node.parent.isNil:
-    # echo "getParentBoxOrWindows:FRAME: ", node.frame[].windowSize
+    trace "getParentBoxOrWindows:FRAME: ", name= node.name, box= node.frame[].window.box.wh
     (box: node.frame[].window.box, padding: uiBox(0,0,0,0))
   else:
     (box: node.parent[].box, padding: node.parent[].bpad)

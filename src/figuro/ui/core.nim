@@ -440,9 +440,11 @@ template withRootWidget*(self, blk: untyped) =
   let this {.inject, used.} = self
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
+  this.cxSize = [100'pp, 100'pp]
+  self.name = "root"
 
   Rectangle.new "main":
-    this.cxSize = [cx"auto", cx"auto"]
+    this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`
 

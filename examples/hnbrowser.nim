@@ -71,9 +71,9 @@ proc draw*(self: Main) {.slot.} =
         gridColumn "left" // "right"
 
         Button.new "Load":
-          with this:
-            size 50'pp, 50'ux
-            offset 25'pp, 10'ux
+          size 50'pp, 50'ux
+          offset 25'pp, 10'ux
+
           onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
             echo "Load clicked: ", kind
             if kind == Done and not self.loading:
@@ -160,6 +160,6 @@ proc draw*(self: Main) {.slot.} =
                         align Middle
                         text({font: $story.upvote.id})
 
-var main = Main(name: "main")
+var main = Main()
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
 startFiguro(frame)
