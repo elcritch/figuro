@@ -48,7 +48,6 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
-        setGridCols 1'fr
         setGridRows ["top"] 70'ux \
                     ["items"] 1'fr \
                     ["bottom"] 40'ux \
@@ -152,14 +151,36 @@ proc draw*(self: Main) {.slot.} =
                         align Middle
                         text({font: $story.link.title})
 
-                    Rectangle.new "info-box":
+                    Rectangle.new "info-box-outer":
+                      size 100'pp, cx"none"
 
-                      Text.new "id":
-                        offset 40'ux, 0'ux
-                        foreground blackColor
-                        justify Left
-                        align Middle
-                        text({smallFont: $story.upvote.id})
+                      Rectangle.new "info-box":
+                        size 100'pp, cx"none"
+                        with this:
+                          setGridCols 40'ux ["upvotes"] 1'fr 20'ux \
+                                      ["comments"] 1'fr 20'ux \
+                                      ["user"] 4'fr
+                          setGridRows 1'fr
+                          # gridAutoFlow grColumn
+                          justifyItems CxStretch
+                          alignItems CxStretch
+
+                        Text.new "upvotes":
+                          gridColumn "upvotes" // span "upvotes"
+                          gridRow 1
+                          foreground blackColor
+                          justify Left
+                          align Middle
+                          text({smallFont: "$1 upvotes" % $story.subText.votes})
+
+                        Text.new "comments":
+                          gridColumn "comments" // span "comments"
+                          gridRow 1
+                          foreground blackColor
+                          justify Left
+                          align Middle
+                          text({smallFont: "$1 comments" % $story.subText.comments})
+
 
 var main = Main()
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
