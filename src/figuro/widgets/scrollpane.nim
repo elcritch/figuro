@@ -63,14 +63,12 @@ proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false
 proc calculateBar*(
     settings: ScrollSettings, window: ScrollWindow, dir: GridDir
 ): ScrollBar =
-
   let
     sizePercent = if window.contentOverFlow[dir] == 0'ui: 0'ui
                   else: clamp(window.scrollby[dir] / window.contentOverflow[dir], 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
   trace "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= window.scrollby, contentOverFlow= window.contentOverflow
   let
-    # barDir = sizePercent * (window.viewSize[dir] - scrollBarSize[dir])
     barDir = sizePercent * window.viewSize[dir] * (1.0'ui - window.contentViewRatio[dir])
 
   # debug "calculateBar:barY: ", barDir= barDir, sizePer= sizePercent, viewSize= window.viewSize[dir], scrollBarh= scrollBarSize[dir]
@@ -147,9 +145,9 @@ proc draw*(self: ScrollPane) {.slot.} =
       ## min-content is important here
       ## todo: do the same for horiz?
       if self.settings.vertical:
-        this.cxSize[drow] = cx"max-content"
+        this.cxSize[drow] = cx"min-content"
       if self.settings.horizontal:
-        this.cxSize[dcol] = cx"max-content"
+        this.cxSize[dcol] = cx"min-content"
 
       with this:
         fill whiteColor.darken(0.2)
