@@ -53,6 +53,7 @@ proc draw*(self: Main) {.slot.} =
                     ["bottom"] 40'ux \
                     ["end"] 0'ux
         setGridCols ["left"]  1'fr \
+                    ["middle"] 5'fr \
                     ["right"] 0'ux
         gridAutoFlow grRow
         justifyItems CxStretch
@@ -99,12 +100,11 @@ proc draw*(self: Main) {.slot.} =
 
       let lh = font.getLineHeight()
 
-      Rectangle.new "pane":
+      Rectangle.new "stories":
         ## FIXME: there seems to be a bug with a scrollpane as a grid child
         gridRow "items" // "bottom"
-        gridColumn 1 // 2
+        gridColumn "left" // "middle"
         cornerRadius 7.0'ux
-        size cx"auto", cx"none"
 
         ScrollPane.new "scroll":
           offset 0'pp, 0'pp
@@ -180,6 +180,23 @@ proc draw*(self: Main) {.slot.} =
                           justify Left
                           align Middle
                           text({smallFont: "$1 comments" % $story.subText.comments})
+
+      Rectangle.new "panel":
+        gridRow "items" // "bottom"
+        gridColumn "middle" // "right"
+        cornerRadius 7.0'ux
+        # size cx"auto", cx"none"
+
+        Rectangle.new "panel-inner":
+          # size 100'pp, 100'pp
+          fill css"red"
+          border 3, css"red"
+
+          Text.new "upvotes":
+            foreground blackColor
+            justify Left
+            align Middle
+            text({font: "hello world"})
 
 
 var main = Main()

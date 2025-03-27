@@ -12,8 +12,13 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
-    node.screenBox = node.box + parent.screenBox
-    node.totalOffset = node.offset + parent.totalOffset
+    let screenBox = node.box + parent.screenBox
+    let totalOffset = node.offset + parent.totalOffset
+    if screenBox != node.screenBox or totalOffset != node.totalOffset:
+      debug "computeScreenBox:changed: ", name = node.name, screenBox = screenBox, nodeScreenBox = node.screenBox
+      emit node.doLayoutResize(node)
+    node.screenBox = screenBox
+    node.totalOffset = totalOffset
 
   for n in node.children:
     computeScreenBox(node, n, depth + 1)
@@ -57,7 +62,6 @@ proc printLayout*(node: Figuro, depth = 0) =
 
 template getParentBoxOrWindows*(node: Figuro): tuple[box, padding: Box] =
   if node.parent.isNil:
-    trace "getParentBoxOrWindows:FRAME: ", name= node.name, box= node.frame[].window.box.wh
     (box: node.frame[].window.box, padding: uiBox(0,0,0,0))
   else:
     (box: node.parent[].box, padding: node.parent[].bpad)
