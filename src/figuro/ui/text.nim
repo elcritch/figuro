@@ -10,7 +10,7 @@ proc hasInnerTextChanged*(
 ): bool =
   ## Checks if the text layout has changed.
   let thash = getContentHash(node.box.wh, spans, hAlign, vAlign)
-  debug "hasInnerTextChanged: ", name = node.name, contentHash = thash, nodeContentHash = node.textLayout.contentHash,
+  trace "hasInnerTextChanged: ", name = node.name, contentHash = thash, nodeContentHash = node.textLayout.contentHash,
       nodeBox = node.box.wh, spans = spans.hash, hAlign = hAlign, vAlign = vAlign
   result = thash != node.textLayout.contentHash
 
@@ -30,8 +30,6 @@ proc setInnerText*(
 
     node.cxMin = [csFixed(minSize.w), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
-    # if node.cxSize[drow] == csNone():
-    #   node.cxMin[drow] = csFixed(bounding.h)
     trace "setInnertText:done", name = node.name, uid= node.uid, box= node.box.wh, textLayoutBox= node.textLayout.bounding
     refresh(node.parent[])
 

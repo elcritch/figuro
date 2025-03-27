@@ -146,8 +146,7 @@ proc draw*(self: Main) {.slot.} =
                         text({font: $story.rank})
 
                       Text.new "title":
-                        printLayout(this.parent[].parent[].parent[], cmTerminal)
-                        os.sleep(100)
+                        # printLayout(this.parent[].parent[].parent[], cmTerminal)
                         offset 40'ux, 0'ux
                         foreground blackColor
                         justify Left
