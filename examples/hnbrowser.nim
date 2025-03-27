@@ -3,6 +3,7 @@ import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro
 import hnloader
+import std/os
 import cssgrid/prettyprints
 
 let
@@ -52,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
                     ["items"] 1'fr \
                     ["bottom"] 40'ux \
                     ["end"] 0'ux
-        setGridCols ["left"]  1'fr \
+        setGridCols ["left"]  3'fr \
                     ["middle"] 5'fr \
                     ["right"] 0'ux
         gridAutoFlow grRow
@@ -117,10 +118,11 @@ proc draw*(self: Main) {.slot.} =
             contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
-              # if idx > 6: break
+              if idx < 2: continue
+              if idx > 2: break
               capture story, idx:
                 Button[Submission].new "story":
-                  size 1'fr, cx"auto"
+                  # size cx"auto", cx"auto"
                   paddingXY 5'ux, 0'ux
 
                   this.state = story
@@ -131,7 +133,6 @@ proc draw*(self: Main) {.slot.} =
                     echo this.state
 
                   Vertical.new "story-fields":
-                    size cx"auto", cx"auto"
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":
@@ -145,13 +146,15 @@ proc draw*(self: Main) {.slot.} =
                         text({font: $story.rank})
 
                       Text.new "title":
+                        printLayout(this.parent[].parent[].parent[], cmTerminal)
+                        os.sleep(100)
                         offset 40'ux, 0'ux
                         foreground blackColor
                         justify Left
                         align Middle
                         text({font: $story.link.title})
 
-                    Rectangle.new "info-box-outer":
+                    when false: # Rectangle.new "info-box-outer":
                       size 100'pp, cx"none"
 
                       Rectangle.new "info-box":

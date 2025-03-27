@@ -35,6 +35,6 @@ when not defined(nimscript):
     getLineHeightImpl(font)
 
   proc getTypeset*(
-      box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top
+      box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top, minContent = false
   ): GlyphArrangement =
-    getTypesetImpl(box, spans, hAlign, vAlign)
+    getTypesetImpl(box, spans, hAlign, vAlign, minContent)

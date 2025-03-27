@@ -7,6 +7,7 @@ import pkg/pixie/fonts
 import pkg/windex
 import pkg/threading/channels
 
+import chronicles
 import fonttypes, extras, shared
 
 import pretty
@@ -225,7 +226,7 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
   var curr: Slice[int]
   var currLen: float
   var maxWidth: float
-  var box: Rect = rect(float32.high, float32.high, 0, 0)
+  var rect: Rect = rect(float32.high, float32.high, 0, 0)
 
   # find longest word and count the number of words
   # herein min content width is longest word
@@ -234,10 +235,10 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
   for glyph in textLayout.glyphs():
 
     maxWidth += glyph.rect.w
-    box.x = min(box.x, glyph.rect.x)
-    box.y = min(box.y, glyph.rect.y)
-    box.w = max(box.w, glyph.rect.x+glyph.rect.w)
-    box.h = max(box.h, glyph.rect.y+glyph.rect.h)
+    rect.x = min(rect.x, glyph.rect.x)
+    rect.y = min(rect.y, glyph.rect.y)
+    rect.w = max(rect.w, glyph.rect.x+glyph.rect.w)
+    rect.h = max(rect.h, glyph.rect.y+glyph.rect.h)
 
     if glyph.rune.isWhiteSpace:
       curr = idx+1..idx
@@ -269,7 +270,30 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
   result.maxSize.w = maxWidth.descaled()
   result.maxSize.h = wordsHeight.descaled()
 
-  result.bounding = box.descaled()
+  result.bounding = rect.descaled()
+
+proc convertArrangement(arrangement: Arrangement, box: Box, uiSpans: openArray[(UiFont, string)], hAlign: FontHorizontal, vAlign: FontVertical, gfonts: seq[GlyphFont]): GlyphArrangement =
+    var
+      lines = newSeqOfCap[Slice[int]](arrangement.lines.len())
+      spanSlices = newSeqOfCap[Slice[int]](arrangement.spans.len())
+      selectionRects = newSeqOfCap[Rect](arrangement.selectionRects.len())
+      # a.mapIt(it[0]..it[1])
+    for line in arrangement.lines:
+      lines.add line[0] .. line[1]
+    for span in arrangement.spans:
+      spanSlices.add span[0] .. span[1]
+    for rect in arrangement.selectionRects:
+      selectionRects.add rect
+
+    result = GlyphArrangement(
+      contentHash: getContentHash(box.wh, uiSpans, hAlign, vAlign),
+      lines: lines, # arrangement.lines.toSlices(),
+      spans: spanSlices, # arrangement.spans.toSlices(),
+      fonts: gfonts,
+      runes: arrangement.runes,
+      positions: arrangement.positions,
+      selectionRects: selectionRects,
+    )
 
 
 proc getTypesetImpl*(
@@ -277,6 +301,8 @@ proc getTypesetImpl*(
     uiSpans: openArray[(UiFont, string)],
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
+    minContent: bool,
+    wrap = true,
 ): GlyphArrangement =
   ## does the typesetting using pixie, then converts the typeseet results 
   ## into Figuro's own internal types
@@ -326,34 +352,46 @@ proc getTypesetImpl*(
   of Bottom:
     va = BottomAlign
 
-  let arrangement = pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va)
-
-  var
-    lines = newSeqOfCap[Slice[int]](arrangement.lines.len())
-    spanSlices = newSeqOfCap[Slice[int]](arrangement.spans.len())
-    selectionRects = newSeqOfCap[Rect](arrangement.selectionRects.len())
-    # a.mapIt(it[0]..it[1])
-  for line in arrangement.lines:
-    lines.add line[0] .. line[1]
-  for span in arrangement.spans:
-    spanSlices.add span[0] .. span[1]
-  for rect in arrangement.selectionRects:
-    selectionRects.add rect
-
-  result = GlyphArrangement(
-    contentHash: getContentHash(box, uiSpans, hAlign, vAlign),
-    lines: lines, # arrangement.lines.toSlices(),
-    spans: spanSlices, # arrangement.spans.toSlices(),
-    fonts: gfonts,
-    runes: arrangement.runes,
-    positions: arrangement.positions,
-    selectionRects: selectionRects,
-  )
+  let arrangement = pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va, wrap = wrap)
+  result = convertArrangement(arrangement, box, uiSpans, hAlign, vAlign, gfonts)
 
   let content = result.calcMinMaxContent()
   result.minSize = content.minSize
   result.maxSize = content.maxSize
   result.bounding = content.bounding
+
+  debug "getTypesetImpl:", boxWh= box.wh, wh= wh, contentHash = getContentHash(box.wh, uiSpans, hAlign, vAlign),
+            minSize = result.minSize, maxSize = result.maxSize, bounding = result.bounding
+
+  if minContent:
+    var wh = wh
+    wh.y = result.maxSize.h.scaled()
+    let arr = pixie.typeset(spans, bounds = wh, hAlign = LeftAlign, vAlign = TopAlign, wrap = wrap)
+    let minResult = convertArrangement(arr, box, uiSpans, hAlign, vAlign, gfonts)
+
+    let minContent = minResult.calcMinMaxContent()
+    debug "minContent:", boxWh= box.wh, wh= wh,
+      minSize= minContent.minSize, maxSize= minContent.maxSize,
+      bounding= minContent.bounding, boundH= result.bounding.h
+    
+    if minContent.bounding.h > result.bounding.h:
+      let wh = vec2(wh.x, minContent.bounding.h.scaled())
+      let minAdjusted = pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va, wrap = wrap)
+      result = convertArrangement(minAdjusted, box, uiSpans, hAlign, vAlign, gfonts)
+      let contentAdjusted = result.calcMinMaxContent()
+      result.minSize = contentAdjusted.minSize
+      result.maxSize = contentAdjusted.maxSize
+      result.bounding = contentAdjusted.bounding
+
+      debug "minContent:adjusted:", wh= wh,
+        minSize= result.minSize, maxSize= result.maxSize,
+        bounding= result.bounding, boundH= result.bounding.h
+      result.minSize.h = result.bounding.h
+    else:
+      result.minSize.h = max(result.minSize.h, result.bounding.h)
+
+  debug "getTypesetImpl:post:", boxWh= box.wh, wh= wh, contentHash = getContentHash(box.wh, uiSpans, hAlign, vAlign),
+            minSize = result.minSize, maxSize = result.maxSize, bounding = result.bounding
 
   result.generateGlyphImage()
   # echo "font: "

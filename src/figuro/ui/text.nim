@@ -2,16 +2,6 @@ import apis
 import chronicles
 import ../common/system
 
-proc textBoxBox(node: Figuro): UiBox =
-  var box = node.box
-  # if box.w == UiScalar.high or box.w == UiScalar.low:
-  #   box.w = 0.UiScalar
-  # if box.h == UiScalar.high or box.h == UiScalar.low:
-  #   box.h = 0.UiScalar
-  result = box
-  result.x = 0
-  result.y = 0
-
 proc hasInnerTextChanged*(
     node: Figuro,
     spans: openArray[(UiFont, string)],
@@ -19,7 +9,9 @@ proc hasInnerTextChanged*(
     vAlign = FontVertical.Top,
 ): bool =
   ## Checks if the text layout has changed.
-  let thash = getContentHash(node.textBoxBox(), spans, hAlign, vAlign)
+  let thash = getContentHash(node.box.wh, spans, hAlign, vAlign)
+  debug "hasInnerTextChanged: ", name = node.name, contentHash = thash, nodeContentHash = node.textLayout.contentHash,
+      nodeBox = node.box.wh, spans = spans.hash, hAlign = hAlign, vAlign = vAlign
   result = thash != node.textLayout.contentHash
 
 proc setInnerText*(
@@ -30,19 +22,17 @@ proc setInnerText*(
 ) =
   ## Set the text on an item.
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
-    let box = node.textBoxBox()
-    trace "setInnertText", name = node.name, uid= node.uid, box= box
-    trace "setInnertText", name = node.name, uid= node.uid, cxSize= node.cxSize
-    node.textLayout = system.getTypeset(box, spans, hAlign, vAlign)
+    debug "setInnertText", name = node.name, uid= node.uid, box= node.box
+    node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign, minContent = node.cxSize[drow] == csNone())
     let minSize = node.textLayout.minSize
     let maxSize = node.textLayout.maxSize
     let bounding = node.textLayout.bounding
 
     node.cxMin = [csFixed(minSize.w), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
-    if node.cxSize[drow] == csNone():
-      node.cxMin[drow] = csFixed(bounding.h)
-    # debug "setInnertText:done", name = node.name, uid= node.uid, box= node.box, textLayoutBox= node.textLayout.bounding
+    # if node.cxSize[drow] == csNone():
+    #   node.cxMin[drow] = csFixed(bounding.h)
+    debug "setInnertText:done", name = node.name, uid= node.uid, box= node.box.wh, textLayoutBox= node.textLayout.bounding
     refresh(node.parent[])
 
 proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =

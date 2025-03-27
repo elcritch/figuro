@@ -50,7 +50,7 @@ proc calculateWindow*(viewBox, childBox: Box): ScrollWindow =
     contentOverflow: contentOverflow.toPos(),
   )
   # debug "calculateWindow:child ", childBoxWh = childBox.wh, viewBoxWh= viewBox.wh
-  # debug "calculateWindow: ", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow, scrollBy= result.scrollby
+  # debug "calculateWindow: ", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow
 
 proc updateScroll*(scrollBy: var Position, delta: Position, isAbsolute = false) =
   if isAbsolute:
@@ -126,9 +126,9 @@ proc scrollBarDrag*(
 proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
   if self.children.len() == 0: return
   let scrollBody = self.children[0]
-  debug "LAYOUT RESIZE: ", self = self.name, node = node.name,
-    scrollPaneBox = self.box, nodeBox = node.box,
-    scrollBodyBox = scrollBody.box
+  # debug "LAYOUT RESIZE: ", self = self.name, node = node.name,
+  #   scrollPaneBox = self.box, nodeBox = node.box,
+  #   scrollBodyBox = scrollBody.box
 
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
@@ -160,7 +160,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       Rectangle.new "scrollbar-vertical":
         with this:
           offset 100'pp - ux(self.settings.size.w), self.bary.offsetAmount
-          size self.settings.size.w, self.bary.size.h
+          size self.settings.size.w, csPerc(100.0'ui*self.window.contentViewRatio[drow])
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
           connect(doDrag, self, scrollBarDrag)
