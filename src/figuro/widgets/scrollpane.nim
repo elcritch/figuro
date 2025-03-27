@@ -10,6 +10,7 @@ type
     window*: ScrollWindow
     barx*: ScrollBar
     bary*: ScrollBar
+    scrollBy*: Position
     dragStart*: Option[Position]
 
   ScrollSettings* = object
@@ -20,7 +21,6 @@ type
     barTop*: bool
 
   ScrollWindow* = object
-    scrollby*: Position
     viewSize*: Size
     contentSize*: Size
     contentViewRatio*: Position
@@ -36,7 +36,7 @@ proc hash*(x: ScrollWindow): Hash =
   for f in x.fields(): result = result !& hash(f)
   result = !$result
 
-proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow =
+proc calculateWindow*(viewBox, childBox: Box): ScrollWindow =
   let
     viewSize = viewBox.wh
     contentSize = childBox.wh
@@ -48,26 +48,25 @@ proc calculateWindow*(scrollby: Position, viewBox, childBox: Box): ScrollWindow 
     contentSize: contentSize,
     contentViewRatio: contentViewRatio.toPos(),
     contentOverflow: contentOverflow.toPos(),
-    scrollBy: scrollby,
   )
   # debug "calculateWindow:child ", childBoxWh = childBox.wh, viewBoxWh= viewBox.wh
   # debug "calculateWindow: ", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow, scrollBy= result.scrollby
 
-proc updateScroll*(window: var ScrollWindow, delta: Position, isAbsolute = false) =
+proc updateScroll*(scrollBy: var Position, delta: Position, isAbsolute = false) =
   if isAbsolute:
-    window.scrollby = delta
+    scrollBy = delta
   else:
-    window.scrollby -= delta
-  window.scrollby = window.scrollby.clamp(0'ui, window.contentOverflow)
+    scrollBy -= delta
+  # scrollBy = scrollBy.clamp(0'ui, contentOverflow)
 
 proc calculateBar*(
-    settings: ScrollSettings, window: ScrollWindow, dir: GridDir
+    settings: ScrollSettings, scrollBy: Position, window: ScrollWindow, dir: GridDir
 ): ScrollBar =
   let
     sizePercent = if window.contentOverFlow[dir] == 0'ui: 0'ui
-                  else: clamp(window.scrollby[dir] / window.contentOverflow[dir], 0'ui, 1'ui)
+                  else: clamp(scrollBy[dir] / window.contentOverflow[dir], 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
-  trace "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= window.scrollby, contentOverFlow= window.contentOverflow
+  trace "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= scrollBy, contentOverFlow= window.contentOverflow
   let
     barDir = sizePercent * window.viewSize[dir] * (1.0'ui - window.contentViewRatio[dir])
 
@@ -81,8 +80,8 @@ proc calculateBar*(
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
-  var window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
-  window.updateScroll(wheelDelta * 10'ui)
+  var window = calculateWindow(self.screenBox, child.screenBox)
+  self.scrollBy.updateScroll(wheelDelta * 10'ui)
   let windowChanged = window.hash() != self.window.hash()
   debug "scroll: ", name = self.name, windowChanged = windowChanged
   if windowChanged:
@@ -92,13 +91,13 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
       scrollby = window.scrollby.repr, viewSize = window.viewSize.repr, contentSize = window.contentSize.repr, contentOverflow = window.contentOverflow.repr, contentViewRatio = window.contentViewRatio.repr
   if windowChanged:
     self.window = window
-  let prevScrollBy = self.window.scrollby
+  let prevScrollBy = self.scrollBy
   assert child.name == "scrollBody"
   # self.window.updateScroll(wheelDelta * 10'ui)
   if self.settings.vertical:
-    self.bary = calculateBar(self.settings, self.window, drow)
+    self.bary = calculateBar(self.settings, self.scrollBy, self.window, drow)
   if self.settings.horizontal:
-    self.barx = calculateBar(self.settings, self.window, dcol)
+    self.barx = calculateBar(self.settings, self.scrollBy, self.window, dcol)
   if windowChanged:
     refresh(self)
 
@@ -112,16 +111,16 @@ proc scrollBarDrag*(
     self.dragStart = Position.none
   else:
     if self.dragStart.isNone:
-      self.dragStart = some self.window.scrollby
+      self.dragStart = some self.scrollBy
 
-    self.window = calculateWindow(self.window.scrollby, self.screenBox, child.screenBox)
+    self.window = calculateWindow(self.screenBox, child.screenBox)
     let offset = (self.dragStart.get() + delta / self.window.contentViewRatio)
-    self.window.updateScroll(offset, isAbsolute = true)
+    self.scrollBy.updateScroll(offset, isAbsolute = true)
 
     if self.settings.vertical:
-      self.bary = calculateBar(self.settings, self.window, drow)
+      self.bary = calculateBar(self.settings, self.scrollBy, self.window, drow)
     if self.settings.horizontal:
-      self.barx = calculateBar(self.settings, self.window, dcol)
+      self.barx = calculateBar(self.settings, self.scrollBy, self.window, dcol)
     refresh(self)
 
 proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
@@ -135,6 +134,7 @@ proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
     self.listens.events.incl evScroll
     connect(self, doScroll, self, ScrollPane.scroll)
+    connect(self, doLayoutResize, self, ScrollPane.layoutResize)
     self.clipContent true
     trace "scroll:draw: ", name = self.name
 
@@ -148,7 +148,7 @@ proc draw*(self: ScrollPane) {.slot.} =
 
       with this:
         fill whiteColor.darken(0.2)
-      this.offset = self.window.scrollby
+      this.offset = self.scrollBy
       this.flags.incl NfScrollPanel
       WidgetContents()
       for child in this.children:
@@ -156,14 +156,14 @@ proc draw*(self: ScrollPane) {.slot.} =
         connect(child, doLayoutResize, self, layoutResize)
       scroll(self, initPosition(0, 0))
 
-    # if self.settings.vertical:
-    #   Rectangle.new "scrollbar-vertical":
-    #     with this:
-    #       offset 100'pp - ux(self.settings.size.w), self.bary.offsetAmount
-    #       size self.settings.size.w, self.bary.size.h
-    #       fill css"#0000ff" * 0.4
-    #       cornerRadius 4'ui
-    #       connect(doDrag, self, scrollBarDrag)
+    if self.settings.vertical:
+      Rectangle.new "scrollbar-vertical":
+        with this:
+          offset 100'pp - ux(self.settings.size.w), self.bary.offsetAmount
+          size self.settings.size.w, self.bary.size.h
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
+          connect(doDrag, self, scrollBarDrag)
     # if self.settings.horizontal:
     #   Rectangle.new "scrollbar-horizontal":
     #     with this:
