@@ -160,7 +160,7 @@ proc draw*(self: Main) {.slot.} =
                         size 100'pp, cx"none"
                         with this:
                           setGridCols 40'ux ["upvotes"] 1'fr 10'ux \
-                                      ["comments"] 1'fr 10'ux \
+                                      ["comments"] 2'fr 10'ux \
                                       ["user"] 4'fr
                           setGridRows 1'fr
                           # gridAutoFlow grColumn
