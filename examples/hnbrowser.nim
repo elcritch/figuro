@@ -118,8 +118,8 @@ proc draw*(self: Main) {.slot.} =
             contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
-              if idx < 2: continue
-              if idx > 2: break
+              # if idx < 2: continue
+              # if idx > 2: break
               capture story, idx:
                 Button[Submission].new "story":
                   # size cx"auto", cx"auto"
@@ -153,7 +153,7 @@ proc draw*(self: Main) {.slot.} =
                         align Middle
                         text({font: $story.link.title})
 
-                    when false: # Rectangle.new "info-box-outer":
+                    Rectangle.new "info-box-outer":
                       size 100'pp, cx"none"
 
                       Rectangle.new "info-box":
