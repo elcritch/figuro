@@ -360,8 +360,8 @@ proc getTypesetImpl*(
   result.maxSize = content.maxSize
   result.bounding = content.bounding
 
-  debug "getTypesetImpl:", boxWh= box.wh, wh= wh, contentHash = getContentHash(box.wh, uiSpans, hAlign, vAlign),
-            minSize = result.minSize, maxSize = result.maxSize, bounding = result.bounding
+  # debug "getTypesetImpl:", boxWh= box.wh, wh= wh, contentHash = getContentHash(box.wh, uiSpans, hAlign, vAlign),
+  #           minSize = result.minSize, maxSize = result.maxSize, bounding = result.bounding
 
   if minContent:
     var wh = wh
@@ -370,10 +370,10 @@ proc getTypesetImpl*(
     let minResult = convertArrangement(arr, box, uiSpans, hAlign, vAlign, gfonts)
 
     let minContent = minResult.calcMinMaxContent()
-    debug "minContent:", boxWh= box.wh, wh= wh,
-      minSize= minContent.minSize, maxSize= minContent.maxSize,
-      bounding= minContent.bounding, boundH= result.bounding.h
-    
+    # debug "minContent:", boxWh= box.wh, wh= wh,
+    #   minSize= minContent.minSize, maxSize= minContent.maxSize,
+    #   bounding= minContent.bounding, boundH= result.bounding.h
+
     if minContent.bounding.h > result.bounding.h:
       let wh = vec2(wh.x, minContent.bounding.h.scaled())
       let minAdjusted = pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va, wrap = wrap)
@@ -383,15 +383,12 @@ proc getTypesetImpl*(
       result.maxSize = contentAdjusted.maxSize
       result.bounding = contentAdjusted.bounding
 
-      debug "minContent:adjusted:", wh= wh,
-        minSize= result.minSize, maxSize= result.maxSize,
-        bounding= result.bounding, boundH= result.bounding.h
       result.minSize.h = result.bounding.h
     else:
       result.minSize.h = max(result.minSize.h, result.bounding.h)
 
-  debug "getTypesetImpl:post:", boxWh= box.wh, wh= wh, contentHash = getContentHash(box.wh, uiSpans, hAlign, vAlign),
-            minSize = result.minSize, maxSize = result.maxSize, bounding = result.bounding
+  # debug "getTypesetImpl:post:", boxWh= box.wh, wh= wh, contentHash = getContentHash(box.wh, uiSpans, hAlign, vAlign),
+  #           minSize = result.minSize, maxSize = result.maxSize, bounding = result.bounding
 
   result.generateGlyphImage()
   # echo "font: "
