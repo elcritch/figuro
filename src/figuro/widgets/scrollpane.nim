@@ -81,24 +81,24 @@ proc calculateBar*(
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   var window = calculateWindow(self.screenBox, child.screenBox)
+  let prevScrollBy = self.scrollBy
   self.scrollBy.updateScroll(wheelDelta * 10'ui)
-  let windowChanged = window.hash() != self.window.hash()
-  debug "scroll: ", name = self.name, windowChanged = windowChanged
-  if windowChanged:
+  let scrollChanged = prevScrollBy != self.scrollBy
+  debug "scroll: ", name = self.name, scrollChanged = scrollChanged
+  if scrollChanged:
     trace "scroll:window ", name = self.name, hash = self.window.hash(), 
       scrollby = self.window.scrollby.repr, viewSize = self.window.viewSize.repr, contentSize = self.window.contentSize.repr, contentOverflow = self.window.contentOverflow.repr, contentViewRatio = self.window.contentViewRatio.repr
     trace "scroll:window ", name = self.name, hash = window.hash(),
       scrollby = window.scrollby.repr, viewSize = window.viewSize.repr, contentSize = window.contentSize.repr, contentOverflow = window.contentOverflow.repr, contentViewRatio = window.contentViewRatio.repr
-  if windowChanged:
+  if scrollChanged:
     self.window = window
-  let prevScrollBy = self.scrollBy
   assert child.name == "scrollBody"
   # self.window.updateScroll(wheelDelta * 10'ui)
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.scrollBy, self.window, drow)
   if self.settings.horizontal:
     self.barx = calculateBar(self.settings, self.scrollBy, self.window, dcol)
-  if windowChanged:
+  if scrollChanged:
     refresh(self)
 
 proc scrollBarDrag*(
@@ -151,10 +151,10 @@ proc draw*(self: ScrollPane) {.slot.} =
       this.offset = self.scrollBy
       this.flags.incl NfScrollPanel
       WidgetContents()
+      scroll(self, initPosition(0, 0))
       for child in this.children:
         # echo "CHILD: ", child.name
         connect(child, doLayoutResize, self, layoutResize)
-      scroll(self, initPosition(0, 0))
 
     if self.settings.vertical:
       Rectangle.new "scrollbar-vertical":
