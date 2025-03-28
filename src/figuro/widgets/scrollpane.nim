@@ -50,7 +50,7 @@ proc calculateWindow*(viewBox, childBox: Box): ScrollWindow =
     contentOverflow: contentOverflow.toPos(),
   )
   # debug "calculateWindow:child ", childBoxWh = childBox.wh, viewBoxWh= viewBox.wh
-  # debug "calculateWindow: ", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow
+  debug "calculateWindow:", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow
 
 proc updateScroll*(scrollBy: var Position, delta: Position, isAbsolute = false) =
   if isAbsolute:
@@ -76,7 +76,7 @@ proc calculateBar*(
     sizePercent: sizePercent,
     offsetAmount: barDir,
   )
-  # debug "calculateBar: ", scrollBar = result
+  debug "calculateBar: ", scrollBar = result
 
 proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
@@ -143,6 +143,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     connect(self, doLayoutResize, self, ScrollPane.layoutResize)
     self.clipContent true
     trace "scroll:draw: ", name = self.name
+    this.cxMin = [0'ux, 0'ux]
 
     rectangle "scrollBody":
       ## min-content is important here
