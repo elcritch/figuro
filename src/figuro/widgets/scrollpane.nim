@@ -52,12 +52,12 @@ proc calculateWindow*(viewBox, childBox: Box): ScrollWindow =
   # debug "calculateWindow:child ", childBoxWh = childBox.wh, viewBoxWh= viewBox.wh
   debug "calculateWindow:", viewSize= result.viewSize, contentSize= result.contentSize, contentViewRatio= result.contentViewRatio, contentOverflow= result.contentOverflow
 
-proc updateScroll*(scrollBy: var Position, delta: Position, isAbsolute = false) =
+proc updateScroll*(scrollBy: var Position, delta: Position, contentOverflow: Position, isAbsolute = false) =
   if isAbsolute:
     scrollBy = delta
   else:
     scrollBy -= delta
-  # scrollBy = scrollBy.clamp(0'ui, contentOverflow)
+  scrollBy = scrollBy.clamp(0'ui, contentOverflow)
 
 proc calculateBar*(
     settings: ScrollSettings, scrollBy: Position, window: ScrollWindow, dir: GridDir
@@ -66,8 +66,6 @@ proc calculateBar*(
     sizePercent = if window.contentOverFlow[dir] == 0'ui: 0'ui
                   else: clamp(scrollBy[dir] / window.contentOverflow[dir], 0'ui, 1'ui)
     scrollBarSize = window.contentViewRatio.toSize() * window.viewSize
-  trace "calculateBar:sizePercent: ", sizePercent = sizePercent, scrollby= scrollBy, contentOverFlow= window.contentOverflow
-  let
     barDir = sizePercent * window.viewSize[dir] * (1.0'ui - window.contentViewRatio[dir])
 
   # debug "calculateBar:barY: ", barDir= barDir, sizePer= sizePercent, viewSize= window.viewSize[dir], scrollBarh= scrollBarSize[dir]
@@ -82,7 +80,7 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   let child = self.children[0]
   var window = calculateWindow(self.screenBox, child.screenBox)
   let prevScrollBy = self.scrollBy
-  self.scrollBy.updateScroll(wheelDelta * 10'ui)
+  self.scrollBy.updateScroll(wheelDelta * 10'ui, window.contentOverflow)
   let scrollChanged = prevScrollBy != self.scrollBy
   debug "scroll: ", name = self.name, scrollChanged = scrollChanged
   if scrollChanged:
@@ -121,7 +119,7 @@ proc scrollBarDrag*(
 
     self.window = calculateWindow(self.screenBox, child.screenBox)
     let offset = (self.dragStart.get() + delta / self.window.contentViewRatio)
-    self.scrollBy.updateScroll(offset, isAbsolute = true)
+    self.scrollBy.updateScroll(offset, self.window.contentOverflow, isAbsolute = true)
 
     if self.settings.vertical:
       self.bary = calculateBar(self.settings, self.scrollBy, self.window, drow)
