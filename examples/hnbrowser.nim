@@ -123,7 +123,7 @@ proc draw*(self: Main) {.slot.} =
               capture story, idx:
                 Button[Submission].new "story":
                   # size cx"auto", cx"auto"
-                  paddingXY 5'ux, 0'ux
+                  paddingXY 5'ux, 5'ux
 
                   this.state = story
                   onSignal(doRightClick) do(this: Button[Submission]):
