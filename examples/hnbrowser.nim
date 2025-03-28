@@ -3,11 +3,13 @@ import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro
 import hnloader
+import std/os
 import cssgrid/prettyprints
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
   font = UiFont(typefaceId: typeface, size: 18)
+  smallFont = UiFont(typefaceId: typeface, size: 15)
 
 type
   Main* = ref object of Figuro
@@ -47,12 +49,12 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
-        setGridCols 1'fr
         setGridRows ["top"] 70'ux \
                     ["items"] 1'fr \
                     ["bottom"] 40'ux \
                     ["end"] 0'ux
-        setGridCols ["left"]  1'fr \
+        setGridCols ["left"]  3'fr \
+                    ["middle"] 5'fr \
                     ["right"] 0'ux
         gridAutoFlow grRow
         justifyItems CxStretch
@@ -71,9 +73,9 @@ proc draw*(self: Main) {.slot.} =
         gridColumn "left" // "right"
 
         Button.new "Load":
-          with this:
-            size 50'pp, 50'ux
-            offset 25'pp, 10'ux
+          size 50'pp, 50'ux
+          offset 25'pp, 10'ux
+
           onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
             echo "Load clicked: ", kind
             if kind == Done and not self.loading:
@@ -99,12 +101,11 @@ proc draw*(self: Main) {.slot.} =
 
       let lh = font.getLineHeight()
 
-      Rectangle.new "pane":
+      Rectangle.new "stories":
         ## FIXME: there seems to be a bug with a scrollpane as a grid child
         gridRow "items" // "bottom"
-        gridColumn 1 // 2
+        gridColumn "left" // "middle"
         cornerRadius 7.0'ux
-        size cx"auto", cx"none"
 
         ScrollPane.new "scroll":
           offset 0'pp, 0'pp
@@ -117,11 +118,12 @@ proc draw*(self: Main) {.slot.} =
             contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
-              # if idx > 6: break
+              # if idx < 2: continue
+              # if idx > 2: break
               capture story, idx:
                 Button[Submission].new "story":
-                  size 1'fr, cx"auto"
-                  paddingXY 0'ux, 0'ux
+                  # size cx"auto", cx"auto"
+                  paddingXY 5'ux, 0'ux
 
                   this.state = story
                   onSignal(doRightClick) do(this: Button[Submission]):
@@ -131,11 +133,11 @@ proc draw*(self: Main) {.slot.} =
                     echo this.state
 
                   Vertical.new "story-fields":
-                    size cx"auto", cx"auto"
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":
                       # size 100'pp, cx"max-content"
+                      paddingXY 0'ux, 5'ux
                       Text.new "id":
                         offset 5'ux, 0'ux
                         foreground blackColor
@@ -144,22 +146,61 @@ proc draw*(self: Main) {.slot.} =
                         text({font: $story.rank})
 
                       Text.new "title":
+                        # printLayout(this.parent[].parent[].parent[], cmTerminal)
                         offset 40'ux, 0'ux
                         foreground blackColor
                         justify Left
                         align Middle
                         text({font: $story.link.title})
 
-                    Rectangle.new "info-box":
-                      size 100'pp, ux(1.1*lh.float)
+                    Rectangle.new "info-box-outer":
+                      size 100'pp, cx"none"
 
-                      Text.new "id":
-                        offset 5'ux, 0'ux
-                        foreground blackColor
-                        justify Left
-                        align Middle
-                        text({font: $story.upvote.id})
+                      Rectangle.new "info-box":
+                        size 100'pp, cx"none"
+                        with this:
+                          setGridCols 40'ux ["upvotes"] 2'fr 10'ux \
+                                      ["comments"] 2'fr 10'ux \
+                                      ["user"] 2'fr
+                          setGridRows 1'fr
+                          # gridAutoFlow grColumn
+                          justifyItems CxStretch
+                          alignItems CxStretch
 
-var main = Main(name: "main")
+                        Text.new "upvotes":
+                          gridColumn "upvotes" // span "upvotes"
+                          gridRow 1
+                          foreground blackColor
+                          justify Left
+                          align Middle
+                          text({smallFont: "$1 upvotes" % $story.subText.votes})
+
+                        Text.new "comments":
+                          gridColumn "comments" // span "comments"
+                          gridRow 1
+                          foreground blackColor
+                          justify Left
+                          align Middle
+                          text({smallFont: "$1 comments" % $story.subText.comments})
+
+      Rectangle.new "panel":
+        gridRow "items" // "bottom"
+        gridColumn "middle" // "right"
+        cornerRadius 7.0'ux
+        # size cx"auto", cx"none"
+
+        Rectangle.new "panel-inner":
+          # size 100'pp, 100'pp
+          fill css"red"
+          border 3, css"red"
+
+          Text.new "upvotes":
+            foreground blackColor
+            justify Left
+            align Middle
+            text({font: "hello world"})
+
+
+var main = Main()
 var frame = newAppFrame(main, size=(600'ui, 280'ui))
 startFiguro(frame)

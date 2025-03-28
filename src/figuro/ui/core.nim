@@ -57,13 +57,6 @@ var
   defaultTypeface* {.runtimeVar.} = getTypeface(DefTypefaceName, DefTypefaceRaw, TTF)
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
-proc setSize*(frame: AppFrame, size: (UiScalar, UiScalar)) =
-  frame.windowSize.w = size[0]
-  frame.windowSize.h = size[1]
-  frame.windowRawSize = frame.windowSize.wh.scaled()
-  # echo "setSize: ", frame.windowSize
-  # echo "setSize: ", frame.windowRawSize
-
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
 
@@ -251,7 +244,9 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
   frame.theme = Theme(font: defaultFont)
-  frame.setSize(size)
+  # frame.setSize(size)
+  frame.window.box.w = size[0].UiScalar
+  frame.window.box.h = size[1].UiScalar
   frame.windowStyle = style
   refresh(root)
   return frame
@@ -445,9 +440,11 @@ template withRootWidget*(self, blk: untyped) =
   let this {.inject, used.} = self
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
+  this.cxSize = [100'pp, 100'pp]
+  self.name = "root"
 
   Rectangle.new "main":
-    this.cxSize = [cx"auto", cx"auto"]
+    this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`
 
