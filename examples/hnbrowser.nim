@@ -111,10 +111,11 @@ proc draw*(self: Main) {.slot.} =
           offset 0'pp, 0'pp
           cornerRadius 7.0'ux
           size 100'pp, 100'pp
+          fill css"grey"
 
           Vertical.new "items":
             offset 0'ux, 0'ux
-            size 100'pp, cx"max-content"
+            size 100'pp-10'ux, cx"max-content"
             contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
