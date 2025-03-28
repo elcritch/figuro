@@ -186,6 +186,16 @@ template sibling*(name: string): Option[Figuro] =
   ## finds first sibling with name
   node.sibling(name)
 
+proc findParent*[T: Figuro](this: Figuro, tp: typedesc[T]): T =
+  ## finds first parent with name
+  if this.parent[] of tp:
+    return T(this.parent[])
+  elif this.parent.isNil:
+    return nil
+  else:
+    return this.parent[].findParent(tp)
+
+
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
   fig.userAttrs = {}

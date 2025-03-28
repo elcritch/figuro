@@ -18,6 +18,7 @@ type
     loader: AgentProxy[HtmlLoader]
     loading = false
     stories: seq[Submission]
+    currentStory: Submission
 
 proc htmlLoad*(tp: Main) {.signal.}
 
@@ -132,6 +133,10 @@ proc draw*(self: Main) {.slot.} =
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
                     echo repr this.state
+                    let self = this.findParent(Main)
+                    if not self.isNil:
+                      self.currentStory = this.state
+                      refresh(self)
 
                   Vertical.new "story-fields":
                     contentHeight cx"auto"
@@ -192,14 +197,14 @@ proc draw*(self: Main) {.slot.} =
 
         Rectangle.new "panel-inner":
           # size 100'pp, 100'pp
-          fill css"red"
           border 3, css"red"
 
-          Text.new "upvotes":
-            foreground css"black"
-            justify Left
-            align Middle
-            text({font: "hello world"})
+          if not self.currentStory.isNil:
+            Text.new "story-pane":
+              foreground css"white"
+              justify Left
+              align Middle
+              text({font: $self.currentStory.link.title})
 
 
 var main = Main()
