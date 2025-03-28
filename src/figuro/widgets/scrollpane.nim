@@ -132,9 +132,7 @@ proc scrollBarDrag*(
 proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
   if self.children.len() == 0: return
   let scrollBody = self.children[0]
-  debug "LAYOUT RESIZE: ", self = self.name, node = node.name,
-    scrollPaneBox = self.box, nodeBox = node.box,
-    scrollBodyBox = scrollBody.box
+  # debug "LAYOUT RESIZE: ", self = self.name, node = node.name, scrollPaneBox = self.box, nodeBox = node.box, scrollBodyBox = scrollBody.box
   scroll(self, initPosition(0, 0), force = true)
 
 proc draw*(self: ScrollPane) {.slot.} =
@@ -172,13 +170,13 @@ proc draw*(self: ScrollPane) {.slot.} =
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
           connect(doDrag, self, scrollBarDrag)
-    # if self.settings.horizontal:
-    #   Rectangle.new "scrollbar-horizontal":
-    #     with this:
-    #       offset self.barx.offsetAmount, 100'pp - ux(self.settings.size.h)
-    #       size self.barx.size.w, self.settings.size.h
-    #       fill css"#0000ff" * 0.4
-    #       cornerRadius 4'ui
+    if self.settings.horizontal:
+      Rectangle.new "scrollbar-horizontal":
+        with this:
+          offset self.barx.offsetAmount, 100'pp - ux(self.settings.size.h)
+          size csPerc(100.0'ui*self.window.contentViewRatio[dcol]), self.settings.size.h
+          fill css"#0000ff" * 0.4
+          cornerRadius 4'ui
 
 proc getWidgetParent*(self: ScrollPane): Figuro =
   self
