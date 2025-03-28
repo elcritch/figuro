@@ -9,6 +9,7 @@ import pkg/cssgrid
 import basics
 import basiccss
 import ../inputs
+import ../rchannels
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
@@ -36,8 +37,8 @@ type
     proxies*: seq[AgentProxyShared]
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
-    uxInputList*: Chan[AppInputs]
-    rendInputList*: Chan[RenderCommands]
+    uxInputList*: RChan[AppInputs]
+    rendInputList*: RChan[RenderCommands]
     window*: AppWindow
     windowTitle*: string
     windowStyle*: FrameStyle

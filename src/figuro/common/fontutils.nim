@@ -5,9 +5,9 @@ import pkg/vmath
 import pkg/pixie
 import pkg/pixie/fonts
 import pkg/windex
-import pkg/threading/channels
+import pkg/chronicles
 
-import chronicles
+import ./rchannels
 import fonttypes, extras, shared
 
 import pretty
@@ -21,7 +21,7 @@ type GlyphPosition* = ref object ## Represents a glyph position after typesettin
   lineHeight*: float32
 
 var
-  glyphImageChan* = newChan[(Hash, Image)](1000)
+  glyphImageChan* = newRChan[(Hash, Image)](1000)
   glyphImageCached*: HashSet[Hash]
 
 proc toSlices*[T: SomeInteger](a: openArray[(T, T)]): seq[Slice[T]] =

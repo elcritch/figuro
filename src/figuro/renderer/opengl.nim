@@ -9,6 +9,7 @@ import pkg/sigils/weakrefs
 import pkg/chronicles 
 
 import ../commons
+import ../common/rchannels
 # import ../inputs
 import ./opengl/utils
 import ./opengl/window

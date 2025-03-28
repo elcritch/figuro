@@ -7,8 +7,8 @@ import pkg/windex
 import pkg/opengl
 from pixie import Image
 import pkg/sigils
-import pkg/sigils/threads
 
+import ../../common/rchannels
 import window, glcommons, context, formatflippy, utils
 
 import std/locks
@@ -17,8 +17,8 @@ type Renderer* = ref object
   ctx*: Context
   duration*: Duration
   window*: Window
-  uxInputList*: Chan[AppInputs]
-  rendInputList*: Chan[RenderCommands]
+  uxInputList*: RChan[AppInputs]
+  rendInputList*: RChan[RenderCommands]
   frame*: WeakRef[AppFrame]
   lock*: Lock
   updated*: Atomic[bool]
@@ -39,8 +39,8 @@ proc newRenderer*(
   renderer.frame = frame
   renderer.ctx =
     newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
-  renderer.uxInputList = newChan[AppInputs](5)
-  renderer.rendInputList = newChan[RenderCommands](5)
+  renderer.uxInputList = newRChan[AppInputs](5)
+  renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList

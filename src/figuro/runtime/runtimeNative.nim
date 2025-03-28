@@ -9,6 +9,7 @@ import runtimeCore
 import ../widget, ../commons
 import ../ui/[core, layout]
 import ../common/nodes/[transfer, uinodes, render]
+import ../common/rchannels
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}

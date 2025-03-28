@@ -1,4 +1,4 @@
-import pkg/threading/channels
+import ./rchannels
 
 import nodes/uinodes
 import inputs
@@ -22,7 +22,7 @@ when not defined(nimscript):
 
   proc setWindowTitle*(frame: AppFrame, title: sink string) =
     if frame.getWindowTitle() != title:
-      frame.rendInputList.send(RenderSetTitle(name= move title))
+      frame.rendInputList.push(RenderSetTitle(name= move title))
 
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
