@@ -79,7 +79,7 @@ type
     time*: string
     comments*: int
 
-  Submission* = object
+  Submission* = ref object
     rank*: string
     upvote*: Upvote
     link*: Link
@@ -117,7 +117,7 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
 
     var submissions: seq[Submission]
     for sub in subs:
-      var submission: Submission
+      var submission = Submission()
       # echo "story:\n\t", sub
       let rank = sub.subTr.findAll("span").withAttrs({"class": "rank"}).getFirst()
       let vote = sub.subTr.findAll("a").withAttrs("id").getFirst(doNil=true)
@@ -159,8 +159,8 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
 
       submissions.add(submission)
     
-    for sub in submissions:
-      echo sub
+    # for sub in submissions:
+    #   echo $sub
     emit loader.htmlDone(submissions)
   except CatchableError as err:
     echo "error loading page: ", $err.msg

@@ -130,7 +130,7 @@ proc draw*(self: Main) {.slot.} =
                     printLayout(this, cmTerminal)
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
-                    echo this.state
+                    echo repr this.state
 
                   Vertical.new "story-fields":
                     contentHeight cx"auto"
