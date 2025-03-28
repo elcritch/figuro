@@ -39,8 +39,8 @@ proc newRenderer*(
   renderer.frame = frame
   renderer.ctx =
     newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
-  renderer.uxInputList = newChan[AppInputs](4)
-  renderer.rendInputList = newChan[RenderCommands](20)
+  renderer.uxInputList = newChan[AppInputs](5)
+  renderer.rendInputList = newChan[RenderCommands](5)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
