@@ -129,9 +129,9 @@ proc scrollBarDrag*(
 proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
   if self.children.len() == 0: return
   let scrollBody = self.children[0]
-  # debug "LAYOUT RESIZE: ", self = self.name, node = node.name,
-  #   scrollPaneBox = self.box, nodeBox = node.box,
-  #   scrollBodyBox = scrollBody.box
+  debug "LAYOUT RESIZE: ", self = self.name, node = node.name,
+    scrollPaneBox = self.box, nodeBox = node.box,
+    scrollBodyBox = scrollBody.box
 
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):

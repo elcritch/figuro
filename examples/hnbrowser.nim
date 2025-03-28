@@ -86,7 +86,7 @@ proc draw*(self: Main) {.slot.} =
         Text.new "text":
           with this:
             size 100'pp, 100'pp
-            foreground blackColor
+            foreground css"black"
           case self.loading:
           of false:
             with this:
@@ -140,7 +140,7 @@ proc draw*(self: Main) {.slot.} =
                       paddingXY 0'ux, 5'ux
                       Text.new "id":
                         offset 5'ux, 0'ux
-                        foreground blackColor
+                        foreground css"black"
                         justify Left
                         align Middle
                         text({font: $story.rank})
@@ -148,7 +148,7 @@ proc draw*(self: Main) {.slot.} =
                       Text.new "title":
                         # printLayout(this.parent[].parent[].parent[], cmTerminal)
                         offset 40'ux, 0'ux
-                        foreground blackColor
+                        foreground css"black"
                         justify Left
                         align Middle
                         text({font: $story.link.title})
@@ -170,7 +170,7 @@ proc draw*(self: Main) {.slot.} =
                         Text.new "upvotes":
                           gridColumn "upvotes" // span "upvotes"
                           gridRow 1
-                          foreground blackColor
+                          foreground css"black"
                           justify Left
                           align Middle
                           text({smallFont: "$1 upvotes" % $story.subText.votes})
@@ -178,7 +178,7 @@ proc draw*(self: Main) {.slot.} =
                         Text.new "comments":
                           gridColumn "comments" // span "comments"
                           gridRow 1
-                          foreground blackColor
+                          foreground css"black"
                           justify Left
                           align Middle
                           text({smallFont: "$1 comments" % $story.subText.comments})
@@ -195,7 +195,7 @@ proc draw*(self: Main) {.slot.} =
           border 3, css"red"
 
           Text.new "upvotes":
-            foreground blackColor
+            foreground css"black"
             justify Left
             align Middle
             text({font: "hello world"})
