@@ -75,14 +75,14 @@ proc calculateBar*(
   )
   # debug "calculateBar: ", scrollBar = result
 
-proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
+proc scroll*(self: ScrollPane, wheelDelta: Position, force: bool) =
   let child = self.children[0]
   var window = calculateWindow(self.screenBox, child.screenBox)
   let prevScrollBy = self.scrollBy
   self.scrollBy.updateScroll(wheelDelta * 10'ui, window.contentOverflow)
   let scrollChanged = prevScrollBy != self.scrollBy
   # debug "scroll: ", name = self.name, scrollChanged = scrollChanged
-  if scrollChanged:
+  if scrollChanged or force:
     trace "scroll:window ", name = self.name, hash = self.window.hash(), 
       scrollby = self.window.scrollby.repr, viewSize = self.window.viewSize.repr,
       contentSize = self.window.contentSize.repr,
@@ -94,15 +94,18 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
       contentOverflow = window.contentOverflow.repr,
       contentViewRatio = window.contentViewRatio.repr
 
-  if scrollChanged:
+  if scrollChanged or force:
     self.window = window
   assert child.name == "scrollBody"
   if self.settings.vertical:
     self.bary = calculateBar(self.settings, self.scrollBy, self.window, drow)
   if self.settings.horizontal:
     self.barx = calculateBar(self.settings, self.scrollBy, self.window, dcol)
-  if scrollChanged:
+  if scrollChanged or force:
     refresh(self)
+
+proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
+  scroll(self, wheelDelta, force = false)
 
 proc scrollBarDrag*(
     self: ScrollPane, kind: EventKind, initial: Position, cursor: Position
@@ -132,6 +135,7 @@ proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
   debug "LAYOUT RESIZE: ", self = self.name, node = node.name,
     scrollPaneBox = self.box, nodeBox = node.box,
     scrollBodyBox = scrollBody.box
+  scroll(self, initPosition(0, 0), force = true)
 
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
