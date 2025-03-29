@@ -165,9 +165,9 @@ proc draw*(self: Main) {.slot.} =
                       Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
-                          setGridCols 40'ux ["upvotes"] 2'fr 10'ux \
-                                      ["comments"] 2'fr 10'ux \
-                                      ["user"] 2'fr
+                          setGridCols 40'ux ["upvotes"] 1'fr 5'ux \
+                                      ["comments"] 1'fr 5'ux \
+                                      ["user"] 1'fr
                           setGridRows 1'fr
                           # gridAutoFlow grColumn
                           justifyItems CxStretch
