@@ -46,6 +46,10 @@ Button:hover {
   /* height: 40; */
 }
 
+#scrollBody {
+  width: 100%;
+}
+
 /* .subtext, .subtext * {
   color: #888;
 } */

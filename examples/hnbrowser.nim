@@ -219,8 +219,10 @@ proc draw*(self: Main) {.slot.} =
             Rectangle.new "story-pane-inner":
               fill css"black"
               size 100'pp, cx"max-content"
+              this.cxMin[dcol] = 0'ux
 
               Text.new "story-text":
+                this.cxSize[dcol] = 100'pp
                 # foreground css"white"
                 justify Left
                 align Top
