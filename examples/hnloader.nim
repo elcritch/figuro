@@ -4,6 +4,8 @@ import std/os
 import std/sequtils
 import std/strutils
 import std/sugar
+import std/osproc
+import std/streams
 
 # import chame/minidom
 import std/htmlparser
@@ -169,6 +171,38 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()
 
+proc markdownDone*(tp: HtmlLoader, markdown: string) {.signal.}
+
+proc loadPageMarkdown*(loader: HtmlLoader) {.slot.} =
+  try:
+    echo "Starting page load..."
+    when false and isMainModule:
+      let document = loadHtml("examples/hn.html")
+    else:
+      let client = newHttpClient()
+      let res = client.get(loader.url)
+      
+      # Create a process to run html2markdown
+      let process = startProcess(
+        "html2markdown",
+        options={poUsePath, poStdErrToStdOut}
+      )
+      
+      # Write HTML to stdin of html2markdown
+      process.inputStream.write(res.body)
+      process.inputStream.close()
+      
+      # Read markdown from stdout
+      let markdown = process.outputStream.readAll()
+      process.close()
+      
+      emit loader.markdownDone(markdown) # Emit the markdown result
+  except CatchableError as err:
+    echo "error loading page: ", $err.msg
+    echo "error loading page: ", $err.getStackTrace()
+  except Defect as err:
+    echo "error loading page: ", $err.msg
+    echo "error loading page: ", $err.getStackTrace()
 
 when isMainModule:
   let l = HtmlLoader(url: "https://news.ycombinator.com")
