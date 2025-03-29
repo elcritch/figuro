@@ -15,7 +15,6 @@ import std/strtabs
 import pretty
 
 type HtmlLoader* = ref object of Agent
-  url*: string
 
 iterator elems*(n: XmlNode): XmlNode {.inline.} =
   for c in n:
@@ -93,14 +92,14 @@ type
 
 proc htmlDone*(tp: HtmlLoader, stories: seq[Submission]) {.signal.}
 
-proc loadPage*(loader: HtmlLoader) {.slot.} =
+proc loadPage*(loader: HtmlLoader, url: string) {.slot.} =
   try:
     echo "Starting page load..."
     when false and isMainModule:
       let document = loadHtml("examples/hn.html")
     else:
       let client = newHttpClient()
-      let res = client.get(loader.url)
+      let res = client.get(url)
       let document = parseHTML(res.bodyStream)
 
     let table: XmlNode = document.findAll("table").toSeq()[2]
@@ -173,14 +172,14 @@ proc loadPage*(loader: HtmlLoader) {.slot.} =
 
 proc markdownDone*(tp: HtmlLoader, markdown: string) {.signal.}
 
-proc loadPageMarkdown*(loader: HtmlLoader) {.slot.} =
+proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
   try:
     echo "Starting page load..."
     when false and isMainModule:
       let document = loadHtml("examples/hn.html")
     else:
       let client = newHttpClient()
-      let res = client.get(loader.url)
+      let res = client.get(url)
       
       # Create a process to run html2markdown
       let process = startProcess(
@@ -208,9 +207,9 @@ proc loadPageMarkdown*(loader: HtmlLoader) {.slot.} =
     echo "error loading page: ", $err.getStackTrace()
 
 when isMainModule:
-  let l = HtmlLoader(url: "https://news.ycombinator.com")
-  l.loadPage()
+  let l = HtmlLoader()
+  l.loadPage("https://news.ycombinator.com")
 
-  let m = HtmlLoader(url: "https://example.com")
-  m.loadPageMarkdown()
+  let m = HtmlLoader()
+  m.loadPageMarkdown("https://example.com")
 

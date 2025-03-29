@@ -19,14 +19,22 @@ type
     loading = false
     stories: seq[Submission]
     currentStory: Submission
+    currentStoryMarkdown: string
 
 proc htmlLoad*(tp: Main) {.signal.}
+proc markdownLoad*(tp: Main) {.signal.}
 
 proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   echo "got stories"
   self.stories = stories
   self.loading = false
   refresh(self)
+
+proc loadStoryMarkdown*(self: Main, markdown: string) {.slot.} =
+  echo "got markdown"
+  self.currentStoryMarkdown = markdown
+  refresh(self)
+
 
 let thr = newSigilThread()
 
@@ -38,6 +46,9 @@ proc initialize*(self: Main) {.slot.} =
   self.loader = loader.moveToThread(thr)
   threads.connect(self, htmlLoad, self.loader, HtmlLoader.loadPage())
   threads.connect(self.loader, htmlDone, self, Main.loadStories())
+  
+  threads.connect(self, markdownLoad, self.loader, HtmlLoader.loadPageMarkdown())
+  threads.connect(self.loader, markdownDone, self, Main.loadStoryMarkdown())
 
 proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Init
@@ -136,6 +147,7 @@ proc draw*(self: Main) {.slot.} =
                     let self = this.findParent(Main)
                     if not self.isNil:
                       self.currentStory = this.state
+                      emit self.markdownLoad()
                       refresh(self)
 
                   Vertical.new "story-fields":
