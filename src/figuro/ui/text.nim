@@ -33,7 +33,7 @@ proc setInnerText*(
     #       boxMin= node.cxMin, boxMax= node.cxMax,
     #       minSize= minSize, maxSize= maxSize
 
-    node.cxMin = [csMin(csFixed(minSize.w), node.cxSize[dcol]), csFixed(minSize.h)]
+    node.cxMin = [min(ux(minSize.w), node.cxSize[dcol]), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
 
     refresh(node.parent[])
