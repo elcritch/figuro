@@ -308,7 +308,7 @@ proc getTypesetImpl*(
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
     minContent: bool,
-    wrap = true,
+    wrap: bool,
 ): GlyphArrangement =
   ## does the typesetting using pixie, then converts the typeseet results 
   ## into Figuro's own internal types
@@ -376,9 +376,9 @@ proc getTypesetImpl*(
     let minResult = convertArrangement(arr, box, uiSpans, hAlign, vAlign, gfonts)
 
     let minContent = minResult.calcMinMaxContent()
-    # debug "minContent:", boxWh= box.wh, wh= wh,
-    #   minSize= minContent.minSize, maxSize= minContent.maxSize,
-    #   bounding= minContent.bounding, boundH= result.bounding.h
+    debug "minContent:", boxWh= box.wh, wh= wh,
+      minSize= minContent.minSize, maxSize= minContent.maxSize,
+      bounding= minContent.bounding, boundH= result.bounding.h
 
     if minContent.bounding.h > result.bounding.h:
       let wh = vec2(wh.x, minContent.bounding.h.scaled())
@@ -388,6 +388,8 @@ proc getTypesetImpl*(
       result.minSize = contentAdjusted.minSize
       result.maxSize = contentAdjusted.maxSize
       result.bounding = contentAdjusted.bounding
+      debug "minContent:adjusted", boxWh= box.wh, wh= wh, wrap= wrap,
+            minSize= result.minSize, maxSize= result.maxSize, bounding= result.bounding
 
       result.minSize.h = result.bounding.h
     else:
