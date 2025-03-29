@@ -28,10 +28,10 @@ proc setInnerText*(
     let maxSize = node.textLayout.maxSize
     let bounding = node.textLayout.bounding
 
-    debug "setInnertText:done", name = node.name, uid= node.uid, box= node.box.wh,
-          textLayoutBox= node.textLayout.bounding,
-          boxMin= node.cxMin, boxMax= node.cxMax,
-          minSize= minSize, maxSize= maxSize
+    # debug "setInnertText:done", name = node.name, uid= node.uid, box= node.box.wh,
+    #       textLayoutBox= node.textLayout.bounding,
+    #       boxMin= node.cxMin, boxMax= node.cxMax,
+    #       minSize= minSize, maxSize= maxSize
 
     node.cxMin = [csMin(csFixed(minSize.w), node.cxSize[dcol]), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]

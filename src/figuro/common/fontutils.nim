@@ -376,7 +376,7 @@ proc getTypesetImpl*(
     let minResult = convertArrangement(arr, box, uiSpans, hAlign, vAlign, gfonts)
 
     let minContent = minResult.calcMinMaxContent()
-    debug "minContent:", boxWh= box.wh, wh= wh,
+    trace "minContent:", boxWh= box.wh, wh= wh,
       minSize= minContent.minSize, maxSize= minContent.maxSize,
       bounding= minContent.bounding, boundH= result.bounding.h
 
@@ -388,7 +388,7 @@ proc getTypesetImpl*(
       result.minSize = contentAdjusted.minSize
       result.maxSize = contentAdjusted.maxSize
       result.bounding = contentAdjusted.bounding
-      debug "minContent:adjusted", boxWh= box.wh, wh= wh, wrap= wrap,
+      trace "minContent:adjusted", boxWh= box.wh, wh= wh, wrap= wrap,
             minSize= result.minSize, maxSize= result.maxSize, bounding= result.bounding
 
       result.minSize.h = result.bounding.h

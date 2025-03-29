@@ -31,7 +31,7 @@ proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   refresh(self)
 
 proc loadStoryMarkdown*(self: Main, markdown: string) {.slot.} =
-  echo "got markdown:\n", markdown
+  echo "got markdown", markdown.len
   self.currentStoryMarkdown = markdown
   refresh(self)
 
@@ -210,6 +210,7 @@ proc draw*(self: Main) {.slot.} =
         Rectangle.new "story-pane":
           size 100'pp, 100'pp
           fill css"black"
+          paddingWH 3'ux, 3'ux
 
           ScrollPane.new "story-scroll":
             offset 0'pp, 0'pp
@@ -218,8 +219,8 @@ proc draw*(self: Main) {.slot.} =
 
             Rectangle.new "story-pane-inner":
               fill css"black"
-              size 100'pp, cx"max-content"
-              this.cxMin[dcol] = 0'ux
+              size 100'pp-10'ux, cx"max-content"
+              paddingWH 10'ux, 20'ux
 
               Text.new "story-text":
                 this.cxSize[dcol] = 100'pp

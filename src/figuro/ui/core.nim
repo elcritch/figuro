@@ -195,6 +195,15 @@ proc findParent*[T: Figuro](this: Figuro, tp: typedesc[T]): T =
   else:
     return this.parent[].findParent(tp)
 
+proc findParent*(this: Figuro, name: string, tp: typedesc = Figuro): tp =
+  ## finds first parent with name
+  if this.parent[].name == name and this.parent[] of tp:
+    return tp(this.parent[])
+  elif this.parent.isNil:
+    return nil
+  else:
+    return this.parent[].findParent(name, tp)
+
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}

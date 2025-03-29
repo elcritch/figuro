@@ -41,7 +41,7 @@ Button:hover {
   border-width: 3;
   border-color: rgba(57, 50, 1, 0.45);
   border-radius: 6;
-  color: #ddd;
+  color: #000000;
   background: rgb(112, 112, 103);
   /* height: 40; */
 }
