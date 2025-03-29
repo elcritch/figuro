@@ -115,6 +115,12 @@ proc generateGlyphImage(arrangement: GlyphArrangement) =
       let
         lh = font.defaultLineHeight()
         bounds = rect(0, 0, snappedBounds.w + snappedBounds.x, lh)
+
+      if bounds.w == 0 or bounds.h == 0:
+        echo "GEN IMG: ", glyph.rune, " wh: ", wh, " snapped: ", snappedBounds
+        continue
+
+      let
         image = newImage(bounds.w.int, bounds.h.int)
       # echo "GEN IMG: ", glyph.rune, " bounds: ", bounds
 

@@ -21,8 +21,8 @@ type
     currentStory: Submission
     currentStoryMarkdown: string
 
-proc htmlLoad*(tp: Main) {.signal.}
-proc markdownLoad*(tp: Main) {.signal.}
+proc htmlLoad*(tp: Main, url: string) {.signal.}
+proc markdownLoad*(tp: Main, url: string) {.signal.}
 
 proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   echo "got stories"
@@ -31,7 +31,7 @@ proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   refresh(self)
 
 proc loadStoryMarkdown*(self: Main, markdown: string) {.slot.} =
-  echo "got markdown"
+  echo "got markdown:\n", markdown
   self.currentStoryMarkdown = markdown
   refresh(self)
 
@@ -42,7 +42,7 @@ thr.start()
 
 proc initialize*(self: Main) {.slot.} =
   echo "Setting up loading"
-  var loader = HtmlLoader(url: "https://news.ycombinator.com")
+  var loader = HtmlLoader()
   self.loader = loader.moveToThread(thr)
   threads.connect(self, htmlLoad, self.loader, HtmlLoader.loadPage())
   threads.connect(self.loader, htmlDone, self, Main.loadStories())
@@ -91,7 +91,7 @@ proc draw*(self: Main) {.slot.} =
           onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
             echo "Load clicked: ", kind
             if kind == Done and not self.loading:
-              emit self.htmlLoad()
+              emit self.htmlLoad("https://news.ycombinator.com")
               self.loading = true
               refresh(self)
 
@@ -147,7 +147,7 @@ proc draw*(self: Main) {.slot.} =
                     let self = this.findParent(Main)
                     if not self.isNil:
                       self.currentStory = this.state
-                      emit self.markdownLoad()
+                      emit self.markdownLoad(self.currentStory.link.href)
                       refresh(self)
 
                   Vertical.new "story-fields":
@@ -207,16 +207,27 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius 7.0'ux
         # size cx"auto", cx"none"
 
-        Rectangle.new "panel-inner":
-          # size 100'pp, 100'pp
-          border 3, css"red"
+        Rectangle.new "story-pane":
+          size 100'pp, 100'pp
+          fill css"black"
 
-          if not self.currentStory.isNil:
-            Text.new "story-pane":
-              foreground css"white"
-              justify Left
-              align Middle
-              text({font: $self.currentStory.link.title})
+          ScrollPane.new "story-scroll":
+            offset 0'pp, 0'pp
+            cornerRadius 7.0'ux
+            size 100'pp, 100'pp
+
+            Rectangle.new "story-pane-inner":
+              fill css"black"
+              size 100'pp, cx"max-content"
+
+              Text.new "story-text":
+                # foreground css"white"
+                justify Left
+                align Top
+                if self.currentStoryMarkdown != "":
+                  text({font: $self.currentStoryMarkdown})
+                else:
+                  text({font: "..."})
 
 
 var main = Main()

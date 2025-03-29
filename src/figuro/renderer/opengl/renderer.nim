@@ -7,6 +7,7 @@ import pkg/windex
 import pkg/opengl
 from pixie import Image
 import pkg/sigils
+import pkg/chronicles
 
 import ../../common/rchannels
 import window, glcommons, context, formatflippy, utils
@@ -70,8 +71,7 @@ proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
       # charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*0.84) # empirically determined
       charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*1.0) # empirically determined
     if glyphId notin ctx.entries:
-      echo "no glyph in context: ",
-        glyphId, " glyph: `", glyph.rune, "`", " (", repr(glyph.rune), ")"
+      trace "no glyph in context: ", glyphId= glyphId, glyph= glyph.rune, glyphRepr= repr(glyph.rune)
       continue
     ctx.drawImage(glyphId, charPos, node.fill)
 
