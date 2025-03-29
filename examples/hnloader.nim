@@ -196,6 +196,9 @@ proc loadPageMarkdown*(loader: HtmlLoader) {.slot.} =
       let markdown = process.outputStream.readAll()
       process.close()
       
+      when isMainModule:
+        echo "markdown:\n", markdown
+
       emit loader.markdownDone(markdown) # Emit the markdown result
   except CatchableError as err:
     echo "error loading page: ", $err.msg
@@ -207,3 +210,7 @@ proc loadPageMarkdown*(loader: HtmlLoader) {.slot.} =
 when isMainModule:
   let l = HtmlLoader(url: "https://news.ycombinator.com")
   l.loadPage()
+
+  let m = HtmlLoader(url: "https://example.com")
+  m.loadPageMarkdown()
+
