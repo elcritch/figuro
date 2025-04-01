@@ -43,7 +43,7 @@ proc buttonItem(self, this: Figuro, idx: int) =
 
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
-    with node:
+    with this:
       fill css"#0000AA"
     ScrollPane.new "scroll":
       offset 2'pp, 2'pp
@@ -53,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
         offset 10'ux, 10'ux
         itemHeight cx"max-content"
         for idx in 0 .. 15:
-          buttonItem(self, node, idx)
+          buttonItem(self, this, idx)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
@@ -95,14 +95,14 @@ type Main* = ref object of Figuro
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
     Rectangle.new "body":
-      # each widget template injects a new `node` variable
+      # each widget template injects a new `this` variable
       # that references the current widget
 
       # sets the bounding box of this node
-      box node, 10'ux, 10'ux, 600'ux, 120'ux
+      box this, 10'ux, 10'ux, 600'ux, 120'ux
 
       # set the fill color
-      fill node, css"00001F"
+      fill this, css"00001F"
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(400'ui, 140'ui))
@@ -115,7 +115,7 @@ Note that rectangle is used enough that it also has a shortcut template `rectang
 proc draw*(self: Main) {.slot.} =
   withWidget(self):
     rectangle "body":
-      # each widget template injects a new `node` variable
+      # each widget template injects a new `this` variable
 ```
 
 ## Manual Node Setup
