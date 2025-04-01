@@ -155,8 +155,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       if self.settings.horizontal:
         this.cxSize[dcol] = cx"min-content"
 
-      with this:
-        fill whiteColor.darken(0.2)
+      fill whiteColor.darken(0.2)
       this.offset = self.scrollBy
       this.flags.incl NfScrollPanel
       WidgetContents()
