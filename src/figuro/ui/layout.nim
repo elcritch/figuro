@@ -66,6 +66,9 @@ template getParentBoxOrWindows*(node: Figuro): tuple[box, padding: Box] =
   else:
     (box: node.parent[].box, padding: node.parent[].bpad)
 
+template getParent*[N: Figuro](node: N): N =
+  node.parent[]
+
 proc computeLayouts*(node: Figuro) =
   # doAssert node.cxSize[drow] == csAuto() and node.cxSize[dcol] == csAuto(), "Your root widget must call `withRootWidget` in it's draw method to run correctly!"
 
