@@ -58,8 +58,6 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    eraseScreen()
-    printLayout(this, cmTerminal)
 
     Rectangle.new "outer":
       with this:
