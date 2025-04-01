@@ -5,6 +5,7 @@ import figuro
 import hnloader
 import std/os
 import cssgrid/prettyprints
+import std/terminal
 
 let
   typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
@@ -57,12 +58,14 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    eraseScreen()
+    printLayout(this, cmTerminal)
 
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
         setGridRows ["top"] 70'ux \
-                    ["items"] 1'fr \
+                    ["items"] auto \
                     ["bottom"] 40'ux \
                     ["end"] 0'ux
         setGridCols ["left"]  3'fr \
