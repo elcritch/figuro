@@ -113,7 +113,7 @@ proc scrollBarDrag*(
     initial: Position,
     cursor: Position
 ) {.slot.} =
-  debug "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor
+  trace "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor
   let child = self.children[0]
   assert child.name == "scrollBody"
   let delta = initial.positionDiff(cursor)
