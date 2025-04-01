@@ -41,6 +41,6 @@ proc draw*(self: Main) {.slot.} =
         for idx in 0 .. 15:
           buttonItem(self, this, idx)
 
-var main = Main.new()
+var main = Main()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)

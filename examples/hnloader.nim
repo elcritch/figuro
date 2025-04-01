@@ -180,21 +180,29 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
     else:
       let client = newHttpClient()
       let res = client.get(url)
-      
+        
       # Create a process to run html2markdown
-      let process = startProcess(
-        "html2markdown",
-        options={poUsePath, poStdErrToStdOut}
-      )
+      var markdown = ""
+      try:
+        let process = startProcess(
+          "html2markdowns",
+          options={poUsePath, poStdErrToStdOut}
+        )
+        
+        # Write HTML to stdin of html2markdown
+        process.inputStream.write(res.body)
+        process.inputStream.close()
+        
+        # Read markdown from stdout
+        markdown = process.outputStream.readAll()
+        process.close()
+      except OSError as err:
+        echo "error running html2markdown: ", $err.msg
+        echo "error running html2markdown: ", $err.getStackTrace()
+        markdown = "error running html2markdown:\n" & $err.msg
+        markdown.add "try installing html2markdown: https://github.com/JohannesKaufmann/html-to-markdown"
       
-      # Write HTML to stdin of html2markdown
-      process.inputStream.write(res.body)
-      process.inputStream.close()
-      
-      # Read markdown from stdout
-      let markdown = process.outputStream.readAll()
-      process.close()
-      
+        
       when isMainModule:
         echo "markdown:\n", markdown
 
