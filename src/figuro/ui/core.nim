@@ -175,16 +175,16 @@ macro onSignal*(signal: untyped, blk: untyped) =
   result[1][0].params = params
   # echo "result: ", result.treeRepr
 
-proc sibling*(self: Figuro, name: string): Option[Figuro] =
+proc findSibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
   for sibling in self.parent.children:
     if sibling.uid != self.uid and sibling.name == name:
       return some sibling
   return Figuro.none
 
-template sibling*(name: string): Option[Figuro] =
+template findSibling*[T: Figuro](name: string): Option[T] =
   ## finds first sibling with name
-  node.sibling(name)
+  findSibling(this, name)
 
 proc findParent*[T: Figuro](this: Figuro, tp: typedesc[T]): T =
   ## finds first parent with name
@@ -203,6 +203,13 @@ proc findParent*(this: Figuro, name: string, tp: typedesc = Figuro): tp =
     return nil
   else:
     return this.parent[].findParent(name, tp)
+
+proc findChild*[T: Figuro](this: Figuro, name: string, tp: typedesc[T]): T =
+  ## finds first child with name
+  for child in this.children:
+    if child.name == name and child of tp:
+      return T(child)
+  return nil
 
 
 proc clearDraw*(fig: Figuro) {.slot.} =

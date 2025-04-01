@@ -76,7 +76,7 @@ proc calculateBar*(
   # debug "calculateBar: ", scrollBar = result
 
 proc scroll*(self: ScrollPane, wheelDelta: Position, force: bool) =
-  let child = self.children[0]
+  let child = self.findChild("scrollBody", Rectangle)
   var window = calculateWindow(self.screenBox, child.screenBox)
   let prevScrollBy = self.scrollBy
   self.scrollBy.updateScroll(wheelDelta * 10'ui, window.contentOverflow)
@@ -108,8 +108,12 @@ proc scroll*(self: ScrollPane, wheelDelta: Position) {.slot.} =
   scroll(self, wheelDelta, force = false)
 
 proc scrollBarDrag*(
-    self: ScrollPane, kind: EventKind, initial: Position, cursor: Position
+    self: ScrollPane,
+    kind: EventKind,
+    initial: Position,
+    cursor: Position
 ) {.slot.} =
+  debug "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor
   let child = self.children[0]
   assert child.name == "scrollBody"
   let delta = initial.positionDiff(cursor)
@@ -138,13 +142,12 @@ proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
     self.listens.events.incl evScroll
-    connect(self, doScroll, self, ScrollPane.scroll)
-    connect(self, doLayoutResize, self, ScrollPane.layoutResize)
-    self.clipContent true
-    trace "scroll:draw: ", name = self.name
+    uinodes.connect(self, doScroll, self, ScrollPane.scroll)
+    uinodes.connect(self, doLayoutResize, self, ScrollPane.layoutResize)
+    clipContent true
     this.cxMin = [0'ux, 0'ux]
 
-    rectangle "scrollBody":
+    Rectangle.new "scrollBody":
       ## min-content is important here
       ## todo: do the same for horiz?
       if self.settings.vertical:
@@ -169,7 +172,8 @@ proc draw*(self: ScrollPane) {.slot.} =
           size self.settings.size.w, csPerc(100.0'ui*self.window.contentViewRatio[drow])
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
-          connect(doDrag, self, scrollBarDrag)
+        uinodes.connect(this, doDrag, self, scrollBarDrag)
+
     if self.settings.horizontal:
       Rectangle.new "scrollbar-horizontal":
         with this:
@@ -177,7 +181,6 @@ proc draw*(self: ScrollPane) {.slot.} =
           size csPerc(100.0'ui*self.window.contentViewRatio[dcol]), self.settings.size.h
           fill css"#0000ff" * 0.4
           cornerRadius 4'ui
+        uinodes.connect(this, doDrag, self, scrollBarDrag)
 
-proc getWidgetParent*(self: ScrollPane): Figuro =
-  self
 
