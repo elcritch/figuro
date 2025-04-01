@@ -25,11 +25,11 @@ proc draw*(self: Main) {.slot.} =
                                   color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.5))
 
       Text.new "btnText":
-        with this:
-          foreground blackColor
-          justify Center
-          align Middle
-          text({font: "testing"})
+        size 100'pp, 100'pp
+        foreground blackColor
+        justify Center
+        align Middle
+        text({font: "testing"})
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(400'ui, 200'ui))
