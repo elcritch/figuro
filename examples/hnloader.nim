@@ -185,7 +185,7 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
       var markdown = ""
       try:
         let process = startProcess(
-          "html2markdowns",
+          "html2markdown",
           options={poUsePath, poStdErrToStdOut}
         )
         
