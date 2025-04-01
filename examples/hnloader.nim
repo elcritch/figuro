@@ -201,7 +201,6 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
         echo "error running html2markdown: ", $err.getStackTrace()
         markdown = "error running html2markdown:\n" & $err.msg
         markdown.add "try installing html2markdown: https://github.com/JohannesKaufmann/html-to-markdown"
-      
         
       when isMainModule:
         echo "markdown:\n", markdown
