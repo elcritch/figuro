@@ -39,34 +39,12 @@ proc getScaleInfo*(window: Window): ScaleInfo =
   result.x = scale
   result.y = scale
 
-proc updateWindowSize*(frame: WeakRef[AppFrame], window: Window) =
-  app.requestedFrame.inc
-
-  var cwidth, cheight: cint
-  let size = window.size()
-  frame[].windowRawSize.x = size.x.toFloat
-  frame[].windowRawSize.y = size.y.toFloat
-  frame[].minimized = window.minimized()
-  app.pixelRatio = window.contentScale()
-
-  glViewport(0, 0, cwidth, cheight)
-
-  let scale = window.getScaleInfo()
-  if app.autoUiScale:
-    app.uiScale = min(scale.x, scale.y)
-
-  let sz = frame[].windowRawSize.descaled()
-  # TODO: set screen logical offset too?
-  frame[].windowSize.w = sz.x
-  frame[].windowSize.h = sz.y
-
 proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
   assert not frame.isNil
-  if frame[].fullscreen:
-    window.fullscreen = frame[].fullscreen
+  if frame[].window.fullscreen:
+    window.fullscreen = frame[].window.fullscreen
   else:
-    frame[].windowRawSize = frame[].windowSize.wh.scaled()
-    window.size = ivec2(frame[].windowRawSize)
+    window.size = ivec2(frame[].window.box.wh.scaled())
 
   window.visible = true
 
@@ -90,7 +68,7 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
 
   # app.lastDraw = getTicks()
   # app.lastTick = app.lastDraw
-  frame[].focused = true
+  frame[].window.focused = true
 
   useDepthBuffer(false)
-  updateWindowSize(frame, window)
+  # updateWindowSize(frame, window)

@@ -52,21 +52,13 @@ type
 
   AppState* = object
     running*: bool
-    # running*, focused*, minimized*, fullscreen*: bool
+    requestedFrame*: int = 2
+    lastDraw*, lastTick*: int
 
-    # width*, height*: int
     # UI Scale
     uiScale*: float32
     autoUiScale*: bool
-
-    requestedFrame*: int = 2
-
-    # windowFrame*: Vec2   ## Pixel coordinates
-    pixelate*: bool ## ???
-    pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
     pixelScale*: float32 ## Pixel multiplier user wants on the UI
-
-    lastDraw*, lastTick*: int
 
 var
   dataDir* {.runtimeVar.}: string = DataDirPath.string

@@ -1,9 +1,9 @@
 import std/paths, std/os
-import pkg/threading/channels
 import sigils
 import sigils/threads
 
 import ../../commons
+import ../../common/rchannels
 import ../../ui/core
 
 when not defined(noFiguroDmonMonitor):

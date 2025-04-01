@@ -9,6 +9,7 @@ import pkg/sigils/weakrefs
 import pkg/chronicles 
 
 import ../commons
+import ../common/rchannels
 # import ../inputs
 import ./opengl/utils
 import ./opengl/window
@@ -62,33 +63,48 @@ proc writeWindowConfig*(window: Window, winCfgFile: string) =
     except Defect, CatchableError:
       debug "error writing window position"
 
+proc getWindowInfo*(window: Window): AppWindow =
+    app.requestedFrame.inc
+
+    result.minimized = window.minimized()
+    result.pixelRatio = window.contentScale()
+
+    var cwidth, cheight: cint
+    let size = window.size()
+
+    result.box.w = size.x.float32.descaled()
+    result.box.h = size.y.float32.descaled()
+
 proc configureWindowEvents(renderer: Renderer) =
   let window = renderer.window
   let winCfgFile = renderer.frame.windowCfgFile()
 
   window.runeInputEnabled = true
 
-
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
+    app.running = false
 
   window.onMove = proc() =
     writeWindowConfig(window, winCfgFile)
-    debug "window moved: ", pos= window.pos
+    # debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
-    updateWindowSize(renderer.frame, window)
-    renderer.pollAndRender(updated = true, poll = false)
+    # updateWindowSize(renderer.frame, window)
+    let windowState = getWindowInfo(window)
     var uxInput = window.copyInputs()
-    uxInput.windowSize = some renderer.frame[].windowSize
-    discard renderer.uxInputList.trySend(uxInput)
-    writeWindowConfig(window, winCfgFile)
-    debug "window resize: ", size= window.size
+    uxInput.window = some windowState
+    renderer.uxInputList.push(uxInput)
+    # echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled(), " sent: ", sent
+    # writeWindowConfig(window, winCfgFile)
+    # debug "window resize: ", size= window.size
+    discard renderer.pollAndRender(poll = false)
+    # echo "RENDER LOOP: resize: done: ", windowState.box.wh.scaled(), " sent: ", sent
 
   window.onFocusChange = proc() =
-    renderer.frame[].focused = window.focused
-    let uxInput = window.copyInputs()
-    discard renderer.uxInputList.trySend(uxInput)
+    var uxInput = window.copyInputs()
+    uxInput.window = some getWindowInfo(window)
+    renderer.uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =
     var uxInput = AppInputs()
@@ -98,8 +114,7 @@ proc configureWindowEvents(renderer: Renderer) =
     uxInput.mouse.prev = prevPos.descaled()
     uxInput.mouse.consumed = false
     lastMouse = uxInput.mouse
-    if not renderer.uxInputList.trySend(uxInput):
-      info "warning: mouse event blocked!"
+    renderer.uxInputList.push(uxInput)
 
   window.onFocusChange = proc() =
     warn "onFocusChange"
@@ -108,7 +123,7 @@ proc configureWindowEvents(renderer: Renderer) =
     var uxInput = AppInputs(mouse: lastMouse)
     uxInput.mouse.consumed = false
     uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.push(uxInput)
 
   window.onButtonPress = proc(button: windex.Button) =
     let uxInput = window.copyInputs()
@@ -130,7 +145,7 @@ proc configureWindowEvents(renderer: Renderer) =
         fgGreen,
         $uxInput.buttonDown,
       ) # fgBlue, " time: " & $(time - lastButtonRelease) )
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.push(uxInput)
 
   window.onButtonRelease = proc(button: Button) =
     let uxInput = window.copyInputs()
@@ -156,7 +171,7 @@ proc configureWindowEvents(renderer: Renderer) =
         fgGreen,
         $uxInput.buttonPress,
       )
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.push(uxInput)
 
   window.onRune = proc(rune: Rune) =
     var uxInput = AppInputs(mouse: lastMouse)
@@ -165,9 +180,9 @@ proc configureWindowEvents(renderer: Renderer) =
       stdout.styledWriteLine(
         {styleDim}, fgWhite, "keyboardInput: ", {styleDim}, fgGreen, $rune
       )
-    discard renderer.uxInputList.trySend(uxInput)
+    renderer.uxInputList.push(uxInput)
 
-  renderer.frame[].running = true
+  renderer.frame[].window.running = true
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
@@ -183,11 +198,11 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   window.`pos=`(winCfg.pos)
   if winCfg.size.x != 0 and winCfg.size.y != 0:
     let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
-    frame[].windowSize.w = sz.x.UiScalar
-    frame[].windowSize.h = sz.y.UiScalar
+    frame[].window.box.w = sz.x.UiScalar
+    frame[].window.box.h = sz.y.UiScalar
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
-  let renderer = newRenderer(frame, window, false, 1.0, atlasSize)
+  let renderer = newRenderer(frame, window, 1.0, atlasSize)
   renderer.configureWindowEvents()
   app.requestedFrame.inc
 

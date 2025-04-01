@@ -6,8 +6,8 @@ template usingVerticalLayout*() =
   with this:
     setGridCols 1'fr
     gridAutoFlow grRow
-    justifyItems CxCenter
-    alignItems CxCenter
+    justifyItems CxStretch
+    alignItems CxStretch
 
 proc contentHeight*(current: Figuro, cx: Constraint, gap = -1'ui) {.thisWrapper.} =
   current.gridAutoRows cx

@@ -57,13 +57,6 @@ var
   defaultTypeface* {.runtimeVar.} = getTypeface(DefTypefaceName, DefTypefaceRaw, TTF)
   defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
 
-proc setSize*(frame: AppFrame, size: (UiScalar, UiScalar)) =
-  frame.windowSize.w = size[0]
-  frame.windowSize.h = size[1]
-  frame.windowRawSize = frame.windowSize.wh.scaled()
-  # echo "setSize: ", frame.windowSize
-  # echo "setSize: ", frame.windowRawSize
-
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
 
@@ -182,16 +175,42 @@ macro onSignal*(signal: untyped, blk: untyped) =
   result[1][0].params = params
   # echo "result: ", result.treeRepr
 
-proc sibling*(self: Figuro, name: string): Option[Figuro] =
+proc findSibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
   for sibling in self.parent.children:
     if sibling.uid != self.uid and sibling.name == name:
       return some sibling
   return Figuro.none
 
-template sibling*(name: string): Option[Figuro] =
+template findSibling*[T: Figuro](name: string): Option[T] =
   ## finds first sibling with name
-  node.sibling(name)
+  findSibling(this, name)
+
+proc findParent*[T: Figuro](this: Figuro, tp: typedesc[T]): T =
+  ## finds first parent with name
+  if this.parent[] of tp:
+    return T(this.parent[])
+  elif this.parent.isNil:
+    return nil
+  else:
+    return this.parent[].findParent(tp)
+
+proc findParent*(this: Figuro, name: string, tp: typedesc = Figuro): tp =
+  ## finds first parent with name
+  if this.parent[].name == name and this.parent[] of tp:
+    return tp(this.parent[])
+  elif this.parent.isNil:
+    return nil
+  else:
+    return this.parent[].findParent(name, tp)
+
+proc findChild*[T: Figuro](this: Figuro, name: string, tp: typedesc[T]): T =
+  ## finds first child with name
+  for child in this.children:
+    if child.name == name and child of tp:
+      return T(child)
+  return nil
+
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
@@ -251,7 +270,9 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
   frame.theme = Theme(font: defaultFont)
-  frame.setSize(size)
+  # frame.setSize(size)
+  frame.window.box.w = size[0].UiScalar
+  frame.window.box.h = size[1].UiScalar
   frame.windowStyle = style
   refresh(root)
   return frame
@@ -445,9 +466,11 @@ template withRootWidget*(self, blk: untyped) =
   let this {.inject, used.} = self
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
+  this.cxSize = [100'pp, 100'pp]
+  self.name = "root"
 
   Rectangle.new "main":
-    this.cxSize = [cx"auto", cx"auto"]
+    this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`
 

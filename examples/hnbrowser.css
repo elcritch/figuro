@@ -27,13 +27,27 @@ Button:hover {
   border-color: rgba(57, 50, 1, 0.45);
   border-radius: 6;
   color: #ddd;
-  background: rgb(50, 50, 47);
+  background: rgb(112, 112, 103);
   /* height: 40; */
 }
 
 #story:hover {
   background: rgba(255, 170, 50, 0.57);
   box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
+}
+
+#story-pane-inner {
+  background: black;
+  border-width: 3;
+  border-color: rgba(57, 50, 1, 0.45);
+  border-radius: 6;
+  color: #000000;
+  background: rgb(112, 112, 103);
+  /* height: 40; */
+}
+
+#scrollBody {
+  width: 100%;
 }
 
 /* .subtext, .subtext * {

@@ -7,8 +7,9 @@ import pkg/windex
 import pkg/opengl
 from pixie import Image
 import pkg/sigils
-import pkg/sigils/threads
+import pkg/chronicles
 
+import ../../common/rchannels
 import window, glcommons, context, formatflippy, utils
 
 import std/locks
@@ -17,17 +18,18 @@ type Renderer* = ref object
   ctx*: Context
   duration*: Duration
   window*: Window
-  uxInputList*: Chan[AppInputs]
-  rendInputList*: Chan[RenderCommands]
+  uxInputList*: RChan[AppInputs]
+  rendInputList*: RChan[RenderCommands]
   frame*: WeakRef[AppFrame]
   lock*: Lock
   updated*: Atomic[bool]
+
   nodes*: Renders
+  renderWindow*: AppWindow
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
     window: Window,
-    pixelate: bool,
     forcePixelScale: float32,
     atlasSize: int,
 ): Renderer =
@@ -37,9 +39,9 @@ proc newRenderer*(
   renderer.nodes = Renders()
   renderer.frame = frame
   renderer.ctx =
-    newContext(atlasSize = atlasSize, pixelate = pixelate, pixelScale = app.pixelScale)
-  renderer.uxInputList = newChan[AppInputs](4)
-  renderer.rendInputList = newChan[RenderCommands](20)
+    newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
+  renderer.uxInputList = newRChan[AppInputs](5)
+  renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
@@ -69,8 +71,7 @@ proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
       # charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*0.84) # empirically determined
       charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*1.0) # empirically determined
     if glyphId notin ctx.entries:
-      echo "no glyph in context: ",
-        glyphId, " glyph: `", glyph.rune, "`", " (", repr(glyph.rune), ")"
+      trace "no glyph in context: ", glyphId= glyphId, glyph= glyph.rune, glyphRepr= repr(glyph.rune)
       continue
     ctx.drawImage(glyphId, charPos, node.fill)
 
@@ -291,7 +292,7 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.frame[].windowRawSize)
+  ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -321,31 +322,25 @@ proc renderAndSwap(renderer: Renderer) =
   timeIt(drawFrameSwap):
     renderer.window.swapBuffers()
 
-proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
+proc pollAndRender*(renderer: Renderer, poll = true): bool =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
-  let
-    renderUpdate = renderer.updated.load()
-  var
-    update = renderUpdate or updated
-
-  if renderer.window.closeRequested:
-    renderer.frame[].running = false
-    app.running = false
-    return
 
   if poll:
     windex.pollEvents()
   
+  var update = false
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
+    result = true
     match cmd:
-      RenderUpdate(nlayers):
+      RenderUpdate(nlayers, window):
         renderer.nodes = nlayers
+        renderer.renderWindow = window
         update = true
       RenderQuit:
         echo "QUITTING"
-        renderer.frame[].running = false
+        renderer.frame[].window.running = false
         app.running = false
         return
       RenderSetTitle(name):
@@ -357,10 +352,10 @@ proc pollAndRender*(renderer: Renderer, updated = false, poll = true) =
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
-  while app.running and not renderer.window.closeRequested:
+  while app.running:
     let time =
       timeItVar(renderAvgTime):
-        renderer.pollAndRender(false)
+        discard renderer.pollAndRender()
 
     let avgMicros = time.micros.toInt() div 1_000
     os.sleep(renderer.duration.inMilliseconds - avgMicros)

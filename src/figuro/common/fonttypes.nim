@@ -70,13 +70,13 @@ proc getId*(font: UiFont): FontId =
   FontId font.hash()
 
 proc getContentHash*(
-    box: Box,
+    size: UiSize,
     uiSpans: openArray[(UiFont, string)],
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
 ): Hash =
   var h = Hash(0)
-  h = h !& hash(box)
+  h = h !& hash(size)
   h = h !& hash(uiSpans)
   h = h !& hash(hAlign)
   h = h !& hash(vAlign)

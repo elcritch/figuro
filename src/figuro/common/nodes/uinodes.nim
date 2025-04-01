@@ -9,6 +9,7 @@ import pkg/cssgrid
 import basics
 import basiccss
 import ../inputs
+import ../rchannels
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
@@ -36,16 +37,12 @@ type
     proxies*: seq[AgentProxyShared]
     redrawNodes*: OrderedSet[Figuro]
     root*: Figuro
-    uxInputList*: Chan[AppInputs]
-    rendInputList*: Chan[RenderCommands]
-    running*, focused*, minimized*, fullscreen*: bool
-
+    uxInputList*: RChan[AppInputs]
+    rendInputList*: RChan[RenderCommands]
+    window*: AppWindow
     windowTitle*: string
-    windowSize*: Box ## Screen size in logical coordinates.
-    windowRawSize*: Vec2 ## Screen coordinates
-    theme*: Theme
     windowStyle*: FrameStyle
-
+    theme*: Theme
     configFile*: string
 
   Figuro* = ref object of Agent
@@ -167,7 +164,7 @@ proc doInitialize*(fig: Figuro) {.signal.}
   ## called before draw when a node is first created or reset
 proc doDraw*(fig: Figuro) {.signal.}
   ## draws node
-proc doLayoutResize*(fig: Figuro, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.signal.}
+proc doLayoutResize*(fig: Figuro, node: Figuro) {.signal.}
   ## called after layout size changes
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}

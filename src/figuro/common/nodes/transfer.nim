@@ -33,8 +33,6 @@ proc toTree*(list: RenderList): RenderTree =
     # echo "toTree:rootIdx: ", rootIdx.int
     result.children.add toTree(list.nodes, rootIdx)
 
-import pretty
-
 proc findRoot*(list: RenderList, node: Node): Node =
   result = node
   var cnt = 0

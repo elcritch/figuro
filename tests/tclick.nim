@@ -56,7 +56,7 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "body":
       with this:
         # sets the bounding box of this this
-        box 10'ux, 10'ux, 600'ux, 120'ux
+        box 10'ux, 10'ux, 1000'ux, 120'ux
         cornerRadius 10.0'ui
         # `fill` sets the background color. Color apis use the `chroma` library
         fill blackColor * (self.bkgFade.amount)
@@ -82,9 +82,9 @@ proc draw*(self: Main) {.slot.} =
               if idx == 0:
                 connect(self, update, this, btnTick)
               Text.new "text":
-                with this:
-                  foreground blackColor
-                  justify Center
+                size 100'pp, 100'pp
+                foreground blackColor
+                justify Center
                 align Middle
                 text({font: $(btn.state)})
 

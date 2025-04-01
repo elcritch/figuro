@@ -80,6 +80,7 @@ template paddingTop*(v: Constraint) {.thisWrapper.}
 template paddingRight*(v: Constraint) {.thisWrapper.}
 template paddingBottom*(v: Constraint) {.thisWrapper.}
 template paddingXY*(t, b: Constraint) {.thisWrapper.}
+template paddingWH*(l, r: Constraint) {.thisWrapper.}
 
 ## ---------------------------------------------
 ##             Fidget Node APIs

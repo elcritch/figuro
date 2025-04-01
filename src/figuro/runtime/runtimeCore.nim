@@ -9,7 +9,7 @@ else:
   export opengl
 
 import pkg/chronicles
-import pkg/threading/channels
+import ../common/rchannels
 
 import std/os
 

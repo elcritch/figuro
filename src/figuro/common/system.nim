@@ -1,4 +1,4 @@
-import pkg/threading/channels
+import ./rchannels
 
 import nodes/uinodes
 import inputs
@@ -22,7 +22,7 @@ when not defined(nimscript):
 
   proc setWindowTitle*(frame: AppFrame, title: sink string) =
     if frame.getWindowTitle() != title:
-      frame.rendInputList.send(RenderSetTitle(name= move title))
+      frame.rendInputList.push(RenderSetTitle(name= move title))
 
   proc getTypeface*(name: string): TypefaceId =
     ## loads typeface from pixie
@@ -35,6 +35,6 @@ when not defined(nimscript):
     getLineHeightImpl(font)
 
   proc getTypeset*(
-      box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top
+      box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top, minContent = false, wrap = true
   ): GlyphArrangement =
-    getTypesetImpl(box, spans, hAlign, vAlign)
+    getTypesetImpl(box, spans, hAlign, vAlign, minContent, wrap)
