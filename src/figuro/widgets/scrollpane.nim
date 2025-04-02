@@ -116,14 +116,12 @@ proc scrollBarDrag*(
     overlaps: bool,
     selected: Figuro
 ) {.slot.} =
-  # if selected != self: return
+  trace "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, selected = selected != self
   case kind:
   of Exit:
     self.dragStart = Position.none
-    debug "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, selected = selected != self
   of Init:
     self.dragStart = some self.scrollBy
-    debug "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, selected = selected != self
   of Done:
     if self.dragStart.isSome():
       let delta = initial.positionDiff(cursor)
