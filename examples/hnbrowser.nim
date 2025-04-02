@@ -73,13 +73,11 @@ proc draw*(self: Main) {.slot.} =
         justifyItems CxStretch
         alignItems CxStretch
 
-      # setPrettyPrintMode(cmTerminal)
-      # printLayout(this, cmTerminal)
-      onSignal(doMouseClick) do(this: Figuro,
-                    kind: EventKind,
-                    buttons: UiButtonView):
-        if kind == Done:
-          printLayout(this.frame[].root, cmTerminal)
+      # onSignal(doMouseClick) do(this: Figuro,
+      #               kind: EventKind,
+      #               buttons: UiButtonView):
+      #   if kind == Done:
+      #     printLayout(this.frame[].root, cmTerminal)
 
       Rectangle.new "top":
         gridRow "top" // "items"
@@ -140,8 +138,8 @@ proc draw*(self: Main) {.slot.} =
                   paddingXY 5'ux, 5'ux
 
                   this.state = story
-                  onSignal(doRightClick) do(this: Button[Submission]):
-                    printLayout(this, cmTerminal)
+                  # onSignal(doRightClick) do(this: Button[Submission]):
+                  #   printLayout(this, cmTerminal)
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
                     echo repr this.state
