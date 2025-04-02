@@ -15,7 +15,7 @@ type
     scrollBody*: Rectangle
 
   ScrollSettings* = object
-    size* = initSize(10'ui, 10.0'ui)
+    size* = initSize(15'ui, 15'ui)
     horizontal*: bool = false
     vertical*: bool = true
     barLeft*: bool
