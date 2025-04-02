@@ -16,7 +16,9 @@ type
 proc btnDragStart*(this: Figuro,
                    kind: EventKind,
                    initial: Position,
-                   cursor: Position
+                   cursor: Position,
+                   overlaps: bool,
+                   source: Figuro,
                   ) {.slot.} =
   echo "btnDrag:start: ", this.getId, " ", kind
   discard
@@ -25,7 +27,9 @@ proc btnDragStop*(
     this: Button[(Fader, string)],
     kind: EventKind,
     initial: Position,
-    cursor: Position
+    cursor: Position,
+    overlaps: bool,
+    source: Figuro,
 ) {.slot.} =
   echo "btnDrag:exit: ", this.getId, " ", kind,
           " change: ", initial.positionDiff(cursor),
@@ -65,7 +69,7 @@ proc draw*(self: Main) {.slot.} =
       ## TODO: how to make a better api for this
       ## we don't want evDrag, only evDragEnd
       ## uithiss.connect only has doDrag signal
-      connect(this, doDrag, this, btnDragStop)
+      connect(this, doDragDrop, this, btnDragStop)
       this.listens.signals.incl {evDragEnd}
       let btn = this
       proc clicked(btn: Button[(Fader, string)],

@@ -73,13 +73,11 @@ proc draw*(self: Main) {.slot.} =
         justifyItems CxStretch
         alignItems CxStretch
 
-      # setPrettyPrintMode(cmTerminal)
-      # printLayout(this, cmTerminal)
-      onSignal(doMouseClick) do(this: Figuro,
-                    kind: EventKind,
-                    buttons: UiButtonView):
-        if kind == Done:
-          printLayout(this.frame[].root, cmTerminal)
+      # onSignal(doMouseClick) do(this: Figuro,
+      #               kind: EventKind,
+      #               buttons: UiButtonView):
+      #   if kind == Done:
+      #     printLayout(this.frame[].root, cmTerminal)
 
       Rectangle.new "top":
         gridRow "top" // "items"
@@ -125,10 +123,11 @@ proc draw*(self: Main) {.slot.} =
           cornerRadius 7.0'ux
           size 100'pp, 100'pp
           fill css"grey"
+          let scrollPane = this
 
           Vertical.new "items":
             offset 0'ux, 0'ux
-            size 100'pp-10'ux, cx"max-content"
+            size 100'pp-scrollPane.settings.size[dcol], cx"max-content"
             contentHeight cx"auto", 3'ui
 
             for idx, story in self.stories:
@@ -140,8 +139,8 @@ proc draw*(self: Main) {.slot.} =
                   paddingXY 5'ux, 5'ux
 
                   this.state = story
-                  onSignal(doRightClick) do(this: Button[Submission]):
-                    printLayout(this, cmTerminal)
+                  # onSignal(doRightClick) do(this: Button[Submission]):
+                  #   printLayout(this, cmTerminal)
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
                     echo repr this.state
@@ -217,10 +216,11 @@ proc draw*(self: Main) {.slot.} =
             offset 0'pp, 0'pp
             cornerRadius 7.0'ux
             size 100'pp, 100'pp
+            let scrollPane = this
 
             Rectangle.new "story-pane-inner":
               fill css"black"
-              size 100'pp-10'ux, cx"max-content"
+              size 100'pp-scrollPane.settings.size[dcol], cx"max-content"
               paddingWH 10'ux, 20'ux
 
               Text.new "story-text":

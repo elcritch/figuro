@@ -294,31 +294,39 @@ proc computeEvents*(frame: AppFrame) =
         prevClicks.incl target
 
   ## handle drag events
+  ## Note: fixme? not sure but drags events are tricky
+  ## do we want to target multiple nodes?
+  var dragSource: Figuro = nil
   block dragEvents:
     let drags = captured[evDrag]
     if evDrag in drags.flags:
-      let newDrags = drags.targets + prevDrags
+      let newDrags = drags.targets - prevDrags
       if prevDrags.len() == 0:
         dragInitial = uxInputs.mouse.pos
       # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
         target.events.incl evDrag
-        emit target.doDrag(Init, dragInitial, uxInputs.mouse.pos)
+        if mouseOverlaps(target, false):
+          dragSource = target
+          emit target.doDrag(Init, dragInitial, uxInputs.mouse.pos, true, dragSource)
         prevDrags.incl target
+      
+      for target in prevDrags:
+        emit target.doDrag(Done, dragInitial, uxInputs.mouse.pos, mouseOverlaps(target, false), dragSource)
 
   block dragEndEvents:
     let dragens = captured[evDragEnd]
     if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
       # echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
-      let delClicks = prevDrags - dragens.targets
+      let delClicks = prevDrags
       for target in delClicks:
-        emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos)
+          emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos, mouseOverlaps(target, false), dragSource)
       prevDrags.clear()
       for target in dragens.targets:
         # echo "dragends:tgt: ", target.getId
-        if NfRootWindow notin target.flags:
-          target.events.excl evDragEnd
-        emit target.doDrag(Done, dragInitial, uxInputs.mouse.pos)
+        # if NfRootWindow notin target.flags: target.events.excl evDragEnd
+        emit target.doDragDrop(Done, dragInitial, uxInputs.mouse.pos, mouseOverlaps(target, false), dragSource)
+      dragSource = nil
 
   uxInputs.buttonPress = {}
   uxInputs.buttonDown = {}
