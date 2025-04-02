@@ -12,9 +12,10 @@ type
     bary*: ScrollBar
     scrollBy*: Position
     dragStart*: Option[Position]
+    scrollBody*: Rectangle
 
   ScrollSettings* = object
-    size* = initSize(10'ui, 10.0'ui)
+    size* = initSize(15'ui, 15'ui)
     horizontal*: bool = false
     vertical*: bool = true
     barLeft*: bool
@@ -111,21 +112,22 @@ proc scrollBarDrag*(
     self: ScrollPane,
     kind: EventKind,
     initial: Position,
-    cursor: Position
+    cursor: Position,
+    overlaps: bool,
+    selected: Figuro
 ) {.slot.} =
-  trace "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor
-  let child = self.children[0]
-  assert child.name == "scrollBody"
-  let delta = initial.positionDiff(cursor)
-  if kind == Exit:
+  trace "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, selected = selected != self
+  case kind:
+  of Exit:
     self.dragStart = Position.none
-  else:
-    if self.dragStart.isNone:
-      self.dragStart = some self.scrollBy
-
-    self.window = calculateWindow(self.screenBox, child.screenBox)
-    let offset = (self.dragStart.get() + delta / self.window.contentViewRatio)
-    self.scrollBy.updateScroll(offset, self.window.contentOverflow, isAbsolute = true)
+  of Init:
+    self.dragStart = some self.scrollBy
+  of Done:
+    if self.dragStart.isSome():
+      let delta = initial.positionDiff(cursor)
+      self.window = calculateWindow(self.screenBox, self.scrollBody.screenBox)
+      let offset = (self.dragStart.get() + delta / self.window.contentViewRatio)
+      self.scrollBy.updateScroll(offset, self.window.contentOverflow, isAbsolute = true)
 
     if self.settings.vertical:
       self.bary = calculateBar(self.settings, self.scrollBy, self.window, drow)
@@ -150,13 +152,13 @@ proc draw*(self: ScrollPane) {.slot.} =
     Rectangle.new "scrollBody":
       ## min-content is important here
       ## todo: do the same for horiz?
+      self.scrollBody = this
       if self.settings.vertical:
         this.cxSize[drow] = cx"min-content"
       if self.settings.horizontal:
         this.cxSize[dcol] = cx"min-content"
 
-      with this:
-        fill whiteColor.darken(0.2)
+      fill whiteColor.darken(0.2)
       this.offset = self.scrollBy
       this.flags.incl NfScrollPanel
       WidgetContents()

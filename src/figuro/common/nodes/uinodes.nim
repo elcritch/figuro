@@ -173,7 +173,18 @@ proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
 proc doKeyPress*(fig: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
 proc doScroll*(fig: Figuro, wheelDelta: Position) {.signal.}
 proc doDrag*(
-  fig: Figuro, kind: EventKind, initial: Position, latest: Position
+  fig: Figuro, kind: EventKind,
+  initial: Position,
+  latest: Position,
+  overlaps: bool,
+  source: Figuro,
+) {.signal.}
+proc doDragDrop*(
+  fig: Figuro, kind: EventKind,
+  initial: Position,
+  latest: Position,
+  overlaps: bool,
+  source: Figuro,
 ) {.signal.}
 
 proc doUpdate*[T](agent: Agent, value: T) {.signal.}
@@ -221,9 +232,14 @@ proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.s
   emit fig.doMouseClick(kind, buttonPress)
 
 proc doDragBubble*(
-    fig: Figuro, kind: EventKind, initial: Position, latest: Position
+    fig: Figuro,
+    kind: EventKind,
+    initial: Position,
+    latest: Position,
+    overlaps: bool,
+    source: Figuro,
 ) {.slot.} =
-  emit fig.doDrag(kind, initial, latest)
+  emit fig.doDrag(kind, initial, latest, overlaps, source)
 
 template connect*(
     a: Figuro,
@@ -238,7 +254,9 @@ template connect*(
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":
-    a.listens.signals.incl {evDrag, evDragEnd}
+    a.listens.signals.incl {evDrag}
+  elif signalName(signal) == "doDragDrop":
+    a.listens.signals.incl {evDragEnd}
   signals.connect(a, signal, b, slot, acceptVoidSlot)
 
 template bubble*(signal: typed, parent: typed) =
