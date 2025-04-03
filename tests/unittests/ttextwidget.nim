@@ -11,7 +11,7 @@ import cssgrid/prettyprints
 import figuro/ui/layout
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  typeface = defaultTypeface()
   deffont = UiFont(typefaceId: typeface, size: 18)
 
 type TMain* = ref object of Figuro
@@ -57,7 +57,7 @@ when isMainModule:
     var main {.inject.} = TMain.new()
     var frame = newAppFrame(main, size=(400'ui, 400'ui))
     main.frame = frame.unsafeWeakRef()
-    main.frame[].theme = Theme(font: defaultFont)
+    main.frame[].theme = Theme(font: defaultFont())
     main.cxSize = [200'ux, 400'ux]
     connectDefaults(main)
     emit main.doDraw()

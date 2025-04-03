@@ -23,8 +23,8 @@ type
     count: Duration
 
 let
-  defaultFont = UiFont(typefaceId: defaultTypeface, size: 50'ui, lineHeightScale: 0.7692)
-  buttonFont = UiFont(typefaceId: defaultTypeface, size: 30'ui)
+  defaultFont = UiFont(typefaceId: defaultTypeface(), size: 50'ui, lineHeightScale: 0.7692)
+  buttonFont = UiFont(typefaceId: defaultTypeface(), size: 30'ui)
 
 proc update*(fig: Main) {.signal.}
 
@@ -72,7 +72,7 @@ proc draw*(self: Main) {.slot.} =
               size 100'pp, 100'pp
               align Middle
               justify Center
-              font defaultFont
+              font defaultFont()
               foreground css"black"
               fill css"white"
               border 1'ui, css"black"

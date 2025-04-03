@@ -8,7 +8,7 @@ import cssgrid/prettyprints
 import std/terminal
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  typeface = defaultTypeface()
   font = UiFont(typefaceId: typeface, size: 18)
   smallFont = UiFont(typefaceId: typeface, size: 15)
 

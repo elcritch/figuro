@@ -41,7 +41,7 @@ const
   blueColor* = color(0, 0, 1, 1)
 
 const DataDirPath* {.strdefine.} =
-  Path(currentSourcePath()).splitPath().head / Path(".." / ".." / ".." / "data")
+  Path(currentSourcePath()).splitPath().head / Path(".." / ".." / "data")
 
 type ScaleInfo* = object
   x*: float32

@@ -181,7 +181,7 @@ suite "css exec":
     var main {.inject.} = TMain.new()
     var frame = newAppFrame(main, size=(400'ui, 140'ui))
     main.frame = frame.unsafeWeakRef()
-    main.frame[].theme = Theme(font: defaultFont)
+    main.frame[].theme = Theme(font: defaultFont())
     let parser = newCssParser(themeSrc)
     let rules = parse(parser)
     # print cssTheme

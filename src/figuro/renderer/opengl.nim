@@ -98,7 +98,7 @@ proc configureWindowEvents(renderer: Renderer) =
     # echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled(), " sent: ", sent
     # writeWindowConfig(window, winCfgFile)
     # debug "window resize: ", size= window.size
-    discard renderer.pollAndRender(poll = false)
+    renderer.pollAndRender(poll = false)
     # echo "RENDER LOOP: resize: done: ", windowState.box.wh.scaled(), " sent: ", sent
 
   window.onFocusChange = proc() =

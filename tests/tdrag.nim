@@ -3,7 +3,7 @@ import figuro/ui/animations
 import figuro
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  typeface = defaultTypeface()
   font = UiFont(typefaceId: typeface, size: 16)
 
 type
