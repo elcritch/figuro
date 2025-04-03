@@ -62,13 +62,13 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
+        setGridCols ["left"]  min(300'ux, 25'pp) \
+                    ["middle"] 5'fr \
+                    ["right"] 0'ux
         setGridRows ["top"] 70'ux \
                     ["items"] auto \
                     ["bottom"] 40'ux \
                     ["end"] 0'ux
-        setGridCols ["left"]  3'fr \
-                    ["middle"] 5'fr \
-                    ["right"] 0'ux
         gridAutoFlow grRow
         justifyItems CxStretch
         alignItems CxStretch
