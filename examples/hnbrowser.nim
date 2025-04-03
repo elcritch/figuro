@@ -139,8 +139,9 @@ proc draw*(self: Main) {.slot.} =
                   paddingXY 5'ux, 5'ux
 
                   this.state = story
-                  # onSignal(doRightClick) do(this: Button[Submission]):
-                  #   printLayout(this, cmTerminal)
+                  onSignal(doRightClick) do(this: Button[Submission]):
+                    printLayout(this, cmTerminal)
+
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
                     echo repr this.state
@@ -156,7 +157,7 @@ proc draw*(self: Main) {.slot.} =
                     Rectangle.new "title-box":
                       # size 100'pp, cx"max-content"
                       paddingXY 0'ux, 5'ux
-                      Text.new "id":
+                      when false: #Text.new "id":
                         offset 5'ux, 0'ux
                         foreground css"black"
                         justify Left
@@ -174,7 +175,7 @@ proc draw*(self: Main) {.slot.} =
                     Rectangle.new "info-box-outer":
                       size 100'pp, cx"none"
 
-                      Rectangle.new "info-box":
+                      when false: #Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
                           setGridCols 40'ux ["upvotes"] 1'fr 5'ux \
