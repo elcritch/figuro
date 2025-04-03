@@ -322,7 +322,7 @@ proc renderAndSwap(renderer: Renderer) =
   timeIt(drawFrameSwap):
     renderer.window.swapBuffers()
 
-proc pollAndRender*(renderer: Renderer, poll = true): bool =
+proc pollAndRender*(renderer: Renderer, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
 
@@ -332,7 +332,6 @@ proc pollAndRender*(renderer: Renderer, poll = true): bool =
   var update = false
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
-    result = true
     match cmd:
       RenderUpdate(nlayers, window):
         renderer.nodes = nlayers
@@ -355,7 +354,8 @@ proc runRendererLoop*(renderer: Renderer) =
   while app.running:
     let time =
       timeItVar(renderAvgTime):
-        discard renderer.pollAndRender()
+        renderer.pollAndRender()
+
 
     let avgMicros = time.micros.toInt() div 1_000
     os.sleep(renderer.duration.inMilliseconds - avgMicros)
