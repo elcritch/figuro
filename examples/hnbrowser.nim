@@ -1,6 +1,7 @@
 # Compile with nim c -d:ssl
 import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
+import figuro/widgets/[input]
 import figuro
 import hnloader
 import std/os
@@ -78,6 +79,9 @@ proc draw*(self: Main) {.slot.} =
       #               buttons: UiButtonView):
       #   if kind == Done:
       #     printLayout(this.frame[].root, cmTerminal)
+      onSignal(doKeyCommand) do(self: Main, pressed: UiButtonView, down: UiButtonView):
+        echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
+
 
       Rectangle.new "top":
         gridRow "top" // "items"

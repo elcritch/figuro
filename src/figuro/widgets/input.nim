@@ -98,9 +98,9 @@ proc runes*(self: Input): seq[Rune] =
 proc text*(self: Input): string =
   $self.text.runes()
 
-proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
+proc doKeyCommand*(self: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
 
-proc doUpdateInput*(self: Input, rune: Rune) {.signal.}
+proc doUpdateInput*(self: Figuro, rune: Rune) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
   if self.isActive:
