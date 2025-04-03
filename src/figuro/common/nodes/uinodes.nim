@@ -125,6 +125,15 @@ type
 #   h = h !& hash tp.filePath
 #   result = !$h
 
+proc getParent*(node: Figuro): Figuro =
+  node.parent[]
+
+proc getFrameBox*(node: Figuro): Box =
+  if node.frame[].isNil:
+    uiBox(0,0,0,0)
+  else:
+    node.frame[].window.box
+
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig[].children
 

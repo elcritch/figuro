@@ -62,13 +62,13 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
+        setGridCols ["left"]  min(300'ux, 25'pp) \
+                    ["middle"] 5'fr \
+                    ["right"] 0'ux
         setGridRows ["top"] 70'ux \
                     ["items"] auto \
                     ["bottom"] 40'ux \
                     ["end"] 0'ux
-        setGridCols ["left"]  3'fr \
-                    ["middle"] 5'fr \
-                    ["right"] 0'ux
         gridAutoFlow grRow
         justifyItems CxStretch
         alignItems CxStretch
@@ -139,8 +139,9 @@ proc draw*(self: Main) {.slot.} =
                   paddingXY 5'ux, 5'ux
 
                   this.state = story
-                  # onSignal(doRightClick) do(this: Button[Submission]):
-                  #   printLayout(this, cmTerminal)
+                  onSignal(doRightClick) do(this: Button[Submission]):
+                    printLayout(this, cmTerminal)
+
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
                     echo repr this.state
@@ -154,8 +155,9 @@ proc draw*(self: Main) {.slot.} =
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":
-                      # size 100'pp, cx"max-content"
                       paddingXY 0'ux, 5'ux
+                      paddingWH 0'ux, 20'ux
+
                       Text.new "id":
                         offset 5'ux, 0'ux
                         foreground css"black"
