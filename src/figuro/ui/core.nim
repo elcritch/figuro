@@ -183,7 +183,7 @@ macro onSignal*(signal: untyped, blk: untyped) =
       #            "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
       #            astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
       # connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
-      connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
+      uinodes.connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
   # echo "result: ", result.treeRepr
   result[1][0].params = params
   # echo "result: ", result.treeRepr

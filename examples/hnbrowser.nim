@@ -57,8 +57,13 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   # echo "hover: ", kind
   refresh(self)
 
+proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.} =
+  echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
+
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    this.listens.signals.incl {evKeyPress}
+    connect(this, doKeyPress, self, Main.doKeyPress())
 
     Rectangle.new "outer":
       with this:
@@ -79,8 +84,6 @@ proc draw*(self: Main) {.slot.} =
       #               buttons: UiButtonView):
       #   if kind == Done:
       #     printLayout(this.frame[].root, cmTerminal)
-      onSignal(doKeyCommand) do(self: Main, pressed: UiButtonView, down: UiButtonView):
-        echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
 
 
       Rectangle.new "top":
