@@ -155,9 +155,10 @@ proc draw*(self: Main) {.slot.} =
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":
-                      # size 100'pp, cx"max-content"
                       paddingXY 0'ux, 5'ux
-                      when false: #Text.new "id":
+                      paddingWH 0'ux, 20'ux
+
+                      Text.new "id":
                         offset 5'ux, 0'ux
                         foreground css"black"
                         justify Left
@@ -175,7 +176,7 @@ proc draw*(self: Main) {.slot.} =
                     Rectangle.new "info-box-outer":
                       size 100'pp, cx"none"
 
-                      when false: #Rectangle.new "info-box":
+                      Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
                           setGridCols 40'ux ["upvotes"] 1'fr 5'ux \
