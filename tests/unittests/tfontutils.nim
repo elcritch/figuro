@@ -4,7 +4,7 @@ import figuro
 import figuro/common/fontutils
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  typeface = defaultTypeface()
   font = UiFont(typefaceId: typeface, size: 22'ui)
   smallFont = UiFont(typefaceId: typeface, size: 12'ui)
 

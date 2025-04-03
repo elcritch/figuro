@@ -5,7 +5,7 @@ import figuro
 import cssgrid/prettyprints
 
 let
-  font = UiFont(typefaceId: defaultTypeface, size: 22)
+  font = UiFont(typefaceId: defaultTypeface(), size: 22)
 
 type
   Main* = ref object of Figuro

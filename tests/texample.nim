@@ -2,7 +2,7 @@ import figuro/widgets/vertical
 import figuro
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  typeface = defaultTypeface()
   font = UiFont(typefaceId: typeface, size: 22)
 
 type

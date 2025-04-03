@@ -3,7 +3,7 @@ import figuro
 
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  typeface = defaultTypeface()
   font = UiFont(typefaceId: typeface, size: 22)
   largeFont = UiFont(typefaceId: typeface, size: 28)
 

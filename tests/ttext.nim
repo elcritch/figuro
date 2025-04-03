@@ -4,7 +4,7 @@ import figuro/widgets/button
 import figuro
 
 let
-  typeface = loadTypeFace("IBMPlexSans-Regular.ttf")
+  typeface = defaultTypeface()
   font = UiFont(typefaceId: typeface, size: 20'ui)
   smallFont = UiFont(typefaceId: typeface, size: 13'ui)
 
