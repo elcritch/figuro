@@ -54,8 +54,21 @@ static:
   echo "DefTypefaceRaw: ", DefTypefaceRaw.len
 
 var
-  defaultTypeface* {.runtimeVar.} = getTypeface(DefTypefaceName, DefTypefaceRaw, TTF)
-  defaultFont* {.runtimeVar.} = UiFont(typefaceId: defaultTypeface, size: 14'ui)
+  defaultTypefaceImpl* {.runtimeVar.} = getTypeface(DefTypefaceName, DefTypefaceRaw, TTF)
+  defaultFontImpl* {.runtimeVar.} = UiFont(typefaceId: defaultTypefaceImpl, size: 14'ui)
+
+proc defaultTypeface*(): TypefaceId =
+  defaultTypefaceImpl
+
+proc defaultFont*(): UiFont =
+  defaultFontImpl
+
+proc setDefaultFont*(font: UiFont) =
+  defaultFontImpl = font
+  defaultTypefaceImpl = font.typefaceId
+
+proc setDefaultTypeface*(typeface: TypefaceId) =
+  defaultTypefaceImpl = typeface
 
 proc resetToDefault*(node: Figuro, kind: NodeKind) =
   ## Resets the node to default state.
@@ -269,7 +282,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   root.cxSize = [cx"auto", cx"auto"]
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
-  frame.theme = Theme(font: defaultFont)
+  frame.theme = Theme(font: defaultFont())
   # frame.setSize(size)
   frame.window.box.w = size[0].UiScalar
   frame.window.box.h = size[1].UiScalar
