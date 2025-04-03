@@ -46,7 +46,7 @@ var
 
 const DefTypefaceName* = "IBMPlexSans-Regular.ttf"
 const DefTypefaceRaw* = block:
-    let path = DataDirPath.string / DefTypefaceName
+    let path = currentSourcePath().splitPath().head / "resources" / DefTypefaceName
     let data = readfile(path)
     data
 
