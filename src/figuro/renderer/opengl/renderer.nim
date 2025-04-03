@@ -352,10 +352,8 @@ proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
   while app.running:
-    let time =
-      timeItVar(renderAvgTime):
-        renderer.pollAndRender()
+    pollAndRender(renderer)
 
-
-    let avgMicros = time.micros.toInt() div 1_000
-    os.sleep(renderer.duration.inMilliseconds - avgMicros)
+    # let avgMicros = time.micros.toInt() div 1_000
+    # os.sleep(renderer.duration.inMilliseconds - avgMicros)
+    os.sleep(renderer.duration.inMilliseconds)
