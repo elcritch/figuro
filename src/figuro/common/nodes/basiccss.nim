@@ -37,14 +37,14 @@ proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize
   elif vars.parent != nil:
     result = vars.parent.resolveVariable(varIdx, val)
 
-proc lookupVariable*(vars: CssValues, varIdx: CssVarId, val: var CssValue, recursive: bool = true): bool =
+proc lookupVariable(vars: CssValues, varIdx: CssVarId, val: var CssValue, recursive: bool = true): bool =
   if vars != nil and varIdx in vars.values:
     val = vars.values[varIdx]
     return true
   elif vars.parent != nil and recursive:
     result = vars.parent.lookupVariable(varIdx, val, recursive)
 
-proc lookupVariable*(vars: CssValues, varName: string, val: var CssValue, recursive: bool = true): bool =
+proc lookupVariable(vars: CssValues, varName: string, val: var CssValue, recursive: bool = true): bool =
   if vars != nil and varName in vars.valuesNames:
     val = vars.values[vars.valuesNames[varName]]
     return true
