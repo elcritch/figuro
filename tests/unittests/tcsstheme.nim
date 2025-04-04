@@ -45,7 +45,8 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)
+    let values = newCssValues()
+    let res = parse(parser, values)
     echo "root: ", res[0].repr
     check res[0].selectors == @[CssSelector(cssType: "root", combinator: skPseudo)]
 
@@ -86,7 +87,8 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)[0]
+    let values = newCssValues()
+    let res = parse(parser, values)[0]
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
     check res.properties.len() == 5
     check res.properties[0] == CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))
@@ -110,7 +112,8 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)[0]
+    let values = newCssValues()
+    let res = parse(parser, values)[0]
     # echo "results: ", res.repr
     check res.selectors[0] == CssSelector(cssType: "Button", combinator: skNone)
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
@@ -126,7 +129,8 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)[0]
+    let values = newCssValues()
+    let res = parse(parser, values)[0]
     # echo "results: ", res.repr
     check res.selectors[0] == CssSelector(cssType: "Button", combinator: skNone)
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
@@ -143,7 +147,8 @@ suite "css parser":
 
       echo "trying to parse `>`..."
       let parser = newCssParser(src)
-      let res = parse(parser)
+      let values = newCssValues()
+      let res = parse(parser, values)
       # for r in res:
       #   echo "results: ", r.repr
 
@@ -190,9 +195,10 @@ suite "css exec":
     main.frame = frame.unsafeWeakRef()
     main.frame[].theme = Theme(font: defaultFont())
     let parser = newCssParser(themeSrc)
-    let rules = parse(parser)
+    let values = newCssValues()
+    let rules = parse(parser, values)
     # print cssTheme
-    main.frame[].theme.css = CssTheme(rules: rules)
+    main.frame[].theme.css = CssTheme(rules: rules, values: values)
     connectDefaults(main)
     emit main.doDraw()
     let btnA {.inject, used.} = main.children[0].children[1]
@@ -527,10 +533,12 @@ suite "css exec":
 
     """
     let parser = newCssParser(themeSrc)
-    let res = parse(parser)
+    let values = newCssValues()
+    let res = parse(parser, values)
     check res.len() == 0
 
   test "css variables":
+    setLogLevel(TRACE)
     const themeSrc = """
     :root {
       --primary-color: #FF0000;

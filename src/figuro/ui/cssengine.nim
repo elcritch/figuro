@@ -85,15 +85,16 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   else:
     trace "cssengine:failed pseudo", node= $node.name, pseudo= pseudo.cssType
 
-proc colorValue(value: CssValue): Color =
+proc colorValue(value: CssValue, values: CssValues): Color =
   match value:
     CssColor(c):
       result = c
     CssVarName(n):
-      try:
-        result = parseHtmlColor(n)
-      except InvalidColor:
-        raise newException(ValueError, "not a css color!")
+      var res: CssValue
+      if values.resolveVariable(n, res):
+        result = colorValue(res, values)
+      else:
+        result = clearColor
     _:
       raise newException(ValueError, "css expected color! Got: " & repr(value))
 
@@ -134,7 +135,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   case prop.name
   of "color":
     # is color in CSS really only for fonts?
-    let color = colorValue(prop.value)
+    let color = colorValue(prop.value, values)
     if node of Text:
       # for child in node.children:
       node.fill = color
@@ -144,10 +145,10 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
           # for gc in child.children:
           child.fill = color
   of "background", "background-color":
-    let color = colorValue(prop.value)
+    let color = colorValue(prop.value, values)
     node.fill = color
   of "border-color":
-    let color = colorValue(prop.value)
+    let color = colorValue(prop.value, values)
     node.stroke.color = color
   of "border-width":
     let cx = sizeValue(prop.value)

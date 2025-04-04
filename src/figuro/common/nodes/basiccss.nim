@@ -14,7 +14,7 @@ variantp CssValue:
   MissingCssValue
   CssColor(c: Color)
   CssSize(cx: Constraint)
-  CssVarName(n: string)
+  CssVarName(id: CssVarId)
   CssShadow(sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color)
   CssAttribute(a: string)
 
@@ -35,7 +35,7 @@ proc registerVariable*(vars: CssValues, name: string, value: CssValue): CssVarId
   let idx = vars.registerVariable(name)
   vars.values[idx] = value
   if isSize and value.cx.kind == UiValue:
-    vars[idx] = value.cx.value
+    vars.variables[idx] = value.cx.value
   return idx
 
 proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize): bool =
@@ -65,7 +65,7 @@ proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var CssValue): boo
     # Handle recursive variable resolution (up to a limit to prevent cycles)
     var resolveCount = 0
     while res.kind == CssValueKind.CssVarName and resolveCount < 10:
-      if lookupVariable(vars, res.n, res, recursive = false):
+      if lookupVariable(vars, res.id, res, recursive = false):
         inc resolveCount
       else:
         break
@@ -89,6 +89,7 @@ type
     tokenizer: Tokenizer
 
   CssTheme* = ref object
+    values*: CssValues
     rules*: seq[CssBlock]
 
   CssBlock* = object
@@ -199,9 +200,10 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
   while true:
     parser.skip({tkWhiteSpace, tkComment})
     var tk = parser.peek()
-    # echo "\t selector parser: ", tk.repr
+    trace "CSS: selector parser: ", tk = tk.repr
     case tk.kind
     of tkIdent:
+      trace "CSS: ident: ", ident = tk.ident
       if isClass:
         if result.len() == 0:
           result.add(CssSelector())
@@ -233,7 +235,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       of '>':
         isDirect = true
       else:
-        echo "warning: ", "unhandled delim token while parsing selector: ", tk.repr()
+        warn "CSS: unhandled delim token while parsing selector: ", tk = tk.repr()
       discard parser.nextToken()
     of tkCurlyBracketBlock:
       # echo "\tsel: ", "done"
@@ -245,12 +247,12 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       # echo "NT: ", nt.repr
       break
     else:
-      echo "warning: ", "unhandled token while parsing selector: ", tk.repr()
+      warn "CSS: unhandled token while parsing selector: ", tk = tk.repr()
       break
 
   # echo "\tsel:done"
 
-proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} =
+proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.forbids: [InvalidColor].} =
   parser.skip({tkWhiteSpace})
   parser.eat(tkCurlyBracketBlock)
 
@@ -271,7 +273,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     of tkIdent:
       discard parser.nextToken()
       if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
-        result = CssVarName(tk.ident)
+        result = CssVarName(values.registerVariable(tk.ident))
       else:
         try:
           result = CssColor(parseHtmlColor(tk.ident))
@@ -299,6 +301,8 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         case tk.kind
         of tkDimension:
           value &= $tk.dValue
+        of tkIdent:
+          value &= tk.ident
         of tkWhiteSpace:
           value &= tk.wsStr
         of tkParenBlock:
@@ -309,12 +313,16 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
           value &= ")"
           break
         else:
-          # echo "\tproperty:other: ", tk.repr
+          trace "CSS: property function:other: ", tk = tk.repr
           discard
-      # echo "\tproperty function:peek: ", parser.peek().repr
-      # echo "\tproperty function: ", value
-      # echo "\tproperty function:res: ", result[^1].repr()
-      result = CssColor(parseHtmlColor(value))
+      trace "CSS: property function:peek: ", peek = parser.peek().repr, value = value
+      if value.startsWith("var(") and value.endsWith(")"):
+        result = CssVarName(values.registerVariable(value))
+      else:
+        try:
+          result = CssColor(parseHtmlColor(value))
+        except InvalidColor:
+          result = MissingCssValue()
     of tkDimension:
       let value = csFixed(tk.dValue.UiScalar)
       result = CssSize(value)
@@ -395,11 +403,11 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     except EofError:
       raise newException(InvalidCssBody, "Invalid CSS Body")
 
-    # echo "\t rule body parser: ", tk.repr
-    # echo "\tproperty:next: ", tk.repr
+    trace "CSS: rule body parser: ", tk = tk.repr
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
+      trace "CSS: rule body parser: ", ident = tk.ident
       if result[^1].name.len() == 0:
         result[^1].name = tk.ident
         parser.eat(tkColon)
@@ -407,7 +415,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
           result[^1].value = parseShadow(tk)
       elif result[^1].value == MissingCssValue():
         if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
-          result[^1].value = CssVarName(tk.ident)
+          result[^1].value = CssVarName(values.registerVariable(tk.ident))
         else:
           try:
             result[^1].value = CssColor(parseHtmlColor(tk.ident))
@@ -433,7 +441,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
   popIncompleteProperty(warning = false)
   parser.eat(tkCloseCurlyBracket)
 
-proc parse*(parser: CssParser): seq[CssBlock] =
+proc parse*(parser: CssParser, values: CssValues): seq[CssBlock] =
   while not parser.isEof():
     # echo "CSS Block: "
     parser.skip({tkWhiteSpace, tkComment})
@@ -447,7 +455,7 @@ proc parse*(parser: CssParser): seq[CssBlock] =
       continue
     # echo "selectors: ", sel.repr()
     try:
-      let props = parser.parseRuleBody()
+      let props = parser.parseRuleBody(values)
       # echo ""
       result.add(CssBlock(selectors: sel, properties: props))
     except InvalidCssBody:
@@ -457,4 +465,5 @@ proc parse*(parser: CssParser): seq[CssBlock] =
       continue
 
 proc loadTheme*(parser: CssParser): CssTheme =
-  result = CssTheme(rules: parser.parse())
+  let values = newCssValues()
+  result = CssTheme(rules: parser.parse(values), values: values)
