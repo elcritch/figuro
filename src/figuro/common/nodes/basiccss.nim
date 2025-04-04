@@ -40,13 +40,11 @@ proc registerVariable*(vars: CssValues, name: string): CssVarId =
     v = v.parent
   result = variables.registerVariable(vars, name)
 
-proc registerVariable*(vars: CssValues, name: string, value: CssValue): CssVarId =
+proc setVariable*(vars: CssValues, idx: CssVarId, value: CssValue) =
   let isSize = value.kind == CssValueKind.CssSize
-  let idx = vars.registerVariable(name)
   vars.values[idx] = value
-  if isSize and value.cx.kind == UiValue:
-    vars.variables[idx] = value.cx.value
-  return idx
+  if isSize:
+    variables.setVariable(vars, idx, value.cx.value)
 
 proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize): bool =
   if vars.resolveVariable(varIdx, val):

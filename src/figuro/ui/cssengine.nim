@@ -146,7 +146,8 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   if prop.name.startsWith("--"):
     let varName = prop.name.substr(2)
     notice "cssengine:apply:setVariable:", varName = varName
-    values.setVariable(varName, prop.value)
+    let idx = values.registerVariable(varName)
+    values.setVariable(idx, prop.value)
     # let res = values.resolveVariable(varName)
 
 
