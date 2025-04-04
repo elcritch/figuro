@@ -184,6 +184,11 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     # stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
 
     if sel.combinator == skPseudo:
+      if prevCombinator == skNone and sel.cssType == "root":
+        if values != nil and not values.rootApplied:
+          matched = true
+          values.rootApplied = true
+
       prevCombinator = sel.combinator
       continue
 
