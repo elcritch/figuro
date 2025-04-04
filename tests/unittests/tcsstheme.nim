@@ -25,10 +25,10 @@ suite "css parser":
     Button child {
     }
 
-    Button < directChild {
+    Button > directChild {
     }
 
-    Button < directChild.field {
+    Button > directChild.field {
     }
 
     Button:hover {
@@ -125,7 +125,7 @@ suite "css parser":
 
   test "test child descent tokenizer is working":
     skip()
-    if false:
+    if true:
       const src = """
       Button > directChild {
       }
@@ -205,13 +205,13 @@ suite "css exec":
 
   test "css direct descendants":
     const themeSrc = """
-    #body < Button {
+    #body > Button {
       background: #FF0000;
       border-width: 3;
       border-color: #00FF00;
     }
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
     }
     """
@@ -323,7 +323,7 @@ suite "css exec":
   test "box shadow":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red;
     }
@@ -346,7 +346,7 @@ suite "css exec":
   test "box shadow 2":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px red;
     }
@@ -369,7 +369,7 @@ suite "css exec":
   test "box shadow 3":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px 20px red;
     }
@@ -393,7 +393,7 @@ suite "css exec":
   test "inset box shadow":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red inset;
     }
@@ -416,7 +416,7 @@ suite "css exec":
   test "inset box shadow 2":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px 20px red inset;
     }
@@ -440,7 +440,7 @@ suite "css exec":
   test "box shadow none":
     let themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red;
     }
@@ -456,7 +456,7 @@ suite "css exec":
 
     let themeSrc2 = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: none;
     }
@@ -477,7 +477,7 @@ suite "css exec":
   test "box shadow none inset":
     let themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red inset;
     }
@@ -494,7 +494,7 @@ suite "css exec":
     # CSS Warning: unhandled css shadow kind:
     let themeSrc2 = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: none inset;
     }
@@ -513,7 +513,7 @@ suite "css exec":
   test "empty css":
     let themeSrc = """
 
-    /* #child2 < Button {
+    /* #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red inset;
     } */

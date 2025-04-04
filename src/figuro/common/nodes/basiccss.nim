@@ -181,7 +181,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       case tk.delim
       of '.':
         isClass = true
-      of '<':
+      of '>':
         isDirect = true
       else:
         echo "warning: ", "unhandled delim token while parsing selector: ", tk.repr()
