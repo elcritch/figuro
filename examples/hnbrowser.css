@@ -31,6 +31,11 @@ Button:hover {
   /* height: 40; */
 }
 
+#story:focused {
+  background: rgba(197, 130, 37, 0.84);
+  box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
+}
+
 #story:hover {
   background: rgba(255, 170, 50, 0.57);
   box-shadow: 5px 2px 4px rgba(47, 0, 75, 0.119);
