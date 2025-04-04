@@ -20,9 +20,16 @@ variantp CssValue:
 
 type
   CssValues* = ref object of CssVariables
+    rootApplied*: bool
     parent*: CssValues
     values*: Table[CssVarId, CssValue]
     valuesNames*: Table[string, CssVarId]
+
+proc newCssValues*(): CssValues =
+  result = CssValues(rootApplied: false)
+
+proc newCssValues*(parent: CssValues): CssValues =
+  result = CssValues(rootApplied: parent.rootApplied, parent: parent)
 
 proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize): bool =
   if vars.resolveVariable(varIdx, val):
@@ -30,23 +37,33 @@ proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize
   elif vars.parent != nil:
     result = vars.parent.resolveVariable(varIdx, val)
 
+proc lookupVariable*(vars: CssValues, varIdx: CssVarId, val: var CssValue, recursive: bool = true): bool =
+  if vars != nil and varIdx in vars.values:
+    val = vars.values[varIdx]
+    return true
+  elif vars.parent != nil and recursive:
+    result = vars.parent.lookupVariable(varIdx, val, recursive)
+
+proc lookupVariable*(vars: CssValues, varName: string, val: var CssValue, recursive: bool = true): bool =
+  if vars != nil and varName in vars.valuesNames:
+    val = vars.values[vars.valuesNames[varName]]
+    return true
+  elif vars.parent != nil and recursive:
+    result = vars.parent.lookupVariable(varName, val, recursive)
+
 proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var CssValue): bool =
   ## Resolves a constraint size, looking up variables if needed
-  if vars != nil and varIdx in vars.values:
-    var res = vars.values[varIdx]
+  var res: CssValue
+  if vars != nil and lookupVariable(vars, varIdx, res, recursive = true):
     # Handle recursive variable resolution (up to a limit to prevent cycles)
     var resolveCount = 0
     while res.kind == CssValueKind.CssVarName and resolveCount < 10:
-      if res.n in vars.valuesNames:
-        let idx = vars.valuesNames[res.n]
-        if idx in vars.values:
-          res = vars.values[idx]
+      if lookupVariable(vars, res.n, res, recursive = false):
         inc resolveCount
       else:
         break
-    if res.kind == CssValueKind.CssVarName:
-      # Prevent infinite recursion, return a default value
-      val = res
+    if res.kind == CssValueKind.CssVarName: # Prevent infinite recursion, return a default value
+      val = MissingCssValue()
       return false
     else:
       val = res
