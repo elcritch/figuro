@@ -538,7 +538,7 @@ suite "css exec":
     check res.len() == 0
 
   test "css variables":
-    setLogLevel(TRACE)
+    # setLogLevel(TRACE)
     const themeSrc = """
     :root {
       --primary-color: #FF0000;
