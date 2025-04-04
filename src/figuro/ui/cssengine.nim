@@ -59,48 +59,31 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   case pseudo.cssType
   of "hover":
     if evHover in node.events:
-      trace "cssengine:matched pseudo hover", node= $node.name
-    else:
-      trace "cssengine:failed pseudo hover!", node= $node.name, evt= node.events
-      return
+      result = true
   of "active":
     if Active in node.userAttrs:
-      trace "cssengine:matched pseudo active", node= $node.name
-    else:
-      trace "cssengine:failed pseudo active!", node= $node.name, evt= node.events
-      return
+      result = true
   of "focused":
     if Focused in node.userAttrs:
-      trace "cssengine:matched pseudo focused", node= $node.name
-    else:
-      trace "cssengine:failed pseudo focused!", node= $node.name, evt= node.events
-      return
+      result = true
   of "selected":
     if Selected in node.userAttrs:
-      trace "cssengine:matched pseudo selected", node= $node.name
-    else:
-      trace "cssengine:failed pseudo selected!", node= $node.name, evt= node.events
-      return
+      result = true
   of "enabled":
     if Enabled in node.userAttrs:
-      trace "cssengine:matched pseudo enabled", node= $node.name
-    else:
-      trace "cssengine:failed pseudo enabled!", node= $node.name, evt= node.events
-      return
+      result = true
   of "disabled":
     if Disabled in node.userAttrs:
-      trace "cssengine:matched pseudo disabled", node= $node.name
-    else:
-      trace "cssengine:failed pseudo disabled!", node= $node.name, evt= node.events
-      return
+      result = true
   else:
     once:
       echo "Warning: ", "unhandled CSS psuedo class: ", pseudo.cssType
-    
-
-  # if node.combinator == skPseudo and node. 
-
-  return true
+    result = false
+ 
+  if result:
+    trace "cssengine:matched pseudo", node= $node.name, pseudo= pseudo.cssType
+  else:
+    trace "cssengine:failed pseudo", node= $node.name, pseudo= pseudo.cssType
 
 proc colorValue(value: CssValue): Color =
   match value:
