@@ -14,6 +14,7 @@ variantp CssValue:
   CssSize(cx: Constraint)
   CssVarName(n: string)
   CssShadow(sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color)
+  CssAttribute(a: string)
 
 type
   EofError* = object of CatchableError
@@ -74,11 +75,10 @@ proc `$`*(val: CssValue): string =
           $value
         _:
           $cx
+    CssAttribute(n):
+      n
     CssVarName(n):
-      if n in ["inset", "none"]:
-        $n
-      else:
-        fmt"var({n})"
+      fmt"var({n})"
     CssShadow(style, x, y, blur, spread, color):
       fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
 
@@ -221,12 +221,13 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
-      try:
-        result = CssColor(parseHtmlColor(tk.ident))
-      except InvalidColor:
-        # echo "css value not color"
-        discard
+      if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
         result = CssVarName(tk.ident)
+      else:
+        try:
+          result = CssColor(parseHtmlColor(tk.ident))
+        except InvalidColor:
+          result = CssAttribute(tk.ident)
       
     of tkIDHash:
       try:
@@ -306,10 +307,10 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
       return
 
-    if args[0] == CssVarName("none"):
+    if args[0] == CssAttribute("none"):
       args = args[1..^1]
 
-    if args.len() > 0 and args[0] == CssVarName("inset"):
+    if args.len() > 0 and args[0] == CssAttribute("inset"):
       result.sstyle = InnerShadow
       args = args[1..^1]
 
@@ -328,7 +329,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       result.scolor = args[0].c
       args = args[1..^1]
 
-    if args.len() > 0 and args[0] == CssVarName("inset"):
+    if args.len() > 0 and args[0] == CssAttribute("inset"):
       result.sstyle = InnerShadow
       args = args[1..^1]
 
@@ -356,7 +357,10 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)
       elif result[^1].value == MissingCssValue():
-        result[^1].value = CssVarName(tk.ident)
+        if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
+          result[^1].value = CssVarName(tk.ident)
+        else:
+          result[^1].value = CssAttribute(tk.ident)
     of tkSemicolon:
       # echo "\tattrib done "
       popIncompleteProperty()
