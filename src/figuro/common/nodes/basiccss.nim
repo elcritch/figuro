@@ -23,13 +23,26 @@ type
     rootApplied*: bool
     parent*: CssValues
     values*: Table[CssVarId, CssValue]
-    valuesNames*: Table[string, CssVarId]
 
 proc newCssValues*(): CssValues =
   result = CssValues(rootApplied: false)
 
 proc newCssValues*(parent: CssValues): CssValues =
   result = CssValues(rootApplied: parent.rootApplied, parent: parent)
+
+proc registerVariable*(vars: CssValues, name: string, value: CssValue): CssVarId =
+  let isSize = value.kind == CssValueKind.CssSize
+  if name in vars.names:
+    let idx = vars.names[name]
+    vars.values[idx] = value
+    if isSize:
+      vars.values[idx] = CssSize(value.cx)
+    return idx
+  else:
+    let idx = CssVarId(vars.values.len + 1)
+    vars.values[idx] = value
+    vars.names[name] = idx
+    return idx
 
 proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize): bool =
   if vars.resolveVariable(varIdx, val):
@@ -45,8 +58,8 @@ proc lookupVariable(vars: CssValues, varIdx: CssVarId, val: var CssValue, recurs
     result = vars.parent.lookupVariable(varIdx, val, recursive)
 
 proc lookupVariable(vars: CssValues, varName: string, val: var CssValue, recursive: bool = true): bool =
-  if vars != nil and varName in vars.valuesNames:
-    val = vars.values[vars.valuesNames[varName]]
+  if vars != nil and varName in vars.names:
+    val = vars.values[vars.names[varName]]
     return true
   elif vars.parent != nil and recursive:
     result = vars.parent.lookupVariable(varName, val, recursive)

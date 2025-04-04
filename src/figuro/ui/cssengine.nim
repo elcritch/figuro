@@ -111,7 +111,7 @@ proc shadowValue(value: CssValue): tuple[sstyle: ShadowStyle, sx, sy, sblur, ssp
     _:
       raise newException(ValueError, "css expected size! Got: " & $value)
 
-proc apply*(prop: CssProperty, node: Figuro) =
+proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   trace "cssengine:apply", uid= node.uid, name= node.name, wn= node.widgetName, prop= prop.repr
 
   template setCxFixed(cx, field: untyped, tp = float32) =
@@ -125,6 +125,11 @@ proc apply*(prop: CssProperty, node: Figuro) =
         discard
       _:
         discard
+
+  if prop.name.startsWith("--"):
+    let varName = prop.name.substr(2)
+    # let res = values.resolveVariable(varName)
+
 
   case prop.name
   of "color":
@@ -230,7 +235,7 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     # echo "setting properties:"
     for prop in rule.properties:
       # print rule.properties
-      prop.apply(node)
+      prop.apply(node, values)
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
