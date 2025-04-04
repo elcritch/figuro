@@ -98,17 +98,29 @@ proc colorValue(value: CssValue, values: CssValues): Color =
     _:
       raise newException(ValueError, "css expected color! Got: " & repr(value))
 
-proc sizeValue(value: CssValue): Constraint =
+proc sizeValue(value: CssValue, values: CssValues): Constraint =
   match value:
     CssSize(cx):
       result = cx
+    CssVarName(n):
+      var res: CssValue
+      if values.resolveVariable(n, res):
+        result = sizeValue(res, values)
+      else:
+        result = Constraint(kind: UiNone)
     _:
       raise newException(ValueError, "css expected size! Got: " & $value)
 
-proc shadowValue(value: CssValue): tuple[sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color] =
+proc shadowValue(value: CssValue, values: CssValues): tuple[sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color] =
   match value:
     CssShadow(style, x, y, blur, spread, color):
       result = (style, x, y, blur, spread, color)
+    CssVarName(n):
+      var res: CssValue
+      if values.resolveVariable(n, res):
+        result = shadowValue(res, values)
+      else:
+        result = (InnerShadow, Constraint(kind: UiNone), Constraint(kind: UiNone), Constraint(kind: UiNone), Constraint(kind: UiNone), clearColor)
     _:
       raise newException(ValueError, "css expected size! Got: " & $value)
 
@@ -151,19 +163,19 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
     let color = colorValue(prop.value, values)
     node.stroke.color = color
   of "border-width":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     setCxFixed(cx, node.stroke.weight)
   of "border-radius":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     setCxFixed(cx, node.cornerRadius, UiScalar)
   of "width":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     node.cxSize[dcol] = cx
   of "height":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     node.cxSize[drow] = cx
   of "box-shadow":
-    let shadow = shadowValue(prop.value)
+    let shadow = shadowValue(prop.value, values)
     let style = shadow.sstyle
     setCxFixed(shadow.sx, node.shadow[style].x, UiScalar)
     setCxFixed(shadow.sy, node.shadow[style].y, UiScalar)
