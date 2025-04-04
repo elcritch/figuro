@@ -69,6 +69,30 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
     else:
       trace "cssengine:failed pseudo active!", node= $node.name, evt= node.events
       return
+  of "focused":
+    if Focused in node.userAttrs:
+      trace "cssengine:matched pseudo focused", node= $node.name
+    else:
+      trace "cssengine:failed pseudo focused!", node= $node.name, evt= node.events
+      return
+  of "selected":
+    if Selected in node.userAttrs:
+      trace "cssengine:matched pseudo selected", node= $node.name
+    else:
+      trace "cssengine:failed pseudo selected!", node= $node.name, evt= node.events
+      return
+  of "enabled":
+    if Enabled in node.userAttrs:
+      trace "cssengine:matched pseudo enabled", node= $node.name
+    else:
+      trace "cssengine:failed pseudo enabled!", node= $node.name, evt= node.events
+      return
+  of "disabled":
+    if Disabled in node.userAttrs:
+      trace "cssengine:matched pseudo disabled", node= $node.name
+    else:
+      trace "cssengine:failed pseudo disabled!", node= $node.name, evt= node.events
+      return
   else:
     once:
       echo "Warning: ", "unhandled CSS psuedo class: ", pseudo.cssType
