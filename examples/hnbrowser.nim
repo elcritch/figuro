@@ -152,11 +152,10 @@ proc draw*(self: Main) {.slot.} =
                   onSignal(doSingleClick) do(this: Button[Submission]):
                     echo "HN Story: "
                     echo repr this.state
-                    let self = this.findParent(Main)
-                    if not self.isNil:
-                      self.currentStory = this.state
-                      emit self.markdownLoad(self.currentStory.link.href)
-                      refresh(self)
+                    let self = this.queryParent(Main).get()
+                    self.currentStory = this.state
+                    emit self.markdownLoad(self.currentStory.link.href)
+                    refresh(self)
 
                   Vertical.new "story-fields":
                     contentHeight cx"auto"
