@@ -148,8 +148,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
     notice "cssengine:apply:setVariable:", varName = varName
     let idx = values.registerVariable(varName)
     values.setVariable(idx, prop.value)
-    # let res = values.resolveVariable(varName)
-
+    return
 
   case prop.name
   of "color":
@@ -213,6 +212,9 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
         if values != nil and not values.rootApplied:
           matched = true
           values.rootApplied = true
+        else:
+          matched = false
+        continue
 
       prevCombinator = sel.combinator
       continue
