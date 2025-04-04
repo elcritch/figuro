@@ -385,7 +385,10 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
           result[^1].value = CssVarName(tk.ident)
         else:
-          result[^1].value = CssAttribute(tk.ident)
+          try:
+            result[^1].value = CssColor(parseHtmlColor(tk.ident))
+          except ValueError:
+            result[^1].value = CssAttribute(tk.ident)
     of tkSemicolon:
       # echo "\tattrib done "
       popIncompleteProperty()

@@ -95,7 +95,7 @@ proc colorValue(value: CssValue): Color =
       except InvalidColor:
         raise newException(ValueError, "not a css color!")
     _:
-      raise newException(ValueError, "css expected color! Got: " & $value)
+      raise newException(ValueError, "css expected color! Got: " & repr(value))
 
 proc sizeValue(value: CssValue): Constraint =
   match value:
