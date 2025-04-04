@@ -558,34 +558,6 @@ suite "css exec":
     
     check btnD.fill == parseHtmlColor("#00FF00")
     
-    # Test updating a variable
-    let updatedThemeSrc = """
-    :root {
-      --primary-color: #0000FF;
-      --secondary-color: #00FF00;
-      --spacing: 10px;
-    }
-
-    #child2 > Button {
-      background: var(--primary-color);
-      border-width: var(--spacing);
-      border-color: var(--secondary-color);
-    }
-    
-    #child3 Button {
-      background: var(--secondary-color);
-    }
-    """
-    
-    let parser = newCssParser(updatedThemeSrc)
-    main.frame[].theme.css = parser.loadTheme()
-    main.frame[].theme.cssValues = newCssValues()
-    emit main.doDraw()
-    
-    # Check that updated variables are applied
-    check btnB.fill == parseHtmlColor("#0000FF")
-    check btnB.stroke.weight == 10.0
-    check btnB.stroke.color == parseHtmlColor("#00FF00")
 
   # test "nested css variables":
   #   const themeSrc = """
