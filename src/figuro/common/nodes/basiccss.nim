@@ -55,7 +55,6 @@ proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var CssValue): boo
     return false
 
 
-
 type
   EofError* = object of CatchableError
   CssError* = object of CatchableError
