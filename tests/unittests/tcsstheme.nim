@@ -11,10 +11,15 @@ import figuro/common/nodes/render
 import figuro/widgets/button
 
 suite "css parser":
+  setup:
+    setLogLevel(WARN)
 
   test "blocks":
     # skip()
     const src = """
+    :root {
+      --color-background: #000000;
+    }
 
     Button {
     }
@@ -41,25 +46,28 @@ suite "css parser":
 
     let parser = newCssParser(src)
     let res = parse(parser)
-    check res[0].selectors == @[CssSelector(cssType: "Button")]
-    check res[1].selectors == @[CssSelector(cssType: "Button", class: "btnBody")]
-    check res[2].selectors == @[
+    echo "root: ", res[0].repr
+    check res[0].selectors == @[CssSelector(cssType: "root", combinator: skPseudo)]
+
+    check res[1].selectors == @[CssSelector(cssType: "Button")]
+    check res[2].selectors == @[CssSelector(cssType: "Button", class: "btnBody")]
+    check res[3].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "child", combinator: skDescendent)
     ]
-    check res[3].selectors == @[
+    check res[4].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "directChild", combinator: skDirectChild)
     ]
-    check res[4].selectors == @[
+    check res[5].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "directChild", class: "field", combinator: skDirectChild)
     ]
-    check res[5].selectors == @[
+    check res[6].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "hover", combinator: skPseudo)
     ]
-    check res[6].selectors == @[
+    check res[7].selectors == @[
       CssSelector(id: "name", combinator: skNone),
     ]
     echo "results: ", res[6].selectors.repr
