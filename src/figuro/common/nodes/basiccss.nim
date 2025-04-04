@@ -1,12 +1,14 @@
 import std/[strutils, paths, os]
 # import ./apis
 
-import cssgrid
 import stylus
 import patty
 import chroma
-import basics
 import chronicles
+
+import cssgrid
+import cssgrid/variables
+import basics
 
 variantp CssValue:
   MissingCssValue
@@ -15,6 +17,51 @@ variantp CssValue:
   CssVarName(n: string)
   CssShadow(sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color)
   CssAttribute(a: string)
+
+type
+  CssVars* = ref object of CssVariables
+    parent*: CssVars
+    values*: Table[CssVarId, CssValue]
+    valuesNames*: Table[string, CssVarId]
+
+proc resolveVariable*(vars: CssVars, varIdx: CssVarId, val: var ConstraintSize): bool =
+  if vars.resolveVariable(varIdx, val):
+    result = true
+  elif vars.parent != nil:
+    result = vars.parent.resolveVariable(varIdx, val)
+
+proc resolveVariable*(vars: CssVars, varIdx: CssVarId, val: var CssValue): bool =
+  ## Resolves a constraint size, looking up variables if needed
+  if vars != nil and varIdx in vars.values:
+    var res = vars.values[varIdx]
+    # Handle recursive variable resolution (up to a limit to prevent cycles)
+    var resolveCount = 0
+    while res.kind == CssValueKind.CssVarName and resolveCount < 10:
+      if res.n in vars.valuesNames:
+        let idx = vars.valuesNames[res.n]
+        if idx in vars.values:
+          res = vars.values[idx]
+        inc resolveCount
+      else:
+        break
+    if res.kind == CssValueKind.CssVarName:
+      # Prevent infinite recursion, return a default value
+      val = res
+      return false
+    else:
+      val = res
+      return true
+  else:
+    return false
+
+
+when false:
+  let cssVars = newCssVariables()
+  let baseVar = cssVars.registerVariable("base", 50'ux)
+  proc lookupVariable*(vars: CssVariables, idx: int, size: var ConstraintSize): bool
+  proc resolveVariable*(vars: CssVariables, cx: Constraint): Constraint
+  let resolvedSize = cssVars.resolveVariable(ConstraintSize(kind: UiVariable, varIdx: varIdx))
+
 
 type
   EofError* = object of CatchableError
