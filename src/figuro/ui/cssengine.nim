@@ -168,9 +168,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
     debug "cssengine", error= "unhandled css property", propertyName= prop.name
     discard
 
-import std/terminal
-
-proc eval*(rule: CssBlock, node: Figuro) =
+proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
   # print rule.selectors
   # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " wn: ", node.widgetName, " sel:len: ", $rule.selectors.len
   # stdout.styledWriteLine fgRed, rule.selectors.repr
@@ -231,8 +229,9 @@ proc eval*(rule: CssBlock, node: Figuro) =
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  let values = node.frame[].theme.cssValues
   if SkipCss in node.userAttrs:
     return
   let node = if node of Text: node.parent[] else: node
   for rule in rules(node.frame[].theme.css):
-    rule.eval(node)
+    rule.eval(node, values)

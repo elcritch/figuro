@@ -132,7 +132,6 @@ suite "css parser":
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
   test "test child descent tokenizer is working":
-    skip()
     if true:
       const src = """
       Button > directChild {
@@ -530,5 +529,105 @@ suite "css exec":
     let parser = newCssParser(themeSrc)
     let res = parse(parser)
     check res.len() == 0
+
+  test "css variables":
+    const themeSrc = """
+    :root {
+      --primary-color: #FF0000;
+      --secondary-color: #00FF00;
+      --spacing: 10px;
+    }
+
+    #child2 > Button {
+      background: var(--primary-color);
+      border-width: var(--spacing);
+      border-color: var(--secondary-color);
+    }
+    
+    #child3 Button {
+      background: var(--secondary-color);
+    }
+    """
+    
+    setupMain(themeSrc)
+    
+    # Check that variables are properly applied
+    check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 10.0
+    check btnB.stroke.color == parseHtmlColor("#00FF00")
+    
+    check btnD.fill == parseHtmlColor("#00FF00")
+    
+    # Test updating a variable
+    let updatedThemeSrc = """
+    :root {
+      --primary-color: #0000FF;
+      --secondary-color: #00FF00;
+      --spacing: 10px;
+    }
+
+    #child2 > Button {
+      background: var(--primary-color);
+      border-width: var(--spacing);
+      border-color: var(--secondary-color);
+    }
+    
+    #child3 Button {
+      background: var(--secondary-color);
+    }
+    """
+    
+    let parser = newCssParser(updatedThemeSrc)
+    main.frame[].theme.css = parser.loadTheme()
+    emit main.doDraw()
+    
+    # Check that updated variables are applied
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.stroke.weight == 10.0
+    check btnB.stroke.color == parseHtmlColor("#00FF00")
+
+  # test "nested css variables":
+  #   const themeSrc = """
+  #   :root {
+  #     --base-color: #FF0000;
+  #     --accent-color: var(--base-color);
+  #     --padding-base: 5px;
+  #     --padding-double: calc(var(--padding-base) * 2);
+  #   }
+
+  #   #child2 > Button {
+  #     background: var(--accent-color);
+  #     border-width: var(--padding-double);
+  #   }
+  #   """
+    
+  #   setupMain(themeSrc)
+    
+  #   # Check that nested variables are resolved correctly
+  #   check btnB.fill == parseHtmlColor("#FF0000")
+  #   check btnB.stroke.weight == 10.0  # 5px * 2
+    
+  #   # Update base variables and check that dependent variables update
+  #   let updatedThemeSrc = """
+  #   :root {
+  #     --base-color: #0000FF;
+  #     --accent-color: var(--base-color);
+  #     --padding-base: 8px;
+  #     --padding-double: calc(var(--padding-base) * 2);
+  #   }
+
+  #   #child2 > Button {
+  #     background: var(--accent-color);
+  #     border-width: var(--padding-double);
+  #   }
+  #   """
+    
+  #   let parser = newCssParser(updatedThemeSrc)
+  #   main.frame[].theme.css = parser.loadTheme()
+  #   emit main.doDraw()
+    
+  #   # Check that updated nested variables are applied
+  #   check btnB.fill == parseHtmlColor("#0000FF")
+  #   check btnB.stroke.weight == 16.0  # 8px * 2
 
 
