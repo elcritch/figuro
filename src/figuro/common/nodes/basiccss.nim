@@ -88,20 +88,6 @@ type
     name*: string
     value*: CssValue
 
-# proc `==`*(a, b: CssSelector): bool =
-#   if a.isNil and b.isNil:
-#     return true
-#   if a.isNil or b.isNil:
-#     return false
-#   a[] == b[]
-
-# proc `==`*(a, b: CssProperty): bool =
-#   if a.isNil and b.isNil:
-#     return true
-#   if a.isNil or b.isNil:
-#     return false
-#   a[] == b[]
-
 proc `$`*(val: CssValue): string =
   match val:
     MissingCssValue:
