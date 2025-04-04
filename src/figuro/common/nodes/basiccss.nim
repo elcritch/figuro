@@ -30,6 +30,16 @@ proc newCssValues*(): CssValues =
 proc newCssValues*(parent: CssValues): CssValues =
   result = CssValues(rootApplied: parent.rootApplied, parent: parent)
 
+proc registerVariable*(vars: CssValues, name: string): CssVarId =
+  ## Registers a new CSS variable with the given name
+  ## Returns the variable index
+  var v = vars
+  while v != nil:
+    if name in v.names:
+      return v.names[name]
+    v = v.parent
+  result = variables.registerVariable(vars, name)
+
 proc registerVariable*(vars: CssValues, name: string, value: CssValue): CssVarId =
   let isSize = value.kind == CssValueKind.CssSize
   let idx = vars.registerVariable(name)
