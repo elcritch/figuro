@@ -321,7 +321,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
       trace "CSS: property function:peek: ", peek = parser.peek().repr, value = value
       if value.startsWith("var(") and value.endsWith(")"):
         assert args.len() == 1
-        result = CssVarName(values.registerVariable(args[0]))
+        result = CssVarName(values.registerVariable(args[0].substr(2)))
       else:
         try:
           result = CssColor(parseHtmlColor(value))

@@ -90,7 +90,7 @@ proc colorValue(value: CssValue, values: CssValues): Color =
     CssColor(c):
       result = c
     CssVarName(n):
-      echo "cssengine:colorValue: ", "values: ", values.names
+      info "cssengine:colorValue: ", names= values.names, values= values.values
       var res: CssValue
       if values.resolveVariable(n, res):
         result = colorValue(res, values)
@@ -145,7 +145,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
 
   if prop.name.startsWith("--"):
     let varName = prop.name.substr(2)
-    notice "cssengine:apply: ", "varName: ", varName
+    notice "cssengine:apply:setVariable:", varName = varName
     # let res = values.resolveVariable(varName)
 
 
