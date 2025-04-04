@@ -32,17 +32,11 @@ proc newCssValues*(parent: CssValues): CssValues =
 
 proc registerVariable*(vars: CssValues, name: string, value: CssValue): CssVarId =
   let isSize = value.kind == CssValueKind.CssSize
-  if name in vars.names:
-    let idx = vars.names[name]
-    vars.values[idx] = value
-    if isSize:
-      vars.values[idx] = CssSize(value.cx)
-    return idx
-  else:
-    let idx = CssVarId(vars.values.len + 1)
-    vars.values[idx] = value
-    vars.names[name] = idx
-    return idx
+  let idx = vars.registerVariable(name)
+  vars.values[idx] = value
+  if isSize and value.cx.kind == UiValue:
+    vars[idx] = value.cx.value
+  return idx
 
 proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize): bool =
   if vars.resolveVariable(varIdx, val):

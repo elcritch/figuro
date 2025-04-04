@@ -579,7 +579,7 @@ suite "css exec":
     
     let parser = newCssParser(updatedThemeSrc)
     main.frame[].theme.css = parser.loadTheme()
-    main.frame[].theme.cssValues.valuesNames = newCssValuesNames()
+    main.frame[].theme.cssValues = newCssValues()
     emit main.doDraw()
     
     # Check that updated variables are applied
