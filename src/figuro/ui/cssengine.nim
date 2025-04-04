@@ -90,11 +90,13 @@ proc colorValue(value: CssValue, values: CssValues): Color =
     CssColor(c):
       result = c
     CssVarName(n):
+      echo "cssengine:colorValue: ", "values: ", values.names
       var res: CssValue
       if values.resolveVariable(n, res):
         result = colorValue(res, values)
       else:
         result = clearColor
+        raise newException(ValueError, "css expected color! Got: " & repr(value))
     _:
       raise newException(ValueError, "css expected color! Got: " & repr(value))
 
@@ -108,6 +110,7 @@ proc sizeValue(value: CssValue, values: CssValues): Constraint =
         result = sizeValue(res, values)
       else:
         result = Constraint(kind: UiNone)
+        raise newException(ValueError, "css expected size! Got: " & $value)
     _:
       raise newException(ValueError, "css expected size! Got: " & $value)
 
@@ -121,6 +124,7 @@ proc shadowValue(value: CssValue, values: CssValues): tuple[sstyle: ShadowStyle,
         result = shadowValue(res, values)
       else:
         result = (InnerShadow, Constraint(kind: UiNone), Constraint(kind: UiNone), Constraint(kind: UiNone), Constraint(kind: UiNone), clearColor)
+        raise newException(ValueError, "css expected size! Got: " & $value)
     _:
       raise newException(ValueError, "css expected size! Got: " & $value)
 
@@ -252,7 +256,8 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
-  let values = node.frame[].theme.cssValues
+  let values = node.frame[].theme.css.values
+  doAssert values != nil
   if SkipCss in node.userAttrs:
     return
   let node = if node of Text: node.parent[] else: node

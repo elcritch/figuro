@@ -31,7 +31,6 @@ type
   Theme* = object
     font*: UiFont
     css*: CssTheme
-    cssValues*: CssValues
 
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]

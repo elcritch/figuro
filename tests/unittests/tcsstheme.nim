@@ -195,7 +195,7 @@ suite "css exec":
     main.frame = frame.unsafeWeakRef()
     main.frame[].theme = Theme(font: defaultFont())
     let parser = newCssParser(themeSrc)
-    let values = newCssValues()
+    let values {.inject, used.} = newCssValues()
     let rules = parse(parser, values)
     # print cssTheme
     main.frame[].theme.css = CssTheme(rules: rules, values: values)

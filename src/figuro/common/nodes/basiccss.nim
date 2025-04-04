@@ -296,13 +296,16 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
       discard parser.nextToken()
     of tkFunction:
       var value = tk.fnName
+      var args: seq[string]
       while true:
         tk = parser.nextToken()
         case tk.kind
         of tkDimension:
           value &= $tk.dValue
+          args.add($tk.dValue)
         of tkIdent:
           value &= tk.ident
+          args.add(tk.ident)
         of tkWhiteSpace:
           value &= tk.wsStr
         of tkParenBlock:
@@ -317,7 +320,8 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
           discard
       trace "CSS: property function:peek: ", peek = parser.peek().repr, value = value
       if value.startsWith("var(") and value.endsWith(")"):
-        result = CssVarName(values.registerVariable(value))
+        assert args.len() == 1
+        result = CssVarName(values.registerVariable(args[0]))
       else:
         try:
           result = CssColor(parseHtmlColor(value))
