@@ -94,6 +94,12 @@ proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.}
   elif KeyK in down:
     echo "K pressed"
     selectPrevStory(self)
+  elif KeyEnter in down:
+    echo "Enter pressed"
+    if self.currentStory notin self.markdownStories:
+      emit self.markdownLoad(self.currentStory.link.href)
+      self.markdownStories[self.currentStory] = (ssLoading, "")
+    refresh(self)
   else:
     echo "other key pressed"
 

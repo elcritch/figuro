@@ -185,7 +185,7 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
     when false and isMainModule:
       let document = loadHtml("examples/hn.html")
     else:
-      let client = newHttpClient(timeout=10_000)
+      let client = newHttpClient(timeout=1_000)
       let res = client.get(url)
         
       # Create a process to run html2markdown
