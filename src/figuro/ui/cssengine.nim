@@ -261,8 +261,9 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  assert not node.frame[].theme.css.isNil
+  assert not node.frame[].theme.css.values.isNil
   let values = node.frame[].theme.css.values
-  doAssert values != nil
   if SkipCss in node.userAttrs:
     return
   let node = if node of Text: node.parent[] else: node

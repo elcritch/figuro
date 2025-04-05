@@ -282,7 +282,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   root.cxSize = [cx"auto", cx"auto"]
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
-  frame.theme = Theme(font: defaultFont())
+  frame.theme = Theme(font: defaultFont(), css: CssTheme(rules: @[], values: newCssValues()))
   # frame.setSize(size)
   frame.window.box.w = size[0].UiScalar
   frame.window.box.h = size[1].UiScalar
