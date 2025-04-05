@@ -67,8 +67,35 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   # echo "hover: ", kind
   refresh(self)
 
+proc selectNextStory*(self: Main) =
+  echo "selectNextStory"
+  if self.currentStory == nil:
+    self.currentStory = self.stories[0]
+  else:
+    let idx = self.stories.find(self.currentStory)
+    self.currentStory = self.stories[clamp(idx + 1, 0, self.stories.len - 1)]
+    refresh(self)
+
+proc selectPrevStory*(self: Main) =
+  echo "selectPrevStory"
+  if self.currentStory == nil:
+    self.currentStory = self.stories[0]
+  else:
+    let idx = self.stories.find(self.currentStory)
+    self.currentStory = self.stories[clamp(idx - 1, 0, self.stories.len - 1)]
+    refresh(self)
+
 proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
+  
+  if KeyJ in down:
+    echo "J pressed"
+    selectNextStory(self)
+  elif KeyK in down:
+    echo "K pressed"
+    selectPrevStory(self)
+  else:
+    echo "other key pressed"
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
@@ -194,7 +221,10 @@ proc draw*(self: Main) {.slot.} =
                       Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
-                          setGridCols 40'ux ["upvotes"] 1'fr 5'ux ["comments"] 1'fr 5'ux ["user"] 2'fr ["info"] 20'ux 10'ux
+                          setGridCols 40'ux ["upvotes"] 1'fr 5'ux \
+                                            ["comments"] 1'fr 5'ux \
+                                            ["user"] 2'fr \
+                                            ["info"] 20'ux 10'ux
                           setGridRows 1'fr
                           # gridAutoFlow grColumn
                           justifyItems CxStretch

@@ -185,7 +185,7 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
     when false and isMainModule:
       let document = loadHtml("examples/hn.html")
     else:
-      let client = newHttpClient()
+      let client = newHttpClient(timeout=10_000)
       let res = client.get(url)
         
       # Create a process to run html2markdown
@@ -216,9 +216,11 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
   except CatchableError as err:
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()
+    emit loader.markdownDone(url, "error loading page: " & $err.msg) # Emit the markdown result
   except Defect as err:
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()
+    emit loader.markdownDone(url, "error loading page: " & $err.msg) # Emit the markdown result
 
 when isMainModule:
   let l = HtmlLoader()
