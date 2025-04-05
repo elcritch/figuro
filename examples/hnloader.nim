@@ -181,7 +181,10 @@ proc markdownDone*(tp: HtmlLoader, url: string, markdown: string) {.signal.}
 
 proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
   try:
-    echo "Starting page load..."
+    echo "Starting page load with url: ", url
+    if url.endsWith(".pdf"):
+      raise newException(ValueError, "PDFs are not supported")
+
     when false and isMainModule:
       let document = loadHtml("examples/hn.html")
     else:
