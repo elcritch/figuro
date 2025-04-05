@@ -89,13 +89,6 @@ proc draw*(self: Main) {.slot.} =
         justifyItems CxStretch
         alignItems CxStretch
 
-      # onSignal(doMouseClick) do(this: Figuro,
-      #               kind: EventKind,
-      #               buttons: UiButtonView):
-      #   if kind == Done:
-      #     printLayout(this.frame[].root, cmTerminal)
-
-
       Rectangle.new "top":
         gridRow "top" // "items"
         gridColumn "left" // "right"
