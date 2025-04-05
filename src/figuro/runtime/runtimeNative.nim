@@ -10,6 +10,7 @@ import ../widget, ../commons
 import ../ui/[core, layout]
 import ../common/nodes/[transfer, uinodes, render]
 import ../common/rchannels
+import ../runtime/utils/timers
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}
@@ -20,6 +21,11 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 var timestamp = getMonoTime()
 
 proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
+  ## This is the main loop for widgets and gui app.
+  ## It ticks the frame, computes events, and redraws the frame.
+  ## It is called by the main thread, but doesn't run
+  ## on the main thread which is used by the renderer.
+  ## 
   threadEffects:
     AppMainThread
   # Ticks
@@ -49,8 +55,11 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
     frame.redrawNodes.clear()
     for node in rn:
       emit node.doDraw()
-    computeLayouts(frame.root)
+    timeIt(computeLayoutsTimer):
+      computeLayouts(frame.root)
     # printLayout(frame.root)
+    # echo "computeLayouts: ", toMillis(computeLayoutsTimer)
+
     computeScreenBox(nil, frame.root)
     var ru = RenderUpdate(n= frame.root.copyInto(), window= frame.window)
     frame.rendInputList.push(unsafeIsolate ensureMove ru)

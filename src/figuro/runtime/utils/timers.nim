@@ -1,4 +1,4 @@
-import std/[times, monotimes, strutils, macros] # This is to provide the timing output
+import std/[times, math, monotimes, strutils, macros] # This is to provide the timing output
 import pkg/chronicles
 
 type
@@ -12,12 +12,15 @@ const
   timeItSmoothing {.intdefine.} = 10
   alpha = 1.0 / timeItSmoothing.toFloat
 
-proc timeItImpl*(retVar: bool, timer, blk: NimNode): NimNode =
+proc toMillis*(t: TimeIt): float =
+  round(t.micros / 1_000.0, 3)
+
+macro timeIt*(timer, blk: untyped) =
   let name = newStrLitNode timer.repr()
   if defined(printDebugTimings):
-    let timer = genSym(nskVar, "timer")
+    let timer = ident($name)
     result = quote do:
-      var `timer` {.global, threadvar.}: TimeIt
+      var `timer` {.global, inject, threadvar.}: TimeIt
       let a = getMonoTime()
       `blk`
       let b = getMonoTime()
@@ -26,19 +29,11 @@ proc timeItImpl*(retVar: bool, timer, blk: NimNode): NimNode =
       `timer`.micros =  alpha * micros + (1.0-alpha) * `timer`.micros
       `timer`.count.inc
       if `timer`.count mod 1_000 == 0:
-        let num = `timer`.micros / 1_000.0
+        let num = toMillis(`timer`)
         logTiming($`name`, $num.formatBiggestFloat(ffDecimal, 3) & " ms")
-    if retVar:
-      result.add quote do:
-        `timer`
   else:
     result = quote do:
       `blk`
-
-macro timeIt*(timer, blk: untyped) =
-  result = timeItImpl(false, timer, blk)
-macro timeItVar*(timer, blk: untyped): TimeIt =
-  result = timeItImpl(true, timer, blk)
 
 proc runEveryMillis*(ms: int, repeat: int, code: proc(idx: FrameIdx): bool) =
   when false:

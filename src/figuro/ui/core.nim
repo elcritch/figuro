@@ -183,46 +183,46 @@ macro onSignal*(signal: untyped, blk: untyped) =
       #            "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
       #            astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
       # connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
-      connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
+      uinodes.connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
   # echo "result: ", result.treeRepr
   result[1][0].params = params
   # echo "result: ", result.treeRepr
 
-proc findSibling*(self: Figuro, name: string): Option[Figuro] =
+proc querySibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
   for sibling in self.parent.children:
     if sibling.uid != self.uid and sibling.name == name:
       return some sibling
   return Figuro.none
 
-template findSibling*[T: Figuro](name: string): Option[T] =
+template querySibling*[T: Figuro](name: string): Option[T] =
   ## finds first sibling with name
-  findSibling(this, name)
+  querySibling(this, name)
 
-proc findParent*[T: Figuro](this: Figuro, tp: typedesc[T]): T =
+proc queryParent*[T: Figuro](this: Figuro, tp: typedesc[T]): Option[T] =
   ## finds first parent with name
   if this.parent[] of tp:
-    return T(this.parent[])
+    return some T(this.parent[])
   elif this.parent.isNil:
-    return nil
+    return none(T)
   else:
-    return this.parent[].findParent(tp)
+    return this.parent[].queryParent(tp)
 
-proc findParent*(this: Figuro, name: string, tp: typedesc = Figuro): tp =
+proc queryParent*[T: Figuro](this: Figuro, name: string, tp: typedesc = Figuro): Option[T] =
   ## finds first parent with name
   if this.parent[].name == name and this.parent[] of tp:
-    return tp(this.parent[])
+    return some tp(this.parent[])
   elif this.parent.isNil:
-    return nil
+    return none(tp)
   else:
-    return this.parent[].findParent(name, tp)
+    return this.parent[].queryParent(name, tp)
 
-proc findChild*[T: Figuro](this: Figuro, name: string, tp: typedesc[T]): T =
+proc queryChild*[T: Figuro](this: Figuro, name: string, tp: typedesc[T]): Option[T] =
   ## finds first child with name
   for child in this.children:
     if child.name == name and child of tp:
-      return T(child)
-  return nil
+      return some T(child)
+  return none(T)
 
 
 proc clearDraw*(fig: Figuro) {.slot.} =
@@ -282,7 +282,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   root.cxSize = [cx"auto", cx"auto"]
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
-  frame.theme = Theme(font: defaultFont())
+  frame.theme = Theme(font: defaultFont(), css: CssTheme(rules: @[], values: newCssValues()))
   # frame.setSize(size)
   frame.window.box.w = size[0].UiScalar
   frame.window.box.h = size[1].UiScalar

@@ -11,10 +11,15 @@ import figuro/common/nodes/render
 import figuro/widgets/button
 
 suite "css parser":
+  setup:
+    setLogLevel(WARN)
 
   test "blocks":
     # skip()
     const src = """
+    :root {
+      --color-background: #000000;
+    }
 
     Button {
     }
@@ -25,10 +30,10 @@ suite "css parser":
     Button child {
     }
 
-    Button < directChild {
+    Button > directChild {
     }
 
-    Button < directChild.field {
+    Button > directChild.field {
     }
 
     Button:hover {
@@ -40,26 +45,30 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)
-    check res[0].selectors == @[CssSelector(cssType: "Button")]
-    check res[1].selectors == @[CssSelector(cssType: "Button", class: "btnBody")]
-    check res[2].selectors == @[
+    let values = newCssValues()
+    let res = parse(parser, values)
+    echo "root: ", res[0].repr
+    check res[0].selectors == @[CssSelector(cssType: "root", combinator: skPseudo)]
+
+    check res[1].selectors == @[CssSelector(cssType: "Button")]
+    check res[2].selectors == @[CssSelector(cssType: "Button", class: "btnBody")]
+    check res[3].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "child", combinator: skDescendent)
     ]
-    check res[3].selectors == @[
+    check res[4].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "directChild", combinator: skDirectChild)
     ]
-    check res[4].selectors == @[
+    check res[5].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "directChild", class: "field", combinator: skDirectChild)
     ]
-    check res[5].selectors == @[
+    check res[6].selectors == @[
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(cssType: "hover", combinator: skPseudo)
     ]
-    check res[6].selectors == @[
+    check res[7].selectors == @[
       CssSelector(id: "name", combinator: skNone),
     ]
     echo "results: ", res[6].selectors.repr
@@ -78,7 +87,8 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)[0]
+    let values = newCssValues()
+    let res = parse(parser, values)[0]
     check res.selectors == @[CssSelector(cssType: "Button", combinator: skNone)]
     check res.properties.len() == 5
     check res.properties[0] == CssProperty(name: "color-background", value: CssColor(parseHtmlColor("#00a400")))
@@ -102,7 +112,8 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)[0]
+    let values = newCssValues()
+    let res = parse(parser, values)[0]
     # echo "results: ", res.repr
     check res.selectors[0] == CssSelector(cssType: "Button", combinator: skNone)
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
@@ -118,14 +129,14 @@ suite "css parser":
     """
 
     let parser = newCssParser(src)
-    let res = parse(parser)[0]
+    let values = newCssValues()
+    let res = parse(parser, values)[0]
     # echo "results: ", res.repr
     check res.selectors[0] == CssSelector(cssType: "Button", combinator: skNone)
     check res.properties[0] == CssProperty(name: "color", value: CssColor(parseHtmlColor("rgb(214, 122, 127)")))
 
   test "test child descent tokenizer is working":
-    skip()
-    if false:
+    if true:
       const src = """
       Button > directChild {
       }
@@ -136,7 +147,8 @@ suite "css parser":
 
       echo "trying to parse `>`..."
       let parser = newCssParser(src)
-      let res = parse(parser)
+      let values = newCssValues()
+      let res = parse(parser, values)
       # for r in res:
       #   echo "results: ", r.repr
 
@@ -183,9 +195,10 @@ suite "css exec":
     main.frame = frame.unsafeWeakRef()
     main.frame[].theme = Theme(font: defaultFont())
     let parser = newCssParser(themeSrc)
-    let rules = parse(parser)
+    let values {.inject, used.} = newCssValues()
+    let rules = parse(parser, values)
     # print cssTheme
-    main.frame[].theme.css = CssTheme(rules: rules)
+    main.frame[].theme.css = CssTheme(rules: rules, values: values)
     connectDefaults(main)
     emit main.doDraw()
     let btnA {.inject, used.} = main.children[0].children[1]
@@ -205,13 +218,13 @@ suite "css exec":
 
   test "css direct descendants":
     const themeSrc = """
-    #body < Button {
+    #body > Button {
       background: #FF0000;
       border-width: 3;
       border-color: #00FF00;
     }
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
     }
     """
@@ -323,7 +336,7 @@ suite "css exec":
   test "box shadow":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red;
     }
@@ -346,7 +359,7 @@ suite "css exec":
   test "box shadow 2":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px red;
     }
@@ -369,7 +382,7 @@ suite "css exec":
   test "box shadow 3":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px 20px red;
     }
@@ -393,7 +406,7 @@ suite "css exec":
   test "inset box shadow":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red inset;
     }
@@ -416,7 +429,7 @@ suite "css exec":
   test "inset box shadow 2":
     const themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px 20px red inset;
     }
@@ -440,7 +453,7 @@ suite "css exec":
   test "box shadow none":
     let themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red;
     }
@@ -456,7 +469,7 @@ suite "css exec":
 
     let themeSrc2 = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: none;
     }
@@ -477,7 +490,7 @@ suite "css exec":
   test "box shadow none inset":
     let themeSrc = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red inset;
     }
@@ -494,7 +507,7 @@ suite "css exec":
     # CSS Warning: unhandled css shadow kind:
     let themeSrc2 = """
 
-    #child2 < Button {
+    #child2 > Button {
       background: #0000FF;
       box-shadow: none inset;
     }
@@ -513,14 +526,89 @@ suite "css exec":
   test "empty css":
     let themeSrc = """
 
-    /* #child2 < Button {
+    /* #child2 > Button {
       background: #0000FF;
       box-shadow: 5px 5px 10px red inset;
     } */
 
     """
     let parser = newCssParser(themeSrc)
-    let res = parse(parser)
+    let values = newCssValues()
+    let res = parse(parser, values)
     check res.len() == 0
+
+  test "css variables":
+    # setLogLevel(TRACE)
+    const themeSrc = """
+    :root {
+      --primary-color: #FF0000;
+      --secondary-color: #00FF00;
+      --spacing: 10px;
+    }
+
+    #child2 > Button {
+      background: var(--primary-color);
+      border-width: var(--spacing);
+      border-color: var(--secondary-color);
+    }
+    
+    #child3 Button {
+      background: var(--secondary-color);
+    }
+    """
+    
+    setupMain(themeSrc)
+    
+    # Check that variables are properly applied
+    check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 10.0
+    check btnB.stroke.color == parseHtmlColor("#00FF00")
+    
+    check btnD.fill == parseHtmlColor("#00FF00")
+    
+
+  # test "nested css variables":
+  #   const themeSrc = """
+  #   :root {
+  #     --base-color: #FF0000;
+  #     --accent-color: var(--base-color);
+  #     --padding-base: 5px;
+  #     --padding-double: calc(var(--padding-base) * 2);
+  #   }
+
+  #   #child2 > Button {
+  #     background: var(--accent-color);
+  #     border-width: var(--padding-double);
+  #   }
+  #   """
+    
+  #   setupMain(themeSrc)
+    
+  #   # Check that nested variables are resolved correctly
+  #   check btnB.fill == parseHtmlColor("#FF0000")
+  #   check btnB.stroke.weight == 10.0  # 5px * 2
+    
+  #   # Update base variables and check that dependent variables update
+  #   let updatedThemeSrc = """
+  #   :root {
+  #     --base-color: #0000FF;
+  #     --accent-color: var(--base-color);
+  #     --padding-base: 8px;
+  #     --padding-double: calc(var(--padding-base) * 2);
+  #   }
+
+  #   #child2 > Button {
+  #     background: var(--accent-color);
+  #     border-width: var(--padding-double);
+  #   }
+  #   """
+    
+  #   let parser = newCssParser(updatedThemeSrc)
+  #   main.frame[].theme.css = parser.loadTheme()
+  #   emit main.doDraw()
+    
+  #   # Check that updated nested variables are applied
+  #   check btnB.fill == parseHtmlColor("#0000FF")
+  #   check btnB.stroke.weight == 16.0  # 8px * 2
 
 

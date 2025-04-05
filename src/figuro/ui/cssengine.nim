@@ -59,52 +59,76 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   case pseudo.cssType
   of "hover":
     if evHover in node.events:
-      trace "cssengine:matched pseudo hover", node= $node.name
-    else:
-      trace "cssengine:failed pseudo hover!", node= $node.name, evt= node.events
-      return
+      result = true
   of "active":
     if Active in node.userAttrs:
-      trace "cssengine:matched pseudo active", node= $node.name
-    else:
-      trace "cssengine:failed pseudo active!", node= $node.name, evt= node.events
-      return
+      result = true
+  of "focused":
+    if Focused in node.userAttrs:
+      result = true
+  of "selected":
+    if Selected in node.userAttrs:
+      result = true
+  of "enabled":
+    if Enabled in node.userAttrs:
+      result = true
+  of "disabled":
+    if Disabled in node.userAttrs:
+      result = true
   else:
     once:
       echo "Warning: ", "unhandled CSS psuedo class: ", pseudo.cssType
-    
+    result = false
+ 
+  if result:
+    trace "cssengine:matched pseudo", node= $node.name, pseudo= pseudo.cssType
+  else:
+    trace "cssengine:failed pseudo", node= $node.name, pseudo= pseudo.cssType
 
-  # if node.combinator == skPseudo and node. 
-
-  return true
-
-proc colorValue(value: CssValue): Color =
+proc colorValue(value: CssValue, values: CssValues): Color =
   match value:
     CssColor(c):
       result = c
     CssVarName(n):
-      try:
-        result = parseHtmlColor(n)
-      except InvalidColor:
-        raise newException(ValueError, "not a css color!")
+      info "cssengine:colorValue: ", names= values.names, values= values.values
+      var res: CssValue
+      if values.resolveVariable(n, res):
+        result = colorValue(res, values)
+      else:
+        result = clearColor
+        raise newException(ValueError, "css expected color! Got: " & repr(value))
     _:
-      raise newException(ValueError, "css expected color! Got: " & $value)
+      raise newException(ValueError, "css expected color! Got: " & repr(value))
 
-proc sizeValue(value: CssValue): Constraint =
+proc sizeValue(value: CssValue, values: CssValues): Constraint =
   match value:
     CssSize(cx):
       result = cx
+    CssVarName(n):
+      var res: CssValue
+      if values.resolveVariable(n, res):
+        result = sizeValue(res, values)
+      else:
+        result = Constraint(kind: UiNone)
+        raise newException(ValueError, "css expected size! Got: " & $value)
     _:
       raise newException(ValueError, "css expected size! Got: " & $value)
 
-proc shadowValue(value: CssValue): tuple[sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color] =
+proc shadowValue(value: CssValue, values: CssValues): tuple[sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color] =
   match value:
     CssShadow(style, x, y, blur, spread, color):
       result = (style, x, y, blur, spread, color)
+    CssVarName(n):
+      var res: CssValue
+      if values.resolveVariable(n, res):
+        result = shadowValue(res, values)
+      else:
+        result = (InnerShadow, Constraint(kind: UiNone), Constraint(kind: UiNone), Constraint(kind: UiNone), Constraint(kind: UiNone), clearColor)
+        raise newException(ValueError, "css expected size! Got: " & $value)
     _:
       raise newException(ValueError, "css expected size! Got: " & $value)
 
-proc apply*(prop: CssProperty, node: Figuro) =
+proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   trace "cssengine:apply", uid= node.uid, name= node.name, wn= node.widgetName, prop= prop.repr
 
   template setCxFixed(cx, field: untyped, tp = float32) =
@@ -119,10 +143,17 @@ proc apply*(prop: CssProperty, node: Figuro) =
       _:
         discard
 
+  if prop.name.startsWith("--"):
+    let varName = prop.name.substr(2)
+    notice "cssengine:apply:setVariable:", varName = varName
+    let idx = values.registerVariable(varName)
+    values.setVariable(idx, prop.value)
+    return
+
   case prop.name
   of "color":
     # is color in CSS really only for fonts?
-    let color = colorValue(prop.value)
+    let color = colorValue(prop.value, values)
     if node of Text:
       # for child in node.children:
       node.fill = color
@@ -132,25 +163,25 @@ proc apply*(prop: CssProperty, node: Figuro) =
           # for gc in child.children:
           child.fill = color
   of "background", "background-color":
-    let color = colorValue(prop.value)
+    let color = colorValue(prop.value, values)
     node.fill = color
   of "border-color":
-    let color = colorValue(prop.value)
+    let color = colorValue(prop.value, values)
     node.stroke.color = color
   of "border-width":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     setCxFixed(cx, node.stroke.weight)
   of "border-radius":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     setCxFixed(cx, node.cornerRadius, UiScalar)
   of "width":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     node.cxSize[dcol] = cx
   of "height":
-    let cx = sizeValue(prop.value)
+    let cx = sizeValue(prop.value, values)
     node.cxSize[drow] = cx
   of "box-shadow":
-    let shadow = shadowValue(prop.value)
+    let shadow = shadowValue(prop.value, values)
     let style = shadow.sstyle
     setCxFixed(shadow.sx, node.shadow[style].x, UiScalar)
     setCxFixed(shadow.sy, node.shadow[style].y, UiScalar)
@@ -161,9 +192,7 @@ proc apply*(prop: CssProperty, node: Figuro) =
     debug "cssengine", error= "unhandled css property", propertyName= prop.name
     discard
 
-import std/terminal
-
-proc eval*(rule: CssBlock, node: Figuro) =
+proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
   # print rule.selectors
   # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " wn: ", node.widgetName, " sel:len: ", $rule.selectors.len
   # stdout.styledWriteLine fgRed, rule.selectors.repr
@@ -179,6 +208,14 @@ proc eval*(rule: CssBlock, node: Figuro) =
     # stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
 
     if sel.combinator == skPseudo:
+      if prevCombinator == skNone and sel.cssType == "root":
+        if values != nil and not values.rootApplied:
+          matched = true
+          values.rootApplied = true
+        else:
+          matched = false
+        continue
+
       prevCombinator = sel.combinator
       continue
 
@@ -220,12 +257,15 @@ proc eval*(rule: CssBlock, node: Figuro) =
     # echo "setting properties:"
     for prop in rule.properties:
       # print rule.properties
-      prop.apply(node)
+      prop.apply(node, values)
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  assert not node.frame[].theme.css.isNil
+  assert not node.frame[].theme.css.values.isNil
+  let values = node.frame[].theme.css.values
   if SkipCss in node.userAttrs:
     return
   let node = if node of Text: node.parent[] else: node
   for rule in rules(node.frame[].theme.css):
-    rule.eval(node)
+    rule.eval(node, values)

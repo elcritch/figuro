@@ -77,10 +77,10 @@ proc calculateBar*(
   # debug "calculateBar: ", scrollBar = result
 
 proc scroll*(self: ScrollPane, wheelDelta: Position, force: bool) =
-  let child = self.findChild("scrollBody", Rectangle)
+  let child = self.queryChild("scrollBody", Rectangle).get()
   var window = calculateWindow(self.screenBox, child.screenBox)
   let prevScrollBy = self.scrollBy
-  self.scrollBy.updateScroll(wheelDelta * 20'ui, window.contentOverflow)
+  self.scrollBy.updateScroll(wheelDelta * 30'ui, window.contentOverflow)
   let scrollChanged = prevScrollBy != self.scrollBy
   # debug "scroll: ", name = self.name, scrollChanged = scrollChanged
   if scrollChanged or force:

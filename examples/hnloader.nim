@@ -6,7 +6,7 @@ import std/strutils
 import std/sugar
 import std/osproc
 import std/streams
-
+import std/hashes
 # import chame/minidom
 import std/htmlparser
 import std/xmltree
@@ -86,7 +86,14 @@ type
     link*: Link
     subText*: SubText
 
-  TableSubmission* = ref object
+proc hash*(s: Submission): Hash =
+  if s.isNil:
+    result = 0
+  else:
+    result = s.link.href.hash
+
+type
+  TableSubmission = ref object
     subTr*: XmlNode
     subTextTr*: XmlNode
 
@@ -170,15 +177,18 @@ proc loadPage*(loader: HtmlLoader, url: string) {.slot.} =
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()
 
-proc markdownDone*(tp: HtmlLoader, markdown: string) {.signal.}
+proc markdownDone*(tp: HtmlLoader, url: string, markdown: string) {.signal.}
 
 proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
   try:
-    echo "Starting page load..."
+    echo "Starting page load with url: ", url
+    if url.endsWith(".pdf"):
+      raise newException(ValueError, "PDFs are not supported")
+
     when false and isMainModule:
       let document = loadHtml("examples/hn.html")
     else:
-      let client = newHttpClient()
+      let client = newHttpClient(timeout=1_000)
       let res = client.get(url)
         
       # Create a process to run html2markdown
@@ -205,13 +215,15 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
       when isMainModule:
         echo "markdown:\n", markdown
 
-      emit loader.markdownDone(markdown) # Emit the markdown result
+      emit loader.markdownDone(url, markdown) # Emit the markdown result
   except CatchableError as err:
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()
+    emit loader.markdownDone(url, "error loading page: " & $err.msg) # Emit the markdown result
   except Defect as err:
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()
+    emit loader.markdownDone(url, "error loading page: " & $err.msg) # Emit the markdown result
 
 when isMainModule:
   let l = HtmlLoader()

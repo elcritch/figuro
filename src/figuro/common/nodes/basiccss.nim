@@ -1,19 +1,91 @@
 import std/[strutils, paths, os]
 # import ./apis
 
-import cssgrid
 import stylus
 import patty
 import chroma
-import basics
 import chronicles
+
+import cssgrid
+import cssgrid/variables
+import basics
 
 variantp CssValue:
   MissingCssValue
   CssColor(c: Color)
   CssSize(cx: Constraint)
-  CssVarName(n: string)
+  CssVarName(id: CssVarId)
   CssShadow(sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color)
+  CssAttribute(a: string)
+
+type
+  CssValues* = ref object of CssVariables
+    rootApplied*: bool
+    parent*: CssValues
+    values*: Table[CssVarId, CssValue]
+
+proc newCssValues*(): CssValues =
+  result = CssValues(rootApplied: false)
+
+proc newCssValues*(parent: CssValues): CssValues =
+  result = CssValues(rootApplied: parent.rootApplied, parent: parent)
+
+proc registerVariable*(vars: CssValues, name: string): CssVarId =
+  ## Registers a new CSS variable with the given name
+  ## Returns the variable index
+  var v = vars
+  while v != nil:
+    if name in v.names:
+      return v.names[name]
+    v = v.parent
+  result = variables.registerVariable(vars, name)
+
+proc setVariable*(vars: CssValues, idx: CssVarId, value: CssValue) =
+  let isSize = value.kind == CssValueKind.CssSize
+  vars.values[idx] = value
+  if isSize:
+    variables.setVariable(vars, idx, value.cx.value)
+
+proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize): bool =
+  if vars.resolveVariable(varIdx, val):
+    result = true
+  elif vars.parent != nil:
+    result = vars.parent.resolveVariable(varIdx, val)
+
+proc lookupVariable(vars: CssValues, varIdx: CssVarId, val: var CssValue, recursive: bool = true): bool =
+  if vars != nil and varIdx in vars.values:
+    val = vars.values[varIdx]
+    return true
+  elif vars.parent != nil and recursive:
+    result = vars.parent.lookupVariable(varIdx, val, recursive)
+
+proc lookupVariable(vars: CssValues, varName: string, val: var CssValue, recursive: bool = true): bool =
+  if vars != nil and varName in vars.names:
+    val = vars.values[vars.names[varName]]
+    return true
+  elif vars.parent != nil and recursive:
+    result = vars.parent.lookupVariable(varName, val, recursive)
+
+proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var CssValue): bool =
+  ## Resolves a constraint size, looking up variables if needed
+  var res: CssValue
+  if vars != nil and lookupVariable(vars, varIdx, res, recursive = true):
+    # Handle recursive variable resolution (up to a limit to prevent cycles)
+    var resolveCount = 0
+    while res.kind == CssValueKind.CssVarName and resolveCount < 10:
+      if lookupVariable(vars, res.id, res, recursive = false):
+        inc resolveCount
+      else:
+        break
+    if res.kind == CssValueKind.CssVarName: # Prevent infinite recursion, return a default value
+      val = MissingCssValue()
+      return false
+    else:
+      val = res
+      return true
+  else:
+    return false
+
 
 type
   EofError* = object of CatchableError
@@ -25,6 +97,7 @@ type
     tokenizer: Tokenizer
 
   CssTheme* = ref object
+    values*: CssValues
     rules*: seq[CssBlock]
 
   CssBlock* = object
@@ -48,20 +121,6 @@ type
     name*: string
     value*: CssValue
 
-# proc `==`*(a, b: CssSelector): bool =
-#   if a.isNil and b.isNil:
-#     return true
-#   if a.isNil or b.isNil:
-#     return false
-#   a[] == b[]
-
-# proc `==`*(a, b: CssProperty): bool =
-#   if a.isNil and b.isNil:
-#     return true
-#   if a.isNil or b.isNil:
-#     return false
-#   a[] == b[]
-
 proc `$`*(val: CssValue): string =
   match val:
     MissingCssValue:
@@ -74,11 +133,10 @@ proc `$`*(val: CssValue): string =
           $value
         _:
           $cx
+    CssAttribute(n):
+      n
     CssVarName(n):
-      if n in ["inset", "none"]:
-        $n
-      else:
-        fmt"var({n})"
+      fmt"var({n})"
     CssShadow(style, x, y, blur, spread, color):
       fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
 
@@ -150,9 +208,10 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
   while true:
     parser.skip({tkWhiteSpace, tkComment})
     var tk = parser.peek()
-    # echo "\t selector parser: ", tk.repr
+    trace "CSS: selector parser: ", tk = tk.repr
     case tk.kind
     of tkIdent:
+      trace "CSS: ident: ", ident = tk.ident
       if isClass:
         if result.len() == 0:
           result.add(CssSelector())
@@ -181,10 +240,10 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       case tk.delim
       of '.':
         isClass = true
-      of '<':
+      of '>':
         isDirect = true
       else:
-        echo "warning: ", "unhandled delim token while parsing selector: ", tk.repr()
+        warn "CSS: unhandled delim token while parsing selector: ", tk = tk.repr()
       discard parser.nextToken()
     of tkCurlyBracketBlock:
       # echo "\tsel: ", "done"
@@ -196,12 +255,12 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       # echo "NT: ", nt.repr
       break
     else:
-      echo "warning: ", "unhandled token while parsing selector: ", tk.repr()
+      warn "CSS: unhandled token while parsing selector: ", tk = tk.repr()
       break
 
   # echo "\tsel:done"
 
-proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColor].} =
+proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.forbids: [InvalidColor].} =
   parser.skip({tkWhiteSpace})
   parser.eat(tkCurlyBracketBlock)
 
@@ -221,12 +280,13 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
-      try:
-        result = CssColor(parseHtmlColor(tk.ident))
-      except InvalidColor:
-        # echo "css value not color"
-        discard
-        result = CssVarName(tk.ident)
+      if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
+        result = CssVarName(values.registerVariable(tk.ident))
+      else:
+        try:
+          result = CssColor(parseHtmlColor(tk.ident))
+        except InvalidColor:
+          result = CssAttribute(tk.ident)
       
     of tkIDHash:
       try:
@@ -249,6 +309,8 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
         case tk.kind
         of tkDimension:
           value &= $tk.dValue
+        of tkIdent:
+          value &= tk.ident
         of tkWhiteSpace:
           value &= tk.wsStr
         of tkParenBlock:
@@ -259,12 +321,16 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
           value &= ")"
           break
         else:
-          # echo "\tproperty:other: ", tk.repr
+          trace "CSS: property function:other: ", tk = tk.repr
           discard
-      # echo "\tproperty function:peek: ", parser.peek().repr
-      # echo "\tproperty function: ", value
-      # echo "\tproperty function:res: ", result[^1].repr()
-      result = CssColor(parseHtmlColor(value))
+      trace "CSS: property function:peek: ", peek = parser.peek().repr, value = value
+      if value.startsWith("var(") and value.endsWith(")"):
+        result = CssVarName(values.registerVariable(value.substr(6, value.len() - 2)))
+      else:
+        try:
+          result = CssColor(parseHtmlColor(value))
+        except InvalidColor:
+          result = MissingCssValue()
     of tkDimension:
       let value = csFixed(tk.dValue.UiScalar)
       result = CssSize(value)
@@ -306,10 +372,10 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
       return
 
-    if args[0] == CssVarName("none"):
+    if args[0] == CssAttribute("none"):
       args = args[1..^1]
 
-    if args.len() > 0 and args[0] == CssVarName("inset"):
+    if args.len() > 0 and args[0] == CssAttribute("inset"):
       result.sstyle = InnerShadow
       args = args[1..^1]
 
@@ -328,7 +394,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
       result.scolor = args[0].c
       args = args[1..^1]
 
-    if args.len() > 0 and args[0] == CssVarName("inset"):
+    if args.len() > 0 and args[0] == CssAttribute("inset"):
       result.sstyle = InnerShadow
       args = args[1..^1]
 
@@ -345,18 +411,24 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
     except EofError:
       raise newException(InvalidCssBody, "Invalid CSS Body")
 
-    # echo "\t rule body parser: ", tk.repr
-    # echo "\tproperty:next: ", tk.repr
+    trace "CSS: rule body parser: ", tk = tk.repr
     case tk.kind
     of tkIdent:
       discard parser.nextToken()
+      trace "CSS: rule body parser: ", ident = tk.ident
       if result[^1].name.len() == 0:
         result[^1].name = tk.ident
         parser.eat(tkColon)
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)
       elif result[^1].value == MissingCssValue():
-        result[^1].value = CssVarName(tk.ident)
+        if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
+          result[^1].value = CssVarName(values.registerVariable(tk.ident))
+        else:
+          try:
+            result[^1].value = CssColor(parseHtmlColor(tk.ident))
+          except ValueError:
+            result[^1].value = CssAttribute(tk.ident)
     of tkSemicolon:
       # echo "\tattrib done "
       popIncompleteProperty()
@@ -377,7 +449,7 @@ proc parseRuleBody*(parser: CssParser): seq[CssProperty] {.forbids: [InvalidColo
   popIncompleteProperty(warning = false)
   parser.eat(tkCloseCurlyBracket)
 
-proc parse*(parser: CssParser): seq[CssBlock] =
+proc parse*(parser: CssParser, values: CssValues): seq[CssBlock] =
   while not parser.isEof():
     # echo "CSS Block: "
     parser.skip({tkWhiteSpace, tkComment})
@@ -391,7 +463,7 @@ proc parse*(parser: CssParser): seq[CssBlock] =
       continue
     # echo "selectors: ", sel.repr()
     try:
-      let props = parser.parseRuleBody()
+      let props = parser.parseRuleBody(values)
       # echo ""
       result.add(CssBlock(selectors: sel, properties: props))
     except InvalidCssBody:
@@ -401,4 +473,5 @@ proc parse*(parser: CssParser): seq[CssBlock] =
       continue
 
 proc loadTheme*(parser: CssParser): CssTheme =
-  result = CssTheme(rules: parser.parse())
+  let values = newCssValues()
+  result = CssTheme(rules: parser.parse(values), values: values)
