@@ -51,7 +51,8 @@ type
     ## An example is setting `fill` in a button's code. We want this
     ## to override any defaults the widget itself my later set.
     ## 
-    ## TODO: this is hacky, but efficient
+    ## ~~TODO: this is hacky, but efficient~~
+    ## TODO: remove these...
     fsZLevel
     fsRotation
     fsCornerRadius

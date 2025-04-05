@@ -300,3 +300,41 @@ proc refresh*(node: Figuro) {.slot.} =
   node.frame[].redrawNodes.incl(node)
   when defined(figuroDebugRefresh):
     echo "REFRESH: ", getStackTrace()
+
+## User facing attributes
+## 
+## These are used to set the state of the node
+## and are used by the CSS engine to determine
+## the state of the node.
+## 
+## Also for general use by the widget author.
+proc setDisabled*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Disabled
+
+proc setEnabled*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Disabled
+
+proc setActive*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Active
+
+proc setInactive*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Active
+
+proc setFocused*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Focused
+
+proc setUnfocused*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Focused
+
+proc setSelected*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Selected
+
+proc setUnselected*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Selected
+
+proc setHighlighted*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Highlighted
+
+proc setUnhighlighted*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Highlighted
+

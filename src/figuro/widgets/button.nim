@@ -9,7 +9,6 @@ type
 
   Button*[T] = ref object of StatefulFiguro[T]
     label*: string
-    disabled*: bool
     clickMode*: set[ButtonClicks] = {Single}
     isPressed*: bool
     fade* = Fader(minMax: 0.0..1.0,
@@ -73,7 +72,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
     withOptional self:
       cornerRadius 10.0'ui
 
-    if self.disabled:
+    if Disabled in self.userAttrs:
       withOptional self:
         fill css"#F0F0F0"
     else:
