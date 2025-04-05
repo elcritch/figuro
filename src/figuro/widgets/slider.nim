@@ -5,49 +5,51 @@ import ../ui/animations
 type
   Slider*[T] = ref object of StatefulFiguro[T]
     label*: string
-    fade* = Fader(minMax: 0.0..1.0,
-                     inTimeMs: 60, outTimeMs: 60)
+    min*, max*: T
+    dragStart*: Option[Position]
 
-proc render*(
-    props: SliderProps,
-    self: SliderState,
-): Events[All]=
-  ## Draw a progress bars 
+proc draw*[T](self: Slider[T]) {.slot.} =
+  ## slider widget
+  withWidget(self):
 
-  behavior self.dragger
+    gridCols 10'ux ["left"] 1'fr ["right"] 10'ux
+    gridRows 10'ux ["top"] 1'fr ["bottom"] 10'ux
 
-  if props.label.len() > 0:
-    text "text":
+    WidgetContents()
+
+    if self.label.len() > 0:
+      Text.new "text":
+        gridArea 2 // 3, 2 // 3
+        text {defaultFont(): self.label}
+
+    Rectangle.new "barFgTexture":
       gridArea 2 // 3, 2 // 3
-      fill theme.text
-      characters props.label
+      clipContent true
 
-  rectangle "barFgTexture":
-    gridArea 2 // 3, 2 // 3
-    cornerRadius 0.80 * theme.cornerRadius[0]
-    clipContent true
+    Rectangle.new "bar":
+      gridArea 2 // 3, 2 // 3
+      let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
+      let sliderSize = 20
 
-  rectangle "bar":
-    gridArea 2 // 3, 2 // 3
+      Rectangle.new "filling":
+        # Draw the bar itself.
+        fill css"#2B9FEA"
+        size sliderWidth, 100'pp
 
-    rectangle "button":
-      useTheme atom"active"
-      useTheme atom"pop"
-      let sliderPos = self.dragger.position(props.value)
-      if sliderPos.updated:
-        dispatchEvent changed(self.dragger.value)
-    
-      box sliderPos.value, 0, parent.box.h, parent.box.h
+      Rectangle.new "button":
+        fill css"black" * 0.3
+        size ux(sliderSize), ux(sliderSize)
+        # useTheme atom"active"
+        # useTheme atom"pop"
 
-    rectangle "filling":
-      # Draw the bar itself.
-      let bw = (100.0 * props.value.clamp(0, 1.0)).csPerc()
-      size bw, 100'pp
+        # let sliderPos = self.dragger.position(props.value)
+        # if sliderPos.updated:
+        #   dispatchEvent changed(self.dragger.value)
+      
+        offset sliderWidth-ux(sliderSize/2), 0'ux
 
-  rectangle "bar-gloss":
-    gridArea 1 // 4, 1 // 4
-    stroke theme.outerStroke
-    fill theme.foreground
-    cornerRadius 1.0 * theme.cornerRadius[0]
+    # Rectangle.new "bar-gloss":
+    #   gridArea 1 // 4, 1 // 4
+    #   border 2, css"black"
+    #   fill css"blue"
 
-  cornerRadius 1.0 * theme.cornerRadius[0]

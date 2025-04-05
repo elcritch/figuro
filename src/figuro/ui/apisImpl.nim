@@ -99,6 +99,11 @@ proc boxOf*(current: Figuro, box: Box) =
 proc padding*(current: Figuro, left, right, top, bottom: UiScalar | Constraint) =
   current.cxPadOffset = [left, top]
   current.cxPadSize = [bottom, right]
+
+proc padding*(current: Figuro, all: UiScalar | Constraint) =
+  current.cxPadOffset = [all, all]
+  current.cxPadSize = [all, all]
+
 proc paddingLeft*(current: Figuro, v: Constraint) =
   current.cxPadOffset[dcol] = v
 proc paddingTop*(current: Figuro, v: Constraint) =
