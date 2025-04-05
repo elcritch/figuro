@@ -39,17 +39,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
       Rectangle.new "button":
         fill css"black" * 0.3
         size ux(sliderSize), ux(sliderSize)
-        # useTheme atom"active"
-        # useTheme atom"pop"
-
-        # let sliderPos = self.dragger.position(props.value)
-        # if sliderPos.updated:
-        #   dispatchEvent changed(self.dragger.value)
-      
         offset sliderWidth-ux(sliderSize/2), 0'ux
-
-    # Rectangle.new "bar-gloss":
-    #   gridArea 1 // 4, 1 // 4
-    #   border 2, css"black"
-    #   fill css"blue"
+      
 
