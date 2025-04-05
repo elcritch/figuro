@@ -55,6 +55,7 @@ type
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
+    lhash*: Hash
 
     box*, bpad*: Box
     bmin*, bmax*: Size
@@ -166,6 +167,9 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
     NodeID -1
   else:
     fig[].uid
+
+proc getSkipLayout*(fig: Figuro): bool =
+  false
 
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 

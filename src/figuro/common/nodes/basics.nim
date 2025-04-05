@@ -34,6 +34,7 @@ type
     NfContentsDrawReady
     NfRootWindow
     NfInitialized
+    NfSkipLayout
     # user facing attributes
 
   Attributes* = enum

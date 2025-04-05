@@ -10,6 +10,7 @@ import ../widget, ../commons
 import ../ui/[core, layout]
 import ../common/nodes/[transfer, uinodes, render]
 import ../common/rchannels
+import ../runtime/utils/timers
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}
@@ -54,8 +55,11 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
     frame.redrawNodes.clear()
     for node in rn:
       emit node.doDraw()
-    computeLayouts(frame.root)
+    timeIt(computeLayoutsTimer):
+      computeLayouts(frame.root)
     # printLayout(frame.root)
+    # echo "computeLayouts: ", toMillis(computeLayoutsTimer)
+
     computeScreenBox(nil, frame.root)
     var ru = RenderUpdate(n= frame.root.copyInto(), window= frame.window)
     frame.rendInputList.push(unsafeIsolate ensureMove ru)
