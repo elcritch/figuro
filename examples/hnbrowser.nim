@@ -14,6 +14,12 @@ let
   smallFont = UiFont(typefaceId: typeface, size: 15)
 
 type
+  StoryStatus* = enum
+    ssNone
+    ssLoading
+    ssLoaded
+    ssError
+
   Main* = ref object of Figuro
     value: float
     hasHovered: bool
@@ -21,7 +27,8 @@ type
     loading = false
     stories: seq[Submission]
     currentStory: Submission
-    markdownStories: Table[Submission, string]
+    markdownStories: Table[Submission, (StoryStatus, string)]
+
 
 proc htmlLoad*(tp: Main, url: string) {.signal.}
 proc markdownLoad*(tp: Main, url: string) {.signal.}
@@ -33,10 +40,10 @@ proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   refresh(self)
 
 proc loadStoryMarkdown*(self: Main, url: string, markdown: string) {.slot.} =
-  echo "got markdown", markdown.len
+  echo "got markdown, length: ", markdown.len, " for url: ", url
   for story in self.stories:
     if story.link.href == url:
-      self.markdownStories[story] = markdown
+      self.markdownStories[story] = (ssLoaded, markdown)
       break
   refresh(self)
 
@@ -71,7 +78,7 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
-        setGridCols ["left"]  min(300'ux, 25'pp) \
+        setGridCols ["left"]  min(500'ux, 25'pp) \
                     ["middle"] 5'fr \
                     ["right"] 0'ux
         setGridRows ["top"] 70'ux \
@@ -163,6 +170,7 @@ proc draw*(self: Main) {.slot.} =
                     self.currentStory = this.state
                     if self.currentStory notin self.markdownStories:
                       emit self.markdownLoad(self.currentStory.link.href)
+                      self.markdownStories[self.currentStory] = (ssLoading, "")
                     refresh(self)
 
                   Vertical.new "story-fields":
@@ -193,9 +201,7 @@ proc draw*(self: Main) {.slot.} =
                       Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
-                          setGridCols 40'ux ["upvotes"] 1'fr 5'ux \
-                                      ["comments"] 1'fr 5'ux \
-                                      ["user"] 1'fr
+                          setGridCols 40'ux ["upvotes"] 1'fr 5'ux ["comments"] 1'fr 5'ux ["user"] 2'fr ["info"] 20'ux 10'ux
                           setGridRows 1'fr
                           # gridAutoFlow grColumn
                           justifyItems CxStretch
@@ -216,6 +222,23 @@ proc draw*(self: Main) {.slot.} =
                           justify Left
                           align Middle
                           text({smallFont: "$1 comments" % $story.subText.comments})
+
+                        Text.new "info":
+                          gridColumn "info" // span "info"
+                          gridRow 1
+                          foreground css"black"
+                          justify Left
+                          align Middle
+                          let res = self.markdownStories.getOrDefault(story, (ssNone, ""))
+                          case res[0]:
+                          of ssNone:
+                            text({font: ""})
+                          of ssLoading:
+                            text({font: "..."})
+                          of ssError:
+                            text({font: "!"})
+                          of ssLoaded:
+                            text({font: "+"})
 
       Rectangle.new "panel":
         gridRow "items" // "bottom"
@@ -244,10 +267,13 @@ proc draw*(self: Main) {.slot.} =
                 # foreground css"white"
                 justify Left
                 align Top
-                if self.currentStory != nil and self.currentStory in self.markdownStories:
-                  text({font: $self.markdownStories[self.currentStory]})
-                else:
+                let res = self.markdownStories.getOrDefault(self.currentStory, (ssLoading, ""))
+                if res[0] == ssLoading:
                   text({font: "..."})
+                elif res[0] == ssError:
+                  text({font: "!"})
+                else:
+                  text({font: res[1]})
 
 
 var main = Main()
