@@ -1,12 +1,36 @@
+import pkg/chronicles
 
 import ../widget
 import ../ui/animations
 
 type
   Slider*[T] = ref object of StatefulFiguro[T]
-    label*: string
     min*, max*: T
-    dragStart*: Option[Position]
+    dragStart*: T
+
+proc sliderDrag*[T](
+    self: Slider[T],
+    kind: EventKind,
+    initial: Position,
+    cursor: Position,
+    overlaps: bool,
+    selected: Figuro
+) {.slot.} =
+  trace "scrollBarDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, selected = selected != self
+  case kind:
+  of Exit:
+    self.dragStart = self.min
+  of Init:
+    self.dragStart = self.state
+    discard
+  of Done:
+    let delta = initial.positionDiff(cursor)
+    let bar = self.queryChild("bar").get()
+    let offset = float(delta[dcol] / bar.box.w)
+    self.state = clamp(self.dragStart + offset, self.min, self.max)
+    # notice "slider:drag:", delta = delta, offset= offset, state= self.state, bar= bar.box.w
+
+    refresh(self)
 
 proc draw*[T](self: Slider[T]) {.slot.} =
   ## slider widget
@@ -14,13 +38,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
 
     gridCols 10'ux ["left"] 1'fr ["right"] 10'ux
     gridRows 10'ux ["top"] 1'fr ["bottom"] 10'ux
-
-    WidgetContents()
-
-    if self.label.len() > 0:
-      Text.new "text":
-        gridArea 2 // 3, 2 // 3
-        text {defaultFont(): self.label}
 
     Rectangle.new "barFgTexture":
       gridArea 2 // 3, 2 // 3
@@ -37,8 +54,12 @@ proc draw*[T](self: Slider[T]) {.slot.} =
         size sliderWidth, 100'pp
 
       Rectangle.new "button":
-        fill css"black" * 0.3
+        fill css"black" * 0.7
         size ux(sliderSize), ux(sliderSize)
         offset sliderWidth-ux(sliderSize/2), 0'ux
+        cornerRadius UiScalar(sliderSize/2)
+        uinodes.connect(this, doDrag, self, sliderDrag)
       
+    WidgetContents()
+
 

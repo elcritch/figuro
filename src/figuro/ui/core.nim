@@ -217,12 +217,12 @@ proc queryParent*[T: Figuro](this: Figuro, name: string, tp: typedesc = Figuro):
   else:
     return this.parent[].queryParent(name, tp)
 
-proc queryChild*[T: Figuro](this: Figuro, name: string, tp: typedesc[T]): Option[T] =
+proc queryChild*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
   ## finds first child with name
   for child in this.children:
     if child.name == name and child of tp:
-      return some T(child)
-  return none(T)
+      return some typeof(tp)(child)
+  return none(typeof(tp))
 
 
 proc clearDraw*(fig: Figuro) {.slot.} =
