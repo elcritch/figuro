@@ -20,6 +20,11 @@ when not defined(gcArc) and not defined(gcOrc) and not defined(nimdoc):
 var timestamp = getMonoTime()
 
 proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
+  ## This is the main loop for widgets and gui app.
+  ## It ticks the frame, computes events, and redraws the frame.
+  ## It is called by the main thread, but doesn't run
+  ## on the main thread which is used by the renderer.
+  ## 
   threadEffects:
     AppMainThread
   # Ticks
