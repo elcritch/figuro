@@ -6,7 +6,7 @@ import std/strutils
 import std/sugar
 import std/osproc
 import std/streams
-
+import std/hashes
 # import chame/minidom
 import std/htmlparser
 import std/xmltree
@@ -86,7 +86,14 @@ type
     link*: Link
     subText*: SubText
 
-  TableSubmission* = ref object
+proc hash*(s: Submission): Hash =
+  if s.isNil:
+    result = 0
+  else:
+    result = s.link.href.hash
+
+type
+  TableSubmission = ref object
     subTr*: XmlNode
     subTextTr*: XmlNode
 
@@ -170,7 +177,7 @@ proc loadPage*(loader: HtmlLoader, url: string) {.slot.} =
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()
 
-proc markdownDone*(tp: HtmlLoader, markdown: string) {.signal.}
+proc markdownDone*(tp: HtmlLoader, url: string, markdown: string) {.signal.}
 
 proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
   try:
@@ -205,7 +212,7 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
       when isMainModule:
         echo "markdown:\n", markdown
 
-      emit loader.markdownDone(markdown) # Emit the markdown result
+      emit loader.markdownDone(url, markdown) # Emit the markdown result
   except CatchableError as err:
     echo "error loading page: ", $err.msg
     echo "error loading page: ", $err.getStackTrace()

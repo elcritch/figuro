@@ -21,7 +21,7 @@ type
     loading = false
     stories: seq[Submission]
     currentStory: Submission
-    currentStoryMarkdown: string
+    markdownStories: Table[Submission, string]
 
 proc htmlLoad*(tp: Main, url: string) {.signal.}
 proc markdownLoad*(tp: Main, url: string) {.signal.}
@@ -32,9 +32,12 @@ proc loadStories*(self: Main, stories: seq[Submission]) {.slot.} =
   self.loading = false
   refresh(self)
 
-proc loadStoryMarkdown*(self: Main, markdown: string) {.slot.} =
+proc loadStoryMarkdown*(self: Main, url: string, markdown: string) {.slot.} =
   echo "got markdown", markdown.len
-  self.currentStoryMarkdown = markdown
+  for story in self.stories:
+    if story.link.href == url:
+      self.markdownStories[story] = markdown
+      break
   refresh(self)
 
 
@@ -158,7 +161,8 @@ proc draw*(self: Main) {.slot.} =
                     echo repr this.state
                     let self = this.queryParent(Main).get()
                     self.currentStory = this.state
-                    emit self.markdownLoad(self.currentStory.link.href)
+                    if self.currentStory notin self.markdownStories:
+                      emit self.markdownLoad(self.currentStory.link.href)
                     refresh(self)
 
                   Vertical.new "story-fields":
@@ -240,8 +244,8 @@ proc draw*(self: Main) {.slot.} =
                 # foreground css"white"
                 justify Left
                 align Top
-                if self.currentStoryMarkdown != "":
-                  text({font: $self.currentStoryMarkdown})
+                if self.currentStory != nil and self.currentStory in self.markdownStories:
+                  text({font: $self.markdownStories[self.currentStory]})
                 else:
                   text({font: "..."})
 
