@@ -38,7 +38,7 @@ proc sliderDrag*[T](
 
 proc initialize*[T](self: Slider[T]) {.slot.} =
   let cssValues = self.frame[].theme.css.values
-  self.sliderSize = cssValues.registerVariable("sliderSize", CssSize(20'ux))
+  self.sliderSize = cssValues.registerVariable("figuro-slider-size", CssSize(20'ux))
   cssValues.setFunction(self.sliderSize) do (cs: ConstraintSize) -> ConstraintSize:
     csFixed(cs.coord / 2).value
 
