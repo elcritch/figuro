@@ -262,8 +262,8 @@ template rowEnd*[T](idx: T) {.thisWrapper.}
 template gridRow*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-template gridArea*[T](r, c: T) {.thisWrapper.}
-  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
+template gridArea*[T](c, r: T) {.thisWrapper.}
+  ## CSS Grid shorthand for grid-column-start + grid-column-end + grid-row-start + grid-row-end.
 
 template gridColumnGap*(value: UiScalar) {.thisWrapper.}
   ## Set CSS Grid column gap.

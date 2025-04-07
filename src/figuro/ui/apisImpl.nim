@@ -333,8 +333,8 @@ proc gridRow*[T](current: Figuro, val: T) =
   ## Set CSS Grid ending column.
   current.getGridItem().row = val
 
-proc gridArea*[T](current: Figuro, r, c: T) =
-  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
+proc gridArea*[T](current: Figuro, c, r: T) =
+  ## CSS Grid shorthand for grid-column-start + grid-column-end + grid-row-start + grid-row-end.
   current.getGridItem().row = r
   current.getGridItem().column = c
 
