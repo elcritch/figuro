@@ -1,5 +1,9 @@
 
 Slider {
-  --figuro-slider-button-size: 0px;
+  --figuro-slider-button-size: 40px;
   --figuro-slider-filling-size: 40px;
+}
+
+#button {
+  width: 20px;
 }
