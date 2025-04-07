@@ -68,7 +68,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
         fill css"black" * 0.7
         size csVar(self.sliderSize), csVar(self.sliderSize)
         offset sliderWidth-csVar(self.sliderSize, self.sliderSize), 0'ux # use function with same id as our var
-        # cornerRadius UiScalar(sliderSize/2)
         uinodes.connect(this, doDrag, self, sliderDrag)
       
     WidgetContents()
