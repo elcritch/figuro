@@ -3,10 +3,13 @@ import pkg/chronicles
 import ../widget
 import ../ui/animations
 
+import cssgrid/prettyprints
+
 type
   Slider*[T] = ref object of StatefulFiguro[T]
     min*, max*: T
     dragStart*: T
+    sliderSize*: CssVarId
 
 proc sliderDrag*[T](
     self: Slider[T],
@@ -32,10 +35,15 @@ proc sliderDrag*[T](
 
     refresh(self)
 
+proc initialize*[T](self: Slider[T]) {.slot.} =
+  let cssValues = self.frame[].theme.css.values
+  self.sliderSize = cssValues.registerVariable("sliderSize", CssSize(20'ux))
+  debug "slider:initialized", name = self.name, sliderSize = self.sliderSize, cssValues = cssValues.values, cssVariables = cssValues.variables
+
 proc draw*[T](self: Slider[T]) {.slot.} =
   ## slider widget
   withWidget(self):
-
+    printLayout(self, cmTerminal, self.frame[].theme.css.values)
 
     gridCols 10'ux ["left"] 1'fr ["right"] 10'ux
     gridRows 10'ux ["top"] 1'fr ["bottom"] 10'ux
@@ -56,8 +64,8 @@ proc draw*[T](self: Slider[T]) {.slot.} =
 
       Rectangle.new "button":
         fill css"black" * 0.7
-        size ux(sliderSize), ux(sliderSize)
-        offset sliderWidth-ux(sliderSize/2), 0'ux
+        size csVar(self.sliderSize), csVar(self.sliderSize)
+        offset sliderWidth-csVar(self.sliderSize), 0'ux
         cornerRadius UiScalar(sliderSize/2)
         uinodes.connect(this, doDrag, self, sliderDrag)
       

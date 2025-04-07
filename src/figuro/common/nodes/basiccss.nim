@@ -30,6 +30,16 @@ proc newCssValues*(): CssValues =
 proc newCssValues*(parent: CssValues): CssValues =
   result = CssValues(rootApplied: parent.rootApplied, parent: parent)
 
+proc setVariable*(vars: CssValues, idx: CssVarId, value: CssValue) =
+  let isSize = value.kind == CssValueKind.CssSize
+  vars.values[idx] = value
+  if isSize:
+    variables.setVariable(vars, idx, value.cx.value)
+
+proc setDefault*(vars: CssValues, idx: CssVarId, value: CssValue) =
+  if idx notin vars.values:
+    vars.setVariable(idx, value)
+
 proc registerVariable*(vars: CssValues, name: string): CssVarId =
   ## Registers a new CSS variable with the given name
   ## Returns the variable index
@@ -40,11 +50,9 @@ proc registerVariable*(vars: CssValues, name: string): CssVarId =
     v = v.parent
   result = variables.registerVariable(vars, name)
 
-proc setVariable*(vars: CssValues, idx: CssVarId, value: CssValue) =
-  let isSize = value.kind == CssValueKind.CssSize
-  vars.values[idx] = value
-  if isSize:
-    variables.setVariable(vars, idx, value.cx.value)
+proc registerVariable*(vars: CssValues, name: string, default: CssValue): CssVarId =
+  result = vars.registerVariable(name)
+  vars.setDefault(result, default)
 
 proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var ConstraintSize): bool =
   if vars.resolveVariable(varIdx, val):
