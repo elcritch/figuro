@@ -39,10 +39,15 @@ proc sliderDrag*[T](
 proc initialize*[T](self: Slider[T]) {.slot.} =
   let cssValues = self.frame[].theme.css.values
   self.halfSize = cssValues.registerVariable("figHalfSize", CssSize(20'ux))
-  self.buttonSize = cssValues.registerVariable("figSliderButtonSize", CssSize(20'ux))
-  self.fillingSize = cssValues.registerVariable("figSliderFillingSize", CssSize(20'ux))
+  self.buttonSize = cssValues.registerVariable("figuro-slider-button-size", CssSize(20'ux))
+  self.fillingSize = cssValues.registerVariable("figuro-slider-filling-size", CssSize(5'ux))
   cssValues.setFunction(self.halfSize) do (cs: ConstraintSize) -> ConstraintSize:
-    csFixed(cs.coord / 2).value
+    case cs.kind:
+    of UiFixed:
+      result = csFixed(cs.coord / 2).value
+    else:
+      result = cs
+
 
   debug "slider:initialized", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = cssValues.values, cssVariables = cssValues.variables
 
@@ -63,7 +68,8 @@ proc draw*[T](self: Slider[T]) {.slot.} =
       Rectangle.new "filling":
         # Draw the bar itself.
         fill css"#2B9FEA"
-        size sliderWidth, csVar(self.buttonSize)
+        size sliderWidth, csVar(self.fillingSize)
+        offset 0'ux, csVar(self.buttonSize, self.halfSize) - csVar(self.fillingSize, self.halfSize)
 
       Rectangle.new "button":
         fill css"black" * 0.7
