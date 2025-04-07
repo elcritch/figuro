@@ -48,6 +48,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
   ## slider widget
   withWidget(self):
     printLayout(self, cmTerminal, self.frame[].theme.css.values)
+    debug "slider:draw", name = self.name, sliderSize = self.sliderSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
 
     gridCols 10'ux ["left"] 1'fr ["right"] 10'ux
     gridRows 10'ux ["top"] 1'fr ["bottom"] 10'ux
