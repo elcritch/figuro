@@ -112,10 +112,10 @@ proc paddingRight*(current: Figuro, v: Constraint) =
   current.cxPadSize[dcol] = v
 proc paddingBottom*(current: Figuro, v: Constraint) =
   current.cxPadSize[drow] = v
-proc paddingXY*(current: Figuro, top, bottom: Constraint) =
+proc paddingTB*(current: Figuro, top, bottom: Constraint) =
   current.cxPadOffset[drow] = top
   current.cxPadSize[drow] = bottom
-proc paddingWH*(current: Figuro, left, right: Constraint) =
+proc paddingLR*(current: Figuro, left, right: Constraint) =
   current.cxPadOffset[dcol] = left
   current.cxPadSize[dcol] = right
 

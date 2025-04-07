@@ -80,8 +80,8 @@ template paddingLeft*(v: Constraint) {.thisWrapper.}
 template paddingTop*(v: Constraint) {.thisWrapper.}
 template paddingRight*(v: Constraint) {.thisWrapper.}
 template paddingBottom*(v: Constraint) {.thisWrapper.}
-template paddingXY*(t, b: Constraint) {.thisWrapper.}
-template paddingWH*(l, r: Constraint) {.thisWrapper.}
+template paddingTB*(t, b: Constraint) {.thisWrapper.}
+template paddingLR*(l, r: Constraint) {.thisWrapper.}
 
 template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template 

@@ -52,28 +52,25 @@ proc draw*[T](self: Slider[T]) {.slot.} =
     printLayout(self, cmTerminal, self.frame[].theme.css.values)
     debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
 
-    gridCols 0'ux ["left"] 1'fr ["right"] 0'ux
-    # gridRows csVar(self.buttonSize) ["top"] 1'fr ["bottom"] csVar(self.buttonSize)
-    gridRows csSub(100'pp, csVar(self.buttonSize)) ["top"] 1'fr ["bottom"] csSub(100'pp, csVar(self.buttonSize))
+    gridCols csVar(self.buttonSize, self.halfSize) ["left"] 1'fr ["right"] csVar(self.buttonSize, self.halfSize)
+    gridRows 1'fr ["top"] csVar(self.buttonSize) ["bottom"] 1'fr
+    # gridRows csSub(100'pp, csVar(self.buttonSize)) ["top"] 1'fr ["bottom"] csSub(100'pp, csVar(self.buttonSize))
     # alignItems CxCenter
 
     let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
 
     Rectangle.new "bar":
-      gridArea 1 // 3, 2 // 3
+      gridArea 2 // 3, 2 // 3
 
       Rectangle.new "filling":
         # Draw the bar itself.
         fill css"#2B9FEA"
-        size sliderWidth, 100'pp
+        size sliderWidth, csVar(self.buttonSize)
 
       Rectangle.new "button":
         fill css"black" * 0.7
-        # size csVar(self.buttonSize), csVar(self.buttonSize)
-        size csVar(self.buttonSize, self.halfSize), 120'pp
-        # use function with same id as our var
-        # offset sliderWidth-csVar(self.buttonSize, self.buttonSize), csVar(self.fillingSize)-csVar(self.buttonSize)
-        offset sliderWidth-csVar(self.buttonSize, self.halfSize), -10'pp
+        size csVar(self.buttonSize), csVar(self.buttonSize)+10'ux
+        offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux - csVar(self.buttonSize, self.halfSize)
         uinodes.connect(this, doDrag, self, sliderDrag)
       
     WidgetContents()
