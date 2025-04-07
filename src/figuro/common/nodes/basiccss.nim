@@ -36,6 +36,9 @@ proc setVariable*(vars: CssValues, idx: CssVarId, value: CssValue) =
   if isSize:
     variables.setVariable(vars, idx, value.cx.value)
 
+proc setFunction*(vars: CssValues, idx: CssVarId, fun: CssFunc) =
+  variables.setFunction(CssVariables(vars), idx, fun)
+
 proc setDefault*(vars: CssValues, idx: CssVarId, value: CssValue) =
   if idx notin vars.values:
     vars.setVariable(idx, value)

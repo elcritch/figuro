@@ -38,6 +38,9 @@ proc sliderDrag*[T](
 proc initialize*[T](self: Slider[T]) {.slot.} =
   let cssValues = self.frame[].theme.css.values
   self.sliderSize = cssValues.registerVariable("sliderSize", CssSize(20'ux))
+  cssValues.setFunction(self.sliderSize) do (cs: ConstraintSize) -> ConstraintSize:
+    csFixed(cs.coord / 2).value
+
   debug "slider:initialized", name = self.name, sliderSize = self.sliderSize, cssValues = cssValues.values, cssVariables = cssValues.variables
 
 proc draw*[T](self: Slider[T]) {.slot.} =
@@ -65,7 +68,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
       Rectangle.new "button":
         fill css"black" * 0.7
         size csVar(self.sliderSize), csVar(self.sliderSize)
-        offset sliderWidth-csVar(self.sliderSize), 0'ux
+        offset sliderWidth-csVar(self.sliderSize, self.sliderSize), 0'ux # use function with same id as our var
         cornerRadius UiScalar(sliderSize/2)
         uinodes.connect(this, doDrag, self, sliderDrag)
       
