@@ -67,8 +67,8 @@ proc draw*[T](self: Slider[T]) {.slot.} =
 
       Rectangle.new "button":
         fill css"black" * 0.7
-        size csVar(self.buttonSize), csVar(self.buttonSize)+10'ux
-        offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux - csVar(self.buttonSize, self.halfSize)
+        size csVar(self.buttonSize), csVar(self.buttonSize)
+        offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux
         uinodes.connect(this, doDrag, self, sliderDrag)
       
     WidgetContents()
