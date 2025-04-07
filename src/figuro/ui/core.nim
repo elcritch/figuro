@@ -370,9 +370,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
 proc postNode*(node: var Figuro) =
   if NfInitialized notin node.flags:
     emit node.doInitialize()
-    node.flags.incl NfInitialized
   emit node.doDraw()
 
+  node.flags.incl NfInitialized
   node.removeExtraChildren()
   nodeDepth.dec()
 

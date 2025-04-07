@@ -33,6 +33,7 @@ proc sliderDrag*[T](
     self.state = clamp(self.dragStart + offset, self.min, self.max)
     # notice "slider:drag:", delta = delta, offset= offset, state= self.state, bar= bar.box.w
 
+    emit self.doUpdate(self.state)
     refresh(self)
 
 proc initialize*[T](self: Slider[T]) {.slot.} =
@@ -50,14 +51,10 @@ proc draw*[T](self: Slider[T]) {.slot.} =
 
     gridCols 10'ux ["left"] 1'fr ["right"] 10'ux
     gridRows 10'ux ["top"] 1'fr ["bottom"] 10'ux
-
-    Rectangle.new "barFgTexture":
-      gridArea 2 // 3, 2 // 3
-      clipContent true
+    let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
 
     Rectangle.new "bar":
       gridArea 2 // 3, 2 // 3
-      let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
 
       Rectangle.new "filling":
         # Draw the bar itself.

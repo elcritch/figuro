@@ -37,8 +37,6 @@ proc draw*(self: Main) {.slot.} =
           fill css"white".darken(0.3)
           this.min = 0.0
           this.max = 1.0
-          # if NfInitialized notin self.flags:
-          #   this.state = 0.5
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 640'ui))
