@@ -54,8 +54,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
 
     gridCols csVar(self.buttonSize, self.halfSize) ["left"] 1'fr ["right"] csVar(self.buttonSize, self.halfSize)
     gridRows 1'fr ["top"] csVar(self.buttonSize) ["bottom"] 1'fr
-    # gridRows csSub(100'pp, csVar(self.buttonSize)) ["top"] 1'fr ["bottom"] csSub(100'pp, csVar(self.buttonSize))
-    # alignItems CxCenter
 
     let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
 
