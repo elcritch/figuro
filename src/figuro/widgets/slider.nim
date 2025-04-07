@@ -58,7 +58,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
     Rectangle.new "bar":
       gridArea 2 // 3, 2 // 3
       let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
-      let sliderSize = 20
 
       Rectangle.new "filling":
         # Draw the bar itself.
@@ -69,7 +68,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
         fill css"black" * 0.7
         size csVar(self.sliderSize), csVar(self.sliderSize)
         offset sliderWidth-csVar(self.sliderSize, self.sliderSize), 0'ux # use function with same id as our var
-        cornerRadius UiScalar(sliderSize/2)
+        # cornerRadius UiScalar(sliderSize/2)
         uinodes.connect(this, doDrag, self, sliderDrag)
       
     WidgetContents()
