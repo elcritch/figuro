@@ -36,6 +36,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
   ## slider widget
   withWidget(self):
 
+
     gridCols 10'ux ["left"] 1'fr ["right"] 10'ux
     gridRows 10'ux ["top"] 1'fr ["bottom"] 10'ux
 

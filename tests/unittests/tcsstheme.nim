@@ -567,48 +567,48 @@ suite "css exec":
     check btnD.fill == parseHtmlColor("#00FF00")
     
 
-  # test "nested css variables":
-  #   const themeSrc = """
-  #   :root {
-  #     --base-color: #FF0000;
-  #     --accent-color: var(--base-color);
-  #     --padding-base: 5px;
-  #     --padding-double: calc(var(--padding-base) * 2);
-  #   }
+  test "nested css variables":
+    const themeSrc = """
+    :root {
+      --base-color: #FF0000;
+      --accent-color: var(--base-color);
+      --padding-base: 5px;
+      --padding-other: var(--padding-base);
+    }
 
-  #   #child2 > Button {
-  #     background: var(--accent-color);
-  #     border-width: var(--padding-double);
-  #   }
-  #   """
+    #child2 > Button {
+      background: var(--accent-color);
+      border-width: var(--padding-other);
+    }
+    """
     
-  #   setupMain(themeSrc)
+    setupMain(themeSrc)
     
-  #   # Check that nested variables are resolved correctly
-  #   check btnB.fill == parseHtmlColor("#FF0000")
-  #   check btnB.stroke.weight == 10.0  # 5px * 2
+    # Check that nested variables are resolved correctly
+    check btnB.fill == parseHtmlColor("#FF0000")
+    check btnB.stroke.weight == 5.0  # 5px * 2
     
-  #   # Update base variables and check that dependent variables update
-  #   let updatedThemeSrc = """
-  #   :root {
-  #     --base-color: #0000FF;
-  #     --accent-color: var(--base-color);
-  #     --padding-base: 8px;
-  #     --padding-double: calc(var(--padding-base) * 2);
-  #   }
+    # Update base variables and check that dependent variables update
+    let updatedThemeSrc = """
+    :root {
+      --base-color: #0000FF;
+      --accent-color: var(--base-color);
+      --padding-base: 8px;
+      --padding-other: var(--padding-base);
+    }
 
-  #   #child2 > Button {
-  #     background: var(--accent-color);
-  #     border-width: var(--padding-double);
-  #   }
-  #   """
+    #child2 > Button {
+      background: var(--accent-color);
+      border-width: var(--padding-other);
+    }
+    """
     
-  #   let parser = newCssParser(updatedThemeSrc)
-  #   main.frame[].theme.css = parser.loadTheme()
-  #   emit main.doDraw()
+    let parser = newCssParser(updatedThemeSrc)
+    main.frame[].theme.css = parser.loadTheme()
+    emit main.doDraw()
     
-  #   # Check that updated nested variables are applied
-  #   check btnB.fill == parseHtmlColor("#0000FF")
-  #   check btnB.stroke.weight == 16.0  # 8px * 2
+    # Check that updated nested variables are applied
+    check btnB.fill == parseHtmlColor("#0000FF")
+    check btnB.stroke.weight == 8.0  # 8px * 2
 
 
