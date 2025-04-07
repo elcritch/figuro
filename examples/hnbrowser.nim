@@ -179,7 +179,7 @@ proc draw*(self: Main) {.slot.} =
               capture story, idx:
                 Button[Submission].new "story":
                   # size cx"auto", cx"auto"
-                  paddingXY 5'ux, 5'ux
+                  paddingTB 5'ux, 5'ux
                   if self.currentStory == this.state:
                     this.userAttrs.incl Focused
                   else:
@@ -203,8 +203,8 @@ proc draw*(self: Main) {.slot.} =
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":
-                      paddingXY 0'ux, 5'ux
-                      paddingWH 0'ux, 20'ux
+                      paddingTB 0'ux, 5'ux
+                      paddingLR 0'ux, 20'ux
 
                       Text.new "id":
                         offset 5'ux, 0'ux
@@ -227,10 +227,10 @@ proc draw*(self: Main) {.slot.} =
                       Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
-                          setGridCols 40'ux ["upvotes"] 1'fr 5'ux \
-                                            ["comments"] 1'fr 5'ux \
+                          setGridCols 20'ux ["upvotes"] 2'fr 5'ux \
+                                            ["comments"] 2'fr 5'ux \
                                             ["user"] 2'fr \
-                                            ["info"] 20'ux 10'ux
+                                            ["info"] 15'ux 5'ux
                           setGridRows 1'fr
                           # gridAutoFlow grColumn
                           justifyItems CxStretch
@@ -278,7 +278,7 @@ proc draw*(self: Main) {.slot.} =
         Rectangle.new "story-pane":
           size 100'pp, 100'pp
           fill css"black"
-          paddingWH 3'ux, 3'ux
+          paddingLR 3'ux, 3'ux
 
           ScrollPane.new "story-scroll":
             offset 0'pp, 0'pp
@@ -289,7 +289,7 @@ proc draw*(self: Main) {.slot.} =
             Rectangle.new "story-pane-inner":
               fill css"black"
               size 100'pp-scrollPane.settings.size[dcol], cx"max-content"
-              paddingWH 10'ux, 20'ux
+              paddingLR 10'ux, 20'ux
 
               Text.new "story-text":
                 this.cxSize[dcol] = 100'pp
