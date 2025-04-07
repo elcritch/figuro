@@ -82,7 +82,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
       Rectangle.new "button-bg":
         size csVar(self.buttonSize), csVar(self.buttonSize)
         offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux
-        border 1'ui, css"red"
 
         Rectangle.new "button":
           fill css"black" * 0.7
