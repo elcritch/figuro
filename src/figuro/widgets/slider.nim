@@ -35,7 +35,7 @@ proc buttonDrag*[T](
     discard
   of Done:
     let delta = initial.positionDiff(cursor)
-    let bar = self.queryChild("bar").get()
+    let bar = self.queryDescendant("bar").get()
     let offset = float(delta[dcol] / bar.box.w)
     self.state = clamp(self.dragStart + offset, self.min, self.max)
     # notice "slider:drag:", delta = delta, offset= offset, state= self.state, bar= bar.box.w
@@ -62,34 +62,37 @@ proc initialize*[T](self: Slider[T]) {.slot.} =
 proc draw*[T](self: Slider[T]) {.slot.} =
   ## slider widget
   withWidget(self):
-    printLayout(self, cmTerminal, self.frame[].theme.css.values)
-    debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
+    Rectangle.new "bg": # this is mainly to avoid issues with sub-grids :/
+      size csAuto(), csAuto()
 
-    gridCols csVar(self.sliderSides) ["left"] 1'fr ["right"] csVar(self.sliderSides)
-    gridRows 1'fr ["top"] csVar(self.buttonSize) ["bottom"] 1'fr
+      printLayout(self, cmTerminal, self.frame[].theme.css.values)
+      debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
 
-    let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
+      gridCols 0'ux ["left"] 1'fr ["right"] 0'ux
+      gridRows 1'fr ["top"] csVar(self.buttonSize) ["bottom"] 1'fr
 
-    Rectangle.new "bar":
-      gridArea 2 // 3, 2 // 3
-      uinodes.connect(this, doDrag, self, buttonDrag)
+      let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
 
-      Rectangle.new "filling":
-        # Draw the bar itself.
-        fill css"#2B9FEA"
-        size sliderWidth, csVar(self.fillingSize)
-        offset 0'ux, csVar(self.buttonSize, self.halfSize) - csVar(self.fillingSize, self.halfSize)
+      Rectangle.new "bar":
+        gridArea 2 // 3, 2 // 3
+        uinodes.connect(this, doDrag, self, buttonDrag)
 
-      Rectangle.new "button-bg":
-        size csVar(self.buttonSize), csVar(self.buttonSize)
-        offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux
+        Rectangle.new "filling":
+          # Draw the bar itself.
+          fill css"#2B9FEA"
+          size sliderWidth, csVar(self.fillingSize)
+          offset 0'ux, csVar(self.buttonSize, self.halfSize) - csVar(self.fillingSize, self.halfSize)
 
-        Rectangle.new "button":
-          fill css"black" * 0.7
-          size 100'pp, 100'pp
-          offset 10'ux, 0'ux
-          uinodes.connect(this, doDrag, self, buttonDrag)
+        Rectangle.new "button-bg":
+          size csVar(self.buttonSize), csVar(self.buttonSize)
+          offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux
 
-    WidgetContents()
+          Rectangle.new "button":
+            fill css"black" * 0.7
+            size 100'pp, 100'pp
+            offset 10'ux, 0'ux
+            uinodes.connect(this, doDrag, self, buttonDrag)
+
+      WidgetContents()
 
 

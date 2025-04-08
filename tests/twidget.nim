@@ -27,16 +27,20 @@ proc draw*(self: Main) {.slot.} =
       Rectangle.new "filler":
         size 10'ux, 40'ux
 
-      Rectangle.new "slider-bg":
-        offset 50'ux, 0'ux
+      Slider[float].new "slider":
         size 80'pp, 60'ux
+        fill css"white".darken(0.3)
+        this.min = 0.0
+        this.max = 1.0
+        onInit:
+          this.state = 0.5
 
-        Slider[float].new "slider":
-          size 80'pp, 100'pp
-          fill css"white".darken(0.3)
-          this.min = 0.0
-          this.max = 1.0
-          # this.state = 0.5
+      # Slider[float].new "slider2":
+      #   size 80'pp, 100'pp
+      #   fill css"white".darken(0.3)
+      #   this.min = 0.0
+      #   this.max = 1.0
+      #   # this.state = 0.5
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 640'ui))

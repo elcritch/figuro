@@ -9,7 +9,11 @@ Slider Rectangle {
   border-radius: 10px;
 }
 
-Slider > #bar > #button-bg > #button {
+Slider > #bg {
+  left: 10px;
+}
+
+Slider > #bg > #bar > #button-bg > #button {
   width: 20px;
   left: 10px;
   -fig-cornerRadius: 10px;
