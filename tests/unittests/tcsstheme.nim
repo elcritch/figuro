@@ -351,10 +351,46 @@ suite "css exec":
     check btnD.fill == initialColor
     check btnC.fill == initialColor
 
-  test "match kind with long path direct children":
+  test "match kind with multiple path direct children":
     const themeSrc = """
 
     #child2 > Button > #child21 {
+      background: #F0F0F0;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnB.fill == initialColor
+    check child21.fill == parseHtmlColor("#F0F0F0")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnD.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "match kind with long path direct children":
+    const themeSrc = """
+
+    #body > #child2 > Button > #child21 {
+      background: #F0F0F0;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnB.fill == initialColor
+    check child21.fill == parseHtmlColor("#F0F0F0")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnD.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "match kind with multiple path descendent children":
+    const themeSrc = """
+
+    #child2 Button #child21 {
       background: #F0F0F0;
     }
     """
