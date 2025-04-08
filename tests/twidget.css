@@ -11,6 +11,6 @@ Slider Rectangle {
 
 Slider > #bar > #button-bg > #button {
   width: 20px;
-  left: 20px;
-  border-radius: 10px;
+  left: 10px;
+  -fig-cornerRadius: 10px;
 }

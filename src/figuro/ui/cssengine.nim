@@ -162,7 +162,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
         if child of Text:
           # for gc in child.children:
           child.fill = color
-  of "background", "background-color":
+  of "background", "background-color", "-fig-fill":
     let color = colorValue(prop.value, values)
     node.fill = color
   of "border-color":
@@ -171,7 +171,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   of "border-width":
     let cx = sizeValue(prop.value, values)
     setCxFixed(cx, node.stroke.weight)
-  of "border-radius":
+  of "border-radius", "-fig-cornerRadius":
     let cx = sizeValue(prop.value, values)
     setCxFixed(cx, node.cornerRadius, UiScalar)
   of "width":
