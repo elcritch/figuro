@@ -180,6 +180,12 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   of "height":
     let cx = sizeValue(prop.value, values)
     node.cxSize[drow] = cx
+  of "left":
+    let cx = sizeValue(prop.value, values)
+    node.cxOffset[dcol] = cx
+  of "top":
+    let cx = sizeValue(prop.value, values)
+    node.cxOffset[drow] = cx
   of "padding":
     let cx = sizeValue(prop.value, values)
     node.cxPadOffset[dcol] = cx
