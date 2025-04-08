@@ -180,6 +180,32 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   of "height":
     let cx = sizeValue(prop.value, values)
     node.cxSize[drow] = cx
+  of "padding":
+    let cx = sizeValue(prop.value, values)
+    node.cxPadOffset[dcol] = cx
+    node.cxPadOffset[drow] = cx
+    node.cxPadSize[dcol] = cx
+    node.cxPadSize[drow] = cx
+  of "padding-left":
+    let cx = sizeValue(prop.value, values)
+    node.cxPadOffset[dcol] = cx
+  of "padding-right":
+    let cx = sizeValue(prop.value, values)
+    node.cxPadSize[dcol] = cx
+  of "padding-top":
+    let cx = sizeValue(prop.value, values)
+    node.cxPadOffset[drow] = cx
+  of "padding-bottom":
+    let cx = sizeValue(prop.value, values)
+    node.cxPadSize[drow] = cx
+  of "padding-horizontal":
+    let cx = sizeValue(prop.value, values)
+    node.cxPadOffset[dcol] = cx
+    node.cxPadSize[drow] = cx
+  of "padding-vertical":
+    let cx = sizeValue(prop.value, values)
+    node.cxPadOffset[drow] = cx
+    node.cxPadSize[dcol] = cx
   of "box-shadow":
     let shadow = shadowValue(prop.value, values)
     let style = shadow.sstyle
