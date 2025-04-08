@@ -315,7 +315,7 @@ suite "css exec":
     check btnD.fill == initialColor
     check btnC.fill == initialColor
 
-  test "match kind with child id":
+  test "match kind with direct child id selector":
     const themeSrc = """
 
     Button > #child21 {
@@ -333,7 +333,7 @@ suite "css exec":
     check btnD.fill == initialColor
     check btnC.fill == initialColor
 
-  test "match kind with child id":
+  test "match kind with descendent child id selector":
     const themeSrc = """
 
     Button #child21 {
