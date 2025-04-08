@@ -57,6 +57,8 @@ suite "css parser":
 
     Button {
       width: calc(100% - 10px);
+      height: min(100%, 100px);
+      left: max(100%, 100px);
     }
     """
 
@@ -113,6 +115,7 @@ suite "css parser":
       CssSelector(cssType: "Button", combinator: skNone),
     ]
     check res[12].properties[0] == CssProperty(name: "width", value: CssSize(csSub(csPerc(100.0), csFixed(10.0))))
+    check res[12].properties[1] == CssProperty(name: "height", value: CssSize(csMin(csPerc(100.0), csFixed(100.0))))
 
     echo "results: ", res[6].selectors.repr
 

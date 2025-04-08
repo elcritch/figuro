@@ -242,6 +242,12 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
             error "CSS bad function operator: ", op = op
             cx = csAuto()
           result = CssSize(cx)
+      elif fnName == "min" and args.len() == 2:
+        warn "CSS: property function:min: ", args = repr(args)
+        result = CssSize(csMin(getConstraintSize(args[0]), getConstraintSize(args[1])))
+      elif fnName == "max" and args.len() == 2:
+        warn "CSS: property function:max: ", args = repr(args)
+        result = CssSize(csMax(getConstraintSize(args[0]), getConstraintSize(args[1])))
       elif fnName == "rgb" and args.len() == 3:
         let color = getColorArgs(args).join(",")
         try:
