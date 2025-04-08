@@ -87,13 +87,13 @@ suite "css parser":
       CssSelector(cssType: "Button", combinator: skNone),
       CssSelector(id: "child", combinator: skDescendent)
     ]
-    # check res[10].selectors == @[
-    #   CssSelector(cssType: "Slider", combinator: skNone),
-    #   CssSelector(id: "bar", combinator: skDescendent),
-    #   CssSelector(id: "filling", combinator: skDescendent),
-    #   CssSelector(id: "button-bg", combinator: skDescendent),
-    #   CssSelector(id: "button", combinator: skDescendent)
-    # ]
+    check res[10].selectors == @[
+      CssSelector(cssType: "Slider", combinator: skNone),
+      CssSelector(id: "bar", combinator: skDirectChild),
+      CssSelector(id: "filling", combinator: skDirectChild),
+      CssSelector(id: "button-bg", combinator: skDirectChild),
+      CssSelector(id: "button", combinator: skDirectChild)
+    ]
     echo "results: ", res[6].selectors.repr
 
   test "properties":
