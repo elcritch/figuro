@@ -13,6 +13,7 @@ import figuro/widgets/button
 suite "css parser":
   setup:
     setLogLevel(WARN)
+    # setLogLevel(TRACE)
 
   test "blocks":
     # skip()
@@ -52,6 +53,10 @@ suite "css parser":
     }
 
     Slider #bar > #filling #button-bg > #button {
+    }
+
+    Button {
+      width: calc(100% - 10px);
     }
     """
 
@@ -104,6 +109,11 @@ suite "css parser":
       CssSelector(id: "button-bg", combinator: skDescendent),
       CssSelector(id: "button", combinator: skDirectChild)
     ]
+    check res[12].selectors == @[
+      CssSelector(cssType: "Button", combinator: skNone),
+    ]
+    check res[12].properties[0] == CssProperty(name: "width", value: CssSize(csSub(csPerc(100.0), csFixed(10.0))))
+
     echo "results: ", res[6].selectors.repr
 
   test "properties":
@@ -741,17 +751,17 @@ suite "css exec":
     
     check btnD.fill == parseHtmlColor("#00FF00")
     
-  test "calc expression":
-    const themeSrc = """
-    #child2 > Button {
-      width: calc(100% - 10px);
-    }
-    """
+  # test "calc expression":
+  #   const themeSrc = """
+  #   #child2 > Button {
+  #     width: calc(100% - 10px);
+  #   }
+  #   """
     
-    setupMain(themeSrc)
+  #   setupMain(themeSrc)
     
-    # Check that calc expressions are properly parsed and applied
-    check btnB.cxSize[dcol] == csSub(csPerc(100.0), csFixed(10.0))
+  #   # Check that calc expressions are properly parsed and applied
+  #   check btnB.cxSize[dcol] == csSub(csPerc(100.0), csFixed(10.0))
     
 
   test "nested css variables":

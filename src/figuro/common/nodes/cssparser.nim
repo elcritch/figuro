@@ -188,34 +188,55 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         result = CssColor(parseHtmlColor("black"))
       discard parser.nextToken()
     of tkFunction:
-      var value = tk.fnName
+      let fnName = tk.fnName
+      var args: seq[Token]
       while true:
         tk = parser.nextToken()
         case tk.kind
-        of tkDimension:
-          value &= $tk.dValue
-        of tkIdent:
-          value &= tk.ident
-        of tkWhiteSpace:
-          value &= tk.wsStr
-        of tkParenBlock:
-          value &= "("
-        of tkComma:
-          value &= ","
+        of tkFunction:
+          discard
+        # of tkDimension:
+        #   value &= $tk.dValue
+        # of tkIdent:
+        #   value &= tk.ident
+        of tkWhiteSpace, tkParenBlock, tkComma:
+          discard
         of tkCloseParen:
-          value &= ")"
           break
         else:
-          trace "CSS: property function:other: ", tk = tk.repr
+          trace "CSS: property function:other: ", tkRepr = tk.repr, tk = tk
+          args.add(tk)
           discard
-      trace "CSS: property function:peek: ", peek = parser.peek().repr, value = value
-      if value.startsWith("var(") and value.endsWith(")"):
-        result = CssVarName(values.registerVariable(toAtom(value.substr(6, value.len() - 2))))
-      else:
+
+      proc getColorArgs(args: seq[Token]): seq[string] =
+        for arg in args:
+          case arg.kind
+          of tkIdent:
+            result.add(arg.ident)
+          of tkDimension:
+            result.add($arg.dValue)
+          else:
+            discard
+          
+      trace "CSS: property function:peek: ", peek = parser.peek().repr, fnName = fnName, args = $args, argsRepr = args.repr
+      if args.len() == 1 and fnName == "var":
+        let arg = toAtom(args[0].ident.substr(2,) )
+        warn "CSS: property function:var: ", arg = arg
+        result = CssVarName(values.registerVariable(arg))
+      elif fnName == "rgb" and args.len() == 3:
+        let color = getColorArgs(args).join(",")
+        trace "CSS: property function:rgb: ", color = color
         try:
-          result = CssColor(parseHtmlColor(value))
+          result = CssColor(parseHtmlColor("rgb(" & color & ")"))
         except InvalidColor:
           result = MissingCssValue()
+      elif fnName == "rgba" and args.len() == 4:
+        let color = getColorArgs(args).join(",")
+        try:
+          result = CssColor(parseHtmlColor("rgba(" & color & ")"))
+        except InvalidColor:
+          result = MissingCssValue()
+
     of tkDimension:
       let value = csFixed(tk.dValue.UiScalar)
       result = CssSize(value)
