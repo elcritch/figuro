@@ -42,6 +42,9 @@ suite "css parser":
     #name {
     }
 
+    Button > #child {
+    }
+
     """
 
     let parser = newCssParser(src)
@@ -70,6 +73,10 @@ suite "css parser":
     ]
     check res[7].selectors == @[
       CssSelector(id: "name", combinator: skNone),
+    ]
+    check res[8].selectors == @[
+      CssSelector(cssType: "Button", combinator: skNone),
+      CssSelector(id: "child", combinator: skDirectChild)
     ]
     echo "results: ", res[6].selectors.repr
 

@@ -238,7 +238,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
 
 proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
   warn "### eval:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
-  notice "rule: ", selectors = rule.selectors.repr
+  notice "rule: ", selectors = rule.selectors, selRepr = rule.selectors.repr
 
   var
     sel: CssSelector
@@ -248,7 +248,7 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    info "SEL: ", sel = sel.repr, comb = $prevCombinator
+    info "SEL: ", sel = sel, comb = $prevCombinator
 
     if sel.combinator == skPseudo:
       if prevCombinator == skNone and sel.cssType == "root":
@@ -267,14 +267,14 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
       info "skNone/SelList:: ", prevCombinator = $prevCombinator
       matched = matched and sel.checkMatch(node)
       if not matched:
-        info "not matched"
+        info "not matched", name = node.name, wn = node.widgetName, sel = sel
         break
     of skPseudo:
       info "skPseudo: ", prevCombinator = $prevCombinator
       matched = matched and sel.checkMatch(node)
       matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(node)
       if not matched:
-        info "not matched"
+        info "not matched", name = node.name, wn = node.widgetName, sel = sel
         break
     of skDirectChild:
       if node.parent.isNil:
@@ -287,7 +287,7 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
         info "sel:p: ", parentUid = p.uid, name = p.name, wn = p.widgetName
         parentMatched = sel.checkMatch(p)
         if parentMatched:
-          # echo "sel:p:matched "
+          info "sel:p:matched ", name = p.name, wn = p.widgetName, sel = sel
           break
       matched = matched and parentMatched
 

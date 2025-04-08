@@ -151,7 +151,7 @@ proc `$`*(val: CssValue): string =
     CssShadow(style, x, y, blur, spread, color):
       fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
 
-proc `$`*(vals: seq[CssValue]): string =
+proc `$`*(vals: openArray[CssValue]): string =
   for val in vals:
     result &= " "
     result.add $val
@@ -178,6 +178,16 @@ proc `$`*(selector: CssSelector): string =
       result.add ", "
     else:
       discard
+
+proc `$`*(selectors: openArray[CssSelector]): string =
+  for selector in selectors:
+    result.add $selector
+    result.add " "
+
+proc `$`*(selectors: seq[CssSelector]): string =
+  for selector in selectors:
+    result.add $selector
+    result.add " "
 
 proc `$`*(property: CssProperty): string =
   ## Convert a property to its string representation
