@@ -50,6 +50,9 @@ suite "css parser":
 
     Slider > #bar > #filling > #button-bg > #button {
     }
+
+    Slider #bar > #filling #button-bg > #button {
+    }
     """
 
     let parser = newCssParser(src)
@@ -92,6 +95,13 @@ suite "css parser":
       CssSelector(id: "bar", combinator: skDirectChild),
       CssSelector(id: "filling", combinator: skDirectChild),
       CssSelector(id: "button-bg", combinator: skDirectChild),
+      CssSelector(id: "button", combinator: skDirectChild)
+    ]
+    check res[11].selectors == @[
+      CssSelector(cssType: "Slider", combinator: skNone),
+      CssSelector(id: "bar", combinator: skDescendent),
+      CssSelector(id: "filling", combinator: skDirectChild),
+      CssSelector(id: "button-bg", combinator: skDescendent),
       CssSelector(id: "button", combinator: skDirectChild)
     ]
     echo "results: ", res[6].selectors.repr
