@@ -7,13 +7,13 @@ import pkg/sigils
 import pkg/cssgrid
 
 import basics
-import basiccss
+import cssparser
 import ../inputs
 import ../rchannels
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
-export basics, inputs, basiccss
+export basics, inputs
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}

@@ -37,10 +37,9 @@ proc setDefault*(vars: CssValues, idx: CssVarId, value: CssValue) =
   if idx notin vars.values:
     vars.setVariable(idx, value)
 
-proc registerVariable*(vars: CssValues, name: static string): CssVarId =
+proc registerVariable*(vars: CssValues, name: Atom): CssVarId =
   ## Registers a new CSS variable with the given name
   ## Returns the variable index
-  let name = atom(name)
   var v = vars
   while v != nil:
     if name in v.names:
@@ -48,7 +47,16 @@ proc registerVariable*(vars: CssValues, name: static string): CssVarId =
     v = v.parent
   result = variables.registerVariable(vars, name)
 
+proc registerVariable*(vars: CssValues, name: static string): CssVarId =
+  result = vars.registerVariable(atom(name))
+
 proc registerVariable*(vars: CssValues, name: static string, default: CssValue): CssVarId =
+  let name = atom(name)
+  result = vars.registerVariable(name)
+  vars.setDefault(result, default)
+
+proc registerVariable*(vars: CssValues, name: static string, default: ConstraintSize): CssVarId =
+  let name = atom(name)
   result = vars.registerVariable(name)
   vars.setDefault(result, default)
 

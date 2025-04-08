@@ -8,6 +8,8 @@ import basics
 import cssbasics
 import cssvalues
 
+export cssbasics, cssvalues
+
 type
   CssTheme* = ref object
     values*: CssValues
@@ -354,3 +356,7 @@ proc parse*(parser: CssParser, values: CssValues): seq[CssBlock] =
     except ValueError as e:
       error "CSS: error parsing css body", error = e.msg
       continue
+
+proc loadTheme*(parser: CssParser): CssTheme =
+  let values = newCssValues()
+  result = CssTheme(rules: parser.parse(values), values: values)
