@@ -10,7 +10,7 @@ type
     min*, max*: T
     dragStart*: T
     selected*: bool
-    buttonSize*, fillingSize*, halfSize*, sliderSides*: CssVarId
+    buttonSize*, fillingSize*, halfSize*: CssVarId
 
 proc buttonDrag*[T](
     self: Slider[T],
@@ -56,7 +56,6 @@ proc initialize*[T](self: Slider[T]) {.slot.} =
   self.halfSize = cssValues.registerVariable("figHalfSize", CssSize(20'ux))
   self.buttonSize = cssValues.registerVariable("fig-slider-button-size", CssSize(20'ux))
   self.fillingSize = cssValues.registerVariable("fig-slider-filling-size", CssSize(5'ux))
-  self.sliderSides = cssValues.registerVariable("fig-slider-sides", CssSize(10'ux))
   cssValues.setFunction(self.halfSize) do (cs: ConstraintSize) -> ConstraintSize:
     case cs.kind:
     of UiFixed:
