@@ -221,11 +221,9 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
       trace "CSS: property function:peek: ", peek = parser.peek().repr, fnName = fnName, args = $args, argsRepr = args.repr
       if args.len() == 1 and fnName == "var":
         let arg = toAtom(args[0].ident.substr(2,) )
-        warn "CSS: property function:var: ", arg = arg
         result = CssVarName(values.registerVariable(arg))
       elif fnName == "rgb" and args.len() == 3:
         let color = getColorArgs(args).join(",")
-        trace "CSS: property function:rgb: ", color = color
         try:
           result = CssColor(parseHtmlColor("rgb(" & color & ")"))
         except InvalidColor:
