@@ -21,7 +21,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
   ## so it'll return false unless every check passes
   result = false
 
-  # echo "selector:check: ", sel.repr, " node: ", node.uid, " name: ", node.name
+  trace "selector:check: ", sel = sel, selRepr = sel.repr, node = node.uid, name = node.name
   if has(sel.id):
     if sel.id == node.name:
       # echo "matched class! node: ", $node
@@ -55,7 +55,7 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   ## so it'll return false unless every check passes
   result = false
 
-  # echo "selector:pseudo:check: ", pseudo.repr, " node: ", node.uid, " name: ", node.name
+  trace "selector:pseudo:check: ", pseudo = pseudo, pseudoRepr = pseudo.repr, node = node.uid, name = node.name
   case pseudo.cssType
   of "hover":
     if evHover in node.events:
@@ -77,7 +77,7 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
       result = true
   else:
     once:
-      echo "Warning: ", "unhandled CSS psuedo class: ", pseudo.cssType
+      warn "unhandled CSS psuedo class: ", cssPseudo = pseudo.cssType
     result = false
  
   if result:
@@ -90,7 +90,7 @@ proc colorValue(value: CssValue, values: CssValues): Color =
     CssColor(c):
       result = c
     CssVarName(n):
-      info "cssengine:colorValue: ", names= values.names, values= values.values
+      trace "cssengine:colorValue: ", names= values.names, values= values.values
       var res: CssValue
       if values.resolveVariable(n, res):
         result = colorValue(res, values)
@@ -145,7 +145,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
 
   if prop.name.startsWith("--"):
     let varName = prop.name.substr(2)
-    notice "cssengine:apply:setVariable:", varName = varName
+    trace "cssengine:apply:setVariable:", varName = varName
     let idx = values.registerVariable(varName)
     values.setVariable(idx, prop.value)
     return
@@ -238,7 +238,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
 
 proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
   warn "### eval:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
-  notice "rule: ", selectors = rule.selectors, selRepr = rule.selectors.repr
+  trace "rule: ", selectors = rule.selectors, selRepr = rule.selectors.repr
 
   var
     sel: CssSelector
@@ -248,7 +248,7 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    info "SEL: ", sel = sel, comb = $prevCombinator
+    trace "SEL: ", sel = sel, comb = $prevCombinator
 
     if sel.combinator == skPseudo:
       if prevCombinator == skNone and sel.cssType == "root":
@@ -264,17 +264,17 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
     case prevCombinator
     of skNone, skSelectorList:
-      info "skNone/SelList:: ", prevCombinator = $prevCombinator
+      trace "skNone/SelList:: ", prevCombinator = $prevCombinator
       matched = matched and sel.checkMatch(node)
       if not matched:
-        info "not matched", name = node.name, wn = node.widgetName, sel = sel
+        trace "not matched", name = node.name, wn = node.widgetName, sel = sel
         break
     of skPseudo:
-      info "skPseudo: ", prevCombinator = $prevCombinator
+      # info "skPseudo: ", prevCombinator = $prevCombinator
       matched = matched and sel.checkMatch(node)
       matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(node)
       if not matched:
-        info "not matched", name = node.name, wn = node.widgetName, sel = sel
+        # info "not matched", name = node.name, wn = node.widgetName, sel = sel
         break
     of skDirectChild:
       if node.parent.isNil:
@@ -284,22 +284,19 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     of skDescendent:
       var parentMatched = false
       for p in node.parents():
-        info "sel:p: ", parentUid = p.uid, name = p.name, wn = p.widgetName
+        trace "sel:p: ", parentUid = p.uid, name = p.name, wn = p.widgetName
         parentMatched = sel.checkMatch(p)
         if parentMatched:
-          info "sel:p:matched ", name = p.name, wn = p.widgetName, sel = sel
+          trace "sel:p:matched ", name = p.name, wn = p.widgetName, sel = sel
           break
       matched = matched and parentMatched
 
-    info "selMatch: ", matched = matched, idx = i
+    trace "selMatch: ", matched = matched, idx = i
     prevCombinator = sel.combinator
 
   if matched:
     trace "cssengine", name= node.name, matchedNode= node.uid, rule= rule
-    info "selectors: ", selectors = rule.selectors
-    info "setting properties:"
     for prop in rule.properties:
-      # print rule.properties
       prop.apply(node, values)
 
 proc applyThemeRules*(node: Figuro) =
