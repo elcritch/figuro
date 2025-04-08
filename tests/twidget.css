@@ -2,8 +2,15 @@
 Slider {
   --figuro-slider-button-size: 40px;
   --figuro-slider-filling-size: 40px;
+  border-radius: 10px;
+}
+
+Slider Rectangle {
+  border-radius: 10px;
 }
 
 Slider > #bar > #button-bg > #button {
-  width: 100px;
+  width: 20px;
+  left: 20px;
+  border-radius: 10px;
 }
