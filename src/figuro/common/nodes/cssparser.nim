@@ -195,10 +195,6 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         case tk.kind
         of tkFunction:
           discard
-        # of tkDimension:
-        #   value &= $tk.dValue
-        # of tkIdent:
-        #   value &= tk.ident
         of tkWhiteSpace, tkParenBlock, tkComma:
           discard
         of tkCloseParen:
@@ -217,11 +213,35 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
             result.add($arg.dValue)
           else:
             discard
-          
+
+      proc getConstraintSize(tk: Token): ConstraintSize =
+        case tk.kind
+        of tkDimension:
+          result = csFixed(tk.dValue.UiScalar).value
+        of tkPercentage:
+          result = csPerc(100.0 * tk.pUnitValue).value
+        else:
+          discard
+
       trace "CSS: property function:peek: ", peek = parser.peek().repr, fnName = fnName, args = $args, argsRepr = args.repr
       if args.len() == 1 and fnName == "var":
         let arg = toAtom(args[0].ident.substr(2,) )
         result = CssVarName(values.registerVariable(arg))
+      elif fnName == "calc" and args.len() == 3:
+        warn "CSS: property function:calc: ", args = repr(args)
+        if args[1].kind == tkIdent:
+          let op = args[1].ident
+          warn "CSS: property function:calc: ", op = op
+          var cx: Constraint
+          case op
+          of "+":
+            cx = csAdd(getConstraintSize(args[0]), getConstraintSize(args[2]))
+          of "-":
+            cx = csSub(getConstraintSize(args[0]), getConstraintSize(args[2]))
+          else:
+            error "CSS bad function operator: ", op = op
+            cx = csAuto()
+          result = CssSize(cx)
       elif fnName == "rgb" and args.len() == 3:
         let color = getColorArgs(args).join(",")
         try:
