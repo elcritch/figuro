@@ -315,7 +315,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       discard parser.nextToken()
     of tkIDHash:
       result.add(CssSelector(id: tk.idHash))
-      if result.len() >= 2:
+      if result.len() > 1:
         result[^1].combinator = skDescendent
       if isDirect:
         result[^1].combinator = skDirectChild
