@@ -132,6 +132,30 @@ type
     name*: string
     value*: CssValue
 
+proc `$`*(val: CssValue): string =
+  match val:
+    MissingCssValue:
+      "<empty>"
+    CssColor(c):
+      toHtmlHex(c)
+    CssSize(cx):
+      match cx:
+        UiValue(value):
+          $value
+        _:
+          $cx
+    CssAttribute(n):
+      n
+    CssVarName(n):
+      "var(" & $n & ")"
+    CssShadow(style, x, y, blur, spread, color):
+      fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
+
+proc `$`*(vals: seq[CssValue]): string =
+  for val in vals:
+    result &= " "
+    result.add $val
+
 proc `$`*(selector: CssSelector): string =
   ## Convert a selector to its string representation
   result = ""
@@ -190,30 +214,6 @@ proc `$`*(theme: CssTheme): string =
     if i > 0:
       result.add "\n\n"
     result.add $rule
-
-proc `$`*(val: CssValue): string =
-  match val:
-    MissingCssValue:
-      "<empty>"
-    CssColor(c):
-      toHtmlHex(c)
-    CssSize(cx):
-      match cx:
-        UiValue(value):
-          $value
-        _:
-          $cx
-    CssAttribute(n):
-      n
-    CssVarName(n):
-      "var(" & $n & ")"
-    CssShadow(style, x, y, blur, spread, color):
-      fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
-
-proc `$`*(vals: seq[CssValue]): string =
-  for val in vals:
-    result &= " "
-    result.add $val
 
 iterator rules*(theme: CssTheme): CssBlock =
   if theme != nil:

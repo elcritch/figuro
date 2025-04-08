@@ -379,7 +379,7 @@ suite "css exec":
     let property2 = CssProperty(name: "width", value: CssSize(csFixed(20.0)))
     
     check $property1 == "background: #FF0000;"
-    check $property2 == "width: 20.0;"
+    check $property2 == "width: 20.0'ux;"
     
     # Test CSS block
     let blk = CssBlock(
@@ -390,7 +390,7 @@ suite "css exec":
     let blkStr = $blk
     check blkStr.contains("Button.primary:hover {")
     check blkStr.contains("  background: #FF0000;")
-    check blkStr.contains("  width: 20.0;")
+    check blkStr.contains("  width: 20.0'ux;")
     
     # Test full theme
     let theme = CssTheme(
@@ -401,7 +401,7 @@ suite "css exec":
     let themeStr = $theme
     check themeStr.contains("Button.primary:hover {")
     check themeStr.contains("  background: #FF0000;")
-    check themeStr.contains("  width: 20.0;")
+    check themeStr.contains("  width: 20.0'ux;")
 
   test "box shadow":
     const themeSrc = """
