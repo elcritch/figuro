@@ -132,6 +132,65 @@ type
     name*: string
     value*: CssValue
 
+proc `$`*(selector: CssSelector): string =
+  ## Convert a selector to its string representation
+  result = ""
+  if selector.id.len > 0:
+    result.add "#" & selector.id
+  if selector.cssType.len > 0:
+    if selector.combinator == skPseudo:
+      result.add ":" & selector.cssType
+    else:
+      result.add selector.cssType
+  if selector.class.len > 0:
+    result.add "." & selector.class
+  
+  case selector.combinator:
+    of skDirectChild:
+      result.add " > "
+    of skDescendent:
+      result.add " "
+    of skSelectorList:
+      result.add ", "
+    else:
+      discard
+
+proc `$`*(property: CssProperty): string =
+  ## Convert a property to its string representation
+  if property.name.len > 0:
+    result = property.name & ": " & $property.value & ";"
+
+proc `$`*(cssBlock: CssBlock): string =
+  ## Convert a CSS block to its string representation
+  if cssBlock.selectors.len == 0:
+    return ""
+  
+  # Format selectors
+  for i, selector in cssBlock.selectors:
+    if i > 0 and selector.combinator notin {skDirectChild, skPseudo, skDescendent}:
+      result.add ", "
+    result.add $selector
+  
+  result.add " {\n"
+  
+  # Format properties
+  for property in cssBlock.properties:
+    let propStr = $property
+    if propStr.len > 0:
+      result.add "  " & propStr & "\n"
+  
+  result.add "}"
+
+proc `$`*(theme: CssTheme): string =
+  ## Convert a CSS theme to its string representation
+  if theme == nil or theme.rules.len == 0:
+    return ""
+  
+  for i, rule in theme.rules:
+    if i > 0:
+      result.add "\n\n"
+    result.add $rule
+
 proc `$`*(val: CssValue): string =
   match val:
     MissingCssValue:
@@ -147,14 +206,14 @@ proc `$`*(val: CssValue): string =
     CssAttribute(n):
       n
     CssVarName(n):
-      fmt"var({n})"
+      "var(" & $n & ")"
     CssShadow(style, x, y, blur, spread, color):
       fmt"{x} {y} {blur} {spread} {color.toHtmlHex()} {style})"
 
 proc `$`*(vals: seq[CssValue]): string =
   for val in vals:
     result &= " "
-    result &= $val
+    result.add $val
 
 iterator rules*(theme: CssTheme): CssBlock =
   if theme != nil:

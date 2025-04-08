@@ -282,7 +282,7 @@ suite "css exec":
     check btnD.fill == initialColor
     check btnC.fill == initialColor
 
-  test "css grandchild descdendant of direct child":
+  test "match kind with child id":
     const themeSrc = """
 
     Button > #child21 {
@@ -355,6 +355,53 @@ suite "css exec":
     check btnA.fill == initialColor
     check btnC.fill == initialColor
     check btnD.fill == initialColor
+
+  test "string conversion":
+    # Test the string conversion functions for CSS types
+    let selector1 = CssSelector(cssType: "Button", class: "primary")
+    let selector2 = CssSelector(id: "myId")
+    let selector3 = CssSelector(cssType: "hover", combinator: skPseudo)
+    
+    check $selector1 == "Button.primary"
+    check $selector2 == "#myId"
+    check $selector3 == ":hover"
+    
+    # Test with linked selectors
+    let selectorA = CssSelector(cssType: "Button")
+    let selectorB = CssSelector(cssType: "hover", combinator: skPseudo)
+    let linked = CssBlock(
+      selectors: @[selectorA, selectorB],
+      properties: @[]
+    )
+    check $linked == "Button:hover {\n}"
+    
+    let property1 = CssProperty(name: "background", value: CssColor(parseHtmlColor("#FF0000")))
+    let property2 = CssProperty(name: "width", value: CssSize(csFixed(20.0)))
+    
+    check $property1 == "background: #FF0000;"
+    check $property2 == "width: 20.0;"
+    
+    # Test CSS block
+    let blk = CssBlock(
+      selectors: @[selector1, selector3],
+      properties: @[property1, property2]
+    )
+    
+    let blkStr = $blk
+    check blkStr.contains("Button.primary:hover {")
+    check blkStr.contains("  background: #FF0000;")
+    check blkStr.contains("  width: 20.0;")
+    
+    # Test full theme
+    let theme = CssTheme(
+      rules: @[blk],
+      values: newCssValues()
+    )
+    
+    let themeStr = $theme
+    check themeStr.contains("Button.primary:hover {")
+    check themeStr.contains("  background: #FF0000;")
+    check themeStr.contains("  width: 20.0;")
 
   test "box shadow":
     const themeSrc = """

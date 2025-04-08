@@ -237,9 +237,8 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
     discard
 
 proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
-  # print rule.selectors
-  # stdout.styledWriteLine fgGreen, "\n### eval:node:: ", node.name, " wn: ", node.widgetName, " sel:len: ", $rule.selectors.len
-  # stdout.styledWriteLine fgRed, rule.selectors.repr
+  warn "### eval:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
+  notice "rule: ", selectors = rule.selectors.repr
 
   var
     sel: CssSelector
@@ -249,7 +248,7 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
-    # stdout.styledWriteLine fgBlue, "SEL: ", sel.repr, fgYellow, " comb: ", $prevCombinator
+    info "SEL: ", sel = sel.repr, comb = $prevCombinator
 
     if sel.combinator == skPseudo:
       if prevCombinator == skNone and sel.cssType == "root":
@@ -265,17 +264,17 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
     case prevCombinator
     of skNone, skSelectorList:
-      # stdout.styledWriteLine fgCyan, "skNone/SelList:: ", $prevCombinator
+      info "skNone/SelList:: ", prevCombinator = $prevCombinator
       matched = matched and sel.checkMatch(node)
       if not matched:
-        # echo "not matched"
+        info "not matched"
         break
     of skPseudo:
-      # stdout.styledWriteLine fgCyan, "skPseudo: ", $prevCombinator
+      info "skPseudo: ", prevCombinator = $prevCombinator
       matched = matched and sel.checkMatch(node)
       matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(node)
       if not matched:
-        # echo "not matched"
+        info "not matched"
         break
     of skDirectChild:
       if node.parent.isNil:
@@ -285,20 +284,20 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     of skDescendent:
       var parentMatched = false
       for p in node.parents():
-        # echo "sel:p: ", p.uid
+        info "sel:p: ", parentUid = p.uid, name = p.name, wn = p.widgetName
         parentMatched = sel.checkMatch(p)
         if parentMatched:
           # echo "sel:p:matched "
           break
       matched = matched and parentMatched
 
-    # echo "selMatch: ", matched, " idx: ", i, "\n"
+    info "selMatch: ", matched = matched, idx = i
     prevCombinator = sel.combinator
 
   if matched:
     trace "cssengine", name= node.name, matchedNode= node.uid, rule= rule
-    # print rule.selectors
-    # echo "setting properties:"
+    info "selectors: ", selectors = rule.selectors
+    info "setting properties:"
     for prop in rule.properties:
       # print rule.properties
       prop.apply(node, values)
