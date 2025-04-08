@@ -237,7 +237,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
     discard
 
 proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
-  warn "### eval:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
+  trace "### eval:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
   trace "rule: ", selectors = rule.selectors, selRepr = rule.selectors.repr
 
   var
