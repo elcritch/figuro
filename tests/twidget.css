@@ -4,6 +4,6 @@ Slider {
   --figuro-slider-filling-size: 40px;
 }
 
-#button {
-  width: 20px;
+Slider #button {
+  width: 50px;
 }
