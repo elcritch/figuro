@@ -2,6 +2,7 @@
 ## This minimal example shows 5 blue squares.
 import figuro/widgets/[button, vertical, slider]
 import figuro
+import cssgrid/prettyprints
 
 type
   Main* = ref object of Figuro
@@ -20,14 +21,14 @@ proc draw*(self: Main) {.slot.} =
     
     Vertical.new "widgets-vert":
       size this, 100'pp-20'ux, 100'pp-20'ux
-      contentHeight this, cx"min-content", gap = 20'ui
+      contentHeight this, cx"auto", gap = 20'ui
       # border this, 3'ui, css"green"
       cornerRadius 10.0'ui
 
       Rectangle.new "filler":
         size 10'ux, 40'ux
 
-      Slider[float].new "slider":
+      Slider[float].new "slider1":
         size 80'pp, 60'ux
         fill css"white".darken(0.3)
         this.min = 0.0
@@ -40,7 +41,15 @@ proc draw*(self: Main) {.slot.} =
         fill css"white".darken(0.3)
         this.min = 0.0
         this.max = 1.0
-        # this.state = 0.5
+
+      Slider[float].new "slider3":
+        size 80'pp, 60'ux
+        fill css"white".darken(0.3)
+        this.min = 0.0
+        this.max = 1.0
+
+      Rectangle.new "filler":
+        size 10'ux, 40'ux
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 640'ui))

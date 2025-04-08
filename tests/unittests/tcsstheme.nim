@@ -741,6 +741,18 @@ suite "css exec":
     
     check btnD.fill == parseHtmlColor("#00FF00")
     
+  test "calc expression":
+    const themeSrc = """
+    #child2 > Button {
+      width: calc(100% - 10px);
+    }
+    """
+    
+    setupMain(themeSrc)
+    
+    # Check that calc expressions are properly parsed and applied
+    check btnB.cxSize[dcol] == csSub(csPerc(100.0), csFixed(10.0))
+    
 
   test "nested css variables":
     const themeSrc = """

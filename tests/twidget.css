@@ -1,7 +1,10 @@
 
-Slider {
+:root {
   --fig-slider-button-size: 40px;
   --fig-slider-filling-size: 40px;
+}
+
+Slider {
   border-radius: 10px;
 }
 
@@ -11,6 +14,8 @@ Slider Rectangle {
 
 Slider > #bg {
   left: 10px;
+  padding-right: 10px;
+  width: calc(100% - 20px);
 }
 
 Slider > #bg > #bar > #button-bg > #button {
