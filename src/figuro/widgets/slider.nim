@@ -71,7 +71,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
   ## slider widget
   withWidget(self):
     Rectangle.new "bg": # this is mainly to avoid issues with sub-grids :/
-      size cx"auto", 100'pp
+      size 100'pp, 100'pp
 
       printLayout(self, cmTerminal, self.frame[].theme.css.values)
       debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
@@ -101,6 +101,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
             offset 10'ux, 0'ux
             uinodes.connect(this, doDrag, self, buttonDrag)
 
-      WidgetContents()
+    WidgetContents()
 
 
