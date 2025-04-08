@@ -21,7 +21,7 @@ proc draw*(self: Main) {.slot.} =
     
     Vertical.new "widgets-vert":
       size this, 100'pp-20'ux, 100'pp-20'ux
-      contentHeight this, cx"auto", gap = 20'ui
+      contentHeight this, cx"min-content", gap = 20'ui
       # border this, 3'ui, css"green"
       cornerRadius 10.0'ui
 
@@ -37,12 +37,6 @@ proc draw*(self: Main) {.slot.} =
           this.state = 0.5
 
       Slider[float].new "slider2":
-        size 80'pp, 60'ux
-        fill css"white".darken(0.3)
-        this.min = 0.0
-        this.max = 1.0
-
-      Slider[float].new "slider3":
         size 80'pp, 60'ux
         fill css"white".darken(0.3)
         this.min = 0.0
