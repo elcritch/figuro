@@ -176,6 +176,10 @@ proc draw*(self: TMain) {.slot.} =
           with this:
             box 40'ux, 30'ux, 80'ux, 80'ux
             fill css"#FFFFFF"
+          rectangle "child21":
+            with this:
+              box 40'ux, 30'ux, 80'ux, 80'ux
+              fill css"#FFFFFF"
 
       rectangle "child3":
         rectangle "child30":
@@ -206,6 +210,7 @@ suite "css exec":
     let btnC {.inject, used.} = main.children[0].children[0].children[0]
     let child30 {.inject, used.} = main.children[0].children[3].children[0]
     let btnD {.inject, used.} = main.children[0].children[3].children[0].children[0]
+    let child21 {.inject, used.} = btnB.children[0]
 
   test "node names":
     setupMain("")
@@ -271,6 +276,24 @@ suite "css exec":
 
     # echo "btnB: ", $btnB
     check btnB.fill == parseHtmlColor("#00FFFF")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnD.fill == initialColor
+    check btnC.fill == initialColor
+
+  test "css grandchild descdendant of direct child":
+    const themeSrc = """
+
+    Button > #child21 {
+      background: #F0F0F0;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnB.fill == initialColor
+    check child21.fill == parseHtmlColor("#F0F0F0")
 
     # should be untouched
     check btnA.fill == initialColor
