@@ -333,6 +333,24 @@ suite "css exec":
     check btnD.fill == initialColor
     check btnC.fill == initialColor
 
+  test "match kind with child id":
+    const themeSrc = """
+
+    Button #child21 {
+      background: #F0F0F0;
+    }
+    """
+    setupMain(themeSrc)
+
+    # echo "btnB: ", $btnB
+    check btnB.fill == initialColor
+    check child21.fill == parseHtmlColor("#F0F0F0")
+
+    # should be untouched
+    check btnA.fill == initialColor
+    check btnD.fill == initialColor
+    check btnC.fill == initialColor
+
   test "test hover":
     const themeSrc = """
     #child2 Button:hover {
