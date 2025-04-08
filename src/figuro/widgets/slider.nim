@@ -9,6 +9,7 @@ type
   Slider*[T] = ref object of StatefulFiguro[T]
     min*, max*: T
     dragStart*: T
+    selected*: bool
     buttonSize*, fillingSize*, halfSize*, sliderSides*: CssVarId
 
 proc buttonDrag*[T](
@@ -19,12 +20,16 @@ proc buttonDrag*[T](
     overlaps: bool,
     selected: Figuro
 ) {.slot.} =
-  debug "slider:buttonDrag: ", name = self.name, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, selected = selected != self
+  debug "slider:buttonDrag: ", name = self.name, uid = self.getId, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, isSelected = self.selected
+
   case kind:
   of Exit:
+    if not self.selected:
+      return
     self.dragStart = self.min
+    self.selected = false
     if initial == cursor:
-      let bar = self.queryChild("bar").get()
+      let bar = self.queryDescendant("bar").get()
       let rel = initial.positionRelative(bar)
       let offset = float(rel[dcol] / bar.box.w)
       self.state = clamp(self.dragStart + offset, self.min, self.max)
@@ -32,8 +37,11 @@ proc buttonDrag*[T](
       refresh(self)
   of Init:
     self.dragStart = self.state
+    self.selected = not selected.isNil and selected.queryParent(Slider[T]).get() == self
     discard
   of Done:
+    if not self.selected:
+      return
     let delta = initial.positionDiff(cursor)
     let bar = self.queryDescendant("bar").get()
     let offset = float(delta[dcol] / bar.box.w)
@@ -65,7 +73,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
     Rectangle.new "bg": # this is mainly to avoid issues with sub-grids :/
       size csAuto(), csAuto()
 
-      printLayout(self, cmTerminal, self.frame[].theme.css.values)
+      # printLayout(self, cmTerminal, self.frame[].theme.css.values)
       debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
 
       gridCols 0'ux ["left"] 1'fr ["right"] 0'ux

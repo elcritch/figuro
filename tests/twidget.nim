@@ -35,12 +35,12 @@ proc draw*(self: Main) {.slot.} =
         onInit:
           this.state = 0.5
 
-      # Slider[float].new "slider2":
-      #   size 80'pp, 100'pp
-      #   fill css"white".darken(0.3)
-      #   this.min = 0.0
-      #   this.max = 1.0
-      #   # this.state = 0.5
+      Slider[float].new "slider2":
+        size 80'pp, 60'ux
+        fill css"white".darken(0.3)
+        this.min = 0.0
+        this.max = 1.0
+        # this.state = 0.5
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 640'ui))

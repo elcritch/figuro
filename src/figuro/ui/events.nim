@@ -303,7 +303,7 @@ proc computeEvents*(frame: AppFrame) =
       let newDrags = drags.targets - prevDrags
       if prevDrags.len() == 0:
         dragInitial = uxInputs.mouse.pos
-      # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
+      echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
         target.events.incl evDrag
         if mouseOverlaps(target, false):
@@ -317,7 +317,7 @@ proc computeEvents*(frame: AppFrame) =
   block dragEndEvents:
     let dragens = captured[evDragEnd]
     if dragens.targets.len() > 0 and evDragEnd in dragens.flags:
-      # echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
+      echo "dragends: ", dragens.targets, " prev: ", prevDrags, " flg: ", dragens.flags
       let delClicks = prevDrags
       for target in delClicks:
           emit target.doDrag(Exit, dragInitial, uxInputs.mouse.pos, mouseOverlaps(target, false), dragSource)

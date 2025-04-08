@@ -202,9 +202,9 @@ template querySibling*[T: Figuro](name: string): Option[T] =
 proc queryParent*[T: Figuro](this: Figuro, tp: typedesc[T]): Option[T] =
   ## finds first parent with name
   if this.parent[] of tp:
-    return some T(this.parent[])
+    return some tp(this.parent[])
   elif this.parent.isNil:
-    return none(T)
+    return
   else:
     return this.parent[].queryParent(tp)
 
@@ -213,7 +213,7 @@ proc queryParent*[T: Figuro](this: Figuro, name: string, tp: typedesc = Figuro):
   if this.parent[].name == name and this.parent[] of tp:
     return some tp(this.parent[])
   elif this.parent.isNil:
-    return none(tp)
+    return
   else:
     return this.parent[].queryParent(name, tp)
 
