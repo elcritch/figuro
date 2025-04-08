@@ -186,6 +186,18 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
   of "top":
     let cx = sizeValue(prop.value, values)
     node.cxOffset[drow] = cx
+  of "min-width":
+    let cx = sizeValue(prop.value, values)
+    node.cxMin[dcol] = cx
+  of "min-height":
+    let cx = sizeValue(prop.value, values)
+    node.cxMin[drow] = cx
+  of "max-width":
+    let cx = sizeValue(prop.value, values)
+    node.cxMax[dcol] = cx
+  of "max-height":
+    let cx = sizeValue(prop.value, values)
+    node.cxMax[drow] = cx
   of "padding":
     let cx = sizeValue(prop.value, values)
     node.cxPadOffset[dcol] = cx
