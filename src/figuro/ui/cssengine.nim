@@ -244,7 +244,7 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     sel: CssSelector
     matched = true
     prevCombinator = skNone
-    # curr = node
+    currNode = node  # Keep track of which node we're currently matching against
 
   for i in 1 .. rule.selectors.len():
     sel = rule.selectors[^i]
@@ -265,31 +265,40 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     case prevCombinator
     of skNone, skSelectorList:
       trace "skNone/SelList:: ", prevCombinator = $prevCombinator
-      matched = matched and sel.checkMatch(node)
+      matched = matched and sel.checkMatch(currNode)
       if not matched:
-        trace "not matched", name = node.name, wn = node.widgetName, sel = sel
+        trace "not matched", name = currNode.name, wn = currNode.widgetName, sel = sel
         break
     of skPseudo:
       # info "skPseudo: ", prevCombinator = $prevCombinator
-      matched = matched and sel.checkMatch(node)
-      matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(node)
+      matched = matched and sel.checkMatch(currNode)
+      matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(currNode)
       if not matched:
         # info "not matched", name = node.name, wn = node.widgetName, sel = sel
         break
     of skDirectChild:
-      if node.parent.isNil:
+      if currNode.parent.isNil:
         matched = false
+        break
       else:
-        matched = matched and sel.checkMatch(node.parent[])
+        withRef currNode.parent, parent:
+          currNode = parent  # Move up to the parent
+          matched = matched and sel.checkMatch(currNode)
+          if not matched:
+            trace "not matched (parent)", name = currNode.name, wn = currNode.widgetName, sel = sel
+            break
     of skDescendent:
       var parentMatched = false
-      for p in node.parents():
+      for p in currNode.parents():
         trace "sel:p: ", parentUid = p.uid, name = p.name, wn = p.widgetName
         parentMatched = sel.checkMatch(p)
         if parentMatched:
+          currNode = p  # Set the current node to the matched parent
           trace "sel:p:matched ", name = p.name, wn = p.widgetName, sel = sel
           break
       matched = matched and parentMatched
+      if not matched:
+        break
 
     trace "selMatch: ", matched = matched, idx = i
     prevCombinator = sel.combinator
