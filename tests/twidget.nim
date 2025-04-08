@@ -18,10 +18,10 @@ proc draw*(self: Main) {.slot.} =
     border 3'ui, blackColor
     padding 10'ux
     
-    Vertical.new "horiz":
+    Vertical.new "widgets-vert":
       size this, 100'pp-20'ux, 100'pp-20'ux
       contentHeight this, cx"min-content", gap = 20'ui
-      border this, 3'ui, css"green"
+      # border this, 3'ui, css"green"
       cornerRadius 10.0'ui
 
       Rectangle.new "filler":
@@ -33,7 +33,6 @@ proc draw*(self: Main) {.slot.} =
 
         Slider[float].new "slider":
           size 80'pp, 100'pp
-          offset 10'pp, 0'ux
           fill css"white".darken(0.3)
           this.min = 0.0
           this.max = 1.0

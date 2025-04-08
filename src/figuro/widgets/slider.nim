@@ -9,7 +9,7 @@ type
   Slider*[T] = ref object of StatefulFiguro[T]
     min*, max*: T
     dragStart*: T
-    buttonSize*, fillingSize*, halfSize*: CssVarId
+    buttonSize*, fillingSize*, halfSize*, sliderSides*: CssVarId
 
 proc buttonDrag*[T](
     self: Slider[T],
@@ -46,8 +46,9 @@ proc buttonDrag*[T](
 proc initialize*[T](self: Slider[T]) {.slot.} =
   let cssValues = self.frame[].theme.css.values
   self.halfSize = cssValues.registerVariable("figHalfSize", CssSize(20'ux))
-  self.buttonSize = cssValues.registerVariable("figuro-slider-button-size", CssSize(20'ux))
-  self.fillingSize = cssValues.registerVariable("figuro-slider-filling-size", CssSize(5'ux))
+  self.buttonSize = cssValues.registerVariable("fig-slider-button-size", CssSize(20'ux))
+  self.fillingSize = cssValues.registerVariable("fig-slider-filling-size", CssSize(5'ux))
+  self.sliderSides = cssValues.registerVariable("fig-slider-sides", CssSize(10'ux))
   cssValues.setFunction(self.halfSize) do (cs: ConstraintSize) -> ConstraintSize:
     case cs.kind:
     of UiFixed:
@@ -64,7 +65,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
     printLayout(self, cmTerminal, self.frame[].theme.css.values)
     debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
 
-    gridCols 0'ux ["left"] 1'fr ["right"] 0'ux
+    gridCols csVar(self.sliderSides) ["left"] 1'fr ["right"] csVar(self.sliderSides)
     gridRows 1'fr ["top"] csVar(self.buttonSize) ["bottom"] 1'fr
 
     let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))

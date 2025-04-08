@@ -1,7 +1,7 @@
 
 Slider {
-  --figuro-slider-button-size: 40px;
-  --figuro-slider-filling-size: 40px;
+  --fig-slider-button-size: 40px;
+  --fig-slider-filling-size: 40px;
   border-radius: 10px;
 }
 
@@ -13,4 +13,11 @@ Slider > #bar > #button-bg > #button {
   width: 20px;
   left: 10px;
   -fig-cornerRadius: 10px;
+}
+
+#widgets-vert {
+  left: 10%;
+  width: 80%;
+  border-width: 1px;
+  border-color: green;
 }
