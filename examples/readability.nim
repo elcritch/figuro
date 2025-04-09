@@ -1,7 +1,173 @@
 import std/[htmlparser, algorithm, xmltree, streams, strutils, strtabs, sequtils, re, tables, uri, math, sets, httpclient]
 import readabilitytypes
 
-# Forward declarations to avoid circular dependencies
+# Additional helper methods for readability
+proc cleanConditionally(self: Readability, e: XmlNode, tag: string) =
+  if not self.flagIsActive(CleanConditionally):
+    return
+  
+  self.removeNodes(self.getAllNodesWithTag(e, [tag]),
+    proc(node: XmlNode): bool =
+      # Check if this node IS data table, in which case don't remove it
+      if tag == "table" and node.hasAttr("readability-data-table") and 
+         node.attr("readability-data-table") == "true":
+        return false
+        
+      # Get score (if it has one)
+      let score = try: parseInt(node.attr("readability-score")) except: 0
+      let linkDensity = self.getLinkDensity(node)
+      
+      # Simplified scoring - remove elements with low scores or high link density
+      if score < 0:
+        self.log("Removing element due to negative score: " & $score)
+        return true
+      
+      # Remove high link density elements
+      if linkDensity > 0.5 + self.linkDensityModifier:
+        self.log("Removing element due to high link density: " & $linkDensity)
+        return true
+        
+      # Get number of commas
+      let commas = self.getCharCount(node, ",")
+      if commas < 10:
+        # Check for special conditions when there aren't many commas
+        
+        # Count images 
+        let imgCount = self.getAllNodesWithTag(node, ["img"]).len
+        
+        # Count paragraphs
+        let pCount = self.getAllNodesWithTag(node, ["p"]).len
+        
+        # If few commas and more images than paragraphs, remove
+        if imgCount > pCount:
+          self.log("Removing element with more images than paragraphs")
+          return true
+          
+        # Check plain text length
+        let contentLength = self.getInnerText(node).len
+        if contentLength < 25 and imgCount == 0:
+          self.log("Removing short content element with no images")
+          return true
+      
+      return false
+  )
+
+proc cleanClasses(self: Readability, node: XmlNode) =
+  # Keep only classes that match classesToPreserve
+  let className = node.attr("class")
+  if className.len > 0:
+    var classNames = className.split(" ")
+    var newClassNames: seq[string] = @[]
+    
+    for cls in classNames:
+      if cls in self.classesToPreserve:
+        newClassNames.add(cls)
+    
+    # Apply the filtered class names
+    if newClassNames.len > 0:
+      # Would update the class attribute
+      self.log("Would set class to: " & newClassNames.join(" "))
+    else:
+      # Would remove the class attribute
+      self.log("Would remove class attribute")
+  
+  # Process children
+  for i in 0..<node.len:
+    if node[i].kind == xnElement:
+      self.cleanClasses(node[i])
+
+proc cleanHeaders(self: Readability, e: XmlNode) =
+  # Remove headers with low class weight
+  let headingNodes = self.getAllNodesWithTag(e, ["h1", "h2"])
+  self.removeNodes(headingNodes, 
+    proc(node: XmlNode): bool =
+      let shouldRemove = self.getClassWeight(node) < 0
+      if shouldRemove:
+        self.log("Removing header with low class weight: " & node.tag)
+      return shouldRemove
+  )
+
+proc fixLazyImages(self: Readability, articleContent: XmlNode) =
+  # Convert lazy-loaded images to standard images
+  let imageNodes = self.getAllNodesWithTag(articleContent, ["img", "picture", "figure"])
+  
+  for elem in imageNodes:
+    # Check if this is a lazy-loaded image
+    if elem.attr("data-src").len > 0:
+      # Would copy data-src to src
+      self.log("Would copy data-src to src: " & elem.attr("data-src"))
+    elif elem.attr("data-srcset").len > 0:
+      # Would copy data-srcset to srcset
+      self.log("Would copy data-srcset to srcset")
+    elif elem.attr("class").contains("lazy"):
+      # Look for other attributes that might contain the real image URL
+      for key, value in elem.attrs.pairs:
+        if key.startsWith("data-") and (value.endsWith(".jpg") or 
+                                       value.endsWith(".jpeg") or
+                                       value.endsWith(".png") or
+                                       value.endsWith(".webp")):
+          # Would set appropriate attribute
+          self.log("Would set src to: " & value)
+          break
+
+proc markDataTables(self: Readability, root: XmlNode) =
+  # Mark tables that are likely to be data tables vs layout tables
+  let tables = self.getAllNodesWithTag(root, ["table"])
+  
+  for table in tables:
+    # Check presentation role
+    if table.attr("role") == "presentation":
+      table.attrs["readability-data-table"] = "false"
+      continue
+    
+    # Check datatable attribute
+    if table.attr("datatable") == "0":
+      table.attrs["readability-data-table"] = "false"
+      continue
+    
+    # Check for summary
+    if table.attr("summary").len > 0:
+      table.attrs["readability-data-table"] = "true"
+      continue
+    
+    # Check for caption
+    let captions = self.getAllNodesWithTag(table, ["caption"])
+    if captions.len > 0 and self.getInnerText(captions[0]).len > 0:
+      table.attrs["readability-data-table"] = "true"
+      continue
+    
+    # Simplified check for data table elements
+    let dataTableElements = ["col", "colgroup", "tfoot", "thead", "th"]
+    var hasDataElements = false
+    
+    for tagName in dataTableElements:
+      if self.getAllNodesWithTag(table, [tagName]).len > 0:
+        hasDataElements = true
+        break
+    
+    if hasDataElements:
+      table.attrs["readability-data-table"] = "true"
+      continue
+    
+    # If table has nested tables, it's likely a layout table
+    if self.getAllNodesWithTag(table, ["table"]).len > 0:
+      table.attrs["readability-data-table"] = "false"
+      continue
+    
+    # Check for rows and columns
+    let rows = self.getAllNodesWithTag(table, ["tr"])
+    if rows.len > 10:
+      table.attrs["readability-data-table"] = "true"
+      continue
+    
+    let cols = if rows.len > 0: self.getAllNodesWithTag(rows[0], ["td", "th"]).len else: 0
+    if cols > 4:
+      table.attrs["readability-data-table"] = "true"
+      continue
+    
+    # Otherwise it's likely a layout table
+    table.attrs["readability-data-table"] = "false"
+
 
 # Clean style and presentational attributes from elements
 proc cleanStyles*(self: Readability, e: XmlNode) =
@@ -85,7 +251,7 @@ proc prepArticle(self: Readability) =
   # Do these last as the previous steps may have removed junk
   # self.cleanConditionally(articleContent, "table")
   # self.cleanConditionally(articleContent, "ul")
-  # self.cleanConditionally(articleContent, "div")
+  self.cleanConditionally(self.doc, "div")
 
   # Replace H1 with H2
   self.replaceNodeTags(
@@ -103,7 +269,7 @@ proc prepArticle(self: Readability) =
         "object",
         "iframe",
       ]).len
-      return contentElementCount == 0 and self.getInnerText(paragraph, false) == ""
+      return contentElementCount == 0 and self.getInnerText(paragraph, false).strip() == ""
   )
 
 proc postProcessContent(self: Readability) =
@@ -243,173 +409,6 @@ proc parse*(self: Readability): Table[string, string] =
     result[key] = value
   
   return result
-
-# Additional helper methods for readability
-proc cleanConditionally(self: Readability, e: XmlNode, tag: string) =
-  if not self.flagIsActive(CleanConditionally):
-    return
-  
-  self.removeNodes(self.getAllNodesWithTag(e, [tag]),
-    proc(node: XmlNode): bool =
-      # Check if this node IS data table, in which case don't remove it
-      if tag == "table" and node.hasAttr("readability-data-table") and 
-         node.attr("readability-data-table") == "true":
-        return false
-        
-      # Get score (if it has one)
-      let score = try: parseInt(node.attr("readability-score")) except: 0
-      let linkDensity = self.getLinkDensity(node)
-      
-      # Simplified scoring - remove elements with low scores or high link density
-      if score < 0:
-        self.log("Removing element due to negative score: " & $score)
-        return true
-      
-      # Remove high link density elements
-      if linkDensity > 0.5 + self.linkDensityModifier:
-        self.log("Removing element due to high link density: " & $linkDensity)
-        return true
-        
-      # Get number of commas
-      let commas = self.getCharCount(node)
-      if commas < 10:
-        # Check for special conditions when there aren't many commas
-        
-        # Count images 
-        let imgCount = self.getAllNodesWithTag(node, ["img"]).len
-        
-        # Count paragraphs
-        let pCount = self.getAllNodesWithTag(node, ["p"]).len
-        
-        # If few commas and more images than paragraphs, remove
-        if imgCount > pCount:
-          self.log("Removing element with more images than paragraphs")
-          return true
-          
-        # Check plain text length
-        let contentLength = self.getInnerText(node).len
-        if contentLength < 25 and imgCount == 0:
-          self.log("Removing short content element with no images")
-          return true
-      
-      return false
-  )
-
-proc cleanClasses(self: Readability, node: XmlNode) =
-  # Keep only classes that match classesToPreserve
-  let className = node.attr("class")
-  if className.len > 0:
-    var classNames = className.split(" ")
-    var newClassNames: seq[string] = @[]
-    
-    for cls in classNames:
-      if cls in self.classesToPreserve:
-        newClassNames.add(cls)
-    
-    # Apply the filtered class names
-    if newClassNames.len > 0:
-      # Would update the class attribute
-      self.log("Would set class to: " & newClassNames.join(" "))
-    else:
-      # Would remove the class attribute
-      self.log("Would remove class attribute")
-  
-  # Process children
-  for i in 0..<node.len:
-    if node[i].kind == xnElement:
-      self.cleanClasses(node[i])
-
-proc cleanHeaders(self: Readability, e: XmlNode) =
-  # Remove headers with low class weight
-  let headingNodes = self.getAllNodesWithTag(e, ["h1", "h2"])
-  self.removeNodes(headingNodes, 
-    proc(node: XmlNode): bool =
-      let shouldRemove = self.getClassWeight(node) < 0
-      if shouldRemove:
-        self.log("Removing header with low class weight: " & node.tag)
-      return shouldRemove
-  )
-
-proc fixLazyImages(self: Readability, articleContent: XmlNode) =
-  # Convert lazy-loaded images to standard images
-  let imageNodes = self.getAllNodesWithTag(articleContent, ["img", "picture", "figure"])
-  
-  for elem in imageNodes:
-    # Check if this is a lazy-loaded image
-    if elem.attr("data-src").len > 0:
-      # Would copy data-src to src
-      self.log("Would copy data-src to src: " & elem.attr("data-src"))
-    elif elem.attr("data-srcset").len > 0:
-      # Would copy data-srcset to srcset
-      self.log("Would copy data-srcset to srcset")
-    elif elem.attr("class").contains("lazy"):
-      # Look for other attributes that might contain the real image URL
-      for key, value in elem.attrs.pairs:
-        if key.startsWith("data-") and (value.endsWith(".jpg") or 
-                                       value.endsWith(".jpeg") or
-                                       value.endsWith(".png") or
-                                       value.endsWith(".webp")):
-          # Would set appropriate attribute
-          self.log("Would set src to: " & value)
-          break
-
-proc markDataTables(self: Readability, root: XmlNode) =
-  # Mark tables that are likely to be data tables vs layout tables
-  let tables = self.getAllNodesWithTag(root, ["table"])
-  
-  for table in tables:
-    # Check presentation role
-    if table.attr("role") == "presentation":
-      table.attrs["readability-data-table"] = "false"
-      continue
-    
-    # Check datatable attribute
-    if table.attr("datatable") == "0":
-      table.attrs["readability-data-table"] = "false"
-      continue
-    
-    # Check for summary
-    if table.attr("summary").len > 0:
-      table.attrs["readability-data-table"] = "true"
-      continue
-    
-    # Check for caption
-    let captions = self.getAllNodesWithTag(table, ["caption"])
-    if captions.len > 0 and self.getInnerText(captions[0]).len > 0:
-      table.attrs["readability-data-table"] = "true"
-      continue
-    
-    # Simplified check for data table elements
-    let dataTableElements = ["col", "colgroup", "tfoot", "thead", "th"]
-    var hasDataElements = false
-    
-    for tagName in dataTableElements:
-      if self.getAllNodesWithTag(table, [tagName]).len > 0:
-        hasDataElements = true
-        break
-    
-    if hasDataElements:
-      table.attrs["readability-data-table"] = "true"
-      continue
-    
-    # If table has nested tables, it's likely a layout table
-    if self.getAllNodesWithTag(table, ["table"]).len > 0:
-      table.attrs["readability-data-table"] = "false"
-      continue
-    
-    # Check for rows and columns
-    let rows = self.getAllNodesWithTag(table, ["tr"])
-    if rows.len > 10:
-      table.attrs["readability-data-table"] = "true"
-      continue
-    
-    let cols = if rows.len > 0: self.getAllNodesWithTag(rows[0], ["td", "th"]).len else: 0
-    if cols > 4:
-      table.attrs["readability-data-table"] = "true"
-      continue
-    
-    # Otherwise it's likely a layout table
-    table.attrs["readability-data-table"] = "false"
 
 # Convenience function to parse HTML and extract readable content
 proc extractReadableContent*(html: string, options: Table[string, string] = initTable[string, string]()): Table[string, string] =
