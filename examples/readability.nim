@@ -281,7 +281,7 @@ proc prepArticle(self: Readability) =
       return contentElementCount == 0 and self.getInnerText(paragraph, false).strip() == ""
   )
 
-  self.doc.filterChildren()
+  filterNodes(self.doc)
 
 proc postProcessContent(self: Readability) =
   # Fix relative URIs
@@ -405,19 +405,22 @@ proc parse*(self: Readability): Table[string, string] =
   var content = $self.doc
 
   # Clean smart quotes and special characters
-  content = content.replace("”", "\"")
-  content = content.replace("“", "\"")
-  content = content.replace("'", "'")
-  content = content.replace("’", "'")
-  content = content.replace(" ", " ")
-  content = content.replace("—", "--")
-  content = content.replace("–", "-")
-  content = content.replace("…", "...")
-  content = content.replace("•", "*")
-  content = content.replace("©", "(c)")
-  content = content.replace("®", "(R)")
-  content = content.replace("™", "(TM)")
-  content = content.replace("×", "x")
+  content = content.multireplace({
+    "”": "\"",
+    "“": "\"",
+    "'": "'",
+    "’": "'",
+    " ": " ",
+    " ": " ",
+    "—": "--",
+    "–": "-",
+    "…": "...",
+    "•": "*",
+    "©": "(c)",
+    "®": "(R)",
+    "™": "(TM)",
+    "×": "x"
+  })
 
   var textContent = self.getInnerText(self.doc)
   
