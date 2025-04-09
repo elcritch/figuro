@@ -404,6 +404,20 @@ proc parse*(self: Readability): Table[string, string] =
 
   var content = $self.doc
 
+  # Clean smart quotes and special characters
+  content = content.replace("”", "\"")
+  content = content.replace("“", "\"")
+  content = content.replace("'", "'")
+  content = content.replace("’", "'")
+  content = content.replace(" ", " ")
+  content = content.replace("—", "--")
+  content = content.replace("–", "-")
+  content = content.replace("…", "...")
+  content = content.replace("•", "*")
+  content = content.replace("©", "(c)")
+  content = content.replace("®", "(R)")
+  content = content.replace("™", "(TM)")
+  content = content.replace("×", "x")
 
   var textContent = self.getInnerText(self.doc)
   
