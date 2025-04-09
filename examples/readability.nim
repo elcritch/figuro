@@ -402,6 +402,8 @@ proc parse*(self: Readability): Table[string, string] =
   title.add(newText(self.articleTitle))
   self.doc.insert([title], 0)
   var content = $self.doc
+
+
   var textContent = self.getInnerText(self.doc)
   
   # Return the result
@@ -442,4 +444,4 @@ when isMainModule:
   let document = parseHTML(html)
   let reader = newReadability(document)
   let result = reader.parse()
-  echo result["content"].replace("’", "'")
+  echo result["content"]
