@@ -282,6 +282,30 @@ proc removeAndGetNext*(self: Readability, node: XmlNode): XmlNode =
   # Since we don't have proper parent tracking, this is a stub
   return nil
 
+proc filterChildren*(node: XmlNode) =
+    # Define a recursive function to filter children
+    # Skip empty nodes
+    if node.isNil:
+      return
+    
+    # Return as-is if this is a text node
+    if node.kind in {xnText, xnVerbatimText, xnComment, xnCData, xnEntity}:
+      return
+    
+    # Process children recursively, excluding removed nodes
+    var childrenToRemove: seq[int] = @[]
+    for i in 0..<node.len:
+      if node[i].kind == xnElement and node[i].attr("remove") == "true":
+        childrenToRemove.add(i)
+    
+    for i in childrenToRemove.reversed():
+      # echo "REMOVING: " & $node[i].tag & " attrs: " & $node[i].attrs
+      node.delete(i)
+    
+    for child in node:
+      filterChildren(child)
+  
+
 proc removeNodes*(self: Readability, nodeList: seq[XmlNode], filterFn: proc(node: XmlNode): bool = nil) =
   ## Actually removes nodes from the XML tree by recursively reconstructing parent nodes
   ## This works despite Nim's XmlNode not tracking parent-child relationships
@@ -301,33 +325,7 @@ proc removeNodes*(self: Readability, nodeList: seq[XmlNode], filterFn: proc(node
   if nodeList.len == 0:
     return
   
-  # Define a recursive function to filter children
-  proc filterChildren(node: XmlNode) =
-    # Skip empty nodes
-    if node.isNil:
-      return
-    
-    # Return as-is if this is a text node
-    if node.kind in {xnText, xnVerbatimText, xnComment, xnCData, xnEntity}:
-      return
-    
-    # Process children recursively, excluding removed nodes
-    var childrenToRemove: seq[int] = @[]
-    for i in 0..<node.len:
-      if node[i].kind == xnElement and node[i].attr("remove") == "true":
-        childrenToRemove.add(i)
-    
-    for i in childrenToRemove.reversed():
-      echo "REMOVING: " & $node[i].tag & " attrs: " & $node[i].attrs
-      node.delete(i)
-    
-    for child in node:
-      filterChildren(child)
-  
-  # Start with document root nodes that might have descendants to remove
-  let rootNodes = self.doc.findAll("body")
-  for rootNode in rootNodes:
-    filterChildren(rootNode)
+  filterChildren(self.doc)
 
 proc filterNodes*(node: XmlNode) =
   var nodeIdxsToRemove: seq[int] = @[]

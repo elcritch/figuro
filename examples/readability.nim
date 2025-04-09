@@ -28,7 +28,8 @@ proc cleanConditionally(self: Readability, e: XmlNode, tag: string) =
         return true
         
       # Get number of commas
-      let commas = self.getCharCount(node, ",")
+      let innerText = self.getInnerText(node)
+      let commas = innerText.count(",")
       if commas < 10:
         # Check for special conditions when there aren't many commas
         
@@ -43,10 +44,18 @@ proc cleanConditionally(self: Readability, e: XmlNode, tag: string) =
           self.log("Removing element with more images than paragraphs")
           return true
           
-        # Check plain text length
-        let contentLength = self.getInnerText(node).len
-        if contentLength < 25 and imgCount == 0:
+        let innerText = self.getInnerText(node)
+
+        if innerText.len < 25 and imgCount == 0:
           self.log("Removing short content element with no images")
+          return true
+        
+        if find(innerText, REGEXPS_adWords) >= 0:
+          self.log("Removing element with ad words")
+          return true
+        
+        if find(innerText, REGEXPS_loadingWords) >= 0:
+          self.log("Removing element with loading words")
           return true
       
       return false
@@ -272,6 +281,8 @@ proc prepArticle(self: Readability) =
       return contentElementCount == 0 and self.getInnerText(paragraph, false).strip() == ""
   )
 
+  self.doc.filterChildren()
+
 proc postProcessContent(self: Readability) =
   # Fix relative URIs
 
@@ -420,12 +431,15 @@ proc extractReadableContent*(html: string, options: Table[string, string] = init
     return {"error": getCurrentExceptionMsg()}.toTable
 
 when isMainModule:
-  let url = "https://blog.arduino.cc/2025/03/17/this-diy-experimental-reactor-harnesses-the-birkeland-eyde-process/"
-  let client = newHttpClient()
-  let res = client.get(url)
-  let html = res.body
-  # let html = readFile("input-arduino.html")
+  when false:
+    # let url = "https://blog.arduino.cc/2025/03/17/this-diy-experimental-reactor-harnesses-the-birkeland-eyde-process/"
+    let url = "https://tomscii.sig7.se/2025/04/The-Barium-Experiment"
+    let client = newHttpClient()
+    let res = client.get(url)
+    let html = res.body
+  else:
+    let html = readFile("examples/arduino.html")
   let document = parseHTML(html)
   let reader = newReadability(document)
   let result = reader.parse()
-  echo result["content"]
+  echo result["content"].replace("’", "'")
