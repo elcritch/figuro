@@ -1,6 +1,8 @@
 import std/[htmlparser, algorithm, xmltree, streams, strutils, strtabs, sequtils, re, tables, uri, math, sets, httpclient]
 import readabilitytypes
 
+export readabilitytypes
+
 # Additional helper methods for readability
 proc cleanConditionally(self: Readability, e: XmlNode, tag: string) =
   if not self.flagIsActive(CleanConditionally):
@@ -326,7 +328,15 @@ proc initializeNode(self: Readability, node: XmlNode) =
 proc grabArticle(self: Readability, page: XmlNode = nil) =
   self.log("**** grabArticle ****")
   
-  var pageToParse = if page != nil: page else: self.doc.findAll("body")[0]
+  var pageToParse =
+    if page != nil:
+      page
+    else:
+      let res = self.doc.findAllSafe("body")
+      if res.len > 0:
+        res[0]
+      else:
+        newElement("body")
   
   if pageToParse == nil:
     self.log("No body found in document. Abort.")
@@ -346,12 +356,12 @@ proc grabArticle(self: Readability, page: XmlNode = nil) =
   # Identify candidate elements - paragraphs, divs with text, etc.
   var elementsToScore: HashSet[XmlNode] = initHashSet[XmlNode]()
   
-  for elem in pageToParse.findAll("p"):
+  for elem in pageToParse.findAllSafe("p"):
     # If paragraph has reasonable text length, consider it
     if self.getInnerText(elem).len >= 25:
       elementsToScore.incl(elem)
   
-  for elem in pageToParse.findAll("div"):
+  for elem in pageToParse.findAllSafe("div"):
     # Divs that are like paragraphs (no block elements inside)
     if not self.hasChildBlockElement(elem):
       elementsToScore.incl(elem)

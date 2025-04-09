@@ -168,7 +168,7 @@ proc draw*(self: Main) {.slot.} =
           fill css"grey"
           let scrollPane = this
 
-          Vertical.new "items":
+          VerticalFilled.new "items":
             offset 0'ux, 0'ux
             size 100'pp-scrollPane.settings.size[dcol], cx"max-content"
             contentHeight cx"auto", 3'ui
@@ -199,7 +199,7 @@ proc draw*(self: Main) {.slot.} =
                       self.markdownStories[self.currentStory] = (ssLoading, "")
                     refresh(self)
 
-                  Vertical.new "story-fields":
+                  VerticalFilled.new "story-fields":
                     contentHeight cx"auto"
 
                     Rectangle.new "title-box":

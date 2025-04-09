@@ -147,6 +147,9 @@ proc hash*(self: XmlNode): Hash =
   #   result = result !& self.text.hash()
   # result = !$ result
 
+proc findAllSafe*(node: XmlNode, tag: string, caseInsensitive = false): seq[XmlNode] =
+  if node.kind == xnElement:
+    result = node.findAll(tag, caseInsensitive = true)
 
 # Implementation of helper functions
 proc log*(self: Readability, args: varargs[string, `$`]) =
@@ -239,7 +242,8 @@ proc getLinkDensity*(self: Readability, element: XmlNode): float =
 
 proc getAllNodesWithTag*(self: Readability, node: XmlNode, tagNames: openArray[string]): seq[XmlNode] =
   for tag in tagNames:
-    result.add(node.findAll(tag, caseInsensitive = true))
+    if node.kind == xnElement:
+      result.add(node.findAllSafe(tag, caseInsensitive = true))
 
 
 proc forEachNode*(self: Readability, nodeList: seq[XmlNode], fn: proc(node: XmlNode)) =
@@ -346,6 +350,10 @@ proc keepNodes*(node: XmlNode): XmlNode =
 
   proc keepNodesInner(node: XmlNode): seq[XmlNode] =
     result = @[]
+    if node.kind != xnElement:
+      result.add(node)
+      return result
+
     for child in node:
       if child.kind == xnElement:
         if child.getAttr("keep") == "true":
@@ -571,7 +579,7 @@ proc prepDocument*(self: Readability) =
   # This would require proper tracking of siblings, which Nim's XmlNode doesn't provide
   self.log("Would replace consecutive BR elements if we had sibling tracking")
   
-  if self.doc.findAll("body").len > 0:
+  if self.doc.findAllSafe("body").len > 0:
     # In the complete implementation, we would call replaceBrs here
     discard
 
@@ -581,7 +589,7 @@ proc getArticleTitle*(self: Readability): string =
   var origTitle = ""
   
   try:
-    let titleElements = doc.findAll("title")
+    let titleElements = doc.findAllSafe("title")
     if titleElements.len > 0:
       origTitle = self.getInnerText(titleElements[0]).strip()
       curTitle = origTitle
@@ -633,7 +641,7 @@ proc getArticleTitle*(self: Readability): string =
   
   # If title is too long or too short, look for H1
   elif curTitle.len > 150 or curTitle.len < 15:
-    let h1s = doc.findAll("h1")
+    let h1s = doc.findAllSafe("h1")
     if h1s.len == 1:
       curTitle = self.getInnerText(h1s[0])
   
