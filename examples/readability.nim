@@ -401,6 +401,7 @@ proc parse*(self: Readability): Table[string, string] =
   let title = newElement("h2")
   title.add(newText(self.articleTitle))
   self.doc.insert([title], 0)
+
   var content = $self.doc
 
 
