@@ -185,8 +185,8 @@ proc grabArticle(self: Readability, page: XmlNode = nil) =
     let score = parseInt(elem.attr("readability-score"))
     
     # If score is above threshold, include in article
-    if score > 0:
-      echo "KEEPING: " & $elem.tag & " attrs: " & $elem.attrs
+    if score <= 0:
+      # echo "setting:KEEPING: " & $elem.tag & " attrs: " & $elem.attrs
       elem.setAttr("keep", "true")
   
   self.doc = keepNodes(self.doc)
@@ -221,10 +221,14 @@ proc parse*(self: Readability): Table[string, string] =
   self.postProcessContent()
   
   # Convert the article content to string
+  let title = newElement("h2")
+  title.add(newText(self.articleTitle))
+  self.doc.insert([title], 0)
   var content = $self.doc
   var textContent = self.getInnerText(self.doc)
   
   # Return the result
+  # echo "TITLE: " & self.articleTitle
   var result = {
     "title": self.articleTitle,
     "content": content,
@@ -417,10 +421,11 @@ proc extractReadableContent*(html: string, options: Table[string, string] = init
     return {"error": getCurrentExceptionMsg()}.toTable
 
 when isMainModule:
-  # let url = "https://blog.arduino.cc/2025/03/17/this-diy-experimental-reactor-harnesses-the-birkeland-eyde-process/"
-  # let client = newHttpClient()
-  # let res = client.get(url)
-  let html = readFile("input-arduino.html")
+  let url = "https://blog.arduino.cc/2025/03/17/this-diy-experimental-reactor-harnesses-the-birkeland-eyde-process/"
+  let client = newHttpClient()
+  let res = client.get(url)
+  let html = res.body
+  # let html = readFile("input-arduino.html")
   let document = parseHTML(html)
   let reader = newReadability(document)
   let result = reader.parse()

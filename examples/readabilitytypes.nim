@@ -351,19 +351,34 @@ proc keepNodes*(node: XmlNode): XmlNode =
     for child in node:
       if child.kind == xnElement:
         if child.getAttr("keep") == "true":
-          result.add(child)
-      else:
-        result.add(child)
-    if node.getAttr("keep") == "true":
-      var newNode = newElement(node.tag)
-      if not node.attrs.isNil:
-        for attr in node.attrs.pairs:
-          newNode.setAttr(attr[0], attr[1])
-      newNode.add(result)
-      result = @[newNode]
+          # This node should be kept - create a copy with its attributes
+          var newNode = newElement(child.tag)
+          if not child.attrs.isNil:
+            for attr in child.attrs.pairs:
+              newNode.setAttr(attr[0], attr[1])
+          
+          # Add only text children directly from this node
+          for textChild in child:
+            # echo "TEXT CHILD: " & $textChild
+            if textChild.kind == xnText:
+              newNode.add(textChild)
+          
+          # Also look for nested keep=true nodes
+          let keptChildren = keepNodesInner(child)
+          for keptChild in keptChildren:
+            newNode.add(keptChild)
+          
+          result.add(newNode)
+          # echo "KEEPING: " & $child.tag & " attrs: " & $child.attrs
+        else:
+          # This node doesn't have keep=true, but check its children
+          let keptChildren = keepNodesInner(child)
+          for keptChild in keptChildren:
+            result.add(keptChild)
+    
     return result
   
-  result.add(keepNodesInner(node))
+  result.add(keepNodesInner(node)) 
 
 proc replaceNodeTags*(self: Readability, nodeList: seq[XmlNode], newTagName: string) =
   for node in nodeList:
