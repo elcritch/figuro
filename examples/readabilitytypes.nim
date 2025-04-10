@@ -343,6 +343,7 @@ proc filterNodes*(node: XmlNode) =
   
   for child in node:
     if child.kind == xnElement:
+      child.attrs = nil
       filterNodes(child)
 
 proc keepNodes*(node: XmlNode): XmlNode =
