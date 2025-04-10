@@ -11,6 +11,7 @@ type
     dragStart*: T
     selected*: bool
     isTrack*: bool
+    allowTrack*: bool = true # determine if the track can be dragged
     buttonSize*, fillingSize*, halfSize*: CssVarId
 
 proc buttonDrag*[T](
@@ -79,7 +80,8 @@ proc draw*[T](self: Slider[T]) {.slot.} =
 
       Rectangle.new "track":
         gridArea 2 // 3, 2 // 3
-        uinodes.connect(this, doDrag, self, buttonDrag)
+        if self.allowTrack:
+          uinodes.connect(this, doDrag, self, buttonDrag)
 
         Rectangle.new "filling":
           # Draw the bar itself.
