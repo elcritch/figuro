@@ -74,7 +74,6 @@ proc isEnabled*(self: TextToggle): bool =
 proc enabled*(self: TextToggle, value: bool) {.slot.} =
   if self.isEnabled != value:
     self.isEnabled = value
-    echo "enabled: ", value
     refresh(self)
 
 proc draw*(self: TextToggle) {.slot.} =
