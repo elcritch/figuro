@@ -3,10 +3,11 @@ import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro/widgets/[input]
 import figuro
-import hnloader
 import std/os
 import cssgrid/prettyprints
 import std/terminal
+
+import webhelpers/hnloader
 
 let
   typeface = defaultTypeface()
