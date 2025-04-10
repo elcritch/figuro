@@ -89,19 +89,19 @@ proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.}
   # echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
   
   if KeyJ in down:
-    echo "J pressed"
+    # echo "J pressed"
     selectNextStory(self)
   elif KeyK in down:
-    echo "K pressed"
+    # echo "K pressed"
     selectPrevStory(self)
   elif KeyEnter in down:
-    echo "Enter pressed"
+    # echo "Enter pressed"
     if self.currentStory notin self.markdownStories:
       emit self.markdownLoad(self.currentStory.link.href)
       self.markdownStories[self.currentStory] = (ssLoading, "")
     refresh(self)
   else:
-    echo "other key pressed"
+    echo "other key pressed: ", $pressed, " ", $down
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
