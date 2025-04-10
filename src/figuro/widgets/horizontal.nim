@@ -1,13 +1,16 @@
+import pkg/chronicles
 import ../widget
 
-type Horizontal* = ref object of Figuro
+type
+  Horizontal* = ref object of Figuro
+  HorizontalFilled* = ref object of Horizontal
 
-template usingHorizontalLayout*() =
+template usingHorizontalLayout*(justify = CxCenter, align = CxCenter) =
   with this:
     setGridRows 1'fr
     gridAutoFlow grColumn
-    justifyItems CxCenter
-    alignItems CxCenter
+    justifyItems justify
+    alignItems align
 
 proc contentWidth*(node: Figuro, cx: Constraint, gap = -1'ui) {.thisWrapper.} =
   node.gridAutoColumns cx
@@ -21,5 +24,12 @@ template usingHorizontalLayout*(cx: Constraint, gap = -1'ui) =
 proc draw*(self: Horizontal) {.slot.} =
   ## button widget!
   withWidget(self):
-    usingHorizontalLayout()
-    WidgetContents()
+    Rectangle.new "bg":
+      usingHorizontalLayout()
+      WidgetContents()
+
+proc draw*(self: HorizontalFilled) {.slot.} =
+  withWidget(self):
+    Rectangle.new "bg":
+      usingHorizontalLayout(CxStretch, CxStretch)
+      WidgetContents()

@@ -44,8 +44,6 @@ proc draw*[T](self: Toggle[T]) {.slot.} =
     withOptional self:
       fill css"#2B9FEA".lighten(self.fade.amount/200.0)
 
-    WidgetContents()
-
     Rectangle.new "thumb-bg":
       size 50'pp, 100'pp
       offset csPerc(self.fade.amount), 0'ux
@@ -54,3 +52,6 @@ proc draw*[T](self: Toggle[T]) {.slot.} =
         size 100'pp, 100'pp
         withOptional self:
           fill css"grey"
+
+    WidgetContents()
+

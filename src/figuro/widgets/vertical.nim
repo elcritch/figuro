@@ -1,6 +1,9 @@
+import pkg/chronicles
 import ../widget
 
-type Vertical* = ref object of Figuro
+type
+  Vertical* = ref object of Figuro
+  VerticalFilled* = ref object of Vertical
 
 template usingVerticalLayout*(justify = CxCenter, align = CxCenter) =
   with this:
@@ -24,9 +27,8 @@ proc draw*(self: Vertical) {.slot.} =
     usingVerticalLayout()
     WidgetContents()
 
-type VerticalFilled* = ref object of Figuro
-
 proc draw*(self: VerticalFilled) {.slot.} =
   withWidget(self):
-    usingVerticalLayout(CxStretch, CxStretch)
-    WidgetContents()
+    Rectangle.new "bg":
+      usingVerticalLayout(CxStretch, CxStretch)
+      WidgetContents()

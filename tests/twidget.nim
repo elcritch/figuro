@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[button, vertical, slider, input, toggle]
+import figuro/widgets/[button, vertical, slider, input, toggle, horizontal]
 import figuro
 import cssgrid/prettyprints
 
@@ -48,17 +48,28 @@ proc draw*(self: Main) {.slot.} =
         this.max = 1.0
         this.label {defaultFont(): $(this.state.round(2))}
 
-      Toggle.new "toggle":
-        size 30'ux, 30'ux
-        fill css"white".darken(0.3)
+      HorizontalFilled.new "toggle-row":
+        size 100'pp, 30'ux
+        contentWidth this, cx"auto", gap = 10'ui
 
-      Toggle.new "toggle":
-        size 30'ux, 30'ux
-        onInit:
-          enabled true
+        border this, 1'ui, css"green"
+
+        Toggle.new "toggle":
+          size 30'ux, 30'ux
+          fill css"white".darken(0.3)
+
+        Toggle.new "toggle":
+          size 30'ux, 30'ux
+          onInit:
+            enabled true
+      
 
       Rectangle.new "filler":
         size 10'ux, 40'ux
+
+      onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+        if kind == Done and MouseRight in buttons:
+          printLayout(self, cmTerminal)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 640'ui))
