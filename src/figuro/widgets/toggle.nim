@@ -26,7 +26,6 @@ template enabled*(value: untyped) =
   this.enabled(value)
 
 proc clicked*[T](self: Toggle[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "clicked: ", " kind: ", kind, " :: ", buttons, " id: ", self.getId, " enabled: ", self.isEnabled
   case kind:
   of Done:
     self.enabled(not self.isEnabled)
