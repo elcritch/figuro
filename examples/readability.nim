@@ -260,8 +260,8 @@ proc prepArticle(self: Readability) =
   # self.cleanHeaders(articleContent)
 
   # Do these last as the previous steps may have removed junk
-  # self.cleanConditionally(articleContent, "table")
-  # self.cleanConditionally(articleContent, "ul")
+  self.cleanConditionally(self.doc, "table")
+  self.cleanConditionally(self.doc, "ul")
   self.cleanConditionally(self.doc, "div")
 
   # Replace H1 with H2
@@ -288,7 +288,8 @@ proc prepArticle(self: Readability) =
 proc postProcessContent(self: Readability) =
   # Fix relative URIs
 
-  # self.simplifyNestedElements(self.doc)
+  # Simplify nested elements to improve readability
+  simplifyNestedElements(self, self.doc)
 
   # Remove classes if keepClasses is false
   # if not self.keepClasses:
@@ -416,12 +417,10 @@ proc parse*(self: Readability): Table[string, string] =
 
   # Clean smart quotes and special characters
   content = content.multireplace({
-    "”": "\"",
-    "“": "\"",
+    "": "\"",
     "'": "'",
-    "’": "'",
     " ": " ",
-    " ": " ",
+    " ": " ",
     "—": "--",
     "–": "-",
     "…": "...",
@@ -468,7 +467,7 @@ when isMainModule:
     let res = client.get(url)
     let html = res.body
   else:
-    let html = readFile("examples/arduino.html")
+    let html = readFile("examples/readability-test-input.html")
   let document = parseHTML(html)
   let reader = newReadability(document)
   let result = reader.parse()

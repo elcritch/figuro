@@ -127,6 +127,7 @@ proc hasAncestorTag*(self: Readability, node: XmlNode, tagName: string, maxDepth
 proc isProbablyVisible*(self: Readability, node: XmlNode): bool
 proc prepDocument*(self: Readability)
 proc getArticleTitle*(self: Readability): string
+proc simplifyNestedElements*(self: Readability, articleContent: XmlNode)
 
 
 proc hash*(self: XmlAttributes): Hash =
@@ -654,3 +655,83 @@ proc getArticleTitle*(self: Readability): string =
     curTitle = origTitle
   
   return curTitle
+
+proc simplifyNestedElements*(self: Readability, articleContent: XmlNode) =
+  # This is a recursive traversal implementation that works with Nim's XmlNode
+  # which doesn't have parent node references like DOM nodes
+  
+  # Process this node if it's a DIV or SECTION
+  if articleContent.kind == xnElement and 
+     articleContent.tag.toLowerAscii() in ["div", "section"]:
+    
+    # Skip if this is a readability-specific node
+    if articleContent.hasAttr("id") and articleContent.attr("id").startsWith("readability"):
+      discard
+    # If element has no content, return nil to signal removal
+    elif self.isElementWithoutContent(articleContent):
+      # Since we can't easily remove this node, mark it for removal
+      articleContent.setAttr("remove", "true")
+    # If element has a single DIV or SECTION child
+    elif self.hasSingleTagInsideElement(articleContent, "DIV") or 
+         self.hasSingleTagInsideElement(articleContent, "SECTION"):
+      
+      # Find the child element (we know there's only one)
+      var child: XmlNode = nil
+      for i in 0..<articleContent.len:
+        if articleContent[i].kind == xnElement and 
+          articleContent[i].tag.toLowerAscii() in ["div", "section"]:
+          child = articleContent[i]
+          break
+      
+      if child != nil:
+        # Copy attributes from parent to child
+        if not articleContent.attrs.isNil:
+          if child.attrs.isNil:
+            child.attrs = newStringTable()
+          
+          for key, val in articleContent.attrs.pairs:
+            # Skip the "remove" attribute if present
+            if key != "remove":
+              child.attrs[key] = val
+        
+        # Mark this node for replacement
+        articleContent.setAttr("replace-with-child", "true")
+        child.setAttr("is-replacement", "true")
+  
+  # Recursively process all children
+  for i in 0..<articleContent.len:
+    if articleContent[i].kind == xnElement:
+      self.simplifyNestedElements(articleContent[i])
+  
+  # Apply changes after processing
+  var childrenToRemove: seq[int] = @[]
+  var childToReplace: XmlNode = nil
+  var replaceIndex: int = -1
+  
+  # Identify nodes marked for removal or replacement
+  for i in 0..<articleContent.len:
+    let child = articleContent[i]
+    if child.kind == xnElement:
+      if child.attr("remove") == "true":
+        childrenToRemove.add(i)
+      elif articleContent.attr("replace-with-child") == "true" and 
+           child.attr("is-replacement") == "true":
+        childToReplace = child
+        replaceIndex = i
+  
+  # Remove marked nodes
+  for i in childrenToRemove.reversed():
+    articleContent.delete(i)
+  
+  # Apply replacement if needed
+  if childToReplace != nil and replaceIndex >= 0:
+    articleContent.attrs["replaced"] = "true"
+    
+    # Remove the marker attributes from the child
+    if not childToReplace.attrs.isNil:
+      childToReplace.attrs.del("is-replacement")
+  
+  # Note: In a full implementation with proper parent references,
+  # we would replace the node in its parent's children list.
+  # Since XmlNode doesn't track parents, this can only be done
+  # by the caller when processing the parent node.
