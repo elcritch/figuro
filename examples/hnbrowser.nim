@@ -71,6 +71,7 @@ proc selectNextStory*(self: Main) =
   echo "selectNextStory"
   if self.currentStory == nil:
     self.currentStory = self.stories[0]
+    refresh(self)
   else:
     let idx = self.stories.find(self.currentStory)
     self.currentStory = self.stories[clamp(idx + 1, 0, self.stories.len - 1)]
@@ -80,6 +81,7 @@ proc selectPrevStory*(self: Main) =
   echo "selectPrevStory"
   if self.currentStory == nil:
     self.currentStory = self.stories[0]
+    refresh(self)
   else:
     let idx = self.stories.find(self.currentStory)
     self.currentStory = self.stories[clamp(idx - 1, 0, self.stories.len - 1)]
