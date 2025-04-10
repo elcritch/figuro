@@ -25,10 +25,7 @@ proc buttonDrag*[T](
     overlaps: bool,
     selected: Figuro
 ) {.slot.} =
-  debug "slider:buttonDrag: ", name = self.name, uid = self.getId, kind = kind,
-                                initial = initial, cursor = cursor,
-                                isTrack = self.isTrack, overlaps = overlaps,
-                                isSelected = self.selected
+  trace "slider:buttonDrag: ", name = self.name, uid = self.getId, kind = kind, initial = initial, cursor = cursor, isTrack = self.isTrack, overlaps = overlaps, isSelected = self.selected
   case kind:
   of Exit:
     if not self.selected:
