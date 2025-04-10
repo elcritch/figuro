@@ -8,7 +8,7 @@ type
 template usingHorizontalLayout*() =
   with this:
     setGridRows 1'fr
-    gridAutoColumns 1'fr
+    # gridAutoColumns 1'fr
     gridAutoFlow grColumn
 
 proc contentWidth*(node: Horizontal, cx: Constraint, gap = -1'ui) {.thisWrapper.} =

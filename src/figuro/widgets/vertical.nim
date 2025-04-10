@@ -7,7 +7,7 @@ type
 template usingVerticalLayout*() =
   with this:
     setGridCols 1'fr
-    gridAutoRows 1'fr
+    # gridAutoRows 1'fr
     gridAutoFlow grRow
 
 proc contentHeight*(current: Figuro, cx: Constraint, gap = -1'ui) {.thisWrapper.} =

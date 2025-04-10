@@ -86,7 +86,7 @@ proc selectPrevStory*(self: Main) =
     refresh(self)
 
 proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.} =
-  echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
+  # echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
   
   if KeyJ in down:
     echo "J pressed"
@@ -167,10 +167,12 @@ proc draw*(self: Main) {.slot.} =
           fill css"grey"
           let scrollPane = this
 
-          VerticalFilled.new "items":
+          Vertical.new "items":
             offset 0'ux, 0'ux
             size 100'pp-scrollPane.settings.size[dcol], cx"max-content"
             contentHeight cx"auto", 3'ui
+            justifyItems CxStretch
+            alignItems CxStretch
 
             for idx, story in self.stories:
               # if idx < 2: continue
@@ -198,12 +200,14 @@ proc draw*(self: Main) {.slot.} =
                       self.markdownStories[self.currentStory] = (ssLoading, "")
                     refresh(self)
 
-                  VerticalFilled.new "story-fields":
+                  Vertical.new "story-fields":
                     contentHeight cx"auto"
+                    justifyItems CxStretch
+                    alignItems CxStretch
 
                     Rectangle.new "title-box":
-                      paddingTB 0'ux, 5'ux
-                      paddingLR 0'ux, 20'ux
+                      # paddingTB 0'ux, 5'ux
+                      # paddingLR 0'ux, 20'ux
 
                       Text.new "id":
                         offset 5'ux, 0'ux
