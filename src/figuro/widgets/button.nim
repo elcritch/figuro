@@ -97,8 +97,15 @@ proc draw*[T](self: TextButton[T]) {.slot.} =
   ## button widget!
   withWidget(self):
 
-    if self.fade.active or self.isPressed:
-      this.fill = this.fill.lighten(0.14*self.fade.amount)
+    if Disabled in self.userAttrs:
+      withOptional self:
+        fill css"#F0F0F0"
+    else:
+      withOptional self:
+        fill css"#2B9FEA"
+
+      if self.fade.active or self.isPressed:
+        this.fill = this.fill.lighten(0.14*self.fade.amount)
 
     Text.new "text":
       size 100'pp, 100'pp
