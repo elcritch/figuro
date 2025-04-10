@@ -12,7 +12,7 @@ type
     selected*: bool
     isTrack*: bool
     allowTrack*: bool = true # determine if the track can be dragged
-    buttonSize, halfSize: CssVarId
+    buttonSize, halfSize, fillingSize: CssVarId
 
   TextSlider*[T] = ref object of Slider[T]
     labelText: seq[(UiFont, string)]
@@ -63,6 +63,7 @@ proc initialize*[T](self: Slider[T]) {.slot.} =
   let cssValues = self.frame[].theme.css.values
   self.halfSize = cssValues.registerVariable("figHalfSize", CssSize(20'ux))
   self.buttonSize = cssValues.registerVariable("fig-slider-button-width", CssSize(20'ux))
+  self.fillingSize = cssValues.registerVariable("fig-slider-filling-size", CssSize(20'ux))
   cssValues.setFunction(self.halfSize) do (cs: ConstraintSize) -> ConstraintSize:
     case cs.kind:
     of UiFixed:
@@ -76,13 +77,13 @@ proc draw*[T](self: Slider[T]) {.slot.} =
     Rectangle.new "bg": # this is mainly to avoid issues with sub-grids :/
       size 100'pp, 100'pp
 
-      gridCols 0'ux ["left"] 1'fr ["right-btn"] csVar(self.buttonSize) ["right"]
-      gridRows 1'fr ["top"] csVar(self.buttonSize) ["bottom"] 1'fr
+      gridCols 0'ux ["left"] 0'ux 1'fr ["right-btn"] csVar(self.buttonSize) ["right"]
+      gridRows 1'fr ["top"] csVar(self.fillingSize) ["bottom"] 1'fr
 
       let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
 
       Rectangle.new "track":
-        gridArea 2 // 4, 2 // 3
+        gridArea 3 // 5, 2 // 3
         if self.allowTrack:
           uinodes.connect(this, doDrag, self, buttonDrag)
 
@@ -91,16 +92,16 @@ proc draw*[T](self: Slider[T]) {.slot.} =
           size sliderWidth, 100'pp
 
       Rectangle.new "thumb-track":
-        gridArea 2 // 3, 2 // 3
+        gridArea 3 // 4, 2 // 3
 
         Rectangle.new "thumb-bg":
           size csVar(self.buttonSize), 100'pp
-          offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux
+          # offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux
+          offset sliderWidth, 0'ux
 
           Rectangle.new "thumb":
             fill css"black" * 0.3
             size 100'pp, 100'pp
-            offset 10'ux, 0'ux
             uinodes.connect(this, doDrag, self, buttonDrag)
 
     WidgetContents()
