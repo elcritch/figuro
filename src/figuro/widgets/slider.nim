@@ -33,12 +33,7 @@ proc buttonDrag*[T](
     self.dragStart = self.min
     self.selected = false
     if self.isTrack:
-      let track = self.queryDescendant("track").get()
-      let rel = cursor.positionRelative(track)
-      let offset = float(rel[dcol] / track.box.w)
-      self.state = clamp(self.dragStart + offset, self.min, self.max)
       self.isTrack = false
-      emit self.doUpdate(self.state)
       refresh(self)
   of Init:
     self.dragStart = self.state
@@ -48,10 +43,17 @@ proc buttonDrag*[T](
 
     discard
   of Done:
-    if not self.selected or self.isTrack:
+    if not self.selected:
       return
-    let delta = initial.positionDiff(cursor)
-    let track = self.queryDescendant("track").get()
+    let track = self.queryDescendant("thumb-track").get()
+    let delta =
+      if self.isTrack:
+        self.dragStart = self.min
+        var pos = cursor.positionRelative(track)
+        pos[0] = pos[dcol] - track.children[0].box.w / 2
+        pos
+      else:
+        initial.positionDiff(cursor)
     let offset = float(delta[dcol] / track.box.w)
     self.state = clamp(self.dragStart + offset, self.min, self.max)
     # notice "slider:drag:", delta = delta, offset= offset, state= self.state, bar= bar.box.w
