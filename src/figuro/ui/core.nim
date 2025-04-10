@@ -322,7 +322,7 @@ proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
       result = parser.loadTheme()
       notice "Loaded CSS file", cssFile = defaultTheme
 
-proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figuro) =
+proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro) =
   ## Process the start of the node.
 
   nodeDepth.inc()
@@ -337,8 +337,8 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
     node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
-    const name = repr(T).split('[')[0]
-    node.widgetName = name.toAtom()
+    const widgetName = repr(T).split('[')[0]
+    node.widgetName = widgetName.toAtom()
     node.name = nid
 
   if parent.children.len <= parent.diffIndex:
@@ -401,7 +401,7 @@ template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-proc nodeInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+proc nodeInit*[T](parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
   ## callback proc to initialized a new node, or re-use and existing node
   var node: `T` = nil
   const kind = when T is Text: nkText else: nkRectangle
@@ -415,18 +415,18 @@ proc nodeInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {
 #   ## callback proc to initialized a new node, or re-use and existing node
 #   nodeInitImpl[T](nkText, parent, name, predraw)
 
-proc widgetRegisterImpl*[T](nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
+proc widgetRegisterImpl*[T](nn: Atom, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
   ##
   
   let fc = FiguroContent(
-    name: $(nn),
+    name: nn,
     childInit: nodeInit[T],
     childPreDraw: callback,
   )
   node.contents.add(fc)
 
-template widgetRegister*[T](nn: string | static string, blk: untyped) =
+template widgetRegister*[T](nn: Atom | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   when not compiles(this.typeof):
@@ -442,7 +442,7 @@ template widgetRegister*[T](nn: string | static string, blk: untyped) =
 # template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
 #   widgetRegister[t](nkText, name, blk)
 
-template new*(tp: typedesc, name: string, blk: untyped) =
+template new*(tp: typedesc, name: Atom | static string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills
@@ -454,19 +454,19 @@ template new*(tp: typedesc, name: string, blk: untyped) =
   ## 
   when arity(tp) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widgetRegister[tp](name, blk)
+    widgetRegister[tp](name.toAtom(), blk)
   elif arity(tp) == stripGenericParams(tp).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(tp).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widgetRegister[tp[tuple[]]](name, blk)
+      widgetRegister[tp[tuple[]]](name.toAtom(), blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widgetRegister[tp](name, blk)
+    widgetRegister[tp](name.toAtom(), blk)
 
-template `as`*(tp: typedesc, name: string, blk: untyped) =
+template `as`*(tp: typedesc, name: Atom | static string, blk: untyped) =
   new(tp, name, blk)
 
 {.hint[Name]: off.}
@@ -497,7 +497,7 @@ template withRootWidget*(self, blk: untyped) =
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
   this.cxSize = [100'pp, 100'pp]
-  self.name = "root"
+  this.name = "root".toAtom()
 
   Rectangle.new "main":
     this.cxSize = [100'pp, 100'pp]

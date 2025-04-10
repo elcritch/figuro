@@ -49,7 +49,7 @@ type
     frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]
     uid*: NodeID
-    name*: string
+    name*: Atom
     widgetName*: Atom
     widgetClasses*: seq[Atom]
     children*: seq[Figuro]
@@ -101,8 +101,8 @@ type
     points*: seq[Position]
 
   FiguroContent* = object
-    name*: string
-    childInit*: proc(parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
+    name*: Atom
+    childInit*: proc(parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
     childPreDraw*: proc(current: Figuro) {.closure.}
 
   BasicFiguro* = ref object of Figuro
