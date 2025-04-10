@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[button, vertical, slider, input]
+import figuro/widgets/[button, vertical, slider, input, toggle]
 import figuro
 import cssgrid/prettyprints
 
@@ -53,6 +53,9 @@ proc draw*(self: Main) {.slot.} =
           size 40'ux, 10'ux
           offset 50'pp-20'ux, 50'pp-8'ux
           text {defaultFont(): $(Slider[float](this.parent[]).state.round(2))}
+
+      Toggle.new "toggle":
+        size 30'ux, 30'ux
 
       Rectangle.new "filler":
         size 10'ux, 40'ux

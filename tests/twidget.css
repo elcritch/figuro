@@ -31,3 +31,16 @@ Slider > #bg > #track > #thumb-bg > #thumb {
   border-width: 1px;
   border-color: green;
 }
+
+Toggle {
+  border-width: 0;
+  border-color: black;
+  border-radius: 7px;
+  width: 40px;
+}
+
+Toggle #thumb {
+  border-width: 0;
+  background-color: grey;
+  border-radius: 5px;
+}
