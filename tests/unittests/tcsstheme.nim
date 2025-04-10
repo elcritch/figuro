@@ -203,7 +203,7 @@ type
 
 proc draw*(self: TMain) {.slot.} =
   withWidget(self):
-    this.name = "main"
+    this.name = "main".toAtom()
     rectangle "body":
       rectangle "child1":
         discard

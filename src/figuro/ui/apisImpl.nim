@@ -34,9 +34,13 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 #   ## Note: Experimental!
 #   nodeImpl(nkDrawable, id, inner)
 
-template rectangle*(name: string | static string, blk: untyped) =
+template toAtom*(name: Atom): Atom =
+  name
+
+
+template rectangle*(name: Atom | static string, blk: untyped) =
   ## Starts a new rectangle.
-  widgetRegister[Rectangle](name, blk)
+  widgetRegister[Rectangle](name.toAtom(), blk)
 
 template textContents*(blk: untyped) =
   ## Starts a new rectangle.
