@@ -50,8 +50,8 @@ type
     parent*: WeakRef[Figuro]
     uid*: NodeID
     name*: string
-    widgetName*: string
-    widgetClasses*: seq[string]
+    widgetName*: Atom
+    widgetClasses*: seq[Atom]
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int

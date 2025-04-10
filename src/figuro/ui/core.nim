@@ -337,7 +337,8 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
     node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
-    node.widgetName = repr(T).split('[')[0]
+    const name = repr(T).split('[')[0]
+    node.widgetName = name.toAtom()
     node.name = nid
 
   if parent.children.len <= parent.diffIndex:

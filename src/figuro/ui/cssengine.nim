@@ -39,7 +39,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
       return
 
   if has(sel.class):
-    if sel.class in node.widgetClasses:
+    if sel.class.toAtom() in node.widgetClasses:
       # echo "matched class! node: ", $node
       discard
     else:
