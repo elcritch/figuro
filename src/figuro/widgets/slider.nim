@@ -49,9 +49,7 @@ proc buttonDrag*[T](
     let delta =
       if self.isTrack:
         self.dragStart = self.min
-        var pos = cursor.positionRelative(track)
-        pos[0] = pos[dcol] - track.children[0].box.w / 2
-        pos
+        cursor.positionRelative(track) - uiPos(UiScalar(track.children[0].box.w / 2), 0'ui)
       else:
         initial.positionDiff(cursor)
     let offset = float(delta[dcol] / track.box.w)
