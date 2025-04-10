@@ -7,6 +7,9 @@ type
     fade* = Fader(minMax: 0.0..50.0,
                      inTimeMs: 60, outTimeMs: 60)
 
+  TextToggle*[T] = ref object of Toggle[T]
+    labelText: seq[(UiFont, string)]
+
 proc hover*[T](self: Toggle[T], kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
   discard
@@ -55,3 +58,17 @@ proc draw*[T](self: Toggle[T]) {.slot.} =
 
     WidgetContents()
 
+proc label*[T](self: TextToggle[T], spans: openArray[(UiFont, string)]) {.slot.} =
+  self.labelText.setLen(0)
+  self.labelText.add spans
+
+proc draw*[T](self: TextToggle[T]) {.slot.} =
+  withWidget(self):
+    draw(Toggle[T](self))
+    Text.new "toggle-text":
+      justify Center
+      align Middle
+      zlevel 1
+      size 40'ux, 10'ux
+      offset 50'pp-20'ux, 50'pp-8'ux
+      text self.labelText

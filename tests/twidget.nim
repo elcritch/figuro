@@ -57,8 +57,6 @@ proc draw*(self: Main) {.slot.} =
           contentWidth this, 70'ux
           justifyItems CxCenter
 
-          border this, 1'ui, css"green"
-
           Toggle.new "toggle1":
             size 30'ux, 30'ux
             fill css"white".darken(0.3)

@@ -114,12 +114,11 @@ proc draw*[T](self: TextSlider[T]) {.slot.} =
   ## slider widget
   withWidget(self):
     draw(Slider[T](self))
-    Text.new "slider2-text":
+    Text.new "text":
       justify Center
       align Middle
       zlevel 1
-      size 40'ux, 10'ux
-      offset 50'pp-20'ux, 50'pp-8'ux
+      size 100'pp, 100'pp
       text self.labelText
 
 
