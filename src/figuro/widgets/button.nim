@@ -85,9 +85,6 @@ proc label*[T](self: TextButton[T], spans: openArray[(UiFont, string)]) {.slot.}
   self.labelText.setLen(0)
   self.labelText.add spans
 
-template label*(spans: openArray[(UiFont, string)]) =
-  this.label(spans)
-
 proc draw*[T](self: TextButton[T]) {.slot.} =
   ## button widget!
   withWidget(self):

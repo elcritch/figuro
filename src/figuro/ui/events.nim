@@ -124,7 +124,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   # if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
   #   refresh(node)
 
-  for n in node.children.reverse:
+  for n in node.children:
     let child = computeNodeEvents(n)
     for ek in EventKinds:
       result[ek] = maxEvt(result[ek], child[ek])
@@ -303,7 +303,7 @@ proc computeEvents*(frame: AppFrame) =
       let newDrags = drags.targets - prevDrags
       if prevDrags.len() == 0:
         dragInitial = uxInputs.mouse.pos
-      # echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
+      echo "drag:newTargets: ", drags.targets, " prev: ", prevDrags, " flg: ", drags.flags
       for target in newDrags:
         target.events.incl evDrag
         if mouseOverlaps(target, false):

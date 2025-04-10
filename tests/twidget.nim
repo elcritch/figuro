@@ -30,7 +30,7 @@ proc draw*(self: Main) {.slot.} =
 
       TextButton.new "slider1":
         size 80'pp, 60'ux
-        label({defaultFont(): "Click me!"})
+        this.label({defaultFont(): "Click me!"})
         cornerRadius 10.0'ui
 
       Slider[float].new "slider1":
@@ -41,18 +41,12 @@ proc draw*(self: Main) {.slot.} =
         onInit:
           this.state = 0.5
 
-      Slider[float].new "slider2":
+      TextSlider[float].new "slider2":
         size 80'pp, 60'ux
         fill css"white".darken(0.3)
         this.min = 0.0
         this.max = 1.0
-        Text.new "slider2-text":
-          justify Center
-          align Middle
-          zlevel 1
-          size 40'ux, 10'ux
-          offset 50'pp-20'ux, 50'pp-8'ux
-          text {defaultFont(): $(Slider[float](this.parent[]).state.round(2))}
+        this.label {defaultFont(): $(this.state.round(2))}
 
       Toggle.new "toggle":
         size 30'ux, 30'ux
