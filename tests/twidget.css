@@ -22,7 +22,7 @@ Slider #thumb {
   width: 20px;
   left: 10px;
   -fig-cornerRadius: 7px;
-  background-color: rgba(3, 0, 88, 0.781);
+  background-color: grey;
 }
 
 #widgets-vert {

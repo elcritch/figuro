@@ -95,10 +95,9 @@ proc colorValue(value: CssValue, values: CssValues): Color =
       if values.resolveVariable(n, res):
         result = colorValue(res, values)
       else:
-        result = clearColor
-        raise newException(ValueError, "css expected color! Got: " & repr(value))
+        result = blackColor
     _:
-      raise newException(ValueError, "css expected color! Got: " & repr(value))
+      result = blackColor
 
 proc sizeValue(value: CssValue, values: CssValues): Constraint =
   match value:

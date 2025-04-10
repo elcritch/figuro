@@ -10,6 +10,7 @@ type
     min*, max*: T
     dragStart*: T
     selected*: bool
+    isTrack*: bool
     buttonSize*, fillingSize*, halfSize*: CssVarId
 
 proc buttonDrag*[T](
@@ -28,9 +29,9 @@ proc buttonDrag*[T](
       return
     self.dragStart = self.min
     self.selected = false
-    if initial == cursor:
+    if self.isTrack:
       let track = self.queryDescendant("track").get()
-      let rel = initial.positionRelative(track)
+      let rel = cursor.positionRelative(track)
       let offset = float(rel[dcol] / track.box.w)
       self.state = clamp(self.dragStart + offset, self.min, self.max)
       emit self.doUpdate(self.state)
@@ -38,9 +39,12 @@ proc buttonDrag*[T](
   of Init:
     self.dragStart = self.state
     self.selected = not selected.isNil and selected.queryParent(Slider[T]).get() == self
+    if self.selected:
+      self.isTrack = if selected.isNil: false else: selected.name == "track"
+
     discard
   of Done:
-    if not self.selected:
+    if not self.selected or self.isTrack:
       return
     let delta = initial.positionDiff(cursor)
     let track = self.queryDescendant("track").get()
@@ -72,7 +76,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
     Rectangle.new "bg": # this is mainly to avoid issues with sub-grids :/
       size 100'pp, 100'pp
 
-      printLayout(self, cmTerminal, self.frame[].theme.css.values)
+      # printLayout(self, cmTerminal, self.frame[].theme.css.values)
       debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
 
       gridCols 0'ux ["left"] 1'fr ["right"] 0'ux
