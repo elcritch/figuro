@@ -1,23 +1,23 @@
+import pkg/chronicles
 import ../widget
 import ../ui/animations
 
 type
-  Toggle*[T] = ref object of StatefulFiguro[T]
-    isEnabled: bool
+  Toggle* = ref object of StatefulFiguro[bool]
     fade* = Fader(minMax: 0.0..50.0,
                      inTimeMs: 60, outTimeMs: 60)
 
-  TextToggle*[T] = ref object of Toggle[T]
+  TextToggle* = ref object of Toggle
     labelText: seq[(UiFont, string)]
 
-proc hover*[T](self: Toggle[T], kind: EventKind) {.slot.} =
+proc hover*(self: Toggle, kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
   discard
 
-proc doClicked*[T](self: Toggle[T]) {.signal.}
+proc doClicked*(self: Toggle) {.signal.}
 
-proc enabled*[T](self: Toggle[T], value: bool) {.slot.} =
-  self.isEnabled = value
+proc enabled*(self: Toggle, value: bool) {.slot.} =
+  self.state = value
   if value:
     self.setActive()
     self.fade.fadeIn()
@@ -28,19 +28,19 @@ proc enabled*[T](self: Toggle[T], value: bool) {.slot.} =
 template enabled*(value: untyped) =
   this.enabled(value)
 
-proc clicked*[T](self: Toggle[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
   case kind:
   of Done:
-    self.enabled(not self.isEnabled)
+    self.enabled(not self.state)
     emit self.doClicked()
   else:
     discard
 
-proc initialize*[T](self: Toggle[T]) {.slot.} =
+proc initialize*(self: Toggle) {.slot.} =
   ## initialize the widget
   self.fade.addTarget(self)
 
-proc draw*[T](self: Toggle[T]) {.slot.} =
+proc draw*(self: Toggle) {.slot.} =
   ## button widget!
   withWidget(self):
     
@@ -58,13 +58,16 @@ proc draw*[T](self: Toggle[T]) {.slot.} =
 
     WidgetContents()
 
-proc label*[T](self: TextToggle[T], spans: openArray[(UiFont, string)]) {.slot.} =
+proc label*(self: TextToggle, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)
   self.labelText.add spans
 
-proc draw*[T](self: TextToggle[T]) {.slot.} =
+template label*(spans: openArray[(UiFont, string)]) =
+  this.label(spans)
+
+proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
-    draw(Toggle[T](self))
+    draw(Toggle(self))
     Text.new "toggle-text":
       justify Center
       align Middle

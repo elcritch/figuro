@@ -48,3 +48,13 @@ Toggle #thumb {
   left: 10%;
   top: 10%;
 }
+
+TextToggle #thumb {
+  border-width: 0;
+  background-color: grey;
+  border-radius: 5px;
+  width: 80%;
+  height: 80%;
+  left: 10%;
+  top: 10%;
+}
