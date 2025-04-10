@@ -288,9 +288,6 @@ proc prepArticle(self: Readability) =
 proc postProcessContent(self: Readability) =
   # Fix relative URIs
 
-  # Simplify nested elements to improve readability
-  simplifyNestedElements(self, self.doc)
-
   # Remove classes if keepClasses is false
   # if not self.keepClasses:
   #   self.cleanClasses(self.doc)
@@ -308,14 +305,14 @@ proc initializeNode(self: Readability, node: XmlNode) =
   var score = 0
   
   # Add to score based on tag
-  case node.tag
-  of "DIV":
+  case node.tag.toLowerAscii()
+  of "div":
     score += 5
-  of "PRE", "TD", "BLOCKQUOTE":
+  of "pre", "td", "blockquote":
     score += 3
-  of "ADDRESS", "OL", "UL", "DL", "DD", "DT", "LI", "FORM":
+  of "address", "ol", "ul", "dl", "dd", "dt", "li", "form":
     score -= 3
-  of "H1", "H2", "H3", "H4", "H5", "H6", "TH":
+  of "h1", "h2", "h3", "h4", "h5", "h6", "th":
     score -= 5
   else:
     discard
@@ -344,6 +341,10 @@ proc grabArticle(self: Readability, page: XmlNode = nil) =
     return
   
   # Create a new node to store the article content
+
+  # Simplify nested elements to improve readability
+  simplifyNestedElements(self, self.doc)
+
   
   # For a proper implementation, we need to:
   # 1. Score paragraphs and other elements in the page
