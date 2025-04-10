@@ -76,9 +76,6 @@ proc draw*[T](self: Slider[T]) {.slot.} =
     Rectangle.new "bg": # this is mainly to avoid issues with sub-grids :/
       size 100'pp, 100'pp
 
-      # printLayout(self, cmTerminal, self.frame[].theme.css.values)
-      debug "slider:draw", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = self.frame[].theme.css.values.values, cssVariables = self.frame[].theme.css.values.variables
-
       gridCols 0'ux ["left"] 1'fr ["right"] 0'ux
       gridRows 1'fr ["top"] csVar(self.buttonSize) ["bottom"] 1'fr
 
