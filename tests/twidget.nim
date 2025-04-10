@@ -57,6 +57,11 @@ proc draw*(self: Main) {.slot.} =
       Toggle.new "toggle":
         size 30'ux, 30'ux
 
+      Toggle.new "toggle":
+        size 30'ux, 30'ux
+        onInit:
+          setEnabled true
+
       Rectangle.new "filler":
         size 10'ux, 40'ux
 

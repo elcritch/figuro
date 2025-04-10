@@ -18,7 +18,7 @@ Slider > #bg {
   width: calc(100% - 20px);
 }
 
-Slider > #bg > #track > #thumb-bg > #thumb {
+Slider #thumb {
   width: 20px;
   left: 10px;
   -fig-cornerRadius: 7px;

@@ -80,6 +80,9 @@ proc fadeIn*(self: Fader) {.slot.} =
 proc fadeOut*(self: Fader) {.slot.} =
   self.startFade(false)
 
+proc setValue*(self: Fader, value: float) {.slot.} =
+  self.amount = value
+
 proc resets*(self: Fader) {.slot.} =
   self.active = false
   self.amount = self.minMax.a
