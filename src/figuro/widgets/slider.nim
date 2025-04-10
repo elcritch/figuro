@@ -21,8 +21,7 @@ proc buttonDrag*[T](
     overlaps: bool,
     selected: Figuro
 ) {.slot.} =
-  debug "slider:buttonDrag: ", name = self.name, uid = self.getId, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, isSelected = self.selected
-
+  trace "slider:buttonDrag: ", name = self.name, uid = self.getId, kind = kind, initial = initial, cursor = cursor, overlaps = overlaps, isSelected = self.selected
   case kind:
   of Exit:
     if not self.selected:
@@ -66,9 +65,6 @@ proc initialize*[T](self: Slider[T]) {.slot.} =
       result = csFixed(cs.coord / 2).value
     else:
       result = cs
-
-
-  debug "slider:initialized", name = self.name, buttonSize = self.buttonSize, fillingSize = self.fillingSize, cssValues = cssValues.values, cssVariables = cssValues.variables
 
 proc draw*[T](self: Slider[T]) {.slot.} =
   ## slider widget
