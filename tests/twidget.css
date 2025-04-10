@@ -1,6 +1,6 @@
 
 :root {
-  --fig-slider-button-width: 40px;
+  --fig-slider-button-width: 20px;
   --fig-slider-filling-size: 40px;
 }
 
@@ -18,12 +18,10 @@ Slider Rectangle {
   width: calc(100% - 20px);
 } */
 
-/* Slider #thumb {
-  width: 20px;
-  left: 10px;
+Slider #thumb {
   -fig-cornerRadius: 7px;
   background-color: grey;
-} */
+}
 
 #widgets-vert {
   left: 10%;
