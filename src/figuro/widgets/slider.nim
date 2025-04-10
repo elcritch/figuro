@@ -12,7 +12,7 @@ type
     selected*: bool
     isTrack*: bool
     allowTrack*: bool = true # determine if the track can be dragged
-    buttonSize*, fillingSize*, halfSize*: CssVarId
+    buttonSize, fillingSize, halfSize: CssVarId
 
 proc buttonDrag*[T](
     self: Slider[T],
