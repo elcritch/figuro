@@ -21,7 +21,8 @@ Slider > #bg {
 Slider > #bg > #track > #thumb-bg > #thumb {
   width: 20px;
   left: 10px;
-  -fig-cornerRadius: 10px;
+  -fig-cornerRadius: 7px;
+  background-color: rgba(3, 0, 88, 0.781);
 }
 
 #widgets-vert {
