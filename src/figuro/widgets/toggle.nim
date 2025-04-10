@@ -9,16 +9,11 @@ type
                      inTimeMs: 60, outTimeMs: 60)
 
   TextToggle* = ref object of Figuro
+    isEnabled: bool
     labelText: seq[(UiFont, string)]
 
-proc isEnabled*(self: Toggle): bool =
-  self.isEnabled
-
-proc hover*(self: Toggle, kind: EventKind) {.slot.} =
-  # echo "button:hovered: ", kind, " :: ", self.getId
-  discard
-
 proc doClicked*(self: Toggle) {.signal.}
+proc doChange*(self: Toggle, value: bool) {.signal.}
 
 proc enabled*(self: Toggle, value: bool) {.slot.} =
   self.isEnabled = value
@@ -28,9 +23,13 @@ proc enabled*(self: Toggle, value: bool) {.slot.} =
   else:
     self.setInactive()
     self.fade.fadeOut()
+  emit self.doChange(self.isEnabled)
 
 template enabled*(value: untyped) =
   this.enabled(value)
+
+proc isEnabled*(self: Toggle): bool =
+  self.isEnabled
 
 proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
   case kind:
@@ -69,11 +68,21 @@ proc label*(self: TextToggle, spans: openArray[(UiFont, string)]) {.slot.} =
 template label*(spans: openArray[(UiFont, string)]) =
   this.label(spans)
 
+proc isEnabled*(self: TextToggle): bool =
+  self.isEnabled
+
+proc enabled*(self: TextToggle, value: bool) {.slot.} =
+  if self.isEnabled != value:
+    self.isEnabled = value
+    echo "enabled: ", value
+    refresh(self)
+
 proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
     Toggle.new "toggle":
       size 30'ux, 100'pp
-      # enabled self.isEnabled
+      enabled self.isEnabled
+      connect(this, doChange, self, TextToggle.enabled())
 
     Rectangle.new "text-bg":
       size 100'pp-30'ux, 100'pp
