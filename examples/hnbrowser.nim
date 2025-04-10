@@ -156,7 +156,6 @@ proc draw*(self: Main) {.slot.} =
       let lh = font.getLineHeight()
 
       Rectangle.new "stories":
-        ## FIXME: there seems to be a bug with a scrollpane as a grid child
         gridRow "items" // "bottom"
         gridColumn "left" // "middle"
         cornerRadius 7.0'ux
