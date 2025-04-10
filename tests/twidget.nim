@@ -64,9 +64,9 @@ proc draw*(self: Main) {.slot.} =
           TextToggle.new "toggle2":
             offset 0'ux, 0'ux
             size 30'ux, 30'ux
-            onInit:
-              enabled true
-            label {defaultFont(): $(this.state)}
+            # onInit:
+            #   enabled true
+            label {defaultFont(): $("Toggle")}
 
       Rectangle.new "filler":
         size 10'ux, 40'ux

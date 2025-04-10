@@ -3,12 +3,16 @@ import ../widget
 import ../ui/animations
 
 type
-  Toggle* = ref object of StatefulFiguro[bool]
+  Toggle* = ref object of Figuro
+    isEnabled: bool
     fade* = Fader(minMax: 0.0..50.0,
                      inTimeMs: 60, outTimeMs: 60)
 
-  TextToggle* = ref object of Toggle
+  TextToggle* = ref object of Figuro
     labelText: seq[(UiFont, string)]
+
+proc isEnabled*(self: Toggle): bool =
+  self.isEnabled
 
 proc hover*(self: Toggle, kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
@@ -17,7 +21,7 @@ proc hover*(self: Toggle, kind: EventKind) {.slot.} =
 proc doClicked*(self: Toggle) {.signal.}
 
 proc enabled*(self: Toggle, value: bool) {.slot.} =
-  self.state = value
+  self.isEnabled = value
   if value:
     self.setActive()
     self.fade.fadeIn()
@@ -31,7 +35,7 @@ template enabled*(value: untyped) =
 proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
   case kind:
   of Done:
-    self.enabled(not self.state)
+    self.enabled(not self.isEnabled)
     emit self.doClicked()
   else:
     discard
@@ -67,11 +71,18 @@ template label*(spans: openArray[(UiFont, string)]) =
 
 proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
-    draw(Toggle(self))
-    Text.new "toggle-text":
-      justify Center
-      align Middle
-      zlevel 1
-      size 40'ux, 10'ux
-      offset 50'pp-20'ux, 50'pp-8'ux
-      text self.labelText
+    Toggle.new "toggle":
+      size 30'ux, 100'pp
+      # enabled self.isEnabled
+
+    Rectangle.new "text-bg":
+      size 100'pp-30'ux, 100'pp
+      offset 30'ux, 0'ux
+
+      Text.new "text":
+        justify Center
+        align Middle
+        zlevel 1
+        size 100'pp, 100'pp
+        text self.labelText
+
