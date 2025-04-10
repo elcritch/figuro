@@ -50,6 +50,7 @@ proc draw*(self: Main) {.slot.} =
 
       Toggle.new "toggle":
         size 30'ux, 30'ux
+        fill css"white".darken(0.3)
 
       Toggle.new "toggle":
         size 30'ux, 30'ux

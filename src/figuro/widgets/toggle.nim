@@ -40,8 +40,9 @@ proc initialize*[T](self: Toggle[T]) {.slot.} =
 proc draw*[T](self: Toggle[T]) {.slot.} =
   ## button widget!
   withWidget(self):
+    
     withOptional self:
-      fill css"#2B9FEA"
+      fill css"#2B9FEA".lighten(self.fade.amount/200.0)
 
     WidgetContents()
 
