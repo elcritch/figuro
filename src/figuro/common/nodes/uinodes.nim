@@ -121,6 +121,9 @@ type
     font*: UiFont
     color*: Color = parseHtmlColor("black")
 
+  Blank* = ref object of BasicFiguro
+  GridChild* = ref object of BasicFiguro
+
 # proc changed*(f: Figuro): Hash =
 #   var h = Hash(0)
 #   h = h !& hash tp.filePath

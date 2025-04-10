@@ -48,22 +48,27 @@ proc draw*(self: Main) {.slot.} =
         this.max = 1.0
         this.label {defaultFont(): $(this.state.round(2))}
 
-      HorizontalFilled.new "toggle-row":
+      GridChild.new "child":
         size 100'pp, 30'ux
-        contentWidth this, cx"auto", gap = 10'ui
 
-        border this, 1'ui, css"green"
+        Horizontal.new "toggle-row":
+          # size cx"min-content", 30'ux
+          size cx"auto", 30'ux
+          contentWidth this, 70'ux
+          justifyItems CxCenter
 
-        Toggle.new "toggle":
-          size 30'ux, 30'ux
-          fill css"white".darken(0.3)
+          border this, 1'ui, css"green"
 
-        Toggle.new "toggle":
-          size 30'ux, 30'ux
-          onInit:
-            enabled true
-      
+          Toggle.new "toggle1":
+            size 30'ux, 30'ux
+            fill css"white".darken(0.3)
 
+          Toggle.new "toggle2":
+            offset 0'ux, 0'ux
+            size 30'ux, 30'ux
+            onInit:
+              enabled true
+        
       Rectangle.new "filler":
         size 10'ux, 40'ux
 

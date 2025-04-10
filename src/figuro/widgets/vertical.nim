@@ -3,14 +3,12 @@ import ../widget
 
 type
   Vertical* = ref object of Figuro
-  VerticalFilled* = ref object of Vertical
 
-template usingVerticalLayout*(justify = CxCenter, align = CxCenter) =
+template usingVerticalLayout*() =
   with this:
     setGridCols 1'fr
+    gridAutoRows 1'fr
     gridAutoFlow grRow
-    justifyItems justify
-    alignItems align
 
 proc contentHeight*(current: Figuro, cx: Constraint, gap = -1'ui) {.thisWrapper.} =
   current.gridAutoRows cx
@@ -26,9 +24,3 @@ proc draw*(self: Vertical) {.slot.} =
   withWidget(self):
     usingVerticalLayout()
     WidgetContents()
-
-proc draw*(self: VerticalFilled) {.slot.} =
-  withWidget(self):
-    Rectangle.new "bg":
-      usingVerticalLayout(CxStretch, CxStretch)
-      WidgetContents()
