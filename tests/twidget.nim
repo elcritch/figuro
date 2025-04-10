@@ -20,9 +20,10 @@ proc draw*(self: Main) {.slot.} =
     padding 10'ux
     
     Vertical.new "widgets-vert":
-      size this, 100'pp-20'ux, 100'pp-20'ux
+      size this, 100'pp-20'ux, cx"min-content"
       contentHeight this, cx"min-content", gap = 20'ui
       # border this, 3'ui, css"green"
+      alignItems CxStart
       cornerRadius 10.0'ui
 
       Rectangle.new "filler":
