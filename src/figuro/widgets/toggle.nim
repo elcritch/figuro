@@ -32,6 +32,8 @@ proc isEnabled*(self: Toggle): bool =
   self.isEnabled
 
 proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
+  if MouseLeft notin buttons:
+    return
   case kind:
   of Done:
     self.enabled(not self.isEnabled)
