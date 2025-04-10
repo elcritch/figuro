@@ -28,7 +28,7 @@ proc draw*(self: Main) {.slot.} =
       Rectangle.new "filler":
         size 10'ux, 40'ux
 
-      TextButton[int].new "slider1":
+      TextButton.new "slider1":
         size 80'pp, 60'ux
         label({defaultFont(): "Click me!"})
         cornerRadius 10.0'ui

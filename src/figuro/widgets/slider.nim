@@ -29,9 +29,9 @@ proc buttonDrag*[T](
     self.dragStart = self.min
     self.selected = false
     if initial == cursor:
-      let bar = self.queryDescendant("bar").get()
-      let rel = initial.positionRelative(bar)
-      let offset = float(rel[dcol] / bar.box.w)
+      let track = self.queryDescendant("track").get()
+      let rel = initial.positionRelative(track)
+      let offset = float(rel[dcol] / track.box.w)
       self.state = clamp(self.dragStart + offset, self.min, self.max)
       emit self.doUpdate(self.state)
       refresh(self)
@@ -43,8 +43,8 @@ proc buttonDrag*[T](
     if not self.selected:
       return
     let delta = initial.positionDiff(cursor)
-    let bar = self.queryDescendant("bar").get()
-    let offset = float(delta[dcol] / bar.box.w)
+    let track = self.queryDescendant("track").get()
+    let offset = float(delta[dcol] / track.box.w)
     self.state = clamp(self.dragStart + offset, self.min, self.max)
     # notice "slider:drag:", delta = delta, offset= offset, state= self.state, bar= bar.box.w
 
@@ -80,7 +80,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
 
       let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
 
-      Rectangle.new "bar":
+      Rectangle.new "track":
         gridArea 2 // 3, 2 // 3
         uinodes.connect(this, doDrag, self, buttonDrag)
 
@@ -90,11 +90,11 @@ proc draw*[T](self: Slider[T]) {.slot.} =
           size sliderWidth, csVar(self.fillingSize)
           offset 0'ux, csVar(self.buttonSize, self.halfSize) - csVar(self.fillingSize, self.halfSize)
 
-        Rectangle.new "button-bg":
+        Rectangle.new "thumb-bg":
           size csVar(self.buttonSize), csVar(self.buttonSize)
           offset sliderWidth-csVar(self.buttonSize, self.halfSize), 0'ux
 
-          Rectangle.new "button":
+          Rectangle.new "thumb":
             fill css"black" * 0.7
             size 100'pp, 100'pp
             offset 10'ux, 0'ux

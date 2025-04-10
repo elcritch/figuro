@@ -56,11 +56,6 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
     self.fade.fadeOut()
     emit self.doClicked()
 
-# proc handleDown*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-
-proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
-  discard
-
 proc initialize*[T](self: Button[T]) {.slot.} =
   ## initialize the widget
   self.fade.addTarget(self)
