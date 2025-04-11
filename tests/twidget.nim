@@ -62,6 +62,9 @@ proc draw*(self: Main) {.slot.} =
             size 30'ux, 30'ux
             fill css"white".darken(0.3)
 
+          Rectangle.new "filler":
+            size 10'ux, 100'pp
+
           TextToggle.new "toggle2":
             offset 0'ux, 0'ux
             size 80'ux, 30'ux
