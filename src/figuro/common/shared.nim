@@ -61,7 +61,7 @@ type
     pixelScale*: float32 ## Pixel multiplier user wants on the UI
 
 var
-  dataDir* {.runtimeVar.}: string = DataDirPath.string
+  dataDir* {.runtimeVar.}: string = ospaths2.getCurrentDir()
   app* {.runtimeVar.} = AppState(running: true, uiScale: 1.0, autoUiScale: true)
 
 type

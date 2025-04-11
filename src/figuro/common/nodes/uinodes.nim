@@ -7,13 +7,13 @@ import pkg/sigils
 import pkg/cssgrid
 
 import basics
-import basiccss
+import cssparser
 import ../inputs
 import ../rchannels
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
-export basics, inputs, basiccss
+export basics, inputs
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -49,9 +49,9 @@ type
     frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]
     uid*: NodeID
-    name*: string
-    widgetName*: string
-    widgetClasses*: seq[string]
+    name*: Atom
+    widgetName*: Atom
+    widgetClasses*: seq[Atom]
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
@@ -101,8 +101,8 @@ type
     points*: seq[Position]
 
   FiguroContent* = object
-    name*: string
-    childInit*: proc(parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
+    name*: Atom
+    childInit*: proc(parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
     childPreDraw*: proc(current: Figuro) {.closure.}
 
   BasicFiguro* = ref object of Figuro
@@ -120,6 +120,9 @@ type
     vAlign*: FontVertical = Top
     font*: UiFont
     color*: Color = parseHtmlColor("black")
+
+  Blank* = ref object of BasicFiguro
+  GridChild* = ref object of BasicFiguro
 
 # proc changed*(f: Figuro): Hash =
 #   var h = Hash(0)
@@ -300,3 +303,41 @@ proc refresh*(node: Figuro) {.slot.} =
   node.frame[].redrawNodes.incl(node)
   when defined(figuroDebugRefresh):
     echo "REFRESH: ", getStackTrace()
+
+## User facing attributes
+## 
+## These are used to set the state of the node
+## and are used by the CSS engine to determine
+## the state of the node.
+## 
+## Also for general use by the widget author.
+proc setDisabled*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Disabled
+
+proc setEnabled*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Disabled
+
+proc setActive*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Active
+
+proc setInactive*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Active
+
+proc setFocused*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Focused
+
+proc setUnfocused*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Focused
+
+proc setSelected*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Selected
+
+proc setUnselected*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Selected
+
+proc setHighlighted*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Highlighted
+
+proc setUnhighlighted*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Highlighted
+

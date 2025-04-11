@@ -1,0 +1,58 @@
+
+:root {
+  --fig-slider-button-width: 20px;
+  --fig-slider-filling-size: 40px;
+}
+
+Slider {
+  border-radius: 10px;
+}
+
+Slider Rectangle {
+  border-radius: 10px;
+}
+
+/* Slider > #bg {
+  left: 10px;
+  padding-right: 10px;
+  width: calc(100% - 20px);
+} */
+
+Slider #thumb {
+  -fig-cornerRadius: 7px;
+  background-color: grey;
+}
+
+#widgets-vert {
+  left: 10%;
+  width: 80%;
+  border-width: 1px;
+  border-color: green;
+}
+
+Toggle {
+  border-width: 0;
+  border-color: black;
+  border-radius: 7px;
+  width: 40px;
+}
+
+Toggle #thumb {
+  border-width: 0;
+  background-color: grey;
+  border-radius: 5px;
+  width: 80%;
+  height: 80%;
+  left: 10%;
+  top: 10%;
+}
+
+TextToggle #thumb {
+  border-width: 0;
+  background-color: grey;
+  border-radius: 5px;
+  width: 80%;
+  height: 80%;
+  left: 10%;
+  top: 10%;
+}

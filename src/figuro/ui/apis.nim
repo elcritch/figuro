@@ -74,13 +74,53 @@ template boxOf*(box: Box) {.thisWrapper.}
   ## Sets the node's size to the given box.
 
 template padding*(left, right, top, bottom: Constraint) {.thisWrapper.}
+template padding*(all: Constraint) {.thisWrapper.}
 
 template paddingLeft*(v: Constraint) {.thisWrapper.}
 template paddingTop*(v: Constraint) {.thisWrapper.}
 template paddingRight*(v: Constraint) {.thisWrapper.}
 template paddingBottom*(v: Constraint) {.thisWrapper.}
-template paddingXY*(t, b: Constraint) {.thisWrapper.}
-template paddingWH*(l, r: Constraint) {.thisWrapper.}
+template paddingTB*(t, b: Constraint) {.thisWrapper.}
+template paddingLR*(l, r: Constraint) {.thisWrapper.}
+
+template gridCols*(args: untyped) =
+  ## configure columns for CSS Grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
+  ## names can include multiple names (aliaes):
+  ## - `["name", "header-line", "col1" ]` to make layout easier
+  ## 
+  # layout lmGrid
+  parseGridTemplateColumns(this.gridTemplate, args)
+
+template gridRows*(args: untyped) =
+  ## configure rows for CSS Grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## 
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
+  ## names can include multiple names (aliaes):
+  ## - `["name", "header-line", "col1" ]` to make layout easier
+  ## 
+  parseGridTemplateRows(this.gridTemplate, args)
+  # layout lmGrid
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
@@ -222,8 +262,8 @@ template rowEnd*[T](idx: T) {.thisWrapper.}
 template gridRow*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-template gridArea*[T](r, c: T) {.thisWrapper.}
-  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
+template gridArea*[T](c, r: T) {.thisWrapper.}
+  ## CSS Grid shorthand for grid-column-start + grid-column-end + grid-row-start + grid-row-end.
 
 template gridColumnGap*(value: UiScalar) {.thisWrapper.}
   ## Set CSS Grid column gap.

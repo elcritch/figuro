@@ -59,7 +59,9 @@ proc tick*(self: AppTicker) {.slot.} =
 
 proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
   debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
+  let values = self.theme.css.values
   self.theme.css = css
+  self.theme.css.values = values
   refresh(self.root)
 
 template setupThread(thread, obj, sig, slot, starter: untyped) =

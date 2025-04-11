@@ -124,7 +124,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   # if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
   #   refresh(node)
 
-  for n in node.children.reverse:
+  for n in node.children:
     let child = computeNodeEvents(n)
     for ek in EventKinds:
       result[ek] = maxEvt(result[ek], child[ek])

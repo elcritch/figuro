@@ -34,9 +34,13 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 #   ## Note: Experimental!
 #   nodeImpl(nkDrawable, id, inner)
 
-template rectangle*(name: string | static string, blk: untyped) =
+template toAtom*(name: Atom): Atom =
+  name
+
+
+template rectangle*(name: Atom | static string, blk: untyped) =
   ## Starts a new rectangle.
-  widgetRegister[Rectangle](name, blk)
+  widgetRegister[Rectangle](name.toAtom(), blk)
 
 template textContents*(blk: untyped) =
   ## Starts a new rectangle.
@@ -99,6 +103,11 @@ proc boxOf*(current: Figuro, box: Box) =
 proc padding*(current: Figuro, left, right, top, bottom: UiScalar | Constraint) =
   current.cxPadOffset = [left, top]
   current.cxPadSize = [bottom, right]
+
+proc padding*(current: Figuro, all: UiScalar | Constraint) =
+  current.cxPadOffset = [all, all]
+  current.cxPadSize = [all, all]
+
 proc paddingLeft*(current: Figuro, v: Constraint) =
   current.cxPadOffset[dcol] = v
 proc paddingTop*(current: Figuro, v: Constraint) =
@@ -107,10 +116,10 @@ proc paddingRight*(current: Figuro, v: Constraint) =
   current.cxPadSize[dcol] = v
 proc paddingBottom*(current: Figuro, v: Constraint) =
   current.cxPadSize[drow] = v
-proc paddingXY*(current: Figuro, top, bottom: Constraint) =
+proc paddingTB*(current: Figuro, top, bottom: Constraint) =
   current.cxPadOffset[drow] = top
   current.cxPadSize[drow] = bottom
-proc paddingWH*(current: Figuro, left, right: Constraint) =
+proc paddingLR*(current: Figuro, left, right: Constraint) =
   current.cxPadOffset[dcol] = left
   current.cxPadSize[dcol] = right
 
@@ -328,8 +337,8 @@ proc gridRow*[T](current: Figuro, val: T) =
   ## Set CSS Grid ending column.
   current.getGridItem().row = val
 
-proc gridArea*[T](current: Figuro, r, c: T) =
-  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
+proc gridArea*[T](current: Figuro, c, r: T) =
+  ## CSS Grid shorthand for grid-column-start + grid-column-end + grid-row-start + grid-row-end.
   current.getGridItem().row = r
   current.getGridItem().column = c
 

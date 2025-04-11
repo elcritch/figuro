@@ -8,12 +8,13 @@ type
     Triple
 
   Button*[T] = ref object of StatefulFiguro[T]
-    label*: string
-    disabled*: bool
     clickMode*: set[ButtonClicks] = {Single}
     isPressed*: bool
     fade* = Fader(minMax: 0.0..1.0,
                      inTimeMs: 60, outTimeMs: 60)
+
+  TextButton*[T] = ref object of Button[T]
+    labelText: seq[(UiFont, string)]
 
 proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
   # echo "button:hovered: ", kind, " :: ", self.getId
@@ -55,11 +56,6 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
     self.fade.fadeOut()
     emit self.doClicked()
 
-# proc handleDown*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-
-proc tick*[T](self: Button[T], now: MonoTime, delta: Duration) {.slot.} =
-  discard
-
 proc initialize*[T](self: Button[T]) {.slot.} =
   ## initialize the widget
   self.fade.addTarget(self)
@@ -73,7 +69,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
     withOptional self:
       cornerRadius 10.0'ui
 
-    if self.disabled:
+    if Disabled in self.userAttrs:
       withOptional self:
         fill css"#F0F0F0"
     else:
@@ -83,4 +79,30 @@ proc draw*[T](self: Button[T]) {.slot.} =
       if self.fade.active or self.isPressed:
         this.fill = this.fill.lighten(0.14*self.fade.amount)
     
+    WidgetContents()
+
+proc label*[T](self: TextButton[T], spans: openArray[(UiFont, string)]) {.slot.} =
+  self.labelText.setLen(0)
+  self.labelText.add spans
+
+proc draw*[T](self: TextButton[T]) {.slot.} =
+  ## button widget!
+  withWidget(self):
+
+    if Disabled in self.userAttrs:
+      withOptional self:
+        fill css"#F0F0F0"
+    else:
+      withOptional self:
+        fill css"#2B9FEA"
+
+      if self.fade.active or self.isPressed:
+        this.fill = this.fill.lighten(0.14*self.fade.amount)
+
+    Text.new "text":
+      size 100'pp, 100'pp
+      justify Center
+      align Middle
+      text self.labelText
+
     WidgetContents()

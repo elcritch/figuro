@@ -1,0 +1,20 @@
+{
+  "name": "readability-project",
+  "version": "1.0.0",
+  "description": "A project using jsdom and readability",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "jsdom",
+    "readability"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsdom": "^22.1.0",
+    "@mozilla/readability": "^0.4.4"
+  }
+}

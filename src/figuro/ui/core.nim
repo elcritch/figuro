@@ -63,6 +63,10 @@ proc defaultTypeface*(): TypefaceId =
 proc defaultFont*(): UiFont =
   defaultFontImpl
 
+proc withSize*(font: UiFont, size: UiScalar): UiFont =
+  result = font
+  result.size = size
+
 proc setDefaultFont*(font: UiFont) =
   defaultFontImpl = font
   defaultTypefaceImpl = font.typefaceId
@@ -202,9 +206,9 @@ template querySibling*[T: Figuro](name: string): Option[T] =
 proc queryParent*[T: Figuro](this: Figuro, tp: typedesc[T]): Option[T] =
   ## finds first parent with name
   if this.parent[] of tp:
-    return some T(this.parent[])
+    return some tp(this.parent[])
   elif this.parent.isNil:
-    return none(T)
+    return
   else:
     return this.parent[].queryParent(tp)
 
@@ -213,17 +217,33 @@ proc queryParent*[T: Figuro](this: Figuro, name: string, tp: typedesc = Figuro):
   if this.parent[].name == name and this.parent[] of tp:
     return some tp(this.parent[])
   elif this.parent.isNil:
-    return none(tp)
+    return
   else:
     return this.parent[].queryParent(name, tp)
 
-proc queryChild*[T: Figuro](this: Figuro, name: string, tp: typedesc[T]): Option[T] =
+proc queryChild*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
   ## finds first child with name
   for child in this.children:
     if child.name == name and child of tp:
-      return some T(child)
-  return none(T)
+      return some typeof(tp)(child)
+  return none(typeof(tp))
 
+proc queryDescendant*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
+  ## finds first descendant with name
+  for child in this.children:
+    if child.name == name and child of tp:
+      return some typeof(tp)(child)
+
+  for child in this.children:
+    let result = child.queryDescendant(name, tp)
+    if result.isSome:
+      return result
+
+  return none(typeof(tp))
+
+template onInit*(blk: untyped) =
+  if NfInitialized notin this.flags:
+    `blk`
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
@@ -306,7 +326,7 @@ proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
       result = parser.loadTheme()
       notice "Loaded CSS file", cssFile = defaultTheme
 
-proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figuro) =
+proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro) =
   ## Process the start of the node.
 
   nodeDepth.inc()
@@ -321,7 +341,8 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
     node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
-    node.widgetName = repr(T).split('[')[0]
+    const widgetName = repr(T).split('[')[0]
+    node.widgetName = widgetName.toAtom()
     node.name = nid
 
   if parent.children.len <= parent.diffIndex:
@@ -370,9 +391,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
 proc postNode*(node: var Figuro) =
   if NfInitialized notin node.flags:
     emit node.doInitialize()
-    node.flags.incl NfInitialized
   emit node.doDraw()
 
+  node.flags.incl NfInitialized
   node.removeExtraChildren()
   nodeDepth.dec()
 
@@ -384,7 +405,7 @@ template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-proc nodeInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+proc nodeInit*[T](parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
   ## callback proc to initialized a new node, or re-use and existing node
   var node: `T` = nil
   const kind = when T is Text: nkText else: nkRectangle
@@ -398,18 +419,18 @@ proc nodeInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {
 #   ## callback proc to initialized a new node, or re-use and existing node
 #   nodeInitImpl[T](nkText, parent, name, predraw)
 
-proc widgetRegisterImpl*[T](nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
+proc widgetRegisterImpl*[T](nn: Atom, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
   ##
   
   let fc = FiguroContent(
-    name: $(nn),
+    name: nn,
     childInit: nodeInit[T],
     childPreDraw: callback,
   )
   node.contents.add(fc)
 
-template widgetRegister*[T](nn: string | static string, blk: untyped) =
+template widgetRegister*[T](nn: Atom | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   when not compiles(this.typeof):
@@ -425,7 +446,7 @@ template widgetRegister*[T](nn: string | static string, blk: untyped) =
 # template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
 #   widgetRegister[t](nkText, name, blk)
 
-template new*(tp: typedesc, name: string, blk: untyped) =
+template new*(tp: typedesc, name: Atom | static string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills
@@ -437,19 +458,19 @@ template new*(tp: typedesc, name: string, blk: untyped) =
   ## 
   when arity(tp) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widgetRegister[tp](name, blk)
+    widgetRegister[tp](name.toAtom(), blk)
   elif arity(tp) == stripGenericParams(tp).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(tp).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widgetRegister[tp[tuple[]]](name, blk)
+      widgetRegister[tp[tuple[]]](name.toAtom(), blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widgetRegister[tp](name, blk)
+    widgetRegister[tp](name.toAtom(), blk)
 
-template `as`*(tp: typedesc, name: string, blk: untyped) =
+template `as`*(tp: typedesc, name: Atom | static string, blk: untyped) =
   new(tp, name, blk)
 
 {.hint[Name]: off.}
@@ -480,7 +501,7 @@ template withRootWidget*(self, blk: untyped) =
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
   this.cxSize = [100'pp, 100'pp]
-  self.name = "root"
+  this.name = "root".toAtom()
 
   Rectangle.new "main":
     this.cxSize = [100'pp, 100'pp]
