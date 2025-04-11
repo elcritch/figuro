@@ -78,13 +78,13 @@ proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
     Toggle.new "toggle":
       size 30'ux, 100'pp
-      this.enabled self.isEnabled
+      enabled(this, self.isEnabled)
       connect(this, doChange, self, TextToggle.enabled())
 
     Rectangle.new "text-bg":
       let toggle = this.querySibling("toggle").get()
       size 100'pp-30'ux, 100'pp
-      offset ux(toggle.box.w+3'ui), 0'ux
+      offset ux(toggle.box.w+0'ui), 0'ux
 
       Text.new "text":
         justify Center

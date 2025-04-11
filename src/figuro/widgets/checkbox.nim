@@ -78,13 +78,13 @@ proc draw*(self: TextCheckbox) {.slot.} =
   withWidget(self):
     Checkbox.new "checkbox":
       size 30'ux, 100'pp
-      enabled this, self.isEnabled
+      enabled(this, self.isEnabled)
       connect(this, doChange, self, TextCheckbox.enabled())
 
     Rectangle.new "text-bg":
       let check = this.querySibling("checkbox").get()
       size 30'ux, 100'pp
-      offset ux(check.box.w+3'ui), 0'ux
+      offset ux(check.box.w+0'ui), 0'ux
 
       Text.new "text":
         justify Center
