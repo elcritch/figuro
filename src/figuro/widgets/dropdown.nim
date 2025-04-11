@@ -9,7 +9,6 @@ import cssgrid/prettyprints
 type
   Dropdown*[T] = ref object of StatefulFiguro[T]
     items*: seq[T]
-    selected*: T
     selectedIndex*: int
     isOpen*: bool
     buttonSize, halfSize, fillingSize: CssVarId
@@ -32,7 +31,7 @@ proc selectItem*[T](self: Dropdown[T], value: T) {.slot.} =
     if item == value:
       self.selectedIndex = i
       break
-  self.state = T(self.selectedIndex)
+  self.state = self.items[self.selectedIndex]
   refresh(self)
   emit self.doSelect(self.selected)
 
@@ -40,8 +39,7 @@ proc selectIndex*[T](self: Dropdown[T], index: int) {.slot.} =
   if index < 0 or index >= self.items.len: return
   if self.selectedIndex == index: return
   self.selectedIndex = index
-  self.selected = self.items[index]
-  self.state = T(self.selectedIndex)
+  self.state = self.items[index]
   refresh(self)
   emit self.doSelect(self.selected)
 
@@ -135,11 +133,5 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
       Rectangle.new "dropdown-button":
         size csVar(self.buttonSize), 100'pp
         offset 100'pp - csVar(self.buttonSize), 0'ux
-        
-        Text.new "arrow":
-          size 100'pp, 100'pp
-          text {defaultFont(): if self.isOpen: "▲" else: "▼"}
-          justify Center
-          align Middle
 
     WidgetContents()
