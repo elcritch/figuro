@@ -99,7 +99,7 @@ proc draw*(self: Main) {.slot.} =
         
         withContents(this):
           TextButton.new "button":
-            let item = combobox.comboboxItem()
+            let item = comboboxItem()
             size 100'pp, 30'ux
             fill css"grey".lighten(0.2)
             this.label {defaultFont(): "Click me! " & repr item.state}

@@ -80,7 +80,6 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
       Vertical.new "vertical":
         size 100'pp, cx"max-content"
         contentHeight cx"min-content"
-        # WidgetContents()
 
         for idx, citem in self.elements:
           capture idx, citem:
@@ -88,8 +87,8 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
               this.state = (idx, citem)
               WidgetContents()
 
-template comboboxItem*[T](box: Combobox[T]): ComboboxItem[(int, T)] =
-  ComboboxItem[(int, T)](this.parent[])
+template comboboxItem*(): auto =
+  ComboboxItem[(int, typeof(combobox.elements[0]))](this.parent[])
 
 template withContents*[T](self: Combobox[T], blk: untyped) =
   let combobox {.inject.} = this
