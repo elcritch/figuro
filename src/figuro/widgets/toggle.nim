@@ -25,9 +25,6 @@ proc enabled*(self: Toggle, value: bool) {.slot.} =
     self.fade.fadeOut()
   emit self.doChange(self.isEnabled)
 
-template enabled*(value: untyped) =
-  this.enabled(value)
-
 proc isEnabled*(self: Toggle): bool =
   self.isEnabled
 
@@ -67,9 +64,6 @@ proc label*(self: TextToggle, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)
   self.labelText.add spans
 
-template label*(spans: openArray[(UiFont, string)]) =
-  this.label(spans)
-
 proc isEnabled*(self: TextToggle): bool =
   self.isEnabled
 
@@ -82,7 +76,7 @@ proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
     Toggle.new "toggle":
       size 30'ux, 100'pp
-      enabled self.isEnabled
+      this.enabled self.isEnabled
       connect(this, doChange, self, TextToggle.enabled())
 
     Rectangle.new "text-bg":

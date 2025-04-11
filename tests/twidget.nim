@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[button, vertical, slider, input, toggle, horizontal]
+import figuro/widgets/[button, vertical, slider, input, toggle, horizontal, checkbox]
 import figuro
 import cssgrid/prettyprints
 
@@ -65,9 +65,19 @@ proc draw*(self: Main) {.slot.} =
           TextToggle.new "toggle2":
             offset 0'ux, 0'ux
             size 80'ux, 30'ux
+            this.enabled true
+            this.label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
+
+          Checkbox.new "checkbox1":
+            size 30'ux, 100'pp
+            fill css"white".darken(0.3)
+
+          TextCheckbox.new "checkbox2":
+            size 30'ux, 100'pp
+            fill css"white".darken(0.3)
             onInit:
-              enabled true
-            label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
+              this.enabled true
+            this.label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
 
       Rectangle.new "filler":
         size 10'ux, 40'ux

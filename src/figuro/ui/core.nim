@@ -63,6 +63,10 @@ proc defaultTypeface*(): TypefaceId =
 proc defaultFont*(): UiFont =
   defaultFontImpl
 
+proc withSize*(font: UiFont, size: UiScalar): UiFont =
+  result = font
+  result.size = size
+
 proc setDefaultFont*(font: UiFont) =
   defaultFontImpl = font
   defaultTypefaceImpl = font.typefaceId

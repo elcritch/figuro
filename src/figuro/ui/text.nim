@@ -19,11 +19,12 @@ proc setInnerText*(
     spans: openArray[(UiFont, string)],
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
+    wrap = true,
 ) =
   ## Set the text on an item.
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
     trace "setInnertText", name = node.name, uid= node.uid, box= node.box
-    node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign, minContent = node.cxSize[drow] == csNone())
+    node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign, minContent = node.cxSize[drow] == csNone(), wrap = wrap)
     let minSize = node.textLayout.minSize
     let maxSize = node.textLayout.maxSize
     let bounding = node.textLayout.bounding
@@ -44,11 +45,11 @@ proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =
   else:
     true
 
-proc text*(node: Text, spans: openArray[(UiFont, string)]) {.thisWrapper.} =
-  setInnerText(node, spans, node.hAlign, node.vAlign)
+proc text*(node: Text, spans: openArray[(UiFont, string)], wrap = true) {.thisWrapper.} =
+  setInnerText(node, spans, node.hAlign, node.vAlign, wrap)
 
-proc text*(node: Text, text: string) {.thisWrapper.} =
-  text(node, {node.font: text})
+proc text*(node: Text, text: string, wrap = true) {.thisWrapper.} =
+  text(node, {node.font: text}, wrap)
 
 proc font*(node: Text, font: UiFont) {.thisWrapper.} =
   node.font = font
