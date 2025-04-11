@@ -64,9 +64,6 @@ proc label*(self: TextCheckbox, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)
   self.labelText.add spans
 
-template label*(spans: openArray[(UiFont, string)]) =
-  this.label(spans)
-
 proc isEnabled*(self: TextCheckbox): bool =
   self.isEnabled
 
@@ -84,7 +81,7 @@ proc draw*(self: TextCheckbox) {.slot.} =
 
     Rectangle.new "text-bg":
       size 100'pp-30'ux, 100'pp
-      offset 30'ux, 0'ux
+      offset 30'ux+10'ux, 0'ux
 
       Text.new "text":
         justify Center
