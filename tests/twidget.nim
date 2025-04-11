@@ -97,11 +97,12 @@ proc draw*(self: Main) {.slot.} =
         onInit:
           this.selectedIndex = 0
         
-        TextButton.new "button":
-          size 100'pp, 30'ux
-          fill css"grey".lighten(0.2)
-          let item = ComboboxItem[(int, string)](this.parent[])
-          this.label {defaultFont(): "Click me! " & repr item.state}
+        for idx, item in this.elements:
+          capture idx, item:
+            TextButton.new "button":
+              size 100'pp, 30'ux
+              fill css"grey".lighten(0.2)
+              this.label {defaultFont(): "Click me! " & repr item}
 
       Rectangle.new "filler":
         size 10'ux, 40'ux
