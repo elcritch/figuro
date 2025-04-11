@@ -1,6 +1,6 @@
 
 ## This minimal example shows 5 blue squares.
-import figuro/widgets/[button, vertical, slider, input, toggle, horizontal, checkbox]
+import figuro/widgets/[button, vertical, slider, input, toggle, horizontal, checkbox, dropdown]
 import figuro
 import cssgrid/prettyprints
 
@@ -81,6 +81,13 @@ proc draw*(self: Main) {.slot.} =
             # onInit:
             #   this.enabled true
             this.label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
+
+      Dropdown[int].new "dropdown1":
+        size 80'pp, 30'ux
+        fill css"white".darken(0.3)
+        this.items = @[1, 2, 3, 4, 5]
+        onInit:
+          this.selectedIndex = 0
 
       Rectangle.new "filler":
         size 10'ux, 40'ux
