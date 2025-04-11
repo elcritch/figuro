@@ -68,7 +68,7 @@ proc draw*(self: Main) {.slot.} =
           TextToggle.new "toggle2":
             offset 0'ux, 0'ux
             size 80'ux, 30'ux
-            this.enabled true
+            # this.enabled true
             this.label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
 
           Checkbox.new "checkbox1":
@@ -78,8 +78,8 @@ proc draw*(self: Main) {.slot.} =
           TextCheckbox.new "checkbox2":
             size 30'ux, 100'pp
             fill css"white".darken(0.3)
-            onInit:
-              this.enabled true
+            # onInit:
+            #   this.enabled true
             this.label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
 
       Rectangle.new "filler":

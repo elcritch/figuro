@@ -16,6 +16,7 @@ proc doClicked*(self: Checkbox) {.signal.}
 proc doChange*(self: Checkbox, value: bool) {.signal.}
 
 proc enabled*(self: Checkbox, value: bool) {.slot.} =
+  if self.isEnabled == value: return
   self.isEnabled = value
   if value:
     self.setActive()
@@ -68,6 +69,7 @@ proc isEnabled*(self: TextCheckbox): bool =
   self.isEnabled
 
 proc enabled*(self: TextCheckbox, value: bool) {.slot.} =
+  echo "text-checkbox:enabled: ", value
   if self.isEnabled != value:
     self.isEnabled = value
     refresh(self)

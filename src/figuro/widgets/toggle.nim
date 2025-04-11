@@ -16,6 +16,7 @@ proc doClicked*(self: Toggle) {.signal.}
 proc doChange*(self: Toggle, value: bool) {.signal.}
 
 proc enabled*(self: Toggle, value: bool) {.slot.} =
+  if self.isEnabled == value: return
   self.isEnabled = value
   if value:
     self.setActive()
@@ -68,6 +69,7 @@ proc isEnabled*(self: TextToggle): bool =
   self.isEnabled
 
 proc enabled*(self: TextToggle, value: bool) {.slot.} =
+  echo "text-toggle:enabled: ", value
   if self.isEnabled != value:
     self.isEnabled = value
     refresh(self)
@@ -80,8 +82,9 @@ proc draw*(self: TextToggle) {.slot.} =
       connect(this, doChange, self, TextToggle.enabled())
 
     Rectangle.new "text-bg":
+      let toggle = this.querySibling("toggle").get()
       size 100'pp-30'ux, 100'pp
-      offset 30'ux, 0'ux
+      offset ux(toggle.box.w+3'ui), 0'ux
 
       Text.new "text":
         justify Center
