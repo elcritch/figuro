@@ -95,8 +95,8 @@ proc draw*(self: Main) {.slot.} =
         fill css"white".darken(0.3)
         this.elements = @["one", "two", "three", "four", "five"]
         onInit:
-          this.selectedIndex = 0
-        
+          this.selected = 0
+
         withContents(this):
           TextButton.new "button":
             let item = comboboxItem()

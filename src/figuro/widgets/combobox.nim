@@ -11,41 +11,29 @@ import cssgrid/prettyprints
 type
   Combobox*[T] = ref object of StatefulFiguro[T]
     elements*: seq[T]
-    selectedIndex*: int
-    isOpen*: bool
+    selected*: int
     buttonSize, halfSize, fillingSize: CssVarId
     content*: proc(idx: int, item: T)
 
   ComboboxItem*[T] = ref object of StatefulFiguro[T]
 
-proc doSelect*[T](self: Combobox[T], value: T) {.signal.}
-proc doOpen*[T](self: Combobox[T], isOpen: bool) {.signal.}
+proc doSelect*[T](self: Combobox[T], index: int, value: T) {.signal.}
 
-proc open*[T](self: Combobox[T], value: bool) {.slot.} =
-  if self.isOpen == value: return
-  echo "combobox:open: ", value
-  self.isOpen = value
-  emit self.doOpen(self.isOpen)
+proc selectIndex*[T](self: Combobox[T], index: int) {.slot.} =
+  if index < 0 or index >= self.elements.len: return
+  if self.selected == index: return
+  self.selected = index
+  self.state = self.elements[index]
   refresh(self)
+  emit self.doSelect(index, self.elements[index])
 
 proc selectItem*[T](self: Combobox[T], value: T) {.slot.} =
   if self.selected == value: return
   self.selected = value
   for i, item in self.elements:
     if item == value:
-      self.selectedIndex = i
-      break
-  self.state = self.elements[self.selectedIndex]
-  refresh(self)
-  emit self.doSelect(self.selected)
+      return self.selectIndex(i)
 
-proc selectIndex*[T](self: Combobox[T], index: int) {.slot.} =
-  if index < 0 or index >= self.elements.len: return
-  if self.selectedIndex == index: return
-  self.selectedIndex = index
-  self.state = self.elements[index]
-  refresh(self)
-  emit self.doSelect(self.selected)
 
 proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
@@ -81,11 +69,15 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
         size 100'pp, cx"max-content"
         contentHeight cx"min-content"
 
-        for idx, citem in self.elements:
-          capture idx, citem:
+        for idx, elem in self.elements:
+          capture idx, elem:
             ComboboxItem[(int, T)].new "item":
-              this.state = (idx, citem)
+              this.state = (idx, elem)
               WidgetContents()
+              onSignal(doMouseClick) do(this: ComboboxItem[(int, T)], kind: EventKind, buttons: UiButtonView):
+                if kind == Done and MouseLeft in buttons:
+                  let combobox = this.queryParent(Combobox[T]).get()
+                  combobox.selectIndex(this.state[0])
 
 template comboboxItem*(): auto =
   ComboboxItem[(int, typeof(combobox.elements[0]))](this.parent[])
