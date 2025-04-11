@@ -102,7 +102,8 @@ proc draw*(self: Main) {.slot.} =
             let item = comboboxItem()
             size 100'pp, 30'ux
             fill css"grey".lighten(0.2)
-            this.label {defaultFont(): "Click me! " & repr item.state}
+            this.label {defaultFont(): "Click me! " & repr item.value}
+            bubble(doMouseClick)
 
       Rectangle.new "filler":
         size 10'ux, 40'ux

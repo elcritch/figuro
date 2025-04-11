@@ -15,7 +15,11 @@ type
     buttonSize, halfSize, fillingSize: CssVarId
     content*: proc(idx: int, item: T)
 
-  ComboboxItem*[T] = ref object of StatefulFiguro[T]
+  ComboboxItem*[T] = ref object of Figuro
+    index*: int
+    value*: T
+    selected*: bool
+
 
 proc doSelect*[T](self: Combobox[T], index: int, value: T) {.signal.}
 
@@ -71,16 +75,18 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
 
         for idx, elem in self.elements:
           capture idx, elem:
-            ComboboxItem[(int, T)].new "item":
-              this.state = (idx, elem)
+            ComboboxItem[T].new "item":
+              this.index = idx
+              this.value = elem
               WidgetContents()
-              onSignal(doMouseClick) do(this: ComboboxItem[(int, T)], kind: EventKind, buttons: UiButtonView):
+              onSignal(doMouseClick) do(this: ComboboxItem[T], kind: EventKind, buttons: UiButtonView):
+                echo "item clicked: ", kind, " ", buttons
                 if kind == Done and MouseLeft in buttons:
                   let combobox = this.queryParent(Combobox[T]).get()
-                  combobox.selectIndex(this.state[0])
+                  combobox.selectIndex(this.index)
 
 template comboboxItem*(): auto =
-  ComboboxItem[(int, typeof(combobox.elements[0]))](this.parent[])
+  ComboboxItem[typeof(combobox.elements[0])](this.parent[])
 
 template withContents*[T](self: Combobox[T], blk: untyped) =
   let combobox {.inject.} = this

@@ -244,7 +244,7 @@ proc doLoadBubble*(fig: Figuro) {.slot.} =
 proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
 
-proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+proc doMouseClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
   emit fig.doMouseClick(kind, buttonPress)
 
 proc doDragBubble*(
@@ -276,10 +276,10 @@ template connect*(
   signals.connect(a, signal, b, slot, acceptVoidSlot)
 
 template bubble*(signal: typed, parent: typed) =
-  connect(node, `signal`, parent, `signal Bubble`)
+  connect(this, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(node, `signal`, node.parent[], `signal Bubble`)
+  connect(this, `signal`, this.parent[], `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth),
