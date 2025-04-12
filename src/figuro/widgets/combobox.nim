@@ -20,7 +20,7 @@ type
     selected*: bool
     combobox*: WeakRef[Combobox[T]]
 
-  ComboboxList*[T] = ref object of Figuro
+  ComboboxList*[T] = ref object of Combobox[T]
 
 proc setElements*[T](self: Combobox[T], elements: seq[T]) =
   echo "setElements: ", elements
@@ -72,6 +72,8 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
     fill css"grey"
     border 1'ui, css"black"
 
+    echo "combobox:draw: ", self.elements
+
     ScrollPane.new "scroll":
       cornerRadius 7.0'ux
       offset 1'ux, 1'ux
@@ -104,22 +106,9 @@ template ComboboxItems*[T](self: Combobox[T], blk: untyped) =
   let combobox {.inject.} = this
   `blk`
 
-proc setElements*[T](self: ComboboxList[T], elements: seq[T]) =
-  setElements(self.queryChild(Combobox[T]).get(), elements)
-
-proc toggleIndex*[T](self: ComboboxList[T], index: int) =
-  toggleIndex(self.queryChild(Combobox[T]).get(), index)
-
 proc draw*[T](self: ComboboxList[T]) {.slot.} =
   withWidget(self):
-
-    Combobox[T].new "combobox1":
-      size 80'pp, 200'ux
-      fill css"white".darken(0.3)
-      onInit:
-        this.selected.incl 1
-
-      ComboboxItems(this):
+      ComboboxItems(self):
         TextButton.new "button":
           let item = getComboboxItem()
           size 100'pp, 30'ux
@@ -128,3 +117,5 @@ proc draw*[T](self: ComboboxList[T]) {.slot.} =
             fill css"#2B9FEA"
           this.label {defaultFont(): "Click me! " & repr item.value}
           bubble(doMouseClick)
+      
+      draw(Combobox[T](self))

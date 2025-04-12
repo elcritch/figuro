@@ -89,7 +89,7 @@ proc draw*(self: Main) {.slot.} =
           this.selectedIndex = 0
 
       ComboboxList[string].new "combobox1":
-        size 80'pp, 200'ux
+        size 80'pp, 100'ux
         fill css"white".darken(0.3)
         onInit:
           setElements this, @["one", "two", "three", "four", "five"]
