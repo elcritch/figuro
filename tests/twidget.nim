@@ -90,18 +90,20 @@ proc draw*(self: Main) {.slot.} =
         onInit:
           this.selectedIndex = 0
 
-      Combobox[string].new "combobox1":
+      ComboboxList[string].new "combobox1":
         size 80'pp, 200'ux
         fill css"white".darken(0.3)
         this.elements = @["one", "two", "three", "four", "five"]
         onInit:
-          this.selected = 0
+          this.selected = @[0]
 
         withContents(this):
           TextButton.new "button":
             let item = comboboxItem()
             size 100'pp, 30'ux
             fill css"grey".lighten(0.2)
+            if item.selected:
+              fill css"#2B9FEA"
             this.label {defaultFont(): "Click me! " & repr item.value}
             bubble(doMouseClick)
 

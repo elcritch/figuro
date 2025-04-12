@@ -9,9 +9,9 @@ import ./scrollpane
 import cssgrid/prettyprints
 
 type
-  Combobox*[T] = ref object of StatefulFiguro[T]
+  ComboboxList*[T] = ref object of StatefulFiguro[T]
     elements*: seq[T]
-    selected*: int
+    selected*: seq[int]
     buttonSize, halfSize, fillingSize: CssVarId
     content*: proc(idx: int, item: T)
 
@@ -21,9 +21,9 @@ type
     selected*: bool
 
 
-proc doSelect*[T](self: Combobox[T], index: int, value: T) {.signal.}
+proc doSelect*[T](self: ComboboxList[T], index: int, value: T) {.signal.}
 
-proc selectIndex*[T](self: Combobox[T], index: int) {.slot.} =
+proc selectIndex*[T](self: ComboboxList[T], index: int) {.slot.} =
   if index < 0 or index >= self.elements.len: return
   if self.selected == index: return
   self.selected = index
@@ -31,7 +31,7 @@ proc selectIndex*[T](self: Combobox[T], index: int) {.slot.} =
   refresh(self)
   emit self.doSelect(index, self.elements[index])
 
-proc selectItem*[T](self: Combobox[T], value: T) {.slot.} =
+proc selectItem*[T](self: ComboboxList[T], value: T) {.slot.} =
   if self.selected == value: return
   self.selected = value
   for i, item in self.elements:
@@ -39,7 +39,7 @@ proc selectItem*[T](self: Combobox[T], value: T) {.slot.} =
       return self.selectIndex(i)
 
 
-proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc itemClicked*[T](self: ComboboxList[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
     return
   case kind:
@@ -49,14 +49,14 @@ proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: Ui
   else:
     discard
 
-proc initialize*[T](self: Combobox[T]) {.slot.} =
+proc initialize*[T](self: ComboboxList[T]) {.slot.} =
   let cssValues = self.frame[].theme.css.values
 
 proc draw*[T](self: ComboboxItem[T]) {.slot.} =
   withWidget(self):
     discard
 
-proc draw*[T](self: Combobox[T]) {.slot.} =
+proc draw*[T](self: ComboboxList[T]) {.slot.} =
   ## dropdown widget
   withWidget(self):
     cornerRadius 10'ui
@@ -82,12 +82,13 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
               onSignal(doMouseClick) do(this: ComboboxItem[T], kind: EventKind, buttons: UiButtonView):
                 echo "item clicked: ", kind, " ", buttons
                 if kind == Done and MouseLeft in buttons:
-                  let combobox = this.queryParent(Combobox[T]).get()
-                  combobox.selectIndex(this.index)
+                  this.selected = not this.selected
+                  # let combobox = this.queryParent(Combobox[T]).get()
+                  # combobox.selectIndex(this.index)
 
 template comboboxItem*(): auto =
   ComboboxItem[typeof(combobox.elements[0])](this.parent[])
 
-template withContents*[T](self: Combobox[T], blk: untyped) =
+template withContents*[T](self: ComboboxList[T], blk: untyped) =
   let combobox {.inject.} = this
   `blk`
