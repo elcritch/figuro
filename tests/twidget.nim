@@ -54,7 +54,6 @@ proc draw*(self: Main) {.slot.} =
         size 100'pp, 30'ux
 
         Horizontal.new "toggle-row":
-          # size cx"min-content", 30'ux
           size cx"auto", 30'ux
           contentWidth this, 70'ux
           justifyItems CxCenter
@@ -69,8 +68,7 @@ proc draw*(self: Main) {.slot.} =
           TextToggle.new "toggle2":
             offset 0'ux, 0'ux
             size 80'ux, 30'ux
-            # this.enabled true
-            this.label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
+            label this, {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
 
           Checkbox.new "checkbox1":
             size 30'ux, 100'pp
@@ -79,9 +77,9 @@ proc draw*(self: Main) {.slot.} =
           TextCheckbox.new "checkbox2":
             size 30'ux, 100'pp
             fill css"white".darken(0.3)
-            # onInit:
-            #   this.enabled true
-            this.label {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
+            onInit:
+              this.enabled true
+            label this, {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
 
       Dropdown[int].new "dropdown1":
         size 80'pp, 30'ux
@@ -90,16 +88,16 @@ proc draw*(self: Main) {.slot.} =
         onInit:
           this.selectedIndex = 0
 
-      ComboboxList[string].new "combobox1":
+      Combobox[string].new "combobox1":
         size 80'pp, 200'ux
         fill css"white".darken(0.3)
-        this.elements = @["one", "two", "three", "four", "five"]
+        elements this, @["one", "two", "three", "four", "five"]
         onInit:
-          this.selected = @[0]
+          this.toggleIndex(1)
 
-        withContents(this):
+        ComboboxItems(this):
           TextButton.new "button":
-            let item = comboboxItem()
+            let item = getComboboxItem()
             size 100'pp, 30'ux
             fill css"grey".lighten(0.2)
             if item.selected:
