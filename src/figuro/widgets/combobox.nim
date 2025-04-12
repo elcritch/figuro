@@ -114,14 +114,14 @@ template ComboboxItems*[T](self: Combobox[T], blk: untyped) =
 
 proc draw*[T](self: ComboboxList[T]) {.slot.} =
   withWidget(self):
-      ComboboxItems(self):
-        TextButton.new "button":
-          let item = getComboboxItem()
-          size 100'pp, 30'ux
-          fill css"grey".lighten(0.2)
-          if item.selected:
-            fill css"#2B9FEA"
-          this.label {defaultFont(): "Click me! " & repr item.value}
-          bubble(doMouseClick)
-      
-      draw(Combobox[T](self))
+    ComboboxItems(self):
+      TextButton.new "button":
+        let item = getComboboxItem()
+        size 100'pp, 30'ux
+        fill css"grey".lighten(0.2)
+        if item.selected:
+          fill css"#2B9FEA"
+        this.label {defaultFont(): "Click me! " & repr item.value}
+        bubble(doMouseClick)
+    
+    draw(Combobox[T](self))
