@@ -17,12 +17,12 @@ proc doSelect*[T](self: Dropdown[T], value: T) {.signal.}
 proc doOpened*[T](self: Dropdown[T], isOpen: bool) {.signal.}
 
 proc open*[T](self: Dropdown[T], value: bool) {.slot.} =
-  self.setUserAttr(Open, value)
+  self.setUserAttr({Open}, value)
   emit self.doOpened(value)
   refresh(self)
 
 proc toggleOpen*[T](self: Dropdown[T]) {.slot.} =
-  self.open(not self.isOpen)
+  self.open(Open notin self.userAttrs)
 
 proc setElements*[T](self: Dropdown[T], elements: seq[T]) =
   self.elements = elements
