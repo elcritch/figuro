@@ -114,7 +114,7 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
-        setGridCols ["left"]  min(500'ux, 25'pp) \
+        setGridCols ["left"] min(500'ux, 25'pp) \
                     ["middle"] 5'fr \
                     ["right"] 0'ux
         setGridRows ["top"] 70'ux \

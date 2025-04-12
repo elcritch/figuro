@@ -78,19 +78,19 @@ proc draw*(self: Main) {.slot.} =
               this.enabled true
             label this, {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
 
-      Dropdown[int].new "dropdown1":
-        size 80'pp, 30'ux
-        fill css"white".darken(0.3)
-        this.items = @[1, 2, 3, 4, 5]
-        onInit:
-          this.selectedIndex = 0
-
       ComboboxList[string].new "combobox1":
         size 80'pp, 100'ux
         fill css"white".darken(0.3)
         onInit:
           setElements this, @["one", "two", "three", "four", "five"]
           multiselect this, true
+          toggleIndex this, 1
+
+      Dropdown[int].new "dropdown1":
+        size 80'pp, 30'ux
+        fill css"white".darken(0.3)
+        onInit:
+          setElements this, @[1, 2, 3, 4, 5]
           toggleIndex this, 1
 
       Rectangle.new "filler":
