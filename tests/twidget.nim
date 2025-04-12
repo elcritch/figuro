@@ -91,9 +91,9 @@ proc draw*(self: Main) {.slot.} =
       Combobox[string].new "combobox1":
         size 80'pp, 200'ux
         fill css"white".darken(0.3)
-        elements this, @["one", "two", "three", "four", "five"]
         onInit:
-          this.toggleIndex(1)
+          setElements this, @["one", "two", "three", "four", "five"]
+          toggleIndex this, 1
 
         ComboboxItems(this):
           TextButton.new "button":

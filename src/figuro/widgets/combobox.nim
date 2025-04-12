@@ -22,7 +22,8 @@ type
 
   ComboboxList*[T] = ref object of Figuro
 
-proc `elements`*[T](self: Combobox[T], elements: seq[T]) =
+proc `setElements`*[T](self: Combobox[T], elements: seq[T]) =
+  echo "setElements: ", elements
   self.elements = elements
   self.selected.clear()
 
