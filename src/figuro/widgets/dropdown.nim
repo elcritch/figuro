@@ -7,9 +7,7 @@ import ./vertical
 import cssgrid/prettyprints
 
 type
-  Dropdown*[T] = ref object of StatefulFiguro[T]
-    elements*: seq[T]
-    selected*: HashSet[int]
+  Dropdown*[T] = ref object of Figuro
 
 
 proc doSelect*[T](self: Dropdown[T], value: T) {.signal.}
