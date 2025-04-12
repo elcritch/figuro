@@ -86,12 +86,12 @@ proc draw*(self: Main) {.slot.} =
           multiSelect this, true
           toggleIndex this, 1
 
-      Dropdown[int].new "dropdown1":
-        size 80'pp, 30'ux
-        fill css"white".darken(0.3)
-        onInit:
-          setElements this, @[1, 2, 3, 4, 5]
-          # toggleIndex this, 1
+      # Dropdown[int].new "dropdown1":
+      #   size 80'pp, 30'ux
+      #   fill css"white".darken(0.3)
+      #   onInit:
+      #     setElements this, @[1, 2, 3, 4, 5]
+      #     # toggleIndex this, 1
 
       Rectangle.new "filler":
         size 10'ux, 40'ux
