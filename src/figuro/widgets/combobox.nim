@@ -13,6 +13,7 @@ type
     elements: seq[T]
     selected: HashSet[int]
     buttonSize, halfSize, fillingSize: CssVarId
+    multiselect: bool
 
   ComboboxItem*[T] = ref object of Figuro
     index*: int
@@ -27,6 +28,9 @@ proc setElements*[T](self: Combobox[T], elements: seq[T]) =
   self.elements = elements
   self.selected.clear()
 
+proc multiselect*[T](self: Combobox[T], multiselect: bool) =
+  self.multiselect = multiselect
+
 proc doSelect*[T](self: Combobox[T], index: int, value: T) {.signal.}
 
 proc toggleIndex*[T](self: Combobox[T], index: int) =
@@ -34,6 +38,8 @@ proc toggleIndex*[T](self: Combobox[T], index: int) =
   if index in self.selected:
     self.selected.excl index
   else:
+    if not self.multiSelect:
+      self.selected.clear()
     self.selected.incl index
   emit self.doSelect(index, self.elements[index])
 
