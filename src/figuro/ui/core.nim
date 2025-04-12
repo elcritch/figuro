@@ -228,6 +228,13 @@ proc queryChild*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] 
       return some typeof(tp)(child)
   return none(typeof(tp))
 
+proc queryChild*(this: Figuro, tp: typedesc = Figuro): Option[tp] =
+  ## finds first child with type
+  for child in this.children:
+    if child of tp:
+      return some typeof(tp)(child)
+  return none(typeof(tp))
+
 proc queryDescendant*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
   ## finds first descendant with name
   for child in this.children:

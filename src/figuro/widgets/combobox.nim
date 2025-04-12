@@ -22,7 +22,7 @@ type
 
   ComboboxList*[T] = ref object of Figuro
 
-proc `setElements`*[T](self: Combobox[T], elements: seq[T]) =
+proc setElements*[T](self: Combobox[T], elements: seq[T]) =
   echo "setElements: ", elements
   self.elements = elements
   self.selected.clear()
@@ -104,14 +104,18 @@ template ComboboxItems*[T](self: Combobox[T], blk: untyped) =
   let combobox {.inject.} = this
   `blk`
 
+proc setElements*[T](self: ComboboxList[T], elements: seq[T]) =
+  setElements(self.queryChild(Combobox[T]).get(), elements)
+
+proc toggleIndex*[T](self: ComboboxList[T], index: int) =
+  toggleIndex(self.queryChild(Combobox[T]).get(), index)
 
 proc draw*[T](self: ComboboxList[T]) {.slot.} =
   withWidget(self):
 
-    ComboboxList[string].new "combobox1":
+    Combobox[T].new "combobox1":
       size 80'pp, 200'ux
       fill css"white".darken(0.3)
-      this.elements = @["one", "two", "three", "four", "five"]
       onInit:
         this.selected.incl 1
 
