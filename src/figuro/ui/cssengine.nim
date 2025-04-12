@@ -66,6 +66,9 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   of "focused":
     if Focused in node.userAttrs:
       result = true
+  of "open":
+    if Open in node.userAttrs:
+      result = true
   of "selected":
     if Selected in node.userAttrs:
       result = true

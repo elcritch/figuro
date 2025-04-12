@@ -42,6 +42,7 @@ type
     Disabled
     Enabled
     Active
+    Open
     Highlighted
     Focused
     Selected

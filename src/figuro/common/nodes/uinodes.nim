@@ -341,3 +341,14 @@ proc setHighlighted*(fig: Figuro) {.slot.} =
 proc setUnhighlighted*(fig: Figuro) {.slot.} =
   fig.userAttrs.excl Highlighted
 
+proc setOpen*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Open
+
+proc setClosed*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Open
+
+proc setUserAttr*(fig: Figuro, attr: set[Attributes], state: bool) {.slot.} =
+  if state:
+    fig.userAttrs.incl attr
+  else:
+    fig.userAttrs.excl attr

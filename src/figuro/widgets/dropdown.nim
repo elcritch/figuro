@@ -10,18 +10,15 @@ type
   Dropdown*[T] = ref object of StatefulFiguro[T]
     elements*: seq[T]
     selected*: HashSet[int]
-    isOpen*: bool
     buttonSize, halfSize, fillingSize: CssVarId
 
 
 proc doSelect*[T](self: Dropdown[T], value: T) {.signal.}
-proc doOpen*[T](self: Dropdown[T], isOpen: bool) {.signal.}
+proc doOpened*[T](self: Dropdown[T], isOpen: bool) {.signal.}
 
 proc open*[T](self: Dropdown[T], value: bool) {.slot.} =
-  if self.isOpen == value:
-    return
-  self.isOpen = value
-  emit self.doOpen(self.isOpen)
+  self.setUserAttr(Open, value)
+  emit self.doOpened(value)
   refresh(self)
 
 proc toggleOpen*[T](self: Dropdown[T]) {.slot.} =
