@@ -24,6 +24,10 @@ proc open*[T](self: Dropdown[T], value: bool) {.slot.} =
 proc toggleOpen*[T](self: Dropdown[T]) {.slot.} =
   self.open(not self.isOpen)
 
+proc setElements*[T](self: Dropdown[T], elements: seq[T]) =
+  self.elements = elements
+  self.selected.clear()
+
 proc clicked*[T](self: Dropdown[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
     return
