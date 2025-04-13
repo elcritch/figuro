@@ -76,5 +76,4 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         size 100'pp, 100'ux
         offset 0'ux, this.parent[].box.h
         zlevel 10
-
-    refreshLayout(this)
+        refreshLayout(this)
