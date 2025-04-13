@@ -16,6 +16,9 @@ proc setElements*[T](self: SelectedElements[T], elements: seq[T]) =
 proc elements*[T](self: SelectedElements[T]): seq[T] =
   self.elements
 
+proc selected*[T](self: SelectedElements[T]): lent HashSet[int] =
+  self.selected
+
 proc isSelected*[T](self: SelectedElements[T], index: int): bool =
   index in self.selected
 

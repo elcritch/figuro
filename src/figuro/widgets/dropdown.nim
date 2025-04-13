@@ -4,6 +4,7 @@ import ../widget
 import ../ui/animations
 import ./combobox
 import ./datamodels
+import ./button
 
 import cssgrid/prettyprints
 
@@ -57,7 +58,18 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
 
     echo "DROPDOWN: ", Open in self
 
-    if Open in self:
+    if Open notin self:
+      TextButton.new "button":
+        size 100'pp, 100'pp
+        if self.data.selected.len > 0:
+          let item = self.data.selected.toSeq()[0]
+          label this, {defaultFont(): $self.data.elements[item]}
+        else:
+          label this, {defaultFont(): "Dropdown"}
+        onSignal(doSingleClick) do(self: Dropdown[T]):
+          self.toggleOpen()
+
+    else:
       ComboboxList[T].new "combobox":
         this.data = self.data
-        size 100'pp, 300'ux
+        size 100'pp, 100'ux
