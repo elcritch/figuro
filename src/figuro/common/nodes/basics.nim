@@ -41,8 +41,8 @@ type
   Attributes* = enum
     SkipCss
     Disabled
-    Enabled
     Active
+    Checked
     Open
     Selected
     Hover

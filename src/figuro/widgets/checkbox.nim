@@ -4,7 +4,6 @@ import ../ui/animations
 
 type
   Checkbox* = ref object of Figuro
-    isEnabled: bool
     fade* = Fader(minMax: 0.0..1.0,
                   inTimeMs: 240, outTimeMs: 240)
 
@@ -15,26 +14,26 @@ type
 proc doClicked*(self: Checkbox) {.signal.}
 proc doChange*(self: Checkbox, value: bool) {.signal.}
 
+proc isEnabled*(self: Checkbox): bool =
+  Checked in self.userAttrs
+
 proc enabled*(self: Checkbox, value: bool) {.slot.} =
-  if self.isEnabled == value: return
-  self.isEnabled = value
+  if self.isEnabled() == value: return
+  self.setUserAttr({Checked}, value)
   if value:
     self.setActive()
     self.fade.fadeIn()
   else:
     self.setInactive()
     self.fade.fadeOut()
-  emit self.doChange(self.isEnabled)
-
-proc isEnabled*(self: Checkbox): bool =
-  self.isEnabled
+  emit self.doChange(self.isEnabled())
 
 proc clicked*(self: Checkbox, kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
     return
   case kind:
   of Done:
-    self.enabled(not self.isEnabled)
+    self.setUserAttr({Checked}, not (Checked in self.userAttrs))
     emit self.doClicked()
   else:
     discard
@@ -67,12 +66,11 @@ proc label*(self: TextCheckbox, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.add spans
 
 proc isEnabled*(self: TextCheckbox): bool =
-  self.isEnabled
+  Checked in self.userAttrs
 
 proc enabled*(self: TextCheckbox, value: bool) {.slot.} =
-  echo "text-checkbox:enabled: ", value
-  if self.isEnabled != value:
-    self.isEnabled = value
+  if isEnabled(self) != value:
+    self.setUserAttr({Checked}, value)
     refresh(self)
 
 proc draw*(self: TextCheckbox) {.slot.} =

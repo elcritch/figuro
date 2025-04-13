@@ -78,9 +78,6 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   of "selected":
     if Selected in node.userAttrs:
       result = true
-  of "enabled":
-    if Enabled in node.userAttrs:
-      result = true
   of "disabled":
     if Disabled in node.userAttrs:
       result = true
