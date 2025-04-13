@@ -8,6 +8,10 @@ Slider {
   border-radius: 10px;
 }
 
+Dropdown {
+  height: 60px;
+}
+
 Dropdown > TextButton {
   border-radius: 10px;
 }
