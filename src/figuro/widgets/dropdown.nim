@@ -43,6 +43,9 @@ proc itemClicked*[T](self: Dropdown[T], index: int, kind: EventKind, buttons: Ui
   else:
     discard
 
+proc initialize*[T](self: Dropdown[T]) {.slot.} =
+  self.data = SelectedElements[T]()
+
 proc draw*[T](self: Dropdown[T]) {.slot.} =
   ## dropdown widget
   withWidget(self):
