@@ -2,12 +2,12 @@ import pkg/chronicles
 
 import ../widget
 import ../ui/animations
-import ./vertical
+import ./combobox
 
 import cssgrid/prettyprints
 
 type
-  Dropdown*[T] = ref object of Figuro
+  Dropdown*[T] = ref object of Combobox[T]
 
 
 proc doSelect*[T](self: Dropdown[T], value: T) {.signal.}
@@ -22,8 +22,8 @@ proc toggleOpen*[T](self: Dropdown[T]) {.slot.} =
   self.open(Open notin self.userAttrs)
 
 proc setElements*[T](self: Dropdown[T], elements: seq[T]) =
-  self.elements = elements
-  self.selected.clear()
+  # combobox.setElements(Combobox[T](self), elements)
+  discard
 
 proc clicked*[T](self: Dropdown[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:

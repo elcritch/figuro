@@ -253,10 +253,10 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     trace "SEL: ", sel = sel, comb = $prevCombinator
 
     if sel.combinator == skPseudo:
-      if prevCombinator == skNone and sel.cssType == "root":
-        if values != nil and not values.rootApplied:
+      if prevCombinator == skNone and sel.cssType in ["root", "default"]:
+        if values != nil and not values.applied.contains(sel.cssType):
           matched = true
-          values.rootApplied = true
+          values.applied.incl sel.cssType
         else:
           matched = false
         continue

@@ -14,15 +14,15 @@ export gridtypes
 
 type
   CssValues* = ref object of CssVariables
-    rootApplied*: bool
+    applied*: HashSet[string]
     parent*: CssValues
     values*: Table[CssVarId, CssValue]
 
 proc newCssValues*(): CssValues =
-  result = CssValues(rootApplied: false)
+  result = CssValues(applied: initHashSet[string]())
 
 proc newCssValues*(parent: CssValues): CssValues =
-  result = CssValues(rootApplied: parent.rootApplied, parent: parent)
+  result = CssValues(applied: parent.applied, parent: parent)
 
 proc setVariable*(vars: CssValues, idx: CssVarId, value: CssValue) =
   let isSize = value.kind == CssValueKind.CssSize

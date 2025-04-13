@@ -1,4 +1,5 @@
 
-:root {
+:default {
   --fig-accent-color: #2B9FEA;
+  --fig-widget-background-color: #F0F0F0;
 }
