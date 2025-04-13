@@ -7,7 +7,7 @@ import cssgrid/prettyprints
 
 type
   Slider*[T] = ref object of StatefulFiguro[T]
-    min*, max*: T
+    minMax*: Slice[T]
     dragStart*: T
     selected*: bool
     isTrack*: bool
@@ -30,7 +30,7 @@ proc buttonDrag*[T](
   of Exit:
     if not self.selected:
       return
-    self.dragStart = self.min
+    self.dragStart = self.minMax.a
     self.selected = false
     if self.isTrack:
       self.isTrack = false
@@ -48,12 +48,12 @@ proc buttonDrag*[T](
     let track = self.queryDescendant("thumb-track").get()
     let delta =
       if self.isTrack:
-        self.dragStart = self.min
+        self.dragStart = self.minMax.a
         cursor.positionRelative(track) - uiPos(UiScalar(track.children[0].box.w / 2), 0'ui)
       else:
         initial.positionDiff(cursor)
     let offset = float(delta[dcol] / track.box.w)
-    self.state = clamp(self.dragStart + offset, self.min, self.max)
+    self.state = clamp(self.dragStart + offset, self.minMax.a, self.minMax.b)
     # notice "slider:drag:", delta = delta, offset= offset, state= self.state, bar= bar.box.w
 
     emit self.doUpdate(self.state)
@@ -80,7 +80,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
       gridCols 0'ux ["left"] 0'ux 1'fr ["right-btn"] csVar(self.buttonSize) ["right"]
       gridRows 1'fr ["top"] csVar(self.fillingSize) ["bottom"] 1'fr
 
-      let sliderWidth = csPerc(100 * self.state.float.clamp(self.min.float, self.max.float))
+      let sliderWidth = csPerc(100 * self.state.float.clamp(self.minMax.a.float, self.minMax.b.float))
 
       Rectangle.new "track":
         gridArea 3 // 5, 2 // 3

@@ -40,17 +40,15 @@ proc draw*(self: Main) {.slot.} =
       Slider[float].new "slider1":
         size 80'pp, 60'ux
         fill css"white".darken(0.3)
-        this.min = 0.0
-        this.max = 1.0
+        this.minMax = 0.0..1.0
         onInit:
           this.state = 0.5
 
       TextSlider[float].new "slider2":
         size 80'pp, 60'ux
         fill css"white".darken(0.3)
-        this.min = 0.0
-        this.max = 1.0
-        this.label {defaultFont(): $(this.state.round(2))}
+        this.minMax = 0.0..1.0
+        label this, {defaultFont(): $(this.state.round(2))}
 
       GridChild.new "child":
         size 100'pp, 30'ux
