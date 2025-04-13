@@ -30,10 +30,18 @@ proc draw*(self: Main) {.slot.} =
       Rectangle.new "filler":
         size 10'ux, 40'ux
 
-      TextButton.new "slider1":
+      Button.new "button1":
+        size 80'pp, 60'ux
+        cornerRadius 10.0'ui
+        onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+          echo "clicked: ", kind, " :: ", buttons
+
+      TextButton.new "button2":
         size 80'pp, 60'ux
         label this, {defaultFont(): "Click me!"}
         cornerRadius 10.0'ui
+        onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+          echo "clicked: ", kind, " :: ", buttons
 
       Slider[float].new "slider1":
         size 80'pp, 60'ux
