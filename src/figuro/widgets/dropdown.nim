@@ -35,14 +35,9 @@ proc clicked*[T](self: Dropdown[T], kind: EventKind, buttons: UiButtonView) {.sl
     self.toggleOpen()
 
 proc itemClicked*[T](self: Dropdown[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  if MouseLeft notin buttons:
-    return
-  case kind:
-  of Done:
+  if MouseLeft in buttons and Done == kind:
     self.data.selectIndex(index)
     self.open(false)
-  else:
-    discard
 
 proc itemsSelected*[T](self: Dropdown[T], indexes: HashSet[int]) {.slot.} =
   self.toggleOpen()
