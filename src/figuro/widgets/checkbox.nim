@@ -14,7 +14,7 @@ type
 proc doClicked*(self: Checkbox) {.signal.}
 proc doChange*(self: Checkbox, value: bool) {.signal.}
 
-proc enabled*(self: Checkbox, value: bool) {.slot.} =
+proc checked*(self: Checkbox, value: bool) {.slot.} =
   if contains(self, Checked) != value:
     self.setUserAttr({Checked}, value)
     if value:
@@ -62,11 +62,8 @@ proc label*(self: TextCheckbox, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)
   self.labelText.add spans
 
-proc isEnabled*(self: TextCheckbox): bool =
-  Checked in self.userAttrs
-
-proc enabled*(self: TextCheckbox, value: bool) {.slot.} =
-  if isEnabled(self) != value:
+proc checked*(self: TextCheckbox, value: bool) {.slot.} =
+  if contains(self, Checked) != value:
     self.setUserAttr({Checked}, value)
     refresh(self)
 
@@ -74,8 +71,8 @@ proc draw*(self: TextCheckbox) {.slot.} =
   withWidget(self):
     Checkbox.new "checkbox":
       size 30'ux, 100'pp
-      # enabled(this, self.isEnabled)
-      connect(this, doChange, self, TextCheckbox.enabled())
+      checked(this, contains(self, Checked))
+      connect(this, doChange, self, TextCheckbox.checked())
 
     Rectangle.new "text-bg":
       let check = this.querySibling("checkbox").get()
