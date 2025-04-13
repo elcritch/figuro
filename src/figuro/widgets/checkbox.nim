@@ -24,6 +24,7 @@ proc checked*(self: Checkbox, value: bool) {.slot.} =
       self.setInactive()
       self.fade.fadeOut()
     emit self.doChange(value)
+    refresh(self)
 
 proc clicked*(self: Checkbox, kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:

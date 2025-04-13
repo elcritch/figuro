@@ -67,7 +67,7 @@ proc draw*(self: Main) {.slot.} =
             size 80'ux, 30'ux
             onInit:
               checked this, true
-            label this, {defaultFont(): $(if this.isChecked: "On" else: "Off")}
+            label this, {defaultFont(): $(if Checked in this: "On" else: "Off")}
 
           Checkbox.new "checkbox1":
             size 30'ux, 100'pp

@@ -23,6 +23,7 @@ proc checked*(self: Toggle, value: bool) {.slot.} =
     else:
       self.fade.fadeOut()
     emit self.doChange(value)
+    refresh(self)
 
 proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "toggle:clicked: ", kind, " :: ", buttons
@@ -61,12 +62,9 @@ proc label*(self: TextToggle, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)
   self.labelText.add spans
 
-proc isChecked*(self: TextToggle): bool =
-  Checked in self.userAttrs
-
 proc checked*(self: TextToggle, value: bool) {.slot.} =
   echo "text-toggle:checked: ", value
-  if isChecked(self) != value:
+  if contains(self, Checked) != value:
     echo "text-toggle:checked: setting to ", value
     self.setUserAttr({Checked}, value)
     refresh(self)
@@ -75,7 +73,7 @@ proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
     Toggle.new "toggle":
       size 30'ux, 100'pp
-      checked(this, isChecked(self))
+      checked(this, contains(self, Checked))
       connect(this, doChange, self, TextToggle.checked())
 
     Rectangle.new "text-bg":
