@@ -5,7 +5,7 @@ import ../ui/animations
 type
   Toggle* = ref object of Figuro
     fade* = Fader(minMax: 0.0..50.0,
-                     inTimeMs: 60, outTimeMs: 60)
+                     inTimeMs: 120, outTimeMs: 120)
 
   TextToggle* = ref object of Figuro
     labelText: seq[(UiFont, string)]
