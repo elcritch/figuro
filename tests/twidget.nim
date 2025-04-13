@@ -88,7 +88,6 @@ proc draw*(self: Main) {.slot.} =
             onInit:
               checked this, true
               this.userAttrs.incl FocusWithin
-
             fill themeColor("fig-widget-background-color")
 
           TextCheckbox.new "checkbox2":
@@ -105,6 +104,7 @@ proc draw*(self: Main) {.slot.} =
           setElements this.data, @["one", "two", "three", "four", "five"]
           multiSelect this.data, true
           toggleIndex this.data, 1
+        # echo "COMBO: ", this.name, " :: ", this.screenBox
 
       Rectangle.new "filler":
         size 10'ux, 40'ux
