@@ -56,6 +56,12 @@ proc draw*(self: Main) {.slot.} =
         onInit:
           setElements this.data, @["one", "two", "three", "four", "five"]
 
+      Dropdown[string].new "dropdown2":
+        size 80'pp, 30'ux
+        fill themeColor("fig-widget-background-color")
+        onInit:
+          setElements this.data, @["one", "two", "three", "four", "five"]
+
       GridChild.new "child":
         size 100'pp, 30'ux
 
