@@ -90,9 +90,9 @@ proc draw*(self: Main) {.slot.} =
         size 80'pp, 100'ux
         fill themeColor("fig-widget-background-color").darken(0.3)
         onInit:
-          setElements this, @["one", "two", "three", "four", "five"]
-          multiSelect this, true
-          toggleIndex this, 1
+          setElements this.data, @["one", "two", "three", "four", "five"]
+          multiSelect this.data, true
+          toggleIndex this.data, 1
 
       Dropdown[string].new "dropdown1":
         size 80'pp, 30'ux

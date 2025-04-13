@@ -3,6 +3,7 @@ import pkg/chronicles
 import ../widget
 import ../ui/animations
 import ./combobox
+import ./datamodels
 
 import cssgrid/prettyprints
 
@@ -52,5 +53,3 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
 
     WidgetContents()
 
-    # if Open in self.userAttrs:
-    #   draw(Combobox[T](self))

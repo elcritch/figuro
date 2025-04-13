@@ -5,15 +5,12 @@ import ../ui/animations
 import ./vertical
 import ./button
 import ./scrollpane
-
+import ./datamodels
 import cssgrid/prettyprints
 
-type
-  SelectedElements*[T] = ref object of Agent
-    elements: seq[T]
-    selected: HashSet[int]
-    multiSelect: bool
+export datamodels
 
+type
   Combobox*[T] = ref object of Figuro
     data*: SelectedElements[T]
     buttonSize, halfSize, fillingSize: CssVarId
@@ -24,37 +21,6 @@ type
     combobox*: WeakRef[Combobox[T]]
 
   ComboboxList*[T] = ref object of Combobox[T]
-
-proc setElements*[T](self: Combobox[T], elements: seq[T]) =
-  echo "setElements: ", elements
-  self.data.elements = elements
-  self.data.selected.clear()
-
-proc multiSelect*[T](self: Combobox[T], multiSelect: bool) =
-  self.data.multiSelect = multiSelect
-
-proc doSelect*[T](self: Combobox[T], index: int, value: T) {.signal.}
-
-proc toggleIndex*[T](self: Combobox[T], index: int) =
-  if index < 0 or index >= self.data.elements.len: return
-  if index in self.data.selected:
-    self.data.selected.excl index
-  else:
-    if not self.data.multiSelect:
-      self.data.selected.clear()
-    self.data.selected.incl index
-  emit self.doSelect(index, self.data.elements[index])
-
-proc selectItem*[T](self: Combobox[T], value: T) {.slot.} =
-  if self.data.selected == value: return
-  self.data.selected = value
-  for i, item in self.data.elements:
-    if item == value:
-      return self.selectIndex(i)
-
-proc selectIndex*[T](self: Combobox[T], index: int) {.slot.} =
-  toggleIndex(self, index)
-  refresh(self)
 
 proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
@@ -69,6 +35,7 @@ proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: Ui
 proc initialize*[T](self: Combobox[T]) {.slot.} =
   self.data = SelectedElements[T]()
   let cssValues = self.frame[].theme.css.values
+  connect(self.data, doSelect, self, Figuro.refresh(), acceptVoidSlot = true)
 
 proc draw*[T](self: ComboboxItem[T]) {.slot.} =
   withWidget(self):
@@ -93,7 +60,7 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
           capture idx, elem:
             ComboboxItem[T].new "item":
               this.index = idx
-              this.setUserAttr(Selected, idx in self.data.selected)
+              this.setUserAttr(Selected, self.data.isSelected(idx))
               this.value = elem
               this.combobox = self.unsafeWeakRef()
               WidgetContents()
@@ -101,7 +68,7 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
                 if kind == Done and MouseLeft in buttons:
                   # this.selected = not this.selected
                   let combobox = this.queryParent(Combobox[T]).get()
-                  combobox.selectIndex(this.index)
+                  combobox.data.selectIndex(this.index)
 
 template getComboboxItem*(): auto =
   ComboboxItem[typeof(combobox.data.elements[0])](this.parent[])
