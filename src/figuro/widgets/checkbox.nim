@@ -47,7 +47,8 @@ proc draw*(self: Checkbox) {.slot.} =
   ## checkbox widget!
   withWidget(self):
     cornerRadius 5'ui
-    fill css"white"
+    fill themeColor("fig-widget-background-light")
+
     border 1'ui, css"grey"
 
     WidgetContents()

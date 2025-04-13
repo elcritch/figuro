@@ -69,11 +69,11 @@ proc draw*(self: Main) {.slot.} =
 
           Checkbox.new "checkbox1":
             size 30'ux, 100'pp
-            fill css"white".darken(0.3)
+            fill themeColor("fig-widget-background-color")
 
           TextCheckbox.new "checkbox2":
             size 30'ux, 100'pp
-            fill css"white".darken(0.3)
+            fill themeColor("fig-widget-background-color")
             onInit:
               this.enabled true
             label this, {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
@@ -88,7 +88,7 @@ proc draw*(self: Main) {.slot.} =
 
       Dropdown[int].new "dropdown1":
         size 80'pp, 30'ux
-        fill themeColor("fig-widget-background-color").darken(0.3)
+        fill themeColor("fig-widget-background-color")
         onInit:
           setElements this, @[1, 2, 3, 4, 5]
           # toggleIndex this, 1

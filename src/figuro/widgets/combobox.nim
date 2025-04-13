@@ -75,16 +75,12 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
   ## dropdown widget
   withWidget(self):
     cornerRadius 10'ui
-    fill css"grey"
-    border 1'ui, css"black"
-
-    echo "combobox:draw: ", self.elements
 
     ScrollPane.new "scroll":
       cornerRadius 7.0'ux
       offset 1'ux, 1'ux
       size 100'pp-2'ux, 100'pp-2'ux
-      fill css"white"
+      fill themeColor("fig-widget-background-color")
 
       Vertical.new "vertical":
         size 100'pp, cx"max-content"
@@ -118,7 +114,7 @@ proc draw*[T](self: ComboboxList[T]) {.slot.} =
       TextButton.new "button":
         let item = getComboboxItem()
         size 100'pp, 30'ux
-        fill css"grey".lighten(0.2)
+        fill themeColor("fig-widget-background-color")
         if item.selected:
           fill themeColor("fig-accent-color")
         this.label {defaultFont(): "Click me! " & repr item.value}

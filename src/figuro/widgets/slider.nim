@@ -88,7 +88,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
           uinodes.connect(this, doDrag, self, buttonDrag)
 
         Rectangle.new "filling":
-          fill themeColor("fig-accent-color")
+          fill themeColor("fig-accent-color-light")
           size sliderWidth, 100'pp
 
       Rectangle.new "thumb-track":
@@ -100,7 +100,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
           offset sliderWidth, 0'ux
 
           Rectangle.new "thumb":
-            fill css"black" * 0.3
+            fill themeColor("fig-widget-thumb-color")
             size 100'pp, 100'pp
             uinodes.connect(this, doDrag, self, buttonDrag)
 
