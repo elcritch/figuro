@@ -325,22 +325,16 @@ proc setInactive*(fig: Figuro) {.slot.} =
   fig.userAttrs.excl Active
 
 proc setFocused*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Focused
+  fig.userAttrs.incl Focus
 
 proc setUnfocused*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Focused
+  fig.userAttrs.excl Focus
 
 proc setSelected*(fig: Figuro) {.slot.} =
   fig.userAttrs.incl Selected
 
 proc setUnselected*(fig: Figuro) {.slot.} =
   fig.userAttrs.excl Selected
-
-proc setHighlighted*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Highlighted
-
-proc setUnhighlighted*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Highlighted
 
 proc setOpen*(fig: Figuro) {.slot.} =
   fig.userAttrs.incl Open

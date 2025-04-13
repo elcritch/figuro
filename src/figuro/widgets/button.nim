@@ -9,7 +9,6 @@ type
 
   Button*[T] = ref object of StatefulFiguro[T]
     clickMode*: set[ButtonClicks] = {Single}
-    isPressed*: bool
     fade* = Fader(minMax: 0.0..1.0,
                      inTimeMs: 60, outTimeMs: 60)
 
@@ -32,13 +31,13 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
   case kind:
   of Init:
     self.fade.fadeIn()
-    self.isPressed = true
+    self.setUserAttr({Active}, true)
   of Exit:
-    self.isPressed = false
+    self.setUserAttr({Active}, false)
     self.fade.fadeOut()
     return
   of Done:
-    self.isPressed = false
+    self.setUserAttr({Active}, false)
     if MouseRight in buttons:
       emit self.doRightClick()
     if MouseLeft in buttons:
@@ -76,7 +75,7 @@ proc draw*[T](self: Button[T]) {.slot.} =
       withOptional self:
         fill themeColor("fig-accent-color")
 
-      if self.fade.active or self.isPressed:
+      if self.fade.active or Active in self.userAttrs:
         this.fill = this.fill.lighten(0.14*self.fade.amount)
     
     WidgetContents()
@@ -96,7 +95,7 @@ proc draw*[T](self: TextButton[T]) {.slot.} =
       withOptional self:
         fill themeColor("fig-accent-color")
 
-      if self.fade.active or self.isPressed:
+      if self.fade.active or Active in self.userAttrs:
         this.fill = this.fill.lighten(0.14*self.fade.amount)
 
     Text.new "text":

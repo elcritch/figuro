@@ -43,9 +43,12 @@ type
     Enabled
     Active
     Open
-    Highlighted
-    Focused
     Selected
+    Hover
+    Focus
+    FocusVisible
+    FocusWithin
+
 
   FieldSetAttrs* = enum
     ## For tracking which fields have been set by the widget user code.

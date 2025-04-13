@@ -255,7 +255,7 @@ template onInit*(blk: untyped) =
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
-  fig.userAttrs = {}
+  # fig.userAttrs = {}
   fig.fieldSet = {}
   fig.diffIndex = 0
   fig.contents.setLen(0)
