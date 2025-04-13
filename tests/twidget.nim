@@ -97,8 +97,8 @@ proc draw*(self: Main) {.slot.} =
       Dropdown[string].new "dropdown1":
         size 80'pp, 30'ux
         fill themeColor("fig-widget-background-color")
-        # onInit:
-        #   setElements this, @["one", "two", "three", "four", "five"]
+        onInit:
+          setElements this.data, @["one", "two", "three", "four", "five"]
 
       Rectangle.new "filler":
         size 10'ux, 40'ux

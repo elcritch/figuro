@@ -22,9 +22,6 @@ proc open*[T](self: Dropdown[T], value: bool) {.slot.} =
 proc toggleOpen*[T](self: Dropdown[T]) {.slot.} =
   self.open(Open notin self.userAttrs)
 
-# proc setElements*[T](self: Dropdown[T], elements: seq[T]) =
-#   Combobox[T](self).data.elements = elements
-
 proc clicked*[T](self: Dropdown[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
     return
@@ -39,13 +36,18 @@ proc itemClicked*[T](self: Dropdown[T], index: int, kind: EventKind, buttons: Ui
     return
   case kind:
   of Done:
-    self.selectIndex(index)
+    self.data.selectIndex(index)
     self.open(false)
   else:
     discard
 
+proc itemsSelected*[T](self: Dropdown[T], indexes: HashSet[int]) {.slot.} =
+  echo "itemsSelected: ", indexes
+  self.toggleOpen()
+
 proc initialize*[T](self: Dropdown[T]) {.slot.} =
   self.data = SelectedElements[T]()
+  connect(self.data, doSelected, self, itemsSelected)
 
 proc draw*[T](self: Dropdown[T]) {.slot.} =
   ## dropdown widget
@@ -53,3 +55,9 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
 
     WidgetContents()
 
+    echo "DROPDOWN: ", Open in self
+
+    if Open in self:
+      ComboboxList[T].new "combobox":
+        this.data = self.data
+        size 100'pp, 300'ux

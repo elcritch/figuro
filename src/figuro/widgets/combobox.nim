@@ -35,7 +35,7 @@ proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: Ui
 proc initialize*[T](self: Combobox[T]) {.slot.} =
   self.data = SelectedElements[T]()
   let cssValues = self.frame[].theme.css.values
-  connect(self.data, doSelect, self, Figuro.refresh(), acceptVoidSlot = true)
+  connect(self.data, doSelected, self, Figuro.refresh(), acceptVoidSlot = true)
 
 proc draw*[T](self: ComboboxItem[T]) {.slot.} =
   withWidget(self):
@@ -82,11 +82,12 @@ proc draw*[T](self: ComboboxList[T]) {.slot.} =
     ComboboxItems(self):
       TextButton.new "button":
         let item = getComboboxItem()
-        size 100'pp, 30'ux
-        fill themeColor("fig-widget-background-color")
-        if Selected in item:
-          fill themeColor("fig-accent-color")
-        this.label {defaultFont(): "Click me! " & repr item.value}
-        bubble(doMouseClick)
+        if not item.isNil:
+          size 100'pp, 30'ux
+          fill themeColor("fig-widget-background-color")
+          if Selected in item:
+            fill themeColor("fig-accent-color")
+          this.label {defaultFont(): "Click me! " & repr item.value}
+          bubble(doMouseClick)
     
     draw(Combobox[T](self))
