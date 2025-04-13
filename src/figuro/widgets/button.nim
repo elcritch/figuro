@@ -91,9 +91,8 @@ proc draw*[T](self: TextButton[T]) {.slot.} =
 
     if Disabled in self.userAttrs:
       withOptional self:
-        fill css"#F0F0F0"
+        fill themeColor("fig-widget-background-color")
     else:
-      echo "BUTTON: color"
       withOptional self:
         fill themeColor("fig-accent-color")
 
