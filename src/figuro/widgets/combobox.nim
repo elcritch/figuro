@@ -23,14 +23,9 @@ type
   ComboboxList*[T] = ref object of Combobox[T]
 
 proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  if MouseLeft notin buttons:
-    return
-  case kind:
-  of Done:
+  if MouseLeft in buttons and Done == kind:
     self.toggleIndex(index)
     self.open(false)
-  else:
-    discard
 
 proc initialize*[T](self: Combobox[T]) {.slot.} =
   self.data = SelectedElements[T]()

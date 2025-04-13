@@ -18,8 +18,7 @@ proc doSelect*[T](self: Dropdown[T], value: T) {.signal.}
 proc doOpened*[T](self: Dropdown[T], isOpen: bool) {.signal.}
 
 proc open*[T](self: Dropdown[T], value: bool) {.slot.} =
-  if value == (Open in self.userAttrs):
-    return
+  if value == (Open in self.userAttrs): return
   if value:
     self.fade.fadeOut()
   else:
@@ -32,13 +31,8 @@ proc toggleOpen*[T](self: Dropdown[T]) {.slot.} =
   self.open(Open notin self.userAttrs)
 
 proc clicked*[T](self: Dropdown[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
-  if MouseLeft notin buttons:
-    return
-  case kind:
-  of Done:
+  if MouseLeft in buttons and Done == kind:
     self.toggleOpen()
-  else:
-    discard
 
 proc itemClicked*[T](self: Dropdown[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
