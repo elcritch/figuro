@@ -31,6 +31,15 @@ macro thisWrapper*(p: untyped): auto =
 ## Fidget nodes. 
 ## 
 
+template themeColor*(name: static string): Color =
+  ## Returns the current theme.
+  let varIdx = this.frame[].theme.css.values.registerVariable(name)
+  var res: CssValue
+  if this.frame[].theme.css.values.resolveVariable(varIdx, res):
+    res.c
+  else:
+    blackColor
+
 template connect*(
     signal: typed,
     b: Figuro,

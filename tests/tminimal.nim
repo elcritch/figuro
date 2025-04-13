@@ -21,13 +21,13 @@ proc draw*(self: Main) {.slot.} =
 
       Button[int].new "btn":
         box 10'pp, 60'pp, 80'pp, 10'pp
-        fill css"#2B9FEA"
+        fill themeColor("fig-accent-color")
 
       for i in 1..2:
         capture i:
           Button.new "btn":
             box 10'pp, UiScalar(40 * i + 10), 80'pp, 10'pp
-            fill css"#2B9FEA"
+            fill themeColor("fig-accent-color")
 
 
 var main = Main.new()

@@ -48,7 +48,7 @@ proc draw*(self: Toggle) {.slot.} =
   withWidget(self):
     
     withOptional self:
-      fill css"#2B9FEA".lighten(self.fade.amount/200.0)
+      fill themeColor("fig-accent-color").lighten(self.fade.amount/200.0)
 
     Rectangle.new "thumb-bg":
       size 50'pp, 100'pp

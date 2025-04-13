@@ -88,7 +88,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
           uinodes.connect(this, doDrag, self, buttonDrag)
 
         Rectangle.new "filling":
-          fill css"#2B9FEA"
+          fill themeColor("fig-accent-color")
           size sliderWidth, 100'pp
 
       Rectangle.new "thumb-track":

@@ -120,7 +120,7 @@ proc draw*[T](self: ComboboxList[T]) {.slot.} =
         size 100'pp, 30'ux
         fill css"grey".lighten(0.2)
         if item.selected:
-          fill css"#2B9FEA"
+          fill themeColor("fig-accent-color")
         this.label {defaultFont(): "Click me! " & repr item.value}
         bubble(doMouseClick)
     
