@@ -81,13 +81,16 @@ proc draw*[T](self: ComboboxList[T]) {.slot.} =
   withWidget(self):
     ComboboxItems(self):
       TextButton.new "button":
+        doAssert NfDead notin this.flags, "item was dead: " & this.name.toString()
         let item = getComboboxItem()
-        if not item.isNil:
-          size 100'pp, 30'ux
-          fill themeColor("fig-widget-background-color")
-          if Selected in item:
-            fill themeColor("fig-accent-color")
-          this.label {defaultFont(): "Click me! " & repr item.value}
-          bubble(doMouseClick)
-    
+        echo "ITEM: isdead: ", NfDead in item.flags, " name: ", item.name.toString()
+        doAssert not item.isNil, "item was nil: " & item.name.toString()
+        doAssert NfDead notin item.flags, "item was dead: " & item.name.toString()
+        size 100'pp, 30'ux
+        fill themeColor("fig-widget-background-color")
+        if Selected in item:
+          fill themeColor("fig-accent-color")
+        this.label {defaultFont(): "Click me! " & repr item.value}
+        bubble(doMouseClick)
+  
     draw(Combobox[T](self))

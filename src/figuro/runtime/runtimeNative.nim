@@ -54,7 +54,8 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
     let rn = move frame.redrawNodes
     frame.redrawNodes.clear()
     for node in rn:
-      emit node.doDraw()
+      if NfDead notin node.flags:
+        emit node.doDraw()
     timeIt(computeLayoutsTimer):
       computeLayouts(frame.root)
     # printLayout(frame.root)
