@@ -18,7 +18,6 @@ type
   ComboboxItem*[T] = ref object of Figuro
     index*: int
     value*: T
-    selected*: bool
     combobox*: WeakRef[Combobox[T]]
 
   ComboboxList*[T] = ref object of Combobox[T]
@@ -90,7 +89,7 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
           capture idx, elem:
             ComboboxItem[T].new "item":
               this.index = idx
-              this.selected = idx in self.selected
+              this.setUserAttr(Selected, idx in self.selected)
               this.value = elem
               this.combobox = self.unsafeWeakRef()
               WidgetContents()
@@ -114,7 +113,7 @@ proc draw*[T](self: ComboboxList[T]) {.slot.} =
         let item = getComboboxItem()
         size 100'pp, 30'ux
         fill themeColor("fig-widget-background-color")
-        if item.selected:
+        if Selected in item:
           fill themeColor("fig-accent-color")
         this.label {defaultFont(): "Click me! " & repr item.value}
         bubble(doMouseClick)
