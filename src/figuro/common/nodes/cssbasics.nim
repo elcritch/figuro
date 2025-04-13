@@ -17,7 +17,7 @@ variantp CssValue:
   CssSize(cx: Constraint)
   CssVarName(id: CssVarId)
   CssShadow(sstyle: ShadowStyle, sx, sy, sblur, sspread: Constraint, scolor: Color)
-  CssAttribute(a: string)
+  CssAttribute(a: Atom)
 
 type
   CssParserEofError* = object of CatchableError
@@ -62,7 +62,7 @@ proc `$`*(val: CssValue): string =
         _:
           $cx
     CssAttribute(n):
-      n
+      $n
     CssVarName(n):
       "var(" & $n & ")"
     CssShadow(style, x, y, blur, spread, color):

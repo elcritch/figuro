@@ -171,7 +171,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         try:
           result = CssColor(parseHtmlColor(tk.ident))
         except InvalidColor:
-          result = CssAttribute(tk.ident)
+          result = CssAttribute(tk.ident.toAtom())
       
     of tkIDHash:
       try:
@@ -302,10 +302,10 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
       echo "CSS Warning: ", "unhandled css shadow kind: ", parsedargs.repr
       return
 
-    if args[0] == CssAttribute("none"):
+    if args[0] == CssAttribute(atom"none"):
       args = args[1..^1]
 
-    if args.len() > 0 and args[0] == CssAttribute("inset"):
+    if args.len() > 0 and args[0] == CssAttribute(atom"inset"):
       result.sstyle = InnerShadow
       args = args[1..^1]
 
@@ -324,7 +324,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
       result.scolor = args[0].c
       args = args[1..^1]
 
-    if args.len() > 0 and args[0] == CssAttribute("inset"):
+    if args.len() > 0 and args[0] == CssAttribute(atom"inset"):
       result.sstyle = InnerShadow
       args = args[1..^1]
 
@@ -358,7 +358,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
           try:
             result[^1].value = CssColor(parseHtmlColor(tk.ident))
           except ValueError:
-            result[^1].value = CssAttribute(tk.ident)
+            result[^1].value = CssAttribute(tk.ident.toAtom())
     of tkSemicolon:
       # echo "\tattrib done "
       popIncompleteProperty()
