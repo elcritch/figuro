@@ -16,10 +16,12 @@ Dropdown > TextButton {
   border-radius: 10px;
 }
 
+Dropdown #outer {
+  height: 120px;
+}
 Dropdown ComboboxList {
   border-width: 5px;
   border-color: black;
-  height: 120px;
 }
 
 Slider Rectangle {

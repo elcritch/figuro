@@ -12,12 +12,19 @@ type
   Dropdown*[T] = ref object of Figuro
     data*: SelectedElements[T]
     fade* = Fader(minMax: 0.0..100.0,
-                     inTimeMs: 60, outTimeMs: 60)
+                     inTimeMs: 160, outTimeMs: 160)
 
 proc doSelect*[T](self: Dropdown[T], value: T) {.signal.}
 proc doOpened*[T](self: Dropdown[T], isOpen: bool) {.signal.}
 
 proc open*[T](self: Dropdown[T], value: bool) {.slot.} =
+  if value == (Open in self.userAttrs):
+    return
+  echo "open: ", value
+  if value:
+    self.fade.fadeOut()
+  else:
+    self.fade.fadeIn()
   self.setUserAttr(Open, value)
   emit self.doOpened(value)
   refresh(self)
@@ -51,6 +58,7 @@ proc itemsSelected*[T](self: Dropdown[T], indexes: HashSet[int]) {.slot.} =
 proc initialize*[T](self: Dropdown[T]) {.slot.} =
   self.data = SelectedElements[T]()
   connect(self.data, doSelected, self, itemsSelected)
+  self.fade.setValue(self.fade.minMax.b)
 
 proc draw*[T](self: Dropdown[T]) {.slot.} =
   ## dropdown widget
@@ -68,18 +76,22 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         onSignal(doSingleClick) do(self: Dropdown[T]):
           self.toggleOpen()
 
-    if Open notin self:
-      Blank.new "combobox":
-        size 100'pp, 100'ux
-        offset 0'ux, this.parent[].box.h
-    else:
-      Rectangle.new "outer":
+    # if Open notin self:
+    #   Blank.new "combobox":
+    #     size 100'pp, 100'ux
+    #     offset 0'ux, this.parent[].box.h
+    # else:
+    Rectangle.new "outer":
         size 100'pp, 100'ux
         offset 0'ux, 100'pp
+        clipContent true
+        zlevel 10
 
         ComboboxList[T].new "combobox":
-          this.data = self.data
           size 100'pp, 100'pp
-          zlevel 10
-          this.setUserAttr(Hidden, Open notin self.userAttrs)
-          refreshLayout(this)
+          this.data = self.data
+          self.fade.addTarget(this)
+          offset 0'ux, csPerc(-self.fade.amount)
+          # this.setUserAttr(Hidden, Open notin self.userAttrs)
+          # echo "combobox: ", self.fade.amount
+          refreshLayout(this.parent[])
