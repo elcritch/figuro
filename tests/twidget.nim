@@ -86,6 +86,12 @@ proc draw*(self: Main) {.slot.} =
               checked this, true
             label this, {defaultFont(): $(if Checked in this: "On" else: "Off")}
 
+      Dropdown[string].new "dropdown1":
+        size 80'pp, 30'ux
+        fill themeColor("fig-widget-background-color")
+        onInit:
+          setElements this.data, @["one", "two", "three", "four", "five"]
+
       ComboboxList[string].new "combobox1":
         size 80'pp, 100'ux
         fill themeColor("fig-widget-background-color").darken(0.3)
@@ -93,12 +99,6 @@ proc draw*(self: Main) {.slot.} =
           setElements this.data, @["one", "two", "three", "four", "five"]
           multiSelect this.data, true
           toggleIndex this.data, 1
-
-      Dropdown[string].new "dropdown1":
-        size 80'pp, 30'ux
-        fill themeColor("fig-widget-background-color")
-        onInit:
-          setElements this.data, @["one", "two", "three", "four", "five"]
 
       Rectangle.new "filler":
         size 10'ux, 40'ux

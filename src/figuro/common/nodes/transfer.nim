@@ -140,13 +140,18 @@ proc convert*(
 
   for child in current.children:
     let chlvl = child.zlevel
-    if chlvl != zlvl or NfInactive in child.flags or NfDead in child.flags:
+    if chlvl != zlvl or
+      NfInactive in child.flags or
+      NfDead in child.flags or
+      Hidden in child.userAttrs:
       render.childCount.dec()
 
   renders.layers.mgetOrPut(zlvl, RenderList()).add(render)
   for child in current.children:
     let chlvl = child.zlevel
-    if NfInactive notin child.flags and NfDead notin child.flags:
+    if NfInactive notin child.flags and
+        NfDead notin child.flags and
+        Hidden notin child.userAttrs:
       renders.convert(child, current.uid, chlvl)
 
 proc copyInto*(uis: Figuro): Renders =

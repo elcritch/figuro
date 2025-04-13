@@ -40,6 +40,7 @@ type
 
   Attributes* = enum
     SkipCss
+    Hidden
     Disabled
     Active
     Checked

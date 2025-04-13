@@ -56,10 +56,7 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
 
     WidgetContents()
 
-    echo "DROPDOWN: ", Open in self
-
-    if Open notin self:
-      TextButton.new "button":
+    TextButton.new "button":
         size 100'pp, 100'pp
         if self.data.selected.len > 0:
           let item = self.data.selected.toSeq()[0]
@@ -69,7 +66,12 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         onSignal(doSingleClick) do(self: Dropdown[T]):
           self.toggleOpen()
 
-    else:
-      ComboboxList[T].new "combobox":
+    ComboboxList[T].new "combobox":
         this.data = self.data
         size 100'pp, 100'ux
+        zlevel 10
+        this.setUserAttr(Hidden, Open notin self)
+        # if Open notin self:
+        #   this.flags.incl(NfInactive)
+        # else:
+        #   this.flags.excl(NfInactive)
