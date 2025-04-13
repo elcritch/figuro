@@ -8,6 +8,14 @@ Slider {
   border-radius: 10px;
 }
 
+ComboboxList Rectangle {
+  border-radius: 10px;
+}
+
+Dropdown > TextButton {
+  border-radius: 10px;
+}
+
 Slider Rectangle {
   border-radius: 10px;
 }

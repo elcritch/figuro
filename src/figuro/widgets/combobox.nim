@@ -83,7 +83,6 @@ proc draw*[T](self: ComboboxList[T]) {.slot.} =
       TextButton.new "button":
         doAssert NfDead notin this.flags, "item was dead: " & this.name.toString()
         let item = getComboboxItem()
-        echo "ITEM: isdead: ", NfDead in item.flags, " name: ", item.name.toString()
         doAssert not item.isNil, "item was nil: " & item.name.toString()
         doAssert NfDead notin item.flags, "item was dead: " & item.name.toString()
         size 100'pp, 30'ux
