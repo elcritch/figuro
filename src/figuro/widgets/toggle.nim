@@ -16,22 +16,14 @@ proc doChange*(self: Toggle, value: bool) {.signal.}
 proc checked*(self: Toggle, value: bool) {.slot.} =
   if contains(self, Checked) != value: 
     self.setUserAttr({Checked}, value)
-    if value:
-      self.fade.fadeIn()
-    else:
-      self.fade.fadeOut()
+    if value: self.fade.fadeIn() else: self.fade.fadeOut()
     emit self.doChange(value)
     refresh(self)
 
 proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  if MouseLeft notin buttons:
-    return
-  case kind:
-  of Done:
+  if MouseLeft in buttons and Done == kind:
     self.checked(not contains(self, Checked))
     emit self.doClicked()
-  else:
-    discard
 
 proc initialize*(self: Toggle) {.slot.} =
   ## initialize the widget
