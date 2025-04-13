@@ -173,7 +173,7 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
     fig[].uid
 
 proc getSkipLayout*(fig: Figuro): bool =
-  false
+  NfSkipLayout in fig.flags or NfInactive in fig.flags
 
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 

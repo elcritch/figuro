@@ -35,6 +35,7 @@ type
     NfRootWindow
     NfInitialized
     NfSkipLayout
+    NfInactive
     # user facing attributes
 
   Attributes* = enum
