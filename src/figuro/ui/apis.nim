@@ -42,7 +42,6 @@ template connect*(
 template boxFrom*(x, y, w, h: float32) {.thisWrapper.}
   ## Sets the box dimensions.
 
-
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

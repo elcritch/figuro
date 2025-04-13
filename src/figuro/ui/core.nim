@@ -317,22 +317,6 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   refresh(root)
   return frame
 
-var lastModificationTime: times.Time
-
-proc themePath*(): string =
-  result = "theme.css".absolutePath()
-
-proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
-  # let defaultTheme = themePath()
-  if defaultTheme.fileExists():
-    let ts = getLastModificationTime(defaultTheme)
-    if ts > lastModificationTime:
-      lastModificationTime = ts
-      notice "Loading CSS file", cssFile = defaultTheme
-      let parser = newCssParser(Path(defaultTheme))
-      result = parser.loadTheme()
-      notice "Loaded CSS file", cssFile = defaultTheme
-
 proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro) =
   ## Process the start of the node.
 

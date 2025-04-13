@@ -402,6 +402,6 @@ proc parse*(parser: CssParser, values: CssValues): seq[CssBlock] =
       error "CSS: error parsing css body", error = e.msg
       continue
 
-proc loadTheme*(parser: CssParser): CssTheme =
+proc newCssTheme*(parser: CssParser): CssTheme =
   let values = newCssValues()
   result = CssTheme(rules: parser.parse(values), values: values)
