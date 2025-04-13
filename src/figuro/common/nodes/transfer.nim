@@ -78,7 +78,7 @@ proc add*(list: var RenderList, node: Node) =
       list.rootIds.add(list.nodes.len().NodeIdx)
   list.nodes.add(node)
 
-proc convert*(current: Figuro): render.Node =
+proc toRenderNode*(current: Figuro): render.Node =
   result = Node(kind: current.kind)
 
   result.uid = current.uid
@@ -133,20 +133,21 @@ proc convert*(
     renders: var Renders, current: Figuro, parent: NodeID, maxzlvl: ZLevel
 ) =
   # echo "convert:node: ", current.uid, " parent: ", parent
-  var render = current.convert()
+  var render = current.toRenderNode()
   render.parent = parent
   render.childCount = current.children.len()
   let zlvl = current.zlevel
 
   for child in current.children:
     let chlvl = child.zlevel
-    if chlvl != zlvl:
+    if chlvl != zlvl or NfInactive in child.flags:
       render.childCount.dec()
 
   renders.layers.mgetOrPut(zlvl, RenderList()).add(render)
   for child in current.children:
     let chlvl = child.zlevel
-    renders.convert(child, current.uid, chlvl)
+    if NfInactive notin child.flags:
+      renders.convert(child, current.uid, chlvl)
 
 proc copyInto*(uis: Figuro): Renders =
   result = Renders()
