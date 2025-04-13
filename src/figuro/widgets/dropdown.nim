@@ -65,26 +65,24 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
     WidgetContents()
 
     TextButton.new "button":
+      size 100'pp, 100'pp
+      if self.data.selected.len > 0:
+        let item = self.data.selected.toSeq()[0]
+        label this, {defaultFont(): $self.data.elements[item]}
+      else:
+        label this, {defaultFont(): "Dropdown"}
+      onSignal(doSingleClick) do(self: Dropdown[T]):
+        self.toggleOpen()
+
+    Rectangle.new "menu":
+      size 100'pp, 100'ux
+      offset 0'ux, 100'pp
+      clipContent true
+      zlevel 10
+
+      ComboboxList[T].new "combobox":
         size 100'pp, 100'pp
-        if self.data.selected.len > 0:
-          let item = self.data.selected.toSeq()[0]
-          label this, {defaultFont(): $self.data.elements[item]}
-        else:
-          label this, {defaultFont(): "Dropdown"}
-        onSignal(doSingleClick) do(self: Dropdown[T]):
-          self.toggleOpen()
-
-    Rectangle.new "outer":
-        size 100'pp, 100'ux
-        offset 0'ux, 100'pp
-        clipContent true
-        zlevel 10
-
-        ComboboxList[T].new "combobox":
-          size 100'pp, 100'pp
-          this.data = self.data
-          self.fade.addTarget(this)
-          offset 0'ux, csPerc(-self.fade.amount)
-          # this.setUserAttr(Hidden, Open notin self.userAttrs)
-          # echo "combobox: ", self.fade.amount
-          refreshLayout(this.parent[])
+        this.data = self.data
+        self.fade.addTarget(this)
+        offset 0'ux, csPerc(-self.fade.amount)
+        # refreshLayout(this.parent[])

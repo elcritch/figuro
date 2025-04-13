@@ -16,7 +16,7 @@ Dropdown > TextButton {
   border-radius: 10px;
 }
 
-Dropdown #outer {
+Dropdown > #menu {
   height: 120px;
 }
 Dropdown ComboboxList {
