@@ -24,7 +24,7 @@ proc multiSelect*[T](self: SelectedElements[T], multiSelect: bool) =
 
 proc doSelect*[T](self: SelectedElements[T], index: int, value: T) {.signal.}
 
-proc toggleIndex*[T](self: SelectedElements[T], index: int) =
+proc toggleIndexImpl[T](self: SelectedElements[T], index: int) =
   if index < 0 or index >= self.elements.len: return
   if index in self.selected:
     self.selected.excl index
@@ -32,14 +32,34 @@ proc toggleIndex*[T](self: SelectedElements[T], index: int) =
     if not self.multiSelect:
       self.selected.clear()
     self.selected.incl index
-  emit self.doSelect(index, self.elements[index])
 
-proc selectIndex*[T](self: SelectedElements[T], index: int) {.slot.} =
-  toggleIndex(self, index)
+proc selectIndexImpl[T](self: SelectedElements[T], index: int, state: bool) =
+  if state:
+    self.selected.incl index
+  else:
+    self.selected.excl index
 
-proc selectItem*[T](self: SelectedElements[T], value: T) {.slot.} =
-  if self.selected == value: return
-  self.selected = value
+proc findIndex*[T](self: SelectedElements[T], value: T): int =
   for i, item in self.elements:
     if item == value:
-      return self.selectIndex(i)
+      return i
+  return -1
+
+proc toggleIndex*[T](self: SelectedElements[T], index: int) {.slot.} =
+  toggleIndexImpl(self, index)
+  emit self.doSelect(index, self.elements[index])
+
+proc selectIndex*[T](self: SelectedElements[T], index: int, state: bool) {.slot.} =
+  selectIndexImpl(self, index, state)
+  emit self.doSelect(index, self.elements[index])
+
+proc selectItem*[T](self: SelectedElements[T], value: T) {.slot.} =
+  let index = findIndex(self, value)
+  if index == -1: return
+  selectIndexImpl(self, index, true)
+  emit self.doSelect(index, value)
+
+proc selectAll*[T](self: SelectedElements[T], state: bool) {.slot.} =
+  for i in 0..<self.elements.len:
+    selectIndexImpl(self, i, state)
+    emit self.doSelect(i, self.elements[i])

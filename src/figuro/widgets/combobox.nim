@@ -68,7 +68,7 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
                 if kind == Done and MouseLeft in buttons:
                   # this.selected = not this.selected
                   let combobox = this.queryParent(Combobox[T]).get()
-                  combobox.data.selectIndex(this.index)
+                  combobox.data.toggleIndex(this.index)
 
 template getComboboxItem*(): auto =
   ComboboxItem[typeof(combobox.data.elements[0])](this.parent[])
