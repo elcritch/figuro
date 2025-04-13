@@ -348,7 +348,13 @@ proc setOpen*(fig: Figuro) {.slot.} =
 proc setClosed*(fig: Figuro) {.slot.} =
   fig.userAttrs.excl Open
 
-proc setUserAttr*(fig: Figuro, attr: set[Attributes], state: bool) {.slot.} =
+proc setUserAttr*(fig: Figuro, attr: Attributes, state: bool) =
+  if state:
+    fig.userAttrs.incl attr
+  else:
+    fig.userAttrs.excl attr
+
+proc setUserAttr*(fig: Figuro, attr: set[Attributes], state: bool) =
   if state:
     fig.userAttrs.incl attr
   else:

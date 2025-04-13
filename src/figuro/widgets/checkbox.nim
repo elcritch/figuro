@@ -16,24 +16,19 @@ proc doChange*(self: Checkbox, value: bool) {.signal.}
 
 proc checked*(self: Checkbox, value: bool) {.slot.} =
   if contains(self, Checked) != value:
-    echo "checkbox:checked: ", value, " :: ", contains(self, Checked)
     self.setUserAttr({Checked}, value)
     if value:
-      echo "checkbox:checked: fading in"
       self.fade.fadeIn()
     else:
-      echo "checkbox:checked: fading out"
       self.fade.fadeOut()
     emit self.doChange(value)
 
 proc clicked*(self: Checkbox, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "checkbox:clicked: ", kind, " :: ", buttons
   if MouseLeft notin buttons:
     return
   case kind:
   of Done:
     self.checked(not contains(self, Checked))
-    echo "checkbox:clicked: setting to ", contains(self, Checked)
     emit self.doClicked()
   else:
     discard

@@ -14,7 +14,7 @@ proc doClicked*(self: Toggle) {.signal.}
 proc doChange*(self: Toggle, value: bool) {.signal.}
 
 proc checked*(self: Toggle, value: bool) {.slot.} =
-  echo "toggle:enabled: ", value
+  echo "toggle:enabled: ", value, " name: ", self.name
   if contains(self, Checked) != value: 
     echo "toggle:enabled: setting to ", value
     self.setUserAttr({Checked}, value)
@@ -23,7 +23,6 @@ proc checked*(self: Toggle, value: bool) {.slot.} =
     else:
       self.fade.fadeOut()
     emit self.doChange(value)
-    refresh(self)
 
 proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
   echo "toggle:clicked: ", kind, " :: ", buttons
@@ -63,7 +62,7 @@ proc label*(self: TextToggle, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.add spans
 
 proc checked*(self: TextToggle, value: bool) {.slot.} =
-  echo "text-toggle:checked: ", value
+  echo "text-toggle:checked: ", value, " name: ", self.name
   if contains(self, Checked) != value:
     echo "text-toggle:checked: setting to ", value
     self.setUserAttr({Checked}, value)
@@ -71,13 +70,14 @@ proc checked*(self: TextToggle, value: bool) {.slot.} =
 
 proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
-    Toggle.new "toggle":
+    Toggle.new "toggle-inner":
       size 30'ux, 100'pp
-      checked(this, contains(self, Checked))
+      # checked(this, contains(self, Checked))
+      this.setUserAttr({Checked}, contains(self, Checked))
       connect(this, doChange, self, TextToggle.checked())
 
     Rectangle.new "text-bg":
-      let toggle = this.querySibling("toggle").get()
+      let toggle = this.querySibling("toggle-inner").get()
       size 100'pp-30'ux, 100'pp
       offset ux(toggle.box.w+0'ui), 0'ux
 
@@ -87,4 +87,6 @@ proc draw*(self: TextToggle) {.slot.} =
         zlevel 1
         size 100'pp, 100'pp
         text self.labelText
+
+    WidgetContents()
 

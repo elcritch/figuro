@@ -78,6 +78,7 @@ proc draw*(self: Main) {.slot.} =
             fill themeColor("fig-widget-background-color")
             onInit:
               checked this, true
+            echo "checkbox2:checked: ", contains(this, Checked)
             label this, {defaultFont(): $(if Checked in this: "On" else: "Off")}
 
       ComboboxList[string].new "combobox1":
