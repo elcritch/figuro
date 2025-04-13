@@ -4,37 +4,33 @@ import ../ui/animations
 
 type
   Toggle* = ref object of Figuro
-    isEnabled: bool
     fade* = Fader(minMax: 0.0..50.0,
                      inTimeMs: 60, outTimeMs: 60)
 
   TextToggle* = ref object of Figuro
-    isEnabled: bool
     labelText: seq[(UiFont, string)]
 
 proc doClicked*(self: Toggle) {.signal.}
 proc doChange*(self: Toggle, value: bool) {.signal.}
 
-proc enabled*(self: Toggle, value: bool) {.slot.} =
-  if self.isEnabled == value: return
-  self.isEnabled = value
-  if value:
-    self.setActive()
-    self.fade.fadeIn()
-  else:
-    self.setInactive()
-    self.fade.fadeOut()
-  emit self.doChange(self.isEnabled)
-
-proc isEnabled*(self: Toggle): bool =
-  self.isEnabled
+proc checked*(self: Toggle, value: bool) {.slot.} =
+  echo "toggle:enabled: ", value
+  if contains(self, Checked) != value: 
+    echo "toggle:enabled: setting to ", value
+    self.setUserAttr({Checked}, value)
+    if value:
+      self.fade.fadeIn()
+    else:
+      self.fade.fadeOut()
+    emit self.doChange(value)
 
 proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
+  echo "toggle:clicked: ", kind, " :: ", buttons
   if MouseLeft notin buttons:
     return
   case kind:
   of Done:
-    self.enabled(not self.isEnabled)
+    self.checked(not contains(self, Checked))
     emit self.doClicked()
   else:
     discard
@@ -65,21 +61,22 @@ proc label*(self: TextToggle, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)
   self.labelText.add spans
 
-proc isEnabled*(self: TextToggle): bool =
-  self.isEnabled
+proc isChecked*(self: TextToggle): bool =
+  Checked in self.userAttrs
 
-proc enabled*(self: TextToggle, value: bool) {.slot.} =
-  echo "text-toggle:enabled: ", value
-  if self.isEnabled != value:
-    self.isEnabled = value
+proc checked*(self: TextToggle, value: bool) {.slot.} =
+  echo "text-toggle:checked: ", value
+  if isChecked(self) != value:
+    echo "text-toggle:checked: setting to ", value
+    self.setUserAttr({Checked}, value)
     refresh(self)
 
 proc draw*(self: TextToggle) {.slot.} =
   withWidget(self):
     Toggle.new "toggle":
       size 30'ux, 100'pp
-      enabled(this, self.isEnabled)
-      connect(this, doChange, self, TextToggle.enabled())
+      checked(this, isChecked(self))
+      connect(this, doChange, self, TextToggle.checked())
 
     Rectangle.new "text-bg":
       let toggle = this.querySibling("toggle").get()

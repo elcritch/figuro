@@ -14,26 +14,23 @@ type
 proc doClicked*(self: Checkbox) {.signal.}
 proc doChange*(self: Checkbox, value: bool) {.signal.}
 
-proc isEnabled*(self: Checkbox): bool =
-  Checked in self.userAttrs
-
 proc enabled*(self: Checkbox, value: bool) {.slot.} =
-  if self.isEnabled() == value: return
-  self.setUserAttr({Checked}, value)
-  if value:
-    self.setActive()
-    self.fade.fadeIn()
-  else:
-    self.setInactive()
-    self.fade.fadeOut()
-  emit self.doChange(self.isEnabled())
+  if contains(self, Checked) != value:
+    self.setUserAttr({Checked}, value)
+    if value:
+      self.setActive()
+      self.fade.fadeIn()
+    else:
+      self.setInactive()
+      self.fade.fadeOut()
+    emit self.doChange(value)
 
 proc clicked*(self: Checkbox, kind: EventKind, buttons: UiButtonView) {.slot.} =
   if MouseLeft notin buttons:
     return
   case kind:
   of Done:
-    self.setUserAttr({Checked}, not (Checked in self.userAttrs))
+    self.setUserAttr({Checked}, not contains(self, Checked))
     emit self.doClicked()
   else:
     discard
@@ -77,7 +74,7 @@ proc draw*(self: TextCheckbox) {.slot.} =
   withWidget(self):
     Checkbox.new "checkbox":
       size 30'ux, 100'pp
-      enabled(this, self.isEnabled)
+      # enabled(this, self.isEnabled)
       connect(this, doChange, self, TextCheckbox.enabled())
 
     Rectangle.new "text-bg":

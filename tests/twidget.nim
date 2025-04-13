@@ -65,7 +65,7 @@ proc draw*(self: Main) {.slot.} =
           TextToggle.new "toggle2":
             offset 0'ux, 0'ux
             size 80'ux, 30'ux
-            label this, {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
+            label this, {defaultFont(): $(if this.isChecked: "On" else: "Off")}
 
           Checkbox.new "checkbox1":
             size 30'ux, 100'pp
@@ -75,8 +75,8 @@ proc draw*(self: Main) {.slot.} =
             size 30'ux, 100'pp
             fill themeColor("fig-widget-background-color")
             onInit:
-              this.enabled true
-            label this, {defaultFont(): $(if this.isEnabled: "On" else: "Off")}
+              checked this, true
+            label this, {defaultFont(): $(if Checked in this: "On" else: "Off")}
 
       ComboboxList[string].new "combobox1":
         size 80'pp, 100'ux

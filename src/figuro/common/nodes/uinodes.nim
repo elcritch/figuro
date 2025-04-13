@@ -324,6 +324,12 @@ proc setActive*(fig: Figuro) {.slot.} =
 proc setInactive*(fig: Figuro) {.slot.} =
   fig.userAttrs.excl Active
 
+proc setChecked*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Checked
+
+proc setUnchecked*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Checked
+
 proc setFocused*(fig: Figuro) {.slot.} =
   fig.userAttrs.incl Focus
 
@@ -347,3 +353,6 @@ proc setUserAttr*(fig: Figuro, attr: set[Attributes], state: bool) {.slot.} =
     fig.userAttrs.incl attr
   else:
     fig.userAttrs.excl attr
+
+proc contains*(fig: Figuro, attr: Attributes): bool =
+  attr in fig.userAttrs
