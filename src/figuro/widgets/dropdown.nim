@@ -20,7 +20,6 @@ proc doOpened*[T](self: Dropdown[T], isOpen: bool) {.signal.}
 proc open*[T](self: Dropdown[T], value: bool) {.slot.} =
   if value == (Open in self.userAttrs):
     return
-  echo "open: ", value
   if value:
     self.fade.fadeOut()
   else:
@@ -52,7 +51,6 @@ proc itemClicked*[T](self: Dropdown[T], index: int, kind: EventKind, buttons: Ui
     discard
 
 proc itemsSelected*[T](self: Dropdown[T], indexes: HashSet[int]) {.slot.} =
-  echo "itemsSelected: ", indexes
   self.toggleOpen()
 
 proc initialize*[T](self: Dropdown[T]) {.slot.} =
@@ -76,11 +74,6 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         onSignal(doSingleClick) do(self: Dropdown[T]):
           self.toggleOpen()
 
-    # if Open notin self:
-    #   Blank.new "combobox":
-    #     size 100'pp, 100'ux
-    #     offset 0'ux, this.parent[].box.h
-    # else:
     Rectangle.new "outer":
         size 100'pp, 100'ux
         offset 0'ux, 100'pp
