@@ -73,10 +73,13 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         size 100'pp, 100'ux
         offset 0'ux, this.parent[].box.h
     else:
-      ComboboxList[T].new "combobox":
-        this.data = self.data
+      Rectangle.new "outer":
         size 100'pp, 100'ux
         offset 0'ux, 100'pp
-        zlevel 10
-        this.setUserAttr(Hidden, Open notin self.userAttrs)
-        refreshLayout(this)
+
+        ComboboxList[T].new "combobox":
+          this.data = self.data
+          size 100'pp, 100'pp
+          zlevel 10
+          this.setUserAttr(Hidden, Open notin self.userAttrs)
+          refreshLayout(this)
