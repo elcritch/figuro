@@ -96,7 +96,6 @@ proc draw*[T](self: TextButton[T]) {.slot.} =
       withOptional self:
         fill themeColor("fig-accent-color")
 
-      echo "BUTTON: fill: ", this.fill
       if self.fade.active or self.isPressed:
         this.fill = this.fill.lighten(0.14*self.fade.amount)
 
