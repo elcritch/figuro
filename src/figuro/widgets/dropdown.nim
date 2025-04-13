@@ -67,7 +67,7 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
           self.toggleOpen()
 
     if Open notin self:
-      Rectangle.new "filler":
+      Blank.new "combobox":
         size 100'pp, 100'ux
     else:
       ComboboxList[T].new "combobox":

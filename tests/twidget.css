@@ -15,7 +15,7 @@ Dropdown > TextButton {
 Dropdown > ComboboxList {
   border-width: 5px;
   border-color: black;
-  height: 200px;
+  height: 150px;
 }
 
 Slider Rectangle {
