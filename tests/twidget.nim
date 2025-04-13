@@ -61,6 +61,8 @@ proc draw*(self: Main) {.slot.} =
           Toggle.new "toggle1":
             size 30'ux, 30'ux
             fill css"white".darken(0.3)
+            onInit:
+              checked this, true
 
           TextToggle.new "toggle2":
             offset 0'ux, 0'ux
@@ -71,6 +73,10 @@ proc draw*(self: Main) {.slot.} =
 
           Checkbox.new "checkbox1":
             size 30'ux, 100'pp
+            onInit:
+              checked this, true
+              this.userAttrs.incl FocusWithin
+
             fill themeColor("fig-widget-background-color")
 
           TextCheckbox.new "checkbox2":
@@ -78,7 +84,6 @@ proc draw*(self: Main) {.slot.} =
             fill themeColor("fig-widget-background-color")
             onInit:
               checked this, true
-            echo "checkbox2:checked: ", contains(this, Checked)
             label this, {defaultFont(): $(if Checked in this: "On" else: "Off")}
 
       ComboboxList[string].new "combobox1":

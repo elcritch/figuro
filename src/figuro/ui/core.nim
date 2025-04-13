@@ -90,6 +90,7 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
   node.userAttrs = {}
+  node.flags = {}
   node.fieldSet = {}
 
 var nodeDepth = 0

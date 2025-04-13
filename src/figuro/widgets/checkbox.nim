@@ -55,8 +55,6 @@ proc draw*(self: Checkbox) {.slot.} =
 
     WidgetContents()
     
-
-
 proc label*(self: TextCheckbox, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)
   self.labelText.add spans
@@ -68,6 +66,7 @@ proc checked*(self: TextCheckbox, value: bool) {.slot.} =
 
 proc draw*(self: TextCheckbox) {.slot.} =
   withWidget(self):
+
     Checkbox.new "checkbox":
       size 30'ux, 100'pp
       checked(this, contains(self, Checked))
