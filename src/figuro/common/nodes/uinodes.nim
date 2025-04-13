@@ -36,6 +36,7 @@ type
     frameRunner*: AgentProcTy[tuple[]]
     proxies*: seq[AgentProxyShared]
     redrawNodes*: OrderedSet[Figuro]
+    redrawLayout*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: RChan[AppInputs]
     rendInputList*: RChan[RenderCommands]
@@ -174,7 +175,8 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
 
 proc getSkipLayout*(fig: Figuro): bool =
   NfSkipLayout in fig.flags or
-  NfInactive in fig.flags
+  NfInactive in fig.flags or
+  Hidden in fig.userAttrs
 
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
@@ -305,6 +307,15 @@ proc refresh*(node: Figuro) {.slot.} =
   node.frame[].redrawNodes.incl(node)
   when defined(figuroDebugRefresh):
     echo "REFRESH: ", getStackTrace()
+
+proc refreshLayout*(node: Figuro) {.slot.} =
+  ## Request that the node and it's children be redrawn
+  # echo "refresh: ", node.name, " :: ", getStackTrace()
+  if node == nil:
+    return
+  # app.requestedFrame.inc
+  assert not node.frame.isNil
+  node.frame[].redrawLayout.incl(node)
 
 ## User facing attributes
 ## 

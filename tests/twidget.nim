@@ -50,6 +50,12 @@ proc draw*(self: Main) {.slot.} =
         this.minMax = 0.0..1.0
         label this, {defaultFont(): $(this.state.round(2))}
 
+      Dropdown[string].new "dropdown1":
+        size 80'pp, 30'ux
+        fill themeColor("fig-widget-background-color")
+        onInit:
+          setElements this.data, @["one", "two", "three", "four", "five"]
+
       GridChild.new "child":
         size 100'pp, 30'ux
 
@@ -85,12 +91,6 @@ proc draw*(self: Main) {.slot.} =
             onInit:
               checked this, true
             label this, {defaultFont(): $(if Checked in this: "On" else: "Off")}
-
-      Dropdown[string].new "dropdown1":
-        size 80'pp, 30'ux
-        fill themeColor("fig-widget-background-color")
-        onInit:
-          setElements this.data, @["one", "two", "three", "four", "five"]
 
       ComboboxList[string].new "combobox1":
         size 80'pp, 100'ux

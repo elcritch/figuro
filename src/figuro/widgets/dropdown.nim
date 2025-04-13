@@ -5,7 +5,7 @@ import ../ui/animations
 import ./combobox
 import ./datamodels
 import ./button
-
+import ../ui/layout
 import cssgrid/prettyprints
 
 type
@@ -66,12 +66,17 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         onSignal(doSingleClick) do(self: Dropdown[T]):
           self.toggleOpen()
 
-    ComboboxList[T].new "combobox":
+    if Open notin self:
+      Rectangle.new "filler":
+        size 100'pp, 100'ux
+    else:
+      ComboboxList[T].new "combobox":
         this.data = self.data
         size 100'pp, 100'ux
         zlevel 10
-        this.setUserAttr(Hidden, Open notin self)
+        # this.setUserAttr(Hidden, Open notin self)
         # if Open notin self:
         #   this.flags.incl(NfInactive)
         # else:
         #   this.flags.excl(NfInactive)
+        refreshLayout(this)
