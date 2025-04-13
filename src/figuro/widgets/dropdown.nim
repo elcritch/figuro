@@ -69,10 +69,12 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
     if Open notin self:
       Blank.new "combobox":
         size 100'pp, 100'ux
+        offset 0'ux, this.parent[].box.h
     else:
       ComboboxList[T].new "combobox":
         this.data = self.data
         size 100'pp, 100'ux
         offset 0'ux, this.parent[].box.h
         zlevel 10
-      refreshLayout(this)
+
+    refreshLayout(this)
