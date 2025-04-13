@@ -50,7 +50,6 @@ proc initialize*[T](self: Dropdown[T]) {.slot.} =
 proc draw*[T](self: Dropdown[T]) {.slot.} =
   ## dropdown widget
   withWidget(self):
-
     WidgetContents()
 
     TextButton.new "button":
