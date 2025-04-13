@@ -16,22 +16,24 @@ proc doChange*(self: Checkbox, value: bool) {.signal.}
 
 proc checked*(self: Checkbox, value: bool) {.slot.} =
   if contains(self, Checked) != value:
+    echo "checkbox:checked: ", value, " :: ", contains(self, Checked)
     self.setUserAttr({Checked}, value)
     if value:
-      self.setActive()
+      echo "checkbox:checked: fading in"
       self.fade.fadeIn()
     else:
-      self.setInactive()
+      echo "checkbox:checked: fading out"
       self.fade.fadeOut()
     emit self.doChange(value)
-    refresh(self)
 
 proc clicked*(self: Checkbox, kind: EventKind, buttons: UiButtonView) {.slot.} =
+  echo "checkbox:clicked: ", kind, " :: ", buttons
   if MouseLeft notin buttons:
     return
   case kind:
   of Done:
-    self.setUserAttr({Checked}, not contains(self, Checked))
+    self.checked(not contains(self, Checked))
+    echo "checkbox:clicked: setting to ", contains(self, Checked)
     emit self.doClicked()
   else:
     discard
@@ -45,11 +47,8 @@ proc draw*(self: Checkbox) {.slot.} =
   withWidget(self):
     cornerRadius 5'ui
     fill themeColor("fig-widget-background-light")
-
     border 1'ui, css"grey"
 
-    WidgetContents()
-    
     Text.new "checkmark":
       size 100'pp, 100'pp
       let sz = min(this.parent[].box.h, this.parent[].box.w)
@@ -58,6 +57,10 @@ proc draw*(self: Checkbox) {.slot.} =
       foreground blackColor * self.fade.amount
       justify Center
       align Middle
+
+    WidgetContents()
+    
+
 
 proc label*(self: TextCheckbox, spans: openArray[(UiFont, string)]) {.slot.} =
   self.labelText.setLen(0)

@@ -30,7 +30,6 @@ Slider #thumb {
   border-color: green;
 }
 
-
 Toggle {
   border-width: 0;
   border-color: black;
@@ -57,3 +56,4 @@ TextToggle #thumb {
   left: 10%;
   top: 10%;
 }
+
