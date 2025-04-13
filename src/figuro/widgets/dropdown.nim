@@ -81,4 +81,4 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         #   this.flags.incl(NfInactive)
         # else:
         #   this.flags.excl(NfInactive)
-        refreshLayout(this)
+      refreshLayout(this)
