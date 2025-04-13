@@ -14,12 +14,12 @@ export gridtypes
 
 type
   CssValues* = ref object of CssVariables
-    applied*: HashSet[string]
+    applied*: HashSet[Atom]
     parent*: CssValues
     values*: Table[CssVarId, CssValue]
 
 proc newCssValues*(): CssValues =
-  result = CssValues(applied: initHashSet[string]())
+  result = CssValues(applied: initHashSet[Atom]())
 
 proc newCssValues*(parent: CssValues): CssValues =
   result = CssValues(applied: parent.applied, parent: parent)

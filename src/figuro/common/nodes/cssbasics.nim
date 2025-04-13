@@ -40,13 +40,13 @@ type
     skSelectorList
 
   CssSelector* = object
-    cssType*: string
-    class*: string
-    id*: string
+    cssType*: Atom
+    class*: Atom
+    id*: Atom
     combinator*: CssSelectorKind
 
   CssProperty* = object
-    name*: string
+    name*: Atom
     value*: CssValue
 
 proc `$`*(val: CssValue): string =
@@ -77,14 +77,14 @@ proc `$`*(selector: CssSelector): string =
   ## Convert a selector to its string representation
   result = ""
   if selector.id.len > 0:
-    result.add "#" & selector.id
+    result.add "#" & $selector.id
   if selector.cssType.len > 0:
     if selector.combinator == skPseudo:
-      result.add ":" & selector.cssType
+      result.add ":" & $selector.cssType
     else:
-      result.add selector.cssType
+      result.add $selector.cssType
   if selector.class.len > 0:
-    result.add "." & selector.class
+    result.add "." & $selector.class
   
   case selector.combinator:
     of skDirectChild:
@@ -109,7 +109,7 @@ proc `$`*(selectors: seq[CssSelector]): string =
 proc `$`*(property: CssProperty): string =
   ## Convert a property to its string representation
   if property.name.len > 0:
-    result = property.name & ": " & $property.value & ";"
+    result = $property.name & ": " & $property.value & ";"
 
 proc `$`*(cssBlock: CssBlock): string =
   ## Convert a CSS block to its string representation

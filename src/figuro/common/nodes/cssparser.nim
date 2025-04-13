@@ -96,11 +96,11 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
         if result.len() == 0:
           result.add(CssSelector())
         let tk = parser.nextToken()
-        result[^1].class = tk.ident
+        result[^1].class = tk.ident.toAtom()
         isClass = false
       else:
         let tk = parser.nextToken()
-        result.add(CssSelector(cssType: tk.ident))
+        result.add(CssSelector(cssType: tk.ident.toAtom()))
         if result.len() >= 2:
           result[^1].combinator = skDescendent
         if isDirect:
@@ -114,7 +114,7 @@ proc parseSelector(parser: CssParser): seq[CssSelector] =
       isPseudo = true
       discard parser.nextToken()
     of tkIDHash:
-      result.add(CssSelector(id: tk.idHash))
+      result.add(CssSelector(id: tk.idHash.toAtom()))
       if result.len() > 1:
         result[^1].combinator = skDescendent
       if isDirect:
@@ -347,7 +347,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
       discard parser.nextToken()
       trace "CSS: rule body parser: ", ident = tk.ident
       if result[^1].name.len() == 0:
-        result[^1].name = tk.ident
+        result[^1].name = tk.ident.toAtom()
         parser.eat(tkColon)
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)

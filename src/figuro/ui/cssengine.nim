@@ -2,7 +2,7 @@ import ../commons
 import pkg/sigils/weakrefs
 import pkg/chronicles
 
-template has(val: string): bool =
+template has(val: Atom): bool =
   val.len() > 0
 
 iterator parents*(node: Figuro): Figuro =
@@ -23,7 +23,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
 
   trace "selector:check: ", sel = sel, selRepr = sel.repr, node = node.uid, name = node.name
   if has(sel.id):
-    if sel.id.toAtom() == node.name:
+    if sel.id == node.name:
       # echo "matched class! node: ", $node
       discard
     else:
@@ -39,7 +39,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
       return
 
   if has(sel.class):
-    if sel.class.toAtom() in node.widgetClasses:
+    if sel.class in node.widgetClasses:
       # echo "matched class! node: ", $node
       discard
     else:
@@ -56,7 +56,7 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
   result = false
 
   trace "selector:pseudo:check: ", pseudo = pseudo, pseudoRepr = pseudo.repr, node = node.uid, name = node.name
-  case pseudo.cssType
+  case $pseudo.cssType
   of "hover":
     if evHover in node.events:
       result = true
@@ -145,14 +145,15 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
       _:
         discard
 
-  if prop.name.startsWith("--"):
-    let varName = prop.name.substr(2)
-    trace "cssengine:apply:setVariable:", varName = varName
-    let idx = values.registerVariable(varName.toAtom())
+  var pname = $prop.name
+  if pname.startsWith("--"):
+    pname = pname[2..^1]
+    trace "cssengine:apply:setVariable:", varName = pname
+    let idx = values.registerVariable(pname.toAtom())
     values.setVariable(idx, prop.value)
     return
 
-  case prop.name
+  case pname
   of "color":
     # is color in CSS really only for fonts?
     let color = colorValue(prop.value, values)
@@ -253,7 +254,7 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     trace "SEL: ", sel = sel, comb = $prevCombinator
 
     if sel.combinator == skPseudo:
-      if prevCombinator == skNone and sel.cssType in ["root", "default"]:
+      if prevCombinator == skNone and sel.cssType in [atom"root", atom"default"]:
         if values != nil and not values.applied.contains(sel.cssType):
           matched = true
           values.applied.incl sel.cssType
