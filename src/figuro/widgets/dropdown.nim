@@ -74,11 +74,5 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         this.data = self.data
         size 100'pp, 100'ux
         offset 0'ux, this.parent[].box.h
-
         zlevel 10
-        # this.setUserAttr(Hidden, Open notin self)
-        # if Open notin self:
-        #   this.flags.incl(NfInactive)
-        # else:
-        #   this.flags.excl(NfInactive)
       refreshLayout(this)
