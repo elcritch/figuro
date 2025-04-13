@@ -32,7 +32,7 @@ proc draw*(self: Main) {.slot.} =
 
       TextButton.new "slider1":
         size 80'pp, 60'ux
-        this.label({defaultFont(): "Click me!"})
+        label this, {defaultFont(): "Click me!"}
         cornerRadius 10.0'ui
 
       Slider[float].new "slider1":

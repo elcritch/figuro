@@ -157,7 +157,7 @@ proc clipContent*(current: Figuro, clip: bool) =
 proc fill*(current: Figuro, color: Color) =
   ## Sets background color.
   current.fill = color
-  current.userAttrs.incl fsFill
+  current.fieldSet.incl fsFill
 
 proc zlevel*(current: Figuro, zlvl: ZLevel) =
   ## Sets the z-level (layer) height of the given node.
@@ -215,7 +215,7 @@ template setTitle*(current: Figuro, title: string) =
 proc cornerRadius*(current: Figuro, radius: UiScalar) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = radius
-  current.userAttrs.incl fsCornerRadius
+  current.fieldSet.incl fsCornerRadius
 
 proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
@@ -383,21 +383,17 @@ proc gridAutoFlow*(current: Figuro, item: GridFlow) =
   ## the auto-placement algorithm kicks in to automatically place the items. 
   current.defaultGridTemplate()
   current.gridTemplate.autoFlow = item
-  current.userAttrs.incl fsGridAutoFlow
+  current.fieldSet.incl fsGridAutoFlow
 
 proc gridAutoColumns*(current: Figuro, item: Constraint) =
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
-  current.userAttrs.incl fsGridAutoColumns
+  current.fieldSet.incl fsGridAutoColumns
 
 proc gridAutoRows*(current: Figuro, item: Constraint) =
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
-  current.userAttrs.incl fsGridAutoRows
-
-proc attributes*(self: Figuro, opt: set[Attributes], state = true) =
-  if state: self.userAttrs.incl opt
-  else: self.userAttrs.excl opt
+  current.fieldSet.incl fsGridAutoRows
 

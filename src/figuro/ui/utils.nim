@@ -86,7 +86,7 @@ template printNewEventInfo*() =
 
 const fieldSetNames = block:
   var names: HashSet[string]
-  for item in Attributes:
+  for item in FieldSetAttrs:
     let name = $item
     names.incl name[2 ..^ 1].toLowerAscii()
   echo "FSN: ", names
@@ -109,7 +109,7 @@ macro withOptional*(node, blk: untyped) =
         st[0].strVal.toLowerAscii() in fieldSetNames:
       let fsName = ident "fs" & st[0].strVal
       result.add quote do:
-        if `fsName` notin `node`.userAttrs:
+        if `fsName` notin `node`.fieldSet:
           with `node`:
             `st`
     else:

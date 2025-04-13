@@ -47,6 +47,7 @@ type
     Focused
     Selected
 
+  FieldSetAttrs* = enum
     ## For tracking which fields have been set by the widget user code.
     ## 
     ## An example is setting `fill` in a button's code. We want this

@@ -66,6 +66,7 @@ type
     prevSize*: Position
 
     flags*: set[NodeFlags]
+    fieldSet*: set[FieldSetAttrs]
     userAttrs*: set[Attributes]
 
     cxSize*: array[GridDir, Constraint] = [csAuto(), csNone()]

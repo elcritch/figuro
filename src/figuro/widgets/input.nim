@@ -48,10 +48,10 @@ proc disabled*(self: Input): bool =
   Disabled in self.userAttrs
 
 proc `active=`*(self: Input, state: bool) =
-  self.attributes({Active}, state)
+  self.setUserAttr({Active}, state)
 
 proc `disabled`*(self: Input, state: bool) =
-  self.attributes({Disabled}, state)
+  self.setUserAttr({Disabled}, state)
 
 proc overwrite*(self: Input): bool =
   Overwrite in self.text.opts
@@ -257,7 +257,7 @@ proc draw*(self: Input) {.slot.} =
         boxOf self.text.cursorRect
         fill blackColor
       this.fill.a = self.cursorTick.toFloat * 1.0
-      this.attributes({Active}, self.cursorTick == 1)
+      this.setUserAttr({Active}, self.cursorTick == 1)
 
     for i, selRect in self.text.selectionRects:
       capture i:
