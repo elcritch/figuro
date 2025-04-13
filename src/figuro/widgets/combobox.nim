@@ -9,11 +9,14 @@ import ./scrollpane
 import cssgrid/prettyprints
 
 type
-  Combobox*[T] = ref object of Figuro
+  SelectedElements*[T] = ref object of Agent
     elements: seq[T]
     selected: HashSet[int]
-    buttonSize, halfSize, fillingSize: CssVarId
     multiSelect: bool
+
+  Combobox*[T] = ref object of Figuro
+    data*: SelectedElements[T]
+    buttonSize, halfSize, fillingSize: CssVarId
 
   ComboboxItem*[T] = ref object of Figuro
     index*: int
@@ -24,28 +27,28 @@ type
 
 proc setElements*[T](self: Combobox[T], elements: seq[T]) =
   echo "setElements: ", elements
-  self.elements = elements
-  self.selected.clear()
+  self.data.elements = elements
+  self.data.selected.clear()
 
 proc multiSelect*[T](self: Combobox[T], multiSelect: bool) =
-  self.multiSelect = multiSelect
+  self.data.multiSelect = multiSelect
 
 proc doSelect*[T](self: Combobox[T], index: int, value: T) {.signal.}
 
 proc toggleIndex*[T](self: Combobox[T], index: int) =
-  if index < 0 or index >= self.elements.len: return
-  if index in self.selected:
-    self.selected.excl index
+  if index < 0 or index >= self.data.elements.len: return
+  if index in self.data.selected:
+    self.data.selected.excl index
   else:
-    if not self.multiSelect:
-      self.selected.clear()
-    self.selected.incl index
-  emit self.doSelect(index, self.elements[index])
+    if not self.data.multiSelect:
+      self.data.selected.clear()
+    self.data.selected.incl index
+  emit self.doSelect(index, self.data.elements[index])
 
 proc selectItem*[T](self: Combobox[T], value: T) {.slot.} =
-  if self.selected == value: return
-  self.selected = value
-  for i, item in self.elements:
+  if self.data.selected == value: return
+  self.data.selected = value
+  for i, item in self.data.elements:
     if item == value:
       return self.selectIndex(i)
 
@@ -64,6 +67,7 @@ proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: Ui
     discard
 
 proc initialize*[T](self: Combobox[T]) {.slot.} =
+  self.data = SelectedElements[T]()
   let cssValues = self.frame[].theme.css.values
 
 proc draw*[T](self: ComboboxItem[T]) {.slot.} =
@@ -85,11 +89,11 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
         size 100'pp, cx"max-content"
         contentHeight cx"min-content"
 
-        for idx, elem in self.elements:
+        for idx, elem in self.data.elements:
           capture idx, elem:
             ComboboxItem[T].new "item":
               this.index = idx
-              this.setUserAttr(Selected, idx in self.selected)
+              this.setUserAttr(Selected, idx in self.data.selected)
               this.value = elem
               this.combobox = self.unsafeWeakRef()
               WidgetContents()
@@ -100,7 +104,7 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
                   combobox.selectIndex(this.index)
 
 template getComboboxItem*(): auto =
-  ComboboxItem[typeof(combobox.elements[0])](this.parent[])
+  ComboboxItem[typeof(combobox.data.elements[0])](this.parent[])
 
 template ComboboxItems*[T](self: Combobox[T], blk: untyped) =
   let combobox {.inject.} = this
