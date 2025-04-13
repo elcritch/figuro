@@ -11,6 +11,8 @@ import cssgrid/prettyprints
 type
   Dropdown*[T] = ref object of Figuro
     data*: SelectedElements[T]
+    fade* = Fader(minMax: 0.0..100.0,
+                     inTimeMs: 60, outTimeMs: 60)
 
 proc doSelect*[T](self: Dropdown[T], value: T) {.signal.}
 proc doOpened*[T](self: Dropdown[T], isOpen: bool) {.signal.}
@@ -74,6 +76,7 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
       ComboboxList[T].new "combobox":
         this.data = self.data
         size 100'pp, 100'ux
-        offset 0'ux, this.parent[].box.h
+        offset 0'ux, 100'pp
         zlevel 10
+        this.setUserAttr(Hidden, Open notin self.userAttrs)
         refreshLayout(this)

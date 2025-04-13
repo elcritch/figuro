@@ -60,10 +60,13 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
         Hidden in node.userAttrs:
         continue
       emit node.doDraw()
+
     timeIt(computeLayoutsTimer):
       computeLayouts(frame.root)
 
-    for node in rn:
+    let rl = move frame.redrawLayout
+    frame.redrawLayout.clear()
+    for node in rl:
       if NfDead in node.flags or
         NfInactive in node.flags or
         Hidden in node.userAttrs:
