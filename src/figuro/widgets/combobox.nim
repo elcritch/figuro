@@ -95,7 +95,6 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
               this.combobox = self.unsafeWeakRef()
               WidgetContents()
               onSignal(doMouseClick) do(this: ComboboxItem[T], kind: EventKind, buttons: UiButtonView):
-                echo "item clicked: ", kind, " ", buttons
                 if kind == Done and MouseLeft in buttons:
                   # this.selected = not this.selected
                   let combobox = this.queryParent(Combobox[T]).get()
