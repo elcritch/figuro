@@ -109,6 +109,7 @@ proc toRenderNode*(current: Figuro): render.Node =
       shadow.x = orig.x.scaled
       shadow.y = orig.y.scaled
       shadow.color = orig.color
+      shadow.spread = orig.spread.scaled
       result.shadow[DropShadow] = shadow
     block:
       let orig = current.shadow[InnerShadow]
@@ -117,6 +118,7 @@ proc toRenderNode*(current: Figuro): render.Node =
       shadow.x = orig.x.scaled
       shadow.y = orig.y.scaled
       shadow.color = orig.color
+      shadow.spread = orig.spread.scaled
       result.shadow[InnerShadow] = shadow
     result.cornerRadius = current.cornerRadius.scaled
   # of nkImage:

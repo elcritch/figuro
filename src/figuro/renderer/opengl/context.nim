@@ -1004,6 +1004,7 @@ proc fillRoundedRectWithShadow*(
       )
     
     # Draw corners
+    echo "drawing corners", " TOP LEFT: ", topLeft, " totalPadding: ", totalPadding
     ctx.drawUvRect(topLeft, ninePatchRects[0], shadowColor)
     ctx.drawUvRect(topRight, ninePatchRects[1], shadowColor)
     ctx.drawUvRect(bottomLeft, ninePatchRects[2], shadowColor)

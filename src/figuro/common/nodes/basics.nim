@@ -94,7 +94,7 @@ type
 
   RenderShadow* = object
     blur*: float32
-    spread*: UiScalar
+    spread*: float32
     x*: float32
     y*: float32
     color*: Color
