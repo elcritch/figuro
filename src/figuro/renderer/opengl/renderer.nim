@@ -157,8 +157,11 @@ proc renderInnerShadows(ctx: Context, node: Node) =
       )
   else:
     let shadow = node.shadow[InnerShadow]
+    var rect = node.screenBox.atXY(0'f32, 0'f32)
+    rect.w -= 10.0'f32
+    rect.h -= 10.0'f32
     ctx.fillRoundedRectWithShadow(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+      rect = rect,
       radius = node.cornerRadius,
       shadowX = shadow.x,
       shadowY = shadow.y,
@@ -252,6 +255,10 @@ proc render(
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
     ctx.renderDropShadows(node)
 
+  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
+    echo "inner shadow: ", node.shadow[InnerShadow].repr
+    ctx.renderInnerShadows(node)
+
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
     ctx.beginMask()
@@ -269,7 +276,7 @@ proc render(
       ctx.renderBoxes(node)
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    # echo "inner shadow: ", node.shadow[InnerShadow].repr
+    echo "inner shadow: ", node.shadow[InnerShadow].repr
     ctx.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)
