@@ -219,7 +219,6 @@ template onInit*(blk: untyped) =
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
-  # fig.userAttrs = {}
   fig.fieldSet = {}
   fig.diffIndex = 0
   fig.contents.setLen(0)
@@ -276,7 +275,6 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
   frame.theme = Theme(font: defaultFont(), css: CssTheme(rules: @[], values: newCssValues()))
-  # frame.setSize(size)
   frame.window.box.w = size[0].UiScalar
   frame.window.box.h = size[1].UiScalar
   frame.windowStyle = style
