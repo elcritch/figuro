@@ -1,4 +1,34 @@
-import pixie
+import pixie, pixie/simd
+
+proc delta*(image: Image) {.hasSimd, raises: [].} =
+  ## Inverts all of the colors and alpha.
+  for i in 0 ..< image.data.len:
+    var rgbx = image.data[i]
+    rgbx.a = 255-rgbx.g
+    rgbx.r = rgbx.r
+    rgbx.g = 0
+    rgbx.b = 0
+    image.data[i] = rgbx
+  for i in 0 ..< image.data.len:
+    var rgbx = image.data[i]
+    if rgbx.r > 0:
+      rgbx.a = rgbx.a
+      rgbx.r = 255
+      rgbx.g = 255
+      rgbx.b = 255
+      image.data[i] = rgbx
+    else:
+      rgbx.r = 0
+      rgbx.g = 0
+      rgbx.b = 0
+      rgbx.a = 0
+      image.data[i] = rgbx
+
+  # Inverting rgbx(50, 100, 150, 200) becomes rgbx(205, 155, 105, 55). This
+  # is not a valid premultiplied alpha color.
+  # We need to convert back to premultiplied alpha after inverting.
+  # image.data.toPremultipliedAlpha()
+
 
 proc generateShadowImage(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
@@ -22,7 +52,7 @@ proc generateShadowImage(radius: int, offset: Vec2,
   )
 
   let image3 = newImage(sz, sz)
-  circle.invert()
+  # circle.invert()
   # shadow3.invert()
   image3.draw(circle)
   image3.draw(shadow3)
@@ -98,12 +128,13 @@ proc sliceToNinePatch*(img: Image): tuple[
 let shadowImage = generateShadowImage(
   radius = 50,
   offset = vec2(0, 0),
-  spread = -3.0,
-  blur = 30.0,
-  fillStyle = rgba(255, 255, 255, 255),
-  shadowColor = rgba(255, 255, 255, 0),
+  spread = -10.0,
+  blur = 15.0,
+  fillStyle = rgba(255, 0, 0, 255),
+  shadowColor = rgba(0, 255, 0, 255),
 )
 # shadowImage.invert()
+shadowImage.delta()
 shadowImage.writeFile("examples/corner2.png")
 
 # Example of slicing the shadow image into a 9-patch

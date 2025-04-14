@@ -18,7 +18,7 @@ proc draw*(self: Main) {.slot.} =
 
     Button[int] as "btn":
       with this:
-        box 40'ux, 30'ux, 80'ux, 80'ux
+        box 40'ux, 30'ux, 30'pp, 30'pp
         fill css"#2B9F2B"
         # fill clearColor
         # border 1'ui, css"red"
