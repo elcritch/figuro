@@ -495,7 +495,7 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
 
 proc generateShadowImage(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
-                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255)): Image =
+                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255)): tuple[img: Image, border: int] =
   let adj = 2*spread.int
   let sz = 2*radius + 2*adj
 
@@ -514,9 +514,9 @@ proc generateShadowImage(radius: int, offset: Vec2,
 
   let image3 = newImage(sz, sz)
   image3.draw(shadow3)
-  return image3
+  return (image3, 2*adj)
 
-proc sliceToNinePatch*(img: Image): tuple[
+proc sliceToNinePatch(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
   top, right, bottom, left: Image
 ] =
