@@ -926,7 +926,6 @@ proc fillRoundedRectWithShadow*(
       sOffsetX = (shadowX * 100).int
       sOffsetY = (shadowY * 100).int
       shadowKey = hash((7723, radius.int, sOffsetX, sOffsetY, sSpread, sBlur))
-      imgPadding = 2 * sSpread.int
     
     var ninePatchHashes: array[8, Hash]
     var ninePatchRects: array[8, Rect]
@@ -964,7 +963,7 @@ proc fillRoundedRectWithShadow*(
     
     # Draw the 9-patch shadow with appropriate padding
     let 
-      totalPadding = imgPadding + shadowSpread.int
+      totalPadding = 2 * shadowSpread.int
       expandedRect = rect(
         rect.x - totalPadding.float32,
         rect.y - totalPadding.float32,
