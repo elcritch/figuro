@@ -117,7 +117,6 @@ proc renderDropShadows(ctx: Context, node: Node) =
   ## drawing shadows with 9-patch technique
   let shadow = node.shadow[DropShadow]
   if shadow.blur > 0.0:
-    echo "shadow spread: ", shadow.spread.float32, " shadow blur: ", shadow.blur
     ctx.fillRoundedRectWithShadow(
       rect = node.screenBox.atXY(0'f32, 0'f32),
       radius = node.cornerRadius,

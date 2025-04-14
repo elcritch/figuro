@@ -951,7 +951,7 @@ proc fillRoundedRectWithShadow*(
     var ninePatchRects: array[8, Rect]
     
     # Check if we've already generated this shadow
-    if shadowKey notin ctx.entries:
+    if (shadowKey !& 0) notin ctx.entries:
       # Generate shadow image
       let shadowImg = generateShadowImage(
         radius.int, 
