@@ -978,30 +978,12 @@ proc fillRoundedRectWithShadow*(
     
     # Draw the corners
     let 
-      topLeft = rect(
-        expandedRect.x, 
-        expandedRect.y, 
-        cornerSize, 
-        cornerSize
-      )
-      topRight = rect(
-        expandedRect.x + expandedRect.w - cornerSize, 
-        expandedRect.y, 
-        cornerSize, 
-        cornerSize
-      )
-      bottomLeft = rect(
-        expandedRect.x, 
-        expandedRect.y + expandedRect.h - cornerSize, 
-        cornerSize, 
-        cornerSize
-      )
-      bottomRight = rect(
-        expandedRect.x + expandedRect.w - cornerSize, 
-        expandedRect.y + expandedRect.h - cornerSize, 
-        cornerSize, 
-        cornerSize
-      )
+      cs = cornerSize
+      sbox = expandedRect
+      topLeft = rect(sbox.x, sbox.y, cs, cs)
+      topRight = rect(sbox.x + sbox.w - cs, sbox.y, cs, cs)
+      bottomLeft = rect(sbox.x, sbox.y + sbox.h - cs, cs, cs)
+      bottomRight = rect(sbox.x + sbox.w - cs, sbox.y + sbox.h - cs, cs, cs)
     
     # Draw corners
     echo "drawing corners", " TOP LEFT: ", topLeft, " totalPadding: ", totalPadding
