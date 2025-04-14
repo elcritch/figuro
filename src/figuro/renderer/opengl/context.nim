@@ -828,7 +828,7 @@ proc generateShadowImage(
     radius: int, offset: Vec2, 
     spread: float32, blur: float32,
     fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
-    shadowColor: ColorRGBA = rgba(0, 0, 0, 255)
+    shadowColor: ColorRGBA = rgba(255, 255, 255, 255)
 ): Image =
   let adj = 2*spread.int
   let sz = 2*radius + 2*adj
@@ -836,7 +836,7 @@ proc generateShadowImage(
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
   let center = radius.float32 + adj.float32
-  ctx3.fillStyle = rgba(255, 255, 255, 255)
+  ctx3.fillStyle = fillStyle
   ctx3.circle(center, center, radius.float32)
   ctx3.fill()
 
@@ -996,10 +996,10 @@ proc fillRoundedRectWithShadow*(
     let topEdge = rect(
       sbox.x + corner, 
       sbox.y, 
-      sbox.w - 2 * corner, 
+      rect.w - 2 * corner, 
       corner
     )
-    ctx.drawUvRect(topEdge, ninePatchRects[4], shadowColor)
+    ctx.drawUvRect(topEdge, ninePatchRects[0], Color(r: 1.0, g: 0.0, b: 0.0, a: 0.99))
     
     # Right edge (stretched vertically)
     let rightEdge = rect(
