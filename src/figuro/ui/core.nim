@@ -155,9 +155,7 @@ macro onSignal*(signal: untyped, blk: untyped) =
         unBindSigilEvents:
           `body`
       uinodes.connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
-  # echo "result: ", result.treeRepr
   result[1][0].params = params
-  # echo "result: ", result.treeRepr
 
 proc querySibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
