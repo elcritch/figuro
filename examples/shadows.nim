@@ -24,7 +24,7 @@ proc generateShadowImage(radius: int, offset: Vec2,
   image3.draw(circle)
   return image3
 
-proc sliceToNinePatch*(img: Image, cornerSize: int): tuple[
+proc sliceToNinePatch*(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
   top, right, bottom, left: Image
 ] =
@@ -40,22 +40,22 @@ proc sliceToNinePatch*(img: Image, cornerSize: int): tuple[
   
   # Create the corner images - using the actual corner size or half the image size, whichever is smaller
   let 
-    actualCornerW = min(cornerSize, halfW)
-    actualCornerH = min(cornerSize, halfH)
+    actualCornerW = halfW
+    actualCornerH = halfH
   
   # Four corners
   let
-    topLeft = superImage(img, 0, 0, actualCornerW, actualCornerH)
-    topRight = superImage(img, width - actualCornerW, 0, actualCornerW, actualCornerH)
-    bottomLeft = superImage(img, 0, height - actualCornerH, actualCornerW, actualCornerH)
-    bottomRight = superImage(img, width - actualCornerW, height - actualCornerH, actualCornerW, actualCornerH)
+    topLeft = img.subImage(0, 0, halfW, halfH)
+    topRight = img.subImage(width - halfW, 0, halfW, halfH)
+    bottomLeft = img.subImage(0, height - halfH, halfW, halfH)
+    bottomRight = img.subImage(width - halfW, height - halfH, halfW, halfH)
   
   # Four edges (1 pixel wide for sides, full width/height for top/bottom)
   let
-    top = superImage(img, actualCornerW, 0, width - 2*actualCornerW, 1)
-    right = superImage(img, width - 1, actualCornerH, 1, height - 2*actualCornerH)
-    bottom = superImage(img, actualCornerW, height - 1, width - 2*actualCornerW, 1)
-    left = superImage(img, 0, actualCornerH, 1, height - 2*actualCornerH)
+    top = img.subImage(halfW, 0, halfW, 1)
+    right = img.subImage(width - 1, halfH, 1, halfH)
+    bottom = img.subImage(halfW, height - 1, halfW, 1)
+    left = img.subImage(0, halfH, 1, halfH)
   
   result = (
     topLeft: topLeft,
@@ -78,7 +78,7 @@ let shadowImage = generateShadowImage(
 shadowImage.writeFile("examples/corner2.png")
 
 # Example of slicing the shadow image into a 9-patch
-let ninePatch = sliceToNinePatch(shadowImage, 30)
+let ninePatch = sliceToNinePatch(shadowImage)
 ninePatch.topLeft.writeFile("examples/shadow_top_left.png")
 ninePatch.topRight.writeFile("examples/shadow_top_right.png")
 ninePatch.bottomLeft.writeFile("examples/shadow_bottom_left.png")
