@@ -4,24 +4,17 @@ proc delta*(image: Image) {.hasSimd, raises: [].} =
   ## Inverts all of the colors and alpha.
   for i in 0 ..< image.data.len:
     var rgbx = image.data[i]
-    if rgbx.r > 0:
-      rgbx.a = 255-rgbx.g
-      rgbx.r = 255
-      rgbx.g = 255
-      rgbx.b = 255
-      image.data[i] = rgbx
-    else:
-      rgbx.r = 0
-      rgbx.g = 0
-      rgbx.b = 0
-      rgbx.a = 0
-      image.data[i] = rgbx
+    let r = (rgbx.r != 0).uint8
+    rgbx.a = (255-rgbx.g) * r
+    rgbx.r = (255) * r
+    rgbx.g = (255) * r
+    rgbx.b = (255) * r
+    image.data[i] = rgbx
 
   # Inverting rgbx(50, 100, 150, 200) becomes rgbx(205, 155, 105, 55). This
   # is not a valid premultiplied alpha color.
   # We need to convert back to premultiplied alpha after inverting.
   # image.data.toPremultipliedAlpha()
-
 
 proc generateShadowImage(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,

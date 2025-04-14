@@ -2,6 +2,8 @@ import
   buffers, chroma, pixie, hashes, opengl, os, shaders, strformat, strutils, tables,
   textures, times, formatflippy
 
+import pixie/simd
+
 import pkg/chronicles
 
 logScope:
@@ -843,7 +845,7 @@ proc generateShadowImage(
     fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
     shadowColor: ColorRGBA = rgba(255, 255, 255, 255)
 ): Image =
-  let adj = 2*spread.int
+  let adj = 2*abs(spread.int)
   let sz = 2*radius + 2*adj
 
   let circle = newImage(sz, sz)
@@ -924,6 +926,34 @@ proc sliceToNinePatch(img: Image): tuple[
     left: fleft
   )
   
+proc diffRGBChannels*(image: Image) {.hasSimd, raises: [].} =
+  ## Inverts all of the colors and alpha.
+  for i in 0 ..< image.data.len:
+    var rgbx = image.data[i]
+    let r = (rgbx.r != 0).uint8
+    rgbx.a = (255-rgbx.g) * r
+    rgbx.r = (255) * r
+    rgbx.g = (255) * r
+    rgbx.b = (255) * r
+    image.data[i] = rgbx
+
+  # image.data.toPremultipliedAlpha()
+
+
+proc generateInnerShadowImage(
+    radius: int, offset: Vec2, 
+    spread: float32, blur: float32
+): Image =
+  let shadowImage = generateShadowImage(
+    radius = radius,
+    offset = offset,
+    spread = -2*spread,
+    blur = blur,
+    fillStyle = rgba(255, 0, 0, 255),
+    shadowColor = rgba(0, 255, 0, 255),
+  )
+  shadowImage.diffRGBChannels()
+  return shadowImage
 
 proc fillRoundedRectWithShadow*(
     ctx: Context,
@@ -931,6 +961,7 @@ proc fillRoundedRectWithShadow*(
     radius: float32, 
     shadowX, shadowY, shadowBlur, shadowSpread: float32,
     shadowColor: Color,
+    invert: bool = false,
 ) =
   ## Draws a rounded rectangle with a shadow underneath using 9-patch technique
   ## The shadow is drawn with padding around the main rectangle
@@ -938,87 +969,95 @@ proc fillRoundedRectWithShadow*(
     return
     
   # First, draw the shadow
-  if shadowSpread > 0:
-    # Generate shadow key for caching
-    let 
-      sBlur = (shadowBlur * 100).int
-      sSpread = (shadowSpread * 100).int
-      sOffsetX = (shadowX * 100).int
-      sOffsetY = (shadowY * 100).int
-      shadowKey = hash((7723, radius.int, sOffsetX, sOffsetY, sSpread, sBlur))
+  # Generate shadow key for caching
+  let 
+    sBlur = (shadowBlur * 100).int
+    sSpread = (shadowSpread * 100).int
+    sOffsetX = (shadowX * 100).int
+    sOffsetY = (shadowY * 100).int
+    shadowKey = hash((7723, radius.int, sOffsetX, sOffsetY, sSpread, sBlur, invert))
+  
+  var ninePatchHashes: array[8, Hash]
+  for i in 0..7:
+    ninePatchHashes[i] = shadowKey !& i
+
+  # Check if we've already generated this shadow
+  if (shadowKey !& 0) notin ctx.entries:
+    # Generate shadow image
+    let shadowImg =
+      if not invert:
+        generateShadowImage(
+          radius.int, 
+          vec2(0, 0), 
+          shadowSpread,
+          shadowBlur
+        )
+      else:
+        generateInnerShadowImage(
+          radius = radius.int,
+          offset = vec2(shadowX, shadowY),
+          spread = shadowSpread,
+          blur = shadowBlur
+        )
     
-    var ninePatchHashes: array[8, Hash]
+    # Slice it into 9-patch pieces
+    let patches = sliceToNinePatch(shadowImg)
+    
+    # Store each piece in the atlas
+    let patchArray = [
+      patches.topLeft, patches.topRight, 
+      patches.bottomLeft, patches.bottomRight,
+      patches.top, patches.right, 
+      patches.bottom, patches.left
+    ]
+    
     for i in 0..7:
       ninePatchHashes[i] = shadowKey !& i
-
-    # Check if we've already generated this shadow
-    if (shadowKey !& 0) notin ctx.entries:
-      # Generate shadow image
-      let shadowImg = generateShadowImage(
-        radius.int, 
-        vec2(shadowX, shadowY), 
-        shadowSpread,
-        shadowBlur
-      )
-      
-      # Slice it into 9-patch pieces
-      let patches = sliceToNinePatch(shadowImg)
-      
-      # Store each piece in the atlas
-      let patchArray = [
-        patches.topLeft, patches.topRight, 
-        patches.bottomLeft, patches.bottomRight,
-        patches.top, patches.right, 
-        patches.bottom, patches.left
-      ]
-      
-      for i in 0..7:
-        ninePatchHashes[i] = shadowKey !& i
-        ctx.putImage(ninePatchHashes[i], patchArray[i])
-    
-    # Draw the 9-patch shadow with appropriate padding
-    let 
-      totalPadding = shadowSpread.int
-      sbox = rect(
-        rect.x - totalPadding.float32,
-        rect.y - totalPadding.float32,
-        rect.w + 2 * totalPadding.float32,
-        rect.h + 2 * totalPadding.float32
-      )
-      halfW = sbox.w / 2
-      halfH = sbox.h / 2
-      centerX = sbox.x + halfW
-      centerY = sbox.y + halfH
-      corner = 2*shadowSpread
-    
-    # Draw the corners
-    let 
-      topLeft = rect(sbox.x, sbox.y, corner, corner)
-      topRight = rect(sbox.x + sbox.w - corner, sbox.y, corner, corner)
-      bottomLeft = rect(sbox.x, sbox.y + sbox.h - corner, corner, corner)
-      bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
-    
-    # Draw corners
-    ctx.drawImageAdj(ninePatchHashes[0], topLeft.xy, shadowColor, topLeft.wh)
-    ctx.drawImageAdj(ninePatchHashes[1], topRight.xy, shadowColor, topRight.wh)
-    ctx.drawImageAdj(ninePatchHashes[2], bottomLeft.xy, shadowColor, bottomLeft.wh)
-    ctx.drawImageAdj(ninePatchHashes[3], bottomRight.xy, shadowColor, bottomRight.wh)
-    
-    # Draw edges
-    # Top edge (stretched horizontally)
-    let topEdge = rect( sbox.x + corner, sbox.y, rect.w - corner, corner)
-    ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
-    # Right edge (stretched vertically)
-    let rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
-    ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor, rightEdge.wh)
-    # Bottom edge (stretched horizontally)
-    let bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
-    ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor, bottomEdge.wh)
-    # Left edge (stretched vertically)
-    let leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
-    ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor, leftEdge.wh)
-    
-    # Center (stretched both ways)
-    let center = rect( sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
-    # # For the center, we can use a simple fill as it's just the shadow color
-    ctx.fillRect(center, shadowColor)
+      ctx.putImage(ninePatchHashes[i], patchArray[i])
+  
+  # Draw the 9-patch shadow with appropriate padding
+  let 
+    totalPadding = shadowSpread.int
+    sbox = rect(
+      rect.x - totalPadding.float32 + shadowX,
+      rect.y - totalPadding.float32 + shadowY,
+      rect.w + 2 * totalPadding.float32,
+      rect.h + 2 * totalPadding.float32
+    )
+    halfW = sbox.w / 2
+    halfH = sbox.h / 2
+    centerX = sbox.x + halfW
+    centerY = sbox.y + halfH
+    corner = 2*shadowSpread
+  
+  # Draw the corners
+  let 
+    topLeft = rect(sbox.x, sbox.y, corner, corner)
+    topRight = rect(sbox.x + sbox.w - corner, sbox.y, corner, corner)
+    bottomLeft = rect(sbox.x, sbox.y + sbox.h - corner, corner, corner)
+    bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
+  
+  # Draw corners
+  ctx.drawImageAdj(ninePatchHashes[0], topLeft.xy, shadowColor, topLeft.wh)
+  ctx.drawImageAdj(ninePatchHashes[1], topRight.xy, shadowColor, topRight.wh)
+  ctx.drawImageAdj(ninePatchHashes[2], bottomLeft.xy, shadowColor, bottomLeft.wh)
+  ctx.drawImageAdj(ninePatchHashes[3], bottomRight.xy, shadowColor, bottomRight.wh)
+  
+  # Draw edges
+  # Top edge (stretched horizontally)
+  let topEdge = rect( sbox.x + corner, sbox.y, rect.w - corner, corner)
+  ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
+  # Right edge (stretched vertically)
+  let rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
+  ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor, rightEdge.wh)
+  # Bottom edge (stretched horizontally)
+  let bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
+  ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor, bottomEdge.wh)
+  # Left edge (stretched vertically)
+  let leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
+  ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor, leftEdge.wh)
+  
+  # Center (stretched both ways)
+  let center = rect( sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
+  # # For the center, we can use a simple fill as it's just the shadow color
+  ctx.fillRect(center, shadowColor)

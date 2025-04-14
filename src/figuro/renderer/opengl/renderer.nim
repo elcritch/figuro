@@ -131,28 +131,41 @@ proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
-  let shadow = node.shadow[InnerShadow]
-  let n = shadow.blur.toInt
-  var color = shadow.color
-  color.a = 2*color.a/n.toFloat
-  let blurAmt = shadow.blur / n.toFloat
-  for i in 0 .. n:
-    let blur: float32 = i.toFloat() * blurAmt
-    var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
-    # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
-    if shadow.x >= 0'f32:
-      box.w += shadow.x
-    else:
-      box.x += shadow.x + blurAmt
-    if shadow.y >= 0'f32:
-      box.h += shadow.y
-    else:
-      box.y += shadow.y + blurAmt
-    ctx.strokeRoundedRect(
-      rect = box,
-      color = color,
-      weight = blur,
-      radius = node.cornerRadius - blur,
+  when false:
+    let shadow = node.shadow[InnerShadow]
+    let n = shadow.blur.toInt
+    var color = shadow.color
+    color.a = 2*color.a/n.toFloat
+    let blurAmt = shadow.blur / n.toFloat
+    for i in 0 .. n:
+      let blur: float32 = i.toFloat() * blurAmt
+      var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
+      # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
+      if shadow.x >= 0'f32:
+        box.w += shadow.x
+      else:
+        box.x += shadow.x + blurAmt
+      if shadow.y >= 0'f32:
+        box.h += shadow.y
+      else:
+        box.y += shadow.y + blurAmt
+      ctx.strokeRoundedRect(
+        rect = box,
+        color = color,
+        weight = blur,
+        radius = node.cornerRadius - blur,
+      )
+  else:
+    let shadow = node.shadow[InnerShadow]
+    ctx.fillRoundedRectWithShadow(
+      rect = node.screenBox.atXY(0'f32, 0'f32),
+      radius = node.cornerRadius,
+      shadowX = shadow.x,
+      shadowY = shadow.y,
+      shadowBlur = shadow.blur,
+      shadowSpread = shadow.spread.float32,
+      shadowColor = shadow.color,
+      invert = true,
     )
 
 proc renderBoxes(ctx: Context, node: Node) =

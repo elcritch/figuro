@@ -13,25 +13,27 @@ type
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    # fill css"grey"
-    fill css"white"
+    fill css"grey"
+    # fill css"white"
 
     Button[int] as "btn":
       with this:
         box 40'ux, 30'ux, 30'pp, 30'pp
         fill css"#2B9F2B"
-        # fill clearColor
-        # border 1'ui, css"red"
+        fill clearColor
+        border 1'ui, css"red"
       
       this.shadow[DropShadow] = Shadow(
         blur: 10.0'ui,
         spread: 10.0'ui,
         x: 4.0'ui,
         y: 2.0'ui,
-        color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.4)
-      )
-      # this.shadow[InnerShadow] = Shadow(blur: 8.0'ui, x: 3.0'ui, y: 3.0'ui,
-      #                             color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.5))
+        color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.4))
+      # this.shadow[InnerShadow] = Shadow(
+      #   blur: 10.0'ui,
+      #   spread: 10.0'ui,
+      #   x: 3.0'ui, y: 3.0'ui,
+      #   color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
 
       Text.new "btnText":
         size 100'pp, 100'pp
