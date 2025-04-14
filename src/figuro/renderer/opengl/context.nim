@@ -938,7 +938,7 @@ proc fillRoundedRectWithShadow*(
     return
     
   # First, draw the shadow
-  if shadowBlur > 0:
+  if shadowSpread > 0:
     # Generate shadow key for caching
     let 
       sBlur = (shadowBlur * 100).int
@@ -948,7 +948,9 @@ proc fillRoundedRectWithShadow*(
       shadowKey = hash((7723, radius.int, sOffsetX, sOffsetY, sSpread, sBlur))
     
     var ninePatchHashes: array[8, Hash]
-    var ninePatchRects: array[8, Rect]
+    for i in 0..7:
+      ninePatchHashes[i] = shadowKey !& i
+
     
     # Check if we've already generated this shadow
     if (shadowKey !& 0) notin ctx.entries:
@@ -974,12 +976,6 @@ proc fillRoundedRectWithShadow*(
       for i in 0..7:
         ninePatchHashes[i] = shadowKey !& i
         ctx.putImage(ninePatchHashes[i], patchArray[i])
-        ninePatchRects[i] = ctx.entries[ninePatchHashes[i]]
-    else:
-      # Retrieve already generated 9-patch pieces
-      for i in 0..7:
-        ninePatchHashes[i] = shadowKey !& i
-        ninePatchRects[i] = ctx.entries[ninePatchHashes[i]]
     
     # Draw the 9-patch shadow with appropriate padding
     let 
@@ -994,7 +990,6 @@ proc fillRoundedRectWithShadow*(
       halfH = sbox.h / 2
       centerX = sbox.x + halfW
       centerY = sbox.y + halfH
-      # corner = min(radius + shadowSpread, min(halfW, halfH))
       corner = 2*shadowSpread
     
     # Draw the corners
