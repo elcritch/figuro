@@ -101,6 +101,7 @@ let shadowImage = generateShadowImage(
   fillStyle = rgba(255, 255, 255, 255),
   shadowColor = rgba(0, 0, 0, 255)
 )
+# shadowImage.invert()
 shadowImage.writeFile("examples/corner2.png")
 
 # Example of slicing the shadow image into a 9-patch
