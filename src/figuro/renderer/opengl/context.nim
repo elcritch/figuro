@@ -451,6 +451,19 @@ proc drawImage*(
   let rect = ctx.getImageRect(imageId)
   ctx.drawUvRect(pos, pos + size, rect.xy, rect.xy + rect.wh, color)
 
+proc drawImageAdj*(
+    ctx: Context,
+    imageId: Hash,
+    pos: Vec2 = vec2(0, 0),
+    color = color(1, 1, 1, 1),
+    size: Vec2,
+) =
+  ## Draws image the UI way - pos at top-left.
+  let
+    rect = ctx.getImageRect(imageId)
+    adj = vec2(2/ctx.atlasSize.float32)
+  ctx.drawUvRect(pos, pos + size, rect.xy+adj, rect.xy + rect.wh - adj, color)
+
 proc drawSprite*(
     ctx: Context,
     imageId: Hash,
@@ -981,7 +994,8 @@ proc fillRoundedRectWithShadow*(
       halfH = sbox.h / 2
       centerX = sbox.x + halfW
       centerY = sbox.y + halfH
-      corner = min(radius + shadowSpread, min(halfW, halfH))
+      # corner = min(radius + shadowSpread, min(halfW, halfH))
+      corner = 2*shadowSpread
     
     # Draw the corners
     let 
@@ -992,7 +1006,8 @@ proc fillRoundedRectWithShadow*(
     
     # Draw corners
     echo "drawing corners", " TOP LEFT: ", topLeft, " totalPadding: ", totalPadding
-    ctx.drawUvRect(topLeft, ninePatchRects[0], shadowColor)
+    # ctx.drawUvRect(topLeft, ninePatchRects[0], shadowColor)
+    ctx.drawImageAdj(ninePatchHashes[0], topLeft.xy, shadowColor, topLeft.wh)
     ctx.drawUvRect(topRight, ninePatchRects[1], shadowColor)
     ctx.drawUvRect(bottomLeft, ninePatchRects[2], shadowColor)
     ctx.drawUvRect(bottomRight, ninePatchRects[3], shadowColor)
@@ -1007,6 +1022,7 @@ proc fillRoundedRectWithShadow*(
     )
     # ctx.drawUvRect(topEdge, ninePatchRects[4], shadowColor)
     # ctx.drawImage(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
+    ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
     var
       uvRect = ctx.entries[ninePatchHashes[4]]
       wh1 = uvRect.wh * ctx.atlasSize.float32
@@ -1015,7 +1031,7 @@ proc fillRoundedRectWithShadow*(
     var
       pt = topEdge.xy
       rw = topEdge.wh
-    ctx.drawUvRect(pt, pt + rw, uvRect.xy+adj, uvRect.xy + uvRect.wh - adj, shadowColor)
+    # ctx.drawUvRect(pt, pt + rw, uvRect.xy+adj, uvRect.xy + uvRect.wh - adj, shadowColor)
     # ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, shadowColor)
 
     # Right edge (stretched vertically)
