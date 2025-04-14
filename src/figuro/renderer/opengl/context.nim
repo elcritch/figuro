@@ -667,44 +667,6 @@ proc strokeRoundedRect*(
     fillRect(ctx, rect(rect.x, rect.y + rh, ww, hrh), color)
     fillRect(ctx, rect(rect.x + rrw, rect.y + rh, ww, hrh), color)
 
-when false:
-  proc strokeRoundedRect*(
-      ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
-  ) =
-    if rect.w <= 0 or rect.h <= -0:
-      notic "strokeRoundedRect: too small: ", rect = rect
-      return
-
-    let radius = min(radius, min(rect.w / 2, rect.h / 2))
-    # TODO: Make this a 9 patch
-    let hash =
-      hash((8349, rect.w.int, rect.h.int, (weight * 100).int, (radius * 100).int))
-
-    let
-      w = ceil(rect.w).int
-      h = ceil(rect.h).int
-    if hash notin ctx.entries:
-      let
-        image = newImage(w, h)
-        c = newContext(image)
-      c.fillStyle = rgba(255, 255, 255, 255)
-      c.lineWidth = weight
-      c.strokeStyle = color
-      c.strokeRoundedRect(
-        rect(weight / 2, weight / 2, rect.w - weight, rect.h - weight), radius
-      )
-      ctx.putImage(hash, image, true)
-    let
-      uvRect = ctx.entries[hash]
-      wh = rect.wh * ctx.atlasSize.float32
-    ctx.drawUvRect(
-      rect.xy,
-      rect.xy + vec2(w.float32, h.float32),
-      uvRect.xy,
-      uvRect.xy + uvRect.wh,
-      color,
-    )
-
 proc line*(ctx: Context, a: Vec2, b: Vec2, weight: float32, color: Color) =
   let hash = hash((2345, a, b, (weight * 100).int, hash(color)))
 
