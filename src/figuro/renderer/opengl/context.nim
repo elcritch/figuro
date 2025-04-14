@@ -829,14 +829,15 @@ proc generateShadowImage(
     spread: float32, blur: float32,
     fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
     shadowColor: ColorRGBA = rgba(0, 0, 0, 255)
-): tuple[img: Image, padding: int] =
+): Image =
   let adj = 2*spread.int
   let sz = 2*radius + 2*adj
 
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
+  let offset = radius.float32 + adj.float32
   ctx3.fillStyle = rgba(255, 255, 255, 255)
-  ctx3.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
+  ctx3.circle(offset, offset, radius.float32)
   ctx3.fill()
 
   let shadow3 = circle.shadow(
@@ -846,9 +847,9 @@ proc generateShadowImage(
     color = shadowColor
   )
 
-  let image3 = newImage(sz, sz)
-  image3.draw(shadow3)
-  return (image3, 2*adj)
+  let image = newImage(sz, sz)
+  image.draw(shadow3)
+  return image
 
 proc sliceToNinePatch(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
@@ -933,7 +934,7 @@ proc fillRoundedRectWithShadow*(
     # Check if we've already generated this shadow
     if shadowKey notin ctx.entries:
       # Generate shadow image
-      let (shadowImg, imgPadding) = generateShadowImage(
+      let shadowImg = generateShadowImage(
         radius.int, 
         vec2(shadowX, shadowY), 
         shadowSpread,
