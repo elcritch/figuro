@@ -884,16 +884,16 @@ proc sliceToNinePatch(img: Image): tuple[
     centerY = height div 2
     
     # Top edge: from center to top edge, 1px wide
-    top = img.subImage(centerX, 0, 1, centerY)
+    top = img.subImage(centerX, 0, 2, centerY)
     
     # Right edge: from center to right edge, 1px high  
-    right = img.subImage(centerX, centerY, width - centerX, 1)
+    right = img.subImage(centerX, centerY, width - centerX, 2)
     
     # Bottom edge: from center to bottom edge, 1px wide
-    bottom = img.subImage(centerX, centerY, 1, height - centerY)
+    bottom = img.subImage(centerX, centerY, 2, height - centerY)
     
     # Left edge: from left edge to center, 1px high
-    left = img.subImage(0, centerY, centerX, 1)
+    left = img.subImage(0, centerY, centerX, 2)
   
   result = (
     topLeft: topLeft,
@@ -996,10 +996,10 @@ proc fillRoundedRectWithShadow*(
     let topEdge = rect(
       sbox.x + corner, 
       sbox.y, 
-      rect.w - 2 * corner, 
+      rect.w - corner, 
       corner
     )
-    ctx.drawUvRect(topEdge, ninePatchRects[0], Color(r: 1.0, g: 0.0, b: 0.0, a: 0.99))
+    ctx.drawUvRect(topEdge, ninePatchRects[4], shadowColor)
     
     # Right edge (stretched vertically)
     let rightEdge = rect(
@@ -1008,7 +1008,7 @@ proc fillRoundedRectWithShadow*(
       corner, 
       sbox.h - 2 * corner
     )
-    ctx.drawUvRect(rightEdge, ninePatchRects[5], shadowColor)
+    # ctx.drawUvRect(rightEdge, ninePatchRects[5], shadowColor)
     
     # Bottom edge (stretched horizontally)
     let bottomEdge = rect(
@@ -1017,7 +1017,7 @@ proc fillRoundedRectWithShadow*(
       sbox.w - 2 * corner, 
       corner
     )
-    ctx.drawUvRect(bottomEdge, ninePatchRects[6], shadowColor)
+    # ctx.drawUvRect(bottomEdge, ninePatchRects[6], shadowColor)
     
     # Left edge (stretched vertically)
     let leftEdge = rect(
@@ -1026,7 +1026,7 @@ proc fillRoundedRectWithShadow*(
       corner, 
       sbox.h - 2 * corner
     )
-    ctx.drawUvRect(leftEdge, ninePatchRects[7], shadowColor)
+    # ctx.drawUvRect(leftEdge, ninePatchRects[7], shadowColor)
     
     # Center (stretched both ways)
     let center = rect(
@@ -1035,5 +1035,5 @@ proc fillRoundedRectWithShadow*(
       sbox.w - 2 * corner, 
       sbox.h - 2 * corner
     )
-    # For the center, we can use a simple fill as it's just the shadow color
-    ctx.fillRect(center, shadowColor)
+    # # For the center, we can use a simple fill as it's just the shadow color
+    # ctx.fillRect(center, shadowColor)
