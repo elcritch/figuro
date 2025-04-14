@@ -25,6 +25,8 @@ proc generateShadowImage(radius: int, offset: Vec2,
   image3.draw(circle)
   image3.draw(shadow3)
   return image3
+  # let image3 = diff(shadow3, circle)
+  # return image3[1]
 
 proc sliceToNinePatch*(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
@@ -94,10 +96,10 @@ proc sliceToNinePatch*(img: Image): tuple[
 let shadowImage = generateShadowImage(
   radius = 50,
   offset = vec2(0, 0),
-  spread = -10.0,
-  blur = 20.0,
-  fillStyle = rgba(255, 255, 255, 200),
-  shadowColor = rgba(255, 0, 0, 255)
+  spread = -3.0,
+  blur = 30.0,
+  fillStyle = rgba(255, 255, 255, 255),
+  shadowColor = rgba(0, 0, 0, 255)
 )
 shadowImage.writeFile("examples/corner2.png")
 
