@@ -22,6 +22,8 @@ proc generateShadowImage(radius: int, offset: Vec2,
   )
 
   let image3 = newImage(sz, sz)
+  circle.invert()
+  # shadow3.invert()
   image3.draw(circle)
   image3.draw(shadow3)
   return image3
@@ -99,7 +101,7 @@ let shadowImage = generateShadowImage(
   spread = -3.0,
   blur = 30.0,
   fillStyle = rgba(255, 255, 255, 255),
-  shadowColor = rgba(0, 0, 0, 255)
+  shadowColor = rgba(255, 255, 255, 0),
 )
 # shadowImage.invert()
 shadowImage.writeFile("examples/corner2.png")
