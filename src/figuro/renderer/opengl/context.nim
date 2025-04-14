@@ -1008,9 +1008,9 @@ proc fillRoundedRectWithShadow*(
     echo "drawing corners", " TOP LEFT: ", topLeft, " totalPadding: ", totalPadding
     # ctx.drawUvRect(topLeft, ninePatchRects[0], shadowColor)
     ctx.drawImageAdj(ninePatchHashes[0], topLeft.xy, shadowColor, topLeft.wh)
-    ctx.drawUvRect(topRight, ninePatchRects[1], shadowColor)
-    ctx.drawUvRect(bottomLeft, ninePatchRects[2], shadowColor)
-    ctx.drawUvRect(bottomRight, ninePatchRects[3], shadowColor)
+    ctx.drawImageAdj(ninePatchHashes[1], topRight.xy, shadowColor, topRight.wh)
+    ctx.drawImageAdj(ninePatchHashes[2], bottomLeft.xy, shadowColor, bottomLeft.wh)
+    ctx.drawImageAdj(ninePatchHashes[3], bottomRight.xy, shadowColor, bottomRight.wh)
     
     # Draw edges
     # Top edge (stretched horizontally)
@@ -1020,19 +1020,7 @@ proc fillRoundedRectWithShadow*(
       rect.w - corner, 
       corner
     )
-    # ctx.drawUvRect(topEdge, ninePatchRects[4], shadowColor)
-    # ctx.drawImage(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
     ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
-    var
-      uvRect = ctx.entries[ninePatchHashes[4]]
-      wh1 = uvRect.wh * ctx.atlasSize.float32
-      wh = vec2(wh1.x.round, wh1.y.round)
-      adj = vec2(2/ctx.atlasSize.float32)
-    var
-      pt = topEdge.xy
-      rw = topEdge.wh
-    # ctx.drawUvRect(pt, pt + rw, uvRect.xy+adj, uvRect.xy + uvRect.wh - adj, shadowColor)
-    # ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, shadowColor)
 
     # Right edge (stretched vertically)
     let rightEdge = rect(
@@ -1041,7 +1029,7 @@ proc fillRoundedRectWithShadow*(
       round(corner), 
       round(sbox.h - 2 * corner)
     )
-    ctx.drawUvRect(rightEdge, ninePatchRects[5], shadowColor)
+    ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor, rightEdge.wh)
     
     # Bottom edge (stretched horizontally)
     let bottomEdge = rect(
@@ -1050,7 +1038,7 @@ proc fillRoundedRectWithShadow*(
       sbox.w - 2 * corner, 
       corner
     )
-    ctx.drawUvRect(bottomEdge, ninePatchRects[6], shadowColor)
+    ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor, bottomEdge.wh)
     
     # Left edge (stretched vertically)
     let leftEdge = rect(
@@ -1059,7 +1047,7 @@ proc fillRoundedRectWithShadow*(
       corner, 
       sbox.h - 2 * corner
     )
-    ctx.drawUvRect(leftEdge, ninePatchRects[7], shadowColor)
+    ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor, leftEdge.wh)
     
     # Center (stretched both ways)
     let center = rect(
