@@ -97,6 +97,7 @@ proc toRenderNode*(current: Figuro): render.Node =
   result.fill = current.fill
   result.highlight = current.highlight
   result.stroke = current.stroke
+  result.image = current.image
 
   case current.kind
   of nkRectangle:
@@ -117,8 +118,8 @@ proc toRenderNode*(current: Figuro): render.Node =
       shadow.color = orig.color
       result.shadow[InnerShadow] = shadow
     result.cornerRadius = current.cornerRadius.scaled
-  of nkImage:
-    result.image = current.image
+  # of nkImage:
+  #   result.image = current.image
   of nkText:
     result.textLayout = current.textLayout
     # result.textLayout = GlyphArrangement()

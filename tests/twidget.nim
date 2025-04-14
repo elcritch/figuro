@@ -107,7 +107,9 @@ proc draw*(self: Main) {.slot.} =
         # echo "COMBO: ", this.name, " :: ", this.screenBox
 
       Rectangle.new "filler":
-        size 10'ux, 40'ux
+        size 100'pp, 100'ux
+        border 3'ui, css"green"
+        this.image = ImageStyle(name: "img1.png", color: css"white")
 
       Rectangle.new "filler":
         size 10'ux, 40'ux
