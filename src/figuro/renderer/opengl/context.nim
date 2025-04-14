@@ -889,12 +889,12 @@ proc sliceToNinePatch(img: Image): tuple[
     left = img.subImage(0, centerY, centerX, 1)
   
   var
-    ftop = newImage(4, top.height)
-    fbottom = newImage(4, bottom.height)
-    fright = newImage(right.width, 4)
-    fleft = newImage(left.width, 4)
+    ftop = newImage(2, top.height)
+    fbottom = newImage(2, bottom.height)
+    fright = newImage(right.width, 2)
+    fleft = newImage(left.width, 2)
 
-  for i in 0..3:
+  for i in 0..1:
     ftop.draw(top, translate(vec2(i.float32, 0)))
     fbottom.draw(bottom, translate(vec2(i.float32, 0)))
     fright.draw(right, translate(vec2(0, i.float32)))
@@ -1000,9 +1000,9 @@ proc fillRoundedRectWithShadow*(
     # Draw edges
     # Top edge (stretched horizontally)
     let topEdge = rect(
-      sbox.x + 2*corner, 
+      sbox.x + corner, 
       sbox.y, 
-      rect.w - 2*corner, 
+      rect.w - corner, 
       corner
     )
     ctx.drawUvRect(topEdge, ninePatchRects[4], shadowColor)
