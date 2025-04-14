@@ -951,7 +951,6 @@ proc fillRoundedRectWithShadow*(
     for i in 0..7:
       ninePatchHashes[i] = shadowKey !& i
 
-    
     # Check if we've already generated this shadow
     if (shadowKey !& 0) notin ctx.entries:
       # Generate shadow image
@@ -1009,15 +1008,12 @@ proc fillRoundedRectWithShadow*(
     # Top edge (stretched horizontally)
     let topEdge = rect( sbox.x + corner, sbox.y, rect.w - corner, corner)
     ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
-
     # Right edge (stretched vertically)
     let rightEdge = rect( round(sbox.x + sbox.w - corner), round(sbox.y + corner), round(corner), round(sbox.h - 2 * corner))
     ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor, rightEdge.wh)
-    
     # Bottom edge (stretched horizontally)
     let bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
     ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor, bottomEdge.wh)
-    
     # Left edge (stretched vertically)
     let leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
     ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor, leftEdge.wh)
