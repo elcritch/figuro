@@ -67,10 +67,30 @@ proc generateCorner(
   result = image
 
 # shadowImage.invert()
-let shadowImage = generateCorner(
-  radius = 20,
+let corner = generateCorner(
+  radius = 40,
   quadrant = 1,
   stroked = true,
   lineWidth = 3.0'f32
 )
-shadowImage.writeFile("examples/corner2.png")
+
+let corner2 = generateCorner(
+  radius = 40 + 3,
+  quadrant = 1,
+  stroked = true,
+  lineWidth = 6.0'f32
+)
+
+let shadow = corner.shadow(
+  offset = vec2(0, 0),
+  spread = 2.0'f32,
+  blur = 8.0'f32,
+  color = rgba(255, 255, 255, 255)
+)
+
+let image = newImage(shadow.width, shadow.height)
+image.draw(shadow)
+image.draw(corner)
+# image.draw(corner2, blendMode = MaskBlend)
+
+image.writeFile("examples/corner2.png")
