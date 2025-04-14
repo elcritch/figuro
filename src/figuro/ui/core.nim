@@ -79,14 +79,9 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
 
   node.box = initBox(0, 0, 0, 0)
   node.rotation = 0
-  # node.screenBox = rect(0,0,0,0)
-  # node.offset = vec2(0, 0)
   node.fill = clearColor
   node.stroke = Stroke(weight: 0, color: clearColor)
-  # node.textStyle = TextStyle()
-  # node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = 0'ui
-  # node.shadow = Shadow.none()
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
   node.userAttrs = {}
@@ -115,17 +110,6 @@ proc removeExtraChildren*(node: Figuro) =
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
-# proc refresh*(node: Figuro) {.slot.} =
-#   ## Request that the node and it's children be redrawn
-#   # echo "refresh: ", node.name, " :: ", getStackTrace()
-#   if node == nil:
-#     return
-#   # app.requestedFrame.inc
-#   assert not node.frame.isNil
-#   node.frame[].redrawNodes.incl(node)
-#   when defined(figuroDebugRefresh):
-#     echo "REFRESH: ", getStackTrace()
-
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
 
@@ -139,28 +123,14 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
-# template unBindSigilEvents*(blk: untyped): auto =
-#   static: enableSigilBinding.add false
-#   `blk`
-#   static: discard enableSigilBinding.pop()
-
 proc signalTrigger*[T](self: T, node: Figuro, signal: string) {.signal.}
 
 proc forward(node: Figuro) {.slot.} =
   emit node.signalTrigger(node, "")
 
-# template onSignal*[T](signal: untyped, obj: T, blk: untyped) =
-#   proc handler(arg: typeof(`obj`)) {.slot.} =
-#     let `obj` {.inject, used.} = arg
-#     unBindSigilEvents:
-#       `blk`
-#   connect(node, signalTrigger, `obj`, handler, acceptVoidSlot = true)
-#   connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
-
 import macros
 
 proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
-  # echo "getParam: ", doBody.treeRepr
   if doBody.kind != nnkDo:
     error("Must provide a do body with at least 1 argument", doBody)
   let params = doBody[3]
@@ -184,11 +154,6 @@ macro onSignal*(signal: untyped, blk: untyped) =
       proc handler() {.slot.} =
         unBindSigilEvents:
           `body`
-      # when not compiles(handler(`target`)):
-      #   {.error: "mismatched do block argument: `" & `args` &
-      #            "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
-      #            astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
-      # connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
       uinodes.connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
   # echo "result: ", result.treeRepr
   result[1][0].params = params
@@ -409,10 +374,6 @@ proc nodeInit*[T](parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.c
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-# proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
-#   ## callback proc to initialized a new node, or re-use and existing node
-#   nodeInitImpl[T](nkText, parent, name, predraw)
-
 proc widgetRegisterImpl*[T](nn: Atom, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
   ##
@@ -431,14 +392,10 @@ template widgetRegister*[T](nn: Atom | static string, blk: untyped) =
     {.error: "No `this` variable found in the current scope! Figuro's APIs rely on an having a `this` variable referring to the current widget or node. Check that you have `withWidget` or `withRootWidget` at the top of your widget draw slots.".}
   
   let childPreDraw = proc(c: Figuro) =
-      # echo "widgt PRE-DRAW INIT: ", nm
       let this {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
       `blk`
   widgetRegisterImpl[T](nn, this, childPreDraw)
-
-# template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
-#   widgetRegister[t](nkText, name, blk)
 
 template new*(tp: typedesc, name: Atom | static string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
