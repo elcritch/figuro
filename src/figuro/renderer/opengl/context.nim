@@ -883,19 +883,16 @@ proc sliceToNinePatch(img: Image): tuple[
     centerX = width div 2
     centerY = height div 2
     
-    # Top edge: from center to top edge, 1px wide
     top = img.subImage(centerX, 0, 1, centerY)
-    # Right edge: from center to right edge, 1px high  
     right = img.subImage(centerX, centerY, width - centerX, 1)
-    # Bottom edge: from center to bottom edge, 1px wide
     bottom = img.subImage(centerX, centerY, 1, height - centerY)
-    # Left edge: from left edge to center, 1px high
     left = img.subImage(0, centerY, centerX, 1)
-
+  
   top = top.resize(2, top.height)
+  bottom = bottom.resize(2, bottom.height)
   right = right.resize(right.width, 2)
-  bottom = bottom.resize(bottom.width, 2)
-  left = left.resize(2, left.height)
+  left = left.resize(left.width, 2)
+
   
   result = (
     topLeft: topLeft,
