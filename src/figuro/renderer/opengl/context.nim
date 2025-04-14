@@ -1005,8 +1005,6 @@ proc fillRoundedRectWithShadow*(
       bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
     
     # Draw corners
-    echo "drawing corners", " TOP LEFT: ", topLeft, " totalPadding: ", totalPadding
-    # ctx.drawUvRect(topLeft, ninePatchRects[0], shadowColor)
     ctx.drawImageAdj(ninePatchHashes[0], topLeft.xy, shadowColor, topLeft.wh)
     ctx.drawImageAdj(ninePatchHashes[1], topRight.xy, shadowColor, topRight.wh)
     ctx.drawImageAdj(ninePatchHashes[2], bottomLeft.xy, shadowColor, bottomLeft.wh)
@@ -1014,47 +1012,22 @@ proc fillRoundedRectWithShadow*(
     
     # Draw edges
     # Top edge (stretched horizontally)
-    let topEdge = rect(
-      sbox.x + corner, 
-      sbox.y, 
-      rect.w - corner, 
-      corner
-    )
+    let topEdge = rect( sbox.x + corner, sbox.y, rect.w - corner, corner)
     ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
 
     # Right edge (stretched vertically)
-    let rightEdge = rect(
-      round(sbox.x + sbox.w - corner), 
-      round(sbox.y + corner), 
-      round(corner), 
-      round(sbox.h - 2 * corner)
-    )
+    let rightEdge = rect( round(sbox.x + sbox.w - corner), round(sbox.y + corner), round(corner), round(sbox.h - 2 * corner))
     ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor, rightEdge.wh)
     
     # Bottom edge (stretched horizontally)
-    let bottomEdge = rect(
-      sbox.x + corner, 
-      sbox.y + sbox.h - corner, 
-      sbox.w - 2 * corner, 
-      corner
-    )
+    let bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
     ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor, bottomEdge.wh)
     
     # Left edge (stretched vertically)
-    let leftEdge = rect(
-      sbox.x, 
-      sbox.y + corner, 
-      corner, 
-      sbox.h - 2 * corner
-    )
+    let leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
     ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor, leftEdge.wh)
     
     # Center (stretched both ways)
-    let center = rect(
-      sbox.x + corner, 
-      sbox.y + corner, 
-      sbox.w - 2 * corner, 
-      sbox.h - 2 * corner
-    )
+    let center = rect( sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
     # # For the center, we can use a simple fill as it's just the shadow color
-    # ctx.fillRect(center, shadowColor)
+    ctx.fillRect(center, shadowColor)
