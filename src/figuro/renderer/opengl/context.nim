@@ -1027,7 +1027,7 @@ proc fillRoundedRectWithShadow*(
     for i in 0..7:
       ninePatchHashes[i] = shadowKey !& i
       ctx.putImage(ninePatchHashes[i], patchArray[i])
-      patchArray[i].writeFile("examples/shadowPatches" & $i & ".png")
+      # patchArray[i].writeFile("examples/shadowPatches" & $i & ".png")
   
   # Draw the 9-patch shadow with appropriate padding
   let 
@@ -1042,7 +1042,7 @@ proc fillRoundedRectWithShadow*(
     halfH = sbox.h / 2
     centerX = sbox.x + halfW
     centerY = sbox.y + halfH
-    corner = abs(shadowSpread)
+    corner = 2*abs(shadowSpread)
   
   echo "sbox: ", sbox, " invert: ", invert, " corner: ", corner
   # Draw the corners
