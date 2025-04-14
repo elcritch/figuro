@@ -21,7 +21,7 @@ proc draw*(self: Main) {.slot.} =
         box 40'ux, 30'ux, 80'ux, 80'ux
         # fill css"#2B9F2B"
         fill clearColor
-        # border 1'ui, css"red"
+        border 1'ui, css"red"
       
       this.shadow[DropShadow] = Shadow(blur: 10.0'ui, spread: 10.0'ui, x: 2.0'ui, y: 2.0'ui,
                                   color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
