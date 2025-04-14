@@ -4,15 +4,8 @@ proc delta*(image: Image) {.hasSimd, raises: [].} =
   ## Inverts all of the colors and alpha.
   for i in 0 ..< image.data.len:
     var rgbx = image.data[i]
-    rgbx.a = 255-rgbx.g
-    rgbx.r = rgbx.r
-    rgbx.g = 0
-    rgbx.b = 0
-    image.data[i] = rgbx
-  for i in 0 ..< image.data.len:
-    var rgbx = image.data[i]
     if rgbx.r > 0:
-      rgbx.a = rgbx.a
+      rgbx.a = 255-rgbx.g
       rgbx.r = 255
       rgbx.g = 255
       rgbx.b = 255
