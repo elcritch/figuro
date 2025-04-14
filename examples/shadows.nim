@@ -1,8 +1,9 @@
 import pixie
 
 proc generateShadowImage(radius: int, offset: Vec2, 
-                         spread: float32, blur: float32): Image =
-  let adj = max(offset.x.abs().int, offset.y.abs().int) + 1*spread.int
+                         spread: float32, blur: float32,
+                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255)): Image =
+  let adj = 2*spread.int
   let sz = 2*radius + 2*adj
 
   let circle = newImage(sz, sz)
@@ -19,9 +20,7 @@ proc generateShadowImage(radius: int, offset: Vec2,
   )
 
   let image3 = newImage(sz, sz)
-  image3.fill(rgba(255, 255, 255, 255))
   image3.draw(shadow3)
-  image3.draw(circle)
   return image3
 
 proc sliceToNinePatch*(img: Image): tuple[
@@ -82,7 +81,7 @@ proc sliceToNinePatch*(img: Image): tuple[
 # Example usage:
 let shadowImage = generateShadowImage(
   radius = 50,
-  offset = vec2(5, 10),
+  offset = vec2(0, 0),
   spread = 10.0,
   blur = 10.0
 )
