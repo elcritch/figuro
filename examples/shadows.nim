@@ -51,11 +51,22 @@ proc sliceToNinePatch*(img: Image): tuple[
     bottomRight = img.subImage(width - halfW, height - halfH, halfW, halfH)
   
   # Four edges (1 pixel wide for sides, full width/height for top/bottom)
+  # Each edge goes from the center point to the edge
   let
-    top = img.subImage(halfW, 0, halfW, 1)
-    right = img.subImage(width - 1, halfH, 1, halfH)
-    bottom = img.subImage(halfW, height - 1, halfW, 1)
-    left = img.subImage(0, halfH, 1, halfH)
+    centerX = width div 2
+    centerY = height div 2
+    
+    # Top edge: from center to top edge, 1px wide
+    top = img.subImage(centerX, 0, 1, centerY)
+    
+    # Right edge: from center to right edge, 1px high  
+    right = img.subImage(centerX, centerY, width - centerX, 1)
+    
+    # Bottom edge: from center to bottom edge, 1px wide
+    bottom = img.subImage(centerX, centerY, 1, height - centerY)
+    
+    # Left edge: from left edge to center, 1px high
+    left = img.subImage(0, centerY, centerX, 1)
   
   result = (
     topLeft: topLeft,
