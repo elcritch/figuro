@@ -1,28 +1,37 @@
 
 import pixie
 
-let radius = 50
-let offset3 = vec2(5, 10)
-let spread = 10.0
-let blur = 10.0
-let adj = max(offset3.x.abs().int, offset3.y.abs().int) + 1*spread.int
-let sz = 2*radius + 2*adj
+# proc superImage*(image: Image, x, y, w, h: int): Image
 
-let circle = newImage(sz, sz)
-let ctx3 = newContext(circle)
-ctx3.fillStyle = rgba(255, 255, 255, 255)
-ctx3.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
-ctx3.fill()
+proc generateShadowImage(radius: int, offset: Vec2, 
+                         spread: float32, blur: float32): Image =
+  let adj = max(offset.x.abs().int, offset.y.abs().int) + 1*spread.int
+  let sz = 2*radius + 2*adj
 
-let shadow3 = circle.shadow(
-  offset = offset3,
-  spread = spread,
-  blur = blur,
-  color = rgba(0, 0, 0, 200)
+  let circle = newImage(sz, sz)
+  let ctx3 = newContext(circle)
+  ctx3.fillStyle = rgba(255, 255, 255, 255)
+  ctx3.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
+  ctx3.fill()
+
+  let shadow3 = circle.shadow(
+    offset = offset,
+    spread = spread,
+    blur = blur,
+    color = rgba(0, 0, 0, 200)
+  )
+
+  let image3 = newImage(sz, sz)
+  image3.fill(rgba(255, 255, 255, 255))
+  image3.draw(shadow3)
+  image3.draw(circle)
+  return image3
+
+# Example usage:
+let shadowImage = generateShadowImage(
+  radius = 50,
+  offset = vec2(5, 10),
+  spread = 10.0,
+  blur = 10.0
 )
-
-let image3 = newImage(sz, sz)
-image3.fill(rgba(255, 255, 255, 255))
-image3.draw(shadow3)
-image3.draw(circle)
-image3.writeFile("examples/corner2.png")
+shadowImage.writeFile("examples/corner2.png")
