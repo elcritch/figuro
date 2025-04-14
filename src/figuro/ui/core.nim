@@ -311,12 +311,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro)
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
     createNewNode(T, node)
-    # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
     parent.children[parent.diffIndex] = node
   else:
     # Reuse Figuro.
-    # echo nd(), "checking reuse node"
-    # echo nd(), "reuse node: ", id, " new: ", node.getId, " parent: ", parent.uid
     node = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and node.nIndex == parent.diffIndex and kind == node.kind:
@@ -328,13 +325,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro)
       node.resetToDefault(kind)
       node.name = nid
 
-  # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
-
   node.kind = kind
   node.highlight = parent.highlight
   node.zlevel = parent.zlevel
-  # node.theme = parent.theme
-
   node.listens.events = {}
 
   inc parent.diffIndex
