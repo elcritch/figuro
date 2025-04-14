@@ -889,12 +889,12 @@ proc sliceToNinePatch(img: Image): tuple[
     left = img.subImage(0, centerY, centerX, 1)
   
   var
-    ftop = newImage(6, top.height)
-    fbottom = newImage(6, bottom.height)
-    fright = newImage(right.width, 6)
-    fleft = newImage(left.width, 6)
+    ftop = newImage(4, top.height)
+    fbottom = newImage(4, bottom.height)
+    fright = newImage(right.width, 4)
+    fleft = newImage(left.width, 4)
 
-  for i in 0..5:
+  for i in 0..3:
     ftop.draw(top, translate(vec2(i.float32, 0)))
     fbottom.draw(bottom, translate(vec2(i.float32, 0)))
     fright.draw(right, translate(vec2(0, i.float32)))
@@ -1000,25 +1000,22 @@ proc fillRoundedRectWithShadow*(
     # Draw edges
     # Top edge (stretched horizontally)
     let topEdge = rect(
-      round(sbox.x + corner), 
-      round(sbox.y), 
-      round(rect.w - corner), 
-      round(corner)
+      sbox.x + corner, 
+      sbox.y, 
+      rect.w - corner, 
+      corner
     )
     # ctx.drawUvRect(topEdge, ninePatchRects[4], shadowColor)
-    ctx.drawImage(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
-    # let
-    #   uvRect = ctx.entries[ninePatchHashes[4]]
-    #   wh1 = uvRect.wh * ctx.atlasSize.float32
-    #   wh = vec2(wh1.x.round, wh1.y.round)
-    # var
-    #   pt = topEdge.xy
-    #   rw = topEdge.wh
-    # pt.x = pt.x.trunc
-    # pt.y = pt.y.trunc
-    # rw.x = rw.x.trunc
-    # rw.y = rw.y.trunc
-    # ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, shadowColor)
+    # ctx.drawImage(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
+    var
+      uvRect = ctx.entries[ninePatchHashes[4]]
+      wh1 = uvRect.wh * ctx.atlasSize.float32
+      wh = vec2(wh1.x.round, wh1.y.round)
+      adj = vec2(2/ctx.atlasSize.float32)
+    var
+      pt = topEdge.xy
+      rw = topEdge.wh
+    ctx.drawUvRect(pt, pt + rw, uvRect.xy+adj, uvRect.xy + uvRect.wh - adj, shadowColor)
     # ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, shadowColor)
 
     # Right edge (stretched vertically)
