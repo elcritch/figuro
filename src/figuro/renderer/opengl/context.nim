@@ -963,7 +963,7 @@ proc fillRoundedRectWithShadow*(
     
     # Draw the 9-patch shadow with appropriate padding
     let 
-      totalPadding = 2 * shadowSpread.int
+      totalPadding = shadowSpread.int
       expandedRect = rect(
         rect.x - totalPadding.float32,
         rect.y - totalPadding.float32,
