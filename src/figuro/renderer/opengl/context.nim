@@ -911,7 +911,6 @@ proc fillRoundedRectWithShadow*(
     radius: float32, 
     shadowX, shadowY, shadowBlur, shadowSpread: float32,
     shadowColor: Color,
-    padding: int = 0
 ) =
   ## Draws a rounded rectangle with a shadow underneath using 9-patch technique
   ## The shadow is drawn with padding around the main rectangle
@@ -927,6 +926,7 @@ proc fillRoundedRectWithShadow*(
       sOffsetX = (shadowX * 100).int
       sOffsetY = (shadowY * 100).int
       shadowKey = hash((7723, radius.int, sOffsetX, sOffsetY, sSpread, sBlur))
+      imgPadding = 2 * sSpread.int
     
     var ninePatchHashes: array[8, Hash]
     var ninePatchRects: array[8, Rect]
@@ -964,7 +964,7 @@ proc fillRoundedRectWithShadow*(
     
     # Draw the 9-patch shadow with appropriate padding
     let 
-      totalPadding = padding + shadowSpread.int
+      totalPadding = imgPadding + shadowSpread.int
       expandedRect = rect(
         rect.x - totalPadding.float32,
         rect.y - totalPadding.float32,
