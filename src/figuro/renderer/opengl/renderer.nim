@@ -180,12 +180,6 @@ proc renderBoxes(ctx: Context, node: Node) =
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
   if node.image.name.len() > 0:
-    let path =
-      if node.image.name.isAbsolute:
-        node.image.name
-      else:
-        figDataDir() / node.image.name
-    echo "RENDER::IMAGE: ", path
     let size = vec2(node.screenBox.w, node.screenBox.h)
     ctx.drawImage(path, pos = vec2(0, 0), color = node.image.color, size = size)
 

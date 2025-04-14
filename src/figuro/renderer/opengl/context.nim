@@ -244,13 +244,13 @@ proc findEmptyRect(ctx: Context, width, height: int): Rect =
 
   return rect
 
-proc putImage*(ctx: Context, path: string | Hash, image: Image) =
+proc putImage*(ctx: Context, path: Hash, image: Image) =
   # Reminder: This does not set mipmaps (used for text, should it?)
   let rect = ctx.findEmptyRect(image.width, image.height)
   ctx.entries[path] = rect / float(ctx.atlasSize)
   updateSubImage(ctx.atlasTexture, int(rect.x), int(rect.y), image)
 
-proc updateImage*(ctx: Context, path: string | Hash, image: Image) =
+proc updateImage*(ctx: Context, path: Hash, image: Image) =
   ## Updates an image that was put there with putImage.
   ## Useful for things like video.
   ## * Must be the same size.
@@ -268,7 +268,7 @@ proc updateImage*(ctx: Context, path: string | Hash, image: Image) =
 proc logFlippy(flippy: Flippy, file: string) =
   debug "putFlippy file", fwidth = $flippy.width, fheight = $flippy.height, flippyPath = file
 
-proc putFlippy*(ctx: Context, path: string | Hash, flippy: Flippy) =
+proc putFlippy*(ctx: Context, path: Hash, flippy: Flippy) =
   logFlippy(flippy, $path)
   let rect = ctx.findEmptyRect(flippy.width, flippy.height)
   ctx.entries[path] = rect / float(ctx.atlasSize)
@@ -401,11 +401,11 @@ proc drawUvRect(ctx: Context, rect, uvRect: Rect, color: Color) =
 proc logImage(file: string) =
   debug "load image file", flippyPath = file
 
-proc getOrLoadImageRect(ctx: Context, imagePath: string | Hash): Rect =
-  if imagePath is Hash:
-    return ctx.entries[imagePath]
+proc getOrLoadImageRect(ctx: Context, imagePath: Hash): Rect =
+  return ctx.entries[imagePath]
 
-  var filePath = cast[string](imagePath) # We know it is a string
+proc getOrLoadImageRect(ctx: Context, imagePath: string): Rect =
+  var filePath = imagePath
   if splitFile(filePath).ext == "":
     filePath.add ".png"
   if hash(filePath) notin ctx.entries:

@@ -37,7 +37,7 @@ type
     highlight*: Color
     stroke*: Stroke
 
-    image*: ImageStyle
+    image*: ImageId
 
     case kind*: NodeKind
     of nkRectangle:

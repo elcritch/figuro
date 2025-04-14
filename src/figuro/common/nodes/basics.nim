@@ -103,6 +103,11 @@ type
     weight*: float32 # not uicoord?
     color*: Color
 
+  ImageId* = distinct Hash
+
   ImageStyle* = object
     name*: string
     color*: Color
+    id*: ImageId
+
+proc `==`*(a, b: ImageId): bool {.borrow.}
