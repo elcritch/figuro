@@ -24,12 +24,13 @@ macro thisWrapper*(p: untyped): auto =
   # echo "THIS WRAPPER:result: ", result.repr
 
 ## ---------------------------------------------
-##             Basic Node Creation
+##             Basic APIs
 ## ---------------------------------------------
-## 
-## Core Fidget Node APIs. These are the main ways to create
-## Fidget nodes. 
-## 
+
+template onInit*(blk: untyped) =
+  ## Code in the block will run once when the node is initialized.
+  if NfInitialized notin this.flags:
+    `blk`
 
 template themeColor*(name: static string): Color =
   ## Returns the current theme.

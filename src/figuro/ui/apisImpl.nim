@@ -13,6 +13,62 @@ export commons, system, uinodes
 import core
 export core
 
+proc querySibling*(self: Figuro, name: string): Option[Figuro] =
+  ## finds first sibling with name
+  for sibling in self.parent.children:
+    if sibling.uid != self.uid and sibling.name == name:
+      return some sibling
+  return Figuro.none
+
+template querySibling*[T: Figuro](name: string): Option[T] =
+  ## finds first sibling with name
+  querySibling(this, name)
+
+proc queryParent*[T: Figuro](this: Figuro, tp: typedesc[T]): Option[T] =
+  ## finds first parent with name
+  if this.parent[] of tp:
+    return some tp(this.parent[])
+  elif this.parent.isNil:
+    return
+  else:
+    return this.parent[].queryParent(tp)
+
+proc queryParent*[T: Figuro](this: Figuro, name: string, tp: typedesc = Figuro): Option[T] =
+  ## finds first parent with name
+  if this.parent[].name == name and this.parent[] of tp:
+    return some tp(this.parent[])
+  elif this.parent.isNil:
+    return
+  else:
+    return this.parent[].queryParent(name, tp)
+
+proc queryChild*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
+  ## finds first child with name
+  for child in this.children:
+    if child.name == name and child of tp:
+      return some typeof(tp)(child)
+  return none(typeof(tp))
+
+proc queryChild*(this: Figuro, tp: typedesc = Figuro): Option[tp] =
+  ## finds first child with type
+  for child in this.children:
+    if child of tp:
+      return some typeof(tp)(child)
+  return none(typeof(tp))
+
+proc queryDescendant*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
+  ## finds first descendant with name
+  for child in this.children:
+    if child.name == name and child of tp:
+      return some typeof(tp)(child)
+
+  for child in this.children:
+    let result = child.queryDescendant(name, tp)
+    if result.isSome:
+      return result
+
+  return none(typeof(tp))
+
 ## ---------------------------------------------
 ##             Basic Node Creation
 ## ---------------------------------------------
