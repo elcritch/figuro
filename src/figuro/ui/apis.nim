@@ -49,8 +49,9 @@ template connect*(
 ): void =
   uinodes.connect(this, signal, b, slot, acceptVoidSlot)
 
-template boxFrom*(x, y, w, h: float32) {.thisWrapper.}
-  ## Sets the box dimensions.
+template image*(name: string, color: Color = whiteColor) =
+  ## Sets the image style.
+  this.image = imageStyle(name, color)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
@@ -142,10 +143,6 @@ template css*(color: static string): Color =
   ## Parses a CSS style color at compile time.
   const c = parseHtmlColor(color)
   c
-
-template imageStyle*(name: string, color: Color): ImageStyle =
-  # Sets teh image style.
-  result = ImageStyle(name: name, color: color)
 
 template setName*(n: string) {.thisWrapper.}
   ## sets current node name

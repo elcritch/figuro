@@ -109,7 +109,7 @@ proc draw*(self: Main) {.slot.} =
       Rectangle.new "filler":
         size 100'pp, 100'ux
         border 3'ui, css"green"
-        this.image = ImageStyle(name: "img1.png", color: css"white")
+        image "img1.png"
 
       Rectangle.new "filler":
         size 10'ux, 40'ux

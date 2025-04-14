@@ -401,80 +401,78 @@ proc drawUvRect(ctx: Context, rect, uvRect: Rect, color: Color) =
 proc logImage(file: string) =
   debug "load image file", flippyPath = file
 
-proc getOrLoadImageRect(ctx: Context, imagePath: Hash): Rect =
-  return ctx.entries[imagePath]
+proc getImageRect(ctx: Context, imageId: Hash): Rect =
+  return ctx.entries[imageId]
 
-proc getOrLoadImageRect(ctx: Context, imagePath: string): Rect =
-  var filePath = imagePath
-  if splitFile(filePath).ext == "":
-    filePath.add ".png"
-  if hash(filePath) notin ctx.entries:
-    # Need to load imagePath, check to see if the .flippy file is around
-    # echo "[load] ", filePath
-    logImage(filePath)
-    if not fileExists(filePath):
-      raise newException(Exception, &"Image '{filePath}' not found")
-    let flippyFilePath = filePath.changeFileExt(".flippy")
-    if not fileExists(flippyFilePath):
-      # No Flippy file generate new one
+proc loadImage*(ctx: Context, filePath: string, imageId: Hash): bool =
+  if imageId in ctx.entries:
+    return true
+
+  # Need to load imagePath, check to see if the .flippy file is around
+  logImage(filePath)
+  if not fileExists(filePath):
+    return false
+  let flippyFilePath = filePath.changeFileExt(".flippy")
+  if not fileExists(flippyFilePath):
+    # No Flippy file generate new one
+    pngToFlippy(filePath, flippyFilePath)
+  else:
+    let
+      mtFlippy = getLastModificationTime(flippyFilePath).toUnix
+      mtImage = getLastModificationTime(filePath).toUnix
+    if mtFlippy < mtImage:
+      # Flippy file too old, regenerate
       pngToFlippy(filePath, flippyFilePath)
-    else:
-      let
-        mtFlippy = getLastModificationTime(flippyFilePath).toUnix
-        mtImage = getLastModificationTime(filePath).toUnix
-      if mtFlippy < mtImage:
-        # Flippy file too old, regenerate
-        pngToFlippy(filePath, flippyFilePath)
-    var flippy = loadFlippy(flippyFilePath)
-    ctx.putFlippy(filePath, flippy)
-  return ctx.entries[filePath]
+  var flippy = loadFlippy(flippyFilePath)
+  ctx.putFlippy(imageId, flippy)
+  return true
 
 proc drawImage*(
     ctx: Context,
-    imagePath: string | Hash,
+    imageId: Hash,
     pos: Vec2 = vec2(0, 0),
     color = color(1, 1, 1, 1),
     scale = 1.0,
 ) =
   ## Draws image the UI way - pos at top-left.
   let
-    rect = ctx.getOrLoadImageRect(imagePath)
+    rect = ctx.getImageRect(imageId)
     wh = rect.wh * ctx.atlasSize.float32 * scale
   ctx.drawUvRect(pos, pos + wh, rect.xy, rect.xy + rect.wh, color)
 
 proc drawImage*(
     ctx: Context,
-    imagePath: string | Hash,
+    imageId: Hash,
     pos: Vec2 = vec2(0, 0),
     color = color(1, 1, 1, 1),
     size: Vec2,
 ) =
   ## Draws image the UI way - pos at top-left.
-  let rect = ctx.getOrLoadImageRect(imagePath)
+  let rect = ctx.getImageRect(imageId)
   ctx.drawUvRect(pos, pos + size, rect.xy, rect.xy + rect.wh, color)
 
 proc drawSprite*(
     ctx: Context,
-    imagePath: string | Hash,
+    imageId: Hash,
     pos: Vec2 = vec2(0, 0),
     color = color(1, 1, 1, 1),
     scale = 1.0,
 ) =
   ## Draws image the game way - pos at center.
   let
-    rect = ctx.getOrLoadImageRect(imagePath)
+    rect = ctx.getImageRect(imageId)
     wh = rect.wh * ctx.atlasSize.float32 * scale
   ctx.drawUvRect(pos - wh / 2, pos + wh / 2, rect.xy, rect.xy + rect.wh, color)
 
 proc drawSprite*(
     ctx: Context,
-    imagePath: string | Hash,
+    imageId: Hash,
     pos: Vec2 = vec2(0, 0),
     color = color(1, 1, 1, 1),
     size: Vec2,
 ) =
   ## Draws image the game way - pos at center.
-  let rect = ctx.getOrLoadImageRect(imagePath)
+  let rect = ctx.getImageRect(imageId)
   ctx.drawUvRect(pos - size / 2, pos + size / 2, rect.xy, rect.xy + rect.wh, color)
 
 proc fillRect*(ctx: Context, rect: Rect, color: Color) =

@@ -1,4 +1,4 @@
-import std/[macros, tables, with]
+import std/[macros, tables, with, os]
 from std/sugar import capture
 export with, capture
 
@@ -13,43 +13,29 @@ export commons, system, uinodes
 import core
 export core
 
-proc imagePath*(node: Figuro): string =
+proc imagePath*(name: string): string =
   ## Returns the image path for the given node.
-  if node.image.name.len == 0:
+  if name.len == 0:
     return ""
-  if node.image.name.isAbsolute:
-    node.image.name
+  result = name
+  case splitFile(result).ext
+  of "":
+    result.add ".png"
+  of ".png":
+    discard
   else:
-    figDataDir() / node.image.name
+    raise newException(ValueError, "Only PNG images are supported; got: " & splitFile(result).ext)
+  if result.isAbsolute():
+    result = result
+  else:
+    result = absolutePath(figDataDir() / result)
 
-proc imageId*(node: Figuro): Hash =
-  ## Returns the image id for the given node.
-  let path = imagePath(node)
-  result = hash(path)
-
-proc getOrLoadImageRect(ctx: Context, imagePath: string): Flippy =
-  var filePath = imagePath
-  if splitFile(filePath).ext == "":
-    filePath.add ".png"
-  if hash(filePath) notin ctx.entries:
-    # Need to load imagePath, check to see if the .flippy file is around
-    # echo "[load] ", filePath
-    logImage(filePath)
-    if not fileExists(filePath):
-      raise newException(Exception, &"Image '{filePath}' not found")
-    let flippyFilePath = filePath.changeFileExt(".flippy")
-    if not fileExists(flippyFilePath):
-      # No Flippy file generate new one
-      pngToFlippy(filePath, flippyFilePath)
-    else:
-      let
-        mtFlippy = getLastModificationTime(flippyFilePath).toUnix
-        mtImage = getLastModificationTime(filePath).toUnix
-      if mtFlippy < mtImage:
-        # Flippy file too old, regenerate
-        pngToFlippy(filePath, flippyFilePath)
-    var flippy = loadFlippy(flippyFilePath)
-    result = flippy
+proc imageStyle*(name: string, color: Color): ImageStyle =
+  # Sets teh image style.
+  result.name = name.imagePath()
+  result.color = color
+  if result.name.fileExists():
+    result.id = ImageId(hash(result.name))
 
 proc querySibling*(self: Figuro, name: string): Option[Figuro] =
   ## finds first sibling with name
@@ -114,10 +100,6 @@ proc queryDescendant*(this: Figuro, name: string, tp: typedesc = Figuro): Option
 ## Core Fidget Node APIs. These are the main ways to create
 ## Fidget nodes. 
 ## 
-
-proc boxFrom*(current: Figuro, x, y, w, h: float32) =
-  ## Sets the box dimensions.
-  current.box = initBox(x, y, w, h)
 
 # template drawable*(id: static string, inner: untyped): untyped =
 #   ## Starts a drawable node. These don't draw a normal rectangle.

@@ -98,7 +98,7 @@ proc toRenderNode*(current: Figuro): render.Node =
   result.highlight = current.highlight
   result.stroke = current.stroke
 
-  result.image = current.image.id
+  result.image = current.image
 
   case current.kind
   of nkRectangle:
