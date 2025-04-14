@@ -42,7 +42,7 @@ proc generateShadowImage(radius: int, offset: Vec2,
   # shadow3.invert()
   image3.draw(circle)
   image3.draw(shadow3)
-  image3.delta()
+  # image3.delta()
   return image3
   # let image3 = diff(shadow3, circle)
   # return image3[1]
@@ -115,7 +115,7 @@ proc sliceToNinePatch*(img: Image): tuple[
 let shadowImage = generateShadowImage(
   radius = 10,
   offset = vec2(0, 0),
-  spread = -0.0,
+  spread = 10.0,
   blur = 7.0,
   fillStyle = rgba(255, 0, 0, 255),
   shadowColor = rgba(0, 255, 0, 255),
