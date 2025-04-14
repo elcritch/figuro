@@ -119,12 +119,11 @@ proc renderDropShadows(ctx: Context, node: Node) =
   if shadow.blur > 0.0:
     ctx.fillRoundedRectWithShadow(
       rect = node.screenBox.atXY(0'f32, 0'f32),
-      color = rgba(0, 0, 0, 0), # Transparent - we just want the shadow
       radius = node.cornerRadius,
       shadowX = shadow.x,
       shadowY = shadow.y,
       shadowBlur = shadow.blur,
-      shadowSpread = shadow.spread,
+      shadowSpread = shadow.spread.float32,
       shadowColor = shadow.color
     )
 

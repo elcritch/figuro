@@ -902,9 +902,14 @@ proc toScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
   result = (ctx.mat * vec3(v.x, v.y, 1)).xy
   result.y = -result.y + windowFrame.y
 
-proc fillRoundedRectWithShadow*(ctx: Context, rect: Rect, color: Color, radius: float32, 
-                               shadowX, shadowY, shadowBlur, shadowSpread: float32,
-                               shadowColor: Color, padding: int = 0) =
+proc fillRoundedRectWithShadow*(
+    ctx: Context,
+    rect: Rect,
+    radius: float32, 
+    shadowX, shadowY, shadowBlur, shadowSpread: float32,
+    shadowColor: Color,
+    padding: int = 0
+) =
   ## Draws a rounded rectangle with a shadow underneath using 9-patch technique
   ## The shadow is drawn with padding around the main rectangle
   if rect.w <= 0 or rect.h <= 0:
@@ -1048,6 +1053,3 @@ proc fillRoundedRectWithShadow*(ctx: Context, rect: Rect, color: Color, radius: 
     )
     # For the center, we can use a simple fill as it's just the shadow color
     ctx.fillRect(center, shadowColor)
-  
-  # Now draw the actual rounded rect on top
-  ctx.fillRoundedRect(rect, color, radius)
