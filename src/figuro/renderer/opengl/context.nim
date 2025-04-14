@@ -835,9 +835,9 @@ proc generateShadowImage(
 
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
-  let offset = radius.float32 + adj.float32
+  let center = radius.float32 + adj.float32
   ctx3.fillStyle = rgba(255, 255, 255, 255)
-  ctx3.circle(offset, offset, radius.float32)
+  ctx3.circle(center, center, radius.float32)
   ctx3.fill()
 
   let shadow3 = circle.shadow(
