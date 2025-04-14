@@ -61,8 +61,14 @@ type
     pixelScale*: float32 ## Pixel multiplier user wants on the UI
 
 var
-  dataDir* {.runtimeVar.}: string = ospaths2.getCurrentDir()
+  dataDirStr* {.runtimeVar.}: string = ospaths2.getCurrentDir()
   app* {.runtimeVar.} = AppState(running: true, uiScale: 1.0, autoUiScale: true)
+
+proc figDataDir*(): string =
+  result = dataDirStr
+
+proc setFigDataDir*(dir: string) =
+  dataDirStr = dir
 
 type
   # Events* = GenericEvents[void]

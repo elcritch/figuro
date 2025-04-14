@@ -163,7 +163,7 @@ proc getTypefaceImpl*(name: string): FontId =
     AppMainThread
 
   let
-    typefacePath = dataDir / name
+    typefacePath = figDataDir() / name
     typeface = readTypeface(typefacePath)
     id = typeface.getId()
 

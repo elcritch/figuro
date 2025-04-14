@@ -109,6 +109,9 @@ proc draw*(self: Main) {.slot.} =
       Rectangle.new "filler":
         size 10'ux, 40'ux
 
+      Rectangle.new "filler":
+        size 10'ux, 40'ux
+
       onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
         if kind == Done and MouseRight in buttons:
           printLayout(self, cmTerminal)
