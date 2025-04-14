@@ -2,7 +2,9 @@ import pixie
 
 proc generateShadowImage(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
-                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255)): Image =
+                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
+                         shadowColor: ColorRGBA = rgba(0, 0, 0, 255)
+                         ): Image =
   let adj = 2*spread.int
   let sz = 2*radius + 2*adj
 
@@ -16,7 +18,7 @@ proc generateShadowImage(radius: int, offset: Vec2,
     offset = offset,
     spread = spread,
     blur = blur,
-    color = rgba(0, 0, 0, 200)
+    color = shadowColor
   )
 
   let image3 = newImage(sz, sz)
