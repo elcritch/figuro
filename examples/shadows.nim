@@ -121,7 +121,7 @@ proc sliceToNinePatch*(img: Image): tuple[
 let shadowImage = generateShadowImage(
   radius = 50,
   offset = vec2(0, 0),
-  spread = -10.0,
+  spread = -2.0,
   blur = 15.0,
   fillStyle = rgba(255, 0, 0, 255),
   shadowColor = rgba(0, 255, 0, 255),
