@@ -114,20 +114,19 @@ proc drawMasks(ctx: Context, node: Node) =
     )
 
 proc renderDropShadows(ctx: Context, node: Node) =
-  ## drawing poor man's shadows
-  ## should add a primitive to opengl.context to
-  ## do this with pixie and 9-patch, but that's a headache
-  
-  # let shadow = node.shadow[DropShadow]
-  # var color = shadow.color
-  # color.a = color.a * 1.0/16.0
-  # let blurAmt = shadow.blur / 8.0
-  # for i in -4 .. 4:
-  #   for j in -4 .. 4:
-  #     let xblur: float32 = i.toFloat() * blurAmt
-  #     let yblur: float32 = j.toFloat() * blurAmt
-  #     let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
-  #     ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+  ## drawing shadows with 9-patch technique
+  let shadow = node.shadow[DropShadow]
+  if shadow.blur > 0.0:
+    ctx.fillRoundedRectWithShadow(
+      rect = node.screenBox.atXY(0'f32, 0'f32),
+      color = rgba(0, 0, 0, 0), # Transparent - we just want the shadow
+      radius = node.cornerRadius,
+      shadowX = shadow.x,
+      shadowY = shadow.y,
+      shadowBlur = shadow.blur,
+      shadowSpread = shadow.spread,
+      shadowColor = shadow.color
+    )
 
 proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows

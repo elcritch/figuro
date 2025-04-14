@@ -495,7 +495,7 @@ proc fillRect*(ctx: Context, rect: Rect, color: Color) =
 
 proc generateShadowImage(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
-                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255)): tuple[img: Image, border: int] =
+                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255)): tuple[img: Image, padding: int] =
   let adj = 2*spread.int
   let sz = 2*radius + 2*adj
 
@@ -901,3 +901,153 @@ proc toScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
   ## Takes a point from current transform and translates it to screen.
   result = (ctx.mat * vec3(v.x, v.y, 1)).xy
   result.y = -result.y + windowFrame.y
+
+proc fillRoundedRectWithShadow*(ctx: Context, rect: Rect, color: Color, radius: float32, 
+                               shadowX, shadowY, shadowBlur, shadowSpread: float32,
+                               shadowColor: Color, padding: int = 0) =
+  ## Draws a rounded rectangle with a shadow underneath using 9-patch technique
+  ## The shadow is drawn with padding around the main rectangle
+  if rect.w <= 0 or rect.h <= 0:
+    return
+    
+  # First, draw the shadow
+  if shadowBlur > 0:
+    # Generate shadow key for caching
+    let 
+      sBlur = (shadowBlur * 100).int
+      sSpread = (shadowSpread * 100).int
+      sOffsetX = (shadowX * 100).int
+      sOffsetY = (shadowY * 100).int
+      shadowKey = hash((7723, radius.int, sOffsetX, sOffsetY, sSpread, sBlur))
+    
+    var ninePatchHashes: array[8, Hash]
+    var ninePatchRects: array[8, Rect]
+    
+    # Check if we've already generated this shadow
+    if shadowKey notin ctx.entries:
+      # Generate shadow image
+      let (shadowImg, imgPadding) = generateShadowImage(
+        radius.int, 
+        vec2(shadowX, shadowY), 
+        shadowSpread,
+        shadowBlur
+      )
+      
+      # Slice it into 9-patch pieces
+      let patches = sliceToNinePatch(shadowImg)
+      
+      # Store each piece in the atlas
+      let patchArray = [
+        patches.topLeft, patches.topRight, 
+        patches.bottomLeft, patches.bottomRight,
+        patches.top, patches.right, 
+        patches.bottom, patches.left
+      ]
+      
+      for i in 0..7:
+        ninePatchHashes[i] = shadowKey !& i
+        ctx.putImage(ninePatchHashes[i], patchArray[i])
+        ninePatchRects[i] = ctx.entries[ninePatchHashes[i]]
+    else:
+      # Retrieve already generated 9-patch pieces
+      for i in 0..7:
+        ninePatchHashes[i] = shadowKey !& i
+        ninePatchRects[i] = ctx.entries[ninePatchHashes[i]]
+    
+    # Draw the 9-patch shadow with appropriate padding
+    let 
+      totalPadding = padding + shadowSpread.int
+      expandedRect = rect(
+        rect.x - totalPadding.float32,
+        rect.y - totalPadding.float32,
+        rect.w + 2 * totalPadding.float32,
+        rect.h + 2 * totalPadding.float32
+      )
+      halfW = expandedRect.w / 2
+      halfH = expandedRect.h / 2
+      centerX = expandedRect.x + halfW
+      centerY = expandedRect.y + halfH
+      cornerSize = min(radius + shadowSpread, min(halfW, halfH))
+    
+    # Draw the corners
+    let 
+      topLeft = rect(
+        expandedRect.x, 
+        expandedRect.y, 
+        cornerSize, 
+        cornerSize
+      )
+      topRight = rect(
+        expandedRect.x + expandedRect.w - cornerSize, 
+        expandedRect.y, 
+        cornerSize, 
+        cornerSize
+      )
+      bottomLeft = rect(
+        expandedRect.x, 
+        expandedRect.y + expandedRect.h - cornerSize, 
+        cornerSize, 
+        cornerSize
+      )
+      bottomRight = rect(
+        expandedRect.x + expandedRect.w - cornerSize, 
+        expandedRect.y + expandedRect.h - cornerSize, 
+        cornerSize, 
+        cornerSize
+      )
+    
+    # Draw corners
+    ctx.drawUvRect(topLeft, ninePatchRects[0], shadowColor)
+    ctx.drawUvRect(topRight, ninePatchRects[1], shadowColor)
+    ctx.drawUvRect(bottomLeft, ninePatchRects[2], shadowColor)
+    ctx.drawUvRect(bottomRight, ninePatchRects[3], shadowColor)
+    
+    # Draw edges
+    # Top edge (stretched horizontally)
+    let topEdge = rect(
+      expandedRect.x + cornerSize, 
+      expandedRect.y, 
+      expandedRect.w - 2 * cornerSize, 
+      cornerSize
+    )
+    ctx.drawUvRect(topEdge, ninePatchRects[4], shadowColor)
+    
+    # Right edge (stretched vertically)
+    let rightEdge = rect(
+      expandedRect.x + expandedRect.w - cornerSize, 
+      expandedRect.y + cornerSize, 
+      cornerSize, 
+      expandedRect.h - 2 * cornerSize
+    )
+    ctx.drawUvRect(rightEdge, ninePatchRects[5], shadowColor)
+    
+    # Bottom edge (stretched horizontally)
+    let bottomEdge = rect(
+      expandedRect.x + cornerSize, 
+      expandedRect.y + expandedRect.h - cornerSize, 
+      expandedRect.w - 2 * cornerSize, 
+      cornerSize
+    )
+    ctx.drawUvRect(bottomEdge, ninePatchRects[6], shadowColor)
+    
+    # Left edge (stretched vertically)
+    let leftEdge = rect(
+      expandedRect.x, 
+      expandedRect.y + cornerSize, 
+      cornerSize, 
+      expandedRect.h - 2 * cornerSize
+    )
+    ctx.drawUvRect(leftEdge, ninePatchRects[7], shadowColor)
+    
+    # Center (stretched both ways)
+    let center = rect(
+      expandedRect.x + cornerSize, 
+      expandedRect.y + cornerSize, 
+      expandedRect.w - 2 * cornerSize, 
+      expandedRect.h - 2 * cornerSize
+    )
+    # For the center, we can use a simple fill as it's just the shadow color
+    ctx.fillRect(center, shadowColor)
+  
+  # Now draw the actual rounded rect on top
+  ctx.fillRoundedRect(rect, color, radius)
