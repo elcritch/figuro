@@ -26,13 +26,18 @@ proc generateShadowImage(radius: int, offset: Vec2,
 
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
-  # ctx3.fillStyle = fillStyle
   ctx3.strokeStyle = fillStyle
   ctx3.lineCap = SquareCap
   ctx3.lineWidth = 5.0'f32
   ctx3.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
   ctx3.stroke()
 
+  let circleSolid = newImage(sz, sz)
+  let ctx4 = newContext(circleSolid)
+  ctx4.fillStyle = fillStyle
+  ctx4.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
+  ctx4.fill()
+  
   let shadow3 = circle.shadow(
     offset = offset,
     spread = spread,
@@ -41,8 +46,9 @@ proc generateShadowImage(radius: int, offset: Vec2,
   )
 
   let image3 = newImage(sz, sz)
+  image3.draw(shadow3)
   image3.draw(circle)
-  # image3.draw(shadow3)
+  image3.draw(circleSolid, blendMode = MaskBlend)
   return image3
 
 proc sliceToNinePatch*(img: Image): tuple[
@@ -113,10 +119,10 @@ proc sliceToNinePatch*(img: Image): tuple[
 let shadowImage = generateShadowImage(
   radius = 40,
   offset = vec2(0, 0),
-  spread = 10.0,
-  blur = 3.0,
+  spread = 5.0,
+  blur = 10.0,
   fillStyle = rgba(255, 255, 255, 255),
-  shadowColor = rgba(0, 0, 0, 255),
+  shadowColor = rgba(255, 255, 255, 100),
 )
 # shadowImage.invert()
 shadowImage.writeFile("examples/corner2.png")
