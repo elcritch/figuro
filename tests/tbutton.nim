@@ -27,8 +27,8 @@ proc draw*(self: Main) {.slot.} =
       
       when true:
         this.shadow[DropShadow] = Shadow(
-          blur: 10.0'ui,
-          spread: 30.0'ui,
+          blur: 20.0'ui,
+          spread: 10.0'ui,
           x: 4.0'ui,
           y: 2.0'ui,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.4))
