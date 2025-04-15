@@ -1,6 +1,6 @@
 import figuro/widgets/button
 import figuro
-
+import figuro/ui/animations
 let
   typeface = defaultTypeface()
   font = UiFont(typefaceId: typeface, size: 16)
@@ -10,6 +10,12 @@ type
 
   Main* = ref object of Figuro
     mainRect: Figuro
+    toggle: bool = true
+    toggleSpread: bool = true
+    blur* = Fader(minMax: 0.01..36.0,
+                     inTimeMs: 2200, outTimeMs: 2200)
+    spread* = Fader(minMax: 0.01..36.0,
+                     inTimeMs: 2200, outTimeMs: 2200)
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
@@ -24,11 +30,27 @@ proc draw*(self: Main) {.slot.} =
         # fill css"#2B9F2B" * 0.5
         border 1'ui, css"red"
         cornerRadius 30'ui
-      
+      self.blur.addTarget(this)
+      self.spread.addTarget(this)
+      onSignal(doSingleClick) do(self: Main):
+        if self.toggle:
+          self.blur.fadeIn()
+        else:
+          self.blur.fadeOut()
+        self.toggle = not self.toggle
+      onSignal(doRightClick) do(self: Main):
+        echo "doRightClick"
+        if self.toggleSpread:
+          self.spread.fadeIn()
+        else:
+          self.spread.fadeOut()
+        self.toggleSpread = not self.toggleSpread
+
+      echo "blur: ", self.blur.amount, " spread: ", self.spread.amount
       when true:
         this.shadow[DropShadow] = Shadow(
-          blur: 4.0'ui,
-          spread: 4.0'ui,
+          blur: self.blur.amount.UiScalar,
+          spread: self.spread.amount.UiScalar,
           x: 0'ui,
           y: 0'ui,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))

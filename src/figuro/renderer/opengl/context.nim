@@ -985,7 +985,9 @@ proc fillRoundedRectWithShadow*(
   
   # Draw the 9-patch shadow with appropriate padding
   let 
-    totalPadding = int(abs(shadowSpread + shadowBlur)*4)
+    shadowBlur = max(shadowBlur - 30.0, -10)
+    shadowSpread = shadowSpread - 30.0
+    totalPadding = int(radius+shadowBlur)
     # totalPadding = 0
     sbox = rect(
       rect.x - totalPadding.float32 + shadowX,
@@ -997,7 +999,7 @@ proc fillRoundedRectWithShadow*(
     halfH = sbox.h / 2
     centerX = sbox.x + halfW
     centerY = sbox.y + halfH
-    corner = radius + shadowSpread + shadowBlur
+    corner = radius*2 - shadowSpread + 2*shadowBlur
   
   # Draw the corners
   let 
@@ -1016,7 +1018,7 @@ proc fillRoundedRectWithShadow*(
   # Top edge (stretched horizontally)
   # let topEdge = rect( sbox.x + corner, sbox.y, rect.w - corner, corner)
   let topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
-  ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor*1.0, topEdge.wh)
+  ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
   # Right edge (stretched vertically)
   let rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
   ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor*1.0, rightEdge.wh)
