@@ -774,7 +774,6 @@ proc strokeRoundedRect*(
     hash((6217, (rw * 100).int, (rh * 100).int, (radius * 100).int, (weight * 100).int))
 
   if radius > 0.0:
-    # let stroked = stroked and lineWidth <= radius
     var hashes: array[4, Hash]
     for quadrant in 1 .. 4:
       let qhash = hash !& quadrant
