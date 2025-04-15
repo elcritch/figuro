@@ -950,9 +950,9 @@ proc fillRoundedRectWithShadow*(
   let 
     sBlur = (shadowBlur * 100).int
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
-    shadowBlurSizeLimit = 10.0
+    shadowBlurSizeLimit = 16.0
     shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
-    shadowKey = hash((7723, (shadowBlurSize).int, shadowSpread.int))
+    shadowKey = hash((7723, shadowBlurSize.int, shadowSpread.int))
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:

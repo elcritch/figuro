@@ -13,9 +13,9 @@ type
     toggle: bool = true
     toggleSpread: bool = true
     blur* = Fader(minMax: 0.01..22.0,
-                     inTimeMs: 2200, outTimeMs: 2200)
+                     inTimeMs: 1200, outTimeMs: 1200)
     spread* = Fader(minMax: 0.01..12.0,
-                     inTimeMs: 2200, outTimeMs: 2200)
+                     inTimeMs: 200, outTimeMs: 200)
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
         # fill clearColor
         # fill css"#2B9F2B" * 0.5
         border 1'ui, css"red"
-        cornerRadius 30'ui
+        cornerRadius 20'ui
       self.blur.addTarget(this)
       self.spread.addTarget(this)
       onSignal(doSingleClick) do(self: Main):
@@ -51,10 +51,11 @@ proc draw*(self: Main) {.slot.} =
         this.shadow[DropShadow] = Shadow(
           blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           # blur: self.blur.amount.UiScalar,
-          spread: self.spread.amount.UiScalar,
+          # spread: self.spread.amount.UiScalar,
+          spread: 0.0'ui,
           x: self.spread.amount.UiScalar,
           y: self.spread.amount.UiScalar,
-          color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
+          color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
       when false:
         this.shadow[InnerShadow] = Shadow(
           blur: 5.0'ui,
