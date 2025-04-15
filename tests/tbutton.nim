@@ -31,7 +31,7 @@ proc draw*(self: Main) {.slot.} =
           x: 4.0'ui,
           y: 2.0'ui,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.4))
-      when false:
+      when true:
         this.shadow[InnerShadow] = Shadow(
           blur: 5.0'ui,
           spread: 5.0'ui,

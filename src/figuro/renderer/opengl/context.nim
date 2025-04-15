@@ -867,47 +867,6 @@ proc generateShadowImage(
   echo "shadowImage: ", image.width, " ", image.height
   return image
 
-proc diffRGBChannels*(image: Image) {.hasSimd, raises: [].} =
-  ## Inverts all of the colors and alpha.
-  for i in 0 ..< image.data.len:
-    var rgbx = image.data[i]
-    let r = (rgbx.r != 0).uint8
-    rgbx.a = (255-rgbx.g) * r
-    rgbx.r = (255) * r
-    rgbx.g = (255) * r
-    rgbx.b = (255) * r
-    image.data[i] = rgbx
-
-  # image.data.toPremultipliedAlpha()
-
-proc generateInnerShadowImage(radius: int, offset: Vec2, 
-                         spread: float32, blur: float32,
-                        fillStyle = rgba(255, 0, 0, 255),
-                        shadowColor = rgba(0, 255, 0, 255),
-                         ): Image =
-  let spread = -spread
-  let adj = 2*abs(spread.int)
-  let sz = 2*radius + 2*adj
-
-  let circle = newImage(sz, sz)
-  let ctx3 = newContext(circle)
-  ctx3.fillStyle = fillStyle
-  ctx3.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
-  ctx3.fill()
-
-  let shadow3 = circle.shadow(
-    offset = offset,
-    spread = spread,
-    blur = blur,
-    color = shadowColor
-  )
-
-  let image3 = newImage(sz, sz)
-  image3.draw(circle)
-  image3.draw(shadow3)
-  image3.diffRGBChannels()
-  image3.writeFile("examples/innerShadowImage.png")
-  return image3
 
 proc sliceToNinePatch(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
@@ -976,7 +935,6 @@ proc fillRoundedRectWithShadow*(
     radius: float32, 
     shadowX, shadowY, shadowBlur, shadowSpread: float32,
     shadowColor: Color,
-    invert: bool = false,
 ) =
   ## Draws a rounded rectangle with a shadow underneath using 9-patch technique
   ## The shadow is drawn with padding around the main rectangle
@@ -998,20 +956,12 @@ proc fillRoundedRectWithShadow*(
   if (shadowKey !& 0) notin ctx.entries:
     # Generate shadow image
     let shadowImg =
-      if not invert:
-        generateShadowImage(
-          radius = radius.int,
-          offset = vec2(0, 0),
-          spread = shadowSpread,
-          blur = shadowBlur
-        )
-      else:
-        generateInnerShadowImage(
-          radius = radius.int,
-          offset = vec2(0, 0),
-          spread = shadowSpread,
-          blur = shadowBlur
-        )
+      generateShadowImage(
+        radius = radius.int,
+        offset = vec2(0, 0),
+        spread = shadowSpread,
+        blur = shadowBlur
+      )
     
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
@@ -1044,7 +994,6 @@ proc fillRoundedRectWithShadow*(
     centerY = sbox.y + halfH
     corner = 2*abs(shadowSpread)
   
-  echo "sbox: ", sbox, " invert: ", invert, " corner: ", corner
   # Draw the corners
   let 
     topLeft = rect(sbox.x, sbox.y, corner, corner)
@@ -1075,5 +1024,4 @@ proc fillRoundedRectWithShadow*(
   # Center (stretched both ways)
   let center = rect( sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
   # # For the center, we can use a simple fill as it's just the shadow color
-  if not invert:
-    ctx.fillRect(center, shadowColor)
+  ctx.fillRect(center, shadowColor)

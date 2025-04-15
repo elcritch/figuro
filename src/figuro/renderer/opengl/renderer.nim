@@ -131,7 +131,7 @@ proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
-  when false:
+  when true:
     let shadow = node.shadow[InnerShadow]
     let n = shadow.blur.toInt
     var color = shadow.color
@@ -168,7 +168,6 @@ proc renderInnerShadows(ctx: Context, node: Node) =
       shadowBlur = shadow.blur,
       shadowSpread = shadow.spread.float32,
       shadowColor = shadow.color,
-      invert = true,
     )
 
 proc renderBoxes(ctx: Context, node: Node) =
