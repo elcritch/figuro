@@ -13,7 +13,7 @@ type
     toggle: bool = true
     toggleSpread: bool = true
     blur* = Fader(minMax: 0.01..22.0,
-                     inTimeMs: 1200, outTimeMs: 1200)
+                     inTimeMs: 400, outTimeMs: 400)
     spread* = Fader(minMax: 0.01..12.0,
                      inTimeMs: 200, outTimeMs: 200)
 

@@ -932,6 +932,7 @@ proc sliceToNinePatch(img: Image): tuple[
     left: fleft
   )
   
+var shadowCache: Table[Hash, Image] = initTable[Hash, Image]()
 
 proc fillRoundedRectWithShadow*(
     ctx: Context,
@@ -947,14 +948,15 @@ proc fillRoundedRectWithShadow*(
     
   # First, draw the shadow
   # Generate shadow key for caching
-  proc getShadowKey(blur: float32, spread: float32): Hash =
-    hash((7723, (blur * 1).int, (spread * 1).int))
+  proc getShadowKey(blur: float32, spread: float32, radius: float32): Hash =
+    hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int))
+
   let 
     sBlur = (shadowBlur * 100).int
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
-    shadowBlurSizeLimit = 16.0
+    shadowBlurSizeLimit = 14.0
     shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
-    shadowKey = getShadowKey(shadowBlurSize, shadowSpread)
+    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -967,27 +969,20 @@ proc fillRoundedRectWithShadow*(
     # Generate shadow image
     echo "blur create new shadow"
     # let mainShadow = generateShadowImage()
+    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
+    if mainKey notin shadowCache:
+      let mainImg = generateShadowImage(
+        radius = (radius).int,
+        offset = vec2(0, 0),
+        spread = shadowSpread,
+        blur = shadowBlurSize
+      )
+      shadowCache[mainKey] = mainImg
+    
+    let mainImg = shadowCache[mainKey]
 
-    let shadowImg =
-        if shadowBlurSize >= shadowBlurSizeLimit:
-          # ctx.loadImage(figDataDir() / "shadow" & $(int(shadowBlurSize)) & ".png").mipmaps[0]
-          let img = generateShadowImage(
-            radius = (radius).int,
-            offset = vec2(0, 0),
-            spread = shadowSpread,
-            blur = shadowBlurSize
-          )
-          echo "img:resize: ", img.width, " ", img.height
-          let simg = img.resize(shadowBlur.int, shadowBlur.int)
-          echo "img:resize: ", simg.width, " ", simg.height
-          simg
-        else:
-          generateShadowImage(
-            radius = (radius).int,
-            offset = vec2(0, 0),
-            spread = shadowSpread,
-            blur = shadowBlurSize
-          )
+    let newSize = shadowBlur.int + shadowSpread.int + radius.int
+    let shadowImg = mainImg.resize(newSize, newSize)
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
