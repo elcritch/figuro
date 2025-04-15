@@ -581,6 +581,47 @@ proc generateCorner(
 
   result = image
 
+proc generateCircle(radius: int, offset: Vec2, 
+                         spread: float32, blur: float32,
+                         lineWidth: float32 = 3'f32,
+                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
+                         shadowColor: ColorRGBA = rgba(0, 0, 0, 255),
+                         innerShadow = true,
+                         innerShadowBorder = false,
+                         ): Image =
+  let sz = 2*radius
+  let radius = radius.toFloat
+
+  let circle = newImage(sz, sz)
+  let ctx3 = newContext(circle)
+  ctx3.strokeStyle = fillStyle
+  ctx3.lineCap = SquareCap
+  ctx3.lineWidth = lineWidth
+  ctx3.circle(radius, radius, radius-lineWidth/2)
+  ctx3.stroke()
+
+  let circleSolid = newImage(sz, sz)
+  let ctx4 = newContext(circleSolid)
+  ctx4.fillStyle = fillStyle
+  let innerRadiusMask = if innerShadowBorder: radius else: radius-lineWidth
+  ctx4.circle(radius, radius, innerRadiusMask)
+  ctx4.fill()
+  
+  let shadow = circle.shadow(
+    offset = offset,
+    spread = spread,
+    blur = blur,
+    color = shadowColor
+  )
+
+  let image = newImage(sz, sz)
+  if innerShadow:
+    image.draw(shadow)
+  image.draw(circle)
+  if innerShadow:
+    image.draw(circleSolid, blendMode = MaskBlend)
+  return image
+
 proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   if rect.w <= 0 or rect.h <= -0:
     when defined(fidgetExtraDebugLogging):
@@ -602,10 +643,12 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
     for quadrant in 1 .. 4:
       let qhash = hash !& quadrant
       hashes[quadrant - 1] = qhash
-      if qhash notin ctx.entries:
-        let img =
-          generateCorner(radius.int, quadrant, false, 0.0, rgba(255, 255, 255, 255))
-        ctx.putImage(hashes[quadrant - 1], img)
+      let circle = generateCorner(radius.int, false, 0.0, rgba(255, 255, 255, 255))
+
+      # if qhash notin ctx.entries:
+      #   let img =
+      #     generateCorner(radius.int, quadrant, false, 0.0, rgba(255, 255, 255, 255))
+      #   ctx.putImage(hashes[quadrant - 1], img)
 
     let
       xy = rect.xy
