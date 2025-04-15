@@ -849,8 +849,6 @@ proc toScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
 proc generateShadowImage(
     radius: int, offset: Vec2, 
     spread: float32, blur: float32,
-    fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
-    shadowColor: ColorRGBA = rgba(255, 255, 255, 255)
 ): Image =
   let adj = abs(spread.int+blur.int)
   let sz = 2*radius + 2*adj
@@ -858,7 +856,7 @@ proc generateShadowImage(
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
   let center = radius.float32 + adj.float32
-  ctx3.fillStyle = fillStyle
+  ctx3.fillStyle = rgba(255, 255, 255, 255)
   ctx3.circle(center, center, radius.float32)
   ctx3.fill()
 
@@ -866,7 +864,7 @@ proc generateShadowImage(
     offset = offset,
     spread = spread,
     blur = blur,
-    color = shadowColor
+    color = rgba(255, 255, 255, 255)
   )
 
   let image = newImage(sz, sz)
