@@ -869,7 +869,6 @@ proc generateShadowImage(
 
   let image = newImage(sz, sz)
   image.draw(shadow3)
-  # echo "shadowImage: ", image.width, " ", image.height
   return image
 
 proc sliceToNinePatch(img: Image): tuple[
@@ -952,7 +951,7 @@ proc fillRoundedRectWithShadow*(
     sBlur = (shadowBlur * 100).int
     sSpread = (shadowSpread * 1).int
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
-    shadowBlurSizeLimit = 12.0
+    shadowBlurSizeLimit = 10.0
     shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
     shadowKey = hash((7723, (shadowBlurSize*10).int, sSpread))
   
@@ -967,9 +966,17 @@ proc fillRoundedRectWithShadow*(
     echo "blur size: ", shadowBlurSize
 
     let shadowImg =
-        # if shadowBlurSize >= shadowBlurSizeLimit:
-        #   ctx.loadImage(figDataDir() / "shadow" & $(int(shadowBlurSize)) & ".png").mipmaps[0]
-        # else:
+        if shadowBlurSize >= shadowBlurSizeLimit:
+          # ctx.loadImage(figDataDir() / "shadow" & $(int(shadowBlurSize)) & ".png").mipmaps[0]
+          let img = generateShadowImage(
+            radius = (radius).int,
+            offset = vec2(0, 0),
+            spread = shadowSpread,
+            blur = shadowBlurSize
+          )
+          echo "img:resize: ", img.width, " ", img.height
+          img.resize(shadowBlur.int, shadowBlur.int)
+        else:
           generateShadowImage(
             radius = (radius).int,
             offset = vec2(0, 0),

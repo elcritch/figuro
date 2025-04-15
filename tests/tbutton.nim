@@ -12,7 +12,7 @@ type
     mainRect: Figuro
     toggle: bool = true
     toggleSpread: bool = true
-    blur* = Fader(minMax: 0.01..22.0,
+    blur* = Fader(minMax: 0.01..42.0,
                      inTimeMs: 2200, outTimeMs: 2200)
     spread* = Fader(minMax: 0.01..12.0,
                      inTimeMs: 2200, outTimeMs: 2200)
