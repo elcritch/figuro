@@ -49,14 +49,13 @@ proc generateShadowImage(radius: int, offset: Vec2,
     color = shadowColor
   )
 
-  let image3 = newImage(sz, sz)
+  let image = newImage(sz, sz)
   if innerShadow:
-    image3.draw(shadow3)
-  image3.draw(circle)
+    image.draw(shadow3)
+  image.draw(circle)
   if innerShadow:
-    image3.draw(circleSolid, blendMode = MaskBlend)
-  # image3.draw(circle)
-  return image3
+    image.draw(circleSolid, blendMode = MaskBlend)
+  return image
 
 proc sliceToNinePatch*(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
