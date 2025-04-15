@@ -1061,11 +1061,15 @@ proc fillRoundedRectWithShadow*(
       if innerKey notin shadowCache:
         let innerImg = generateCircle(
           radius = (radius).int,
+          stroked = true,
+          lineWidth = 10.0,
           offset = vec2(0, 0),
           spread = shadowSpread,
-          blur = shadowBlurSize,
+          blur = shadowBlur,
           innerShadow = true,
+          innerShadowBorder = false,
         )
+        innerImg.writeFile("examples/innerImg.png")
         shadowCache[innerKey] = innerImg
       
       shadowImg = shadowCache[innerKey]
