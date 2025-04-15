@@ -124,10 +124,11 @@ proc renderDropShadows(ctx: Context, node: Node) =
       ## do this with pixie and 9-patch, but that's a headache
       let shadow = node.shadow[DropShadow]
       var color = shadow.color
-      color.a = color.a * 1.0/16.0
-      let blurAmt = shadow.blur * shadow.spread / 64.0
-      for i in -4 .. 4:
-        for j in -4 .. 4:
+      const N = 2
+      color.a = color.a * 1.0/(N*N)
+      let blurAmt = shadow.blur * shadow.spread / (12*N*N)
+      for i in -N .. N:
+        for j in -N .. N:
           let xblur: float32 = i.toFloat() * blurAmt
           let yblur: float32 = j.toFloat() * blurAmt
           let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
