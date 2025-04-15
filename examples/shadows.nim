@@ -18,24 +18,25 @@ proc delta*(image: Image) {.hasSimd, raises: [].} =
 
 proc generateShadowImage(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
+                         lineWidth: float32 = 3'f32,
                          fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
                          shadowColor: ColorRGBA = rgba(0, 0, 0, 255)
                          ): Image =
-  let adj = 2*abs(spread.int)
-  let sz = 2*radius + 2*adj
+  let radius = radius.toFloat - lineWidth
+  let sz = int(2*radius+lineWidth)
 
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
   ctx3.strokeStyle = fillStyle
   ctx3.lineCap = SquareCap
-  ctx3.lineWidth = 5.0'f32
-  ctx3.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
+  ctx3.lineWidth = lineWidth
+  ctx3.circle(radius+lineWidth/2, radius+lineWidth/2, radius)
   ctx3.stroke()
 
   let circleSolid = newImage(sz, sz)
   let ctx4 = newContext(circleSolid)
   ctx4.fillStyle = fillStyle
-  ctx4.circle(radius.float32 + adj.float32, radius.float32 + adj.float32, radius.float32)
+  ctx4.circle(radius, radius, radius)
   ctx4.fill()
   
   let shadow3 = circle.shadow(
@@ -46,9 +47,9 @@ proc generateShadowImage(radius: int, offset: Vec2,
   )
 
   let image3 = newImage(sz, sz)
-  image3.draw(shadow3)
+  # image3.draw(shadow3)
   image3.draw(circle)
-  image3.draw(circleSolid, blendMode = MaskBlend)
+  # image3.draw(circleSolid, blendMode = MaskBlend)
   return image3
 
 proc sliceToNinePatch*(img: Image): tuple[
