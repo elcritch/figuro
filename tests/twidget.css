@@ -41,11 +41,9 @@ Slider Rectangle {
   border-radius: 10px;
 }
 
-/* Slider > #bg {
-  left: 10px;
-  padding-right: 10px;
-  width: calc(100% - 20px);
-} */
+Slider #filling {
+  box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.2);
+}
 
 Slider #thumb {
   -fig-cornerRadius: 7px;
