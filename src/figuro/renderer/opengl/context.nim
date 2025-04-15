@@ -867,6 +867,14 @@ proc generateShadowImage(
   # echo "shadowImage: ", image.width, " ", image.height
   return image
 
+const shadowImageDefault = generateShadowImage(
+  radius = 20,
+  offset = vec2(0, 0),
+  spread = 20.0,
+  blur = 20.0,
+  fillStyle = rgba(255, 255, 255, 255),
+  shadowColor = rgba(255, 255, 255, 255)
+)
 
 proc sliceToNinePatch(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
