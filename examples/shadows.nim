@@ -31,7 +31,7 @@ proc generateShadowImage(
 for i in 1..20:
   # Example usage:
   let shadowImage = generateShadowImage(
-    radius = 30,
+    radius = 14,
     offset = vec2(0, 0),
     spread = 0.0,
     blur = i.float32,

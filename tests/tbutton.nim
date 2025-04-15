@@ -12,7 +12,7 @@ type
     mainRect: Figuro
     toggle: bool = true
     toggleSpread: bool = true
-    blur* = Fader(minMax: 0.01..42.0,
+    blur* = Fader(minMax: 0.01..22.0,
                      inTimeMs: 2200, outTimeMs: 2200)
     spread* = Fader(minMax: 0.01..12.0,
                      inTimeMs: 2200, outTimeMs: 2200)
@@ -49,8 +49,8 @@ proc draw*(self: Main) {.slot.} =
       echo "blur: ", self.blur.amount, " spread: ", self.spread.amount
       when true:
         this.shadow[DropShadow] = Shadow(
-          # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar,
-          blur: self.blur.amount.UiScalar,
+          blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
+          # blur: self.blur.amount.UiScalar,
           spread: self.spread.amount.UiScalar,
           x: self.spread.amount.UiScalar,
           y: self.spread.amount.UiScalar,

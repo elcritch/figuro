@@ -952,11 +952,11 @@ proc fillRoundedRectWithShadow*(
   # Generate shadow key for caching
   let 
     sBlur = (shadowBlur * 100).int
-    sSpread = (shadowSpread * 100).int
+    sSpread = (shadowSpread * 1).int
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
-    shadowBlurSizeLimit = 10.0
+    shadowBlurSizeLimit = 12.0
     shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
-    shadowKey = hash((7723, (shadowBlurSize).int))
+    shadowKey = hash((7723, (shadowBlurSize*10).int, sSpread))
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -969,9 +969,9 @@ proc fillRoundedRectWithShadow*(
     echo "blur size: ", shadowBlurSize
 
     let shadowImg =
-        if shadowBlurSize >= shadowBlurSizeLimit:
-          ctx.loadImage(figDataDir() / "shadow" & $(int(shadowBlurSize)) & ".png").mipmaps[0]
-        else:
+        # if shadowBlurSize >= shadowBlurSizeLimit:
+        #   ctx.loadImage(figDataDir() / "shadow" & $(int(shadowBlurSize)) & ".png").mipmaps[0]
+        # else:
           generateShadowImage(
             radius = (radius).int,
             offset = vec2(0, 0),
@@ -999,7 +999,7 @@ proc fillRoundedRectWithShadow*(
   var 
     shadowBlur = shadowBlur
     shadowSpread = shadowSpread
-    totalPadding = int(shadowBlur + shadowSpread) - 1
+    totalPadding = int(shadowBlur+shadowSpread) - 1
     corner = radius + totalPadding.float32 + 1
 
   # if shadowBlurSize >= shadowBlurSizeLimit:
