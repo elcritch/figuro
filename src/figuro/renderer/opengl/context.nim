@@ -845,7 +845,7 @@ proc generateShadowImage(
     fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
     shadowColor: ColorRGBA = rgba(255, 255, 255, 255)
 ): Image =
-  let adj = 2*abs(spread.int)
+  let adj = abs(spread.int+blur.int)
   let sz = 2*radius + 2*adj
 
   let circle = newImage(sz, sz)
@@ -957,7 +957,7 @@ proc fillRoundedRectWithShadow*(
     # Generate shadow image
     let shadowImg =
       generateShadowImage(
-        radius = radius.int,
+        radius = int(1*radius),
         offset = vec2(0, 0),
         spread = shadowSpread,
         blur = shadowBlur
@@ -981,7 +981,7 @@ proc fillRoundedRectWithShadow*(
   
   # Draw the 9-patch shadow with appropriate padding
   let 
-    totalPadding = 2*abs(shadowSpread.int)
+    totalPadding = 2*abs(shadowSpread.int+shadowBlur.int)
     sbox = rect(
       rect.x - totalPadding.float32 + shadowX,
       rect.y - totalPadding.float32 + shadowY,
@@ -1010,16 +1010,16 @@ proc fillRoundedRectWithShadow*(
   # Draw edges
   # Top edge (stretched horizontally)
   let topEdge = rect( sbox.x + corner, sbox.y, rect.w - corner, corner)
-  ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor*1.17, topEdge.wh)
+  ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor*1.0, topEdge.wh)
   # Right edge (stretched vertically)
   let rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
-  ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor*1.17, rightEdge.wh)
+  ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor*1.0, rightEdge.wh)
   # Bottom edge (stretched horizontally)
   let bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
-  ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor*1.17, bottomEdge.wh)
+  ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor*1.0, bottomEdge.wh)
   # Left edge (stretched vertically)
   let leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
-  ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor*1.17, leftEdge.wh)
+  ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor*1.0, leftEdge.wh)
   
   # Center (stretched both ways)
   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
