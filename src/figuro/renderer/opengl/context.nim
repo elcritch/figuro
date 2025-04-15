@@ -1037,25 +1037,42 @@ proc fillRoundedRectWithShadow*(
   let shadowKeyBase = shadowKey !& 0
   # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
   if shadowKeyBase notin ctx.entries:
-    # Generate shadow image
-    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
-    if mainKey notin shadowCache:
-      let mainImg = generateShadowImage(
-        radius = (radius).int,
-        offset = vec2(0, 0),
-        spread = shadowSpread,
-        blur = shadowBlurSize
-      )
-      shadowCache[mainKey] = mainImg
-    
-    let mainImg = shadowCache[mainKey]
+    var shadowImg: Image
+    if not innerShadow:
+      # Generate shadow image
+      let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
+      if mainKey notin shadowCache:
+        let mainImg = generateShadowImage(
+          radius = (radius).int,
+          offset = vec2(0, 0),
+          spread = shadowSpread,
+          blur = shadowBlurSize
+        )
+        shadowCache[mainKey] = mainImg
+      
+      let mainImg = shadowCache[mainKey]
 
-    let newSize = shadowBlur.int + shadowSpread.int + radius.int
-    let shadowImg = mainImg.resize(newSize, newSize)
+      let newSize = shadowBlur.int + shadowSpread.int + radius.int
+      shadowImg = mainImg.resize(newSize, newSize)
+
+    else:
+      # Generate inner shadow image
+      let innerKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
+      if innerKey notin shadowCache:
+        let innerImg = generateCircle(
+          radius = (radius).int,
+          offset = vec2(0, 0),
+          spread = shadowSpread,
+          blur = shadowBlurSize,
+          innerShadow = true,
+        )
+        shadowCache[innerKey] = innerImg
+      
+      shadowImg = shadowCache[innerKey]
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
-    
+      
     # Store each piece in the atlas
     let patchArray = [
       patches.topLeft, patches.topRight, 
@@ -1067,7 +1084,7 @@ proc fillRoundedRectWithShadow*(
     for i in 0..7:
       ninePatchHashes[i] = shadowKey !& i
       ctx.putImage(ninePatchHashes[i], patchArray[i])
-  
+    
   var 
     shadowBlur = shadowBlur
     shadowSpread = shadowSpread
@@ -1116,4 +1133,5 @@ proc fillRoundedRectWithShadow*(
   
   # Center (stretched both ways)
   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
-  ctx.fillRect(center, shadowColor)
+  if not innerShadow:
+    ctx.fillRect(center, shadowColor)
