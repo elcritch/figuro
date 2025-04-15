@@ -14,7 +14,7 @@ import window, glcommons, context, formatflippy, utils
 
 import std/locks
 
-const fastShadows {.booldefine: "figuro.fastShadows".}: bool = false
+const FastShadows {.booldefine: "figuro.fastShadows".}: bool = true
 
 type Renderer* = ref object
   ctx*: Context
@@ -119,13 +119,13 @@ proc renderDropShadows(ctx: Context, node: Node) =
   ## drawing shadows with 9-patch technique
   let shadow = node.shadow[DropShadow]
   if shadow.blur > 0.0:
-    when fastShadows:
+    when FastShadows:
       ## should add a primitive to opengl.context to
       ## do this with pixie and 9-patch, but that's a headache
       let shadow = node.shadow[DropShadow]
       var color = shadow.color
       color.a = color.a * 1.0/16.0
-      let blurAmt = shadow.blur * shadow.spread / 32.0
+      let blurAmt = shadow.blur * shadow.spread / 64.0
       for i in -4 .. 4:
         for j in -4 .. 4:
           let xblur: float32 = i.toFloat() * blurAmt
@@ -147,7 +147,7 @@ proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
-  when fastShadows:
+  when FastShadows:
     let shadow = node.shadow[InnerShadow]
     let n = shadow.blur.toInt
     var color = shadow.color
