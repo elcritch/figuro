@@ -14,7 +14,7 @@ import window, glcommons, context, formatflippy, utils
 
 import std/locks
 
-const FastShadows {.booldefine: "figuro.fastShadows".}: bool = true
+const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
 type Renderer* = ref object
   ctx*: Context

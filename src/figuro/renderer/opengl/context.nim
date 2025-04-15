@@ -6,6 +6,8 @@ import pixie/simd
 
 import pkg/chronicles
 
+import ../../commons
+
 logScope:
   scope = "opengl"
 
@@ -406,7 +408,7 @@ proc logImage(file: string) =
 proc getImageRect(ctx: Context, imageId: Hash): Rect =
   return ctx.entries[imageId]
 
-proc loadImage*(ctx: Context, filePath: string, imageId: Hash): Flippy =
+proc loadImage*(ctx: Context, filePath: string): Flippy =
 
   # Need to load imagePath, check to see if the .flippy file is around
   logImage(filePath)
@@ -428,7 +430,7 @@ proc loadImage*(ctx: Context, filePath: string, imageId: Hash): Flippy =
 proc cacheImage*(ctx: Context, filePath: string, imageId: Hash): bool =
   if imageId in ctx.entries:
     return true
-  let image = ctx.loadImage(filePath, imageId)
+  let image = ctx.loadImage(filePath)
   if image.width == 0 or image.height == 0:
     return false
   ctx.putFlippy(imageId, image)
@@ -950,23 +952,26 @@ proc fillRoundedRectWithShadow*(
   let 
     sBlur = (shadowBlur * 100).int
     sSpread = (shadowSpread * 100).int
-    shadowKey = hash((7723, radius.int, sSpread, sBlur, invert))
+    shadowKey = hash((7723, radius.int, sSpread, sBlur))
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
     ninePatchHashes[i] = shadowKey !& i
 
   # Check if we've already generated this shadow
-  if (shadowKey !& 0) notin ctx.entries:
+  let shadowKeyBase = shadowKey !& 0
+  if shadowKeyBase notin ctx.entries:
     # Generate shadow image
 
-    let shadowImg =
-      generateShadowImage(
-        radius = int(radius),
-        offset = vec2(0, 0),
-        spread = shadowSpread,
-        blur = shadowBlur
-      )
+    let shadowImg = ctx.loadImage(figDataDir() / "shadow.png").mipmaps[0]
+
+    # let shadowImg =
+    #   generateShadowImage(
+    #     radius = int(radius),
+    #     offset = vec2(0, 0),
+    #     spread = shadowSpread,
+    #     blur = shadowBlur
+    #   )
     
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)

@@ -31,7 +31,7 @@ proc imagePath*(name: string): string =
     result = absolutePath(figDataDir() / result)
 
 proc imageStyle*(name: string, color: Color): ImageStyle =
-  # Sets teh image style.
+  # Sets the image style.
   result.name = name.imagePath()
   result.color = color
   if result.name.fileExists():
