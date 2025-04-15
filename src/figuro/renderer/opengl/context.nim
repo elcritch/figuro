@@ -1019,7 +1019,7 @@ proc fillRoundedRectWithShadow*(
     
   # First, draw the shadow
   # Generate shadow key for caching
-  proc getShadowKey(blur: float32, spread: float32, radius: float32): Hash =
+  proc getShadowKey(blur: float32, spread: float32, radius: float32, innerShadow: bool): Hash =
     hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int, innerShadow))
 
   let 
@@ -1027,7 +1027,7 @@ proc fillRoundedRectWithShadow*(
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
     shadowBlurSizeLimit = 14.0
     shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
-    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
+    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -1040,7 +1040,7 @@ proc fillRoundedRectWithShadow*(
     var shadowImg: Image
     if not innerShadow:
       # Generate shadow image
-      let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
+      let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
       if mainKey notin shadowCache:
         let mainImg = generateShadowImage(
           radius = (radius).int,
@@ -1057,7 +1057,7 @@ proc fillRoundedRectWithShadow*(
 
     else:
       # Generate inner shadow image
-      let innerKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
+      let innerKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
       if innerKey notin shadowCache:
         let innerImg = generateCircle(
           radius = (2*radius).int,

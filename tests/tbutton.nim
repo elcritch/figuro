@@ -14,7 +14,7 @@ type
     toggleSpread: bool = true
     blur* = Fader(minMax: 0.01..22.0,
                      inTimeMs: 400, outTimeMs: 400)
-    spread* = Fader(minMax: 0.01..12.0,
+    spread* = Fader(minMax: 0.01..6.0,
                      inTimeMs: 200, outTimeMs: 200)
 
 proc draw*(self: Main) {.slot.} =
