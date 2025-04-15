@@ -23,14 +23,14 @@ proc generateShadowImage(radius: int, offset: Vec2,
                          shadowColor: ColorRGBA = rgba(0, 0, 0, 255)
                          ): Image =
   let sz = int(2*radius)
-  let radius = radius.toFloat - lineWidth/2
+  let radius = radius.toFloat
 
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
   ctx3.strokeStyle = fillStyle
   ctx3.lineCap = SquareCap
   ctx3.lineWidth = lineWidth
-  ctx3.circle(radius+lineWidth/2, radius+lineWidth/2, radius)
+  ctx3.circle(radius, radius, radius-lineWidth/2)
   ctx3.stroke()
 
   let circleSolid = newImage(sz, sz)
