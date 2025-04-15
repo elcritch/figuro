@@ -964,7 +964,7 @@ proc fillRoundedRectWithShadow*(
 
   # Check if we've already generated this shadow
   let shadowKeyBase = shadowKey !& 0
-  echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
+  # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
   if shadowKeyBase notin ctx.entries:
     # Generate shadow image
     echo "blur create new shadow"

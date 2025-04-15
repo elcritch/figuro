@@ -61,7 +61,7 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         label this, {defaultFont(): "Dropdown"}
       onSignal(doSingleClick) do(self: Dropdown[T]):
         self.toggleOpen()
-      this.shadow[DropShadow] = Shadow( blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
+      # this.shadow[DropShadow] = Shadow(blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
 
     Rectangle.new "menu":
       size 100'pp, 100'ux
@@ -70,10 +70,10 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
       zlevel 10
 
       ComboboxList[T].new "combobox":
-        size 100'pp, 100'pp
+        size 100'pp-20'ux, 100'pp-10'ux
         this.data = self.data
         self.fade.addTarget(this)
-        offset 0'ux, csPerc(-self.fade.amount)
+        offset 10'ux, csPerc(-self.fade.amount)
         # refreshLayout(this.parent[])
         # this.shadow[DropShadow] = Shadow(blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.7))
 

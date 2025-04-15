@@ -267,7 +267,6 @@ proc render(
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
 
-  # hacky method to draw drop shadows... should probably be done in opengl shaders
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
     ctx.renderDropShadows(node)
 
