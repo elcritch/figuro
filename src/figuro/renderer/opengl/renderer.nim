@@ -175,17 +175,16 @@ proc renderInnerShadows(ctx: Context, node: Node) =
   else:
     let shadow = node.shadow[InnerShadow]
     var rect = node.screenBox.atXY(0'f32, 0'f32)
-    rect.w -= 10.0'f32
-    rect.h -= 10.0'f32
-    ctx.fillRoundedRectWithShadow(
-      rect = rect,
-      radius = node.cornerRadius,
-      shadowX = shadow.x,
-      shadowY = shadow.y,
-      shadowBlur = shadow.blur,
-      shadowSpread = shadow.spread.float32,
-      shadowColor = shadow.color,
-    )
+    # rect.w -= 10.0'f32
+    # rect.h -= 10.0'f32
+    # ctx.strokeRoundedRect(
+    #   rect = node.screenBox.atXY(0'f32, 0'f32),
+    #   color = shadow.color,
+    #   weight = shadow.blur,
+    #   radius = node.cornerRadius,
+    #   innerShadow = true,
+    #   innerShadowBorder = false,
+    # )
 
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
