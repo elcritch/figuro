@@ -406,14 +406,12 @@ proc logImage(file: string) =
 proc getImageRect(ctx: Context, imageId: Hash): Rect =
   return ctx.entries[imageId]
 
-proc loadImage*(ctx: Context, filePath: string, imageId: Hash): bool =
-  if imageId in ctx.entries:
-    return true
+proc loadImage*(ctx: Context, filePath: string, imageId: Hash): Flippy =
 
   # Need to load imagePath, check to see if the .flippy file is around
   logImage(filePath)
   if not fileExists(filePath):
-    return false
+    return Flippy()
   let flippyFilePath = filePath.changeFileExt(".flippy")
   if not fileExists(flippyFilePath):
     # No Flippy file generate new one
@@ -425,8 +423,15 @@ proc loadImage*(ctx: Context, filePath: string, imageId: Hash): bool =
     if mtFlippy < mtImage:
       # Flippy file too old, regenerate
       pngToFlippy(filePath, flippyFilePath)
-  var flippy = loadFlippy(flippyFilePath)
-  ctx.putFlippy(imageId, flippy)
+  result = loadFlippy(flippyFilePath)
+
+proc cacheImage*(ctx: Context, filePath: string, imageId: Hash): bool =
+  if imageId in ctx.entries:
+    return true
+  let image = ctx.loadImage(filePath, imageId)
+  if image.width == 0 or image.height == 0:
+    return false
+  ctx.putFlippy(imageId, image)
   return true
 
 proc drawImage*(
@@ -867,15 +872,6 @@ proc generateShadowImage(
   # echo "shadowImage: ", image.width, " ", image.height
   return image
 
-const shadowImageDefault = generateShadowImage(
-  radius = 20,
-  offset = vec2(0, 0),
-  spread = 20.0,
-  blur = 20.0,
-  fillStyle = rgba(255, 255, 255, 255),
-  shadowColor = rgba(255, 255, 255, 255)
-)
-
 proc sliceToNinePatch(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
   top, right, bottom, left: Image
@@ -963,6 +959,7 @@ proc fillRoundedRectWithShadow*(
   # Check if we've already generated this shadow
   if (shadowKey !& 0) notin ctx.entries:
     # Generate shadow image
+
     let shadowImg =
       generateShadowImage(
         radius = int(radius),
