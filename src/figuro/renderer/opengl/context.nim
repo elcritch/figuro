@@ -708,23 +708,22 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   if radius > 0.0:
     # let stroked = stroked and lineWidth <= radius
     var hashes: array[4, Hash]
-
-    let circle = generateCircle(radius.int, stroked = false)
-    let patches = sliceToNinePatch(circle)
-    # Store each piece in the atlas
-    let patchArray = [
-      patches.topRight, 
-      patches.topLeft,
-      patches.bottomLeft,
-      patches.bottomRight,
-    ]
-
     for quadrant in 1 .. 4:
       let qhash = hash !& quadrant
       hashes[quadrant - 1] = qhash
 
-      if qhash notin ctx.entries:
-        # let img = generateCorner(radius.int, quadrant, false, 0.0, rgba(255, 255, 255, 255))
+    if hashes[0] notin ctx.entries:
+      let circle = generateCircle(radius.int, stroked = false)
+      let patches = sliceToNinePatch(circle)
+      # Store each piece in the atlas
+      let patchArray = [
+        patches.topRight, 
+        patches.topLeft,
+        patches.bottomLeft,
+        patches.bottomRight,
+      ]
+
+      for quadrant in 1 .. 4:
         let img = patchArray[quadrant - 1]
         ctx.putImage(hashes[quadrant - 1], img)
 
