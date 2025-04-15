@@ -954,7 +954,9 @@ proc fillRoundedRectWithShadow*(
     sBlur = (shadowBlur * 100).int
     sSpread = (shadowSpread * 100).int
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
-    shadowKey = hash((7723))
+    shadowBlurSizeLimit = 10.0
+    shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
+    shadowKey = hash((7723, (shadowBlurSize).int))
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -964,8 +966,18 @@ proc fillRoundedRectWithShadow*(
   let shadowKeyBase = shadowKey !& 0
   if shadowKeyBase notin ctx.entries:
     # Generate shadow image
+    echo "blur size: ", shadowBlurSize
 
-    let shadowImg = ctx.loadImage(figDataDir() / "shadow.png").mipmaps[0]
+    let shadowImg =
+        if shadowBlurSize >= shadowBlurSizeLimit:
+          ctx.loadImage(figDataDir() / "shadow" & $(int(shadowBlurSize)) & ".png").mipmaps[0]
+        else:
+          generateShadowImage(
+            radius = (radius).int,
+            offset = vec2(0, 0),
+            spread = shadowSpread,
+            blur = shadowBlurSize
+          )
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
@@ -984,11 +996,19 @@ proc fillRoundedRectWithShadow*(
       # patchArray[i].writeFile("examples/shadowPatches" & $i & ".png")
   
   # Draw the 9-patch shadow with appropriate padding
-  let 
-    shadowBlur = max(shadowBlur - 50.0, -25)
-    shadowSpread = shadowSpread - 50.0
-    totalPadding = int(radius+shadowBlur)
-    # totalPadding = 0
+  var 
+    shadowBlur = shadowBlur
+    shadowSpread = shadowSpread
+    totalPadding = int(shadowBlur + shadowSpread) - 1
+    corner = radius + totalPadding.float32 + 1
+
+  # if shadowBlurSize >= shadowBlurSizeLimit:
+  #   shadowBlur = max(shadowBlur - 50.0, -25)
+  #   shadowSpread = shadowSpread - 50.0
+  #   totalPadding = int(radius+shadowBlur)
+  #   corner = radius*2 - shadowSpread + shadowBlur
+
+  let
     sbox = rect(
       rect.x - totalPadding.float32 + shadowX,
       rect.y - totalPadding.float32 + shadowY,
@@ -999,7 +1019,6 @@ proc fillRoundedRectWithShadow*(
     halfH = sbox.h / 2
     centerX = sbox.x + halfW
     centerY = sbox.y + halfH
-    corner = radius*2 - shadowSpread + shadowBlur
   
   # Draw the corners
   let 

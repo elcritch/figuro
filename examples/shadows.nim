@@ -28,14 +28,15 @@ proc generateShadowImage(
   # echo "shadowImage: ", image.width, " ", image.height
   return image
 
-# Example usage:
-let shadowImage = generateShadowImage(
-  radius = 100,
-  offset = vec2(0, 0),
-  spread = 0.0,
-  blur = 4.0,
-  fillStyle = rgba(255, 255, 255, 255),
-  shadowColor = rgba(255, 255, 255, 255),
-)
-# shadowImage.invert()
-shadowImage.writeFile("examples/shadow.png")
+for i in 1..20:
+  # Example usage:
+  let shadowImage = generateShadowImage(
+    radius = 30,
+    offset = vec2(0, 0),
+    spread = 0.0,
+    blur = i.float32,
+    fillStyle = rgba(255, 255, 255, 255),
+    shadowColor = rgba(255, 255, 255, 255),
+  )
+  # shadowImage.invert()
+  shadowImage.writeFile("data/shadow" & $(int(i)) & ".png")
