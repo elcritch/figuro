@@ -46,12 +46,6 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
       offset 1'ux, 1'ux
       size 100'pp-2'ux, 100'pp-2'ux
       fill themeColor("fig-widget-background-color")
-      # this.shadow[DropShadow] = Shadow(
-      #     blur: 4.0'ui,
-      #     spread: 1.0'ui,
-      #     x: 1.0'ui,
-      #     y: 1.0'ui,
-      #     color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
 
       Vertical.new "vertical":
         size 100'pp, cx"max-content"

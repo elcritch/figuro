@@ -267,6 +267,10 @@ proc render(
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
 
+  # hacky method to draw drop shadows... should probably be done in opengl shaders
+  ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
+    ctx.renderDropShadows(node)
+
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
     ctx.beginMask()
@@ -274,10 +278,6 @@ proc render(
     ctx.endMask()
   finally:
     ctx.popMask()
-
-  # hacky method to draw drop shadows... should probably be done in opengl shaders
-  ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-    ctx.renderDropShadows(node)
 
   ifrender true:
     if node.kind == nkText:

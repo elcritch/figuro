@@ -148,6 +148,7 @@ proc draw*(self: ScrollPane) {.slot.} =
     uinodes.connect(self, doLayoutResize, self, ScrollPane.layoutResize)
     clipContent true
     this.cxMin = [0'ux, 0'ux]
+    # this.shadow[DropShadow] = Shadow(blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.7))
 
     Rectangle.new "scrollBody":
       ## min-content is important here
@@ -157,6 +158,7 @@ proc draw*(self: ScrollPane) {.slot.} =
         this.cxSize[drow] = cx"min-content"
       if self.settings.horizontal:
         this.cxSize[dcol] = cx"min-content"
+      # this.shadow[DropShadow] = Shadow( blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.7))
 
       fill whiteColor.darken(0.2)
       this.offset = self.scrollBy
