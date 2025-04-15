@@ -912,12 +912,13 @@ proc sliceToNinePatch(img: Image): tuple[
     left = img.subImage(0, centerY, centerX, 1)
   
   var
-    ftop = newImage(4, top.height)
-    fbottom = newImage(4, bottom.height)
-    fright = newImage(right.width, 4)
-    fleft = newImage(left.width, 4)
+    n = 8
+    ftop = newImage(n, top.height)
+    fbottom = newImage(n, bottom.height)
+    fright = newImage(right.width, n)
+    fleft = newImage(left.width, n)
 
-  for i in 0..3:
+  for i in 0..<n:
     ftop.draw(top, translate(vec2(i.float32, 0)))
     fbottom.draw(bottom, translate(vec2(i.float32, 0)))
     fright.draw(right, translate(vec2(0, i.float32)))
@@ -966,14 +967,6 @@ proc fillRoundedRectWithShadow*(
 
     let shadowImg = ctx.loadImage(figDataDir() / "shadow.png").mipmaps[0]
 
-    # let shadowImg =
-    #   generateShadowImage(
-    #     radius = int(radius),
-    #     offset = vec2(0, 0),
-    #     spread = shadowSpread,
-    #     blur = shadowBlur
-    #   )
-    
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
     
@@ -992,7 +985,7 @@ proc fillRoundedRectWithShadow*(
   
   # Draw the 9-patch shadow with appropriate padding
   let 
-    totalPadding = int(abs(shadowSpread + shadowBlur))
+    totalPadding = int(abs(shadowSpread + shadowBlur)*4)
     # totalPadding = 0
     sbox = rect(
       rect.x - totalPadding.float32 + shadowX,
