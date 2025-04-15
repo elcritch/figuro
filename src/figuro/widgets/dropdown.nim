@@ -74,3 +74,10 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
         self.fade.addTarget(this)
         offset 0'ux, csPerc(-self.fade.amount)
         # refreshLayout(this.parent[])
+        # this.shadow[DropShadow] = Shadow(
+        #     blur: 4.0'ui,
+        #     spread: 1.0'ui,
+        #     x: 1.0'ui,
+        #     y: 1.0'ui,
+        #     color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
+
