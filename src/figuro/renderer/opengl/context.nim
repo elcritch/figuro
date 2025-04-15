@@ -584,10 +584,11 @@ proc generateCorner(
 proc generateCircle(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
                          lineWidth: float32 = 3'f32,
+                         stroked: bool = true,
                          fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
                          shadowColor: ColorRGBA = rgba(0, 0, 0, 255),
                          innerShadow = true,
-                         innerShadowBorder = false,
+                         innerShadowBorder = true,
                          ): Image =
   let sz = 2*radius
   let radius = radius.toFloat
@@ -595,10 +596,14 @@ proc generateCircle(radius: int, offset: Vec2,
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
   ctx3.strokeStyle = fillStyle
+  ctx3.fillStyle = fillStyle
   ctx3.lineCap = SquareCap
   ctx3.lineWidth = lineWidth
   ctx3.circle(radius, radius, radius-lineWidth/2)
-  ctx3.stroke()
+  if stroked:
+    ctx3.stroke()
+  else:
+    ctx3.fill()
 
   let circleSolid = newImage(sz, sz)
   let ctx4 = newContext(circleSolid)
