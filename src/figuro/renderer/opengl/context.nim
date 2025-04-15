@@ -864,7 +864,7 @@ proc generateShadowImage(
 
   let image = newImage(sz, sz)
   image.draw(shadow3)
-  echo "shadowImage: ", image.width, " ", image.height
+  # echo "shadowImage: ", image.width, " ", image.height
   return image
 
 

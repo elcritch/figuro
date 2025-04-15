@@ -16,7 +16,7 @@ proc delta*(image: Image) {.hasSimd, raises: [].} =
   # We need to convert back to premultiplied alpha after inverting.
   # image.data.toPremultipliedAlpha()
 
-proc generateShadowImage(radius: int, offset: Vec2, 
+proc generateCornerImage(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
                          lineWidth: float32 = 3'f32,
                          fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
