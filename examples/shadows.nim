@@ -20,7 +20,9 @@ proc generateShadowImage(radius: int, offset: Vec2,
                          spread: float32, blur: float32,
                          lineWidth: float32 = 3'f32,
                          fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
-                         shadowColor: ColorRGBA = rgba(0, 0, 0, 255)
+                         shadowColor: ColorRGBA = rgba(0, 0, 0, 255),
+                         innerShadow = true,
+                         innerShadowBorder = false,
                          ): Image =
   let sz = 2*radius
   let radius = radius.toFloat
@@ -36,7 +38,8 @@ proc generateShadowImage(radius: int, offset: Vec2,
   let circleSolid = newImage(sz, sz)
   let ctx4 = newContext(circleSolid)
   ctx4.fillStyle = fillStyle
-  ctx4.circle(radius, radius, radius)
+  let innerRadiusMask = if innerShadowBorder: radius else: radius-lineWidth
+  ctx4.circle(radius, radius, innerRadiusMask)
   ctx4.fill()
   
   let shadow3 = circle.shadow(
@@ -47,9 +50,12 @@ proc generateShadowImage(radius: int, offset: Vec2,
   )
 
   let image3 = newImage(sz, sz)
-  # image3.draw(shadow3)
+  if innerShadow:
+    image3.draw(shadow3)
   image3.draw(circle)
-  # image3.draw(circleSolid, blendMode = MaskBlend)
+  if innerShadow:
+    image3.draw(circleSolid, blendMode = MaskBlend)
+  # image3.draw(circle)
   return image3
 
 proc sliceToNinePatch*(img: Image): tuple[
