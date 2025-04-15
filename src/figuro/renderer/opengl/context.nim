@@ -981,7 +981,7 @@ proc fillRoundedRectWithShadow*(
   
   # Draw the 9-patch shadow with appropriate padding
   let 
-    totalPadding = int(abs(shadowSpread)*2)
+    totalPadding = int(abs(shadowSpread + shadowBlur))
     # totalPadding = 0
     sbox = rect(
       rect.x - totalPadding.float32 + shadowX,
@@ -993,7 +993,7 @@ proc fillRoundedRectWithShadow*(
     halfH = sbox.h / 2
     centerX = sbox.x + halfW
     centerY = sbox.y + halfH
-    corner = radius + 2*shadowSpread
+    corner = radius + shadowSpread + shadowBlur
   
   # Draw the corners
   let 
