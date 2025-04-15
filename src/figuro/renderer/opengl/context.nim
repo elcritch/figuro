@@ -947,12 +947,14 @@ proc fillRoundedRectWithShadow*(
     
   # First, draw the shadow
   # Generate shadow key for caching
+  proc getShadowKey(blur: float32, spread: float32): Hash =
+    hash((7723, (blur * 1).int, (spread * 1).int))
   let 
     sBlur = (shadowBlur * 100).int
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
     shadowBlurSizeLimit = 16.0
     shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
-    shadowKey = hash((7723, shadowBlurSize.int, shadowSpread.int))
+    shadowKey = getShadowKey(shadowBlurSize, shadowSpread)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -964,6 +966,7 @@ proc fillRoundedRectWithShadow*(
   if shadowKeyBase notin ctx.entries:
     # Generate shadow image
     echo "blur create new shadow"
+    # let mainShadow = generateShadowImage()
 
     let shadowImg =
         if shadowBlurSize >= shadowBlurSizeLimit:
