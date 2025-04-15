@@ -18,7 +18,7 @@ proc delta*(image: Image) {.hasSimd, raises: [].} =
 
 proc generateCircle(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
-                         lineWidth: float32 = 3'f32,
+                         lineWidth: float32 = 0'f32,
                          stroked: bool = true,
                          fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
                          shadowColor: ColorRGBA = rgba(0, 0, 0, 255),
@@ -43,7 +43,7 @@ proc generateCircle(radius: int, offset: Vec2,
   let circleSolid = newImage(sz, sz)
   let ctx4 = newContext(circleSolid)
   ctx4.fillStyle = fillStyle
-  let innerRadiusMask = if innerShadowBorder: radius else: radius-lineWidth
+  let innerRadiusMask = radius-lineWidth
   ctx4.circle(radius, radius, innerRadiusMask)
   ctx4.fill()
   
@@ -129,11 +129,15 @@ proc sliceToNinePatch*(img: Image): tuple[
 # Example usage:
 let shadowImage = generateCircle(
   radius = 100,
+  stroked = true,
   offset = vec2(0, 0),
-  spread = 4.0,
-  blur = 20.0,
-  fillStyle = rgba(255, 0, 0, 255),
+  spread = 20.0,
+  blur = 40.0,
+  lineWidth = 10.0,
+  fillStyle = rgba(255, 255, 255, 255),
   shadowColor = rgba(255, 255, 255, 255),
+  innerShadow = true,
+  innerShadowBorder = true,
 )
 # shadowImage.invert()
 shadowImage.writeFile("examples/innerShadow.png")

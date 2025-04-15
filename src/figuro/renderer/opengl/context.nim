@@ -1060,9 +1060,9 @@ proc fillRoundedRectWithShadow*(
       let innerKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
       if innerKey notin shadowCache:
         let innerImg = generateCircle(
-          radius = (radius).int,
+          radius = (2*radius).int,
           stroked = true,
-          lineWidth = 10.0,
+          lineWidth = radius.float32/4,
           offset = vec2(0, 0),
           spread = shadowSpread,
           blur = shadowBlur,
