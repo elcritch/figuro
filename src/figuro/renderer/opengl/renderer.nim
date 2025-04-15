@@ -117,7 +117,7 @@ proc renderDropShadows(ctx: Context, node: Node) =
   ## drawing shadows with 9-patch technique
   let shadow = node.shadow[DropShadow]
   if shadow.blur > 0.0:
-    when true:
+    when false:
       ## should add a primitive to opengl.context to
       ## do this with pixie and 9-patch, but that's a headache
       let shadow = node.shadow[DropShadow]
