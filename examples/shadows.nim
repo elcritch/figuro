@@ -42,7 +42,7 @@ proc generateShadowImage(radius: int, offset: Vec2,
   ctx4.circle(radius, radius, innerRadiusMask)
   ctx4.fill()
   
-  let shadow3 = circle.shadow(
+  let shadow = circle.shadow(
     offset = offset,
     spread = spread,
     blur = blur,
@@ -51,7 +51,7 @@ proc generateShadowImage(radius: int, offset: Vec2,
 
   let image = newImage(sz, sz)
   if innerShadow:
-    image.draw(shadow3)
+    image.draw(shadow)
   image.draw(circle)
   if innerShadow:
     image.draw(circleSolid, blendMode = MaskBlend)
