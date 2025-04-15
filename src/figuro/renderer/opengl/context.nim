@@ -1010,6 +1010,7 @@ proc fillRoundedRectWithShadow*(
     radius: float32, 
     shadowX, shadowY, shadowBlur, shadowSpread: float32,
     shadowColor: Color,
+    innerShadow = false,
 ) =
   ## Draws a rounded rectangle with a shadow underneath using 9-patch technique
   ## The shadow is drawn with padding around the main rectangle
@@ -1019,7 +1020,7 @@ proc fillRoundedRectWithShadow*(
   # First, draw the shadow
   # Generate shadow key for caching
   proc getShadowKey(blur: float32, spread: float32, radius: float32): Hash =
-    hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int))
+    hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int, innerShadow))
 
   let 
     sBlur = (shadowBlur * 100).int
@@ -1037,8 +1038,6 @@ proc fillRoundedRectWithShadow*(
   # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
   if shadowKeyBase notin ctx.entries:
     # Generate shadow image
-    echo "blur create new shadow"
-    # let mainShadow = generateShadowImage()
     let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius)
     if mainKey notin shadowCache:
       let mainImg = generateShadowImage(
@@ -1074,6 +1073,10 @@ proc fillRoundedRectWithShadow*(
     shadowSpread = shadowSpread
     totalPadding = int(shadowBlur+shadowSpread) - 1
     corner = radius + totalPadding.float32 + 1
+
+  if innerShadow:
+    totalPadding = 0
+    corner = radius
 
   let
     sbox = rect(
