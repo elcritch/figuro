@@ -642,12 +642,14 @@ proc generateCorner(
 
   result = image
 
-proc generateCircle(radius: int, offset: Vec2, 
-                         spread: float32, blur: float32,
-                         lineWidth: float32 = 3'f32,
+proc generateCircle(radius: int,
+                         offset = vec2(0, 0), 
+                         spread: float32 = 0.0'f32,
+                         blur: float32 = 0.0'f32,
                          stroked: bool = true,
+                         lineWidth: float32 = 0.0'f32,
                          fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
-                         shadowColor: ColorRGBA = rgba(0, 0, 0, 255),
+                         shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
                          innerShadow = true,
                          innerShadowBorder = true,
                          ): Image =
@@ -707,7 +709,8 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
     # let stroked = stroked and lineWidth <= radius
     var hashes: array[4, Hash]
 
-    let circle = generateCircle(radius.int, vec2(0, 0), 0.0, 0.0, 0.0, false, rgba(255, 255, 255, 255), rgba(0, 0, 0, 255), false, false)
+    let circle = generateCircle(radius.int,
+                                  stroked = false)
     let patches = sliceToNinePatch(circle)
     # Store each piece in the atlas
     let patchArray = [
@@ -775,11 +778,22 @@ proc strokeRoundedRect*(
   if radius > 0.0:
     # let stroked = stroked and lineWidth <= radius
     var hashes: array[4, Hash]
+
+    let circle = generateCircle(radius.int, stroked = true, lineWidth = weight)
+    let patches = sliceToNinePatch(circle)
+    # Store each piece in the atlas
+    let patchArray = [
+      patches.topRight, 
+      patches.topLeft,
+      patches.bottomLeft,
+      patches.bottomRight,
+    ]
+
     for quadrant in 1 .. 4:
       let qhash = hash !& quadrant
       hashes[quadrant - 1] = qhash
       if qhash notin ctx.entries:
-        let img = generateCorner(radius.int, quadrant, true, weight, fillStyle)
+        let img = patchArray[quadrant - 1]
         ctx.putImage(hashes[quadrant - 1], img)
 
     let

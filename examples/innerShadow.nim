@@ -15,6 +15,17 @@ proc delta*(image: Image) {.hasSimd, raises: [].} =
   # is not a valid premultiplied alpha color.
   # We need to convert back to premultiplied alpha after inverting.
   # image.data.toPremultipliedAlpha()
+proc generateCircle(radius: int,
+                         offset = vec2(0, 0), 
+                         spread: float32,
+                         blur: float32,
+                         lineWidth: float32 = 3'f32,
+                         stroked: bool = true,
+                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
+                         shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
+                         innerShadow = true,
+                         innerShadowBorder = true,
+                         ): Image =
 
 proc generateCircle(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
@@ -22,8 +33,8 @@ proc generateCircle(radius: int, offset: Vec2,
                          stroked: bool = true,
                          fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
                          shadowColor: ColorRGBA = rgba(0, 0, 0, 255),
-                         innerShadow = true,
-                         innerShadowBorder = true,
+                         innerShadow = false,
+                         innerShadowBorder = false,
                          ): Image =
   let sz = 2*radius
   let radius = radius.toFloat
