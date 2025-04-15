@@ -28,7 +28,7 @@ proc draw*(self: Main) {.slot.} =
         fill css"#2B9F2B"
         # fill clearColor
         # fill css"#2B9F2B" * 0.5
-        border 1'ui, css"red"
+        border 3'ui, css"red"
         cornerRadius 20'ui
       self.blur.addTarget(this)
       self.spread.addTarget(this)
@@ -47,7 +47,7 @@ proc draw*(self: Main) {.slot.} =
         self.toggleSpread = not self.toggleSpread
 
       # echo "blur: ", self.blur.amount, " spread: ", self.spread.amount
-      when true:
+      when false:
         this.shadow[DropShadow] = Shadow(
           blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           # blur: self.blur.amount.UiScalar,
@@ -56,12 +56,12 @@ proc draw*(self: Main) {.slot.} =
           x: self.spread.amount.UiScalar,
           y: self.spread.amount.UiScalar,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
-      when false:
+      when true:
         this.shadow[InnerShadow] = Shadow(
-          blur: 5.0'ui,
-          spread: 5.0'ui,
+          blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
+          spread: self.spread.amount.UiScalar,
           x: 0.0'ui, y: 6.0'ui,
-          color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.5))
+          color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
 
       Text.new "btnText":
         size 100'pp, 100'pp
