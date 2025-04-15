@@ -1069,20 +1069,12 @@ proc fillRoundedRectWithShadow*(
     for i in 0..7:
       ninePatchHashes[i] = shadowKey !& i
       ctx.putImage(ninePatchHashes[i], patchArray[i])
-      # patchArray[i].writeFile("examples/shadowPatches" & $i & ".png")
   
-  # Draw the 9-patch shadow with appropriate padding
   var 
     shadowBlur = shadowBlur
     shadowSpread = shadowSpread
     totalPadding = int(shadowBlur+shadowSpread) - 1
     corner = radius + totalPadding.float32 + 1
-
-  # if shadowBlurSize >= shadowBlurSizeLimit:
-  #   shadowBlur = max(shadowBlur - 50.0, -25)
-  #   shadowSpread = shadowSpread - 50.0
-  #   totalPadding = int(radius+shadowBlur)
-  #   corner = radius*2 - shadowSpread + shadowBlur
 
   let
     sbox = rect(
@@ -1111,20 +1103,15 @@ proc fillRoundedRectWithShadow*(
   
   # Draw edges
   # Top edge (stretched horizontally)
-  # let topEdge = rect( sbox.x + corner, sbox.y, rect.w - corner, corner)
   let topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
   ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
-  # Right edge (stretched vertically)
   let rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
   ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor*1.0, rightEdge.wh)
-  # Bottom edge (stretched horizontally)
   let bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
   ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor*1.0, bottomEdge.wh)
-  # Left edge (stretched vertically)
   let leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
   ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor*1.0, leftEdge.wh)
   
   # Center (stretched both ways)
   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
-  # # For the center, we can use a simple fill as it's just the shadow color
   ctx.fillRect(center, shadowColor)
