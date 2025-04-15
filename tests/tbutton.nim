@@ -51,9 +51,9 @@ proc draw*(self: Main) {.slot.} =
         this.shadow[DropShadow] = Shadow(
           blur: self.blur.amount.UiScalar,
           spread: self.spread.amount.UiScalar,
-          x: 0'ui,
-          y: 0'ui,
-          color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
+          x: self.spread.amount.UiScalar,
+          y: self.spread.amount.UiScalar,
+          color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
       when false:
         this.shadow[InnerShadow] = Shadow(
           blur: 5.0'ui,

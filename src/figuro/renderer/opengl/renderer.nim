@@ -14,7 +14,7 @@ import window, glcommons, context, formatflippy, utils
 
 import std/locks
 
-const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
+const FastShadows {.booldefine: "figuro.fastShadows".}: bool = true
 
 type Renderer* = ref object
   ctx*: Context
@@ -124,8 +124,8 @@ proc renderDropShadows(ctx: Context, node: Node) =
       ## do this with pixie and 9-patch, but that's a headache
       let shadow = node.shadow[DropShadow]
       var color = shadow.color
-      const N = 2
-      color.a = color.a * 1.0/(N*N)
+      const N = 3
+      color.a = color.a * 1.0/(N*N*N)
       let blurAmt = shadow.blur * shadow.spread / (12*N*N)
       for i in -N .. N:
         for j in -N .. N:

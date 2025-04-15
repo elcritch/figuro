@@ -32,8 +32,8 @@ proc generateShadowImage(
 let shadowImage = generateShadowImage(
   radius = 100,
   offset = vec2(0, 0),
-  spread = 20.0,
-  blur = 80.0,
+  spread = 0.0,
+  blur = 4.0,
   fillStyle = rgba(255, 255, 255, 255),
   shadowColor = rgba(255, 255, 255, 255),
 )
