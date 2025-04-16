@@ -1038,6 +1038,7 @@ proc fillRoundedRectWithShadow*(
   # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
+    let newSize = shadowBlur.int + shadowSpread.int + radius.int
     let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
     if not innerShadow:
       # Generate shadow image
@@ -1050,10 +1051,6 @@ proc fillRoundedRectWithShadow*(
           blur = shadowBlurSizeLimit
         )
         shadowCache[mainKey] = mainImg
-      # let mainImg = shadowCache[mainKey]
-      # let newSize = shadowBlur.int + shadowSpread.int + radius.int
-      # shadowImg = mainImg.resize(newSize, newSize)
-      let newSize = shadowBlur.int + shadowSpread.int + radius.int
       shadowImg = shadowCache[mainKey].resize(newSize, newSize)
     else:
       # Generate inner shadow image
@@ -1069,9 +1066,7 @@ proc fillRoundedRectWithShadow*(
           innerShadow = true,
           innerShadowBorder = false,
         )
-        # innerImg.writeFile("examples/innerImg.png")
         shadowCache[mainKey] = innerImg
-      let newSize = shadowBlur.int + shadowSpread.int + radius.int
       shadowImg = shadowCache[mainKey].resize(newSize, newSize)
 
     # Slice it into 9-patch pieces

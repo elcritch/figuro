@@ -56,7 +56,7 @@ proc draw*(self: Main) {.slot.} =
           x: 0.0'ui,
           y: self.spread.amount.UiScalar,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
-      when false:
+      when true:
         this.shadow[InnerShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.blur.amount.UiScalar,
