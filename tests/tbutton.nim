@@ -8,44 +8,41 @@ let
 type
   Counter* = object
 
+  FadeKinds* = enum
+    FkBlur, FkSpread, FkX, FkY
+
   Main* = ref object of Figuro
     mainRect: Figuro
-    toggle: bool = true
-    toggleSpread: bool = true
-    blur* = Fader(minMax: 0.01..22.0,
-                     inTimeMs: 1400, outTimeMs: 1400)
-    spread* = Fader(minMax: 0.01..10.0,
-                     inTimeMs: 1400, outTimeMs: 1400)
+    toggles*: array[FadeKinds, bool]
+    fades*: array[FadeKinds, Fader]
+
+
+proc initialize*(self: Main) {.slot.} =
+  for i in FkBlur..FkY:
+    self.toggles[i] = true
+    self.fades[i] = Fader(minMax: 0.01..22.0,
+                          inTimeMs: 1400, outTimeMs: 1400)
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     fill css"grey"
     # fill css"white"
 
-    TextButton[int] as "btn":
-      with this:
-        box 200'ux+30'pp, 30'ux, 200'ux, 50'ux
-        cornerRadius 10'ui
-      label this, {defaultFont(): "Fade Blur"}
-      onSignal(doSingleClick) do(self: Main):
-        if self.toggle:
-          self.blur.fadeIn()
-        else:
-          self.blur.fadeOut()
-        self.toggle = not self.toggle
-    TextButton[int] as "btn":
-      with this:
-        box 200'ux+30'pp, 90'ux, 200'ux, 50'ux
-        cornerRadius 10'ui
-      label this, {defaultFont(): "Fade Blur"}
-      onSignal(doSingleClick) do(self: Main):
-        echo "doRightClick"
-        if self.toggleSpread:
-          self.spread.fadeIn()
-        else:
-          self.spread.fadeOut()
-        self.toggleSpread = not self.toggleSpread
-
+    for i, idx in FadeKinds.toSeq():
+      capture i, idx:
+        TextButton[FadeKinds] as "btn":
+          this.state = idx
+          with this:
+            box 200'ux+30'pp, ux(30+i*70), 200'ux, 50'ux
+            cornerRadius 10'ui
+          label this, {defaultFont(): "Fade " & $this.state}
+          onSignal(doSingleClick) do(this: TextButton[FadeKinds]):
+            let self = this.queryParent(Main).get()
+            if self.toggles[this.state]:
+              self.fades[this.state].fadeIn()
+            else:
+              self.fades[this.state].fadeOut()
+            self.toggles[this.state] = not self.toggles[this.state]
 
     Button[int] as "btn":
       with this:
@@ -55,26 +52,22 @@ proc draw*(self: Main) {.slot.} =
         # fill css"#2B9F2B" * 0.5
         border 3'ui, css"red"
         cornerRadius 10'ui
-      self.blur.addTarget(this)
-      self.spread.addTarget(this)
+      self.fades[FkBlur].addTarget(this)
+      self.fades[FkSpread].addTarget(this)
       # echo "blur: ", self.blur.amount, " spread: ", self.spread.amount
       when true:
         this.shadow[DropShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
-          blur: self.blur.amount.UiScalar,
-          spread: self.spread.amount.UiScalar,
-          x: 0.0'ui, y: 0.0'ui,
-          # x: self.spread.amount.UiScalar,
-          # y: self.spread.amount.UiScalar,
+          blur: self.fades[FkBlur].amount.UiScalar,
+          spread: self.fades[FkSpread].amount.UiScalar,
+          x: self.fades[FkX].amount.UiScalar, y: self.fades[FkY].amount.UiScalar,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
       when true:
         this.shadow[InnerShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
-          blur: self.blur.amount.UiScalar,
-          spread: self.spread.amount.UiScalar,
-          x: 0.0'ui, y: 0.0'ui,
-          # x: self.spread.amount.UiScalar,
-          # y: self.spread.amount.UiScalar,
+          blur: self.fades[FkBlur].amount.UiScalar,
+          spread: self.fades[FkSpread].amount.UiScalar,
+          x: self.fades[FkX].amount.UiScalar, y: self.fades[FkY].amount.UiScalar,
           color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
 
       Text.new "btnText":
