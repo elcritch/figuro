@@ -1030,6 +1030,7 @@ proc fillRoundedRectWithShadow*(
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
+    radiusLimit = 40.0
     # shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
     # shadowSpread = min(shadowSpread, shadowSpreadLimit).max(0.0)
     shadowBlurSize = shadowBlur
@@ -1046,13 +1047,13 @@ proc fillRoundedRectWithShadow*(
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
     let newSize = shadowBlur.int + shadowSpread.int + radius.int
-    let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radius, innerShadow)
+    let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radiusLimit, innerShadow)
     if not innerShadow:
       # Generate shadow image
       if mainKey notin shadowCache:
-        echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radius.round(2), " ", innerShadow
+        echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radiusLimit.round(2), " ", innerShadow
         let mainImg = generateShadowImage(
-          radius = (radius).int,
+          radius = (radiusLimit).int,
           offset = vec2(shadowX, shadowY),
           spread = shadowSpreadLimit,
           blur = shadowBlurSizeLimit
@@ -1062,9 +1063,9 @@ proc fillRoundedRectWithShadow*(
     else:
       # Generate inner shadow image
       if mainKey notin shadowCache:
-        echo "generating inner shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radius.round(2), " ", innerShadow
+        echo "generating inner shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radiusLimit.round(2), " ", innerShadow
         let innerImg = generateCircle(
-          radius = (radius).int,
+          radius = (radiusLimit).int,
           stroked = true,
           lineWidth = 6.0,
           offset = vec2(0, 0),
@@ -1073,6 +1074,7 @@ proc fillRoundedRectWithShadow*(
           innerShadow = true,
           innerShadowBorder = false,
         )
+        innerImg.writeFile("examples/innerImg.png")
         shadowCache[mainKey] = innerImg
       shadowImg = shadowCache[mainKey].resize(newSize, newSize)
 
@@ -1097,6 +1099,7 @@ proc fillRoundedRectWithShadow*(
 
   if innerShadow:
     totalPadding = (1.41*radius).int
+    # corner = 1.41*radius + (shadowBlur+shadowSpread) + 1
     corner = 1.41*radius + (shadowBlur+shadowSpread) + 1
 
   let

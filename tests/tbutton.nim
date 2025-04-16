@@ -22,6 +22,31 @@ proc draw*(self: Main) {.slot.} =
     fill css"grey"
     # fill css"white"
 
+    TextButton[int] as "btn":
+      with this:
+        box 200'ux+30'pp, 30'ux, 200'ux, 50'ux
+        cornerRadius 10'ui
+      label this, {defaultFont(): "Fade Blur"}
+      onSignal(doSingleClick) do(self: Main):
+        if self.toggle:
+          self.blur.fadeIn()
+        else:
+          self.blur.fadeOut()
+        self.toggle = not self.toggle
+    TextButton[int] as "btn":
+      with this:
+        box 200'ux+30'pp, 90'ux, 200'ux, 50'ux
+        cornerRadius 10'ui
+      label this, {defaultFont(): "Fade Blur"}
+      onSignal(doSingleClick) do(self: Main):
+        echo "doRightClick"
+        if self.toggleSpread:
+          self.spread.fadeIn()
+        else:
+          self.spread.fadeOut()
+        self.toggleSpread = not self.toggleSpread
+
+
     Button[int] as "btn":
       with this:
         box 40'ux, 30'ux, 30'pp, 30'pp
@@ -32,20 +57,6 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius 10'ui
       self.blur.addTarget(this)
       self.spread.addTarget(this)
-      onSignal(doSingleClick) do(self: Main):
-        if self.toggle:
-          self.blur.fadeIn()
-        else:
-          self.blur.fadeOut()
-        self.toggle = not self.toggle
-      onSignal(doRightClick) do(self: Main):
-        echo "doRightClick"
-        if self.toggleSpread:
-          self.spread.fadeIn()
-        else:
-          self.spread.fadeOut()
-        self.toggleSpread = not self.toggleSpread
-
       # echo "blur: ", self.blur.amount, " spread: ", self.spread.amount
       when true:
         this.shadow[DropShadow] = Shadow(
