@@ -9,7 +9,7 @@ type
   Counter* = object
 
   FadeKinds* = enum
-    FkBlur, FkSpread, FkX, FkY
+    FkBlur, FkSpread, FkRadius, FkX, FkY
 
   Main* = ref object of Figuro
     mainRect: Figuro
@@ -22,6 +22,8 @@ proc initialize*(self: Main) {.slot.} =
     self.toggles[i] = true
     self.fades[i] = Fader(minMax: 0.01..22.0,
                           inTimeMs: 1400, outTimeMs: 1400)
+  # self.fades[FkRadius] = Fader(minMax: 4..22.0,
+  #                         inTimeMs: 1400, outTimeMs: 1400)
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
@@ -51,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
         # fill clearColor
         # fill css"#2B9F2B" * 0.5
         border 3'ui, css"red"
-        cornerRadius 10'ui
+        cornerRadius self.fades[FkRadius].amount.UiScalar
       for i in FadeKinds.toSeq():
         self.fades[i].addTarget(this)
       echo "blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount

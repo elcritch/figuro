@@ -1044,9 +1044,11 @@ proc fillRoundedRectWithShadow*(
   # Check if we've already generated this shadow
   let shadowKeyBase = shadowKey !& 0
   # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
+  let newSize = shadowBlur.int + shadowSpread.int + radius.int
+  if newSize < 4:
+    return
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
-    let newSize = shadowBlur.int + shadowSpread.int + radius.int
     let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radiusLimit, innerShadow)
     if not innerShadow:
       # Generate shadow image
