@@ -36,15 +36,8 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius 10.0'ui
         onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
           echo "clicked: ", kind, " :: ", buttons
-        # this.shadow[InnerShadow] = Shadow(
-        #   # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
-        #   blur: 5.0'ui,
-        #   spread: 1.0'ui,
-        #   # x: 3.0'ui, y: 3.0'ui,
-        #   x: 0'ui, y: 0'ui,
-        #   color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.3))
-        echo "inner-shadow: ", this.shadow[InnerShadow]
-        echo "outer-shadow: ", this.shadow[DropShadow]
+        # echo "inner-shadow: ", this.shadow[InnerShadow]
+        # echo "outer-shadow: ", this.shadow[DropShadow]
 
 
       Slider[float].new "slider1":
