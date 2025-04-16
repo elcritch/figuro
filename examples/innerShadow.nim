@@ -26,6 +26,31 @@ proc drawCircle(ctx: Context, center, radius: float, lineWidth: float, stroke: b
   else:
     ctx.fill()
 
+proc gaussianFunction*(x: float, mean: float = 0.0, stdDev: float = 1.0): float =
+  ## Creates a Gaussian (normal) distribution function
+  ## 
+  ## Parameters:
+  ##   mean: The mean (μ) of the distribution
+  ##   stdDev: The standard deviation (σ) of the distribution
+  ## 
+  ## Returns:
+  ##   A function that takes an x value and returns the probability density
+  
+  # Constant factors for the Gaussian formula
+  let factor = 1.0 / (stdDev * sqrt(2.0 * PI))
+  let exponentFactor = -1.0 / (2.0 * stdDev * stdDev)
+  
+  # Return a closure that calculates the Gaussian probability density
+  # Calculate (x - mean)²
+  let deviation = x - mean
+  let deviationSquared = deviation * deviation
+  
+  # Calculate e^(-((x-mean)²)/(2σ²))
+  let exponent = deviationSquared * exponentFactor
+  
+  # Return the complete formula: (1/(σ√(2π))) * e^(-((x-mean)²)/(2σ²))
+  result = factor * exp(exponent)
+
 proc generateCircle(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
                          lineWidth: float32 = 0'f32,
@@ -67,7 +92,7 @@ proc generateCircle(radius: int, offset: Vec2,
 
     circleInner.draw(circleSolid, blendMode = SubtractMaskBlend)
 
-    let innerRadius = radius/3
+    let innerRadius = radius/2
     let cnt = radius*2
     for i in 0..cnt.int:
       block:
@@ -75,9 +100,10 @@ proc generateCircle(radius: int, offset: Vec2,
         let cl = newImage(sz, sz)
         let ctxCl = newContext(cl)
         # let fs = rgba(255, 255, 255, uint8(170*(1-sin(i/cnt*PI/2))))
-        let fs = rgba(255, 255, 255, uint8(170*(1-sin(i/cnt*PI/2))))
+        let fs = rgba(255, 255, 255, uint8((255*gaussianFunction(i/cnt*PI/2, mean = -0.3, stdDev = 0.49))))
         let radius = radius - i/cnt*(radius-innerRadius)
-        let lw = 2.float32 * (1-i/cnt)
+        # let lw = 1.float32 * (1-i/cnt)
+        let lw = 2.float32
         echo "circleInner: ", i, " fs: ", fs, " radius: ", radius
         drawCircle(ctxCl, center = center, radius = radius, lineWidth = lw, stroke = true, color = fs)
         image.draw(cl)
