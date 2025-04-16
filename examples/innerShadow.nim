@@ -51,6 +51,7 @@ proc generateCircle(radius: int, offset: Vec2,
   if innerShadow:
     image.draw(shadow)
   image.draw(circle)
+
   if innerShadow:
     let circleInner = newImage(sz, sz)
     circleInner.fill(rgba(255, 255, 255, 255))
