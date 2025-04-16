@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
         # fill clearColor
         # fill css"#2B9F2B" * 0.5
         border 3'ui, css"red"
-        cornerRadius 20'ui
+        cornerRadius 10'ui
       self.blur.addTarget(this)
       self.spread.addTarget(this)
       onSignal(doSingleClick) do(self: Main):
@@ -52,19 +52,18 @@ proc draw*(self: Main) {.slot.} =
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.blur.amount.UiScalar,
           spread: self.spread.amount.UiScalar,
-          # spread: 0.0'ui,
-          x: self.spread.amount.UiScalar,
-          y: self.spread.amount.UiScalar,
+          x: 0.0'ui, y: 0.0'ui,
+          # x: self.spread.amount.UiScalar,
+          # y: self.spread.amount.UiScalar,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
       when true:
         this.shadow[InnerShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.blur.amount.UiScalar,
           spread: self.spread.amount.UiScalar,
-          # spread: 0.0'ui,
-          # x: 6.0'ui, y: 6.0'ui,
-          x: self.spread.amount.UiScalar,
-          y: self.spread.amount.UiScalar,
+          x: 0.0'ui, y: 0.0'ui,
+          # x: self.spread.amount.UiScalar,
+          # y: self.spread.amount.UiScalar,
           color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
 
       Text.new "btnText":

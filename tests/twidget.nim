@@ -44,6 +44,7 @@ proc draw*(self: Main) {.slot.} =
         #   x: 0'ui, y: 0'ui,
         #   color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.3))
         echo "inner-shadow: ", this.shadow[InnerShadow]
+        echo "outer-shadow: ", this.shadow[DropShadow]
 
 
       Slider[float].new "slider1":
