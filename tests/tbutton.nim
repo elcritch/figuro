@@ -18,7 +18,7 @@ type
 
 
 proc initialize*(self: Main) {.slot.} =
-  for i in FkBlur..FkY:
+  for i in FadeKinds.toSeq():
     self.toggles[i] = true
     self.fades[i] = Fader(minMax: 0.01..22.0,
                           inTimeMs: 1400, outTimeMs: 1400)
@@ -52,9 +52,9 @@ proc draw*(self: Main) {.slot.} =
         # fill css"#2B9F2B" * 0.5
         border 3'ui, css"red"
         cornerRadius 10'ui
-      self.fades[FkBlur].addTarget(this)
-      self.fades[FkSpread].addTarget(this)
-      # echo "blur: ", self.blur.amount, " spread: ", self.spread.amount
+      for i in FadeKinds.toSeq():
+        self.fades[i].addTarget(this)
+      echo "blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount
       when true:
         this.shadow[DropShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
@@ -67,7 +67,8 @@ proc draw*(self: Main) {.slot.} =
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
-          x: self.fades[FkX].amount.UiScalar, y: self.fades[FkY].amount.UiScalar,
+          x: self.fades[FkX].amount.UiScalar,
+          y: self.fades[FkY].amount.UiScalar,
           color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
 
       Text.new "btnText":
