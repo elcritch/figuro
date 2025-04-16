@@ -1038,41 +1038,41 @@ proc fillRoundedRectWithShadow*(
   # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
+    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
     if not innerShadow:
       # Generate shadow image
-      let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
       if mainKey notin shadowCache:
+        echo "generating main shadow image: ", mainKey
         let mainImg = generateShadowImage(
           radius = (radius).int,
-          offset = vec2(0, 0),
+          offset = vec2(shadowX, shadowY),
           spread = shadowSpread,
-          blur = shadowBlurSize
+          blur = shadowBlurSizeLimit
         )
         shadowCache[mainKey] = mainImg
-      
-      let mainImg = shadowCache[mainKey]
-
+      # let mainImg = shadowCache[mainKey]
+      # let newSize = shadowBlur.int + shadowSpread.int + radius.int
+      # shadowImg = mainImg.resize(newSize, newSize)
       let newSize = shadowBlur.int + shadowSpread.int + radius.int
-      shadowImg = mainImg.resize(newSize, newSize)
-
+      shadowImg = shadowCache[mainKey].resize(newSize, newSize)
     else:
       # Generate inner shadow image
-      let innerKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
-      if innerKey notin shadowCache:
+      if mainKey notin shadowCache:
+        echo "generating inner shadow image: ", mainKey
         let innerImg = generateCircle(
           radius = (2*radius).int,
           stroked = true,
           lineWidth = radius.float32/4,
           offset = vec2(0, 0),
           spread = shadowSpread,
-          blur = shadowBlur,
+          blur = shadowBlurSizeLimit,
           innerShadow = true,
           innerShadowBorder = false,
         )
-        innerImg.writeFile("examples/innerImg.png")
-        shadowCache[innerKey] = innerImg
-
-      shadowImg = shadowCache[innerKey]
+        # innerImg.writeFile("examples/innerImg.png")
+        shadowCache[mainKey] = innerImg
+      let newSize = shadowBlur.int + shadowSpread.int + radius.int
+      shadowImg = shadowCache[mainKey].resize(newSize, newSize)
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
