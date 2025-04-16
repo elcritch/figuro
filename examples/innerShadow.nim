@@ -28,28 +28,31 @@ proc generateCircle(radius: int, offset: Vec2,
   let sz = 2*radius
   let radius = radius.toFloat
 
+  proc drawCircle(ctx: Context, radius: float, lineWidth: float, fillStyle: ColorRGBA, shadowColor: ColorRGBA, innerShadow: bool, innerShadowBorder: bool) =
+    ctx.strokeStyle = fillStyle
+    ctx.fillStyle = fillStyle
+    ctx.lineCap = SquareCap
+    ctx.lineWidth = lineWidth
+    ctx.circle(radius, radius, radius - lineWidth/2)
+    if stroked:
+      ctx.stroke()
+    else:
+      ctx.fill()
+
   let circle = newImage(sz, sz)
   let ctx3 = newContext(circle)
-  ctx3.strokeStyle = fillStyle
-  ctx3.fillStyle = fillStyle
-  ctx3.lineCap = SquareCap
-  ctx3.lineWidth = lineWidth
-  ctx3.circle(radius, radius, radius - lineWidth/2)
-  if stroked:
-    ctx3.stroke()
-  else:
-    ctx3.fill()
-
-  let shadow = circle.shadow(
-    offset = offset,
-    spread = spread,
-    blur = blur,
-    color = shadowColor
-  )
+  drawCircle(ctx3, radius, lineWidth, fillStyle, shadowColor, innerShadow, innerShadowBorder)
 
   var image = newImage(sz, sz)
-  if innerShadow:
-    image.draw(shadow)
+
+  # if innerShadow:
+  #   let shadow = circle.shadow(
+  #     offset = offset,
+  #     spread = spread,
+  #     blur = blur,
+  #     color = shadowColor)
+  #   image.draw(shadow)
+
   image.draw(circle)
 
   if innerShadow:
@@ -63,6 +66,10 @@ proc generateCircle(radius: int, offset: Vec2,
     ctx.fill()
 
     circleInner.draw(circleSolid, blendMode = SubtractMaskBlend)
+
+    # for i in 0..9:
+    #   image.draw(circleInner, translate(vec2(i.float32, 0)))
+
     image.draw(circleInner)
   return image
 
@@ -131,19 +138,20 @@ proc sliceToNinePatch*(img: Image): tuple[
   )
 
 # Example usage:
-let circleImage = generateCircle(
-  radius = 100,
-  stroked = true,
-  offset = vec2(0, 0),
-  spread = 20.0,
-  blur = 40.0,
-  lineWidth = 10.0,
-  fillStyle = rgba(255, 255, 255, 255),
-  shadowColor = rgba(255, 255, 255, 255),
-  innerShadow = false,
-  innerShadowBorder = false,
-)
-circleImage.writeFile("examples/circle.png")
+when true:
+  let circleImage = generateCircle(
+    radius = 100,
+    stroked = true,
+    offset = vec2(0, 0),
+    spread = 20.0,
+    blur = 40.0,
+    lineWidth = 10.0,
+    fillStyle = rgba(255, 255, 255, 255),
+    shadowColor = rgba(255, 255, 255, 255),
+    innerShadow = false,
+    innerShadowBorder = false,
+  )
+  circleImage.writeFile("examples/circle.png")
 
 # Example usage:
 let shadowImage = generateCircle(
