@@ -1031,8 +1031,6 @@ proc fillRoundedRectWithShadow*(
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
     radiusLimit = 40.0
-    # shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
-    # shadowSpread = min(shadowSpread, shadowSpreadLimit).max(0.0)
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
     shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
@@ -1100,8 +1098,7 @@ proc fillRoundedRectWithShadow*(
     corner = radius + totalPadding.float32 + 1
 
   if innerShadow:
-    totalPadding = int(shadowBlur+shadowSpread) - 1
-    # totalPadding = (1.41*radius).int
+    totalPadding = (radius + shadowBlur + shadowSpread).int
     # corner = 1.41*radius + (shadowBlur+shadowSpread) + 1
     corner = 1.41*radius + (shadowBlur+shadowSpread) + 1
 

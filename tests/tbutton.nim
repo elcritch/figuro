@@ -37,7 +37,7 @@ proc draw*(self: Main) {.slot.} =
           with this:
             box 200'ux+30'pp, ux(30+i*70), 200'ux, 50'ux
             cornerRadius 10'ui
-          label this, {defaultFont(): "Fade " & $this.state}
+          label this, {defaultFont(): "Fade " & $this.state & " " & $self.fades[this.state].amount.round(2)}
           onSignal(doSingleClick) do(this: TextButton[FadeKinds]):
             let self = this.queryParent(Main).get()
             if self.toggles[this.state]:
