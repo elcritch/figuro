@@ -40,13 +40,6 @@ proc generateCircle(radius: int, offset: Vec2,
   else:
     ctx3.fill()
 
-  let circleSolid = newImage(sz, sz)
-  let ctx4 = newContext(circleSolid)
-  ctx4.fillStyle = fillStyle
-  let innerRadiusMask = radius-lineWidth
-  ctx4.circle(radius, radius, innerRadiusMask)
-  ctx4.fill()
-  
   let shadow = circle.shadow(
     offset = offset,
     spread = spread,
@@ -61,6 +54,13 @@ proc generateCircle(radius: int, offset: Vec2,
   if innerShadow:
     let circleInner = newImage(sz, sz)
     circleInner.fill(rgba(255, 255, 255, 255))
+
+    let circleSolid = newImage(sz, sz)
+    let ctx = newContext(circleSolid)
+    ctx.fillStyle = rgba(255, 255, 255, 255)
+    ctx.circle(radius, radius, radius-2*lineWidth)
+    ctx.fill()
+
     circleInner.draw(circleSolid, blendMode = SubtractMaskBlend)
     image.draw(circleInner)
   return image
