@@ -101,15 +101,14 @@ proc generateCircle(radius: int, offset: Vec2,
         let ctxCl = newContext(cl)
         # let fs = rgba(255, 255, 255, uint8(170*(1-sin(i/cnt*PI/2))))
         let fs = rgba(255, 255, 255, uint8((255*gaussianFunction(i/cnt*PI/2, mean = -0.3, stdDev = 0.49))))
-        let radius = radius - i/cnt*(radius-innerRadius)
+        let radius = radius-2*lineWidth - i/cnt*(radius-innerRadius)
         # let lw = 1.float32 * (1-i/cnt)
         let lw = 2.float32
         echo "circleInner: ", i, " fs: ", fs, " radius: ", radius
         drawCircle(ctxCl, center = center, radius = radius, lineWidth = lw, stroke = true, color = fs)
         image.draw(cl)
     image.draw(circle)
-
-    # image.draw(circleInner)
+    image.draw(circleInner)
   return image
 
 proc sliceToNinePatch*(img: Image): tuple[
