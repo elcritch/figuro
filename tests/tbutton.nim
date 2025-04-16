@@ -13,9 +13,9 @@ type
     toggle: bool = true
     toggleSpread: bool = true
     blur* = Fader(minMax: 0.01..22.0,
-                     inTimeMs: 400, outTimeMs: 400)
+                     inTimeMs: 1400, outTimeMs: 1400)
     spread* = Fader(minMax: 0.01..6.0,
-                     inTimeMs: 200, outTimeMs: 200)
+                     inTimeMs: 1400, outTimeMs: 1400)
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
@@ -49,20 +49,22 @@ proc draw*(self: Main) {.slot.} =
       # echo "blur: ", self.blur.amount, " spread: ", self.spread.amount
       when true:
         this.shadow[DropShadow] = Shadow(
-          blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
-          # blur: self.blur.amount.UiScalar,
+          # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
+          blur: self.blur.amount.UiScalar,
           # spread: self.spread.amount.UiScalar,
           spread: 0.0'ui,
-          x: 0.0'ui,
+          x: self.spread.amount.UiScalar,
           y: self.spread.amount.UiScalar,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
       when true:
         this.shadow[InnerShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.blur.amount.UiScalar,
-          spread: self.spread.amount.UiScalar,
+          # spread: self.spread.amount.UiScalar,
+          spread: 0.0'ui,
           # x: 6.0'ui, y: 6.0'ui,
-          x: 0'ui, y: 0'ui,
+          x: self.spread.amount.UiScalar,
+          y: self.spread.amount.UiScalar,
           color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
 
       Text.new "btnText":

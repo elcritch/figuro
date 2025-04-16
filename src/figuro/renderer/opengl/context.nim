@@ -1039,11 +1039,11 @@ proc fillRoundedRectWithShadow*(
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
     let newSize = shadowBlur.int + shadowSpread.int + radius.int
-    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
+    let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpread, radius, innerShadow)
     if not innerShadow:
       # Generate shadow image
       if mainKey notin shadowCache:
-        echo "generating main shadow image: ", mainKey
+        echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radius.round(2), " ", innerShadow
         let mainImg = generateShadowImage(
           radius = (radius).int,
           offset = vec2(shadowX, shadowY),
@@ -1055,7 +1055,7 @@ proc fillRoundedRectWithShadow*(
     else:
       # Generate inner shadow image
       if mainKey notin shadowCache:
-        echo "generating inner shadow image: ", mainKey
+        echo "generating inner shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radius.round(2), " ", innerShadow
         let innerImg = generateCircle(
           radius = (2*radius).int,
           stroked = true,
