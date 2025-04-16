@@ -1071,12 +1071,12 @@ proc fillRoundedRectWithShadow*(
         )
         innerImg.writeFile("examples/innerImg.png")
         shadowCache[innerKey] = innerImg
-      
+
       shadowImg = shadowCache[innerKey]
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
-      
+
     # Store each piece in the atlas
     let patchArray = [
       patches.topLeft, patches.topRight, 
@@ -1084,11 +1084,11 @@ proc fillRoundedRectWithShadow*(
       patches.top, patches.right, 
       patches.bottom, patches.left
     ]
-    
+
     for i in 0..7:
       ninePatchHashes[i] = shadowKey !& i
       ctx.putImage(ninePatchHashes[i], patchArray[i])
-    
+
   var 
     shadowBlur = shadowBlur
     shadowSpread = shadowSpread
@@ -1110,7 +1110,7 @@ proc fillRoundedRectWithShadow*(
     halfH = sbox.h / 2
     centerX = sbox.x + halfW
     centerY = sbox.y + halfH
-  
+
   # Draw the corners
   let 
     topLeft = rect(sbox.x, sbox.y, corner, corner)
