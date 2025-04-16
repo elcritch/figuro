@@ -287,7 +287,11 @@ proc render(
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
     # echo "inner shadow: ", node.shadow[InnerShadow].repr
+    ctx.beginMask()
+    ctx.drawMasks(node)
+    ctx.endMask()
     ctx.renderInnerShadows(node)
+    ctx.popMask()
 
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
