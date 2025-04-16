@@ -653,6 +653,9 @@ proc generateCircle(radius: int,
                          innerShadow = true,
                          innerShadowBorder = true,
                          ): Image =
+  if radius <= 0:
+    return newImage(1, 1)
+
   let sz = 2*radius
   let radius = radius.toFloat
 
@@ -1061,9 +1064,9 @@ proc fillRoundedRectWithShadow*(
       if mainKey notin shadowCache:
         echo "generating inner shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radius.round(2), " ", innerShadow
         let innerImg = generateCircle(
-          radius = (radius).int + 1,
+          radius = (radius).int,
           stroked = true,
-          lineWidth = radius.float32/7,
+          lineWidth = 6.0,
           offset = vec2(0, 0),
           spread = shadowSpreadLimit,
           blur = shadowBlurSizeLimit,

@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
         # fill clearColor
         # fill css"#2B9F2B" * 0.5
         border 3'ui, css"red"
-        cornerRadius 10'ui
+        cornerRadius 20'ui
       self.blur.addTarget(this)
       self.spread.addTarget(this)
       onSignal(doSingleClick) do(self: Main):
