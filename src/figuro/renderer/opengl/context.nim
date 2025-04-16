@@ -1096,8 +1096,6 @@ proc fillRoundedRectWithShadow*(
     corner = radius + totalPadding.float32 + 1
 
   if innerShadow:
-    # totalPadding = 0
-    # corner = radius
     totalPadding = (1.41*radius).int
     corner = 1.41*radius + (shadowBlur+shadowSpread) + 1
 
