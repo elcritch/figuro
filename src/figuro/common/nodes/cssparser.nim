@@ -294,7 +294,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
       parser.skip({tkWhiteSpace, tkComment})
       if parser.peek().kind == tkSemicolon:
         break
-    parser.eat(tkSemicolon)
+    # parser.eat(tkSemicolon)
 
     let parsedargs = args
     result = CssShadow(DropShadow, csFixed(0), csFixed(0), csFixed(0), csFixed(0), CssBlack)
@@ -351,6 +351,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         parser.eat(tkColon)
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)
+          warn("CSS: peek after shadow: ", peek = parser.peek().repr, token = tk.repr)
       elif result[^1].value == MissingCssValue():
         if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
           result[^1].value = CssVarName(values.registerVariable(tk.ident.toAtom()))
@@ -372,7 +373,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         raise newException(ValueError, "expected empty CSS value. Got: " & result[^1].value.repr)
       result[^1].value = parseBasicValue(tk)
     else:
-      warn("CSS: unhandled token while parsing property: ", peek = parser.peek())
+      warn("CSS: unhandled token while parsing property: ", peek = parser.peek().repr)
       tk = parser.nextToken()
 
   # echo "finished: rule body parsing"

@@ -13,9 +13,9 @@ Dropdown {
 }
 
 TextButton {
+  box-shadow: 2px 2px 1px 1px rgba(255, 255, 255, 0.15) inset;
   border-radius: 10px;
-  /* box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.4); */
-  box-shadow: 2px 2px 1px 3px rgba(255, 255, 255, 0.15) inset;
+  box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 Dropdown #combobox {
