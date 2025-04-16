@@ -1063,7 +1063,7 @@ proc fillRoundedRectWithShadow*(
         let innerImg = generateCircle(
           radius = (radius).int,
           stroked = true,
-          lineWidth = radius.float32/3,
+          lineWidth = radius.float32/6,
           offset = vec2(0, 0),
           spread = shadowSpreadLimit,
           blur = shadowBlurSizeLimit,
@@ -1093,9 +1093,9 @@ proc fillRoundedRectWithShadow*(
     corner = radius + totalPadding.float32 + 1
 
   if innerShadow:
-    totalPadding = 0
-    corner = radius
-    totalPadding = 2*radius.int
+    # totalPadding = 0
+    # corner = radius
+    totalPadding = radius.int
     corner = radius + (shadowBlur+shadowSpread) + 1
 
   let
