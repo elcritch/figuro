@@ -1061,9 +1061,9 @@ proc fillRoundedRectWithShadow*(
       if mainKey notin shadowCache:
         echo "generating inner shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radius.round(2), " ", innerShadow
         let innerImg = generateCircle(
-          radius = (2*radius).int,
+          radius = (radius).int,
           stroked = true,
-          lineWidth = radius.float32/4,
+          lineWidth = radius.float32/3,
           offset = vec2(0, 0),
           spread = shadowSpreadLimit,
           blur = shadowBlurSizeLimit,
@@ -1095,6 +1095,8 @@ proc fillRoundedRectWithShadow*(
   if innerShadow:
     totalPadding = 0
     corner = radius
+    totalPadding = 2*radius.int
+    corner = radius + (shadowBlur+shadowSpread) + 1
 
   let
     sbox = rect(
