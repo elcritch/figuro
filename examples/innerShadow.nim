@@ -54,12 +54,15 @@ proc generateCircle(radius: int, offset: Vec2,
     color = shadowColor
   )
 
-  let image = newImage(sz, sz)
+  var image = newImage(sz, sz)
   if innerShadow:
     image.draw(shadow)
   image.draw(circle)
   if innerShadow:
-    image.draw(circleSolid, blendMode = MaskBlend)
+    let circleInner = newImage(sz, sz)
+    circleInner.fill(rgba(255, 255, 255, 255))
+    circleInner.draw(circleSolid, blendMode = SubtractMaskBlend)
+    image.draw(circleInner)
   return image
 
 proc sliceToNinePatch*(img: Image): tuple[
@@ -127,6 +130,21 @@ proc sliceToNinePatch*(img: Image): tuple[
   )
 
 # Example usage:
+let circleImage = generateCircle(
+  radius = 100,
+  stroked = true,
+  offset = vec2(0, 0),
+  spread = 20.0,
+  blur = 40.0,
+  lineWidth = 10.0,
+  fillStyle = rgba(255, 255, 255, 255),
+  shadowColor = rgba(255, 255, 255, 255),
+  innerShadow = false,
+  innerShadowBorder = false,
+)
+circleImage.writeFile("examples/circle.png")
+
+# Example usage:
 let shadowImage = generateCircle(
   radius = 100,
   stroked = true,
@@ -139,7 +157,6 @@ let shadowImage = generateCircle(
   innerShadow = true,
   innerShadowBorder = true,
 )
-# shadowImage.invert()
 shadowImage.writeFile("examples/innerShadow.png")
 
 # Example of slicing the shadow image into a 9-patch
