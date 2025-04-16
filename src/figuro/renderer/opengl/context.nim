@@ -1026,7 +1026,11 @@ proc fillRoundedRectWithShadow*(
     sBlur = (shadowBlur * 100).int
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
     shadowBlurSizeLimit = 14.0
-    shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
+    shadowSpreadLimit = 14.0
+    # shadowBlurSize = min(shadowBlur, shadowBlurSizeLimit).max(0.0)
+    # shadowSpread = min(shadowSpread, shadowSpreadLimit).max(0.0)
+    shadowBlurSize = shadowBlur
+    shadowSpread = shadowSpread
     shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
   
   var ninePatchHashes: array[8, Hash]
@@ -1039,7 +1043,7 @@ proc fillRoundedRectWithShadow*(
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
     let newSize = shadowBlur.int + shadowSpread.int + radius.int
-    let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpread, radius, innerShadow)
+    let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radius, innerShadow)
     if not innerShadow:
       # Generate shadow image
       if mainKey notin shadowCache:
@@ -1047,7 +1051,7 @@ proc fillRoundedRectWithShadow*(
         let mainImg = generateShadowImage(
           radius = (radius).int,
           offset = vec2(shadowX, shadowY),
-          spread = shadowSpread,
+          spread = shadowSpreadLimit,
           blur = shadowBlurSizeLimit
         )
         shadowCache[mainKey] = mainImg
@@ -1061,7 +1065,7 @@ proc fillRoundedRectWithShadow*(
           stroked = true,
           lineWidth = radius.float32/4,
           offset = vec2(0, 0),
-          spread = shadowSpread,
+          spread = shadowSpreadLimit,
           blur = shadowBlurSizeLimit,
           innerShadow = true,
           innerShadowBorder = false,
@@ -1085,8 +1089,6 @@ proc fillRoundedRectWithShadow*(
       ctx.putImage(ninePatchHashes[i], patchArray[i])
 
   var 
-    shadowBlur = shadowBlur
-    shadowSpread = shadowSpread
     totalPadding = int(shadowBlur+shadowSpread) - 1
     corner = radius + totalPadding.float32 + 1
 

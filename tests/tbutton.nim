@@ -51,8 +51,8 @@ proc draw*(self: Main) {.slot.} =
         this.shadow[DropShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.blur.amount.UiScalar,
-          # spread: self.spread.amount.UiScalar,
-          spread: 0.0'ui,
+          spread: self.spread.amount.UiScalar,
+          # spread: 0.0'ui,
           x: self.spread.amount.UiScalar,
           y: self.spread.amount.UiScalar,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.3))
@@ -60,8 +60,8 @@ proc draw*(self: Main) {.slot.} =
         this.shadow[InnerShadow] = Shadow(
           # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.blur.amount.UiScalar,
-          # spread: self.spread.amount.UiScalar,
-          spread: 0.0'ui,
+          spread: self.spread.amount.UiScalar,
+          # spread: 0.0'ui,
           # x: 6.0'ui, y: 6.0'ui,
           x: self.spread.amount.UiScalar,
           y: self.spread.amount.UiScalar,
