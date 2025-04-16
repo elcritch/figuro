@@ -1095,8 +1095,8 @@ proc fillRoundedRectWithShadow*(
   if innerShadow:
     # totalPadding = 0
     # corner = radius
-    totalPadding = radius.int
-    corner = radius + (shadowBlur+shadowSpread) + 1
+    totalPadding = (1.41*radius).int
+    corner = 1.41*radius + (shadowBlur+shadowSpread) + 1
 
   let
     sbox = rect(
