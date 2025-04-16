@@ -15,6 +15,16 @@ proc delta*(image: Image) {.hasSimd, raises: [].} =
   # is not a valid premultiplied alpha color.
   # We need to convert back to premultiplied alpha after inverting.
   # image.data.toPremultipliedAlpha()
+proc drawCircle(ctx: Context, center, radius: float, lineWidth: float, stroke: bool, color: ColorRGBA) =
+  ctx.strokeStyle = color
+  ctx.fillStyle = color
+  ctx.lineCap = SquareCap
+  ctx.lineWidth = lineWidth
+  ctx.circle(center, center, radius)
+  if stroke:
+    ctx.stroke()
+  else:
+    ctx.fill()
 
 proc generateCircle(radius: int, offset: Vec2, 
                          spread: float32, blur: float32,
@@ -27,21 +37,11 @@ proc generateCircle(radius: int, offset: Vec2,
                          ): Image =
   let sz = 2*radius
   let radius = radius.toFloat
-
-  proc drawCircle(ctx: Context, radius: float, lineWidth: float, fillStyle: ColorRGBA, shadowColor: ColorRGBA, innerShadow: bool, innerShadowBorder: bool) =
-    ctx.strokeStyle = fillStyle
-    ctx.fillStyle = fillStyle
-    ctx.lineCap = SquareCap
-    ctx.lineWidth = lineWidth
-    ctx.circle(radius, radius, radius - lineWidth/2)
-    if stroked:
-      ctx.stroke()
-    else:
-      ctx.fill()
+  let center = radius.float32
 
   let circle = newImage(sz, sz)
-  let ctx3 = newContext(circle)
-  drawCircle(ctx3, radius, lineWidth, fillStyle, shadowColor, innerShadow, innerShadowBorder)
+  let ctxCircle = newContext(circle)
+  drawCircle(ctxCircle, radius, radius - lineWidth/2, lineWidth, true, fillStyle)
 
   var image = newImage(sz, sz)
 
@@ -67,10 +67,23 @@ proc generateCircle(radius: int, offset: Vec2,
 
     circleInner.draw(circleSolid, blendMode = SubtractMaskBlend)
 
-    # for i in 0..9:
-    #   image.draw(circleInner, translate(vec2(i.float32, 0)))
+    let innerRadius = radius/3
+    let cnt = radius*2
+    for i in 0..cnt.int:
+      block:
+        let i = i.float32
+        let cl = newImage(sz, sz)
+        let ctxCl = newContext(cl)
+        # let fs = rgba(255, 255, 255, uint8(170*(1-sin(i/cnt*PI/2))))
+        let fs = rgba(255, 255, 255, uint8(170*(1-sin(i/cnt*PI/2))))
+        let radius = radius - i/cnt*(radius-innerRadius)
+        let lw = 2.float32 * (1-i/cnt)
+        echo "circleInner: ", i, " fs: ", fs, " radius: ", radius
+        drawCircle(ctxCl, center = center, radius = radius, lineWidth = lw, stroke = true, color = fs)
+        image.draw(cl)
+    image.draw(circle)
 
-    image.draw(circleInner)
+    # image.draw(circleInner)
   return image
 
 proc sliceToNinePatch*(img: Image): tuple[
