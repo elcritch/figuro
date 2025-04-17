@@ -12,8 +12,8 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
-    let screenBox = node.box + parent.screenBox
     let totalOffset = node.offset + parent.totalOffset
+    let screenBox = node.box + parent.screenBox + totalOffset
     if screenBox != node.screenBox or totalOffset != node.totalOffset:
       # debug "computeScreenBox:changed: ", name = node.name, screenBox = screenBox, nodeScreenBox = node.screenBox
       emit node.doLayoutResize(node)
@@ -54,6 +54,8 @@ proc printLayout*(node: Figuro, depth = 0) =
     $node.box.h.float.round(2),
     fgWhite,
     "] {",
+    fgWhite,
+    "xy:",
     fgBlue,
     $node.screenBox.x.float.round(2),
     "x",
