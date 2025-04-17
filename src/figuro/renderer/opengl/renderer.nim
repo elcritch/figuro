@@ -252,14 +252,6 @@ proc render(
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
 
-  # handles setting up scrollbar region
-  ifrender node.kind == nkScrollBar:
-    ctx.saveTransform()
-    let offset = parent.offset
-    ctx.translate(offset)
-  finally:
-    ctx.restoreTransform()
-
   # handle node rotation
   ifrender node.rotation != 0:
     ctx.translate(node.screenBox.wh / 2)
@@ -296,12 +288,12 @@ proc render(
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifrender NfScrollPanel in node.flags:
-    # handles scrolling panel
-    ctx.saveTransform()
-    ctx.translate(-node.offset)
-  finally:
-    ctx.restoreTransform()
+  # ifrender NfScrollPanel in node.flags:
+  #   # handles scrolling panel
+  #   ctx.saveTransform()
+  #   ctx.translate(-node.offset)
+  # finally:
+  #   ctx.restoreTransform()
 
   # echo "draw:children: ", repr childIdxs 
   for childIdx in childIndex(nodes, nodeIdx):

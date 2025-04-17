@@ -43,7 +43,7 @@ proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
   var mpos = uxInputs.mouse.pos
   if includeOffset:
-    mpos += node.totalOffset
+    mpos -= node.offset
   let act = node.screenBox.w > 0'ui and node.screenBox.h > 0'ui
 
   result = act and mpos.overlaps(node.screenBox)

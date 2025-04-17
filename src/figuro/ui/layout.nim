@@ -13,7 +13,7 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
     node.totalOffset = node.offset
   else:
     let totalOffset = node.offset + parent.totalOffset
-    let screenBox = node.box + parent.screenBox + totalOffset
+    let screenBox = node.box + parent.screenBox + node.offset
     if screenBox != node.screenBox or totalOffset != node.totalOffset:
       # debug "computeScreenBox:changed: ", name = node.name, screenBox = screenBox, nodeScreenBox = node.screenBox
       emit node.doLayoutResize(node)

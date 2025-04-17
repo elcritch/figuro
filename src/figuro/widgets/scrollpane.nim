@@ -161,7 +161,7 @@ proc draw*(self: ScrollPane) {.slot.} =
       # this.shadow[DropShadow] = Shadow( blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.7))
 
       fill whiteColor.darken(0.2)
-      this.offset = self.scrollBy
+      this.offset = -self.scrollBy
       this.flags.incl NfScrollPanel
       WidgetContents()
       scroll(self, initPosition(0, 0))
