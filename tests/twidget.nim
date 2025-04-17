@@ -11,7 +11,6 @@ type
     hasHovered: bool = false
     hoveredAlpha: float = 0.0
 
-
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     size 100'pp, 100'pp
