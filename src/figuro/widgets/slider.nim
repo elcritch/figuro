@@ -76,6 +76,7 @@ proc draw*[T](self: Slider[T]) {.slot.} =
   withWidget(self):
     Rectangle.new "bg": # this is mainly to avoid issues with sub-grids :/
       size 100'pp, 100'pp
+      clipContent true
 
       gridCols 0'ux ["left"] 0'ux 1'fr ["right-btn"] csVar(self.buttonSize) ["right"]
       gridRows 1'fr ["top"] csVar(self.fillingSize) ["bottom"] 1'fr
