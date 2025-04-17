@@ -36,6 +36,7 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius 10.0'ui
         onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
           echo "clicked: ", kind, " :: ", buttons
+          # printLayout(self, cmTerminal)
         # echo "inner-shadow: ", this.shadow[InnerShadow]
         # echo "outer-shadow: ", this.shadow[DropShadow]
 

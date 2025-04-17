@@ -53,7 +53,19 @@ proc printLayout*(node: Figuro, depth = 0) =
     "x",
     $node.box.h.float.round(2),
     fgWhite,
-    "]",
+    "] {",
+    fgBlue,
+    $node.screenBox.x.float.round(2),
+    "x",
+    $node.screenBox.y.float.round(2),
+    fgWhite,
+    "; wh:",
+    fgBlue,
+    $node.screenBox.w.float.round(2),
+    "x",
+    $node.screenBox.h.float.round(2),
+    fgWhite,
+    "}",
   )
   for c in node.children:
     printLayout(c, depth + 2)
