@@ -26,9 +26,13 @@ proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     rectangle "body":
-      usingHorizontalLayout cx"min-content", gap = 20'ui
+      usingHorizontalLayout() # cx"min-content", gap = 20'ui
+      contentWidth this, cx"min-content", gap = 20'ui
+      paddingLR 10'ux, 10'ux
 
-      box 10'ui, 10'ui, 600'ui, 120'ui
+      size 600'ux, 120'ux
+      offset 20'ux, 10'ux
+
       cornerRadius 10.0'ui
       fill whiteColor.darken(self.bkgFade.amount)
 
@@ -37,10 +41,6 @@ proc draw*(self: Main) {.slot.} =
           Button.new "btn":
             size 100'ux, 100'ux
             connect(doHover, self, buttonHover)
-
-# proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
-#   self.bkgFade.tick(self)
-#   echo "TICK", now
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

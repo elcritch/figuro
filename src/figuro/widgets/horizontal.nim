@@ -11,7 +11,7 @@ template usingHorizontalLayout*() =
     # gridAutoColumns 1'fr
     gridAutoFlow grColumn
 
-proc contentWidth*(node: Horizontal, cx: Constraint, gap = -1'ui) {.thisWrapper.} =
+proc contentWidth*(node: Figuro, cx: Constraint, gap = -1'ui) {.thisWrapper.} =
   node.gridAutoColumns cx
   if gap != -1'ui:
     node.gridColumnGap gap
