@@ -34,7 +34,7 @@ proc draw(fig: TestFig) {.slot.} =
   withWidget(fig):
     this.zlevel = 20
     # discard this.name.tryAdd("root")
-    this.name = "root"
+    this.name = atom"root"
     rectangle "body":
       rectangle "child0":
         discard
