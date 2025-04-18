@@ -5,6 +5,7 @@ import inputs
 import fonttypes
 import windex
 import pixie
+import chronicles
 
 export fonttypes
 
