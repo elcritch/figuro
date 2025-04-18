@@ -102,8 +102,6 @@ proc markDead(fig: Figuro) =
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
-  notice "removeExtraChildren: ", name = node.name, parent = node.parent.getId,
-          diffIndex = node.diffIndex, children = node.children.len
   if node.diffIndex == node.children.len:
     return
   echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
@@ -279,7 +277,6 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro)
   connectDefaults[T](node)
 
 proc postNode*(node: var Figuro) =
-  info "postNode: ", name = node.name, parent = node.parent.getId
   if NfInitialized notin node.flags:
     emit node.doInitialize()
   emit node.doDraw()

@@ -261,8 +261,6 @@ proc draw*(self: Selection) {.slot.} =
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
-    discard self.name.tryAdd("input")
-    info "draw:input: ", name = self.name, uid = self.uid
 
     if not connected(self, doKeyCommand, self, keyCommand):
       connect(self, doKeyCommand, self, Input.keyCommand)
@@ -284,7 +282,6 @@ proc draw*(self: Input) {.slot.} =
     for i, selRect in self.text.selectionRects:
       capture i:
         Selection.new "selection":
-          warn "box:selectionRects: ", box = self.text.selectionRects[i]
           with this:
             boxOf self.text.selectionRects[i]
             fill css"#A0A0FF" * 0.4
