@@ -254,7 +254,6 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       dir= self.text.growing
     case pressed.getKey
     of KeyLeft:
-      if multiSelect:
         let idx = self.text.findPrevWord()
         warn "input:keyCommand:alt-shift-left: ",
           idx= idx,
@@ -268,14 +267,13 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
           # Select to the beginning
           self.text.selection = self.text.selWith(a = 0)
     of KeyRight:
-      let idx = self.text.findNextWord()
-      warn "input:keyCommand:alt-shift-right: ",
-        idx= idx,
-        sel= self.text.selection
-      self.text.selection = self.text.selWith(b = idx)
-      # self.text.selection = idx .. idx
+        let idx = self.text.findNextWord()
+        warn "input:keyCommand:alt-shift-right: ",
+          idx= idx,
+          sel= self.text.selection
+        self.text.selection = self.text.selWith(b = idx)
+        # self.text.selection = idx .. idx
     of KeyHome, KeyUp:
-      if multiSelect:
         if self.text.growing == left:
           self.text.growing = left
           self.text.selection = self.text.selWith(a = 0)
@@ -283,7 +281,6 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
           self.text.growing = right
           self.text.selection = self.text.selWith(b = 0)
     of KeyEnd, KeyDown:
-      if multiSelect:
         let endPos = self.text.runes.len
         if self.text.growing == left:
           self.text.growing = left
