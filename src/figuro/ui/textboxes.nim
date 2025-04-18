@@ -2,6 +2,7 @@ import std/unicode
 
 import ../commons
 import utils
+import chronicles
 
 type
   TextDirection* = enum
@@ -49,7 +50,7 @@ proc `selection`*(self: TextBox): Slice[int] =
   self.selectionImpl
 
 proc hasSelection*(self: TextBox): bool =
-  self.selection != 0 .. 0 and self.layout.runes.len() > 0
+  self.selection != 0 .. 0 and self.layout.runes.len() > 0 and self.selection.a != self.selection.b
 
 proc selected*(self: TextBox): seq[Rune] =
   for i in self.selection.a ..< self.selection.b:
@@ -65,6 +66,8 @@ proc clamped*(self: TextBox, dir = right, offset = 0, inclusive=true): int =
     result = clamp(self.selection.b + offset, 0, ln)
 
 proc runeAtCursor*(self: TextBox): Rune =
+  if self.runes().len() == 0:
+    return Rune(0)
   result = self.layout.runes[self.clamped(left, 0, inclusive=false)]
 
 proc newTextBox*(box: Box, font: UiFont): TextBox =
@@ -116,9 +119,7 @@ proc updateSelection*(self: var TextBox) =
   ## update selection boxes, each line has it's own selection box
   self.selectionRects.setLen(0)
   self.selectionImpl = self.clamped(left) .. self.clamped(right)
-  # echo "UPDATE SEL:LINE: ", self.layout.lines
   for sel in self.selectionImpl.slices(self.layout.lines):
-    # echo "UPDATE SEL: ", sel
     let lhs = self.layout.selectionRects[sel.a]
     let rhs = self.layout.selectionRects[sel.b]
     # rect starts on left hand side
@@ -127,9 +128,6 @@ proc updateSelection*(self: var TextBox) =
     rect.w = rhs.x - lhs.x
     rect.h = (rhs.y + rhs.h) - lhs.y
     self.selectionRects.add rect.descaled()
-    # let fs = self.theme.font.size.scaled
-    # var rs = self.selectionRects[i]
-    # rs.y = rs.y - 0.1*fs
   self.updateCursor()
 
 proc `selection=`*(self: var TextBox, sel: Slice[int]) =
@@ -159,28 +157,79 @@ proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
       elif lhs in line:
         return idx
 
+var wordBoundaryChars* = toHashSet[Rune]([
+  Rune('.'), Rune(','), Rune(':'), Rune(';'), 
+  Rune('!'), Rune('?'), Rune('('), Rune(')'),
+  Rune('['), Rune(']'), Rune('{'), Rune('}'),
+  Rune('"'), Rune('\''), Rune('`'), Rune('-'),
+  Rune('/'), Rune('\\'), Rune('@'), Rune('#')
+])
+
+proc isWordBoundary(r: Rune): bool =
+  ## Checks if a rune is a word boundary character (whitespace or punctuation)
+  return r.isWhiteSpace() or r in wordBoundaryChars
+
 proc findPrevWord*(self: TextBox): int =
-  result = -1
-  for i in countdown(max(0, self.selection.a - 2), 0):
-    if self.runes()[i].isWhiteSpace():
-      return i
+  # Start from the character before the current position
+  var i =
+    if self.growing == left:
+      max(0, self.selection.a - 1)
+    else:
+      max(0, self.selection.b - 1)
+  
+  # If we're already at a boundary, move back until we're not
+  while i > 0 and self.runes()[i].isWordBoundary():
+    dec(i)
+    
+  # Now find the start of the current word
+  while i > 0 and not self.runes()[i-1].isWordBoundary():
+    dec(i)
+    
+  return i - 1  # Return position before the word start
 
 proc findNextWord*(self: TextBox): int =
   result = self.runes().len()
-  for i in countup(self.selection.a + 1, self.runes().len() - 1):
-    if self.runes()[i].isWhiteSpace():
-      return i
 
-proc delete*(self: var TextBox) =
+  # Start from the current position
+  var i =
+    if self.growing == right:
+      max(0, self.selection.b + 1)
+    else:
+      max(0, self.selection.a + 1)
+
+  if self.runes().len() == 0 or i >= self.runes().len():
+    warn "findNextWord:resturn:early: "
+    return result
+    
+  warn "findNextWord: ", i= i, runes= $self.runes()[i], rlen= self.runes().len(), isWordBoundary= self.runes()[i].isWordBoundary()
+
+  # Skip current word
+  while i < self.runes().len() and not self.runes()[i].isWordBoundary():
+    inc(i)
+    
+  # Skip word boundaries
+  while i < self.runes().len() and self.runes()[i].isWordBoundary():
+    inc(i)
+    
+  if i == self.runes().len():
+    return i
+  else:
+    return i - 1
+
+proc delete*(self: var TextBox, dir = left) =
   if self.selection.len() > 1:
     let delSlice = self.clamped(left) .. self.clamped(right, offset = -1)
     if self.runes().len() > 1:
       self.runes().delete(delSlice)
     self.selection = self.clamped(left).toSlice()
-  elif self.selection.len() == 1:
+  elif dir == left and self.selection.len() == 1 and self.selection.a != 0:
+      if self.runes().len() >= 1:
+        self.layout.runes.delete(self.clamped(left, offset = -1))
+      self.selection = toSlice(self.clamped(left, offset = -1))
+  elif dir == right and self.selection.len() == 1 and self.selection.b != self.runes().len():
     if self.runes().len() >= 1:
-      self.layout.runes.delete(self.clamped(left, offset = -1))
-    self.selection = toSlice(self.clamped(left, offset = -1))
+      self.layout.runes.delete(self.clamped(right, offset = 0))
+    self.selection = toSlice(self.clamped(right, offset = 0))
 
 proc insert*(self: var TextBox, rune: Rune) =
   if self.selection.len() > 1:
@@ -207,6 +256,7 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
         self.runes[idx] = runes[i]
   else:
     self.runes.insert(runes, self.clamped(left))
+    self.updateLayout()
     self.selection = toSlice(self.selection.a + runes.len())
 
 proc replaceText*(self: var TextBox, runes: seq[Rune]) =

@@ -179,6 +179,8 @@ proc loadPage*(loader: HtmlLoader, url: string) {.slot.} =
 
 proc markdownDone*(tp: HtmlLoader, url: string, markdown: string) {.signal.}
 
+import readability
+
 proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
   try:
     echo "Starting page load with url: ", url
@@ -191,6 +193,14 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
       let client = newHttpClient(timeout=1_000)
       let res = client.get(url)
         
+
+    when true:
+      let document = parseHTML(res.body)
+      let reader = newReadability(document)
+      let result = reader.parse()
+      let markdown = result["content"]
+      emit loader.markdownDone(url, markdown)
+    else:
       # Create a process to run html2markdown
       var markdown = ""
       try:

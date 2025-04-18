@@ -14,6 +14,8 @@ import window, glcommons, context, formatflippy, utils
 
 import std/locks
 
+const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
+
 type Renderer* = ref object
   ctx*: Context
   duration*: Duration
@@ -114,46 +116,74 @@ proc drawMasks(ctx: Context, node: Node) =
     )
 
 proc renderDropShadows(ctx: Context, node: Node) =
-  ## drawing poor man's shadows
-  ## should add a primitive to opengl.context to
-  ## do this with pixie and 9-patch, but that's a headache
+  ## drawing shadows with 9-patch technique
   let shadow = node.shadow[DropShadow]
-  var color = shadow.color
-  color.a = color.a * 1.0/16.0
-  let blurAmt = shadow.blur / 8.0
-  for i in -4 .. 4:
-    for j in -4 .. 4:
-      let xblur: float32 = i.toFloat() * blurAmt
-      let yblur: float32 = j.toFloat() * blurAmt
-      let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
-      ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+  if shadow.blur > 0.0:
+    when FastShadows:
+      ## should add a primitive to opengl.context to
+      ## do this with pixie and 9-patch, but that's a headache
+      let shadow = node.shadow[DropShadow]
+      var color = shadow.color
+      const N = 3
+      color.a = color.a * 1.0/(N*N*N)
+      let blurAmt = shadow.blur * shadow.spread / (12*N*N)
+      for i in -N .. N:
+        for j in -N .. N:
+          let xblur: float32 = i.toFloat() * blurAmt
+          let yblur: float32 = j.toFloat() * blurAmt
+          let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
+          ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+    else:
+      ctx.fillRoundedRectWithShadow(
+        rect = node.screenBox.atXY(0'f32, 0'f32),
+        radius = node.cornerRadius,
+        shadowX = shadow.x,
+        shadowY = shadow.y,
+        shadowBlur = shadow.blur,
+        shadowSpread = shadow.spread.float32,
+        shadowColor = shadow.color
+      )
 
 proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
-  let shadow = node.shadow[InnerShadow]
-  let n = shadow.blur.toInt
-  var color = shadow.color
-  color.a = 2*color.a/n.toFloat
-  let blurAmt = shadow.blur / n.toFloat
-  for i in 0 .. n:
-    let blur: float32 = i.toFloat() * blurAmt
-    var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
-    # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
-    if shadow.x >= 0'f32:
-      box.w += shadow.x
-    else:
-      box.x += shadow.x + blurAmt
-    if shadow.y >= 0'f32:
-      box.h += shadow.y
-    else:
-      box.y += shadow.y + blurAmt
-    ctx.strokeRoundedRect(
-      rect = box,
-      color = color,
-      weight = blur,
-      radius = node.cornerRadius - blur,
+  when FastShadows:
+    let shadow = node.shadow[InnerShadow]
+    let n = shadow.blur.toInt
+    var color = shadow.color
+    color.a = 2*color.a/n.toFloat
+    let blurAmt = shadow.blur / n.toFloat
+    for i in 0 .. n:
+      let blur: float32 = i.toFloat() * blurAmt
+      var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
+      # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
+      if shadow.x >= 0'f32:
+        box.w += shadow.x
+      else:
+        box.x += shadow.x + blurAmt
+      if shadow.y >= 0'f32:
+        box.h += shadow.y
+      else:
+        box.y += shadow.y + blurAmt
+      ctx.strokeRoundedRect(
+        rect = box,
+        color = color,
+        weight = blur,
+        radius = node.cornerRadius - blur,
+      )
+  else:
+    let shadow = node.shadow[InnerShadow]
+    var rect = node.screenBox.atXY(0'f32, 0'f32)
+    ctx.fillRoundedRectWithShadow(
+      rect = node.screenBox.atXY(0'f32, 0'f32),
+      radius = node.cornerRadius,
+      shadowX = shadow.x,
+      shadowY = shadow.y,
+      shadowBlur = shadow.blur,
+      shadowSpread = shadow.spread.float32,
+      shadowColor = shadow.color,
+      innerShadow = true,
     )
 
 proc renderBoxes(ctx: Context, node: Node) =
@@ -179,10 +209,10 @@ proc renderBoxes(ctx: Context, node: Node) =
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
-  if node.kind == nkImage and node.image.name != "":
-    let path = dataDir / node.image.name
+  if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
-    ctx.drawImage(path, pos = vec2(0, 0), color = node.image.color, size = size)
+    if ctx.cacheImage(node.image.name, node.image.id.Hash):
+      ctx.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.strokeRoundedRect(
@@ -222,21 +252,12 @@ proc render(
   ctx.saveTransform()
   ctx.translate(node.screenBox.xy)
 
-  # handles setting up scrollbar region
-  ifrender node.kind == nkScrollBar:
-    ctx.saveTransform()
-    let offset = parent.offset
-    ctx.translate(offset)
-  finally:
-    ctx.restoreTransform()
-
   # handle node rotation
   ifrender node.rotation != 0:
     ctx.translate(node.screenBox.wh / 2)
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
 
-  # hacky method to draw drop shadows... should probably be done in opengl shaders
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
     ctx.renderDropShadows(node)
 
@@ -258,17 +279,21 @@ proc render(
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
     # echo "inner shadow: ", node.shadow[InnerShadow].repr
+    ctx.beginMask()
+    ctx.drawMasks(node)
+    ctx.endMask()
     ctx.renderInnerShadows(node)
+    ctx.popMask()
 
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  ifrender NfScrollPanel in node.flags:
-    # handles scrolling panel
-    ctx.saveTransform()
-    ctx.translate(-node.offset)
-  finally:
-    ctx.restoreTransform()
+  # ifrender NfScrollPanel in node.flags:
+  #   # handles scrolling panel
+  #   ctx.saveTransform()
+  #   ctx.translate(-node.offset)
+  # finally:
+  #   ctx.restoreTransform()
 
   # echo "draw:children: ", repr childIdxs 
   for childIdx in childIndex(nodes, nodeIdx):

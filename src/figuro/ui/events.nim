@@ -10,7 +10,7 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
+proc defaultKeyConfigs(): array[ModifierKey, UiButtonView] =
   result[KNone] = {}
   result[KMeta] =
     when defined(macosx):
@@ -21,15 +21,27 @@ proc defaultKeyConfigs(): array[ModifierKeys, UiButtonView] =
   result[KShift] = {KeyLeftShift, KeyRightShift}
   result[KMenu] = {KeyMenu}
 
-var keyConfig* {.runtimeVar.}: array[ModifierKeys, UiButtonView] = defaultKeyConfigs()
+var keyConfig* {.runtimeVar.}: array[ModifierKey, UiButtonView] = defaultKeyConfigs()
 var uxInputs* {.runtimeVar.} = AppInputs()
 
-proc `==`*(keys: UiButtonView, commands: ModifierKeys): bool =
+proc matches(keys: UiButtonView, commands: ModifierKey): bool =
   let ck = keys * ModifierButtons
   if ck == {} and keyConfig[commands] == {}:
-    return true
+    result = true
   else:
-    ck != {} and ck < keyConfig[commands]
+    result = ck < keyConfig[commands]
+  echo "matches: ", " commands: ", $commands, " ck: ", $ck, " keyConfig: ", $keyConfig[commands], " result: ", result
+
+proc matches*(keys: UiButtonView, commands: set[ModifierKey]): bool =
+  let ck = keys * ModifierButtons
+  var modKeys: UiButtonView = {}
+  for cmd in commands:
+    modKeys.incl keyConfig[cmd]
+
+  if KNone in commands:
+    result = ck == {}
+  else:
+    result = ck < modKeys
 
 var
   prevHovers {.runtimeVar.}: HashSet[Figuro]
@@ -43,7 +55,7 @@ proc mouseOverlaps*(node: Figuro, includeOffset = true): bool =
   ## Returns true if mouse overlaps the node node.
   var mpos = uxInputs.mouse.pos
   if includeOffset:
-    mpos += node.totalOffset
+    mpos -= node.offset
   let act = node.screenBox.w > 0'ui and node.screenBox.h > 0'ui
 
   result = act and mpos.overlaps(node.screenBox)
@@ -124,7 +136,7 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   # if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
   #   refresh(node)
 
-  for n in node.children.reverse:
+  for n in node.children:
     let child = computeNodeEvents(n)
     for ek in EventKinds:
       result[ek] = maxEvt(result[ek], child[ek])

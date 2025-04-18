@@ -14,6 +14,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Done
   refresh(self.mainRect)
 
+
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     # self.theme.font = UiFont(typefaceId: self.frame[].theme.font.typefaceId, size: 22)
@@ -30,7 +31,8 @@ proc draw*(self: Main) {.slot.} =
         font this, UiFont(typefaceId: defaultTypeface(), size: 28'ui)
         foreground this, css"darkred"
         fill this, css"white"
-        if not this.textChanged(""):
+        clipContent true
+        onInit:
           text this, "hello world"
 
 var main = Main.new()

@@ -35,23 +35,31 @@ type
     NfRootWindow
     NfInitialized
     NfSkipLayout
+    NfInactive
     # user facing attributes
 
   Attributes* = enum
     SkipCss
+    Hidden
     Disabled
-    Enabled
     Active
-    Highlighted
-    Focused
+    Checked
+    Open
     Selected
+    Hover
+    Focus
+    FocusVisible
+    FocusWithin
 
+
+  FieldSetAttrs* = enum
     ## For tracking which fields have been set by the widget user code.
     ## 
     ## An example is setting `fill` in a button's code. We want this
     ## to override any defaults the widget itself my later set.
     ## 
-    ## TODO: this is hacky, but efficient
+    ## ~~TODO: this is hacky, but efficient~~
+    ## TODO: remove these...
     fsZLevel
     fsRotation
     fsCornerRadius
@@ -86,7 +94,7 @@ type
 
   RenderShadow* = object
     blur*: float32
-    spread*: UiScalar
+    spread*: float32
     x*: float32
     y*: float32
     color*: Color
@@ -95,6 +103,11 @@ type
     weight*: float32 # not uicoord?
     color*: Color
 
+  ImageId* = distinct Hash
+
   ImageStyle* = object
     name*: string
     color*: Color
+    id*: ImageId
+
+proc `==`*(a, b: ImageId): bool {.borrow.}

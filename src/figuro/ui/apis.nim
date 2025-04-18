@@ -24,12 +24,22 @@ macro thisWrapper*(p: untyped): auto =
   # echo "THIS WRAPPER:result: ", result.repr
 
 ## ---------------------------------------------
-##             Basic Node Creation
+##             Basic APIs
 ## ---------------------------------------------
-## 
-## Core Fidget Node APIs. These are the main ways to create
-## Fidget nodes. 
-## 
+
+template onInit*(blk: untyped) =
+  ## Code in the block will run once when the node is initialized.
+  if NfInitialized notin this.flags:
+    `blk`
+
+template themeColor*(name: static string): Color =
+  ## Returns the current theme.
+  let varIdx = this.frame[].theme.css.values.registerVariable(name)
+  var res: CssValue
+  if this.frame[].theme.css.values.resolveVariable(varIdx, res):
+    res.c
+  else:
+    blackColor
 
 template connect*(
     signal: typed,
@@ -39,9 +49,9 @@ template connect*(
 ): void =
   uinodes.connect(this, signal, b, slot, acceptVoidSlot)
 
-template boxFrom*(x, y, w, h: float32) {.thisWrapper.}
-  ## Sets the box dimensions.
-
+template image*(name: string, color: Color = whiteColor) =
+  ## Sets the image style.
+  this.image = imageStyle(name, color)
 
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
@@ -74,13 +84,53 @@ template boxOf*(box: Box) {.thisWrapper.}
   ## Sets the node's size to the given box.
 
 template padding*(left, right, top, bottom: Constraint) {.thisWrapper.}
+template padding*(all: Constraint) {.thisWrapper.}
 
 template paddingLeft*(v: Constraint) {.thisWrapper.}
 template paddingTop*(v: Constraint) {.thisWrapper.}
 template paddingRight*(v: Constraint) {.thisWrapper.}
 template paddingBottom*(v: Constraint) {.thisWrapper.}
-template paddingXY*(t, b: Constraint) {.thisWrapper.}
-template paddingWH*(l, r: Constraint) {.thisWrapper.}
+template paddingTB*(t, b: Constraint) {.thisWrapper.}
+template paddingLR*(l, r: Constraint) {.thisWrapper.}
+
+template gridCols*(args: untyped) =
+  ## configure columns for CSS Grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
+  ## names can include multiple names (aliaes):
+  ## - `["name", "header-line", "col1" ]` to make layout easier
+  ## 
+  # layout lmGrid
+  parseGridTemplateColumns(this.gridTemplate, args)
+
+template gridRows*(args: untyped) =
+  ## configure rows for CSS Grid template 
+  ## 
+  ## the format is `["name"] 40'ui` for each grid line
+  ## 
+  ## where
+  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `40''ui` is a require size for the grid line track
+  ## 
+  ## the size options are:
+  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
+  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
+  ## - `auto` whatever is left over
+  ## 
+  ## names can include multiple names (aliaes):
+  ## - `["name", "header-line", "col1" ]` to make layout easier
+  ## 
+  parseGridTemplateRows(this.gridTemplate, args)
+  # layout lmGrid
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
@@ -93,10 +143,6 @@ template css*(color: static string): Color =
   ## Parses a CSS style color at compile time.
   const c = parseHtmlColor(color)
   c
-
-template imageStyle*(name: string, color: Color): ImageStyle =
-  # Sets teh image style.
-  result = ImageStyle(name: name, color: color)
 
 template setName*(n: string) {.thisWrapper.}
   ## sets current node name
@@ -222,8 +268,8 @@ template rowEnd*[T](idx: T) {.thisWrapper.}
 template gridRow*[T](val: T) {.thisWrapper.}
   ## Set CSS Grid ending column.
 
-template gridArea*[T](r, c: T) {.thisWrapper.}
-  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
+template gridArea*[T](c, r: T) {.thisWrapper.}
+  ## CSS Grid shorthand for grid-column-start + grid-column-end + grid-row-start + grid-row-end.
 
 template gridColumnGap*(value: UiScalar) {.thisWrapper.}
   ## Set CSS Grid column gap.

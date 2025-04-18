@@ -6,6 +6,7 @@ import pkg/chronicles
 
 export textboxes
 
+echo "input: ", clipboardText()
 
 type
   InputOptions* = enum
@@ -48,10 +49,10 @@ proc disabled*(self: Input): bool =
   Disabled in self.userAttrs
 
 proc `active=`*(self: Input, state: bool) =
-  self.attributes({Active}, state)
+  self.setUserAttr({Active}, state)
 
 proc `disabled`*(self: Input, state: bool) =
-  self.attributes({Disabled}, state)
+  self.setUserAttr({Disabled}, state)
 
 proc overwrite*(self: Input): bool =
   Overwrite in self.text.opts
@@ -111,7 +112,6 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "clicked... ", self.isActive, " kind ", kind, " disabled ", self.disabled
   self.active = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -139,16 +139,27 @@ proc getKey(p: UiButtonView): UiButton =
 
 proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
-    echo "\nInput:keyPress: ",
-      " pressed: ", $pressed, " down: ", $down, " :: ", self.text.selection
+    debug "input:keyCommand:",
+      key= pressed,
+      down= down,
+      sel= self.text.selection,
+      runes= self.text.runes,
+      runesLen= self.text.runes.len,
+      dir= self.text.growing,
+      downAlt = down.matches({KAlt}),
+      downShift = down.matches({KShift}),
+      downAltShift = down.matches({KAlt, KShift})
+
   let multiSelect = NoSelection notin self.opts
-  if down == KNone:
+  if down.matches({KNone}):
     var update = true
     case pressed.getKey
-    of KeyBackspace, KeyDelete:
-      if self.text.hasSelection() and NoErase notin self.opts:
-        self.text.delete()
-        self.text.update(self.box)
+    of KeyBackspace:
+      self.text.delete()
+      self.text.update(self.box)
+    of KeyDelete:
+      self.text.delete(dir = right)
+      self.text.update(self.box)
     of KeyLeft:
       self.text.cursorLeft()
     of KeyRight:
@@ -167,7 +178,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.keyInput Rune '\n'
     else:
       discard
-  elif down == KMeta:
+  elif down.matches({KMeta}):
     case pressed.getKey
     of KeyA:
       self.text.cursorSelectAll()
@@ -175,9 +186,25 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorStart()
     of KeyRight:
       self.text.cursorEnd()
+    of KeyC:
+      if self.text.hasSelection():
+        echo "copying... ", self.text.selected()
+        let selectedText = $self.text.selected()
+        clipboardSet(selectedText)
+    of KeyV:
+      let pasteText = clipboardText()
+      if pasteText.len > 0:
+        self.text.insert(pasteText.toRunes())
+        self.text.update(self.box)
+    of KeyX:
+      if self.text.hasSelection() and NoErase notin self.opts:
+        let selectedText = $self.text.selected()
+        clipboardSet(selectedText)
+        self.text.delete()
+        self.text.update(self.box)
     else:
       discard
-  elif down == KShift:
+  elif down.matches({KShift}):
     case pressed.getKey
     of KeyLeft:
       self.text.cursorLeft(growSelection = multiSelect)
@@ -193,23 +220,77 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorEnd(growSelection = multiSelect)
     else:
       discard
+  elif down.matches({KAlt}):
+    case pressed.getKey
+    of KeyLeft:
+      let idx = self.text.findPrevWord()
+      if idx >= 0:
+        self.text.selection = (idx+1) .. (idx+1)
+      else:
+        # Handle case where we're at the beginning
+        self.text.selection = 0 .. 0
+    of KeyRight:
+      let idx = self.text.findNextWord()
+      self.text.selection = idx .. idx
+    of KeyBackspace:
+      if self.text.selection.a > 0 and NoErase notin self.opts:
+        let 
+          curPos = self.text.selection.a
+          idx = self.text.findPrevWord()
+        if idx >= 0:
+          self.text.runes.delete((idx+1) ..< curPos)
+          self.text.selection = (idx+1) .. (idx+1)
+          self.text.update(self.box)
+        else:
+          # Delete to the beginning
+          self.text.runes.delete(0 ..< curPos)
+          self.text.selection = 0 .. 0
+          self.text.update(self.box)
+    else: 
+      discard
+  elif down.matches({KAlt, KShift}):
+    case pressed.getKey
+    of KeyLeft:
+      if not self.text.hasSelection():
+        self.text.growing = left
 
-  ## todo finish moving to 
-  # elif down == KAlt:
-  #   case pressed.getKey
-  #   of KeyLeft:
-  #     let idx = findPrevWord(self)
-  #     self.selection = idx+1..idx+1
-  #   of KeyRight:
-  #     let idx = findNextWord(self)
-  #     self.selection = idx..idx
-  #   of KeyBackspace:
-  #     if aa > 0:
-  #       let idx = findPrevWord(self)
-  #       self.runes.delete(idx+1..aa-1)
-  #       self.selection = idx+1..idx+1
-  #       self.updateLayout()
-  #   else: discard
+      let idx = self.text.findPrevWord()
+      if self.text.growing == left:
+        self.text.selection = self.text.selWith(a = idx+1)
+      else:
+        self.text.selection = self.text.selWith(b = idx)
+
+    of KeyRight:
+      if not self.text.hasSelection():
+        self.text.growing = right
+
+      let idx = self.text.findNextWord()
+      if self.text.growing == right:
+        self.text.selection = self.text.selWith(b = idx)
+      else:
+        self.text.selection = self.text.selWith(a = idx+1)
+
+    of KeyBackspace:
+      # If there's a selection, just delete it
+      if self.text.hasSelection() and self.text.selection.a != self.text.selection.b and NoErase notin self.opts:
+        self.text.delete()
+        self.text.update(self.box)
+      # Otherwise delete to word boundary
+      elif self.text.selection.a > 0 and NoErase notin self.opts:
+        let 
+          curPos = self.text.selection.a
+          idx = self.text.findPrevWord()
+        if idx >= 0:
+          self.text.runes.delete((idx+1) ..< curPos)
+          self.text.selection = (idx+1) .. (idx+1)
+          self.text.update(self.box)
+        else:
+          # Delete to the beginning
+          self.text.runes.delete(0 ..< curPos)
+          self.text.selection = 0 .. 0
+          self.text.update(self.box)
+    else:
+      discard
 
   self.cursorTick = 1
   # self.text.updateSelection()
@@ -217,8 +298,11 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
 
 proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
-    echo "input: ",
-      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
+    notice "input:keyPress:",
+      key= pressed,
+      sel= self.text.selection,
+      runes= self.text.runes,
+      dir= self.text.growing
   emit self.doKeyCommand(pressed, down)
 
 # proc layoutResize*(self: Input, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
@@ -242,6 +326,7 @@ proc draw*(self: Selection) {.slot.} =
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
+
     if not connected(self, doKeyCommand, self, keyCommand):
       connect(self, doKeyCommand, self, Input.keyCommand)
     if not connected(self, doUpdateInput, self):
@@ -257,7 +342,7 @@ proc draw*(self: Input) {.slot.} =
         boxOf self.text.cursorRect
         fill blackColor
       this.fill.a = self.cursorTick.toFloat * 1.0
-      this.attributes({Active}, self.cursorTick == 1)
+      this.setUserAttr({Active}, self.cursorTick == 1)
 
     for i, selRect in self.text.selectionRects:
       capture i:

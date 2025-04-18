@@ -63,6 +63,10 @@ proc defaultTypeface*(): TypefaceId =
 proc defaultFont*(): UiFont =
   defaultFontImpl
 
+proc withSize*(font: UiFont, size: UiScalar): UiFont =
+  result = font
+  result.size = size
+
 proc setDefaultFont*(font: UiFont) =
   defaultFontImpl = font
   defaultTypefaceImpl = font.typefaceId
@@ -75,17 +79,14 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
 
   node.box = initBox(0, 0, 0, 0)
   node.rotation = 0
-  # node.screenBox = rect(0,0,0,0)
-  # node.offset = vec2(0, 0)
   node.fill = clearColor
   node.stroke = Stroke(weight: 0, color: clearColor)
-  # node.textStyle = TextStyle()
-  # node.image = ImageStyle(name: "", color: whiteColor)
   node.cornerRadius = 0'ui
-  # node.shadow = Shadow.none()
   node.diffIndex = 0
   node.zlevel = 0.ZLevel
   node.userAttrs = {}
+  node.flags = {}
+  node.fieldSet = {}
 
 var nodeDepth = 0
 proc nd*(): string =
@@ -109,17 +110,6 @@ proc removeExtraChildren*(node: Figuro) =
   echo nd(), "Disable:setlen: ", node.getId, " diff: ", node.diffIndex
   node.children.setLen(node.diffIndex)
 
-# proc refresh*(node: Figuro) {.slot.} =
-#   ## Request that the node and it's children be redrawn
-#   # echo "refresh: ", node.name, " :: ", getStackTrace()
-#   if node == nil:
-#     return
-#   # app.requestedFrame.inc
-#   assert not node.frame.isNil
-#   node.frame[].redrawNodes.incl(node)
-#   when defined(figuroDebugRefresh):
-#     echo "REFRESH: ", getStackTrace()
-
 proc changed*(self: Figuro) {.slot.} =
   refresh(self)
 
@@ -133,28 +123,14 @@ proc update*[T](self: StatefulFiguro[T], value: T) {.slot.} =
     self.state = value
     emit self.doChanged()
 
-# template unBindSigilEvents*(blk: untyped): auto =
-#   static: enableSigilBinding.add false
-#   `blk`
-#   static: discard enableSigilBinding.pop()
-
 proc signalTrigger*[T](self: T, node: Figuro, signal: string) {.signal.}
 
 proc forward(node: Figuro) {.slot.} =
   emit node.signalTrigger(node, "")
 
-# template onSignal*[T](signal: untyped, obj: T, blk: untyped) =
-#   proc handler(arg: typeof(`obj`)) {.slot.} =
-#     let `obj` {.inject, used.} = arg
-#     unBindSigilEvents:
-#       `blk`
-#   connect(node, signalTrigger, `obj`, handler, acceptVoidSlot = true)
-#   connect(node, `signal`, node, Figuro.forward(), acceptVoidSlot = true)
-
 import macros
 
 proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
-  # echo "getParam: ", doBody.treeRepr
   if doBody.kind != nnkDo:
     error("Must provide a do body with at least 1 argument", doBody)
   let params = doBody[3]
@@ -178,56 +154,13 @@ macro onSignal*(signal: untyped, blk: untyped) =
       proc handler() {.slot.} =
         unBindSigilEvents:
           `body`
-      # when not compiles(handler(`target`)):
-      #   {.error: "mismatched do block argument: `" & `args` &
-      #            "`; expected `onSignal(" & astToStr(`signal`) & ") do (" &
-      #            astToStr(`target`) & ": " & $(typeof(`target`)) & ")`".}
-      # connect(this, `signal`, this, Figuro.forward(), acceptVoidSlot = true)
       uinodes.connect(this, `signal`, `target`, handler, acceptVoidSlot = true)
-  # echo "result: ", result.treeRepr
   result[1][0].params = params
-  # echo "result: ", result.treeRepr
-
-proc querySibling*(self: Figuro, name: string): Option[Figuro] =
-  ## finds first sibling with name
-  for sibling in self.parent.children:
-    if sibling.uid != self.uid and sibling.name == name:
-      return some sibling
-  return Figuro.none
-
-template querySibling*[T: Figuro](name: string): Option[T] =
-  ## finds first sibling with name
-  querySibling(this, name)
-
-proc queryParent*[T: Figuro](this: Figuro, tp: typedesc[T]): Option[T] =
-  ## finds first parent with name
-  if this.parent[] of tp:
-    return some T(this.parent[])
-  elif this.parent.isNil:
-    return none(T)
-  else:
-    return this.parent[].queryParent(tp)
-
-proc queryParent*[T: Figuro](this: Figuro, name: string, tp: typedesc = Figuro): Option[T] =
-  ## finds first parent with name
-  if this.parent[].name == name and this.parent[] of tp:
-    return some tp(this.parent[])
-  elif this.parent.isNil:
-    return none(tp)
-  else:
-    return this.parent[].queryParent(name, tp)
-
-proc queryChild*[T: Figuro](this: Figuro, name: string, tp: typedesc[T]): Option[T] =
-  ## finds first child with name
-  for child in this.children:
-    if child.name == name and child of tp:
-      return some T(child)
-  return none(T)
 
 
 proc clearDraw*(fig: Figuro) {.slot.} =
   fig.flags.incl {NfPreDrawReady, NfPostDrawReady, NfContentsDrawReady}
-  fig.userAttrs = {}
+  fig.fieldSet = {}
   fig.diffIndex = 0
   fig.contents.setLen(0)
 
@@ -242,9 +175,8 @@ proc handleContents*(fig: Figuro) {.slot.} =
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
-
-proc handleTheme*(fig: Figuro) {.slot.} =
   fig.applyThemeRules()
+  fig.removeExtraChildren()
 
 template connectDefaults*[T](node: T) =
   ## connect default UI signals
@@ -253,7 +185,7 @@ template connectDefaults*[T](node: T) =
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, T.handleContents())
   connect(node, doDraw, node, Figuro.handlePostDraw())
-  connect(node, doDraw, node, Figuro.handleTheme())
+  # connect(node, doDraw, node, Figuro.handleTheme())
   # only activate these if custom ones have been provided 
 
   when T isnot BasicFiguro:
@@ -283,30 +215,13 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
   frame.theme = Theme(font: defaultFont(), css: CssTheme(rules: @[], values: newCssValues()))
-  # frame.setSize(size)
   frame.window.box.w = size[0].UiScalar
   frame.window.box.h = size[1].UiScalar
   frame.windowStyle = style
   refresh(root)
   return frame
 
-var lastModificationTime: times.Time
-
-proc themePath*(): string =
-  result = "theme.css".absolutePath()
-
-proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
-  # let defaultTheme = themePath()
-  if defaultTheme.fileExists():
-    let ts = getLastModificationTime(defaultTheme)
-    if ts > lastModificationTime:
-      lastModificationTime = ts
-      notice "Loading CSS file", cssFile = defaultTheme
-      let parser = newCssParser(Path(defaultTheme))
-      result = parser.loadTheme()
-      notice "Loaded CSS file", cssFile = defaultTheme
-
-proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figuro) =
+proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro) =
   ## Process the start of the node.
 
   nodeDepth.inc()
@@ -321,7 +236,8 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
     node.uid = nextFiguroId()
     node.parent = parent.unsafeWeakRef()
     node.frame = parent.frame
-    node.widgetName = repr(T).split('[')[0]
+    const widgetName = repr(T).split('[')[0]
+    node.widgetName = widgetName.toAtom()
     node.name = nid
 
   if parent.children.len <= parent.diffIndex:
@@ -335,12 +251,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
   elif not (parent.children[parent.diffIndex] of T):
     # mismatched types, replace node
     createNewNode(T, node)
-    # echo nd(), "create new replacement node: ", id, " new: ", node.uid, " parent: ", parent.uid
     parent.children[parent.diffIndex] = node
   else:
     # Reuse Figuro.
-    # echo nd(), "checking reuse node"
-    # echo nd(), "reuse node: ", id, " new: ", node.getId, " parent: ", parent.uid
     node = T(parent.children[parent.diffIndex])
 
     if resetNodes == 0 and node.nIndex == parent.diffIndex and kind == node.kind:
@@ -352,13 +265,9 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
       node.resetToDefault(kind)
       node.name = nid
 
-  # echo nd(), "preNode: Start: ", id, " node: ", node.getId, " parent: ", parent.getId
-
   node.kind = kind
   node.highlight = parent.highlight
   node.zlevel = parent.zlevel
-  # node.theme = parent.theme
-
   node.listens.events = {}
 
   inc parent.diffIndex
@@ -370,62 +279,45 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: string, node: var T, parent: Figur
 proc postNode*(node: var Figuro) =
   if NfInitialized notin node.flags:
     emit node.doInitialize()
-    node.flags.incl NfInitialized
   emit node.doDraw()
 
-  node.removeExtraChildren()
+  node.flags.incl NfInitialized
+  # node.removeExtraChildren()
   nodeDepth.dec()
 
 import utils, macros, typetraits
 
-template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
-  var node: `T` = nil
-  preNode(kind, name, node, parent)
-  node.preDraw = preDraw
-  postNode(Figuro(node))
-
-proc nodeInit*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
+proc nodeInit*[T](parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
   ## callback proc to initialized a new node, or re-use and existing node
   var node: `T` = nil
   const kind = when T is Text: nkText else: nkRectangle
-  static:
-    echo "NODE INIT: ", $T, " kind: ", kind
   preNode(kind, name, node, parent)
   node.preDraw = preDraw
   postNode(Figuro(node))
 
-# proc nodeInitText*[T](parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
-#   ## callback proc to initialized a new node, or re-use and existing node
-#   nodeInitImpl[T](nkText, parent, name, predraw)
-
-proc widgetRegisterImpl*[T](nn: string, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
+proc widgetRegisterImpl*[T](nn: Atom, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
   ##
-  
   let fc = FiguroContent(
-    name: $(nn),
+    name: nn,
     childInit: nodeInit[T],
     childPreDraw: callback,
   )
   node.contents.add(fc)
 
-template widgetRegister*[T](nn: string | static string, blk: untyped) =
+template widgetRegister*[T](nn: Atom | static string, blk: untyped) =
   ## sets up a new instance of a widget of type `T`.
   ##
   when not compiles(this.typeof):
     {.error: "No `this` variable found in the current scope! Figuro's APIs rely on an having a `this` variable referring to the current widget or node. Check that you have `withWidget` or `withRootWidget` at the top of your widget draw slots.".}
   
   let childPreDraw = proc(c: Figuro) =
-      # echo "widgt PRE-DRAW INIT: ", nm
       let this {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
       `blk`
   widgetRegisterImpl[T](nn, this, childPreDraw)
 
-# template new*(t: typedesc[Text], name: untyped, blk: untyped): auto =
-#   widgetRegister[t](nkText, name, blk)
-
-template new*(tp: typedesc, name: string, blk: untyped) =
+template new*(tp: typedesc, name: Atom | static string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
   ## 
   ## Accepts types with incomplete generics and fills
@@ -437,19 +329,19 @@ template new*(tp: typedesc, name: string, blk: untyped) =
   ## 
   when arity(tp) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
-    widgetRegister[tp](name, blk)
+    widgetRegister[tp](name.toAtom(), blk)
   elif arity(tp) == stripGenericParams(tp).typeof().arity():
     # partial generics, these are generics that aren't specified
     when stripGenericParams(tp).typeof().arity() == 2:
       # partial generic, we'll provide empty tuple
-      widgetRegister[tp[tuple[]]](name, blk)
+      widgetRegister[tp[tuple[]]](name.toAtom(), blk)
     else:
       {.error: "only 1 generic params or less is supported".}
   else:
     # fully typed generics
-    widgetRegister[tp](name, blk)
+    widgetRegister[tp](name.toAtom(), blk)
 
-template `as`*(tp: typedesc, name: string, blk: untyped) =
+template `as`*(tp: typedesc, name: Atom | static string, blk: untyped) =
   new(tp, name, blk)
 
 {.hint[Name]: off.}
@@ -480,7 +372,7 @@ template withRootWidget*(self, blk: untyped) =
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
   this.cxSize = [100'pp, 100'pp]
-  self.name = "root"
+  this.name = "root".toAtom()
 
   Rectangle.new "main":
     this.cxSize = [100'pp, 100'pp]

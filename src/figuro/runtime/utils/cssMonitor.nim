@@ -21,6 +21,29 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
+var lastModificationTime: times.Time
+
+proc themePath*(): string =
+  result = "theme.css".absolutePath()
+
+proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
+  # let defaultTheme = themePath()
+  if defaultTheme.fileExists():
+    let ts = getLastModificationTime(defaultTheme)
+    if ts > lastModificationTime:
+      lastModificationTime = ts
+      notice "Loading CSS file", cssFile = defaultTheme
+      let parser = newCssParser(Path(defaultTheme))
+      result = newCssTheme(parser)
+      notice "Loaded CSS file", cssFile = defaultTheme
+
+proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
+  debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
+  let values = self.theme.css.values
+  self.theme.css = css
+  self.theme.css.values = values
+  refresh(self.root)
+
 when not defined(noFiguroDmonMonitor):
   var watcherSelf: WeakRef[CssLoader]
   var cssUpdates = newChan[string](10)

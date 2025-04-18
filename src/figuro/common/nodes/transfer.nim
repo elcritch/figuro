@@ -78,7 +78,7 @@ proc add*(list: var RenderList, node: Node) =
       list.rootIds.add(list.nodes.len().NodeIdx)
   list.nodes.add(node)
 
-proc convert*(current: Figuro): render.Node =
+proc toRenderNode*(current: Figuro): render.Node =
   result = Node(kind: current.kind)
 
   result.uid = current.uid
@@ -98,6 +98,8 @@ proc convert*(current: Figuro): render.Node =
   result.highlight = current.highlight
   result.stroke = current.stroke
 
+  result.image = current.image
+
   case current.kind
   of nkRectangle:
     block:
@@ -107,6 +109,7 @@ proc convert*(current: Figuro): render.Node =
       shadow.x = orig.x.scaled
       shadow.y = orig.y.scaled
       shadow.color = orig.color
+      shadow.spread = orig.spread.scaled
       result.shadow[DropShadow] = shadow
     block:
       let orig = current.shadow[InnerShadow]
@@ -115,10 +118,11 @@ proc convert*(current: Figuro): render.Node =
       shadow.x = orig.x.scaled
       shadow.y = orig.y.scaled
       shadow.color = orig.color
+      shadow.spread = orig.spread.scaled
       result.shadow[InnerShadow] = shadow
     result.cornerRadius = current.cornerRadius.scaled
-  of nkImage:
-    result.image = current.image
+  # of nkImage:
+  #   result.image = current.image
   of nkText:
     result.textLayout = current.textLayout
     # result.textLayout = GlyphArrangement()
@@ -133,20 +137,26 @@ proc convert*(
     renders: var Renders, current: Figuro, parent: NodeID, maxzlvl: ZLevel
 ) =
   # echo "convert:node: ", current.uid, " parent: ", parent
-  var render = current.convert()
+  var render = current.toRenderNode()
   render.parent = parent
   render.childCount = current.children.len()
   let zlvl = current.zlevel
 
   for child in current.children:
     let chlvl = child.zlevel
-    if chlvl != zlvl:
+    if chlvl != zlvl or
+      NfInactive in child.flags or
+      NfDead in child.flags or
+      Hidden in child.userAttrs:
       render.childCount.dec()
 
   renders.layers.mgetOrPut(zlvl, RenderList()).add(render)
   for child in current.children:
     let chlvl = child.zlevel
-    renders.convert(child, current.uid, chlvl)
+    if NfInactive notin child.flags and
+        NfDead notin child.flags and
+        Hidden notin child.userAttrs:
+      renders.convert(child, current.uid, chlvl)
 
 proc copyInto*(uis: Figuro): Renders =
   result = Renders()

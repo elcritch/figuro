@@ -22,7 +22,7 @@ if not defined(emscripten):
 --define:"chronicles_sinks:textblocks"
 # --define:"chronicles_sinks:textlines"
 --define:"chronicles_indent:2"
---define:"chronicles_timestamps:NoTimestamps"
+# --define:"chronicles_timestamps:NoTimestamps"
 
 import os
 

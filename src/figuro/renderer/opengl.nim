@@ -114,10 +114,8 @@ proc configureWindowEvents(renderer: Renderer) =
     uxInput.mouse.prev = prevPos.descaled()
     uxInput.mouse.consumed = false
     lastMouse = uxInput.mouse
+    lastMouse.consumed = true
     renderer.uxInputList.push(uxInput)
-
-  window.onFocusChange = proc() =
-    warn "onFocusChange"
 
   window.onScroll = proc() =
     var uxInput = AppInputs(mouse: lastMouse)

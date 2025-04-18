@@ -1,4 +1,4 @@
-import std/[macros, tables, with]
+import std/[macros, tables, with, os]
 from std/sugar import capture
 export with, capture
 
@@ -13,6 +13,86 @@ export commons, system, uinodes
 import core
 export core
 
+proc imagePath*(name: string): string =
+  ## Returns the image path for the given node.
+  if name.len == 0:
+    return ""
+  result = name
+  case splitFile(result).ext
+  of "":
+    result.add ".png"
+  of ".png":
+    discard
+  else:
+    raise newException(ValueError, "Only PNG images are supported; got: " & splitFile(result).ext)
+  if result.isAbsolute():
+    result = result
+  else:
+    result = absolutePath(figDataDir() / result)
+
+proc imageStyle*(name: string, color: Color): ImageStyle =
+  # Sets the image style.
+  result.name = name.imagePath()
+  result.color = color
+  if result.name.fileExists():
+    result.id = ImageId(hash(result.name))
+
+proc querySibling*(self: Figuro, name: string): Option[Figuro] =
+  ## finds first sibling with name
+  for sibling in self.parent.children:
+    if sibling.uid != self.uid and sibling.name == name:
+      return some sibling
+  return Figuro.none
+
+template querySibling*[T: Figuro](name: string): Option[T] =
+  ## finds first sibling with name
+  querySibling(this, name)
+
+proc queryParent*[T: Figuro](this: Figuro, tp: typedesc[T]): Option[T] =
+  ## finds first parent with name
+  if this.parent[] of tp:
+    return some tp(this.parent[])
+  elif this.parent.isNil:
+    return
+  else:
+    return this.parent[].queryParent(tp)
+
+proc queryParent*[T: Figuro](this: Figuro, name: string, tp: typedesc = Figuro): Option[T] =
+  ## finds first parent with name
+  if this.parent[].name == name and this.parent[] of tp:
+    return some tp(this.parent[])
+  elif this.parent.isNil:
+    return
+  else:
+    return this.parent[].queryParent(name, tp)
+
+proc queryChild*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
+  ## finds first child with name
+  for child in this.children:
+    if child.name == name and child of tp:
+      return some typeof(tp)(child)
+  return none(typeof(tp))
+
+proc queryChild*(this: Figuro, tp: typedesc = Figuro): Option[tp] =
+  ## finds first child with type
+  for child in this.children:
+    if child of tp:
+      return some typeof(tp)(child)
+  return none(typeof(tp))
+
+proc queryDescendant*(this: Figuro, name: string, tp: typedesc = Figuro): Option[tp] =
+  ## finds first descendant with name
+  for child in this.children:
+    if child.name == name and child of tp:
+      return some typeof(tp)(child)
+
+  for child in this.children:
+    let result = child.queryDescendant(name, tp)
+    if result.isSome:
+      return result
+
+  return none(typeof(tp))
+
 ## ---------------------------------------------
 ##             Basic Node Creation
 ## ---------------------------------------------
@@ -20,10 +100,6 @@ export core
 ## Core Fidget Node APIs. These are the main ways to create
 ## Fidget nodes. 
 ## 
-
-proc boxFrom*(current: Figuro, x, y, w, h: float32) =
-  ## Sets the box dimensions.
-  current.box = initBox(x, y, w, h)
 
 # template drawable*(id: static string, inner: untyped): untyped =
 #   ## Starts a drawable node. These don't draw a normal rectangle.
@@ -34,9 +110,13 @@ proc boxFrom*(current: Figuro, x, y, w, h: float32) =
 #   ## Note: Experimental!
 #   nodeImpl(nkDrawable, id, inner)
 
-template rectangle*(name: string | static string, blk: untyped) =
+template toAtom*(name: Atom): Atom =
+  name
+
+
+template rectangle*(name: Atom | static string, blk: untyped) =
   ## Starts a new rectangle.
-  widgetRegister[Rectangle](name, blk)
+  widgetRegister[Rectangle](name.toAtom(), blk)
 
 template textContents*(blk: untyped) =
   ## Starts a new rectangle.
@@ -99,6 +179,11 @@ proc boxOf*(current: Figuro, box: Box) =
 proc padding*(current: Figuro, left, right, top, bottom: UiScalar | Constraint) =
   current.cxPadOffset = [left, top]
   current.cxPadSize = [bottom, right]
+
+proc padding*(current: Figuro, all: UiScalar | Constraint) =
+  current.cxPadOffset = [all, all]
+  current.cxPadSize = [all, all]
+
 proc paddingLeft*(current: Figuro, v: Constraint) =
   current.cxPadOffset[dcol] = v
 proc paddingTop*(current: Figuro, v: Constraint) =
@@ -107,10 +192,10 @@ proc paddingRight*(current: Figuro, v: Constraint) =
   current.cxPadSize[dcol] = v
 proc paddingBottom*(current: Figuro, v: Constraint) =
   current.cxPadSize[drow] = v
-proc paddingXY*(current: Figuro, top, bottom: Constraint) =
+proc paddingTB*(current: Figuro, top, bottom: Constraint) =
   current.cxPadOffset[drow] = top
   current.cxPadSize[drow] = bottom
-proc paddingWH*(current: Figuro, left, right: Constraint) =
+proc paddingLR*(current: Figuro, left, right: Constraint) =
   current.cxPadOffset[dcol] = left
   current.cxPadSize[dcol] = right
 
@@ -148,7 +233,7 @@ proc clipContent*(current: Figuro, clip: bool) =
 proc fill*(current: Figuro, color: Color) =
   ## Sets background color.
   current.fill = color
-  current.userAttrs.incl fsFill
+  current.fieldSet.incl fsFill
 
 proc zlevel*(current: Figuro, zlvl: ZLevel) =
   ## Sets the z-level (layer) height of the given node.
@@ -206,7 +291,7 @@ template setTitle*(current: Figuro, title: string) =
 proc cornerRadius*(current: Figuro, radius: UiScalar) =
   ## Sets all radius of all 4 corners.
   current.cornerRadius = radius
-  current.userAttrs.incl fsCornerRadius
+  current.fieldSet.incl fsCornerRadius
 
 proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
@@ -328,8 +413,8 @@ proc gridRow*[T](current: Figuro, val: T) =
   ## Set CSS Grid ending column.
   current.getGridItem().row = val
 
-proc gridArea*[T](current: Figuro, r, c: T) =
-  ## CSS Grid shorthand for grid-row-start + grid-column-start + grid-row-end + grid-column-end.
+proc gridArea*[T](current: Figuro, c, r: T) =
+  ## CSS Grid shorthand for grid-column-start + grid-column-end + grid-row-start + grid-row-end.
   current.getGridItem().row = r
   current.getGridItem().column = c
 
@@ -374,21 +459,17 @@ proc gridAutoFlow*(current: Figuro, item: GridFlow) =
   ## the auto-placement algorithm kicks in to automatically place the items. 
   current.defaultGridTemplate()
   current.gridTemplate.autoFlow = item
-  current.userAttrs.incl fsGridAutoFlow
+  current.fieldSet.incl fsGridAutoFlow
 
 proc gridAutoColumns*(current: Figuro, item: Constraint) =
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[dcol] = item
-  current.userAttrs.incl fsGridAutoColumns
+  current.fieldSet.incl fsGridAutoColumns
 
 proc gridAutoRows*(current: Figuro, item: Constraint) =
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
   current.defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
-  current.userAttrs.incl fsGridAutoRows
-
-proc attributes*(self: Figuro, opt: set[Attributes], state = true) =
-  if state: self.userAttrs.incl opt
-  else: self.userAttrs.excl opt
+  current.fieldSet.incl fsGridAutoRows
 

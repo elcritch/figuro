@@ -3,10 +3,11 @@ import figuro/widgets/[button]
 import figuro/widgets/[scrollpane, vertical, horizontal]
 import figuro/widgets/[input]
 import figuro
-import hnloader
 import std/os
 import cssgrid/prettyprints
 import std/terminal
+
+import webhelpers/hnloader
 
 let
   typeface = defaultTypeface()
@@ -71,6 +72,7 @@ proc selectNextStory*(self: Main) =
   echo "selectNextStory"
   if self.currentStory == nil:
     self.currentStory = self.stories[0]
+    refresh(self)
   else:
     let idx = self.stories.find(self.currentStory)
     self.currentStory = self.stories[clamp(idx + 1, 0, self.stories.len - 1)]
@@ -80,28 +82,29 @@ proc selectPrevStory*(self: Main) =
   echo "selectPrevStory"
   if self.currentStory == nil:
     self.currentStory = self.stories[0]
+    refresh(self)
   else:
     let idx = self.stories.find(self.currentStory)
     self.currentStory = self.stories[clamp(idx - 1, 0, self.stories.len - 1)]
     refresh(self)
 
 proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.} =
-  echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
+  # echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
   
   if KeyJ in down:
-    echo "J pressed"
+    # echo "J pressed"
     selectNextStory(self)
   elif KeyK in down:
-    echo "K pressed"
+    # echo "K pressed"
     selectPrevStory(self)
   elif KeyEnter in down:
-    echo "Enter pressed"
+    # echo "Enter pressed"
     if self.currentStory notin self.markdownStories:
       emit self.markdownLoad(self.currentStory.link.href)
       self.markdownStories[self.currentStory] = (ssLoading, "")
     refresh(self)
   else:
-    echo "other key pressed"
+    echo "other key pressed: ", $pressed, " ", $down
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
@@ -111,7 +114,7 @@ proc draw*(self: Main) {.slot.} =
     Rectangle.new "outer":
       with this:
         size 100'pp, 100'pp
-        setGridCols ["left"]  min(500'ux, 25'pp) \
+        setGridCols ["left"] min(500'ux, 25'pp) \
                     ["middle"] 5'fr \
                     ["right"] 0'ux
         setGridRows ["top"] 70'ux \
@@ -156,7 +159,6 @@ proc draw*(self: Main) {.slot.} =
       let lh = font.getLineHeight()
 
       Rectangle.new "stories":
-        ## FIXME: there seems to be a bug with a scrollpane as a grid child
         gridRow "items" // "bottom"
         gridColumn "left" // "middle"
         cornerRadius 7.0'ux
@@ -172,6 +174,8 @@ proc draw*(self: Main) {.slot.} =
             offset 0'ux, 0'ux
             size 100'pp-scrollPane.settings.size[dcol], cx"max-content"
             contentHeight cx"auto", 3'ui
+            justifyItems CxStretch
+            alignItems CxStretch
 
             for idx, story in self.stories:
               # if idx < 2: continue
@@ -179,7 +183,7 @@ proc draw*(self: Main) {.slot.} =
               capture story, idx:
                 Button[Submission].new "story":
                   # size cx"auto", cx"auto"
-                  paddingXY 5'ux, 5'ux
+                  paddingTB 5'ux, 5'ux
                   if self.currentStory == this.state:
                     this.userAttrs.incl Focused
                   else:
@@ -201,10 +205,12 @@ proc draw*(self: Main) {.slot.} =
 
                   Vertical.new "story-fields":
                     contentHeight cx"auto"
+                    justifyItems CxStretch
+                    alignItems CxStretch
 
                     Rectangle.new "title-box":
-                      paddingXY 0'ux, 5'ux
-                      paddingWH 0'ux, 20'ux
+                      # paddingTB 0'ux, 5'ux
+                      # paddingLR 0'ux, 20'ux
 
                       Text.new "id":
                         offset 5'ux, 0'ux
@@ -227,10 +233,10 @@ proc draw*(self: Main) {.slot.} =
                       Rectangle.new "info-box":
                         size 100'pp, cx"none"
                         with this:
-                          setGridCols 40'ux ["upvotes"] 1'fr 5'ux \
-                                            ["comments"] 1'fr 5'ux \
+                          setGridCols 20'ux ["upvotes"] 2'fr 5'ux \
+                                            ["comments"] 2'fr 5'ux \
                                             ["user"] 2'fr \
-                                            ["info"] 20'ux 10'ux
+                                            ["info"] 15'ux 5'ux
                           setGridRows 1'fr
                           # gridAutoFlow grColumn
                           justifyItems CxStretch
@@ -278,7 +284,7 @@ proc draw*(self: Main) {.slot.} =
         Rectangle.new "story-pane":
           size 100'pp, 100'pp
           fill css"black"
-          paddingWH 3'ux, 3'ux
+          paddingLR 3'ux, 3'ux
 
           ScrollPane.new "story-scroll":
             offset 0'pp, 0'pp
@@ -289,7 +295,7 @@ proc draw*(self: Main) {.slot.} =
             Rectangle.new "story-pane-inner":
               fill css"black"
               size 100'pp-scrollPane.settings.size[dcol], cx"max-content"
-              paddingWH 10'ux, 20'ux
+              paddingLR 10'ux, 20'ux
 
               Text.new "story-text":
                 this.cxSize[dcol] = 100'pp

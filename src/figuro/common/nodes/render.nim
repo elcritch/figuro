@@ -37,12 +37,12 @@ type
     highlight*: Color
     stroke*: Stroke
 
+    image*: ImageStyle
+
     case kind*: NodeKind
     of nkRectangle:
       shadow*: array[ShadowStyle, RenderShadow]
       cornerRadius*: float32
-    of nkImage:
-      image*: ImageStyle
     of nkText:
       textLayout*: GlyphArrangement
     of nkDrawable:

@@ -57,11 +57,6 @@ proc tick*(self: AppTicker) {.slot.} =
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
 
-proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
-  debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
-  self.theme.css = css
-  refresh(self.root)
-
 template setupThread(thread, obj, sig, slot, starter: untyped) =
   `thread` = newSigilThread()
   let proxy = `obj`.moveToThread(`thread`)
@@ -96,7 +91,6 @@ proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   threadEffects:
     AppMainThread
   self.setupTicker()
-  # self.loadTheme()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
 proc getAppConfigFile(): string =

@@ -188,7 +188,7 @@ const
     KeyRightAlt, KeyLeftShift, KeyRightShift, KeyMenu,
   }
 
-type ModifierKeys* = enum
+type ModifierKey* = enum
   KNone
   KMeta
   KControl

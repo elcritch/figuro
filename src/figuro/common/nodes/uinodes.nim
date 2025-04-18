@@ -7,13 +7,13 @@ import pkg/sigils
 import pkg/cssgrid
 
 import basics
-import basiccss
+import cssparser
 import ../inputs
 import ../rchannels
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
-export basics, inputs, basiccss
+export basics, inputs
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -36,6 +36,7 @@ type
     frameRunner*: AgentProcTy[tuple[]]
     proxies*: seq[AgentProxyShared]
     redrawNodes*: OrderedSet[Figuro]
+    redrawLayout*: OrderedSet[Figuro]
     root*: Figuro
     uxInputList*: RChan[AppInputs]
     rendInputList*: RChan[RenderCommands]
@@ -49,9 +50,9 @@ type
     frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]
     uid*: NodeID
-    name*: string
-    widgetName*: string
-    widgetClasses*: seq[string]
+    name*: Atom
+    widgetName*: Atom
+    widgetClasses*: seq[Atom]
     children*: seq[Figuro]
     nIndex*: int
     diffIndex*: int
@@ -66,6 +67,7 @@ type
     prevSize*: Position
 
     flags*: set[NodeFlags]
+    fieldSet*: set[FieldSetAttrs]
     userAttrs*: set[Attributes]
 
     cxSize*: array[GridDir, Constraint] = [csAuto(), csNone()]
@@ -101,8 +103,8 @@ type
     points*: seq[Position]
 
   FiguroContent* = object
-    name*: string
-    childInit*: proc(parent: Figuro, name: string, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
+    name*: Atom
+    childInit*: proc(parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.}
     childPreDraw*: proc(current: Figuro) {.closure.}
 
   BasicFiguro* = ref object of Figuro
@@ -120,6 +122,9 @@ type
     vAlign*: FontVertical = Top
     font*: UiFont
     color*: Color = parseHtmlColor("black")
+
+  Blank* = ref object of BasicFiguro
+  GridChild* = ref object of BasicFiguro
 
 # proc changed*(f: Figuro): Hash =
 #   var h = Hash(0)
@@ -169,7 +174,9 @@ proc getId*(fig: WeakRef[Figuro]): NodeID =
     fig[].uid
 
 proc getSkipLayout*(fig: Figuro): bool =
-  false
+  NfSkipLayout in fig.flags or
+  NfInactive in fig.flags or
+  Hidden in fig.userAttrs
 
 proc doTick*(fig: Figuro, now: MonoTime, delta: Duration) {.signal.}
 
@@ -241,7 +248,7 @@ proc doLoadBubble*(fig: Figuro) {.slot.} =
 proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
 
-proc doClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+proc doMouseClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
   emit fig.doMouseClick(kind, buttonPress)
 
 proc doDragBubble*(
@@ -273,10 +280,10 @@ template connect*(
   signals.connect(a, signal, b, slot, acceptVoidSlot)
 
 template bubble*(signal: typed, parent: typed) =
-  connect(node, `signal`, parent, `signal Bubble`)
+  connect(this, `signal`, parent, `signal Bubble`)
 
 template bubble*(signal: typed) =
-  connect(node, `signal`, node.parent[], `signal Bubble`)
+  connect(this, `signal`, this.parent[], `signal Bubble`)
 
 proc printFiguros*(n: Figuro, depth = 0) =
   echo "  ".repeat(depth),
@@ -300,3 +307,70 @@ proc refresh*(node: Figuro) {.slot.} =
   node.frame[].redrawNodes.incl(node)
   when defined(figuroDebugRefresh):
     echo "REFRESH: ", getStackTrace()
+
+proc refreshLayout*(node: Figuro) {.slot.} =
+  ## Request that the node and it's children be redrawn
+  # echo "refresh: ", node.name, " :: ", getStackTrace()
+  if node == nil:
+    return
+  # app.requestedFrame.inc
+  assert not node.frame.isNil
+  node.frame[].redrawLayout.incl(node)
+
+## User facing attributes
+## 
+## These are used to set the state of the node
+## and are used by the CSS engine to determine
+## the state of the node.
+## 
+## Also for general use by the widget author.
+proc setDisabled*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Disabled
+
+proc setEnabled*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Disabled
+
+proc setActive*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Active
+
+proc setInactive*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Active
+
+proc setChecked*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Checked
+
+proc setUnchecked*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Checked
+
+proc setFocused*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Focus
+
+proc setUnfocused*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Focus
+
+proc setSelected*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Selected
+
+proc setUnselected*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Selected
+
+proc setOpen*(fig: Figuro) {.slot.} =
+  fig.userAttrs.incl Open
+
+proc setClosed*(fig: Figuro) {.slot.} =
+  fig.userAttrs.excl Open
+
+proc setUserAttr*(fig: Figuro, attr: Attributes, state: bool) =
+  if state:
+    fig.userAttrs.incl attr
+  else:
+    fig.userAttrs.excl attr
+
+proc setUserAttr*(fig: Figuro, attr: set[Attributes], state: bool) =
+  if state:
+    fig.userAttrs.incl attr
+  else:
+    fig.userAttrs.excl attr
+
+proc contains*(fig: Figuro, attr: Attributes): bool =
+  attr in fig.userAttrs

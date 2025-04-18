@@ -53,12 +53,25 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
     computeEvents(frame)
     let rn = move frame.redrawNodes
     frame.redrawNodes.clear()
+
     for node in rn:
+      if NfDead in node.flags or
+        NfInactive in node.flags or
+        Hidden in node.userAttrs:
+        continue
       emit node.doDraw()
+
     timeIt(computeLayoutsTimer):
       computeLayouts(frame.root)
-    # printLayout(frame.root)
-    # echo "computeLayouts: ", toMillis(computeLayoutsTimer)
+
+    let rl = move frame.redrawLayout
+    frame.redrawLayout.clear()
+    for node in rl:
+      if NfDead in node.flags or
+        NfInactive in node.flags or
+        Hidden in node.userAttrs:
+        continue
+      emit node.doDraw()
 
     computeScreenBox(nil, frame.root)
     var ru = RenderUpdate(n= frame.root.copyInto(), window= frame.window)

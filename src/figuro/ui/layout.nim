@@ -12,8 +12,8 @@ proc computeScreenBox*(parent, node: Figuro, depth: int = 0) =
     node.screenBox = node.box
     node.totalOffset = node.offset
   else:
-    let screenBox = node.box + parent.screenBox
     let totalOffset = node.offset + parent.totalOffset
+    let screenBox = node.box + parent.screenBox + node.offset
     if screenBox != node.screenBox or totalOffset != node.totalOffset:
       # debug "computeScreenBox:changed: ", name = node.name, screenBox = screenBox, nodeScreenBox = node.screenBox
       emit node.doLayoutResize(node)
@@ -53,7 +53,21 @@ proc printLayout*(node: Figuro, depth = 0) =
     "x",
     $node.box.h.float.round(2),
     fgWhite,
-    "]",
+    "] {",
+    fgWhite,
+    "xy:",
+    fgBlue,
+    $node.screenBox.x.float.round(2),
+    "x",
+    $node.screenBox.y.float.round(2),
+    fgWhite,
+    "; wh:",
+    fgBlue,
+    $node.screenBox.w.float.round(2),
+    "x",
+    $node.screenBox.h.float.round(2),
+    fgWhite,
+    "}",
   )
   for c in node.children:
     printLayout(c, depth + 2)
@@ -69,12 +83,13 @@ template getParentBoxOrWindows*(node: Figuro): tuple[box, padding: Box] =
 proc computeLayouts*(node: Figuro) =
   # doAssert node.cxSize[drow] == csAuto() and node.cxSize[dcol] == csAuto(), "Your root widget must call `withRootWidget` in it's draw method to run correctly!"
 
+  let cssValues = if node.frame[].theme.css != nil: node.frame[].theme.css.values else: nil
   when defined(debugLayoutPre) or defined(figuroDebugLayoutPre):
     stdout.styledWriteLine(
       {styleDim}, fgWhite, "computeLayout:pre ", {styleDim}, fgGreen, ""
     )
     printLayout(node)
-  computeLayout(node)
+  computeLayout(node, cssValues)
   when defined(debugLayout) or defined(figuroDebugLayout):
     stdout.styledWriteLine(
       {styleDim}, fgWhite, "computeLayout:post ", {styleDim}, fgGreen, ""

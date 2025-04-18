@@ -3,6 +3,10 @@ import ./rchannels
 import nodes/uinodes
 import inputs
 import fonttypes
+import windex
+import pixie
+import chronicles
+
 export fonttypes
 
 when defined(nimscript):
@@ -10,7 +14,9 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-type MainCallback* = proc() {.closure.}
+when (NimMajor, NimMinor, NimPatch) < (2, 2, 0):
+  {.passc:"-fpermissive -Wno-incompatible-function-pointer-types".}
+  {.passl:"-fpermissive -Wno-incompatible-function-pointer-types".}
 
 when not defined(nimscript):
   import fontutils
@@ -38,3 +44,28 @@ when not defined(nimscript):
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top, minContent = false, wrap = true
   ): GlyphArrangement =
     getTypesetImpl(box, spans, hAlign, vAlign, minContent, wrap)
+
+  proc clipboardText*(): string =
+    when defined(linux):
+      warn "clipboardText is not implemented on linux"
+    else:
+      getClipboardString()
+
+  proc clipboardSet*(str: string) =
+    when defined(linux):
+      warn "clipboardSet is not implemented on linux"
+    else:
+      setClipboardString(str)
+
+  proc clipboardImage*(): Image =
+    when defined(linux):
+      warn "clipboardImage is not implemented on linux"
+    else:
+      getClipboardImage()
+
+  when defined(clipboardImage):
+    proc clipboardSet*(img: Image) =
+      when defined(linux):
+        warn "clipboardSet is not implemented on linux"
+      else:
+        setClipboardImage(img)

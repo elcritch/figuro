@@ -13,7 +13,6 @@ type
 proc buttonItem(self, this: Figuro, idx: int) =
   Button.new "button":
     size 1'fr, 50'ux
-    # this.cxMin = [40'ux, 50'ux]
     cssEnable false
     fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20)
     if idx in [3, 7]:
