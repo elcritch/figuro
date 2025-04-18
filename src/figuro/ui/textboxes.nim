@@ -168,10 +168,6 @@ proc isWordBoundary(r: Rune): bool =
   return r.isWhiteSpace() or r in wordBoundaryChars
 
 proc findPrevWord*(self: TextBox): int =
-  result = -1
-  if self.runes().len() == 0 or self.selection.a <= 0:
-    return result
-    
   # Start from the character before the current position
   var i =
     if self.growing == left:
