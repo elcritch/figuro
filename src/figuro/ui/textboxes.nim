@@ -66,6 +66,8 @@ proc clamped*(self: TextBox, dir = right, offset = 0, inclusive=true): int =
     result = clamp(self.selection.b + offset, 0, ln)
 
 proc runeAtCursor*(self: TextBox): Rune =
+  if self.runes().len() == 0:
+    return Rune(0)
   result = self.layout.runes[self.clamped(left, 0, inclusive=false)]
 
 proc newTextBox*(box: Box, font: UiFont): TextBox =
