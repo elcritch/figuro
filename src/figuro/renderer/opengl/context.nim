@@ -1074,7 +1074,6 @@ proc fillRoundedRectWithShadow*(
           innerShadow = true,
           innerShadowBorder = false,
         )
-        innerImg.writeFile("examples/innerImg.png")
         shadowCache[mainKey] = innerImg
       shadowImg = shadowCache[mainKey].resize(newSize, newSize)
 
