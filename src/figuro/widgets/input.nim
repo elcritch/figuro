@@ -176,6 +176,24 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorStart()
     of KeyRight:
       self.text.cursorEnd()
+    of KeyC:
+      if self.text.hasSelection():
+        echo "copying... ", self.text.selected()
+        let selectedText = $self.text.selected()
+        clipboardSet(selectedText)
+    of KeyV:
+      let pasteText = clipboardText()
+      if pasteText.len > 0:
+        echo "pasting... ", pasteText
+        self.text.insert(pasteText.toRunes())
+        self.text.update(self.box)
+    of KeyX:
+      if self.text.hasSelection() and NoErase notin self.opts:
+        echo "cutting..."
+        let selectedText = $self.text.selected()
+        clipboardSet(selectedText)
+        self.text.delete()
+        self.text.update(self.box)
     else:
       discard
   elif down == KShift:
@@ -243,6 +261,9 @@ proc draw*(self: Selection) {.slot.} =
 proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
+    discard self.name.tryAdd("input")
+    info "draw:input: ", name = self.name, uid = self.uid
+
     if not connected(self, doKeyCommand, self, keyCommand):
       connect(self, doKeyCommand, self, Input.keyCommand)
     if not connected(self, doUpdateInput, self):
@@ -263,6 +284,7 @@ proc draw*(self: Input) {.slot.} =
     for i, selRect in self.text.selectionRects:
       capture i:
         Selection.new "selection":
+          warn "box:selectionRects: ", box = self.text.selectionRects[i]
           with this:
             boxOf self.text.selectionRects[i]
             fill css"#A0A0FF" * 0.4

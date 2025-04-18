@@ -102,6 +102,8 @@ proc markDead(fig: Figuro) =
 
 proc removeExtraChildren*(node: Figuro) =
   ## Deal with removed nodes.
+  notice "removeExtraChildren: ", name = node.name, parent = node.parent.getId,
+          diffIndex = node.diffIndex, children = node.children.len
   if node.diffIndex == node.children.len:
     return
   echo nd(), "removeExtraChildren: ", node.getId, " parent: ", node.parent.getId
@@ -175,9 +177,8 @@ proc handleContents*(fig: Figuro) {.slot.} =
 proc handlePostDraw*(fig: Figuro) {.slot.} =
   if fig.postDraw != nil:
     fig.postDraw(fig)
-
-proc handleTheme*(fig: Figuro) {.slot.} =
   fig.applyThemeRules()
+  fig.removeExtraChildren()
 
 template connectDefaults*[T](node: T) =
   ## connect default UI signals
@@ -186,7 +187,7 @@ template connectDefaults*[T](node: T) =
   connect(node, doDraw, node, T.draw())
   connect(node, doDraw, node, T.handleContents())
   connect(node, doDraw, node, Figuro.handlePostDraw())
-  connect(node, doDraw, node, Figuro.handleTheme())
+  # connect(node, doDraw, node, Figuro.handleTheme())
   # only activate these if custom ones have been provided 
 
   when T isnot BasicFiguro:
@@ -278,28 +279,21 @@ proc preNode*[T: Figuro](kind: NodeKind, nid: Atom, node: var T, parent: Figuro)
   connectDefaults[T](node)
 
 proc postNode*(node: var Figuro) =
+  info "postNode: ", name = node.name, parent = node.parent.getId
   if NfInitialized notin node.flags:
     emit node.doInitialize()
   emit node.doDraw()
 
   node.flags.incl NfInitialized
-  node.removeExtraChildren()
+  # node.removeExtraChildren()
   nodeDepth.dec()
 
 import utils, macros, typetraits
-
-template nodeInitImpl*[T](kind, parent, name, preDraw: typed) =
-  var node: `T` = nil
-  preNode(kind, name, node, parent)
-  node.preDraw = preDraw
-  postNode(Figuro(node))
 
 proc nodeInit*[T](parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
   ## callback proc to initialized a new node, or re-use and existing node
   var node: `T` = nil
   const kind = when T is Text: nkText else: nkRectangle
-  static:
-    echo "NODE INIT: ", $T, " kind: ", kind
   preNode(kind, name, node, parent)
   node.preDraw = preDraw
   postNode(Figuro(node))
@@ -307,7 +301,6 @@ proc nodeInit*[T](parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.c
 proc widgetRegisterImpl*[T](nn: Atom, node: Figuro, callback: proc(c: Figuro) {.closure.}) =
   ## sets up a new instance of a widget of type `T`.
   ##
-  
   let fc = FiguroContent(
     name: nn,
     childInit: nodeInit[T],

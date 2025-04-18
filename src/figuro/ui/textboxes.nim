@@ -2,6 +2,7 @@ import std/unicode
 
 import ../commons
 import utils
+import chronicles
 
 type
   TextDirection* = enum
@@ -79,9 +80,21 @@ proc updateLayout*(self: var TextBox) =
   ## This appends an extra character at the end to get the cursor
   ## position at the end, which depends on the next character.
   ## Otherwise, this character is ignored.
+  notice "UPDATE LAYOUT:pre: ", 
+            inputText = $self.runes(),
+            lines = self.layout.lines,
+            spans = self.layout.spans,
+            selectionRects = self.layout.selectionRects,
+            runes = self.layout.runes
   let spans = {self.font: $self.runes(), self.font: " "}
   self.layout = getTypeset(self.box, spans, self.hAlign, self.vAlign)
   self.runes().setLen(self.runes().len() - 1)
+  notice "UPDATE LAYOUT:",
+            lines = self.layout.lines,
+            spans = self.layout.spans,
+            selectionRectsLen = self.layout.selectionRects.len(),
+            selectionRects = self.layout.selectionRects,
+            runes = self.layout.runes
 
 iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
   ## get the slices for each line given a `selection`
@@ -100,6 +113,10 @@ proc updateCursor(self: var TextBox) =
   if self.layout.selectionRects.len() == 0:
     return
 
+  notice "updateCursor:sel: ", sel = self.selection,
+          a = self.clamped(left), b = self.clamped(right),
+          rects = self.layout.selectionRects
+
   var cursor: Rect
   case self.growing
   of left:
@@ -116,9 +133,11 @@ proc updateSelection*(self: var TextBox) =
   ## update selection boxes, each line has it's own selection box
   self.selectionRects.setLen(0)
   self.selectionImpl = self.clamped(left) .. self.clamped(right)
-  # echo "UPDATE SEL:LINE: ", self.layout.lines
+  notice "UPDATE SELECTIONS: ", selRects = self.selectionRects,
+            sel = self.selection, runes = self.runes,
+            selImpl = self.selectionImpl, lines = self.layout.lines
   for sel in self.selectionImpl.slices(self.layout.lines):
-    # echo "UPDATE SEL: ", sel
+    notice "UPDATE SEL: ", sel = sel
     let lhs = self.layout.selectionRects[sel.a]
     let rhs = self.layout.selectionRects[sel.b]
     # rect starts on left hand side
@@ -207,6 +226,7 @@ proc insert*(self: var TextBox, runes: seq[Rune]) =
         self.runes[idx] = runes[i]
   else:
     self.runes.insert(runes, self.clamped(left))
+    self.updateLayout()
     self.selection = toSlice(self.selection.a + runes.len())
 
 proc replaceText*(self: var TextBox, runes: seq[Rune]) =
