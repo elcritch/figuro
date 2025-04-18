@@ -45,14 +45,26 @@ when not defined(nimscript):
     getTypesetImpl(box, spans, hAlign, vAlign, minContent, wrap)
 
   proc clipboardText*(): string =
-    getClipboardString()
+    when defined(linux):
+      warn "clipboardText is not implemented on linux"
+    else:
+      getClipboardString()
 
   proc clipboardSet*(str: string) =
-    setClipboardString(str)
+    when defined(linux):
+      warn "clipboardSet is not implemented on linux"
+    else:
+      setClipboardString(str)
 
   proc clipboardImage*(): Image =
-    getClipboardImage()
+    when defined(linux):
+      warn "clipboardImage is not implemented on linux"
+    else:
+      getClipboardImage()
 
   when defined(clipboardImage):
     proc clipboardSet*(img: Image) =
-      setClipboardImage(img)
+      when defined(linux):
+        warn "clipboardSet is not implemented on linux"
+      else:
+        setClipboardImage(img)
