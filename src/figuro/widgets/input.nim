@@ -144,6 +144,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       down= down,
       sel= self.text.selection,
       runes= self.text.runes,
+      runesLen= self.text.runes.len,
       dir= self.text.growing,
       downAlt = down.matches({KAlt}),
       downShift = down.matches({KShift}),
@@ -253,30 +254,26 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       dir= self.text.growing
     case pressed.getKey
     of KeyLeft:
-      warn "input:keyCommand:alt-shift-left: ",
+      if multiSelect:
+        let idx = self.text.findPrevWord()
+        warn "input:keyCommand:alt-shift-left: ",
+          idx= idx,
           sel= self.text.selection,
           runes= self.text.runes,
           dir= self.text.growing
-      if multiSelect:
-        let idx = self.text.findPrevWord()
+        self.text.growing = left
         if idx >= 0:
-          if self.text.growing == left:
-            self.text.selection = self.text.selWith(a = idx+1)
-          else:
-            self.text.selection = self.text.selWith(b = idx+1)
+          self.text.selection = self.text.selWith(a = idx+1)
         else:
           # Select to the beginning
-          if self.text.growing == left:
-            self.text.selection = self.text.selWith(a = 0)
-          else:
-            self.text.selection = self.text.selWith(b = 0)
+          self.text.selection = self.text.selWith(a = 0)
     of KeyRight:
-      if multiSelect:
-        let idx = self.text.findNextWord()
-        if self.text.growing == left:
-          self.text.selection = self.text.selWith(a = idx)
-        else:
-          self.text.selection = self.text.selWith(b = idx)
+      let idx = self.text.findNextWord()
+      warn "input:keyCommand:alt-shift-right: ",
+        idx= idx,
+        sel= self.text.selection
+      self.text.selection = self.text.selWith(b = idx)
+      # self.text.selection = idx .. idx
     of KeyHome, KeyUp:
       if multiSelect:
         if self.text.growing == left:

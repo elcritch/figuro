@@ -189,7 +189,7 @@ proc findNextWord*(self: TextBox): int =
   result = self.runes().len()
 
   # Start from the current position
-  var i = self.selection.a + 1
+  var i = self.selection.b + 1
 
   if self.runes().len() == 0 or i >= self.runes().len():
     warn "findNextWord:resturn:early: "
