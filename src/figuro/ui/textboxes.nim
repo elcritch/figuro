@@ -155,17 +155,53 @@ proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
       elif lhs in line:
         return idx
 
+var wordBoundaryChars* = toHashSet[Rune]([
+  Rune('.'), Rune(','), Rune(':'), Rune(';'), 
+  Rune('!'), Rune('?'), Rune('('), Rune(')'),
+  Rune('['), Rune(']'), Rune('{'), Rune('}'),
+  Rune('"'), Rune('\''), Rune('`'), Rune('-'),
+  Rune('/'), Rune('\\'), Rune('@'), Rune('#')
+])
+
+proc isWordBoundary(r: Rune): bool =
+  ## Checks if a rune is a word boundary character (whitespace or punctuation)
+  return r.isWhiteSpace() or r in wordBoundaryChars
+
 proc findPrevWord*(self: TextBox): int =
   result = -1
-  for i in countdown(max(0, self.selection.a - 2), 0):
-    if self.runes()[i].isWhiteSpace():
-      return i
+  if self.runes().len() == 0 or self.selection.a <= 0:
+    return result
+    
+  # Start from the character before the current position
+  var i = max(0, self.selection.a - 1)
+  
+  # If we're already at a boundary, move back until we're not
+  while i > 0 and self.runes()[i].isWordBoundary():
+    i -= 1
+    
+  # Now find the start of the current word
+  while i > 0 and not self.runes()[i-1].isWordBoundary():
+    i -= 1
+    
+  return i - 1  # Return position before the word start
 
 proc findNextWord*(self: TextBox): int =
   result = self.runes().len()
-  for i in countup(self.selection.a + 1, self.runes().len() - 1):
-    if self.runes()[i].isWhiteSpace():
-      return i
+  if self.runes().len() == 0 or self.selection.a >= self.runes().len():
+    return result
+    
+  # Start from the current position
+  var i = self.selection.a
+  
+  # Skip current word
+  while i < self.runes().len() and not self.runes()[i].isWordBoundary():
+    i += 1
+    
+  # Skip word boundaries
+  while i < self.runes().len() and self.runes()[i].isWordBoundary():
+    i += 1
+    
+  return i
 
 proc delete*(self: var TextBox) =
   if self.selection.len() > 1:

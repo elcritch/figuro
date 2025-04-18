@@ -214,23 +214,59 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorEnd(growSelection = multiSelect)
     else:
       discard
-
-  ## todo finish moving to 
-  # elif down == KAlt:
-  #   case pressed.getKey
-  #   of KeyLeft:
-  #     let idx = findPrevWord(self)
-  #     self.selection = idx+1..idx+1
-  #   of KeyRight:
-  #     let idx = findNextWord(self)
-  #     self.selection = idx..idx
-  #   of KeyBackspace:
-  #     if aa > 0:
-  #       let idx = findPrevWord(self)
-  #       self.runes.delete(idx+1..aa-1)
-  #       self.selection = idx+1..idx+1
-  #       self.updateLayout()
-  #   else: discard
+  elif down == KAlt:
+    case pressed.getKey
+    of KeyLeft:
+      let idx = self.text.findPrevWord()
+      if idx >= 0:
+        self.text.selection = (idx+1) .. (idx+1)
+      else:
+        # Handle case where we're at the beginning
+        self.text.selection = 0 .. 0
+    of KeyRight:
+      let idx = self.text.findNextWord()
+      self.text.selection = idx .. idx
+    of KeyBackspace:
+      if self.text.selection.a > 0 and NoErase notin self.opts:
+        let 
+          curPos = self.text.selection.a
+          idx = self.text.findPrevWord()
+        if idx >= 0:
+          self.text.runes.delete((idx+1) ..< curPos)
+          self.text.selection = (idx+1) .. (idx+1)
+          self.text.update(self.box)
+        else:
+          # Delete to the beginning
+          self.text.runes.delete(0 ..< curPos)
+          self.text.selection = 0 .. 0
+          self.text.update(self.box)
+    else: 
+      discard
+  elif down == {KAlt, KShift}:
+    case pressed.getKey
+    of KeyLeft:
+      if multiSelect:
+        let idx = self.text.findPrevWord()
+        if idx >= 0:
+          if self.text.growing == left:
+            self.text.selection = self.text.selWith(a = idx+1)
+          else:
+            self.text.selection = self.text.selWith(b = idx+1)
+        else:
+          # Select to the beginning
+          if self.text.growing == left:
+            self.text.selection = self.text.selWith(a = 0)
+          else:
+            self.text.selection = self.text.selWith(b = 0)
+    of KeyRight:
+      if multiSelect:
+        let idx = self.text.findNextWord()
+        if self.text.growing == left:
+          self.text.selection = self.text.selWith(a = idx)
+        else:
+          self.text.selection = self.text.selWith(b = idx)
+    else:
+      discard
 
   self.cursorTick = 1
   # self.text.updateSelection()
