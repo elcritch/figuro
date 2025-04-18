@@ -30,6 +30,7 @@ proc draw*(self: Main) {.slot.} =
         font this, UiFont(typefaceId: defaultTypeface(), size: 28'ui)
         foreground this, css"darkred"
         fill this, css"white"
+        clipContent true
         onInit:
           text this, "hello world"
 
