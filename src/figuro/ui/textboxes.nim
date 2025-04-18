@@ -205,10 +205,10 @@ proc findNextWord*(self: TextBox): int =
   while i < self.runes().len() and self.runes()[i].isWordBoundary():
     inc(i)
     
-  result = i
-  if result < self.runes().len():
-    dec(result)
-  warn "findNextWord:end: ", i= result, rlen= self.runes().len()
+  if i == self.runes().len():
+    return i
+  else:
+    return i - 1
 
 proc delete*(self: var TextBox) =
   if self.selection.len() > 1:
