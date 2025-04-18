@@ -161,10 +161,12 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       dir= self.text.growing
     var update = true
     case pressed.getKey
-    of KeyBackspace, KeyDelete:
-      if NoErase notin self.opts:
-        self.text.delete()
-        self.text.update(self.box)
+    of KeyBackspace:
+      self.text.delete()
+      self.text.update(self.box)
+    of KeyDelete:
+      self.text.delete(dir = right)
+      self.text.update(self.box)
     of KeyLeft:
       self.text.cursorLeft()
     of KeyRight:

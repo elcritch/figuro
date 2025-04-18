@@ -214,16 +214,20 @@ proc findNextWord*(self: TextBox): int =
   else:
     return i - 1
 
-proc delete*(self: var TextBox) =
+proc delete*(self: var TextBox, dir = left) =
   if self.selection.len() > 1:
     let delSlice = self.clamped(left) .. self.clamped(right, offset = -1)
     if self.runes().len() > 1:
       self.runes().delete(delSlice)
     self.selection = self.clamped(left).toSlice()
-  elif self.selection.len() == 1:
+  elif dir == left and self.selection.len() == 1 and self.selection.a != 0:
+      if self.runes().len() >= 1:
+        self.layout.runes.delete(self.clamped(left, offset = -1))
+      self.selection = toSlice(self.clamped(left, offset = -1))
+  elif dir == right and self.selection.len() == 1 and self.selection.b != self.runes().len():
     if self.runes().len() >= 1:
-      self.layout.runes.delete(self.clamped(left, offset = -1))
-    self.selection = toSlice(self.clamped(left, offset = -1))
+      self.layout.runes.delete(self.clamped(right, offset = 0))
+    self.selection = toSlice(self.clamped(right, offset = 0))
 
 proc insert*(self: var TextBox, rune: Rune) =
   if self.selection.len() > 1:
