@@ -3,6 +3,9 @@ import ./rchannels
 import nodes/uinodes
 import inputs
 import fonttypes
+import windex
+import pixie
+
 export fonttypes
 
 when defined(nimscript):
@@ -38,3 +41,16 @@ when not defined(nimscript):
       box: Box, spans: openArray[(UiFont, string)], hAlign = Left, vAlign = Top, minContent = false, wrap = true
   ): GlyphArrangement =
     getTypesetImpl(box, spans, hAlign, vAlign, minContent, wrap)
+
+  proc clipboardText*(): string =
+    windex.getClipboardString()
+
+  proc clipboardSet*(str: string) =
+    windex.setClipboardString(str)
+
+  proc clipboardImage*(): Image =
+    windex.getClipboardImage()
+
+  when defined(clipboardImage):
+    proc clipboardSet*(img: Image) =
+      windex.setClipboardImage(img)
