@@ -140,8 +140,12 @@ proc getKey(p: UiButtonView): UiButton =
 
 proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
-    echo "\nInput:keyPress: ",
-      " pressed: ", $pressed, " down: ", $down, " :: ", self.text.selection
+    notice "input:keyCommand:",
+      key= pressed,
+      down= down,
+      sel= self.text.selection,
+      runes= self.text.runes,
+      dir= self.text.growing
   let multiSelect = NoSelection notin self.opts
   if down == KNone:
     var update = true
@@ -234,8 +238,11 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
 
 proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
-    echo "input: ",
-      " key: ", pressed, " ", self.text.selection, " runes: ", self.text.runes, " dir: ", self.text.growing
+    notice "input:keyPress:",
+      key= pressed,
+      sel= self.text.selection,
+      runes= self.text.runes,
+      dir= self.text.growing
   emit self.doKeyCommand(pressed, down)
 
 # proc layoutResize*(self: Input, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
