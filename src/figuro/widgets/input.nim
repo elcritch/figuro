@@ -257,22 +257,20 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       if not self.text.hasSelection():
         self.text.growing = left
 
+      let idx = self.text.findPrevWord()
       if self.text.growing == left:
-        let idx = self.text.findPrevWord()
         self.text.selection = self.text.selWith(a = idx+1)
       else:
-        let idx = self.text.findPrevWord()
         self.text.selection = self.text.selWith(b = idx)
 
     of KeyRight:
       if not self.text.hasSelection():
         self.text.growing = right
 
+      let idx = self.text.findNextWord()
       if self.text.growing == right:
-        let idx = self.text.findNextWord()
         self.text.selection = self.text.selWith(b = idx)
       else:
-        let idx = self.text.findNextWord()
         self.text.selection = self.text.selWith(a = idx+1)
 
     of KeyBackspace:
