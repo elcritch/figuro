@@ -152,10 +152,17 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
 
   let multiSelect = NoSelection notin self.opts
   if down.matches({KNone}):
+    warn "input:keyCommand:none: ",
+      pressed= pressed,
+      down= down,
+      sel= self.text.selection,
+      runes= self.text.runes,
+      runesLen= self.text.runes.len,
+      dir= self.text.growing
     var update = true
     case pressed.getKey
     of KeyBackspace, KeyDelete:
-      if self.text.hasSelection() and NoErase notin self.opts:
+      if NoErase notin self.opts:
         self.text.delete()
         self.text.update(self.box)
     of KeyLeft:
