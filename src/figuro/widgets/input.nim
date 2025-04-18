@@ -184,12 +184,10 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     of KeyV:
       let pasteText = clipboardText()
       if pasteText.len > 0:
-        echo "pasting... ", pasteText
         self.text.insert(pasteText.toRunes())
         self.text.update(self.box)
     of KeyX:
       if self.text.hasSelection() and NoErase notin self.opts:
-        echo "cutting..."
         let selectedText = $self.text.selected()
         clipboardSet(selectedText)
         self.text.delete()
