@@ -256,37 +256,28 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     of KeyLeft:
       if not self.text.hasSelection():
         self.text.growing = left
-      let idx = self.text.findPrevWord()
-      warn "input:keyCommand:alt-shift-left: ",
-        idx= idx,
-        sel= self.text.selection,
-        runes= self.text.runes,
-        dir= self.text.growing
-      self.text.selection = self.text.selWith(a = idx+1)
+      if self.text.growing == left:
+        let idx = self.text.findPrevWord()
+        warn "input:keyCommand:alt-shift-left: ", idx= idx, sel= self.text.selection, growing= self.text.growing
+        self.text.selection = self.text.selWith(a = idx+1)
+      else:
+        let idx = self.text.findPrevWord()
+        warn "input:keyCommand:alt-shift-left: ", idx= idx, sel= self.text.selection, growing= self.text.growing
+        self.text.selection = self.text.selWith(b = idx)
+
     of KeyRight:
       if not self.text.hasSelection():
-        self.text.growing = left
-      let idx = self.text.findNextWord()
-      warn "input:keyCommand:alt-shift-right: ",
-          idx= idx,
-          sel= self.text.selection
-      self.text.selection = self.text.selWith(b = idx)
-      # self.text.selection = idx .. idx
-    of KeyHome, KeyUp:
-      if self.text.growing == left:
-        self.text.growing = left
-        self.text.selection = self.text.selWith(a = 0)
-      else:
         self.text.growing = right
-        self.text.selection = self.text.selWith(b = 0)
-    of KeyEnd, KeyDown:
-      let endPos = self.text.runes.len
-      if self.text.growing == left:
-        self.text.growing = left
-        self.text.selection = self.text.selWith(a = endPos)
+
+      if self.text.growing == right:
+        let idx = self.text.findNextWord()
+        warn "input:keyCommand:alt-shift-right: ", idx= idx, sel= self.text.selection, growing= self.text.growing
+        self.text.selection = self.text.selWith(b = idx)
       else:
-        self.text.growing = right
-        self.text.selection = self.text.selWith(b = endPos)
+        let idx = self.text.findPrevWord()
+        warn "input:keyCommand:alt-shift-right: ", idx= idx, sel= self.text.selection, growing= self.text.growing
+        self.text.selection = self.text.selWith(a = idx+1)
+
     of KeyBackspace:
       # If there's a selection, just delete it
       if self.text.hasSelection() and self.text.selection.a != self.text.selection.b and NoErase notin self.opts:

@@ -50,7 +50,7 @@ proc `selection`*(self: TextBox): Slice[int] =
   self.selectionImpl
 
 proc hasSelection*(self: TextBox): bool =
-  self.selection != 0 .. 0 and self.layout.runes.len() > 0
+  self.selection != 0 .. 0 and self.layout.runes.len() > 0 and self.selection.a != self.selection.b
 
 proc selected*(self: TextBox): seq[Rune] =
   for i in self.selection.a ..< self.selection.b:
@@ -173,7 +173,11 @@ proc findPrevWord*(self: TextBox): int =
     return result
     
   # Start from the character before the current position
-  var i = max(0, self.selection.a - 1)
+  var i =
+    if self.growing == left:
+      max(0, self.selection.a - 1)
+    else:
+      max(0, self.selection.b - 1)
   
   # If we're already at a boundary, move back until we're not
   while i > 0 and self.runes()[i].isWordBoundary():
@@ -189,7 +193,11 @@ proc findNextWord*(self: TextBox): int =
   result = self.runes().len()
 
   # Start from the current position
-  var i = self.selection.b + 1
+  var i =
+    if self.growing == right:
+      max(0, self.selection.b + 1)
+    else:
+      max(0, self.selection.a + 1)
 
   if self.runes().len() == 0 or i >= self.runes().len():
     warn "findNextWord:resturn:early: "
