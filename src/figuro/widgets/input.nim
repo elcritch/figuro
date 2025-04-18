@@ -254,40 +254,39 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       dir= self.text.growing
     case pressed.getKey
     of KeyLeft:
-        let idx = self.text.findPrevWord()
-        warn "input:keyCommand:alt-shift-left: ",
-          idx= idx,
-          sel= self.text.selection,
-          runes= self.text.runes,
-          dir= self.text.growing
+      if not self.text.hasSelection():
         self.text.growing = left
-        if idx >= 0:
-          self.text.selection = self.text.selWith(a = idx+1)
-        else:
-          # Select to the beginning
-          self.text.selection = self.text.selWith(a = 0)
+      let idx = self.text.findPrevWord()
+      warn "input:keyCommand:alt-shift-left: ",
+        idx= idx,
+        sel= self.text.selection,
+        runes= self.text.runes,
+        dir= self.text.growing
+      self.text.selection = self.text.selWith(a = idx+1)
     of KeyRight:
-        let idx = self.text.findNextWord()
-        warn "input:keyCommand:alt-shift-right: ",
+      if not self.text.hasSelection():
+        self.text.growing = left
+      let idx = self.text.findNextWord()
+      warn "input:keyCommand:alt-shift-right: ",
           idx= idx,
           sel= self.text.selection
-        self.text.selection = self.text.selWith(b = idx)
-        # self.text.selection = idx .. idx
+      self.text.selection = self.text.selWith(b = idx)
+      # self.text.selection = idx .. idx
     of KeyHome, KeyUp:
-        if self.text.growing == left:
-          self.text.growing = left
-          self.text.selection = self.text.selWith(a = 0)
-        else:
-          self.text.growing = right
-          self.text.selection = self.text.selWith(b = 0)
+      if self.text.growing == left:
+        self.text.growing = left
+        self.text.selection = self.text.selWith(a = 0)
+      else:
+        self.text.growing = right
+        self.text.selection = self.text.selWith(b = 0)
     of KeyEnd, KeyDown:
-        let endPos = self.text.runes.len
-        if self.text.growing == left:
-          self.text.growing = left
-          self.text.selection = self.text.selWith(a = endPos)
-        else:
-          self.text.growing = right
-          self.text.selection = self.text.selWith(b = endPos)
+      let endPos = self.text.runes.len
+      if self.text.growing == left:
+        self.text.growing = left
+        self.text.selection = self.text.selWith(a = endPos)
+      else:
+        self.text.growing = right
+        self.text.selection = self.text.selWith(b = endPos)
     of KeyBackspace:
       # If there's a selection, just delete it
       if self.text.hasSelection() and self.text.selection.a != self.text.selection.b and NoErase notin self.opts:
