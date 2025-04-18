@@ -45,14 +45,14 @@ when not defined(nimscript):
     getTypesetImpl(box, spans, hAlign, vAlign, minContent, wrap)
 
   proc clipboardText*(): string =
-    windex.getClipboardString()
+    getClipboardString()
 
   proc clipboardSet*(str: string) =
-    windex.setClipboardString(str)
+    setClipboardString(str)
 
   proc clipboardImage*(): Image =
-    windex.getClipboardImage()
+    getClipboardImage()
 
   when defined(clipboardImage):
     proc clipboardSet*(img: Image) =
-      windex.setClipboardImage(img)
+      setClipboardImage(img)
