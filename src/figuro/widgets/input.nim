@@ -6,6 +6,7 @@ import pkg/chronicles
 
 export textboxes
 
+echo "input: ", clipboardText()
 
 type
   InputOptions* = enum

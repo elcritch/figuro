@@ -13,7 +13,9 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-type MainCallback* = proc() {.closure.}
+when (NimMajor, NimMinor, NimPatch) < (2, 2, 0):
+  {.passc:"-fpermissive -Wno-incompatible-function-pointer-types".}
+  {.passl:"-fpermissive -Wno-incompatible-function-pointer-types".}
 
 when not defined(nimscript):
   import fontutils
