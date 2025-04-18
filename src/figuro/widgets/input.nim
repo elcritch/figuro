@@ -256,13 +256,12 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     of KeyLeft:
       if not self.text.hasSelection():
         self.text.growing = left
+
       if self.text.growing == left:
         let idx = self.text.findPrevWord()
-        warn "input:keyCommand:alt-shift-left: ", idx= idx, sel= self.text.selection, growing= self.text.growing
         self.text.selection = self.text.selWith(a = idx+1)
       else:
         let idx = self.text.findPrevWord()
-        warn "input:keyCommand:alt-shift-left: ", idx= idx, sel= self.text.selection, growing= self.text.growing
         self.text.selection = self.text.selWith(b = idx)
 
     of KeyRight:
@@ -271,11 +270,9 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
 
       if self.text.growing == right:
         let idx = self.text.findNextWord()
-        warn "input:keyCommand:alt-shift-right: ", idx= idx, sel= self.text.selection, growing= self.text.growing
         self.text.selection = self.text.selWith(b = idx)
       else:
-        let idx = self.text.findPrevWord()
-        warn "input:keyCommand:alt-shift-right: ", idx= idx, sel= self.text.selection, growing= self.text.growing
+        let idx = self.text.findNextWord()
         self.text.selection = self.text.selWith(a = idx+1)
 
     of KeyBackspace:
