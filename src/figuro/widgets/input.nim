@@ -139,7 +139,7 @@ proc getKey(p: UiButtonView): UiButton =
 
 proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   when defined(debugEvents):
-    notice "input:keyCommand:",
+    debug "input:keyCommand:",
       key= pressed,
       down= down,
       sel= self.text.selection,
@@ -152,13 +152,6 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
 
   let multiSelect = NoSelection notin self.opts
   if down.matches({KNone}):
-    warn "input:keyCommand:none: ",
-      pressed= pressed,
-      down= down,
-      sel= self.text.selection,
-      runes= self.text.runes,
-      runesLen= self.text.runes.len,
-      dir= self.text.growing
     var update = true
     case pressed.getKey
     of KeyBackspace:
@@ -256,11 +249,6 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
     else: 
       discard
   elif down.matches({KAlt, KShift}):
-    warn "input:keyCommand:alt-shift: ",
-      pressed= pressed,
-      down= down,
-      sel= self.text.selection,
-      dir= self.text.growing
     case pressed.getKey
     of KeyLeft:
       if not self.text.hasSelection():
