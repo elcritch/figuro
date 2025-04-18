@@ -14,6 +14,7 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
   self.hasHovered = kind == Done
   refresh(self.mainRect)
 
+
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     # self.theme.font = UiFont(typefaceId: self.frame[].theme.font.typefaceId, size: 22)
