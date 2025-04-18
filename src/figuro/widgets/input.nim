@@ -112,7 +112,6 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  echo "clicked... ", self.isActive, " kind ", kind, " disabled ", self.disabled
   self.active = kind == Done and not self.disabled
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
