@@ -177,31 +177,38 @@ proc findPrevWord*(self: TextBox): int =
   
   # If we're already at a boundary, move back until we're not
   while i > 0 and self.runes()[i].isWordBoundary():
-    i -= 1
+    dec(i)
     
   # Now find the start of the current word
   while i > 0 and not self.runes()[i-1].isWordBoundary():
-    i -= 1
+    dec(i)
     
   return i - 1  # Return position before the word start
 
 proc findNextWord*(self: TextBox): int =
   result = self.runes().len()
-  if self.runes().len() == 0 or self.selection.a >= self.runes().len():
+
+  # Start from the current position
+  var i = self.selection.a + 1
+
+  if self.runes().len() == 0 or i >= self.runes().len():
+    warn "findNextWord:resturn:early: "
     return result
     
-  # Start from the current position
-  var i = self.selection.a
-  
+  warn "findNextWord: ", i= i, runes= $self.runes()[i], rlen= self.runes().len(), isWordBoundary= self.runes()[i].isWordBoundary()
+
   # Skip current word
   while i < self.runes().len() and not self.runes()[i].isWordBoundary():
-    i += 1
+    inc(i)
     
   # Skip word boundaries
   while i < self.runes().len() and self.runes()[i].isWordBoundary():
-    i += 1
+    inc(i)
     
-  return i
+  result = i
+  if result < self.runes().len():
+    dec(result)
+  warn "findNextWord:end: ", i= result, rlen= self.runes().len()
 
 proc delete*(self: var TextBox) =
   if self.selection.len() > 1:

@@ -144,9 +144,13 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       down= down,
       sel= self.text.selection,
       runes= self.text.runes,
-      dir= self.text.growing
+      dir= self.text.growing,
+      downAlt = down.matches({KAlt}),
+      downShift = down.matches({KShift}),
+      downAltShift = down.matches({KAlt, KShift})
+
   let multiSelect = NoSelection notin self.opts
-  if down == KNone:
+  if down.matches({KNone}):
     var update = true
     case pressed.getKey
     of KeyBackspace, KeyDelete:
@@ -171,7 +175,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.keyInput Rune '\n'
     else:
       discard
-  elif down == KMeta:
+  elif down.matches({KMeta}):
     case pressed.getKey
     of KeyA:
       self.text.cursorSelectAll()
@@ -197,7 +201,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
         self.text.update(self.box)
     else:
       discard
-  elif down == KShift:
+  elif down.matches({KShift}):
     case pressed.getKey
     of KeyLeft:
       self.text.cursorLeft(growSelection = multiSelect)
@@ -213,7 +217,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       self.text.cursorEnd(growSelection = multiSelect)
     else:
       discard
-  elif down == KAlt:
+  elif down.matches({KAlt}):
     case pressed.getKey
     of KeyLeft:
       let idx = self.text.findPrevWord()
@@ -241,9 +245,18 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
           self.text.update(self.box)
     else: 
       discard
-  elif down == {KAlt, KShift}:
+  elif down.matches({KAlt, KShift}):
+    warn "input:keyCommand:alt-shift: ",
+      pressed= pressed,
+      down= down,
+      sel= self.text.selection,
+      dir= self.text.growing
     case pressed.getKey
     of KeyLeft:
+      warn "input:keyCommand:alt-shift-left: ",
+          sel= self.text.selection,
+          runes= self.text.runes,
+          dir= self.text.growing
       if multiSelect:
         let idx = self.text.findPrevWord()
         if idx >= 0:
@@ -264,6 +277,42 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
           self.text.selection = self.text.selWith(a = idx)
         else:
           self.text.selection = self.text.selWith(b = idx)
+    of KeyHome, KeyUp:
+      if multiSelect:
+        if self.text.growing == left:
+          self.text.growing = left
+          self.text.selection = self.text.selWith(a = 0)
+        else:
+          self.text.growing = right
+          self.text.selection = self.text.selWith(b = 0)
+    of KeyEnd, KeyDown:
+      if multiSelect:
+        let endPos = self.text.runes.len
+        if self.text.growing == left:
+          self.text.growing = left
+          self.text.selection = self.text.selWith(a = endPos)
+        else:
+          self.text.growing = right
+          self.text.selection = self.text.selWith(b = endPos)
+    of KeyBackspace:
+      # If there's a selection, just delete it
+      if self.text.hasSelection() and self.text.selection.a != self.text.selection.b and NoErase notin self.opts:
+        self.text.delete()
+        self.text.update(self.box)
+      # Otherwise delete to word boundary
+      elif self.text.selection.a > 0 and NoErase notin self.opts:
+        let 
+          curPos = self.text.selection.a
+          idx = self.text.findPrevWord()
+        if idx >= 0:
+          self.text.runes.delete((idx+1) ..< curPos)
+          self.text.selection = (idx+1) .. (idx+1)
+          self.text.update(self.box)
+        else:
+          # Delete to the beginning
+          self.text.runes.delete(0 ..< curPos)
+          self.text.selection = 0 .. 0
+          self.text.update(self.box)
     else:
       discard
 
