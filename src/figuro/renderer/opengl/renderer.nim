@@ -357,9 +357,9 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
     match cmd:
-      RenderUpdate(nlayers, window):
+      RenderUpdate(nlayers, appWindow):
         renderer.nodes = nlayers
-        renderer.appWindow = window
+        renderer.appWindow = appWindow
         update = true
       RenderQuit:
         echo "QUITTING"
