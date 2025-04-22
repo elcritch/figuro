@@ -18,6 +18,7 @@ proc draw*(self: Main) {.slot.} =
     fill css"lightgrey"
     border 3'ui, blackColor
     padding 10'ux
+
     
     Vertical.new "widgets-vert":
       size this, 100'pp-20'ux, cx"min-content"
