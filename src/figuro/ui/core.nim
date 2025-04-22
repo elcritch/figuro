@@ -215,8 +215,8 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = FrameResizable
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
   frame.theme = Theme(font: defaultFont(), css: CssTheme(rules: @[], values: newCssValues()))
-  # frame.window.box.w = size[0].UiScalar
-  # frame.window.box.h = size[1].UiScalar
+  frame.appWindow.box.w = size[0].UiScalar
+  frame.appWindow.box.h = size[1].UiScalar
   frame.windowStyle = style
   refresh(root)
   return frame
