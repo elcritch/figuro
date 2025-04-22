@@ -52,6 +52,8 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, 1.0, atlasSize)
   let pollAndRender: PollAndRenderProc[Window] = pollAndRender
+  startOpenGL(frame, renderer.window, openglVersion)
+
   app.requestedFrame.inc
 
   return renderer
