@@ -78,16 +78,19 @@ proc createWindow*[F](frame: WeakRef[F]): Window =
 
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
   let style: WindowStyle = frame[].windowStyle.convertStyle()
+  echo "STYLE: ", style
   let winCfg = frame.loadLastWindow()
 
   if app.autoUiScale:
     let scale = window.getScaleInfo()
     app.uiScale = min(scale.x, scale.y)
 
-  echo "SCALE: ", app.uiScale
+  echo "UI SCALE: ", app.uiScale
   window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
+  echo "Windown pos: ", window.pos
+  echo "Windown style: ", window.style
   return window
 
 proc getWindowInfo*(window: Window): AppWindow =
