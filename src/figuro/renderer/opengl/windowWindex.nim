@@ -215,6 +215,7 @@ proc configureWindowEvents*(renderer: RendererImpl[Window], pollAndRender: PollA
   renderer.frame[].appWindow.running = true
 
 proc swapBuffers*(renderer: Renderer) =
+  echo "SWAP BUFFERS: ", renderer.window.size
   renderer.window.swapBuffers()
 
 proc pollEvents*(renderer: Renderer) =
