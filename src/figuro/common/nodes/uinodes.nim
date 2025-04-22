@@ -10,11 +10,11 @@ import basics
 import cssparser
 import ../inputs
 import ../rchannels
-import ../windowbasics
+import ../framebasics
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
-export basics, inputs, windowbasics
+export basics, inputs, framebasics
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
