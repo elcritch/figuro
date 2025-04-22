@@ -8,7 +8,6 @@ import pkg/sigils/weakrefs
 import utils
 import glcommons
 import ../../common/nodes/uinodes
-import windowutils
 import renderer
 
 export AppFrame
@@ -87,13 +86,13 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
 
 proc convertStyle(fs: FrameStyle): WindowStyle =
   case fs
-  of FrameStyle.DecoratedResizable:
+  of FrameStyle.FrameResizable:
     WindowStyle.DecoratedResizable
-  of FrameStyle.DecoratedFixedSized:
+  of FrameStyle.FrameFixedSized:
     WindowStyle.Decorated
-  of FrameStyle.Undecorated:
+  of FrameStyle.FrameUndecorated:
     WindowStyle.Undecorated
-  of FrameStyle.Transparent:
+  of FrameStyle.FrameTransparent:
     WindowStyle.Transparent
 
 proc getWindowInfo*(window: Window): AppWindow =

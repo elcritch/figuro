@@ -30,7 +30,7 @@ type
     css*: CssTheme
 
   FrameStyle* {.pure.} = enum
-    DecoratedResizable, DecoratedFixedSized, Undecorated, Transparent
+    FrameResizable, FrameFixedSized, FrameUndecorated, FrameTransparent
 
 proc windowCfgFile*[T](frame: WeakRef[AppFrameImpl[T]]): string = 
   frame[].configFile & ".window"

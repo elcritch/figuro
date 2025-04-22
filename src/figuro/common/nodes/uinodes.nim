@@ -14,7 +14,7 @@ import ../windowbasics
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
-export basics, inputs
+export basics, inputs, windowbasics
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
