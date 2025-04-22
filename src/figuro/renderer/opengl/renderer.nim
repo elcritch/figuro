@@ -365,11 +365,13 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
         setTitle(renderer, name)
 
   if update:
+    echo "UPDATE: RENDER AND SWAP"
     renderAndSwap(renderer)
 
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
+
   while app.running:
     pollAndRender(renderer)
 
