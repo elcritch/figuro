@@ -15,7 +15,7 @@ import ./opengl/utils
 import ./opengl/window
 import ./opengl/renderer
 
-export runRendererLoop
+export Renderer, runRendererLoop
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
@@ -36,7 +36,8 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, window, 1.0, atlasSize)
-  renderer.configureWindowEvents()
+  let pollAndRender: PollAndRenderProc[Window] = renderer.pollAndRender
+  renderer.configureWindowEvents(pollAndRender)
   renderer.frame[].appWindow.running = true
   app.requestedFrame.inc
 

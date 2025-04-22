@@ -361,7 +361,7 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
         update = true
       RenderQuit:
         echo "QUITTING"
-        renderer.frame[].window.running = false
+        renderer.frame[].appWindow.running = false
         app.running = false
         return
       RenderSetTitle(name):

@@ -18,3 +18,5 @@ type RendererImpl*[W] = ref object
 
   nodes*: Renders
   appWindow*: AppWindow
+
+type PollAndRenderProc*[W] = proc(renderer: RendererImpl[W], poll: bool)

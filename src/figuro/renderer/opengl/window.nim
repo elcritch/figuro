@@ -84,7 +84,7 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
   useDepthBuffer(false)
   # updateWindowSize(frame, window)
 
-proc convertStyle(fs: FrameStyle): WindowStyle =
+proc convertStyle*(fs: FrameStyle): WindowStyle =
   case fs
   of FrameStyle.FrameResizable:
     WindowStyle.DecoratedResizable
@@ -107,7 +107,7 @@ proc getWindowInfo*(window: Window): AppWindow =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-proc configureWindowEvents(renderer: RendererImpl[Window]) =
+proc configureWindowEvents(renderer: RendererImpl[Window], pollAndRender: PollAndRenderProc) =
   let window = renderer.window
   let winCfgFile = renderer.frame.frameCfgFile()
 
@@ -131,7 +131,7 @@ proc configureWindowEvents(renderer: RendererImpl[Window]) =
     # echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled(), " sent: ", sent
     # writeWindowConfig(window, winCfgFile)
     # debug "window resize: ", size= window.size
-    renderer.pollAndRender(poll = false)
+    pollAndRender(renderer, poll = false)
     # echo "RENDER LOOP: resize: done: ", windowState.box.wh.scaled(), " sent: ", sent
 
   window.onFocusChange = proc() =
