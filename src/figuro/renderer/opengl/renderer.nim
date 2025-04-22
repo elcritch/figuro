@@ -35,18 +35,17 @@ proc newRenderer*(
   app.pixelScale = forcePixelScale
   let renderer = Renderer()
   renderer.createWindow(frame)
-  renderer.configureWindowEvents(pollAndRender)
 
   renderer.nodes = Renders()
   renderer.frame = frame
-  renderer.ctx =
-    newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
+  renderer.ctx = newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
   renderer.uxInputList = newRChan[AppInputs](5)
   renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
 
+  renderer.configureWindowEvents(pollAndRender)
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
