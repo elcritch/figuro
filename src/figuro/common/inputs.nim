@@ -31,7 +31,7 @@ type AppInputs* = object
   buttonRelease*: UiButtonView
   buttonToggle*: UiButtonView
 
-  window*: Option[AppWindow]
+  appWindow*: Option[AppWindow]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

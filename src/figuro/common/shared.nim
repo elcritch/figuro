@@ -17,6 +17,10 @@ type
   AppMainThreadEff* = object of RootEffect ## MainThr effect
   RenderThreadEff* = object of RootEffect ## RenderThr effect
 
+  WindowConfig* = object
+    pos*: IVec2 = ivec2(100, 100)
+    size*: IVec2 = ivec2(0, 0)
+
 {.push hint[Name]: off.}
 proc AppMainThread*() {.tags: [AppMainThreadEff].} =
   discard

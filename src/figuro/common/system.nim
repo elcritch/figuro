@@ -3,7 +3,7 @@ import ./rchannels
 import nodes/uinodes
 import inputs
 import fonttypes
-import windex
+# import windex
 import pixie
 import chronicles
 
@@ -49,23 +49,27 @@ when not defined(nimscript):
     when defined(linux):
       warn "clipboardText is not implemented on linux"
     else:
-      getClipboardString()
+      # getClipboardString()
+      discard
 
   proc clipboardSet*(str: string) =
     when defined(linux):
       warn "clipboardSet is not implemented on linux"
     else:
-      setClipboardString(str)
+      # setClipboardString(str)
+      discard
 
   proc clipboardImage*(): Image =
     when defined(linux):
       warn "clipboardImage is not implemented on linux"
     else:
-      getClipboardImage()
+      # getClipboardImage()
+      discard
 
   when defined(clipboardImage):
     proc clipboardSet*(img: Image) =
       when defined(linux):
         warn "clipboardSet is not implemented on linux"
       else:
-        setClipboardImage(img)
+        # setClipboardImage(img)
+        discard

@@ -40,7 +40,7 @@ type
     root*: Figuro
     uxInputList*: RChan[AppInputs]
     rendInputList*: RChan[RenderCommands]
-    window*: AppWindow
+    appWindow*: AppWindow
     windowTitle*: string
     windowStyle*: FrameStyle
     theme*: Theme
@@ -138,7 +138,7 @@ proc getFrameBox*(node: Figuro): Box =
   if node.frame[].isNil:
     uiBox(0,0,0,0)
   else:
-    node.frame[].window.box
+    node.frame[].appWindow.box
 
 proc children*(fig: WeakRef[Figuro]): seq[Figuro] =
   fig[].children

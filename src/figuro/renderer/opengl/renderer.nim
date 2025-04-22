@@ -10,6 +10,7 @@ import pkg/sigils
 import pkg/chronicles
 
 import ../../common/rchannels
+import ../../common/nodes/uinodes
 import window, glcommons, context, formatflippy, utils
 
 import std/locks
@@ -27,7 +28,7 @@ type Renderer* = ref object
   updated*: Atomic[bool]
 
   nodes*: Renders
-  renderWindow*: AppWindow
+  appWindow*: AppWindow
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
@@ -38,6 +39,7 @@ proc newRenderer*(
   app.pixelScale = forcePixelScale
   let renderer = Renderer(window: window)
   startOpenGL(frame, window, openglVersion)
+
   renderer.nodes = Renders()
   renderer.frame = frame
   renderer.ctx =
@@ -317,7 +319,7 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  # ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
+  # ctx.beginFrame(renderer.appWindow.box.wh.scaled())
   let size = renderer.window.size()
   ctx.beginFrame(vec2(size.x.float32, size.y.float32))
   ctx.saveTransform()
@@ -362,7 +364,7 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
     match cmd:
       RenderUpdate(nlayers, window):
         renderer.nodes = nlayers
-        renderer.renderWindow = window
+        renderer.appWindow = window
         update = true
       RenderQuit:
         echo "QUITTING"
