@@ -51,6 +51,13 @@ proc initialize*[T](self: Dropdown[T]) {.slot.} =
   connect(self.data, doSelected, self, itemsSelected)
   self.fade.setValue(self.fade.minMax.b)
 
+proc fadeTick*[T](this: ComboboxList[T], val: tuple[amount, perc: float], finished: bool) {.slot.} =
+  let self = this.queryParent(Dropdown[T]).get()
+  if finished and Open notin self.userAttrs:
+    echo "fade finished: ", this.getId
+    this.setNodeAttr(NfInactive, true)
+  refresh(self)
+
 proc draw*[T](self: Dropdown[T]) {.slot.} =
   ## dropdown widget
   withWidget(self):
@@ -74,6 +81,8 @@ proc draw*[T](self: Dropdown[T]) {.slot.} =
       ComboboxList[T].new "combobox":
         size 100'pp-20'ux, 100'pp-10'ux
         this.data = self.data
-        self.fade.addTarget(this)
         offset 10'ux, csPerc(-self.fade.amount)
-
+        self.fade.addTarget(this, noRefresh = true)
+        connect(self.fade, doFadeTick, this, fadeTick)
+        if Open in self.userAttrs:
+          this.setNodeAttr(NfInactive, false)

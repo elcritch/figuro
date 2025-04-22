@@ -43,7 +43,7 @@ proc btnClicked*(self: Button[int],
 proc initialize*(self: Main) {.slot.} =
   self.setTitle("Click Test!")
   self.bkgFade.addTarget(self)
-  connect(self.bkgFade, fadeTick, self, Main.fading())
+  connect(self.bkgFade, doFadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   ## draw slot for Main widget called whenever an event
