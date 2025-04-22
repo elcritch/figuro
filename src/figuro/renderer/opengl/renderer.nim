@@ -3,16 +3,21 @@ export tables
 
 import pkg/threading/atomics
 import pkg/chroma
-import pkg/windex
 import pkg/opengl
-from pixie import Image
 import pkg/sigils
 import pkg/chronicles
+from pixie import Image
 
-import window, glcommons, context, formatflippy, utils, renderertypes
+import glcommons, context, formatflippy, utils, renderertypes
 
 import ../../common/rchannels
 import ../../common/nodes/uinodes
+
+const WindowBackend {.strdefine: "figuro.windowBackend".}: string = "windex"
+
+when WindowBackend == "windex":
+  import windowWindex
+  export windowWindex
 
 import std/locks
 
@@ -20,18 +25,19 @@ export renderertypes
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type
-  Renderer* = RendererImpl[Window]
+proc pollAndRender*(renderer: Renderer, poll = true)
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
-    window: Window,
     forcePixelScale: float32,
     atlasSize: int,
 ): Renderer =
   app.pixelScale = forcePixelScale
-  let renderer = Renderer(window: window)
-  startOpenGL(frame, window, openglVersion)
+  let renderer = Renderer()
+  renderer.createWindow(frame)
+  renderer.configureWindowEvents(pollAndRender)
+
+  startOpenGL(frame, renderer.window, openglVersion)
 
   renderer.nodes = Renders()
   renderer.frame = frame
@@ -42,6 +48,7 @@ proc newRenderer*(
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
+
   return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
@@ -312,9 +319,7 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  # ctx.beginFrame(renderer.appWindow.box.wh.scaled())
-  let size = renderer.window.size()
-  ctx.beginFrame(vec2(size.x.float32, size.y.float32))
+  ctx.beginFrame(renderer.appWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
