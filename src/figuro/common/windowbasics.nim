@@ -32,14 +32,14 @@ type
   FrameStyle* {.pure.} = enum
     FrameResizable, FrameFixedSized, FrameUndecorated, FrameTransparent
 
-proc windowCfgFile*[T](frame: WeakRef[AppFrameImpl[T]]): string = 
-  frame[].configFile & ".window"
+proc frameCfgFile*[T](frame: WeakRef[AppFrameImpl[T]]): string = 
+  frame[].configFile & ".frame"
 
 proc loadLastWindow*[T](frame: WeakRef[AppFrameImpl[T]]): FrameConfig =
   result = FrameConfig()
-  if frame.windowCfgFile().fileExists():
+  if frameCfgFile(frame).fileExists():
     try:
-      let jn = parseFile(frame.windowCfgFile())
+      let jn = parseFile(frameCfgFile(frame))
       result = jn.to(FrameConfig)
     except Defect, CatchableError:
       discard
