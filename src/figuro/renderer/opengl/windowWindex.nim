@@ -84,6 +84,7 @@ proc createWindow*[F](frame: WeakRef[F]): Window =
     let scale = window.getScaleInfo()
     app.uiScale = min(scale.x, scale.y)
 
+  echo "SCALE: ", app.uiScale
   window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
@@ -105,6 +106,7 @@ proc configureWindowEvents*(renderer: RendererImpl[Window], pollAndRender: PollA
   let window = renderer.window
   let winCfgFile = renderer.frame.frameCfgFile()
 
+  echo "CONFIGURE WINDOW EVENTS"
   `runeInputEnabled=`(window, true)
 
   window.onCloseRequest = proc() =

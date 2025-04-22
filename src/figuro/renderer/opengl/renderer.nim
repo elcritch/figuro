@@ -34,20 +34,19 @@ proc newRenderer*(
     atlasSize: int,
 ): Renderer =
   app.pixelScale = forcePixelScale
-  let renderer = Renderer()
+  result = Renderer()
+  result.nodes = Renders()
+  result.frame = frame
+  result.window = window
 
-  renderer.nodes = Renders()
-  renderer.frame = frame
-  renderer.window = window
-  renderer.ctx = newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
-  renderer.uxInputList = newRChan[AppInputs](5)
-  renderer.rendInputList = newRChan[RenderCommands](5)
-  renderer.lock.initLock()
-  frame[].uxInputList = renderer.uxInputList
-  frame[].rendInputList = renderer.rendInputList
+  configureWindowEvents(result, pollAndRender)
 
-  renderer.configureWindowEvents(pollAndRender)
-  return renderer
+  result.ctx = newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
+  result.uxInputList = newRChan[AppInputs](5)
+  result.rendInputList = newRChan[RenderCommands](5)
+  result.lock.initLock()
+  frame[].uxInputList = result.uxInputList
+  frame[].rendInputList = result.rendInputList
 
 proc renderDrawable*(ctx: Context, node: Node) =
   ## TODO: draw non-node stuff?

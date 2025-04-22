@@ -15,7 +15,9 @@ import ./opengl/renderer
 
 export Renderer, runRendererLoop
 
-proc startOpenGL*(frame: WeakRef[AppFrame], openglVersion: (int, int)) =
+proc startOpenGL*(frame: WeakRef[AppFrame], window: RendererWindow, openglVersion: (int, int)) =
+
+  makeContextCurrent(window)
 
   when not defined(emscripten):
     loadExtensions()
@@ -49,8 +51,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let window = createWindow(frame)
-  makeContextCurrent(window)
-  startOpenGL(frame, openglVersion)
+  startOpenGL(frame, window, openglVersion)
   let renderer = newRenderer(frame, window, 1.0, atlasSize)
 
   app.requestedFrame.inc
