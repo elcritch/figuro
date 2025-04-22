@@ -4,13 +4,12 @@ import pkg/[chroma, pixie]
 import pkg/opengl
 import pkg/windex
 import pkg/sigils/weakrefs
+import pkg/chronicles
 
 import utils
 import glcommons
+import renderertypes
 import ../../common/nodes/uinodes
-import renderer
-
-export AppFrame
 
 # import ../patches/textboxes 
 var
@@ -118,7 +117,8 @@ proc configureWindowEvents(renderer: Renderer) =
     app.running = false
 
   window.onMove = proc() =
-    writeWindowConfig(window, winCfgFile)
+    let frameCfg = FrameConfig(size: window.size(), pos: window.pos())
+    writeFrameConfig(window, winCfgFile)
     # debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =

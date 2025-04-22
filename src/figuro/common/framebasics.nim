@@ -45,7 +45,7 @@ proc loadLastWindow*[T](frame: WeakRef[AppFrameImpl[T]]): FrameConfig =
       discard
   notice "loadLastWindow", config= result
 
-proc writeConfig*(cfg: FrameConfig, winCfgFile: string) =
+proc writeFrameConfig*(cfg: FrameConfig, winCfgFile: string) =
     try:
       let jn = %*(cfg)
       writeFile(winCfgFile, $(jn))

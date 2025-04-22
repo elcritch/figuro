@@ -9,29 +9,14 @@ from pixie import Image
 import pkg/sigils
 import pkg/chronicles
 
-import window, glcommons, context, formatflippy, utils, window
+import window, glcommons, context, formatflippy, utils, renderertypes
 
 import ../../common/rchannels
 import ../../common/nodes/uinodes
 
-
-
 import std/locks
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
-
-type Renderer* = ref object
-  ctx*: Context
-  duration*: Duration
-  window*: Window
-  uxInputList*: RChan[AppInputs]
-  rendInputList*: RChan[RenderCommands]
-  frame*: WeakRef[AppFrame]
-  lock*: Lock
-  updated*: Atomic[bool]
-
-  nodes*: Renders
-  appWindow*: AppWindow
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
