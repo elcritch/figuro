@@ -5,11 +5,21 @@ import pkg/patty
 import nodes/basics
 import nodes/render
 import uimaths, keys
+
 export uimaths, keys
 
 type
-  FrameStyle* {.pure.} = enum
-    DecoratedResizable, DecoratedFixedSized, Undecorated, Transparent
+  AppInputs* = object
+    empty*: bool
+    mouse*: Mouse
+    keyboard*: Keyboard
+
+    buttonPress*: UiButtonView
+    buttonDown*: UiButtonView
+    buttonRelease*: UiButtonView
+    buttonToggle*: UiButtonView
+
+    appWindow*: Option[AppWindow]
 
   AppWindow* = object
     box*: Box ## Screen size in logical coordinates.
@@ -21,17 +31,6 @@ variantp RenderCommands:
   RenderUpdate(n: Renders, window: AppWindow)
   RenderSetTitle(name: string)
 
-type AppInputs* = object
-  empty*: bool
-  mouse*: Mouse
-  keyboard*: Keyboard
-
-  buttonPress*: UiButtonView
-  buttonDown*: UiButtonView
-  buttonRelease*: UiButtonView
-  buttonToggle*: UiButtonView
-
-  appWindow*: Option[AppWindow]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

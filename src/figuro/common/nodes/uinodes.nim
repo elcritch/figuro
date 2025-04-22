@@ -10,6 +10,7 @@ import basics
 import cssparser
 import ../inputs
 import ../rchannels
+import ../windowbasics
 
 export unicode, monotimes
 export cssgrid, stack_strings, weakrefs
@@ -27,24 +28,6 @@ type
   ListenEvents* = object
     events*: EventFlags
     signals*: EventFlags
-
-  Theme* = object
-    font*: UiFont
-    css*: CssTheme
-
-  AppFrame* = ref object of Agent
-    frameRunner*: AgentProcTy[tuple[]]
-    proxies*: seq[AgentProxyShared]
-    redrawNodes*: OrderedSet[Figuro]
-    redrawLayout*: OrderedSet[Figuro]
-    root*: Figuro
-    uxInputList*: RChan[AppInputs]
-    rendInputList*: RChan[RenderCommands]
-    appWindow*: AppWindow
-    windowTitle*: string
-    windowStyle*: FrameStyle
-    theme*: Theme
-    configFile*: string
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]

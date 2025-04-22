@@ -31,13 +31,13 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   window.`pos=`(winCfg.pos)
   if winCfg.size.x != 0 and winCfg.size.y != 0:
     let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
-    frame[].window.box.w = sz.x.UiScalar
-    frame[].window.box.h = sz.y.UiScalar
+    frame[].appWindow.box.w = sz.x.UiScalar
+    frame[].appWindow.box.h = sz.y.UiScalar
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, window, 1.0, atlasSize)
   renderer.configureWindowEvents()
-  renderer.frame[].window.running = true
+  renderer.frame[].appWindow.running = true
   app.requestedFrame.inc
 
   return renderer

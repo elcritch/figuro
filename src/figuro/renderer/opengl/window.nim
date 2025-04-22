@@ -49,7 +49,7 @@ proc getScaleInfo*(window: Window): ScaleInfo =
   result.x = scale
   result.y = scale
 
-proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
+proc configureWindow*(frame: WeakRef[AppFrame], window: Window) =
   assert not frame.isNil
   if frame[].window.fullscreen:
     window.fullscreen = frame[].window.fullscreen
@@ -57,6 +57,8 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
     window.size = ivec2(frame[].window.box.wh.scaled())
 
   window.visible = true
+
+proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
 
   if window.isNil:
     quit(
