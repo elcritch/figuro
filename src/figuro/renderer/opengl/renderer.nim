@@ -34,7 +34,7 @@ proc newRenderer*(
 ): Renderer =
   app.pixelScale = forcePixelScale
   let renderer = Renderer()
-  renderer.createWindow(frame)
+  # renderer.createWindow(frame)
 
   renderer.nodes = Renders()
   renderer.frame = frame

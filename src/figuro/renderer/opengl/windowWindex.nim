@@ -32,6 +32,17 @@ static:
 
 var lastMouse = Mouse()
 
+proc convertStyle*(fs: FrameStyle): WindowStyle =
+  case fs
+  of FrameStyle.FrameResizable:
+    WindowStyle.DecoratedResizable
+  of FrameStyle.FrameFixedSized:
+    WindowStyle.Decorated
+  of FrameStyle.FrameUndecorated:
+    WindowStyle.Undecorated
+  of FrameStyle.FrameTransparent:
+    WindowStyle.Transparent
+
 proc toUi(wbtn: windex.ButtonView): UiButtonView =
   when defined(nimscript):
     for b in set[Button](wbtn):
@@ -60,7 +71,7 @@ proc configureWindow*(frame: WeakRef[AppFrame], window: Window) =
 
   window.visible = true
 
-proc createWindow*[F](renderer: Renderer, frame: WeakRef[F]) =
+proc createWindow*[F](frame: WeakRef[F]): Window =
 
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
   let style: WindowStyle = frame[].windowStyle.convertStyle()
@@ -73,19 +84,7 @@ proc createWindow*[F](renderer: Renderer, frame: WeakRef[F]) =
   window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
-  renderer.window = window
-
-
-proc convertStyle*(fs: FrameStyle): WindowStyle =
-  case fs
-  of FrameStyle.FrameResizable:
-    WindowStyle.DecoratedResizable
-  of FrameStyle.FrameFixedSized:
-    WindowStyle.Decorated
-  of FrameStyle.FrameUndecorated:
-    WindowStyle.Undecorated
-  of FrameStyle.FrameTransparent:
-    WindowStyle.Transparent
+  return window
 
 proc getWindowInfo*(window: Window): AppWindow =
     app.requestedFrame.inc
