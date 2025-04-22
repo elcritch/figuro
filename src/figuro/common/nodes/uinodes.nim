@@ -29,6 +29,8 @@ type
     events*: EventFlags
     signals*: EventFlags
 
+  AppFrame* = AppFrameImpl[Figuro]
+
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]
     parent*: WeakRef[Figuro]

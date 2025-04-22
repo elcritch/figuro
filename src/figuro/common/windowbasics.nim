@@ -11,7 +11,7 @@ import inputs
 import uimaths
 
 type
-  AppFrame*[T] = ref object of Agent
+  AppFrameImpl*[T] = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]
     proxies*: seq[AgentProxyShared]
     redrawNodes*: OrderedSet[T]
@@ -32,10 +32,10 @@ type
   FrameStyle* {.pure.} = enum
     DecoratedResizable, DecoratedFixedSized, Undecorated, Transparent
 
-proc windowCfgFile*(frame: WeakRef[AppFrame]): string = 
+proc windowCfgFile*[T](frame: WeakRef[AppFrameImpl[T]]): string = 
   frame[].configFile & ".window"
 
-proc loadLastWindow*(frame: WeakRef[AppFrame]): WindowConfig =
+proc loadLastWindow*[T](frame: WeakRef[AppFrameImpl[T]]): WindowConfig =
   result = WindowConfig()
   if frame.windowCfgFile().fileExists():
     try:
