@@ -12,6 +12,7 @@ import renderertypes
 import ../../common/nodes/uinodes
 import ../../common/rchannels
 
+export makeContextCurrent
 
 type Renderer* = RendererImpl[Window]
 
@@ -215,5 +216,3 @@ proc pollEvents*(renderer: Renderer) =
 proc setTitle*(renderer: Renderer, title: string) =
   renderer.window.title = title
 
-proc makeContextCurrent*(renderer: Renderer) =
-  renderer.window.makeContextCurrent()
