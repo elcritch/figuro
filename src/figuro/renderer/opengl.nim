@@ -47,8 +47,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   let window = createWindow(frame)
   makeContextCurrent(window)
   startOpenGL(frame, openglVersion)
-  let renderer = newRenderer(frame, 1.0, atlasSize)
-
+  let renderer = newRenderer(frame, window, 1.0, atlasSize)
 
   app.requestedFrame.inc
 

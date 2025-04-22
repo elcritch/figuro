@@ -14,7 +14,9 @@ import ../../common/rchannels
 
 export makeContextCurrent
 
-type Renderer* = RendererImpl[Window]
+type
+  RendererWindow* = windex.Window
+  Renderer* = RendererImpl[RendererWindow]
 
 # import ../patches/textboxes 
 var

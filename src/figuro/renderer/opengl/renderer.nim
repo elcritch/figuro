@@ -29,15 +29,16 @@ proc pollAndRender*(renderer: Renderer, poll = true)
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
+    window: RendererWindow,
     forcePixelScale: float32,
     atlasSize: int,
 ): Renderer =
   app.pixelScale = forcePixelScale
   let renderer = Renderer()
-  # renderer.createWindow(frame)
 
   renderer.nodes = Renders()
   renderer.frame = frame
+  renderer.window = window
   renderer.ctx = newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
   renderer.uxInputList = newRChan[AppInputs](5)
   renderer.rendInputList = newRChan[RenderCommands](5)
