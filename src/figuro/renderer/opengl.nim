@@ -15,7 +15,7 @@ import ./opengl/utils
 import ./opengl/window
 import ./opengl/renderer
 
-export Renderer, runRendererLoop
+export runRendererLoop
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 

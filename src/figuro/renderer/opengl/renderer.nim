@@ -16,6 +16,8 @@ import ../../common/nodes/uinodes
 
 import std/locks
 
+export renderertypes
+
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
 proc newRenderer*(
