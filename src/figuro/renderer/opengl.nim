@@ -41,7 +41,11 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
     let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
     frame[].appWindow.box.w = sz.x.UiScalar
     frame[].appWindow.box.h = sz.y.UiScalar
+  else:
+    frame[].appWindow.box.w = 100'ui
+    frame[].appWindow.box.h = 100'ui
   frame[].appWindow.running = true
+  echo "WINDOW:size: ", winCfg.size
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let window = createWindow(frame)
