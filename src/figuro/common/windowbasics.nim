@@ -35,19 +35,19 @@ type
 proc windowCfgFile*[T](frame: WeakRef[AppFrameImpl[T]]): string = 
   frame[].configFile & ".window"
 
-proc loadLastWindow*[T](frame: WeakRef[AppFrameImpl[T]]): WindowConfig =
-  result = WindowConfig()
+proc loadLastWindow*[T](frame: WeakRef[AppFrameImpl[T]]): FrameConfig =
+  result = FrameConfig()
   if frame.windowCfgFile().fileExists():
     try:
       let jn = parseFile(frame.windowCfgFile())
-      result = jn.to(WindowConfig)
+      result = jn.to(FrameConfig)
     except Defect, CatchableError:
       discard
   notice "loadLastWindow", config= result
 
-proc writeWindowConfig*(window: WindowConfig, winCfgFile: string) =
+proc writeConfig*(cfg: FrameConfig, winCfgFile: string) =
     try:
-      let jn = %*(window)
+      let jn = %*(cfg)
       writeFile(winCfgFile, $(jn))
     except Defect, CatchableError:
       debug "error writing window position"
