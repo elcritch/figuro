@@ -44,7 +44,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   frame[].appWindow.running = true
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
-  renderer.makeContextCurrent()
+  # makeContextCurrent(renderer)
   startOpenGL(frame, openglVersion)
   let renderer = newRenderer(frame, 1.0, atlasSize)
 
