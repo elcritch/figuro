@@ -34,10 +34,7 @@ proc newRenderer*(
     atlasSize: int,
 ): Renderer =
   app.pixelScale = forcePixelScale
-  result = Renderer()
-  result.nodes = Renders()
-  result.frame = frame
-  result.window = window
+  result = Renderer(window: window, frame: frame, nodes: Renders())
 
   result.ctx = newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
   result.uxInputList = newRChan[AppInputs](5)
@@ -45,8 +42,6 @@ proc newRenderer*(
   result.lock.initLock()
   frame[].uxInputList = result.uxInputList
   frame[].rendInputList = result.rendInputList
-
-  configureWindowEvents(result, pollAndRender)
 
 proc renderDrawable*(ctx: Context, node: Node) =
   ## TODO: draw non-node stuff?

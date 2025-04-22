@@ -50,10 +50,9 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   echo "WINDOW:size: ", winCfg.size
 
   let window = createWindow(frame)
-  startOpenGL(frame, window, openglVersion)
-
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   echo "ATLAS SIZE: ", atlasSize
+  startOpenGL(frame, window, openglVersion)
   let renderer = newRenderer(frame, window, 1.0, atlasSize)
   configureWindowEvents(renderer, pollAndRender)
 
