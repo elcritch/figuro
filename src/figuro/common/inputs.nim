@@ -33,7 +33,7 @@ type
 
 variantp RenderCommands:
   RenderQuit
-  RenderUpdate(n: Renders, window: AppWindow)
+  RenderUpdate(n: Renders, appWindow: AppWindow)
   RenderSetTitle(name: string)
 
 
