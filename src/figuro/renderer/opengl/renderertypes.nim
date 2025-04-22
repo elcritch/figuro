@@ -6,10 +6,10 @@ import glcommons, context, formatflippy, utils
 import ../../common/rchannels
 import ../../common/nodes/uinodes
 
-type Renderer* = ref object
+type RendererImpl*[W] = ref object
   ctx*: Context
   duration*: Duration
-  # window*: W
+  window*: W
   uxInputList*: RChan[AppInputs]
   rendInputList*: RChan[RenderCommands]
   frame*: WeakRef[AppFrame]

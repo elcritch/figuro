@@ -10,6 +10,7 @@ import utils
 import glcommons
 import renderertypes
 import ../../common/nodes/uinodes
+import ../../common/rchannels
 
 # import ../patches/textboxes 
 var
@@ -106,9 +107,9 @@ proc getWindowInfo*(window: Window): AppWindow =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-proc configureWindowEvents(renderer: Renderer) =
+proc configureWindowEvents(renderer: RendererImpl[Window]) =
   let window = renderer.window
-  let winCfgFile = renderer.frame.windowCfgFile()
+  let winCfgFile = renderer.frame.frameCfgFile()
 
   window.runeInputEnabled = true
 
@@ -118,14 +119,14 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onMove = proc() =
     let frameCfg = FrameConfig(size: window.size(), pos: window.pos())
-    writeFrameConfig(window, winCfgFile)
+    writeFrameConfig(frameCfg, winCfgFile)
     # debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
     # updateWindowSize(renderer.frame, window)
     let windowState = getWindowInfo(window)
     var uxInput = window.copyInputs()
-    uxInput.window = some windowState
+    uxInput.appWindow = some windowState
     renderer.uxInputList.push(uxInput)
     # echo "RENDER LOOP: resize: start: ", windowState.box.wh.scaled(), " sent: ", sent
     # writeWindowConfig(window, winCfgFile)
@@ -135,7 +136,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onFocusChange = proc() =
     var uxInput = window.copyInputs()
-    uxInput.window = some getWindowInfo(window)
+    uxInput.appWindow = some getWindowInfo(window)
     renderer.uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =

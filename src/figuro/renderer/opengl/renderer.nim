@@ -20,6 +20,9 @@ export renderertypes
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
+type
+  Renderer* = RendererImpl[Window]
+
 proc newRenderer*(
     frame: WeakRef[AppFrame],
     window: Window,
