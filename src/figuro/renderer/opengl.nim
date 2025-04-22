@@ -2,7 +2,7 @@ import std/[options, unicode, hashes, strformat, strutils, tables, times]
 import std/[os, json]
 import std/terminal
 
-import pkg/pixie
+import pkg/opengl
 import pkg/sigils/weakrefs
 
 import pkg/chronicles 
@@ -15,14 +15,9 @@ import ./opengl/renderer
 
 export Renderer, runRendererLoop
 
-proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
+proc startOpenGL*(renderer: Renderer, frame: WeakRef[AppFrame], openglVersion: (int, int)) =
 
-  if window.isNil:
-    quit(
-      "Failed to open window. GL version:" & &"{openglVersion[0]}.{$openglVersion[1]}"
-    )
-
-  window.makeContextCurrent()
+  renderer.makeContextCurrent()
 
   when not defined(emscripten):
     loadExtensions()
@@ -43,6 +38,7 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
   # updateWindowSize(frame, window)
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
+  let winCfg = frame.loadLastWindow()
   if winCfg.size.x != 0 and winCfg.size.y != 0:
     let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
     frame[].appWindow.box.w = sz.x.UiScalar
@@ -51,8 +47,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   let renderer = newRenderer(frame, 1.0, atlasSize)
-  let pollAndRender: PollAndRenderProc[Window] = pollAndRender
-  startOpenGL(frame, renderer.window, openglVersion)
+  startOpenGL(renderer, frame, openglVersion)
 
   app.requestedFrame.inc
 

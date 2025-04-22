@@ -37,8 +37,6 @@ proc newRenderer*(
   renderer.createWindow(frame)
   renderer.configureWindowEvents(pollAndRender)
 
-  startOpenGL(frame, renderer.window, openglVersion)
-
   renderer.nodes = Renders()
   renderer.frame = frame
   renderer.ctx =
@@ -347,14 +345,14 @@ proc renderAndSwap(renderer: Renderer) =
     echo "gl error: " & $error.uint32
 
   timeIt(drawFrameSwap):
-    renderer.window.swapBuffers()
+    swapBuffers(renderer)
 
 proc pollAndRender*(renderer: Renderer, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
 
   if poll:
-    windex.pollEvents()
+    pollEvents(renderer)
   
   var update = false
   var cmd: RenderCommands
@@ -370,7 +368,7 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
         app.running = false
         return
       RenderSetTitle(name):
-        renderer.window.title = name
+        setTitle(renderer, name)
 
   if update:
     renderAndSwap(renderer)
