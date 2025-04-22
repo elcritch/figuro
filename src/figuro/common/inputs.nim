@@ -26,6 +26,11 @@ type
     running*, focused*, minimized*, fullscreen*: bool
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
 
+  WindowConfig* = object
+    pos*: IVec2 = ivec2(100, 100)
+    size*: IVec2 = ivec2(0, 0)
+
+
 variantp RenderCommands:
   RenderQuit
   RenderUpdate(n: Renders, window: AppWindow)
