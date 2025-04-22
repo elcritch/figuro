@@ -51,7 +51,7 @@ proc draw*(self: Main) {.slot.} =
         size 80'pp, 60'ux
         fill css"white".darken(0.3)
         this.minMax = 0.0..1.0
-        label this, {defaultFont(): $(this.state.round(2))}
+        label this, {defaultFont(): fmt"{this.state:.2f}"}
 
       Dropdown[string].new "dropdown1":
         size 80'pp, 30'ux
