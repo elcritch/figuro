@@ -9,9 +9,12 @@ from pixie import Image
 import pkg/sigils
 import pkg/chronicles
 
+import window, glcommons, context, formatflippy, utils, window
+
 import ../../common/rchannels
 import ../../common/nodes/uinodes
-import window, glcommons, context, formatflippy, utils
+
+
 
 import std/locks
 

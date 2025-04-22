@@ -50,10 +50,10 @@ proc getScaleInfo*(window: Window): ScaleInfo =
 
 proc configureWindow*(frame: WeakRef[AppFrame], window: Window) =
   assert not frame.isNil
-  if frame[].window.fullscreen:
-    window.fullscreen = frame[].window.fullscreen
+  if frame[].appWindow.fullscreen:
+    window.fullscreen = frame[].appWindow.fullscreen
   else:
-    window.size = ivec2(frame[].window.box.wh.scaled())
+    window.size = ivec2(frame[].appWindow.box.wh.scaled())
 
   window.visible = true
 
@@ -79,7 +79,7 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
 
   # app.lastDraw = getTicks()
   # app.lastTick = app.lastDraw
-  frame[].window.focused = true
+  frame[].appWindow.focused = true
 
   useDepthBuffer(false)
   # updateWindowSize(frame, window)
@@ -212,4 +212,4 @@ proc configureWindowEvents(renderer: Renderer) =
       )
     renderer.uxInputList.push(uxInput)
 
-  renderer.frame[].window.running = true
+  renderer.frame[].appWindow.running = true
