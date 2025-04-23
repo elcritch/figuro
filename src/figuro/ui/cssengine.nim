@@ -242,10 +242,8 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
     debug "cssengine", error= "unhandled css property", propertyName= prop.name
     discard
 
-proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
-  trace "### eval:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
-  trace "rule: ", selectors = rule.selectors, selRepr = rule.selectors.repr
-
+proc evalRoot*(rule: CssBlock, node: Figuro, values: CssValues) =
+  trace "### evalRoot:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
   var
     sel: CssSelector
     matched = true
@@ -263,6 +261,47 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
           values.applied.incl sel.cssType
         else:
           matched = false
+        continue
+    trace "selMatch: ", matched = matched, idx = i
+    prevCombinator = sel.combinator
+
+  if matched:
+    trace "cssengine", name= node.name, matchedNode= node.uid, rule= rule
+    for prop in rule.properties:
+      prop.apply(node, values)
+  
+proc applyThemeRoots*(node: Figuro) =
+  # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  for (path, theme) in node.frame[].theme.css:
+    let values = theme.values
+    if SkipCss in node.userAttrs:
+      return
+    let node = if node of Text: node.parent[] else: node
+    for rule in rules(theme):
+      rule.evalRoot(node, values)
+
+proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
+  trace "### eval:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
+  trace "rule: ", selectors = rule.selectors, selRepr = rule.selectors.repr
+
+  var
+    sel: CssSelector
+    matched = true
+    prevCombinator = skNone
+    currNode = node  # Keep track of which node we're currently matching against
+
+  for i in 1 .. rule.selectors.len():
+    sel = rule.selectors[^i]
+    trace "SEL: ", sel = sel, comb = $prevCombinator
+
+    if sel.combinator == skPseudo:
+      if prevCombinator == skNone and sel.cssType in [atom"root", atom"default"]:
+        # if values != nil and not values.applied.contains(sel.cssType):
+        #   matched = true
+        #   values.applied.incl sel.cssType
+        # else:
+        #   matched = false
+        matched = false
         continue
 
       prevCombinator = sel.combinator
