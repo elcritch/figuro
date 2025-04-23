@@ -87,7 +87,7 @@ when not defined(noFiguroDmonMonitor):
       let css = loadTheme(file)
       if css != nil:
         notice "CSS Updated: ", file = file, css = rules(css).toSeq.len()
-        emit self.cssUpdate(css)
+        emit self.cssUpdate(file, css)
         os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
         notice "CSS Updated: second: ", file = file, css = rules(css).toSeq.len()
         emit self.cssUpdate(css)
