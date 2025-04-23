@@ -375,7 +375,7 @@ template withRootWidget*(self, blk: untyped) =
   this.name = "root".toAtom()
 
   Rectangle.new "main":
-    this.cxSize = [100'pp, 100'pp]
+    # this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`
 
