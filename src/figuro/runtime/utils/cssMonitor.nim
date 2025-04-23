@@ -21,21 +21,23 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-var lastModificationTime: times.Time
+var lastModificationTime: Table[string, Time]
 
 proc themePath*(): string =
   result = "theme.css".absolutePath()
 
-proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
-  # let defaultTheme = themePath()
-  if defaultTheme.fileExists():
-    let ts = getLastModificationTime(defaultTheme)
-    if ts > lastModificationTime:
-      lastModificationTime = ts
-      notice "Loading CSS file", cssFile = defaultTheme
-      let parser = newCssParser(Path(defaultTheme))
+proc appThemePath*(): string =
+  result = os.getAppFilename().replace(".exe", "") & ".css"
+
+proc loadTheme*(theme: string = themePath()): CssTheme =
+  if theme.fileExists():
+    let ts = getLastModificationTime(theme)
+    if theme notin lastModificationTime or ts > lastModificationTime[theme]:
+      lastModificationTime[theme] = ts
+      notice "Loading CSS file", cssFile = theme
+      let parser = newCssParser(Path(theme))
       result = newCssTheme(parser)
-      notice "Loaded CSS file", cssFile = defaultTheme
+      notice "Loaded CSS file", cssFile = theme
 
 proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
   debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
@@ -68,9 +70,9 @@ when not defined(noFiguroDmonMonitor):
     let defaultTheme = themePath()
     let watchId1: WatchId = watch(defaultTheme.splitFile.dir, watchCallback, {}, nil)
 
-    var appFile = os.getAppFilename().replace(".exe", "") & ".css"
+    var appFile = appThemePath()
     let watchId2: WatchId = watch(appFile.splitFile.dir, watchCallback, {}, nil)
-    notice "Started CSS Watcher", theme = themePath(), appTheme= appFile
+    notice "Started CSS Watcher", theme = defaultTheme, appTheme= appFile
 
     proc update(file: string) =
       let css = loadTheme(file)
@@ -81,7 +83,7 @@ when not defined(noFiguroDmonMonitor):
         notice "CSS Updated: second: ", file = file, css = rules(css).toSeq.len()
         emit self.cssUpdate(css)
 
-    let cssFiles = @[defaultTheme, appFile]
+    let cssFiles = @[appFile, defaultTheme]
     var currTheme = ""
     for file in cssFiles:
       if file.existsFile():
@@ -92,7 +94,7 @@ when not defined(noFiguroDmonMonitor):
 
     while isRunning(getCurrentSigilThread()[]):
       let file = cssUpdates.recv()
-      if file notin cssFiles:
+      if file != currTheme:
         notice "CSS Skipping", file = file
         continue
       else:

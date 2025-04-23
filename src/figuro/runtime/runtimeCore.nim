@@ -73,9 +73,6 @@ proc setupTicker*(frame: AppFrame) =
     ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
   )
 
-  let css = loadTheme()
-  frame.updateTheme(css)
-
   when not defined(noFiguroDmonMonitor):
     var cssWatcher = CssLoader(period: renderDuration)
     cssWatcherThread.setupThread(
