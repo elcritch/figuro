@@ -56,6 +56,7 @@ proc tick*(self: AppTicker) {.slot.} =
   while app.running:
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
+  notice "Stopping AppTicker"
 
 template setupThread(thread, obj, sig, slot, starter: untyped) =
   `thread` = newSigilThread()
