@@ -14,7 +14,7 @@ import pkg/chronicles
 type CssLoader* = ref object of Agent
   period*: Duration
 
-proc cssUpdate*(tp: CssLoader, css: CssTheme) {.signal.}
+proc cssUpdate*(tp: CssLoader, path: string, css: CssTheme) {.signal.}
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
