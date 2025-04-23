@@ -5,7 +5,7 @@ import sigils/threads
 import ../../commons
 import ../../common/rchannels
 import ../../ui/core
-
+import ../../ui/cssengine
 when not defined(noFiguroDmonMonitor):
   import dmon
 
@@ -55,6 +55,7 @@ proc updateTheme*(self: AppFrame, path: string) {.slot.} =
       debug "Updating CSS theme into app", path = path, idx = idx
       self.theme.css[idx] = (path, css)
     debug "CSS theme into app", path = path, numberOfCssRules = rules(css).toSeq().len(), cssPaths = self.theme.css.mapIt(it[0])
+    applyThemeRoots(self.root)
     refresh(self.root)
 
 when not defined(noFiguroDmonMonitor):
