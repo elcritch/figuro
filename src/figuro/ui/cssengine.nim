@@ -274,9 +274,6 @@ proc applyThemeRoots*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
   let values = node.frame[].theme.cssValues
   for (path, theme) in node.frame[].theme.css:
-    if SkipCss in node.userAttrs:
-      return
-    let node = if node of Text: node.parent[] else: node
     for rule in rules(theme):
       rule.evalRoot(node, values)
 
