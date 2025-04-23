@@ -40,7 +40,6 @@ proc draw*(self: Main) {.slot.} =
         # echo "inner-shadow: ", this.shadow[InnerShadow]
         # echo "outer-shadow: ", this.shadow[DropShadow]
 
-
       Slider[float].new "slider1":
         size 80'pp, 60'ux
         fill css"white".darken(0.3)
