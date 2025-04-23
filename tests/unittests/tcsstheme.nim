@@ -248,7 +248,7 @@ suite "css exec":
     let values {.inject, used.} = newCssValues()
     let rules = parse(parser, values)
     # print cssTheme
-    main.frame[].theme.css = CssTheme(rules: rules, values: values)
+    main.frame[].theme.css = @[(path: "", theme: CssTheme(rules: rules, values: values))]
     connectDefaults(main)
     emit main.doDraw()
     let btnA {.inject, used.} = main.children[0].children[1]
@@ -664,7 +664,7 @@ suite "css exec":
 
     """
     let parser = newCssParser(themeSrc2)
-    main.frame[].theme.css = parser.newCssTheme()
+    main.frame[].theme.css = @[(path: "", theme: parser.newCssTheme())]
     emit main.doDraw()
 
     check btnB.fill == parseHtmlColor("#0000FF")
@@ -702,7 +702,7 @@ suite "css exec":
 
     """
     let parser = newCssParser(themeSrc2)
-    main.frame[].theme.css = parser.newCssTheme()
+    main.frame[].theme.css = @[(path: "", theme: parser.newCssTheme())]
     emit main.doDraw()
 
     check btnB.fill == parseHtmlColor("#0000FF")
@@ -804,7 +804,7 @@ suite "css exec":
     """
     
     let parser = newCssParser(updatedThemeSrc)
-    main.frame[].theme.css = parser.newCssTheme()
+    main.frame[].theme.css = @[(path: "", theme: parser.newCssTheme())]
     emit main.doDraw()
     
     # Check that updated nested variables are applied

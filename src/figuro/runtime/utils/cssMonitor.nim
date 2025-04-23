@@ -39,12 +39,13 @@ proc loadTheme*(theme: string = themePath()): CssTheme =
       result = newCssTheme(parser)
       notice "Loaded CSS file", cssFile = theme
 
-proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
-  debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
-  let values = self.theme.css.values
-  self.theme.css = css
-  self.theme.css.values = values
-  refresh(self.root)
+proc updateTheme*(self: AppFrame, path: string, css: CssTheme) {.slot.} =
+  if css != nil:
+    debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
+    let values = self.theme.css.values
+    self.theme.css = css
+    self.theme.css.values = values
+    refresh(self.root)
 
 when not defined(noFiguroDmonMonitor):
   var watcherSelf: WeakRef[CssLoader]

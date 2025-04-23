@@ -1,6 +1,8 @@
 import std/unicode
 import std/monotimes
 import std/hashes
+import std/tables
+
 import pkg/stack_strings
 import pkg/sigils/weakrefs
 import pkg/sigils
@@ -30,7 +32,7 @@ type
 
   Theme* = object
     font*: UiFont
-    css*: CssTheme
+    css*: seq[tuple[path: string, theme: CssTheme]]
 
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]

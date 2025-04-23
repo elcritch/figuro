@@ -316,11 +316,10 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
 
 proc applyThemeRules*(node: Figuro) =
   # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
-  assert not node.frame[].theme.css.isNil
-  assert not node.frame[].theme.css.values.isNil
-  let values = node.frame[].theme.css.values
-  if SkipCss in node.userAttrs:
-    return
-  let node = if node of Text: node.parent[] else: node
-  for rule in rules(node.frame[].theme.css):
-    rule.eval(node, values)
+  for (path, theme) in node.frame[].theme.css:
+    let values = theme.values
+    if SkipCss in node.userAttrs:
+      return
+    let node = if node of Text: node.parent[] else: node
+    for rule in rules(theme):
+      rule.eval(node, values)
