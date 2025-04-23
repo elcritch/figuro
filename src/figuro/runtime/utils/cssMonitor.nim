@@ -31,27 +31,30 @@ proc appThemePath*(): string =
 
 proc loadTheme*(theme: string = themePath(), values: CssValues): CssTheme =
   if theme.fileExists():
-    let ts = getLastModificationTime(theme)
-    if theme notin lastModificationTime or ts > lastModificationTime[theme]:
-      lastModificationTime[theme] = ts
-      notice "Loading CSS file", cssFile = theme
-      let parser = newCssParser(Path(theme))
-      result = newCssTheme(parser, values)
-      notice "Loaded CSS file", cssFile = theme
+    # let ts = getLastModificationTime(theme)
+    # if theme notin lastModificationTime or ts > lastModificationTime[theme]:
+    # lastModificationTime[theme] = ts
+    notice "Loading CSS file", cssFile = theme
+    let parser = newCssParser(Path(theme))
+    result = newCssTheme(parser, values)
+    notice "Loaded CSS file", cssFile = theme
 
 proc updateTheme*(self: AppFrame, path: string) {.slot.} =
   let css = loadTheme(path, self.theme.cssValues)
   if css != nil:
-    debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
+    debug "before update CSS theme into app", path = path, numberOfCssRules = rules(css).toSeq().len(), cssPaths = self.theme.css.mapIt(it[0])
     var idx = -1
-    for i, (path, theme) in self.theme.css:
-      if path == path:
+    for i, css in self.theme.css:
+      if path == css[0]:
         idx = i; break
     if idx == -1:
       self.theme.css.add((path, css))
       idx = self.theme.css.len - 1
+      debug "Adding new CSS theme into app", path = path, idx = idx
     else:
+      debug "Updating CSS theme into app", path = path, idx = idx
       self.theme.css[idx] = (path, css)
+    debug "CSS theme into app", path = path, numberOfCssRules = rules(css).toSeq().len(), cssPaths = self.theme.css.mapIt(it[0])
     refresh(self.root)
 
 when not defined(noFiguroDmonMonitor):
