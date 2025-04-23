@@ -14,7 +14,7 @@ import pkg/chronicles
 type CssLoader* = ref object of Agent
   period*: Duration
 
-proc cssUpdate*(tp: CssLoader, path: string, css: CssTheme) {.signal.}
+proc cssUpdate*(tp: CssLoader, path: string) {.signal.}
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
@@ -29,17 +29,18 @@ proc themePath*(): string =
 proc appThemePath*(): string =
   result = os.getAppFilename().replace(".exe", "") & ".css"
 
-proc loadTheme*(theme: string = themePath()): CssTheme =
+proc loadTheme*(theme: string = themePath(), values: CssValues): CssTheme =
   if theme.fileExists():
     let ts = getLastModificationTime(theme)
     if theme notin lastModificationTime or ts > lastModificationTime[theme]:
       lastModificationTime[theme] = ts
       notice "Loading CSS file", cssFile = theme
       let parser = newCssParser(Path(theme))
-      result = newCssTheme(parser)
+      result = newCssTheme(parser, values)
       notice "Loaded CSS file", cssFile = theme
 
-proc updateTheme*(self: AppFrame, path: string, css: CssTheme) {.slot.} =
+proc updateTheme*(self: AppFrame, path: string) {.slot.} =
+  let css = loadTheme(path, self.theme.cssValues)
   if css != nil:
     debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
     var idx = -1
@@ -50,9 +51,7 @@ proc updateTheme*(self: AppFrame, path: string, css: CssTheme) {.slot.} =
       self.theme.css.add((path, css))
       idx = self.theme.css.len - 1
     else:
-      let values = self.theme.css[idx].theme.values
       self.theme.css[idx] = (path, css)
-      self.theme.css[idx].theme.values = values
     refresh(self.root)
 
 when not defined(noFiguroDmonMonitor):
@@ -84,13 +83,12 @@ when not defined(noFiguroDmonMonitor):
     notice "Started CSS Watcher", theme = defaultTheme, appTheme= appFile
 
     proc update(file: string) =
-      let css = loadTheme(file)
-      if css != nil:
-        notice "CSS Updated: ", file = file, css = rules(css).toSeq.len()
-        emit self.cssUpdate(file, css)
-        os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-        notice "CSS Updated: second: ", file = file, css = rules(css).toSeq.len()
-        emit self.cssUpdate(file, css)
+      # let css = loadTheme(file)
+      notice "CSS Updated: ", file = file
+      emit self.cssUpdate(file)
+      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+      notice "CSS Updated: second: ", file = file
+      emit self.cssUpdate(file)
 
     let cssFiles = @[appFile, defaultTheme]
     var currTheme = ""

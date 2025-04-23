@@ -60,7 +60,7 @@ proc buttonDrag*[T](
     refresh(self)
 
 proc initialize*[T](self: Slider[T]) {.slot.} =
-  let cssValues = self.frame[].theme.css[^1].theme.values
+  let cssValues = self.frame[].theme.cssValues
   self.halfSize = cssValues.registerVariable("figHalfSize", CssSize(20'ux))
   self.buttonSize = cssValues.registerVariable("fig-slider-button-width", CssSize(20'ux))
   self.fillingSize = cssValues.registerVariable("fig-slider-filling-size", CssSize(20'ux))

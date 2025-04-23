@@ -12,7 +12,7 @@ export cssbasics, cssvalues
 
 type
   CssTheme* = ref object
-    values*: CssValues
+    # values*: CssValues
     rules*: seq[CssBlock]
 
 proc `$`*(theme: CssTheme): string =
@@ -351,7 +351,6 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         parser.eat(tkColon)
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)
-          warn("CSS: peek after shadow: ", peek = parser.peek().repr, token = tk.repr)
       elif result[^1].value == MissingCssValue():
         if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
           result[^1].value = CssVarName(values.registerVariable(tk.ident.toAtom()))
@@ -403,6 +402,5 @@ proc parse*(parser: CssParser, values: CssValues): seq[CssBlock] =
       error "CSS: error parsing css body", error = e.msg
       continue
 
-proc newCssTheme*(parser: CssParser): CssTheme =
-  let values = newCssValues()
-  result = CssTheme(rules: parser.parse(values), values: values)
+proc newCssTheme*(parser: CssParser, values: CssValues): CssTheme =
+  result = CssTheme(rules: parser.parse(values))

@@ -32,6 +32,7 @@ type
 
   Theme* = object
     font*: UiFont
+    cssValues*: CssValues
     css*: seq[tuple[path: string, theme: CssTheme]]
 
   AppFrame* = ref object of Agent

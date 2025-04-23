@@ -65,7 +65,7 @@ template setupThread(thread, obj, sig, slot, starter: untyped) =
   `thread`.start()
   frame.proxies.add proxy
 
-proc setupTicker*(frame: AppFrame) =
+proc setupHelperThreads*(frame: AppFrame) =
   threadEffects:
     AppMainThread
   var ticker = AppTicker(period: renderDuration)
@@ -73,8 +73,8 @@ proc setupTicker*(frame: AppFrame) =
     ticker, sig = appTick, slot = frame.frameRunner, starter = AppTicker.tick()
   )
 
-  frame.updateTheme(themePath(), loadTheme(themePath()))
-  frame.updateTheme(appThemePath(), loadTheme(appThemePath()))
+  frame.updateTheme(themePath())
+  frame.updateTheme(appThemePath())
 
   when not defined(noFiguroDmonMonitor):
     var cssWatcher = CssLoader(period: renderDuration)
@@ -90,7 +90,7 @@ proc setupTicker*(frame: AppFrame) =
 proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   threadEffects:
     AppMainThread
-  self.setupTicker()
+  self.setupHelperThreads()
   emit self.root.doInitialize() # run root's doInitialize now things are setup and on the right thread
 
 proc getAppConfigFile(): string =
