@@ -42,9 +42,17 @@ proc loadTheme*(theme: string = themePath()): CssTheme =
 proc updateTheme*(self: AppFrame, path: string, css: CssTheme) {.slot.} =
   if css != nil:
     debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
-    let values = self.theme.css.values
-    self.theme.css = css
-    self.theme.css.values = values
+    var idx = -1
+    for i, (path, theme) in self.theme.css:
+      if path == path:
+        idx = i; break
+    if idx == -1:
+      self.theme.css.add((path, css))
+      idx = self.theme.css.len - 1
+    else:
+      let values = self.theme.css[idx].theme.values
+      self.theme.css[idx] = (path, css)
+      self.theme.css[idx].theme.values = values
     refresh(self.root)
 
 when not defined(noFiguroDmonMonitor):
