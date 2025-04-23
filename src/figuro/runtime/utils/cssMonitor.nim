@@ -90,7 +90,7 @@ when not defined(noFiguroDmonMonitor):
     if currTheme.fileExists():
       currTheme.update()
 
-    while true:
+    while isRunning(getCurrentSigilThread()[]):
       let file = cssUpdates.recv()
       if file notin cssFiles:
         notice "CSS Skipping", file = file

@@ -127,8 +127,15 @@ proc newContext*(
     result.maskShader =
       newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/mask.frag")
   else:
-    result.atlasShader = newShaderStatic("glsl/atlas.vert", "glsl/atlas.frag")
-    result.maskShader = newShaderStatic("glsl/atlas.vert", "glsl/mask.frag")
+    try:
+      result.atlasShader = newShaderStatic("glsl/atlas.vert", "glsl/atlas.frag")
+      result.maskShader = newShaderStatic("glsl/atlas.vert", "glsl/mask.frag")
+    except ShaderCompilationError:
+      info "OpenGL 3.30 failed, trying GLSL ES"
+      result.atlasShader =
+        newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/atlas.frag")
+      result.maskShader =
+        newShaderStatic("glsl/emscripten/atlas.vert", "glsl/emscripten/mask.frag")
 
   result.positions.buffer.componentType = cGL_FLOAT
   result.positions.buffer.kind = bkVEC2

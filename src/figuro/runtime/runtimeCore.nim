@@ -56,7 +56,6 @@ proc tick*(self: AppTicker) {.slot.} =
   while app.running:
     emit self.appTick()
     os.sleep(self.period.inMilliseconds)
-  notice "Stopping AppTicker"
 
 template setupThread(thread, obj, sig, slot, starter: untyped) =
   `thread` = newSigilThread()
@@ -135,10 +134,15 @@ proc runForever*(frame: var AppFrame, frameRunner: AgentProcTy[tuple[]]) =
   appThread.start()
 
   proc ctrlc() {.noconv.} =
-    echo "Got Ctrl+C exiting!"
+    notice "Got Ctrl+C exiting!"
     app.running = false
 
   setControlCHook(ctrlc)
 
-  info "Running renderer"
   runRendererLoop(renderer)
+  appTickThread.stop()
+  appTickThread.join()
+  appThread.stop()
+  appThread.join()
+  debug "App thread exited, quitting"
+  quit()

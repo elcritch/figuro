@@ -384,3 +384,6 @@ proc runRendererLoop*(renderer: Renderer) =
     # let avgMicros = time.micros.toInt() div 1_000
     # os.sleep(renderer.duration.inMilliseconds - avgMicros)
     os.sleep(renderer.duration.inMilliseconds)
+  debug "Renderer loop exited"
+  renderer.window.close()
+  debug "Renderer window closed"
