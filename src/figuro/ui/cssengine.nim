@@ -246,7 +246,7 @@ proc evalRoot*(rule: CssBlock, node: Figuro, values: CssValues) =
   trace "### evalRoot:", node= node.name, wn= node.widgetName, sel=rule.selectors.len
   var
     sel: CssSelector
-    matched = true
+    matched = false
     prevCombinator = skNone
     currNode = node  # Keep track of which node we're currently matching against
 

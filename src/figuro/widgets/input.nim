@@ -52,7 +52,7 @@ proc `active=`*(self: Input, state: bool) =
   self.setUserAttr({Active}, state)
 
 proc `disabled`*(self: Input, state: bool) =
-  self.setUserAttr({Disabled}, state)
+  self.setUserAttr({Attributes.Disabled}, state)
 
 proc overwrite*(self: Input): bool =
   Overwrite in self.text.opts
