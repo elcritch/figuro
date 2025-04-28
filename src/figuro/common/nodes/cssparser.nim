@@ -149,6 +149,8 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
   parser.skip({tkWhiteSpace})
   parser.eat(tkCurlyBracketBlock)
 
+  error "CSS: parseRuleBody: ", values = values.values
+
   result.add(CssProperty())
 
   template popIncompleteProperty(warning = true) =
@@ -166,6 +168,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
     of tkIdent:
       discard parser.nextToken()
       if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
+        debug "CSS: property var: ", varName = tk.ident, values = values.values
         result = CssVarName(values.registerVariable(tk.ident.toAtom()))
       else:
         try:
@@ -223,10 +226,11 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         else:
           discard
 
-      trace "CSS: property function:peek: ", peek = parser.peek().repr, fnName = fnName, args = $args, argsRepr = args.repr
+      debug "CSS: property function:peek: ", peek = parser.peek().repr, fnName = fnName, args = $args, argsRepr = args.repr
       if args.len() == 1 and fnName == "var":
         let arg = toAtom(args[0].ident.substr(2,) )
         result = CssVarName(values.registerVariable(arg))
+        debug "CSS: property function:var: ", arg = arg, values = values.values, valuesApplied = values.applied, valuesParent = values.parent.isNil
       elif fnName == "calc" and args.len() == 3:
         warn "CSS: property function:calc: ", args = repr(args)
         if args[1].kind == tkIdent:

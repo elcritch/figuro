@@ -247,7 +247,8 @@ suite "css exec":
     let parser = newCssParser(themeSrc)
     let values {.inject, used.} = newCssValues()
     let rules = parse(parser, values)
-    echo "rules: ", values.values
+    echo "rules: ", rules
+    echo "values: ", values
     # print cssTheme
     main.frame[].theme.cssValues = values
     main.frame[].theme.css = @[(path: "", theme: CssTheme(rules: rules))]

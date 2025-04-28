@@ -37,6 +37,35 @@ proc setDefault*(vars: CssValues, idx: CssVarId, value: CssValue) =
   if idx notin vars.values:
     vars.setVariable(idx, value)
 
+proc `$`*(vars: CssValues): string =
+  ## Returns a string representation of the CSS variables
+  result = "CssValues:\n"
+  # Add names table
+  result.add "  Names:\n"
+  for name, id in vars.names:
+    result.add "    " & $name & " => " & $id & "\n"
+  
+  # Add variables table
+  result.add "  Variables:\n"
+  for id, value in vars.variables:
+    let varName = vars.variableName(id)
+    let nameStr = if varName != "": " (" & varName & ")" else: ""
+    result.add "    " & $id & nameStr & " => " & $value & "\n"
+
+  # Add values table
+  result.add "  Values:\n"
+  for id, value in vars.values:
+    let varName = vars.variableName(id)
+    let nameStr = if varName != "": " (" & varName & ")" else: ""
+    result.add "    " & $id & nameStr & " => " & $value & "\n"
+  
+  # Add functions table
+  result.add "  Functions:\n"
+  for id, _ in vars.funcs:
+    let varName = vars.variableName(id)
+    let nameStr = if varName != "": " (" & varName & ")" else: ""
+    result.add "    " & $id & nameStr & " => <function>\n"
+
 proc registerVariable*(vars: CssValues, name: Atom): CssVarId =
   ## Registers a new CSS variable with the given name
   ## Returns the variable index
