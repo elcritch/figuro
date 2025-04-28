@@ -29,7 +29,7 @@ proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: Ui
 
 proc initialize*[T](self: Combobox[T]) {.slot.} =
   self.data = SelectedElements[T]()
-  let cssValues = self.frame[].theme.css.values
+  let cssValues = self.frame[].theme.cssValues
   connect(self.data, doSelected, self, Figuro.refresh(), acceptVoidSlot = true)
 
 proc draw*[T](self: ComboboxItem[T]) {.slot.} =

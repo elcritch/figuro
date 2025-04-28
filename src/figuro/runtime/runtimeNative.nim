@@ -11,6 +11,7 @@ import ../ui/[core, layout]
 import ../common/nodes/[transfer, uinodes, render]
 import ../common/rchannels
 import ../runtime/utils/timers
+import ../runtime/utils/cssMonitor
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}

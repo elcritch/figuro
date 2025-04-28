@@ -55,8 +55,8 @@ Slider #thumb {
 }
 
 #widgets-vert {
-  left: 10%;
-  width: 80%;
+  left: 12%;
+  width: 76%;
   border-width: 1px;
   border-color: green;
 }
@@ -74,7 +74,7 @@ Toggle #thumb {
   border-radius: 5px;
   width: 80%;
   height: 80%;
-  left: 10%;
+  left: 14%;
   top: 10%;
 }
 
@@ -84,7 +84,7 @@ TextToggle #thumb {
   border-radius: 5px;
   width: 80%;
   height: 80%;
-  left: 10%;
+  left: 13%;
   top: 10%;
 }
 

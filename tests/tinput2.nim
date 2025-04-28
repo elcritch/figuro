@@ -43,7 +43,7 @@ proc initialize*(self: Main) {.slot.} =
   self.setTitle(title)
   self.bkgFade.addTarget(self)
   self.running = false
-  connect(self.bkgFade, fadeTick, self, Main.fading())
+  connect(self.bkgFade, doFadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
   

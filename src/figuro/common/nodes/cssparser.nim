@@ -12,7 +12,7 @@ export cssbasics, cssvalues
 
 type
   CssTheme* = ref object
-    values*: CssValues
+    # values*: CssValues
     rules*: seq[CssBlock]
 
 proc `$`*(theme: CssTheme): string =
@@ -149,6 +149,8 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
   parser.skip({tkWhiteSpace})
   parser.eat(tkCurlyBracketBlock)
 
+  trace "CSS: parseRuleBody: ", values = values
+
   result.add(CssProperty())
 
   template popIncompleteProperty(warning = true) =
@@ -166,6 +168,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
     of tkIdent:
       discard parser.nextToken()
       if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
+        trace "CSS: property var: ", varName = tk.ident, values = values
         result = CssVarName(values.registerVariable(tk.ident.toAtom()))
       else:
         try:
@@ -228,7 +231,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         let arg = toAtom(args[0].ident.substr(2,) )
         result = CssVarName(values.registerVariable(arg))
       elif fnName == "calc" and args.len() == 3:
-        warn "CSS: property function:calc: ", args = repr(args)
+        trace "CSS: property function:calc: ", args = repr(args)
         if args[1].kind == tkIdent:
           let op = args[1].ident
           warn "CSS: property function:calc: ", op = op
@@ -243,10 +246,10 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
             cx = csAuto()
           result = CssSize(cx)
       elif fnName == "min" and args.len() == 2:
-        warn "CSS: property function:min: ", args = repr(args)
+        trace "CSS: property function:min: ", args = repr(args)
         result = CssSize(csMin(getConstraintSize(args[0]), getConstraintSize(args[1])))
       elif fnName == "max" and args.len() == 2:
-        warn "CSS: property function:max: ", args = repr(args)
+        trace "CSS: property function:max: ", args = repr(args)
         result = CssSize(csMax(getConstraintSize(args[0]), getConstraintSize(args[1])))
       elif fnName == "rgb" and args.len() == 3:
         let color = getColorArgs(args).join(",")
@@ -351,7 +354,6 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         parser.eat(tkColon)
         if result[^1].name == "box-shadow":
           result[^1].value = parseShadow(tk)
-          warn("CSS: peek after shadow: ", peek = parser.peek().repr, token = tk.repr)
       elif result[^1].value == MissingCssValue():
         if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
           result[^1].value = CssVarName(values.registerVariable(tk.ident.toAtom()))
@@ -403,6 +405,5 @@ proc parse*(parser: CssParser, values: CssValues): seq[CssBlock] =
       error "CSS: error parsing css body", error = e.msg
       continue
 
-proc newCssTheme*(parser: CssParser): CssTheme =
-  let values = newCssValues()
-  result = CssTheme(rules: parser.parse(values), values: values)
+proc newCssTheme*(parser: CssParser, values: CssValues): CssTheme =
+  result = CssTheme(rules: parser.parse(values))

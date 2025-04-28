@@ -85,12 +85,12 @@ proc scroll*(self: ScrollPane, wheelDelta: Position, force: bool) =
   # debug "scroll: ", name = self.name, scrollChanged = scrollChanged
   if scrollChanged or force:
     trace "scroll:window ", name = self.name, hash = self.window.hash(), 
-      scrollby = self.window.scrollby.repr, viewSize = self.window.viewSize.repr,
+      viewSize = self.window.viewSize.repr,
       contentSize = self.window.contentSize.repr,
       contentOverflow = self.window.contentOverflow.repr,
       contentViewRatio = self.window.contentViewRatio.repr
     trace "scroll:window ", name = self.name, hash = window.hash(),
-      scrollby = window.scrollby.repr, viewSize = window.viewSize.repr,
+      viewSize = window.viewSize.repr,
       contentSize = window.contentSize.repr,
       contentOverflow = window.contentOverflow.repr,
       contentViewRatio = window.contentViewRatio.repr

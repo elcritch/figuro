@@ -4,7 +4,6 @@ import std/isolation
 import pkg/vmath
 import pkg/pixie
 import pkg/pixie/fonts
-import pkg/windex
 import pkg/chronicles
 
 import ./rchannels

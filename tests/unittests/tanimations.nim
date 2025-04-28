@@ -21,7 +21,7 @@ proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =
   # echo "TICK: ", now, " delta: ", delta
   discard
 
-proc fadeTick*(self: TMain, value: tuple[amount, perc: float], finished: bool) {.slot.} =
+proc doFadeTick*(self: TMain, value: tuple[amount, perc: float], finished: bool) {.slot.} =
   echo "fade:tick: ", value.repr
   if finished:
     self.amount = value.amount
@@ -48,7 +48,7 @@ suite "animations":
     when defined(sigilsDebug):
       fader.debugName = "fader"
 
-    fader.connect(fadeTick, main, TMain.fadeTick())
+    fader.connect(doFadeTick, main, TMain.doFadeTick())
     # fader.connect(fadeDone, main, TMain.fadeDone())
     fader.addTarget(main)
 
@@ -84,7 +84,7 @@ suite "animations":
     when defined(sigilsDebug):
       fader.debugName = "fader"
 
-    fader.connect(fadeTick, main, TMain.fadeTick())
+    fader.connect(doFadeTick, main, TMain.doFadeTick())
     # fader.connect(fadeDone, main, TMain.fadeDone())
     fader.addTarget(main)
 

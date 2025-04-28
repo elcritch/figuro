@@ -62,7 +62,7 @@ proc draw*(self: Main) {.slot.} =
       block fading:
         self.bkgFade.addTarget(this)
         this.state[0] = self.bkgFade
-        connect(self.bkgFade, fadeTick, this, fading)
+        connect(self.bkgFade, doFadeTick, this, fading)
       # echo "button:id: ", this.getId, " ", self.bkgFade.amount
       box 200'ux, 30'ux, 100'ux, 100'ux
       fill css"#9F2B00".spin(50*self.bkgFade.amount)

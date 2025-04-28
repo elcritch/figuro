@@ -16,7 +16,7 @@ type Fader* = ref object of Agent
   targets: OrderedSet[Figuro]
 
 proc amount*(fader: Fader): float = fader.amount
-proc fadeTick*(fader: Fader, value: tuple[amount, perc: float], finished: bool) {.signal.}
+proc doFadeTick*(fader: Fader, value: tuple[amount, perc: float], finished: bool) {.signal.}
 
 proc active*(self: Fader): bool =
   self.active
@@ -24,7 +24,7 @@ proc active*(self: Fader): bool =
 proc addTarget*(self: Fader, node: Figuro, noRefresh = false) =
   self.targets.incl(node)
   if not noRefresh:
-    connect(self, fadeTick, node, Figuro.refresh(), true)
+    connect(self, doFadeTick, node, Figuro.refresh(), true)
 
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
@@ -46,12 +46,12 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
 
   let val = (amount: self.amount, perc: (self.amount-x)/(y-x))
   if self.active:
-    emit self.fadeTick(val, false)
+    emit self.doFadeTick(val, false)
   else:
     for tgt in self.targets:
       disconnect(tgt.frame[].root, doTick, self)
       break
-    emit self.fadeTick(val, true)
+    emit self.doFadeTick(val, true)
 
 proc stop*(self: Fader) {.slot.} =
   self.active = false
@@ -90,7 +90,7 @@ proc resets*(self: Fader) {.slot.} =
     disconnect(tgt.frame[].root, doTick, self)
     break
   let val = (amount: self.amount, perc: 0.0)
-  emit self.fadeTick(val, true)
+  emit self.doFadeTick(val, true)
 
 proc setMax*(self: Fader) {.slot.} =
   self.amount = self.minMax.b

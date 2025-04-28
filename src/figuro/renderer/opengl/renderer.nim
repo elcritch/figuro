@@ -317,7 +317,9 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
+  # ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
+  let size = renderer.window.size()
+  ctx.beginFrame(vec2(size.x.float32, size.y.float32))
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -382,3 +384,6 @@ proc runRendererLoop*(renderer: Renderer) =
     # let avgMicros = time.micros.toInt() div 1_000
     # os.sleep(renderer.duration.inMilliseconds - avgMicros)
     os.sleep(renderer.duration.inMilliseconds)
+  debug "Renderer loop exited"
+  renderer.window.close()
+  debug "Renderer window closed"

@@ -214,7 +214,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   root.cxSize = [cx"auto", cx"auto"]
   let frame = AppFrame(root: root)
   root.frame = frame.unsafeWeakRef()
-  frame.theme = Theme(font: defaultFont(), css: CssTheme(rules: @[], values: newCssValues()))
+  frame.theme = Theme(font: defaultFont(), css: @[], cssValues: newCssValues())
   frame.window.box.w = size[0].UiScalar
   frame.window.box.h = size[1].UiScalar
   frame.windowStyle = style
@@ -375,7 +375,7 @@ template withRootWidget*(self, blk: untyped) =
   this.name = "root".toAtom()
 
   Rectangle.new "main":
-    this.cxSize = [100'pp, 100'pp]
+    # this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`
 

@@ -81,6 +81,13 @@ git clone https://github.com/elcritch/figuro
 cd figuro && nimble install --deps
 ```
 
+### Systems without OpenGL 3.3
+
+It's possible to use EVGL:
+
+```sh
+nim c -d:useOpenGlEs ...
+```
 ## Widgets
 
 Figuro builds Figuro (UI) nodes. Each node has a basic set of properties that can be set and a core set of events and methods somewhat similar to HTML DOM elements. The two core node types are Rectangle and Text. More node types can be created by making widgets.

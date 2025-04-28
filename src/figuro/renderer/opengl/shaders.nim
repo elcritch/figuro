@@ -1,6 +1,9 @@
 import buffers, opengl, os, strformat, strutils, vmath, macros
+import chronicles
 
 type
+  ShaderCompilationError* = object of CatchableError
+
   ShaderAttrib = object
     name: string
     location: GLint
@@ -55,9 +58,8 @@ proc compileComputeShader*(compute: (string, string)): GLuint =
     glGetShaderiv(computeShader, GL_COMPILE_STATUS, isCompiled.addr)
 
     if isCompiled == 0:
-      echo "Compute shader compilation failed:"
-      echo getErrorLog(computeShader, compute[0], glGetShaderiv, glGetShaderInfoLog)
-      quit()
+      error "Compute shader compilation failed:", logs = getErrorLog(computeShader, compute[0], glGetShaderiv, glGetShaderInfoLog)
+      quit(22)
 
   result = glCreateProgram()
   glAttachShader(result, computeShader)
@@ -67,9 +69,9 @@ proc compileComputeShader*(compute: (string, string)): GLuint =
   var isLinked: GLint
   glGetProgramiv(result, GL_LINK_STATUS, isLinked.addr)
   if isLinked == 0:
-    echo "Linking compute shader failed:"
-    echo getErrorLog(result, compute[0], glGetProgramiv, glGetProgramInfoLog)
-    quit()
+    let logs = getErrorLog(result, compute[0], glGetProgramiv, glGetProgramInfoLog)
+    error "Linking compute shader failed:", logs = logs
+    quit(33)
 
 proc compileComputeShader*(path: string): GLuint =
   ## Compiles the compute shader and returns the program id.
@@ -96,9 +98,13 @@ proc compileShaderFiles*(vert, frag: (string, string)): GLuint =
     glGetShaderiv(vertShader, GL_COMPILE_STATUS, isCompiled.addr)
 
     if isCompiled == 0:
-      echo "Vertex shader compilation failed:"
-      echo getErrorLog(vertShader, vert[0], glGetShaderiv, glGetShaderInfoLog)
-      quit()
+      let logs = getErrorLog(vertShader, vert[0], glGetShaderiv, glGetShaderInfoLog)
+      if "GLSL 3.30 is not supported" in logs:
+        warn "Vertex shader compilation failed", reason = "GLSL 3.30 is not supported", advice = "Try compiling with `-d:useOpenGlEs`"
+        raise newException(ShaderCompilationError, "Vertex shader compilation failed")
+      else:
+        error "Vertex shader compilation failed:", logs = logs
+        quit(33)
 
     fragShader = glCreateShader(GL_FRAGMENT_SHADER)
     glShaderSource(fragShader, 1, fragShaderArray, nil)
@@ -106,9 +112,9 @@ proc compileShaderFiles*(vert, frag: (string, string)): GLuint =
     glGetShaderiv(fragShader, GL_COMPILE_STATUS, isCompiled.addr)
 
     if isCompiled == 0:
-      echo "Fragment shader compilation failed:"
-      echo getErrorLog(fragShader, frag[0], glGetShaderiv, glGetShaderInfoLog)
-      quit()
+      let logs = getErrorLog(fragShader, frag[0], glGetShaderiv, glGetShaderInfoLog)
+      error "Fragment shader compilation failed:", logs = logs
+      quit(33)
 
   # Attach shaders to a GL program
   result = glCreateProgram()
@@ -120,9 +126,9 @@ proc compileShaderFiles*(vert, frag: (string, string)): GLuint =
   var isLinked: GLint
   glGetProgramiv(result, GL_LINK_STATUS, isLinked.addr)
   if isLinked == 0:
-    echo "Linking shaders failed:"
-    echo getErrorLog(result, "", glGetProgramiv, glGetProgramInfoLog)
-    quit()
+    let logs = getErrorLog(result, "", glGetProgramiv, glGetProgramInfoLog)
+    error "Linking shaders failed:", logs = logs
+    quit(44)
 
 proc compileShaderFiles*(vertPath, fragPath: string): GLuint =
   ## Compiles the shader files and links them into a program, returning that id.
@@ -250,7 +256,7 @@ proc setUniform(
         uniform.changed = true
       return
 
-  echo &"Ignoring setUniform for \"{name}\", not active"
+  warn "Ignoring setUniform, not active", name = $name
 
 proc setUniform(
     shader: Shader,
@@ -421,4 +427,4 @@ proc bindAttrib*(shader: Shader, name: string, buffer: Buffer) =
       glEnableVertexAttribArray(attrib.location.GLuint)
       return
 
-  echo &"Attribute \"{name}\" not found in shader {shader.paths}"
+  warn "Attribute not found in shader", name = name, shader = shader.paths

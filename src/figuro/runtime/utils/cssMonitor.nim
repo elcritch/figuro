@@ -5,7 +5,7 @@ import sigils/threads
 import ../../commons
 import ../../common/rchannels
 import ../../ui/core
-
+import ../../ui/cssengine
 when not defined(noFiguroDmonMonitor):
   import dmon
 
@@ -14,35 +14,49 @@ import pkg/chronicles
 type CssLoader* = ref object of Agent
   period*: Duration
 
-proc cssUpdate*(tp: CssLoader, css: CssTheme) {.signal.}
+proc cssUpdate*(tp: CssLoader, path: string) {.signal.}
 
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:
   {.pragma: runtimeVar, global.}
 
-var lastModificationTime: times.Time
+var lastModificationTime: Table[string, Time]
 
 proc themePath*(): string =
   result = "theme.css".absolutePath()
 
-proc loadTheme*(defaultTheme: string = themePath()): CssTheme =
-  # let defaultTheme = themePath()
-  if defaultTheme.fileExists():
-    let ts = getLastModificationTime(defaultTheme)
-    if ts > lastModificationTime:
-      lastModificationTime = ts
-      notice "Loading CSS file", cssFile = defaultTheme
-      let parser = newCssParser(Path(defaultTheme))
-      result = newCssTheme(parser)
-      notice "Loaded CSS file", cssFile = defaultTheme
+proc appThemePath*(): string =
+  result = os.getAppFilename().replace(".exe", "") & ".css"
 
-proc updateTheme*(self: AppFrame, css: CssTheme) {.slot.} =
-  debug "CSS theme into app", numberOfCssRules = rules(css).toSeq().len()
-  let values = self.theme.css.values
-  self.theme.css = css
-  self.theme.css.values = values
-  refresh(self.root)
+proc loadTheme*(theme: string = themePath(), values: CssValues): CssTheme =
+  if theme.fileExists():
+    # let ts = getLastModificationTime(theme)
+    # if theme notin lastModificationTime or ts > lastModificationTime[theme]:
+    # lastModificationTime[theme] = ts
+    notice "Loading CSS file", cssFile = theme
+    let parser = newCssParser(Path(theme))
+    result = newCssTheme(parser, values)
+    notice "Loaded CSS file", cssFile = theme
+
+proc updateTheme*(self: AppFrame, path: string) {.slot.} =
+  let css = loadTheme(path, self.theme.cssValues)
+  if css != nil:
+    debug "before update CSS theme into app", path = path, numberOfCssRules = rules(css).toSeq().len(), cssPaths = self.theme.css.mapIt(it[0])
+    var idx = -1
+    for i, css in self.theme.css:
+      if path == css[0]:
+        idx = i; break
+    if idx == -1:
+      self.theme.css.add((path, css))
+      idx = self.theme.css.len - 1
+      debug "Adding new CSS theme into app", path = path, idx = idx
+    else:
+      debug "Updating CSS theme into app", path = path, idx = idx
+      self.theme.css[idx] = (path, css)
+    debug "CSS theme into app", path = path, numberOfCssRules = rules(css).toSeq().len(), cssPaths = self.theme.css.mapIt(it[0])
+    applyThemeRoots(self.root)
+    refresh(self.root)
 
 when not defined(noFiguroDmonMonitor):
   var watcherSelf: WeakRef[CssLoader]
@@ -68,20 +82,19 @@ when not defined(noFiguroDmonMonitor):
     let defaultTheme = themePath()
     let watchId1: WatchId = watch(defaultTheme.splitFile.dir, watchCallback, {}, nil)
 
-    var appFile = os.getAppFilename().replace(".exe", "") & ".css"
+    var appFile = appThemePath()
     let watchId2: WatchId = watch(appFile.splitFile.dir, watchCallback, {}, nil)
-    notice "Started CSS Watcher", theme = themePath(), appTheme= appFile
+    notice "Started CSS Watcher", theme = defaultTheme, appTheme= appFile
 
     proc update(file: string) =
-      let css = loadTheme(file)
-      if css != nil:
-        notice "CSS Updated: ", file = file, css = rules(css).toSeq.len()
-        emit self.cssUpdate(css)
-        os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
-        notice "CSS Updated: second: ", file = file, css = rules(css).toSeq.len()
-        emit self.cssUpdate(css)
+      # let css = loadTheme(file)
+      notice "CSS Updated: ", file = file
+      emit self.cssUpdate(file)
+      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+      notice "CSS Updated: second: ", file = file
+      emit self.cssUpdate(file)
 
-    let cssFiles = @[defaultTheme, appFile]
+    let cssFiles = @[appFile, defaultTheme]
     var currTheme = ""
     for file in cssFiles:
       if file.existsFile():
@@ -90,9 +103,9 @@ when not defined(noFiguroDmonMonitor):
     if currTheme.fileExists():
       currTheme.update()
 
-    while true:
+    while isRunning(getCurrentSigilThread()[]):
       let file = cssUpdates.recv()
-      if file notin cssFiles:
+      if file != currTheme:
         notice "CSS Skipping", file = file
         continue
       else:

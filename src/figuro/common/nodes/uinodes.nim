@@ -1,6 +1,8 @@
 import std/unicode
 import std/monotimes
 import std/hashes
+import std/tables
+
 import pkg/stack_strings
 import pkg/sigils/weakrefs
 import pkg/sigils
@@ -30,7 +32,8 @@ type
 
   Theme* = object
     font*: UiFont
-    css*: CssTheme
+    cssValues*: CssValues
+    css*: seq[tuple[path: string, theme: CssTheme]]
 
   AppFrame* = ref object of Agent
     frameRunner*: AgentProcTy[tuple[]]
@@ -360,17 +363,17 @@ proc setOpen*(fig: Figuro) {.slot.} =
 proc setClosed*(fig: Figuro) {.slot.} =
   fig.userAttrs.excl Open
 
-proc setUserAttr*(fig: Figuro, attr: Attributes, state: bool) =
+proc setUserAttr*(fig: Figuro, attr: Attributes | set[Attributes], state: bool) =
   if state:
     fig.userAttrs.incl attr
   else:
     fig.userAttrs.excl attr
 
-proc setUserAttr*(fig: Figuro, attr: set[Attributes], state: bool) =
+proc setNodeAttr*(fig: Figuro, attr: NodeFlags | set[NodeFlags], state: bool) =
   if state:
-    fig.userAttrs.incl attr
+    fig.flags.incl attr
   else:
-    fig.userAttrs.excl attr
+    fig.flags.excl attr
 
 proc contains*(fig: Figuro, attr: Attributes): bool =
   attr in fig.userAttrs

@@ -9,6 +9,7 @@ import figuro/widget
 import figuro/common/nodes/uinodes
 import figuro/common/nodes/render
 import figuro/widgets/button
+import figuro/ui/cssengine
 
 suite "css parser":
   setup:
@@ -248,7 +249,11 @@ suite "css exec":
     let values {.inject, used.} = newCssValues()
     let rules = parse(parser, values)
     # print cssTheme
-    main.frame[].theme.css = CssTheme(rules: rules, values: values)
+    main.frame[].theme.cssValues = values
+    main.frame[].theme.css = @[(path: "", theme: CssTheme(rules: rules))]
+    applyThemeRoots(main)
+    echo "rules: ", rules
+    echo "values: ", values
     connectDefaults(main)
     emit main.doDraw()
     let btnA {.inject, used.} = main.children[0].children[1]
@@ -363,6 +368,7 @@ suite "css exec":
     check btnA.fill == initialColor
     check btnD.fill == initialColor
     check btnC.fill == initialColor
+    # check main.fill == initialColor
 
   test "match kind with multiple path direct children":
     const themeSrc = """
@@ -513,7 +519,6 @@ suite "css exec":
     # Test full theme
     let theme = CssTheme(
       rules: @[blk],
-      values: newCssValues()
     )
     
     let themeStr = $theme
@@ -664,7 +669,9 @@ suite "css exec":
 
     """
     let parser = newCssParser(themeSrc2)
-    main.frame[].theme.css = parser.newCssTheme()
+    let cssValues = newCssValues()
+    main.frame[].theme.cssValues = cssValues
+    main.frame[].theme.css = @[(path: "", theme: newCssTheme(parser, values))]
     emit main.doDraw()
 
     check btnB.fill == parseHtmlColor("#0000FF")
@@ -702,7 +709,9 @@ suite "css exec":
 
     """
     let parser = newCssParser(themeSrc2)
-    main.frame[].theme.css = parser.newCssTheme()
+    let cssValues = newCssValues()
+    main.frame[].theme.cssValues = cssValues
+    main.frame[].theme.css = @[(path: "", theme: newCssTheme(parser, values))]
     emit main.doDraw()
 
     check btnB.fill == parseHtmlColor("#0000FF")
@@ -804,7 +813,13 @@ suite "css exec":
     """
     
     let parser = newCssParser(updatedThemeSrc)
-    main.frame[].theme.css = parser.newCssTheme()
+    let cssValues = newCssValues()
+    let rules = parser.parse(cssValues)
+    echo "rules: ", rules
+    echo "css values: ", cssValues
+    main.frame[].theme.cssValues = cssValues
+    main.frame[].theme.css = @[(path: "", theme: CssTheme(rules: rules))]
+    applyThemeRoots(main)
     emit main.doDraw()
     
     # Check that updated nested variables are applied
