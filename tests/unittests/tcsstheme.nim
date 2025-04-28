@@ -248,12 +248,12 @@ suite "css exec":
     let parser = newCssParser(themeSrc)
     let values {.inject, used.} = newCssValues()
     let rules = parse(parser, values)
-    echo "rules: ", rules
-    echo "values: ", values
     # print cssTheme
     main.frame[].theme.cssValues = values
     main.frame[].theme.css = @[(path: "", theme: CssTheme(rules: rules))]
     applyThemeRoots(main)
+    echo "rules: ", rules
+    echo "values: ", values
     connectDefaults(main)
     emit main.doDraw()
     let btnA {.inject, used.} = main.children[0].children[1]
@@ -814,8 +814,12 @@ suite "css exec":
     
     let parser = newCssParser(updatedThemeSrc)
     let cssValues = newCssValues()
+    let rules = parser.parse(cssValues)
+    echo "rules: ", rules
+    echo "css values: ", cssValues
     main.frame[].theme.cssValues = cssValues
-    main.frame[].theme.css = @[(path: "", theme: newCssTheme(parser, values))]
+    main.frame[].theme.css = @[(path: "", theme: CssTheme(rules: rules))]
+    applyThemeRoots(main)
     emit main.doDraw()
     
     # Check that updated nested variables are applied
