@@ -271,7 +271,7 @@ proc evalRoot*(rule: CssBlock, node: Figuro, values: CssValues) =
       prop.apply(node, values)
   
 proc applyThemeRoots*(node: Figuro) =
-  # echo "\n=== Theme: ", node.getId(), " name: ", node.name, " class: ", node.widgetName
+  trace "applyThemeRoots: ", node = node.getId(), name = node.name, wn = node.widgetName
   let values = node.frame[].theme.cssValues
   for (path, theme) in node.frame[].theme.css:
     for rule in rules(theme):

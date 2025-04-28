@@ -149,7 +149,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
   parser.skip({tkWhiteSpace})
   parser.eat(tkCurlyBracketBlock)
 
-  error "CSS: parseRuleBody: ", values = values.values
+  trace "CSS: parseRuleBody: ", values = values
 
   result.add(CssProperty())
 
@@ -168,7 +168,7 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
     of tkIdent:
       discard parser.nextToken()
       if tk.ident.startsWith("var(") and tk.ident.endsWith(")"):
-        debug "CSS: property var: ", varName = tk.ident, values = values.values
+        trace "CSS: property var: ", varName = tk.ident, values = values
         result = CssVarName(values.registerVariable(tk.ident.toAtom()))
       else:
         try:
@@ -226,13 +226,12 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
         else:
           discard
 
-      debug "CSS: property function:peek: ", peek = parser.peek().repr, fnName = fnName, args = $args, argsRepr = args.repr
+      trace "CSS: property function:peek: ", peek = parser.peek().repr, fnName = fnName, args = $args, argsRepr = args.repr
       if args.len() == 1 and fnName == "var":
         let arg = toAtom(args[0].ident.substr(2,) )
         result = CssVarName(values.registerVariable(arg))
-        debug "CSS: property function:var: ", arg = arg, values = values.values, valuesApplied = values.applied, valuesParent = values.parent.isNil
       elif fnName == "calc" and args.len() == 3:
-        warn "CSS: property function:calc: ", args = repr(args)
+        trace "CSS: property function:calc: ", args = repr(args)
         if args[1].kind == tkIdent:
           let op = args[1].ident
           warn "CSS: property function:calc: ", op = op
@@ -247,10 +246,10 @@ proc parseRuleBody*(parser: CssParser, values: CssValues): seq[CssProperty] {.fo
             cx = csAuto()
           result = CssSize(cx)
       elif fnName == "min" and args.len() == 2:
-        warn "CSS: property function:min: ", args = repr(args)
+        trace "CSS: property function:min: ", args = repr(args)
         result = CssSize(csMin(getConstraintSize(args[0]), getConstraintSize(args[1])))
       elif fnName == "max" and args.len() == 2:
-        warn "CSS: property function:max: ", args = repr(args)
+        trace "CSS: property function:max: ", args = repr(args)
         result = CssSize(csMax(getConstraintSize(args[0]), getConstraintSize(args[1])))
       elif fnName == "rgb" and args.len() == 3:
         let color = getColorArgs(args).join(",")

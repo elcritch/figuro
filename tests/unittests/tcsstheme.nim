@@ -9,6 +9,7 @@ import figuro/widget
 import figuro/common/nodes/uinodes
 import figuro/common/nodes/render
 import figuro/widgets/button
+import figuro/ui/cssengine
 
 suite "css parser":
   setup:
@@ -252,6 +253,7 @@ suite "css exec":
     # print cssTheme
     main.frame[].theme.cssValues = values
     main.frame[].theme.css = @[(path: "", theme: CssTheme(rules: rules))]
+    applyThemeRoots(main)
     connectDefaults(main)
     emit main.doDraw()
     let btnA {.inject, used.} = main.children[0].children[1]
