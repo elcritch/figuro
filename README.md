@@ -210,7 +210,7 @@ The layout constraints are modeled on [CSS Grid](https://css-tricks.com/snippets
 Note that the easiest way to set layout constraint values are to use their numeric literal types. These are:
 
 - `1'fr` for fraction
-- `1'ux` for fixed ui coordinates
+- `1'ui` for fixed ui coordinates
 - `100'pp` for percentage
 - `cx"auto"` or `csAuto()` is the default and uses the full available size of it's parent size (current.wh = parent.wh - current.xy)
 - `1'ux` is equivalent to `1'ui` which is just a UICoord scalar
