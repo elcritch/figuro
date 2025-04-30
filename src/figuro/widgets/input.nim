@@ -51,7 +51,7 @@ proc disabled*(self: Input): bool =
 proc `active=`*(self: Input, state: bool) =
   self.setUserAttr({Active}, state)
 
-proc `disabled`*(self: Input, state: bool) =
+proc `disabled=`*(self: Input, state: bool) =
   self.setUserAttr({Attributes.Disabled}, state)
 
 proc overwrite*(self: Input): bool =
