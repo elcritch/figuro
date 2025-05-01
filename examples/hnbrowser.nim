@@ -185,9 +185,9 @@ proc draw*(self: Main) {.slot.} =
                   # size cx"auto", cx"auto"
                   paddingTB 5'ux, 5'ux
                   if self.currentStory == this.state:
-                    this.userAttrs.incl Focused
+                    this.userAttrs.incl Focus
                   else:
-                    this.userAttrs.excl Focused
+                    this.userAttrs.excl Focus
 
                   this.state = story
                   onSignal(doRightClick) do(this: Button[Submission]):
