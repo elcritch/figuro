@@ -166,8 +166,19 @@ proc draw*(self: ScrollPane) {.slot.} =
       WidgetContents()
       scroll(self, initPosition(0, 0))
       for child in this.children:
-        # echo "CHILD: ", child.name
         connect(child, doLayoutResize, self, layoutResize)
+        var
+          prevSibling: Figuro = nil
+          prevOverlapped = false
+        for grandChild in child.children:
+          let isOverlapping = grandChild.screenBox.overlaps(self.screenBox)
+          grandChild.setUserAttr({Hidden}, not isOverlapping)
+          if prevOverlapped:
+            grandChild.setUserAttr({Hidden}, false)
+          if prevSibling != nil and isOverlapping and not prevOverlapped:
+            prevSibling.setUserAttr({Hidden}, false)
+          prevSibling = grandChild
+          prevOverlapped = isOverlapping
 
     if self.settings.vertical:
       Rectangle.new "scrollbar-vertical":

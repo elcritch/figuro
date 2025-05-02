@@ -33,6 +33,7 @@ proc checkParent(node: Figuro) =
 
 
 proc printLayout*(node: Figuro, depth = 0) =
+
   stdout.styledWriteLine(
     " ".repeat(depth),
     {styleDim},
@@ -68,6 +69,9 @@ proc printLayout*(node: Figuro, depth = 0) =
     $node.screenBox.h.float.round(2),
     fgWhite,
     "}",
+    " hidden: ",
+    fgRed,
+    if Hidden in node.userAttrs: "true" else: "false",
   )
   for c in node.children:
     printLayout(c, depth + 2)
