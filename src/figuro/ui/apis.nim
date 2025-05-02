@@ -101,15 +101,35 @@ template paddingBottom*(v: Constraint) {.thisWrapper.}
 template paddingTB*(t, b: Constraint) {.thisWrapper.}
 template paddingLR*(l, r: Constraint) {.thisWrapper.}
 
-proc disabled*(self: Figuro): bool {.thisWrapper.} =
-  Disabled in self.userAttrs
 proc disabled*(self: Figuro, state: bool) {.thisWrapper.} =
   self.setUserAttr({Attributes.Disabled}, state)
+proc disabled*(self: Figuro): bool =
+  Disabled in self.userAttrs
+
 proc active*(self: Figuro, state: bool) {.thisWrapper.} =
   self.setUserAttr({Active}, state)
-proc active*(self: Figuro): bool {.thisWrapper.} =
+proc active*(self: Figuro): bool =
   Active in self.userAttrs
 
+proc hidden*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Hidden}, state)
+proc hidden*(self: Figuro): bool =
+  Hidden in self.userAttrs
+
+proc focus*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Focus}, state)
+proc focus*(self: Figuro): bool =
+  Focus in self.userAttrs
+
+proc checked*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Checked}, state)
+proc checked*(self: Figuro): bool =
+  Checked in self.userAttrs
+
+proc selected*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Selected}, state)
+proc selected*(self: Figuro): bool =
+  Selected in self.userAttrs
 
 template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template 
