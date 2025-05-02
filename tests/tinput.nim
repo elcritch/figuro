@@ -36,5 +36,5 @@ proc draw*(self: Main) {.slot.} =
           text this, "hello world"
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(720'ui, 140'ui))
+var frame = newAppFrame(main, size=(720'ui, 140'ui), saveWindowState = false)
 startFiguro(frame)

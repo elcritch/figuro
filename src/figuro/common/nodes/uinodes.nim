@@ -48,6 +48,7 @@ type
     windowStyle*: FrameStyle
     theme*: Theme
     configFile*: string
+    saveWindowState*: bool
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]
