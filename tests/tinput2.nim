@@ -46,8 +46,8 @@ proc initialize*(self: Main) {.slot.} =
   connect(self.bkgFade, doFadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
-  
   withRootWidget(self):
+    size 100'pp, 100'pp
     fill this, css"#f0f0f0"
 
     # Time display background
