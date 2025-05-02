@@ -80,13 +80,13 @@ proc skipSelectedRune*(self: Input, skips: HashSet[Rune] = self.skipOnInput) =
     self.text.cursorNext()
     self.text.updateSelection()
 
-proc text*(self: Input, txt: string) {.slot.} =
+proc setText*(self: Input, txt: string) {.slot.} =
   runes(self, txt.toRunes())
 
 proc runes*(self: Input): seq[Rune] =
   self.text.runes()
 
-proc text*(self: Input): string =
+proc getText*(self: Input): string =
   $self.text.runes()
 
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
