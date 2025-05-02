@@ -31,10 +31,10 @@ proc draw*(self: Main) {.slot.} =
       border 3'ui, blackColor
       
       Vertical.new "horiz":
-        offset this, 0'ux, 0'ux
-        size this, 100'pp, 200'ux
-        contentHeight this, cx"auto", gap = 20'ui
-        border this, 3'ui, css"#00ff00"
+        offset 0'ux, 0'ux
+        size 100'pp, 200'ux
+        contentHeight cx"auto", gap = 20'ui
+        border 3'ui, css"#00ff00"
         for i in 0 .. 3:
           capture i:
             Button[int].new "btn":
@@ -43,15 +43,15 @@ proc draw*(self: Main) {.slot.} =
               connect(doHover, self, buttonHover)
 
       Vertical.new "horiz2":
-        offset this, 0'pp, 200'ux
-        size this, 100'pp, 200'ux
-        contentHeight this, cx"auto", gap = 20'ui
-        border this, 3'ui, css"#ff0000"
+        offset 0'pp, 200'ux
+        size 100'pp, 200'ux
+        contentHeight cx"auto", gap = 20'ui
+        border 3'ui, css"#ff0000"
 
         for i in 0 .. 1:
           capture i:
             Button[int].new "btn":
-              fill blackColor
+              fill blackColor * 0.5
               size 50'ux, 50'ux
               # we need to connect the nodes onHover event
               connect(doHover, self, buttonHover)
