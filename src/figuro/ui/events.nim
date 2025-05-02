@@ -303,6 +303,14 @@ proc computeEvents*(frame: AppFrame) =
       for target in newClicks:
         target.events.incl evClickDone
         emit target.doMouseClick(Done, click.buttons)
+        if MouseLeft in click.buttons:
+          emit target.doSingleClick()
+        if DoubleClick in click.buttons:
+          emit target.doDoubleClick()
+        if MouseRight in click.buttons:
+          emit target.doRightClick()
+        if TripleClick in click.buttons:
+          emit target.doTripleClick()
         prevClicks.incl target
 
   ## handle drag events

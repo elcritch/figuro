@@ -70,7 +70,7 @@ proc draw*(self: Main) {.slot.} =
 
         for idx in 0 .. 4:
           capture idx:
-            Button[int] as "btn":
+            Button[int].new "btn":
               let btn = this
               size 100'ux, 100'ux
               cornerRadius 5.0'ui

@@ -59,6 +59,7 @@ proc draw*(self: GridApp) {.slot.} =
           gridRow 1 // 3
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
+    printLayout(this, cmTerminal)
 
 
 
