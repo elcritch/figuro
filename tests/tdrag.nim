@@ -81,11 +81,11 @@ proc draw*(self: Main) {.slot.} =
         refresh(btn)
       uinodes.connect(this, doMouseClick, this, clicked)
       Text.new "btnText":
-        with this:
-          foreground blackColor * self.bkgFade.amount / self.bkgFade.minMax.b
-          justify Center
-          align Middle
-          text({font: btn.state[1]})
+        size 100'pp, 100'pp
+        foreground blackColor * self.bkgFade.amount / self.bkgFade.minMax.b
+        justify Center
+        align Middle
+        text({font: btn.state[1]})
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(350'ui, 180'ui))

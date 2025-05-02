@@ -54,39 +54,36 @@ proc draw*(self: Main) {.slot.} =
     # Calls the widget template `rectangle`.
     # This creates a new basic widget node. Generally used to draw generic rectangles.
     Rectangle as "body":
-      with this:
-        # sets the bounding box of this node
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0'ui
-        # `fill` sets the background color. Color apis use the `chroma` library
-        fill blackColor * (self.bkgFade.amount)
+      # sets the bounding box of this node
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0'ui
+      # `fill` sets the background color. Color apis use the `chroma` library
+      fill blackColor * (self.bkgFade.amount)
 
       # sets up horizontal widget node with alternate syntax
       Horizontal as "horiz": # same as `horizontal "horiz":`
-        with this:
-          box 10'ux, 0'ux, 100'pp, 100'pp
-          # `contentWidth` is needed to set the width of items
-          # in the horizontal widget
-          contentWidth 100'ux, gap = 20'ui
-          layoutItems justify=CxCenter, align=CxCenter
+        box 10'ux, 0'ux, 100'pp, 100'pp
+        # `contentWidth` is needed to set the width of items
+        # in the horizontal widget
+        contentWidth 100'ux, gap = 20'ui
+        layoutItems justify=CxCenter, align=CxCenter
 
         for idx in 0 .. 4:
           capture idx:
             Button[int] as "btn":
               let btn = this
-              with this:
-                size 100'ux, 100'ux
-                cornerRadius 5.0'ui
-                connect(doHover, self, btnHover)
-                connect(doMouseClick, this, btnClicked)
+              size 100'ux, 100'ux
+              cornerRadius 5.0'ui
+              connect(doHover, self, btnHover)
+              connect(doMouseClick, this, btnClicked)
               if idx == 0:
                 connect(self, update, this, btnTick)
               Text as "":
-                with this:
-                  foreground blackColor
-                  align Middle
-                  justify Center
-                  text({font: $(btn.state)})
+                size 100'pp, 100'pp
+                foreground blackColor
+                align Middle
+                justify Center
+                text({font: $(btn.state)})
 
 proc tick*(self: Main, time: MonoTime, delta: Duration) {.slot.} =
   emit self.update()

@@ -24,13 +24,13 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    size 100'pp, 100'pp
     Rectangle.new "body":
-      with this:
-        box 5'pp, 5'pp, 400'ux, 600'ux
-        cornerRadius 10.0'ui
-        fill whiteColor.darken(self.hoveredAlpha)
-        border 3'ui, blueColor
-        
+      box 5'pp, 5'pp, 400'ux, 600'ux
+      cornerRadius 10.0'ui
+      fill whiteColor.darken(self.hoveredAlpha)
+      border 3'ui, blueColor
+      
       # GridDebug.new "debug-grid":
       #   this.state = (blackColor, "horiz")
       # GridDebug.new "debug-grid":
@@ -57,11 +57,11 @@ proc draw*(self: Main) {.slot.} =
         border this, 3'ui, css"#ff0000"
         for i in 0 .. 3:
           capture i:
+            echo "horiz2: ", i
             Button[int].new "btn":
-              with this:
-                fill blackColor
-                size 50'ux, 50'ux
-                # we need to connect the nodes onHover event
+              fill css"blue".spin(i.toFloat * 10)
+              size 50'ux, 50'ux
+              # we need to connect the nodes onHover event
               connect(doHover, self, buttonHover)
     # prettyPrintWriteMode = cmTerminal
     printLayout(this, cmTerminal)
