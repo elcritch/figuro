@@ -46,40 +46,37 @@ proc initialize*(self: Main) {.slot.} =
   connect(self.bkgFade, doFadeTick, self, Main.fading())
 
 proc draw*(self: Main) {.slot.} =
-  
   withRootWidget(self):
+    size 100'pp, 100'pp
     fill this, css"#f0f0f0"
 
     # Time display background
-    rectangle("time-background"):
-      with this:
-        box 1'pp, 1'pp, 98'pp, 98'pp
-        fill css"#ffffff"
-        fill blackColor * (self.bkgFade.amount)
-        border 1'ui, css"#000000"
+    Rectangle.new "time-background":
+      box 1'pp, 1'pp, 98'pp, 98'pp
+      fill css"#ffffff"
+      fill blackColor * (self.bkgFade.amount)
+      border 1'ui, css"#000000"
 
-      Vertical.new("vlayout"):
-        with this:
-          size 100'pp, 100'pp
-          contentHeight cx"auto", gap = 0'ui
+      Vertical.new "vlayout":
+        size 100'pp, 100'pp
+        contentHeight cx"auto", gap = 0'ui
         
         Rectangle.new "input-outer":
           # Test text input
           border 1'ui, css"black"
           size 90'pp, 30'pp
           Input.new("time-input"):
-            with this:
-              size 100'pp, 100'pp
-              align Middle
-              justify Center
-              font defaultFont()
-              foreground css"black"
-              fill css"white"
-              border 1'ui, css"black"
-              disabled self.running
-              overwrite true
-              options {NoErase, NoSelection}
-              skipOnInput ':'
+            size 100'pp, 100'pp
+            align Middle
+            justify Center
+            font defaultFont()
+            foreground css"black"
+            fill css"white"
+            border 1'ui, css"black"
+            disabled self.running
+            overwrite true
+            options {NoErase, NoSelection}
+            skipOnInput ':'
             if this.disabled:
               fill this.fill.darken(0.4)
               foreground css"grey"
@@ -93,7 +90,7 @@ proc draw*(self: Main) {.slot.} =
             connect(this, doUpdateInput, this, overrideUpdateInput)
             if not this.textChanged(""):
               # set default
-              text(this, "00:00:00")
+              this.setText("00:00:00")
 
         Button[bool].new("countdown-button"):
           proc btnClicked(self: Main, kind: EventKind, buttons: UiButtonView) {.slot.} =
@@ -102,19 +99,17 @@ proc draw*(self: Main) {.slot.} =
                 self.running = not self.running
                 # self.count = this.text().parseCount()
                 refresh(self)
-          with this:
-            size 50'pp, 30'pp
-            border 1'ui, css"#000000"
-            cornerRadius 4.0'ui
-            connect(doHover, self, btnHover)
-            connect(doMouseClick, self, btnClicked)
+          size 50'pp, 30'pp
+          border 1'ui, css"#000000"
+          cornerRadius 4.0'ui
+          connect(doHover, self, btnHover)
+          connect(doMouseClick, self, btnClicked)
 
           Text.new "text":
             size 100'pp, 100'pp
-            with this:
-              foreground blackColor
-              justify Center
-              align Middle
+            foreground blackColor
+            justify Center
+            align Middle
             if not self.running:
               text({buttonFont: "COUNTDOWN"})
             else:

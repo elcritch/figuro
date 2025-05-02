@@ -77,6 +77,8 @@ task test, "compile tests":
       # echo "F: ", f
       exec "nim c " & f
 
+  exec "nim c examples/hnbrowser.nim"
+
 # begin Nimble config (version 2)
 when withDir(thisDir(), system.fileExists("nimble.paths")):
   include "nimble.paths"

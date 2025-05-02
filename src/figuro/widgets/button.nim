@@ -21,11 +21,6 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
 
 proc doClicked*[T](self: Button[T]) {.signal.}
 
-proc doSingleClick*[T](self: Button[T]) {.signal.}
-proc doDoubleClick*[T](self: Button[T]) {.signal.}
-proc doTripleClick*[T](self: Button[T]) {.signal.}
-proc doRightClick*[T](self: Button[T]) {.signal.}
-
 proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
   # echo "clicked: ", " kind: ", kind, " :: ", buttons, " id: ", self.getId, " clickOn: ", self.clickMode
   case kind:
@@ -38,12 +33,12 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
     return
   of Done:
     self.setUserAttr({Active}, false)
-    if MouseRight in buttons:
-      emit self.doRightClick()
     if MouseLeft in buttons:
       emit self.doSingleClick()
     if DoubleClick in buttons:
       emit self.doDoubleClick()
+    if MouseRight in buttons:
+      emit self.doRightClick()
     if TripleClick in buttons:
       emit self.doTripleClick()
 

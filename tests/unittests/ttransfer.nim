@@ -23,11 +23,11 @@ proc draw(fig: TestBasic) {.slot.} =
       Rectangle.new "child1":
         echo "child1"
         discard
-      rectangle "child2":
+      Rectangle.new "child2":
         discard
-      rectangle "child3":
+      Rectangle.new "child3":
         discard
-    rectangle "body2":
+    Rectangle.new "body2":
       discard
 
 proc draw(fig: TestFig) {.slot.} =
@@ -35,23 +35,23 @@ proc draw(fig: TestFig) {.slot.} =
     this.zlevel = 20
     # discard this.name.tryAdd("root")
     this.name = atom"root"
-    rectangle "body":
-      rectangle "child0":
+    Rectangle.new "body":
+      Rectangle.new "child0":
         discard
-        rectangle "child01":
+        Rectangle.new "child01":
           discard
-    rectangle "child1":
+    Rectangle.new "child1":
       this.zlevel = 30
-      rectangle "child11":
+      Rectangle.new "child11":
         discard
-      rectangle "child12":
+      Rectangle.new "child12":
         discard
-      rectangle "child13":
+      Rectangle.new "child13":
         this.zlevel = -10
-        rectangle "child131":
+        Rectangle.new "child131":
           discard
-    rectangle "body2":
-      rectangle "child21":
+    Rectangle.new "body2":
+      Rectangle.new "child21":
         this.zlevel = -10
 
 

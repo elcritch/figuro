@@ -25,7 +25,7 @@ proc buttonHover*(self: Main, evtKind: EventKind) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    rectangle "body":
+    Rectangle.new "body":
       usingHorizontalLayout() # cx"min-content", gap = 20'ui
       contentWidth this, cx"min-content", gap = 20'ui
       paddingLR 10'ux, 10'ux

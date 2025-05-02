@@ -18,22 +18,21 @@ proc hover*(self: Main, kind: EventKind) {.slot.} =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     # self.theme.font = UiFont(typefaceId: self.frame[].theme.font.typefaceId, size: 22)
-    rectangle "body":
+    Rectangle.new "body":
       self.mainRect = this
-      with this:
-        box 10'ux, 10'ux, 600'ux, 120'ux
-        cornerRadius 10.0'ui
-        fill "#2A9EEA".parseHtmlColor * 0.7
+      box 10'ux, 10'ux, 600'ux, 120'ux
+      cornerRadius 10.0'ui
+      fill "#2A9EEA".parseHtmlColor * 0.7
       Input.new "input":
-        box this, 10'ux, 10'ux, 400'ux, 100'ux
-        align this, Middle 
-        justify this, Center
-        font this, UiFont(typefaceId: defaultTypeface(), size: 28'ui)
-        foreground this, css"darkred"
-        fill this, css"white"
+        box 10'ux, 10'ux, 400'ux, 100'ux
+        align Middle 
+        justify Center
+        font UiFont(typefaceId: defaultTypeface(), size: 28'ui)
+        foreground css"darkred"
+        fill css"white"
         clipContent true
         onInit:
-          text this, "hello world"
+          this.setText "hello world"
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui))

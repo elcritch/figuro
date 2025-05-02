@@ -14,7 +14,7 @@ type
 proc draw*(self: TMain) {.slot.} =
   withWidget(self):
     this.setName "main"
-    rectangle "body":
+    Rectangle.new "body":
       echo "body"
 
 proc tick*(self: TMain, now: MonoTime, delta: Duration) {.slot.} =

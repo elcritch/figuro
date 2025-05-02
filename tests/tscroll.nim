@@ -20,6 +20,7 @@ proc buttonItem(self, this: Figuro, idx: int) =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    size 100'pp, 100'pp
     # prettyPrintWriteMode = cmTerminal
     fill css"#0000AA"
     setTitle("Scrolling example")

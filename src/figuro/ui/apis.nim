@@ -18,7 +18,11 @@ macro thisWrapper*(p: untyped): auto =
   if isProc:
     tmpl[3].del(1)
     args.delete(1)
-  tmpl[^1] = nnkStmtList.newTree(newCall(tmpl[0][1], args))
+  let name = tmpl[0][1]
+  tmpl[^1] = nnkStmtList.newTree(
+    nnkMixinStmt.newTree(name),
+    newCall(tmpl[0][1], args),
+  )
   result.add tmpl
   # echo "THIS WRAPPER:result: ", result.treeRepr
   # echo "THIS WRAPPER:result: ", result.repr
@@ -74,15 +78,6 @@ template offset*(x: UiScalar | Constraint, y: UiScalar | Constraint) {.thisWrapp
 
 template size*(w: UiScalar | Constraint, h: UiScalar | Constraint) {.thisWrapper.}
 
-template boxSizeOf*(node: Figuro) {.thisWrapper.}
-  ## Sets current node's box from another node
-  ## e.g. `boxOf(parent)`
-
-template boxOf*(node: Figuro) {.thisWrapper.}
-
-template boxOf*(box: Box) {.thisWrapper.}
-  ## Sets the node's size to the given box.
-
 template padding*(left, right, top, bottom: Constraint) {.thisWrapper.}
 template padding*(all: Constraint) {.thisWrapper.}
 
@@ -92,6 +87,36 @@ template paddingRight*(v: Constraint) {.thisWrapper.}
 template paddingBottom*(v: Constraint) {.thisWrapper.}
 template paddingTB*(t, b: Constraint) {.thisWrapper.}
 template paddingLR*(l, r: Constraint) {.thisWrapper.}
+
+proc disabled*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Attributes.Disabled}, state)
+proc disabled*(self: Figuro): bool =
+  Disabled in self.userAttrs
+
+proc active*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Active}, state)
+proc active*(self: Figuro): bool =
+  Active in self.userAttrs
+
+proc hidden*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Hidden}, state)
+proc hidden*(self: Figuro): bool =
+  Hidden in self.userAttrs
+
+proc focus*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Focus}, state)
+proc focus*(self: Figuro): bool =
+  Focus in self.userAttrs
+
+proc checked*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Checked}, state)
+proc checked*(self: Figuro): bool =
+  Checked in self.userAttrs
+
+proc selected*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Selected}, state)
+proc selected*(self: Figuro): bool =
+  Selected in self.userAttrs
 
 template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template 

@@ -113,11 +113,6 @@ proc queryDescendant*(this: Figuro, name: string, tp: typedesc = Figuro): Option
 template toAtom*(name: Atom): Atom =
   name
 
-
-template rectangle*(name: Atom | static string, blk: untyped) =
-  ## Starts a new rectangle.
-  widgetRegister[Rectangle](name.toAtom(), blk)
-
 template textContents*(blk: untyped) =
   ## Starts a new rectangle.
   widgetRegister[Text]("text", blk)
@@ -161,15 +156,6 @@ proc offset*(current: Figuro, x: UiScalar | Constraint, y: UiScalar | Constraint
 
 proc size*(current: Figuro, w: UiScalar | Constraint, h: UiScalar | Constraint) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
-
-proc boxSizeOf*(current: Figuro, node: Figuro) =
-  ## Sets current node's box from another node
-  ## e.g. `boxOf(parent)`
-  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
-
-proc boxOf*(current: Figuro, node: Figuro) =
-  current.cxOffset = [csOrFixed(node.box.x), csOrFixed(node.box.y)]
-  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
 
 proc boxOf*(current: Figuro, box: Box) =
   ## Sets the node's size to the given box.

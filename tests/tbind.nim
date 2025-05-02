@@ -20,7 +20,7 @@ proc draw*(self: Main) {.slot.} =
     fill css"#9F2B00"
     size 100'pp, 100'pp
 
-    rectangle "count":
+    Rectangle.new "count":
       cornerRadius 10.0'ui
       box 40'ux, 30'ux, 80'ux, 40'ux
       fill css"#3B70DF"
@@ -31,7 +31,7 @@ proc draw*(self: Main) {.slot.} =
         align Middle
         text({font: $self.counter{} & " ₿" })
 
-    Button as "btnSub":
+    Button.new "btnSub":
       box 160'ux, 30'ux, 80'ux, 40'ux
       Text.new "btnText":
         size 100'pp, 100'pp
@@ -42,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
       onSignal(doClicked) do(self: Main):
         self.counter <- self.counter{} - 1
 
-    Button as "btnAdd":
+    Button.new "btnAdd":
       box 240'ux, 30'ux, 80'ux, 40'ux
       Text.new "btnText":
         size 100'pp, 100'pp

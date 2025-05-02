@@ -24,30 +24,12 @@ proc tick*(self: Main, now: MonoTime, delta: Duration) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    size 100'pp, 100'pp
     Rectangle.new "body":
-      with this:
-        box 5'pp, 5'pp, 400'ux, 600'ux
-        cornerRadius 10.0'ui
-        fill whiteColor.darken(self.hoveredAlpha)
-        border 3'ui, blueColor
-        
-      # GridDebug.new "debug-grid":
-      #   this.state = (blackColor, "horiz")
-      # GridDebug.new "debug-grid":
-      #   this.state = (blackColor, "horiz2")
-
-      # Horizontal.new "horiz":
-      #   offset this, 0'ux, 0'ux
-      #   size this, 100'pp, 200'ux
-      #   contentWidth this, 1'fr, gap = 20'ui
-      #   border this, 3'ui, css"#00ff00"
-      #   for i in 0 .. 3:
-      #     capture i:
-      #       Button[int].new "btn":
-      #         with this:
-      #           size 100'ux, 100'ux
-      #           # we need to connect the nodes onHover event
-      #         connect(doHover, self, buttonHover)
+      box 5'pp, 5'pp, 400'ux, 600'ux
+      cornerRadius 10.0'ui
+      fill whiteColor.darken(self.hoveredAlpha)
+      border 3'ui, blueColor
 
       Horizontal.new "horiz2":
         offset this, 0'pp, 200'ux
@@ -58,12 +40,13 @@ proc draw*(self: Main) {.slot.} =
         for i in 0 .. 3:
           capture i:
             Button[int].new "btn":
-              with this:
-                fill blackColor
-                size 50'ux, 50'ux
-                # we need to connect the nodes onHover event
+              fill css"blue".spin(i.toFloat * 10)
+              size 50'ux, 50'ux
+              # we need to connect the nodes onHover event
               connect(doHover, self, buttonHover)
-    # prettyPrintWriteMode = cmTerminal
+
+  onSignal(doRightClick) do(this: Main):
+    echo "right click"
     printLayout(this, cmTerminal)
 
 var main = Main.new()

@@ -1,8 +1,7 @@
 import figuro/widgets/[horizontal, vertical, button]
 import figuro/ui/animations
 import figuro
-
-import sugar
+import cssgrid/prettyprints
 
 type
   Main* = ref object of Figuro
@@ -22,11 +21,15 @@ proc deactivateSlider*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    rectangle "body":
+    size 100'pp, 100'pp
+
+    Rectangle.new "menu-bkg":
       fill rgba(66, 177, 44, 197).to(Color).spin(100).darken(0.3*self.bkgFade.amount)
       zlevel 20.ZLevel
-      box ux(140*self.bkgFade.amount - 140), 0'ux, 140'ux, 100'pp
+      offset ux(140*self.bkgFade.amount - 140), 0'ux
+      size 140'ux, 100'pp
       cornerRadius 0.0'ui
+
       Vertical.new "menu":
         box 0'ux, 10'ux, 100'pp, 95'pp
         contentHeight this, cx"max-content", gap = 20'ui
@@ -39,6 +42,7 @@ proc draw*(self: Main) {.slot.} =
             justify Center
             align Middle
             text({defaultFont(): "Close Menu"})
+
     Horizontal.new "horiz":
       offset 30'pp, 0'ux
       contentWidth this, cx"max-content", gap = 20'ui
@@ -62,6 +66,10 @@ proc draw*(self: Main) {.slot.} =
           justify Center
           align Middle
           text({defaultFont(): "Close Menu"})
+
+  onSignal(doRightClick) do(self: Main):
+      echo "doRightClick"
+      printLayout(self, cmTerminal)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(800'ui, 600'ui))

@@ -1,9 +1,11 @@
 import std/unicode
 import ../widget
 import ../ui/textboxes
+import ../ui/text
 import ../ui/events
 import pkg/chronicles
 
+export text
 export textboxes
 
 echo "input: ", clipboardText()
@@ -25,7 +27,7 @@ type
   Cursor* = ref object of Figuro
   Selection* = ref object of Figuro
 
-proc options*(self: Input, opt: set[InputOptions], state = true) =
+proc options*(self: Input, opt: set[InputOptions], state = true) {.thisWrapper.} =
   if state: self.opts.incl opt
   else: self.opts.excl opt
 
@@ -35,28 +37,16 @@ proc skipOnInput*(self: Input, runes: HashSet[Rune]) =
   ## 
   ## useful for skipping "decorative" tokens like ':' in a time
   self.skipOnInput = runes
-proc skipOnInput*(self: Input, msg: varargs[char]) =
+proc skipOnInput*(self: Input, msg: varargs[char]) {.thisWrapper.} =
   ## skips the given runes and advances the cursor to the 
   ## next rune when a user inputs a key
   ## 
   ## useful for skipping "decorative" tokens like ':' in a time
   self.skipOnInput = msg.toRunes().toHashSet()
 
-proc isActive*(self: Input): bool =
-  Active in self.userAttrs
-
-proc disabled*(self: Input): bool =
-  Disabled in self.userAttrs
-
-proc `active=`*(self: Input, state: bool) =
-  self.setUserAttr({Active}, state)
-
-proc `disabled`*(self: Input, state: bool) =
-  self.setUserAttr({Attributes.Disabled}, state)
-
-proc overwrite*(self: Input): bool =
+proc overwrite*(self: Input): bool {.thisWrapper.} =
   Overwrite in self.text.opts
-proc overwrite*(self: Input, state: bool) =
+proc overwrite*(self: Input, state: bool) {.thisWrapper.} =
   self.text.options({Overwrite}, state)
 
 proc font*(self: Input, font: UiFont) =
@@ -90,13 +80,13 @@ proc skipSelectedRune*(self: Input, skips: HashSet[Rune] = self.skipOnInput) =
     self.text.cursorNext()
     self.text.updateSelection()
 
-proc text*(self: Input, txt: string) {.slot.} =
+proc setText*(self: Input, txt: string) {.slot.} =
   runes(self, txt.toRunes())
 
 proc runes*(self: Input): seq[Rune] =
   self.text.runes()
 
-proc text*(self: Input): string =
+proc getText*(self: Input): string =
   $self.text.runes()
 
 proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
@@ -104,7 +94,7 @@ proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.sig
 proc doUpdateInput*(self: Input, rune: Rune) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
-  if self.isActive:
+  if self.active():
     self.cursorCnt.inc()
     self.cursorCnt = self.cursorCnt mod 33
     if self.cursorCnt == 0:
@@ -112,8 +102,8 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  self.active = kind == Done and not self.disabled
-  if self.isActive:
+  self.active(kind == Done and not self.disabled)
+  if self.active():
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
     self.cursorTick = 1
   else:
@@ -338,9 +328,8 @@ proc draw*(self: Input) {.slot.} =
       foreground this, self.color
 
     Cursor.new "input-cursor":
-      with this:
-        boxOf self.text.cursorRect
-        fill blackColor
+      this.boxOf(self.text.cursorRect)
+      fill blackColor
       this.fill.a = self.cursorTick.toFloat * 1.0
       this.setUserAttr({Active}, self.cursorTick == 1)
 

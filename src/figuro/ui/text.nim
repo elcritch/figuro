@@ -51,21 +51,21 @@ proc text*(node: Text, spans: openArray[(UiFont, string)], wrap = true) {.thisWr
 proc text*(node: Text, text: string, wrap = true) {.thisWrapper.} =
   text(node, {node.font: text}, wrap)
 
-proc font*(node: Text, font: UiFont) {.thisWrapper.} =
-  node.font = font
+proc font*(node: Text, f: UiFont) {.thisWrapper.} =
+  node.font = f
 
-proc foreground*(node: Text, color: Color) =
+proc foreground*(node: Text, color: Color) {.thisWrapper.} =
   node.color = color
-
-template foreground*(color: Color)  =
-  mixin foreground
-  this.foreground(color)
 
 proc align*(node: Text, kind: FontVertical) {.thisWrapper.} =
   node.vAlign = kind
 
-proc justify*(node: Text, kind: FontHorizontal) {.thisWrapper.} =
+proc justify*(node: Text, kind: FontHorizontal) =
   node.hAlign = kind
+
+template justify*(kind: FontHorizontal) =
+  mixin justify
+  justify(this, kind)
 
 proc draw*(self: Text) {.slot.} =
   ## Input widget!
