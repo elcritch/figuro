@@ -22,10 +22,11 @@ proc deactivateSlider*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    rectangle "body":
+    Rectangle.new "body":
       fill rgba(66, 177, 44, 197).to(Color).spin(100).darken(0.3*self.bkgFade.amount)
       zlevel 20.ZLevel
-      box ux(140*self.bkgFade.amount - 140), 0'ux, 140'ux, 100'pp
+      offset ux(140*self.bkgFade.amount - 140), 0'ux
+      size 140'ux, 100'pp
       cornerRadius 0.0'ui
       Vertical.new "menu":
         box 0'ux, 10'ux, 100'pp, 95'pp

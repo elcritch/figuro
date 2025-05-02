@@ -113,11 +113,6 @@ proc queryDescendant*(this: Figuro, name: string, tp: typedesc = Figuro): Option
 template toAtom*(name: Atom): Atom =
   name
 
-
-template rectangle*(name: Atom | static string, blk: untyped) =
-  ## Starts a new rectangle.
-  widgetRegister[Rectangle](name.toAtom(), blk)
-
 template textContents*(blk: untyped) =
   ## Starts a new rectangle.
   widgetRegister[Text]("text", blk)
