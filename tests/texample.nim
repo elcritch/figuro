@@ -27,7 +27,7 @@ proc draw*(self: Main) {.slot.} =
       fill blackColor * 0.1
       cornerRadius 20
 
-      Rectangle.new "slider":
+      Rectangle.new "box 1":
         size 200'ux, 45'ux
         fill css"#00A0AA"
         Text as "txt1":
@@ -35,7 +35,7 @@ proc draw*(self: Main) {.slot.} =
           justify Center
           text {font: "test2"}
           foreground css"#FFFFFF"
-      Rectangle.new "slider":
+      Rectangle.new "box 2":
         size 0.5'fr, 0.5'fr
         fill css"#A000AA"
         Text as "txt2":
