@@ -19,10 +19,6 @@ macro thisWrapper*(p: untyped): auto =
     tmpl[3].del(1)
     args.delete(1)
   let name = tmpl[0][1]
-  echo "NAME: ", name.treeRepr
-  let mixinast = quote do:
-    mixin offset
-  echo "MIXIN AST: ", mixinast.astGenRepr
   tmpl[^1] = nnkStmtList.newTree(
     nnkMixinStmt.newTree(name),
     newCall(tmpl[0][1], args),
