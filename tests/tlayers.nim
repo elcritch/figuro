@@ -28,7 +28,7 @@ proc setLabel(current: Figuro, left=false) =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     size 100'pp, 100'pp
-    rectangle "container":
+    Rectangle.new "container":
       fill css"#D0D0D0"
       box 3'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0'ui
@@ -53,7 +53,7 @@ proc draw*(self: Main) {.slot.} =
         zlevel -5.ZLevel
         this.setLabel()
 
-    rectangle "container":
+    Rectangle.new "container":
       fill css"#D0D0D0"
       box 50'pp, 10'pp, 30'pp, 80'pp
       cornerRadius 10.0'ui

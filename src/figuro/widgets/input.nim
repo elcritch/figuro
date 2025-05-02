@@ -1,9 +1,11 @@
 import std/unicode
 import ../widget
 import ../ui/textboxes
+import ../ui/text
 import ../ui/events
 import pkg/chronicles
 
+export text
 export textboxes
 
 echo "input: ", clipboardText()

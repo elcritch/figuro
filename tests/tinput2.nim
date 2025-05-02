@@ -51,35 +51,32 @@ proc draw*(self: Main) {.slot.} =
     fill this, css"#f0f0f0"
 
     # Time display background
-    rectangle("time-background"):
-      with this:
-        box 1'pp, 1'pp, 98'pp, 98'pp
-        fill css"#ffffff"
-        fill blackColor * (self.bkgFade.amount)
-        border 1'ui, css"#000000"
+    Rectangle.new "time-background":
+      box 1'pp, 1'pp, 98'pp, 98'pp
+      fill css"#ffffff"
+      fill blackColor * (self.bkgFade.amount)
+      border 1'ui, css"#000000"
 
-      Vertical.new("vlayout"):
-        with this:
-          size 100'pp, 100'pp
-          contentHeight cx"auto", gap = 0'ui
+      Vertical.new "vlayout":
+        size 100'pp, 100'pp
+        contentHeight cx"auto", gap = 0'ui
         
         Rectangle.new "input-outer":
           # Test text input
           border 1'ui, css"black"
           size 90'pp, 30'pp
           Input.new("time-input"):
-            with this:
-              size 100'pp, 100'pp
-              align Middle
-              justify Center
-              font defaultFont()
-              foreground css"black"
-              fill css"white"
-              border 1'ui, css"black"
-              disabled self.running
-              overwrite true
-              options {NoErase, NoSelection}
-              skipOnInput ':'
+            size 100'pp, 100'pp
+            align Middle
+            justify Center
+            font defaultFont()
+            foreground css"black"
+            fill css"white"
+            border 1'ui, css"black"
+            disabled self.running
+            overwrite true
+            options {NoErase, NoSelection}
+            skipOnInput ':'
             if this.disabled:
               fill this.fill.darken(0.4)
               foreground css"grey"
