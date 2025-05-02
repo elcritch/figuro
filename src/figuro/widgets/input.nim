@@ -328,9 +328,8 @@ proc draw*(self: Input) {.slot.} =
       foreground this, self.color
 
     Cursor.new "input-cursor":
-      with this:
-        boxOf self.text.cursorRect
-        fill blackColor
+      this.boxOf(self.text.cursorRect)
+      fill blackColor
       this.fill.a = self.cursorTick.toFloat * 1.0
       this.setUserAttr({Active}, self.cursorTick == 1)
 
