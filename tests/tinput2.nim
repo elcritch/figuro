@@ -90,7 +90,7 @@ proc draw*(self: Main) {.slot.} =
             connect(this, doUpdateInput, this, overrideUpdateInput)
             if not this.textChanged(""):
               # set default
-              text(this, "00:00:00")
+              this.setText("00:00:00")
 
         Button[bool].new("countdown-button"):
           proc btnClicked(self: Main, kind: EventKind, buttons: UiButtonView) {.slot.} =
