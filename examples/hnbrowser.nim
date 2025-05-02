@@ -108,6 +108,7 @@ proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.}
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    size 100'pp, 100'pp
     this.listens.signals.incl {evKeyPress}
     connect(this, doKeyPress, self, Main.doKeyPress())
 
