@@ -141,6 +141,24 @@ proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
   # debug "LAYOUT RESIZE: ", self = self.name, node = node.name, scrollPaneBox = self.box, nodeBox = node.box, scrollBodyBox = scrollBody.box
   scroll(self, initPosition(0, 0), force = true)
 
+proc hideGrandChildren*(self: ScrollPane, child: Figuro) =
+  ## hides grandchildren of the scrollpane if they are not overlapping with the scrollpane
+  ## except for the grandchildren right before and after the scrollpane
+  ## this allows them to be drawn right before they're shown to avoid graphical glitches
+  var
+    prevSibling: Figuro = nil
+    prevOverlapped = false
+
+  for grandChild in child.children:
+    let isOverlapping = grandChild.screenBox.overlaps(self.screenBox)
+    grandChild.setUserAttr({Hidden}, not isOverlapping)
+    if prevOverlapped:
+      grandChild.setUserAttr({Hidden}, false)
+    if prevSibling != nil and isOverlapping and not prevOverlapped:
+      prevSibling.setUserAttr({Hidden}, false)
+    prevSibling = grandChild
+    prevOverlapped = isOverlapping
+
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
     self.listens.events.incl evScroll
@@ -167,18 +185,8 @@ proc draw*(self: ScrollPane) {.slot.} =
       scroll(self, initPosition(0, 0))
       for child in this.children:
         connect(child, doLayoutResize, self, layoutResize)
-        var
-          prevSibling: Figuro = nil
-          prevOverlapped = false
-        for grandChild in child.children:
-          let isOverlapping = grandChild.screenBox.overlaps(self.screenBox)
-          grandChild.setUserAttr({Hidden}, not isOverlapping)
-          if prevOverlapped:
-            grandChild.setUserAttr({Hidden}, false)
-          if prevSibling != nil and isOverlapping and not prevOverlapped:
-            prevSibling.setUserAttr({Hidden}, false)
-          prevSibling = grandChild
-          prevOverlapped = isOverlapping
+        child.setUserAttr({Hidden}, not child.screenBox.overlaps(self.screenBox))
+        hideGrandChildren(self, child)
 
     if self.settings.vertical:
       Rectangle.new "scrollbar-vertical":
