@@ -44,18 +44,6 @@ proc skipOnInput*(self: Input, msg: varargs[char]) {.thisWrapper.} =
   ## useful for skipping "decorative" tokens like ':' in a time
   self.skipOnInput = msg.toRunes().toHashSet()
 
-proc isActive*(self: Input): bool =
-  Active in self.userAttrs
-
-proc disabled*(self: Input): bool {.thisWrapper.} =
-  Disabled in self.userAttrs
-
-proc active*(self: Input, state: bool) {.thisWrapper.} =
-  self.setUserAttr({Active}, state)
-
-proc disabled*(self: Input, state: bool) {.thisWrapper.} =
-  self.setUserAttr({Attributes.Disabled}, state)
-
 proc overwrite*(self: Input): bool {.thisWrapper.} =
   Overwrite in self.text.opts
 proc overwrite*(self: Input, state: bool) {.thisWrapper.} =
@@ -106,7 +94,7 @@ proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.sig
 proc doUpdateInput*(self: Input, rune: Rune) {.signal.}
 
 proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
-  if self.isActive:
+  if self.active():
     self.cursorCnt.inc()
     self.cursorCnt = self.cursorCnt mod 33
     if self.cursorCnt == 0:
@@ -115,7 +103,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
   self.active(kind == Done and not self.disabled)
-  if self.isActive:
+  if self.active():
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
     self.cursorTick = 1
   else:

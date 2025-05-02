@@ -101,6 +101,16 @@ template paddingBottom*(v: Constraint) {.thisWrapper.}
 template paddingTB*(t, b: Constraint) {.thisWrapper.}
 template paddingLR*(l, r: Constraint) {.thisWrapper.}
 
+proc disabled*(self: Figuro): bool {.thisWrapper.} =
+  Disabled in self.userAttrs
+proc disabled*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Attributes.Disabled}, state)
+proc active*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Active}, state)
+proc active*(self: Figuro): bool {.thisWrapper.} =
+  Active in self.userAttrs
+
+
 template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template 
   ## 
