@@ -51,19 +51,11 @@ proc text*(node: Text, spans: openArray[(UiFont, string)], wrap = true) {.thisWr
 proc text*(node: Text, text: string, wrap = true) {.thisWrapper.} =
   text(node, {node.font: text}, wrap)
 
-proc font*(node: Text, f: UiFont) =
+proc font*(node: Text, f: UiFont) {.thisWrapper.} =
   node.font = f
 
-template font*(f: UiFont) =
-  mixin font
-  font(this, f)
-
-proc foreground*(node: Text, color: Color) =
+proc foreground*(node: Text, color: Color) {.thisWrapper.} =
   node.color = color
-
-template foreground*(color: Color)  =
-  mixin foreground
-  this.foreground(color)
 
 proc align*(node: Text, kind: FontVertical) {.thisWrapper.} =
   node.vAlign = kind

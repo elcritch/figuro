@@ -18,7 +18,15 @@ macro thisWrapper*(p: untyped): auto =
   if isProc:
     tmpl[3].del(1)
     args.delete(1)
-  tmpl[^1] = nnkStmtList.newTree(newCall(tmpl[0][1], args))
+  let name = tmpl[0][1]
+  echo "NAME: ", name.treeRepr
+  let mixinast = quote do:
+    mixin offset
+  echo "MIXIN AST: ", mixinast.astGenRepr
+  tmpl[^1] = nnkStmtList.newTree(
+    nnkMixinStmt.newTree(name),
+    newCall(tmpl[0][1], args),
+  )
   result.add tmpl
   # echo "THIS WRAPPER:result: ", result.treeRepr
   # echo "THIS WRAPPER:result: ", result.repr

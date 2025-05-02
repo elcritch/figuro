@@ -27,7 +27,7 @@ type
   Cursor* = ref object of Figuro
   Selection* = ref object of Figuro
 
-proc options*(self: Input, opt: set[InputOptions], state = true) =
+proc options*(self: Input, opt: set[InputOptions], state = true) {.thisWrapper.} =
   if state: self.opts.incl opt
   else: self.opts.excl opt
 
@@ -37,7 +37,7 @@ proc skipOnInput*(self: Input, runes: HashSet[Rune]) =
   ## 
   ## useful for skipping "decorative" tokens like ':' in a time
   self.skipOnInput = runes
-proc skipOnInput*(self: Input, msg: varargs[char]) =
+proc skipOnInput*(self: Input, msg: varargs[char]) {.thisWrapper.} =
   ## skips the given runes and advances the cursor to the 
   ## next rune when a user inputs a key
   ## 
@@ -47,18 +47,18 @@ proc skipOnInput*(self: Input, msg: varargs[char]) =
 proc isActive*(self: Input): bool =
   Active in self.userAttrs
 
-proc disabled*(self: Input): bool =
+proc disabled*(self: Input): bool {.thisWrapper.} =
   Disabled in self.userAttrs
 
-proc `active=`*(self: Input, state: bool) =
+proc active*(self: Input, state: bool) {.thisWrapper.} =
   self.setUserAttr({Active}, state)
 
-proc `disabled`*(self: Input, state: bool) =
+proc disabled*(self: Input, state: bool) {.thisWrapper.} =
   self.setUserAttr({Attributes.Disabled}, state)
 
-proc overwrite*(self: Input): bool =
+proc overwrite*(self: Input): bool {.thisWrapper.} =
   Overwrite in self.text.opts
-proc overwrite*(self: Input, state: bool) =
+proc overwrite*(self: Input, state: bool) {.thisWrapper.} =
   self.text.options({Overwrite}, state)
 
 proc font*(self: Input, font: UiFont) =
@@ -114,7 +114,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       refresh(self)
 
 proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
-  self.active = kind == Done and not self.disabled
+  self.active(kind == Done and not self.disabled)
   if self.isActive:
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
     self.cursorTick = 1
