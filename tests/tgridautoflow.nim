@@ -15,9 +15,8 @@ proc draw*(self: GridApp) {.slot.} =
   withRootWidget(self):
     size 100'pp, 100'pp
     Rectangle.new "autoLayout":
-      GridDebug.new "debug-grid":
-        this.state = (blackColor, "css grid area")
-      # font "IBM Plex Sans", 16, 400, 16, hLeft, vCenter
+      # GridDebug.new "debug-grid":
+      #   this.state = (blackColor, "css grid area")
       box 10'pp, 10'pp, 80'pp, 80'pp
       fill rgb(224, 239, 255).to(Color)
 
@@ -33,7 +32,7 @@ proc draw*(self: GridApp) {.slot.} =
         # Setup CSS Grid Template
         gridCols 1'fr 1'fr 1'fr 1'fr 1'fr
         gridRows 1'fr 1'fr
-        justifyItems CxStart
+        justifyItems CxStretch
 
         Rectangle.new "item a":
           # Setup CSS Grid Template
@@ -59,6 +58,8 @@ proc draw*(self: GridApp) {.slot.} =
           gridRow 1 // 3
           # some color stuff
           fill rgba(245, 129, 49, 123).to(Color)
+  onSignal(doRightClick) do(this: GridApp):
+    echo "right click"
     printLayout(this, cmTerminal)
 
 
