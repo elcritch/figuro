@@ -23,7 +23,7 @@ proc draw*(self: Main) {.slot.} =
     let j = 1
     for i in 0 .. 9:
       capture i, j:
-        rectangle "":
+        Rectangle.new "":
           cssEnable this, false
           let value = self.value
           fill this, css"#AA0000".spin(i.toFloat*20.0)
