@@ -157,20 +157,6 @@ proc offset*(current: Figuro, x: UiScalar | Constraint, y: UiScalar | Constraint
 proc size*(current: Figuro, w: UiScalar | Constraint, h: UiScalar | Constraint) =
   current.cxSize = [csOrFixed(w), csOrFixed(h)]
 
-proc boxSizeOf*(current: Figuro, node: Figuro) =
-  ## Sets current node's box from another node
-  ## e.g. `boxOf(parent)`
-  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
-
-proc boxOf*(current: Figuro, node: Figuro) =
-  current.cxOffset = [csOrFixed(node.box.x), csOrFixed(node.box.y)]
-  current.cxSize = [csOrFixed(node.box.w), csOrFixed(node.box.h)]
-
-proc boxOf*(current: Figuro, box: Box) =
-  ## Sets the node's size to the given box.
-  current.cxOffset = [csOrFixed(box.x), csOrFixed(box.y)]
-  current.cxSize = [csOrFixed(box.w), csOrFixed(box.h)]
-
 proc padding*(current: Figuro, left, right, top, bottom: UiScalar | Constraint) =
   current.cxPadOffset = [left, top]
   current.cxPadSize = [bottom, right]

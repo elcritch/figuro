@@ -18,13 +18,13 @@ proc draw*(self: GridDebug) {.slot.} =
       if c.name == gridName:
         gridNode = c
 
-    rectangle "grid-debug":
+    Rectangle.new "grid-debug":
 
       if gridNode != nil:
         let grid = gridNode
-
         ## helper that draws css grid lines. great for debugging layouts.
-        boxOf this, grid.box
+        size 100'pp, 100'pp
+
         if not grid.gridTemplate.isNil:
           let cg = grid.gridTemplate.gaps[dcol]
           let wd = 3'ui
@@ -32,25 +32,21 @@ proc draw*(self: GridDebug) {.slot.} =
           let h = grid.gridTemplate.rows[^1].start.UiScalar
           for col in grid.gridTemplate.columns[1 ..^ 2]:
             capture col:
-              rectangle "column":
-                with this:
-                  zlevel 10.ZLevel
-                  fill color
-                  box ux(col.start.UiScalar - wd), 0'ux, wd.ux(), h.ux()
+              Rectangle.new "column":
+                zlevel 10.ZLevel
+                fill color
+                box ux(col.start.UiScalar - wd), 0'ux, wd.ux(), h.ux()
           for row in grid.gridTemplate.rows[1 ..^ 2]:
             capture row:
-              rectangle "row":
-                with this:
-                  zlevel 10.ZLevel
-                  fill color
-                  box 0, row.start.UiScalar - wd, w.UiScalar, wd
-          rectangle "edge":
-            with this:
-              fill color
-              zlevel 10.ZLevel
-              box 0'ux, 0'ux, w, 3'ux
-          rectangle "edge":
-            with this:
-              fill color
-              zlevel 10.ZLevel
-              box 0'ux, ux(h - 3), w, 3'ux
+              Rectangle.new "row":
+                zlevel 10.ZLevel
+                fill color
+                box 0, row.start.UiScalar - wd, w.UiScalar, wd
+          Rectangle.new "edge":
+            fill color
+            zlevel 10.ZLevel
+            box 0'ux, 0'ux, w, 3'ux
+          Rectangle.new "edge":
+            fill color
+            zlevel 10.ZLevel
+            box 0'ux, ux(h - 3), w, 3'ux

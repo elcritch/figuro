@@ -78,15 +78,6 @@ template offset*(x: UiScalar | Constraint, y: UiScalar | Constraint) {.thisWrapp
 
 template size*(w: UiScalar | Constraint, h: UiScalar | Constraint) {.thisWrapper.}
 
-template boxSizeOf*(node: Figuro) {.thisWrapper.}
-  ## Sets current node's box from another node
-  ## e.g. `boxOf(parent)`
-
-template boxOf*(node: Figuro) {.thisWrapper.}
-
-template boxOf*(box: Box) {.thisWrapper.}
-  ## Sets the node's size to the given box.
-
 template padding*(left, right, top, bottom: Constraint) {.thisWrapper.}
 template padding*(all: Constraint) {.thisWrapper.}
 
