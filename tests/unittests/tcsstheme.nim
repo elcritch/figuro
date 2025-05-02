@@ -205,8 +205,8 @@ type
 proc draw*(self: TMain) {.slot.} =
   withWidget(self):
     this.name = "main".toAtom()
-    rectangle "body":
-      rectangle "child1":
+    Rectangle.new "body":
+      Rectangle.new "child1":
         discard
         Button[int].new "btnC":
           with this:
@@ -218,18 +218,18 @@ proc draw*(self: TMain) {.slot.} =
           box 40'ux, 30'ux, 80'ux, 80'ux
           fill css"#FFFFFF"
     
-      rectangle "child2":
+      Rectangle.new "child2":
         Button[int].new "btnB":
           with this:
             box 40'ux, 30'ux, 80'ux, 80'ux
             fill css"#FFFFFF"
-          rectangle "child21":
+          Rectangle.new "child21":
             with this:
               box 40'ux, 30'ux, 80'ux, 80'ux
               fill css"#FFFFFF"
 
-      rectangle "child3":
-        rectangle "child30":
+      Rectangle.new "child3":
+        Rectangle.new "child30":
           Button[int].new "btnD":
             with this:
               box 40'ux, 30'ux, 80'ux, 80'ux
