@@ -15,7 +15,7 @@ type
     hoveredAlpha: float
     mainRect: Figuro
 
-proc setLabel(current: Figuro, zlvl: ZLevel; left=false) =
+proc setLabel(current: Figuro, left=false) =
   var this = current
   Text.new "text":
     if left:
@@ -23,67 +23,59 @@ proc setLabel(current: Figuro, zlvl: ZLevel; left=false) =
     else:
       box this, 70'pp, 30'pp, 30'pp, 22
     foreground this, blackColor
-    text(this, {font: "zlevel " & $zlvl})
+    text(this, {font: "zlevel " & $this.zlevel})
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    size 100'pp, 100'pp
     rectangle "container":
-      with this:
-        fill css"#D0D0D0"
-        box 3'pp, 10'pp, 30'pp, 80'pp
-        cornerRadius 10.0'ui
-        clipContent false
+      fill css"#D0D0D0"
+      box 3'pp, 10'pp, 30'pp, 80'pp
+      cornerRadius 10.0'ui
+      clipContent false
+
       Text.new "text":
-        with this:
-          box 10'pp, 10'ux, 70'pp, 22'ux
-          foreground blackColor
-          text({font: "not clipped"})
+        box 10'pp, 10'ux, 70'pp, 22'ux
+        foreground blackColor
+        text({font: "not clipped"})
 
       Button.new "btn":
-        with this:
-          box 10'pp, 15'pp, 130'pp, 20'pp
-          zlevel 20.ZLevel
-          setLabel(this.zlevel, left=true)
+        box 10'pp, 15'pp, 130'pp, 20'pp
+        zlevel 20.ZLevel
+        this.setLabel(left=true)
 
       Button.new "btn":
-        with this:
-          box 10'pp, 45'pp, 130'pp, 20'pp
-          setLabel(this.zlevel, left=true)
+        box 10'pp, 45'pp, 130'pp, 20'pp
+        this.setLabel(left=true)
 
       Button.new "btn":
-        with this:
-          box 10'pp, 75'pp, 130'pp, 20'pp
-          zlevel -5.ZLevel
-          setLabel(this.zlevel)
+        box 10'pp, 75'pp, 130'pp, 20'pp
+        zlevel -5.ZLevel
+        this.setLabel()
 
     rectangle "container":
-      with this:
-        fill css"#D0D0D0"
-        box 50'pp, 10'pp, 30'pp, 80'pp
-        cornerRadius 10.0'ui
-        clipContent true
+      fill css"#D0D0D0"
+      box 50'pp, 10'pp, 30'pp, 80'pp
+      cornerRadius 10.0'ui
+      clipContent true
       Text.new "text":
-        with this:
-          box 10'pp, 10'ux, 70'pp, 22'ux
-          foreground blackColor
-          text({font: "clipped"})
+        box 10'pp, 10'ux, 70'pp, 22'ux
+        foreground blackColor
+        text({font: "clipped"})
 
       Button.new "btn":
-        with this:
-          box 10'pp, 15'pp, 130'pp, 20'pp
-          zlevel 20.ZLevel
-          setLabel(this.zlevel, left=true)
+        box 10'pp, 15'pp, 130'pp, 20'pp
+        zlevel 20.ZLevel
+        this.setLabel(left=true)
 
       Button.new "btn":
-        with this:
-          box 10'pp, 45'pp, 130'pp, 20'pp
-          setLabel(this.zlevel, left=true)
+        box 10'pp, 45'pp, 130'pp, 20'pp
+        this.setLabel(left=true)
 
       Button.new "btn":
-        with this:
-          box 10'pp, 75'pp, 130'pp, 20'pp
-          zlevel -5.ZLevel
-          setLabel(this.zlevel)
+        box 10'pp, 75'pp, 130'pp, 20'pp
+        zlevel -5.ZLevel
+        this.setLabel()
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(800'ui, 400'ui))
