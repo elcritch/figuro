@@ -54,6 +54,7 @@ proc draw*(self: Main) {.slot.} =
       connect(doDrag, this, btnDragStart)
 
       Text.new "btnText":
+        size 100'pp, 100'pp
         align Middle
         justify Center
         text({font: "drag to the red block and release"})
