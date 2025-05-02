@@ -33,7 +33,7 @@ proc draw*(self: Main) {.slot.} =
               # printLayout(self, cmTerminal)
               printLayout(self, 0)
     ScrollPane.new "scroll":
-      printLayout(self, 0)
+      # printLayout(self, 0)
       offset 2'pp, 2'pp
       cornerRadius 7.0'ux
       size 96'pp, 90'pp
@@ -42,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
         offset 10'ux, 10'ux
         size 100'pp-20'ux, cx"max-content"
         contentHeight cx"max-content"
-        for idx in 0 .. 15:
+        for idx in 0 .. 100:
           buttonItem(self, this, idx)
 
 var main = Main()

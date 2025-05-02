@@ -143,21 +143,32 @@ proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
 
 proc hideGrandChildren*(self: ScrollPane, child: Figuro) =
   ## hides grandchildren of the scrollpane if they are not overlapping with the scrollpane
-  ## except for the grandchildren right before and after the scrollpane
-  ## this allows them to be drawn right before they're shown to avoid graphical glitches
+  ## a buffer equal to the number of overlapping grandchildren is kept visible
+  ## as well to avoid graphical glitches as the user scrolls
   var
-    prevSibling: Figuro = nil
-    prevOverlapped = false
+    firstOverlapping = -1
+    lastOverlapping = -1
+    countOverlapping = 0
 
-  for grandChild in child.children:
+  for idx, grandChild in child.children:
     let isOverlapping = grandChild.screenBox.overlaps(self.screenBox)
     grandChild.setUserAttr({Hidden}, not isOverlapping)
-    if prevOverlapped:
-      grandChild.setUserAttr({Hidden}, false)
-    if prevSibling != nil and isOverlapping and not prevOverlapped:
-      prevSibling.setUserAttr({Hidden}, false)
-    prevSibling = grandChild
-    prevOverlapped = isOverlapping
+    if firstOverlapping == -1 and isOverlapping:
+      firstOverlapping = idx
+    if isOverlapping:
+      lastOverlapping = idx
+      countOverlapping.inc()
+
+  let bufferCount = max(countOverlapping div 2, 3)
+  let startIdx = max(0, firstOverlapping - bufferCount)
+  let endIdx = min(child.children.len() - 1, lastOverlapping + bufferCount)
+  echo "firstOverlapping: ", firstOverlapping, " lastOverlapping: ", lastOverlapping, " startIdx: ", startIdx, " endIdx: ", endIdx
+
+  for i in startIdx..<firstOverlapping:
+    child.children[i].setUserAttr({Hidden}, false)
+
+  for i in lastOverlapping+1..<endIdx:
+    child.children[i].setUserAttr({Hidden}, false)
 
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
