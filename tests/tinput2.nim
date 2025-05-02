@@ -99,19 +99,17 @@ proc draw*(self: Main) {.slot.} =
                 self.running = not self.running
                 # self.count = this.text().parseCount()
                 refresh(self)
-          with this:
-            size 50'pp, 30'pp
-            border 1'ui, css"#000000"
-            cornerRadius 4.0'ui
-            connect(doHover, self, btnHover)
-            connect(doMouseClick, self, btnClicked)
+          size 50'pp, 30'pp
+          border 1'ui, css"#000000"
+          cornerRadius 4.0'ui
+          connect(doHover, self, btnHover)
+          connect(doMouseClick, self, btnClicked)
 
           Text.new "text":
             size 100'pp, 100'pp
-            with this:
-              foreground blackColor
-              justify Center
-              align Middle
+            foreground blackColor
+            justify Center
+            align Middle
             if not self.running:
               text({buttonFont: "COUNTDOWN"})
             else:
