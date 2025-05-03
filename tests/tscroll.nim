@@ -42,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
         offset 10'ux, 10'ux
         size 100'pp-20'ux, cx"max-content"
         contentHeight cx"max-content"
-        for idx in 0 .. 9000:
+        for idx in 0 .. 999:
           buttonItem(self, this, idx)
 
 var main = Main()
