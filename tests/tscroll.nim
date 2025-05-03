@@ -16,8 +16,14 @@ proc buttonItem(self, this: Figuro, idx: int) =
     size 1'fr, 50'ux
     cssEnable false
     fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20 mod 360)
-    if idx in [3, 7]:
+    if idx mod 10 in [3, 7]:
       size 0.9'fr, 120'ux
+    
+    paddingLR 20'ux, 20'ux
+
+    Text.new "text":
+      size 100'pp, 100'pp
+      text {defaultFont(): "Item " & $idx}
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
