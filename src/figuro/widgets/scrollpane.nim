@@ -162,7 +162,6 @@ proc hideGrandChildren*(self: ScrollPane, child: Figuro) =
   let bufferCount = max(countOverlapping div 2, 3)
   let startIdx = max(0, firstOverlapping - bufferCount)
   let endIdx = min(child.children.len() - 1, lastOverlapping + bufferCount)
-  echo "firstOverlapping: ", firstOverlapping, " lastOverlapping: ", lastOverlapping, " startIdx: ", startIdx, " endIdx: ", endIdx
 
   for i in startIdx..<firstOverlapping:
     child.children[i].setUserAttr({Hidden}, false)
@@ -172,10 +171,12 @@ proc hideGrandChildren*(self: ScrollPane, child: Figuro) =
 
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
-    self.listens.events.incl evScroll
-    uinodes.connect(self, doScroll, self, ScrollPane.scroll)
-    uinodes.connect(self, doLayoutResize, self, ScrollPane.layoutResize)
     clipContent true
+    self.listens.events.incl evScroll
+    onInit:
+      uinodes.connect(self, doScroll, self, ScrollPane.scroll)
+      uinodes.connect(self, doLayoutResize, self, ScrollPane.layoutResize)
+
     this.cxMin = [0'ux, 0'ux]
     # this.shadow[DropShadow] = Shadow(blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.7))
 
@@ -194,8 +195,9 @@ proc draw*(self: ScrollPane) {.slot.} =
       this.flags.incl NfScrollPanel
       WidgetContents()
       scroll(self, initPosition(0, 0))
+
       for child in this.children:
-        connect(child, doLayoutResize, self, layoutResize)
+        # connect(child, doLayoutResize, self, layoutResize)
         child.setUserAttr({Hidden}, not child.screenBox.overlaps(self.screenBox))
         hideGrandChildren(self, child)
 

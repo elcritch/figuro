@@ -15,7 +15,7 @@ proc buttonItem(self, this: Figuro, idx: int) =
   Button.new "button":
     size 1'fr, 50'ux
     cssEnable false
-    fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20)
+    fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20 mod 360)
     if idx in [3, 7]:
       size 0.9'fr, 120'ux
 
@@ -42,7 +42,7 @@ proc draw*(self: Main) {.slot.} =
         offset 10'ux, 10'ux
         size 100'pp-20'ux, cx"max-content"
         contentHeight cx"max-content"
-        for idx in 0 .. 100:
+        for idx in 0 .. 9000:
           buttonItem(self, this, idx)
 
 var main = Main()
