@@ -83,10 +83,12 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
+    if renderer.frame[].saveWindowState: 
+      writeWindowConfig(window, winCfgFile)
     app.running = false
 
   window.onMove = proc() =
-    writeWindowConfig(window, winCfgFile)
+    discard
     # debug "window moved: ", pos= window.pos
 
   window.onResize = proc() =
