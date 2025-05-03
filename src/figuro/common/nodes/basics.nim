@@ -50,6 +50,7 @@ type
     Focus
     FocusVisible
     FocusWithin
+    Focusable
 
 
   FieldSetAttrs* = enum
