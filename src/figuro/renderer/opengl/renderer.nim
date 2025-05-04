@@ -1,7 +1,7 @@
-import std/[hashes, os, tables, times, monotimes, unicode]
+import std/[hashes, os, tables, times, monotimes, unicode, atomics]
 export tables
 
-import pkg/threading/atomics
+
 import pkg/chroma
 import pkg/windex
 import pkg/opengl
