@@ -41,7 +41,7 @@ proc draw*(self: Main) {.slot.} =
       onInit:
         this.data.selectIndex 0, true
 
-      TabItem.new "First Tab":
+      TabItem.new "First":
         ScrollPane.new "scroll":
           # printLayout(self, 0)
           offset 2'pp, 2'pp
