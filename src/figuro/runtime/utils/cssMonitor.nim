@@ -96,7 +96,7 @@ when not defined(noFiguroDmonMonitor):
     let cssFiles = @[appFile, defaultTheme]
     var currTheme = ""
     for file in cssFiles:
-      if file.existsFile():
+      if file.fileExists():
         currTheme = file
 
     if currTheme.fileExists():
