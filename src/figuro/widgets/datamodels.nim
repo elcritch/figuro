@@ -10,7 +10,6 @@ type
 
 proc clearElements*[T](self: SelectedElements[T]) =
   self.elements.setLen(0)
-  self.selected.clear()
 
 proc setElements*[T](self: SelectedElements[T], elements: seq[T]) =
   echo "setElements: ", elements

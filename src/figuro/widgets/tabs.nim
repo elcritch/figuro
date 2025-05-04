@@ -53,6 +53,12 @@ proc draw*(self: Tab) {.slot.} =
 
 proc draw*(self: TabItem) {.slot.} =
   withWidget(self):
+    size 100'pp, 100'pp
+    let tabs = self.queryParent(Tabs).get()
+    let selected = tabs.data.isSelected(self.index)
+    self.setUserAttr(Selected, selected)
+    self.setUserAttr(Disabled, not selected)
+    echo "tabitem: ", self.name, " index: ", self.index, " disabled: ", Disabled in self, " selected: ", selected
     onInit:
       this.setUserAttr(Disabled, true)
 
@@ -82,7 +88,8 @@ proc draw*(self: Tabs) {.slot.} =
     Rectangle.new "tabs-area":
       offset 0'ux, themeSize("fig-widget-tab-height")
       size 100'pp, 100'pp-themeSize("fig-widget-tab-height")
-      fill css"grey"
+      fill css"darkgrey"
+      border 2'ui, css"red"
       WidgetContents()
 
       self.data.clearElements()
@@ -92,4 +99,3 @@ proc draw*(self: Tabs) {.slot.} =
           tabItem.index = idx
           self.data.addElement($child.name)
       
-      # printLayout(self, cmTerminal)
