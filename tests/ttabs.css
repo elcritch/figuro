@@ -1,0 +1,7 @@
+
+Tab {
+  background-color: var(--fig-widget-background-color);
+}
+Tab:selected {
+  background-color: red;
+}
