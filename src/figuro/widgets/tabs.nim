@@ -57,10 +57,6 @@ proc draw*(self: TabItem) {.slot.} =
     let tabs = self.queryParent(Tabs).get()
     let selected = tabs.data.isSelected(self.index)
     self.setUserAttr(Hidden, not selected)
-    echo "tabitem: ", self.name, " index: ", self.index, " hidden: ", Hidden in self, " selected: ", selected
-    onInit:
-      this.setUserAttr(Disabled, true)
-
     WidgetContents()
 
 proc draw*(self: Tabs) {.slot.} =
@@ -80,7 +76,6 @@ proc draw*(self: Tabs) {.slot.} =
           Tab.new toAtom("tab" & $idx):
             # size cx"auto", 100'pp
             let selected = self.data.isSelected(idx)
-            echo "tab: ", idx, " selected: ", selected
             this.setUserAttr(Selected, selected)
             this.cxMax = [cx"max-content", cx"max-content"] # TODO: important! Improve this?
             this.index = idx
