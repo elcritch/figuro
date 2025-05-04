@@ -39,7 +39,7 @@ proc draw*(self: Main) {.slot.} =
       size 100'pp, 100'pp
       fill themeColor("fig-widget-background-color").darken(0.3)
       onInit:
-        this.data.toggleIndex 1
+        this.data.selectIndex 0, true
 
       TabItem.new "First Tab":
         ScrollPane.new "scroll":
