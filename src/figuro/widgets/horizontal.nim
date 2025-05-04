@@ -1,4 +1,3 @@
-import pkg/chronicles
 import ../widget
 
 type

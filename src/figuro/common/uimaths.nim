@@ -1,12 +1,12 @@
-import std/[strformat, strutils, math, hashes, macros, typetraits]
-import macroutils, vmath, bumpy
+import std/[strutils, math, hashes]
+import vmath, bumpy
 import cssgrid/numberTypes
 
 export math, vmath, numberTypes
 
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## Distinct percentages
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 type
   PercKind* = enum
@@ -24,9 +24,9 @@ proc `'ui`*(n: string): UiScalar {.compileTime.} =
   ## numeric literal UI Coordinate unit
   result = UiScalar(parseFloat(n))
 
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ## Distinct vec types
-## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 type Box* = UiBox
 type Position* = UiPos

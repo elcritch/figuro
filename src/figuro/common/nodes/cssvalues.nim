@@ -1,4 +1,4 @@
-import std/[strutils, paths, os]
+import std/strutils
 # import ./apis
 
 import pkg/chronicles
@@ -44,7 +44,7 @@ proc `$`*(vars: CssValues): string =
   result.add "  Names:\n"
   for name, id in vars.names:
     result.add "    " & $name & " => " & $id & "\n"
-  
+
   # Add variables table
   result.add "  Variables:\n"
   for id, value in vars.variables:
@@ -58,7 +58,7 @@ proc `$`*(vars: CssValues): string =
     let varName = vars.variableName(id)
     let nameStr = if varName != "": " (" & varName & ")" else: ""
     result.add "    " & $id & nameStr & " => " & $value & "\n"
-  
+
   # Add functions table
   result.add "  Functions:\n"
   for id, _ in vars.funcs:
@@ -129,4 +129,3 @@ proc resolveVariable*(vars: CssValues, varIdx: CssVarId, val: var CssValue): boo
       return true
   else:
     return false
-

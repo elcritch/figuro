@@ -1,6 +1,6 @@
-import std/[strformat, times, strutils]
+import std/strformat
 
-import pkg/[chroma, pixie]
+import pkg/pixie
 import pkg/opengl
 import pkg/windex
 
@@ -12,7 +12,7 @@ import pkg/sigils/weakrefs
 
 export AppFrame
 
-# import ../patches/textboxes 
+# import ../patches/textboxes
 var
   cursorDefault*: Cursor
   cursorPointer*: Cursor

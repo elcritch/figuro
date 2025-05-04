@@ -1,14 +1,14 @@
-import std/[strutils, paths, os]
+
 # import ./apis
 
 import stylus
 import patty
 import chroma
-import chronicles
+
 
 import cssgrid
 import cssgrid/gridtypes
-import cssgrid/variables
+
 import basics
 
 variantp CssValue:
@@ -85,7 +85,7 @@ proc `$`*(selector: CssSelector): string =
       result.add $selector.cssType
   if selector.class.len > 0:
     result.add "." & $selector.class
-  
+
   case selector.combinator:
     of skDirectChild:
       result.add " > "
@@ -115,19 +115,19 @@ proc `$`*(cssBlock: CssBlock): string =
   ## Convert a CSS block to its string representation
   if cssBlock.selectors.len == 0:
     return ""
-  
+
   # Format selectors
   for i, selector in cssBlock.selectors:
     if i > 0 and selector.combinator notin {skDirectChild, skPseudo, skDescendent}:
       result.add ", "
     result.add $selector
-  
+
   result.add " {\n"
-  
+
   # Format properties
   for property in cssBlock.properties:
     let propStr = $property
     if propStr.len > 0:
       result.add "  " & propStr & "\n"
-  
+
   result.add "}"

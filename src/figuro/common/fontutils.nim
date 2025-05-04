@@ -7,9 +7,7 @@ import pkg/pixie/fonts
 import pkg/chronicles
 
 import ./rchannels
-import fonttypes, extras, shared
-
-import pretty
+import fonttypes, shared
 
 type GlyphPosition* = ref object ## Represents a glyph position after typesetting.
   fontId*: FontId
@@ -81,7 +79,7 @@ var
 
 proc generateGlyphImage(arrangement: GlyphArrangement) =
   ## returns Glyph's hash, will generate glyph if needed
-  ## 
+  ##
   ## Font Glyphs are generated with Bottom vAlign and Center hAlign
   ## this puts the glyphs in the right position
   ## so that the renderer doesn't need to figure out adjustments
@@ -221,7 +219,7 @@ proc getLineHeightImpl*(font: UiFont): UiScalar =
   result = pf.lineHeight.descaled()
 
 proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: UiSize, bounding: UiBox] =
-  ## estimate the maximum and minimum size of a given typesetting 
+  ## estimate the maximum and minimum size of a given typesetting
 
   var longestWord: Slice[int]
   var longestWordLen: float
@@ -266,7 +264,7 @@ proc calcMinMaxContent(textLayout: GlyphArrangement): tuple[maxSize, minSize: Ui
   # find tallest font
   var maxLine = 0.0
   for font in textLayout.fonts:
-    maxLine = max(maxLine, font.lineHeight) 
+    maxLine = max(maxLine, font.lineHeight)
 
   # set results
   result.minSize.w = longestWordLen.descaled()
@@ -309,7 +307,7 @@ proc getTypesetImpl*(
     minContent: bool,
     wrap: bool,
 ): GlyphArrangement =
-  ## does the typesetting using pixie, then converts the typeseet results 
+  ## does the typesetting using pixie, then converts the typeseet results
   ## into Figuro's own internal types
   ## Primarily done for thread safety
   threadEffects:

@@ -1,4 +1,4 @@
-import std/[tables, unicode, os, strformat]
+import std/tables
 import std/terminal
 import std/times
 import sigils

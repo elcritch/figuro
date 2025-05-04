@@ -1,4 +1,4 @@
-import std/[hashes, os, strformat, tables, times, monotimes, unicode]
+import std/[hashes, os, tables, times, monotimes, unicode]
 export tables
 
 import pkg/threading/atomics
@@ -10,7 +10,7 @@ import pkg/sigils
 import pkg/chronicles
 
 import ../../common/rchannels
-import window, glcommons, context, formatflippy, utils
+import window, glcommons, context, utils
 
 import std/locks
 
@@ -295,7 +295,7 @@ proc render(
   # finally:
   #   ctx.restoreTransform()
 
-  # echo "draw:children: ", repr childIdxs 
+  # echo "draw:children: ", repr childIdxs
   for childIdx in childIndex(nodes, nodeIdx):
     ctx.render(nodes, childIdx, nodeIdx)
 
@@ -355,7 +355,7 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
 
   if poll:
     windex.pollEvents()
-  
+
   var update = false
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):

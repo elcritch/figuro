@@ -1,5 +1,5 @@
-import std/[unicode, sequtils]
-import pkg/vmath
+
+
 import pkg/patty
 
 import nodes/basics

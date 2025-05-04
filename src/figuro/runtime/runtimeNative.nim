@@ -1,6 +1,4 @@
-import std/locks
 import std/sets
-import pkg/threading/atomics
 import pkg/sigils
 import pkg/sigils/threads
 import pkg/chronicles
@@ -11,7 +9,6 @@ import ../ui/[core, layout]
 import ../common/nodes/[transfer, uinodes, render]
 import ../common/rchannels
 import ../runtime/utils/timers
-import ../runtime/utils/cssMonitor
 
 when not compileOption("threads"):
   {.error: "This module requires --threads:on compilation flag".}
@@ -26,7 +23,7 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
   ## It ticks the frame, computes events, and redraws the frame.
   ## It is called by the main thread, but doesn't run
   ## on the main thread which is used by the renderer.
-  ## 
+  ##
   threadEffects:
     AppMainThread
   # Ticks
@@ -81,7 +78,7 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
 
 proc startFiguro*(frame: var AppFrame) {.forbids: [AppMainThreadEff].} =
   ## Starts Fidget UI library
-  ## 
+  ##
   threadEffects:
     RenderThread
   runForever(frame, AppFrame.runFrameImpl())
