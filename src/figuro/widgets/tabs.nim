@@ -56,11 +56,12 @@ proc draw*(self: TabItem) {.slot.} =
     size 100'pp, 100'pp
     let tabs = self.queryParent(Tabs).get()
     let selected = tabs.data.isSelected(self.index)
-    self.setUserAttr(Selected, selected)
-    self.setUserAttr(Disabled, not selected)
-    echo "tabitem: ", self.name, " index: ", self.index, " disabled: ", Disabled in self, " selected: ", selected
+    self.setUserAttr(Hidden, not selected)
+    echo "tabitem: ", self.name, " index: ", self.index, " hidden: ", Hidden in self, " selected: ", selected
     onInit:
       this.setUserAttr(Disabled, true)
+
+    WidgetContents()
 
 proc draw*(self: Tabs) {.slot.} =
   ## dropdown widget
