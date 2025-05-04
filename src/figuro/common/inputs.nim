@@ -50,4 +50,3 @@ proc scrolled*(inputs: AppInputs): bool =
 
 proc dragging*(inputs: AppInputs): bool =
   return MouseButtons * inputs.buttonDown != {}
-  return MouseButtons * inputs.buttonRelease != {}
