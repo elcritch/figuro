@@ -5,9 +5,9 @@ import std/sequtils
 import std/strutils
 import std/hashes
 # import chame/minidom
-import std/htmlparser
 import std/xmltree
 import std/strtabs
+import pkg/htmlparser
 
 type HtmlLoader* = ref object of Agent
 

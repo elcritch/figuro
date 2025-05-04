@@ -1,5 +1,6 @@
-import std/[htmlparser, xmltree, streams, strutils, strtabs, re, tables, math, sets]
+import std/[xmltree, streams, strutils, strtabs, re, tables, math, sets]
 import readabilitytypes
+import pkg/htmlparser
 
 export readabilitytypes
 
