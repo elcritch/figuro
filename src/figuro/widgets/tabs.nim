@@ -47,7 +47,6 @@ proc draw*(self: Tab) {.slot.} =
     
     Text.new "tab-label":
       size 100'pp, 100'pp
-      echo "tab-label: ", self.tabName
       justify Center
       text {defaultFont(): self.tabName}
 
@@ -82,7 +81,6 @@ proc draw*(self: Tabs) {.slot.} =
       if child of TabItem:
         let tabItem = TabItem(child)
         tabItem.index = idx
-        echo "tabItem: ", $child.name
         this.data.addElement($child.name)
     
     # printLayout(self, cmTerminal)
