@@ -39,11 +39,20 @@ template onInit*(blk: untyped) =
 template themeColor*(name: static string): Color =
   ## Returns the current theme.
   let varIdx = this.frame[].theme.cssValues.registerVariable(name)
+  result = blackColor
   var res: CssValue
   if this.frame[].theme.cssValues.resolveVariable(varIdx, res):
-    res.c
-  else:
-    blackColor
+    if res.kind == CssValueKind.Color:
+      result = res.c
+
+template themeSize*(name: static string): Constraint =
+  ## Returns the current theme.
+  let varIdx = this.frame[].theme.cssValues.registerVariable(name)
+  result = 0'ux
+  var res: CssValue
+  if this.frame[].theme.cssValues.resolveVariable(varIdx, res):
+    if res.kind == CssValueKind.Size:
+      res.s
 
 template connect*(
     signal: typed,
