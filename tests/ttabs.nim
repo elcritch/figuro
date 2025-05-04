@@ -63,7 +63,6 @@ proc draw*(self: Main) {.slot.} =
           size 96'pp, 90'pp
           fill css"green"
 
-
 var main = Main()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)

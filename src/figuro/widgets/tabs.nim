@@ -48,7 +48,7 @@ proc draw*(self: Tab) {.slot.} =
     Text.new "tab-label":
       size 100'pp, 100'pp
       justify Center
-      align Bottom
+      align Middle
       text {defaultFont(): self.tabName}
 
 proc draw*(self: TabItem) {.slot.} =
@@ -90,7 +90,6 @@ proc draw*(self: Tabs) {.slot.} =
       offset 0'ux, themeSize("fig-widget-tab-height")
       size 100'pp, 100'pp-themeSize("fig-widget-tab-height")
       fill css"darkgrey"
-      border 2'ui, css"red"
       WidgetContents()
 
       self.data.clearElements()
