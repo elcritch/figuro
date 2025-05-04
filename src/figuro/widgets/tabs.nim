@@ -48,6 +48,7 @@ proc draw*(self: Tab) {.slot.} =
     Text.new "tab-label":
       size 100'pp, 100'pp
       justify Center
+      align Bottom
       text {defaultFont(): self.tabName}
 
 proc draw*(self: TabItem) {.slot.} =
