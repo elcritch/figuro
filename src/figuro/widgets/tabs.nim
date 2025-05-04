@@ -64,7 +64,7 @@ proc draw*(self: Tabs) {.slot.} =
     fill themeColor("fig-widget-background-color")
 
     Horizontal.new "tabs-list":
-      size 100'pp, 20'ux
+      size 100'pp, themeSize("fig-widget-tab-height")
       contentWidth cx"max-content"
 
       for idx, elem in self.data.elements:
@@ -78,8 +78,8 @@ proc draw*(self: Tabs) {.slot.} =
             this.tabName = elem
       
     Rectangle.new "tabs-area":
-      offset 0'ux, self.children[0].cxSize[drow]
-      size 100'pp, 100'pp-self.children[0].cxSize[drow]
+      offset 0'ux, themeSize("fig-widget-tab-height")
+      size 100'pp, 100'pp-themeSize("fig-widget-tab-height")
       fill css"grey"
       WidgetContents()
 
