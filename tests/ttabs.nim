@@ -41,7 +41,7 @@ proc draw*(self: Main) {.slot.} =
       size 100'pp, 100'pp
       fill themeColor("fig-widget-background-color").darken(0.3)
 
-      TabItem.new "tab1":
+      TabItem.new "First Tab":
         ScrollPane.new "scroll":
           # printLayout(self, 0)
           offset 2'pp, 2'pp
@@ -54,6 +54,12 @@ proc draw*(self: Main) {.slot.} =
             contentHeight cx"max-content"
             for idx in 0 .. 100:
               buttonItem(self, this, idx)
+
+      TabItem.new "Second Tab":
+        Rectangle.new "rectangle":
+          size 96'pp, 90'pp
+          fill css"blue"
+
 
 var main = Main()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))

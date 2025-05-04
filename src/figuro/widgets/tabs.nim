@@ -13,11 +13,12 @@ export horizontal
 
 type
   Tabs* = ref object of Figuro
-    data*: SelectedElements[int]
+    data*: SelectedElements[string]
     buttonSize, halfSize, fillingSize: CssVarId
 
   Tab* = ref object of Figuro
     index*: int
+    tabName*: string
     tabsContainer*: WeakRef[Tabs]
 
   TabItem* = ref object of Figuro
@@ -30,7 +31,7 @@ proc itemClicked*(self: Tabs, index: int, kind: EventKind, buttons: UiButtonView
     self.data.toggleIndex(index)
 
 proc initialize*(self: Tabs) {.slot.} =
-  self.data = SelectedElements[int]()
+  self.data = SelectedElements[string]()
   let cssValues = self.frame[].theme.cssValues
   connect(self.data, doSelected, self, Figuro.refresh(), acceptVoidSlot = true)
 
@@ -43,6 +44,12 @@ proc draw*(self: Tab) {.slot.} =
       onSignal(doSingleClick) do(this: Tab):
         let tabs = this.queryParent(Tabs).get()
         tabs.data.toggleIndex(this.index)
+    
+    Text.new "tab-label":
+      size 100'pp, 100'pp
+      echo "tab-label: ", self.tabName
+      justify Center
+      text {defaultFont(): self.tabName}
 
 proc draw*(self: TabItem) {.slot.} =
   withWidget(self):
@@ -57,14 +64,17 @@ proc draw*(self: Tabs) {.slot.} =
     fill themeColor("fig-widget-background-color")
 
     Horizontal.new "tabs-list":
-      size 100'pp, cx"max-content"
-      contentWidth cx"min-content"
+      size 100'pp, 20'ux
+      contentWidth cx"max-content"
 
       for idx, elem in self.data.elements:
         capture idx, elem:
           Tab.new toAtom("tab" & $idx):
+            # size cx"auto", 100'pp
+            this.cxMax = [cx"max-content", cx"max-content"] # TODO: important! Improve this?
             this.index = idx
-
+            this.tabName = elem
+      
     WidgetContents()
 
     this.data.clearElements()
@@ -72,6 +82,9 @@ proc draw*(self: Tabs) {.slot.} =
       if child of TabItem:
         let tabItem = TabItem(child)
         tabItem.index = idx
-        this.data.addElement(tabItem.index)
+        echo "tabItem: ", $child.name
+        this.data.addElement($child.name)
+    
+    printLayout(self, cmTerminal)
 
 
