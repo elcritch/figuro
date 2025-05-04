@@ -457,7 +457,7 @@ proc parse*(self: Readability): Table[string, string] =
 
   # Return the result
   # echo "TITLE: " & self.articleTitle
-  var result = {
+  var parseData = {
     "title": self.articleTitle,
     "content": content,
     "textContent": textContent,
@@ -468,9 +468,9 @@ proc parse*(self: Readability): Table[string, string] =
   }.toTable
 
   for key, value in self.metadata:
-    result[key] = value
+    parseData[key] = value
 
-  return result
+  return parseData
 
 # Convenience function to parse HTML and extract readable content
 proc extractReadableContent*(html: string, options: Table[string, string] = initTable[string, string]()): Table[string, string] =
