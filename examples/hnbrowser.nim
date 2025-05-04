@@ -59,7 +59,7 @@ proc initialize*(self: Main) {.slot.} =
   self.loader = loader.moveToThread(thr)
   threads.connect(self, htmlLoad, self.loader, HtmlLoader.loadPage())
   threads.connect(self.loader, htmlDone, self, Main.loadStories())
-  
+
   threads.connect(self, markdownLoad, self.loader, HtmlLoader.loadPageMarkdown())
   threads.connect(self.loader, markdownDone, self, Main.loadStoryMarkdown())
 
@@ -90,7 +90,7 @@ proc selectPrevStory*(self: Main) =
 
 proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.} =
   # echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
-  
+
   if KeyJ in down:
     # echo "J pressed"
     selectNextStory(self)
@@ -99,6 +99,7 @@ proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.}
     selectPrevStory(self)
   elif KeyEnter in down:
     # echo "Enter pressed"
+    if self.currentStory == nil: return
     if self.currentStory notin self.markdownStories:
       emit self.markdownLoad(self.currentStory.link.href)
       self.markdownStories[self.currentStory] = (ssLoading, "")
