@@ -280,6 +280,14 @@ template connect*(
   ## template override
   when signalName(signal) == "doMouseClick":
     a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doSingleClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doDoubleClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doTripleClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doRightClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":

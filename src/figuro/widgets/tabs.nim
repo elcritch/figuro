@@ -85,6 +85,6 @@ proc draw*(self: Tabs) {.slot.} =
         echo "tabItem: ", $child.name
         this.data.addElement($child.name)
     
-    printLayout(self, cmTerminal)
+    # printLayout(self, cmTerminal)
 
 
