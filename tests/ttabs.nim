@@ -1,9 +1,6 @@
-
-## This minimal scrollpane example
 import figuro/widgets/[button, scrollpane, tabs, vertical]
 import figuro
 import cssgrid/prettyprints
-# import figuro/ui/layout
 
 type
   Main* = ref object of Figuro
@@ -15,7 +12,6 @@ proc buttonItem(self, this: Figuro, idx: int) =
     fill rgba(66, 177, 44, 197).to(Color).spin(idx.toFloat*20 mod 360)
     if idx mod 10 in [3, 7]:
       size 0.9'fr, 120'ux
-    
     paddingLR 20'ux, 20'ux
 
     Text.new "text":
@@ -25,11 +21,8 @@ proc buttonItem(self, this: Figuro, idx: int) =
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     size 100'pp, 100'pp
-    # prettyPrintWriteMode = cmTerminal
-    # printLayout(self, cmTerminal)
     setTitle("Scrolling example")
     onSignal(doRightClick) do(self: Main):
-      echo "doRightClick"
       printLayout(self, cmTerminal)
 
     Tabs.new "tabs1":
