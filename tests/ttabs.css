@@ -6,3 +6,12 @@ Tab {
 Tab:selected {
   background-color: var(--fig-accent-color);
 }
+
+ScrollPane {
+  width: 96% - 20px;
+  height: 90%;
+  left: 2%;
+  top: 5%;
+  border-radius: 4px;
+  background-color: var(--fig-widget-background-color);
+}

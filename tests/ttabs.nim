@@ -5,9 +5,6 @@ import figuro
 import cssgrid/prettyprints
 # import figuro/ui/layout
 
-let
-  font = UiFont(typefaceId: defaultTypeface(), size: 22)
-
 type
   Main* = ref object of Figuro
 
@@ -43,13 +40,8 @@ proc draw*(self: Main) {.slot.} =
 
       TabItem.new "First":
         ScrollPane.new "scroll":
-          # printLayout(self, 0)
-          offset 2'pp, 2'pp
-          cornerRadius 7.0'ux
-          size 96'pp, 90'pp
-          fill css"white"
+          size 100'pp, 100'pp
           Vertical.new "vertical":
-            offset 10'ux, 10'ux
             size 100'pp-20'ux, cx"max-content"
             contentHeight cx"max-content"
             for idx in 0 .. 100:
