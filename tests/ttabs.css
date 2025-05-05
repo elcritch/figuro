@@ -7,6 +7,11 @@ Tab:selected {
   background-color: var(--fig-accent-color);
 }
 
+#button {
+  width: 100%;
+  height: 50px;
+}
+
 ScrollPane {
   width: 96% - 20px;
   height: 90%;
