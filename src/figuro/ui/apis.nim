@@ -134,6 +134,10 @@ proc selected*(self: Figuro, state: bool) {.thisWrapper.} =
 proc selected*(self: Figuro): bool =
   Selected in self.userAttrs
 
+template options*[T: enum](attr: set[T], state: bool = true) =
+  mixin setOptions
+  this.setOptions(attr, state)
+
 template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template 
   ## 

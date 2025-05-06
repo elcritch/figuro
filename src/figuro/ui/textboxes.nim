@@ -9,7 +9,7 @@ type
     left
     right
 
-  TextOptions* = enum
+  TextOptions* {.pure.} = enum
     Overwrite
     Rtl # this needs more work
 
