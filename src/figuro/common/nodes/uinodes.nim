@@ -348,8 +348,8 @@ proc setUserAttr*(fig: Figuro, attr: Attributes | set[Attributes], state: bool) 
   else:
     fig.userAttrs.excl attr
 
-template setUserAttr*(attr: Attributes | set[Attributes], state: bool) =
-  this.setUserAttr(attr, state)
+# template setUserAttr*(attr: Attributes | set[Attributes], state: bool) =
+#   this.setUserAttr(attr, state)
 
 proc setNodeAttr*(fig: Figuro, attr: NodeFlags | set[NodeFlags], state: bool) =
   if state:
