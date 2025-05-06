@@ -99,8 +99,4 @@ when not defined(noFiguroDmonMonitor):
 
     while isRunning(getCurrentSigilThread()[]):
       let file = cssUpdates.recv()
-      # if file != currTheme:
-      #   notice "CSS Skipping", file = file
-      #   continue
-      # else:
       file.update()
