@@ -79,7 +79,6 @@ proc draw*(self: Tabs) {.slot.} =
       for idx, elem in self.data.elements:
         capture idx, elem:
           Tab.new toAtom("tab" & $idx):
-            # size cx"auto", 100'pp
             let selected = self.data.isSelected(idx)
             this.setUserAttr(Selected, selected)
             this.cxMax = [cx"max-content", cx"max-content"] # TODO: important! Improve this?
