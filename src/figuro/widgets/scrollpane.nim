@@ -151,7 +151,7 @@ proc hideGrandChildren*(self: ScrollPane, child: Figuro) =
 
   for idx, grandChild in child.children:
     let isOverlapping = grandChild.screenBox.overlaps(self.screenBox)
-    grandChild.setUserAttr({Hidden}, not isOverlapping)
+    grandChild.setUserAttr(Hidden, not isOverlapping)
     if firstOverlapping == -1 and isOverlapping:
       firstOverlapping = idx
     if isOverlapping:
@@ -163,10 +163,10 @@ proc hideGrandChildren*(self: ScrollPane, child: Figuro) =
   let endIdx = min(child.children.len() - 1, lastOverlapping + bufferCount)
 
   for i in startIdx..<firstOverlapping:
-    child.children[i].setUserAttr({Hidden}, false)
+    child.children[i].setUserAttr(Hidden, false)
 
   for i in lastOverlapping+1..<endIdx:
-    child.children[i].setUserAttr({Hidden}, false)
+    child.children[i].setUserAttr(Hidden, false)
 
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
@@ -197,7 +197,7 @@ proc draw*(self: ScrollPane) {.slot.} =
 
       for child in this.children:
         # connect(child, doLayoutResize, self, layoutResize)
-        child.setUserAttr({Hidden}, not child.screenBox.overlaps(self.screenBox))
+        child.setUserAttr(Hidden, not child.screenBox.overlaps(self.screenBox))
         hideGrandChildren(self, child)
 
     if self.settings.vertical:

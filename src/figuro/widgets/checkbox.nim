@@ -16,7 +16,7 @@ proc doChange*(self: Checkbox, value: bool) {.signal.}
 
 proc checked*(self: Checkbox, value: bool) {.slot.} =
   if contains(self, Checked) != value:
-    self.setUserAttr({Checked}, value)
+    self.setUserAttr(Checked, value)
     if value:
       self.fade.fadeIn()
     else:
@@ -61,7 +61,7 @@ proc label*(self: TextCheckbox, spans: openArray[(UiFont, string)]) {.slot.} =
 
 proc checked*(self: TextCheckbox, value: bool) {.slot.} =
   if contains(self, Checked) != value:
-    self.setUserAttr({Checked}, value)
+    self.setUserAttr(Checked, value)
     refresh(self)
 
 proc draw*(self: TextCheckbox) {.slot.} =
