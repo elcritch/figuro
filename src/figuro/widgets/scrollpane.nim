@@ -5,7 +5,6 @@ import ../widget
 type
   ScrollPane* = ref object of Figuro
     isActive*: bool
-    disabled*: bool
     settings*: ScrollSettings
     window*: ScrollWindow
     barx*: ScrollBar
