@@ -7,6 +7,10 @@ Tab:selected {
   background-color: var(--fig-accent-color);
 }
 
+Tabs #tabs-list {
+  left: 40px;
+}
+
 #button {
   width: 100%;
   height: 50px;
