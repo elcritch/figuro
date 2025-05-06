@@ -1,10 +1,17 @@
 
 Tab {
+  --fig-widget-tab-height: 44px;
   border-radius: 4px;
   background-color: var(--fig-widget-background-color);
+  box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 2px 1px 1px rgba(255, 255, 255, 0.15) inset;
 }
 Tab:selected {
   background-color: var(--fig-accent-color);
+}
+Tab #tabs-label-bg {
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 Tabs #tabs-list {

@@ -45,11 +45,16 @@ proc draw*(self: Tab) {.slot.} =
         let tabs = this.queryParent(Tabs).get()
         tabs.data.toggleIndex(this.index)
     
-    Text.new "tab-label":
+    Rectangle.new "tabs-label-bg":
+      # mostly for extra styling purposes
       size 100'pp, 100'pp
-      justify Center
-      align Middle
-      text {defaultFont(): self.tabName}
+      this.cxMax = [cx"max-content", cx"max-content"] # TODO: important! Improve this?
+
+      Text.new "tab-label":
+        size 100'pp, 100'pp
+        justify Center
+        align Middle
+        text {defaultFont(): self.tabName}
 
 proc draw*(self: TabItem) {.slot.} =
   withWidget(self):
