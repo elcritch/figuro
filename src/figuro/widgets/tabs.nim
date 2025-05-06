@@ -38,7 +38,7 @@ proc initialize*(self: Tabs) {.slot.} =
 proc draw*(self: Tab) {.slot.} =
   withWidget(self):
     border 1'ui, css"black"
-    setUserAttr(Focusable, true)
+    focusable true
 
     onInit:
       onSignal(doSingleClick) do(this: Tab):

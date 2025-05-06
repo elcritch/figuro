@@ -119,10 +119,10 @@ proc hidden*(self: Figuro, state: bool) {.thisWrapper.} =
 proc hidden*(self: Figuro): bool =
   Hidden in self.userAttrs
 
-proc focus*(self: Figuro, state: bool) {.thisWrapper.} =
-  self.setUserAttr({Focus}, state)
-proc focus*(self: Figuro): bool =
-  Focus in self.userAttrs
+proc focusable*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Focusable}, state)
+proc focusable*(self: Figuro): bool =
+  Focusable in self.userAttrs
 
 proc checked*(self: Figuro, state: bool) {.thisWrapper.} =
   self.setUserAttr({Checked}, state)
