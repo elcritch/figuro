@@ -311,15 +311,15 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
-proc renderFrame*(RendererBase: RendererBase) =
-  let ctx: Context = RendererBase.ctx
+proc renderFrame*(renderer: RendererBase) =
+  let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(RendererBase.appWindow.box.wh.scaled())
+  ctx.beginFrame(renderer.appWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  ctx.renderRoot(RendererBase.nodes)
+  ctx.renderRoot(renderer.nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()
