@@ -115,6 +115,8 @@ method setClipboard*(r: Renderer, cb: ClipboardContents) =
   match cb:
     ClipboardStr(str):
       windex.setClipboardString(str)
+    ClipboardEmpty:
+      discard
 
 method getClipboard*(r: Renderer): ClipboardContents =
   let str = windex.getClipboardString()
