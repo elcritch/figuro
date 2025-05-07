@@ -343,7 +343,6 @@ proc renderAndSwap(renderer: RendererBase) =
     echo "gl error: " & $error.uint32
 
   timeIt(drawFrameSwap):
-    # RendererBase.window.swapBuffers()
     renderer.swapBuffers()
 
 proc pollAndRender*(renderer: RendererBase, poll = true) =
@@ -378,10 +377,7 @@ proc runRendererLoop*(renderer: RendererBase) =
   while app.running:
     pollAndRender(renderer)
 
-    # let avgMicros = time.micros.toInt() div 1_000
-    # os.sleep(RendererBase.duration.inMilliseconds - avgMicros)
     os.sleep(renderer.duration.inMilliseconds)
   debug "RendererBase loop exited"
-  # RendererBase.window.close()
   renderer.closeWindow()
   debug "RendererBase window closed"
