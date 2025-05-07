@@ -29,32 +29,15 @@ type RendererBase* = ref object of RootObj
   nodes*: Renders
   appWindow*: WindowInfo
 
-method swapBuffers*(r: RendererBase) {.base.} =
-  discard
-
-method setTitle*(r: RendererBase, name: string) {.base.} =
-  discard
-
-method closeWindow*(r: RendererBase) {.base.} =
-  discard
-
-method getScaleInfo*(r: RendererBase): ScaleInfo {.base.} =
-  discard
-
-method getWindowInfo*(r: RendererBase): WindowInfo =
-  discard
-
-method configureWindowEvents*(renderer: RendererBase) =
-  discard
-
-method setClipboard*(r: RendererBase, cb: ClipboardContents) =
-  discard
-
-method getClipboard*(r: RendererBase): ClipboardContents =
-  discard
-
-method copyInputs*(r: RendererBase): AppInputs =
-  discard
+method swapBuffers*(r: RendererBase) {.base.} = discard
+method setTitle*(r: RendererBase, name: string) {.base.} = discard
+method closeWindow*(r: RendererBase) {.base.} = discard
+method getScaleInfo*(r: RendererBase): ScaleInfo {.base.} = discard
+method getWindowInfo*(r: RendererBase): WindowInfo = discard
+method configureWindowEvents*(renderer: RendererBase) = discard
+method setClipboard*(r: RendererBase, cb: ClipboardContents) = discard
+method getClipboard*(r: RendererBase): ClipboardContents = discard
+method copyInputs*(r: RendererBase): AppInputs = discard
 
 proc configureRendererBase*(
     renderer: RendererBase,
