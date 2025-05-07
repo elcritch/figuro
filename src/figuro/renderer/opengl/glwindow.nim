@@ -111,14 +111,14 @@ proc copyInputs*(w: Window): AppInputs =
 method copyInputs*(r: Renderer): AppInputs =
   copyInputs(r.window)
 
-method clipboardSet*(r: Renderer, str: string) =
-  windex.setClipboardString(str)
+method setClipboard*(r: Renderer, cb: ClipboardContents) =
+  match cb:
+    ClipboardStr(str):
+      windex.setClipboardString(str)
 
-method clipboardGetStr*(r: Renderer): string =
-  windex.getClipboardString()
-
-method clipboardGetImg*(r: Renderer): Image =
-  windex.getClipboardImage()
+method getClipboard*(r: Renderer): ClipboardContents =
+  let str = windex.getClipboardString()
+  return ClipboardStr(str)
 
 method setTitle*(r: Renderer, name: string) =
   r.window.title = name

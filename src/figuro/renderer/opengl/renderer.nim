@@ -47,16 +47,10 @@ method getWindowInfo*(r: RendererBase): WindowInfo =
 method configureWindowEvents*(renderer: RendererBase) =
   discard
 
-method clipboardSet*(r: RendererBase, str: string) =
+method setClipboard*(r: RendererBase, cb: ClipboardContents) =
   discard
 
-method clipboardGetStr*(r: RendererBase): string =
-  discard
-
-method clipboardGetImg*(r: RendererBase): Image =
-  discard
-
-method clipboardSet*(r: RendererBase, img: Image) =
+method getClipboard*(r: RendererBase): ClipboardContents =
   discard
 
 method copyInputs*(r: RendererBase): AppInputs =
@@ -81,6 +75,7 @@ proc configureRendererBase*(
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
+  frame[].clipboards = newRChan[ClipboardContents](1)
 
 proc renderDrawable*(ctx: Context, node: Node) =
   ## TODO: draw non-node stuff?
@@ -388,18 +383,11 @@ proc pollAndRender*(renderer: RendererBase, poll = true) =
         return
       RenderSetTitle(name):
         renderer.setTitle(name)
-      ClipboardSetStr(str):
-        renderer.clipboardSet(str)
-      ClipboardSetImg(img):
-        renderer.clipboardSet(img)
-      ClipboardGetStr:
-        var appInput = renderer.copyInputs()
-        # appInput.clipboard = some renderer.clipboardGetStr()
-        renderer.uxInputList.push(appInput)
-      ClipboardGetImg:
-        var appInput = renderer.copyInputs()
-        # appInput.clipboardImage = some renderer.clipboardGetImg()
-        renderer.uxInputList.push(appInput)
+      RenderClipboardGet:
+        let cb = renderer.getClipboard()
+        renderer.frame[].clipboards.push(cb)
+      RenderClipboard(cb):
+        renderer.setClipboard(cb)
 
   if update:
     renderAndSwap(renderer)

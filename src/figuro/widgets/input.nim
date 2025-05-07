@@ -8,8 +8,6 @@ import pkg/chronicles
 export text
 export textboxes
 
-echo "input: ", clipboardText()
-
 type
   InputOptions* {.pure.} = enum
     NoErase
@@ -178,16 +176,21 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
       if self.text.hasSelection():
         echo "copying... ", self.text.selected()
         let selectedText = $self.text.selected()
-        clipboardSet(selectedText)
+        self.frame[].clipboardSet(selectedText)
     of KeyV:
-      let pasteText = clipboardText()
-      if pasteText.len > 0:
-        self.text.insert(pasteText.toRunes())
-        self.text.update(self.box)
+      let pasteText = self.frame[].clipboard()
+      match pasteText:
+        ClipboardStr(str):
+          if str.len > 0:
+            self.text.insert(str.toRunes())
+            self.text.update(self.box)
+        _:
+          discard
+
     of KeyX:
       if self.text.hasSelection() and NoErase notin self.opts:
         let selectedText = $self.text.selected()
-        clipboardSet(selectedText)
+        self.frame[].clipboardSet(selectedText)
         self.text.delete()
         self.text.update(self.box)
     else:

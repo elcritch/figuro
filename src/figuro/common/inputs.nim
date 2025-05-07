@@ -15,14 +15,16 @@ type
     running*, focused*, minimized*, fullscreen*: bool
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
 
+variantp ClipboardContents:
+  ClipboardStr(str: string)
+  # ClipboardImg(img: Image)
+
 variantp RenderCommands:
   RenderQuit
   RenderUpdate(n: Renders, winInfo: WindowInfo)
   RenderSetTitle(name: string)
-  ClipboardSetStr(str: string)
-  ClipboardSetImg(img: Image)
-  ClipboardGetStr
-  ClipboardGetImg
+  RenderClipboardGet
+  RenderClipboard(cb: ClipboardContents)
 
 type AppInputs* = object
   empty*: bool
@@ -35,9 +37,6 @@ type AppInputs* = object
   buttonToggle*: UiButtonView
 
   window*: Option[WindowInfo]
-
-  # clipboard*: Option[string]
-  # clipboardImage*: Option[Image]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

@@ -49,6 +49,7 @@ type
     theme*: Theme
     configFile*: string
     saveWindowState*: bool
+    clipboards*: RChan[ClipboardContents]
 
   Figuro* = ref object of Agent
     frame*: WeakRef[AppFrame]
