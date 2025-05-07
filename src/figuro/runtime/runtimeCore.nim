@@ -5,8 +5,8 @@ elif defined(blank):
   import engine/blank
   export blank
 else:
-  import ../renderer/opengl
-  export opengl
+  import ../renderer/openglBackend
+  export openglBackend
 
 import pkg/chronicles
 
