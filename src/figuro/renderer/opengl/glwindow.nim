@@ -71,12 +71,8 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
     GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA
   )
 
-  # app.lastDraw = getTicks()
-  # app.lastTick = app.lastDraw
   frame[].window.focused = true
-
   useDepthBuffer(false)
-  # updateWindowSize(frame, window)
 
 var lastMouse = Mouse()
 
