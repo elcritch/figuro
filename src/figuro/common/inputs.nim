@@ -16,6 +16,7 @@ type
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
 
 variantp ClipboardContents:
+  ClipboardEmpty
   ClipboardStr(str: string)
   # ClipboardImg(img: Image)
 
