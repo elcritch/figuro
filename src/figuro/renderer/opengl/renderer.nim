@@ -10,7 +10,8 @@ import pkg/sigils
 import pkg/chronicles
 
 import ../../common/rchannels
-import glwindow, glcommons, context, utils
+import ../../common/nodes/uinodes
+import glcommons, context, utils
 
 import std/locks
 
@@ -19,7 +20,7 @@ const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 type Renderer* = ref object
   ctx*: Context
   duration*: Duration
-  window*: Window
+  # window*: Window
   uxInputList*: RChan[AppInputs]
   rendInputList*: RChan[RenderCommands]
   frame*: WeakRef[AppFrame]
@@ -29,15 +30,17 @@ type Renderer* = ref object
   nodes*: Renders
   renderWindow*: AppWindow
 
+  swapBuffers*: proc()
+  setTitle*: proc(name: string)
+  closeWindow*: proc()
+
 proc newRenderer*(
     frame: WeakRef[AppFrame],
-    window: Window,
     forcePixelScale: float32,
     atlasSize: int,
 ): Renderer =
   app.pixelScale = forcePixelScale
-  let renderer = Renderer(window: window)
-  # startOpenGL(frame, window, openglVersion)
+  let renderer = Renderer()
   renderer.nodes = Renders()
   renderer.frame = frame
   renderer.ctx =
@@ -331,7 +334,8 @@ proc renderAndSwap(renderer: Renderer) =
     echo "gl error: " & $error.uint32
 
   timeIt(drawFrameSwap):
-    renderer.window.swapBuffers()
+    # renderer.window.swapBuffers()
+    renderer.swapBuffers()
 
 proc pollAndRender*(renderer: Renderer, poll = true) =
   ## renders and draws a window given set of nodes passed
@@ -344,9 +348,9 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
     match cmd:
-      RenderUpdate(nlayers, window):
+      RenderUpdate(nlayers, rwindow):
         renderer.nodes = nlayers
-        renderer.renderWindow = window
+        renderer.renderWindow = rwindow
         update = true
       RenderQuit:
         echo "QUITTING"
@@ -354,7 +358,8 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
         app.running = false
         return
       RenderSetTitle(name):
-        renderer.window.title = name
+        # renderer.window.title = name
+        renderer.setTitle(name)
 
   if update:
     renderAndSwap(renderer)
@@ -369,5 +374,6 @@ proc runRendererLoop*(renderer: Renderer) =
     # os.sleep(renderer.duration.inMilliseconds - avgMicros)
     os.sleep(renderer.duration.inMilliseconds)
   debug "Renderer loop exited"
-  renderer.window.close()
+  # renderer.window.close()
+  renderer.closeWindow()
   debug "Renderer window closed"

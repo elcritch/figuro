@@ -10,6 +10,7 @@ import ../../common/nodes/uinodes
 import ../../common/rchannels
 
 import wutils
+import renderer
 
 import pkg/sigils/weakrefs
 import pkg/chronicles
@@ -98,16 +99,26 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonToggle = toUi window.buttonToggle()
 
 proc configureWindowEvents*(
+    renderer: Renderer,
     window: Window,
-    uxInputList: RChan[AppInputs],
     frame: WeakRef[AppFrame],
     renderCb: proc()
 ) =
-  let winCfgFile = frame.windowCfgFile()
+  let win {.cursor.} = window
+
+  let winCfgFile = renderer.frame.windowCfgFile()
+  let uxInputList = renderer.uxInputList
+
+  renderer.setTitle = proc(name: string) =
+    window.title = name
+
+  renderer.swapBuffers = proc() =
+    window.swapBuffers()
+
+  renderer.closeWindow = proc() =
+    window.close()
 
   window.runeInputEnabled = true
-
-  let win {.cursor.} = window
 
   window.onCloseRequest = proc() =
     notice "onCloseRequest"

@@ -38,13 +38,13 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
   startOpenGL(frame, window, openglVersion)
 
-  let renderer = newRenderer(frame, window, 1.0, atlasSize)
+  let renderer = newRenderer(frame, 1.0, atlasSize)
   let renderCb = proc() =
     pollAndRender(renderer, poll = false)
 
   configureWindowEvents(
+    renderer,
     window,
-    renderer.uxInputList,
     frame,
     renderCb,
   )
