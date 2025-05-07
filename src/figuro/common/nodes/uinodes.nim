@@ -43,7 +43,7 @@ type
     root*: Figuro
     uxInputList*: RChan[AppInputs]
     rendInputList*: RChan[RenderCommands]
-    window*: AppWindow
+    window*: WindowInfo
     windowTitle*: string
     windowStyle*: FrameStyle
     theme*: Theme

@@ -11,14 +11,14 @@ type
   FrameStyle* {.pure.} = enum
     DecoratedResizable, DecoratedFixedSized, Undecorated, Transparent
 
-  AppWindow* = object
+  WindowInfo* = object
     box*: Box ## Screen size in logical coordinates.
     running*, focused*, minimized*, fullscreen*: bool
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
 
 variantp RenderCommands:
   RenderQuit
-  RenderUpdate(n: Renders, window: AppWindow)
+  RenderUpdate(n: Renders, window: WindowInfo)
   RenderSetTitle(name: string)
 
 type AppInputs* = object
@@ -31,7 +31,7 @@ type AppInputs* = object
   buttonRelease*: UiButtonView
   buttonToggle*: UiButtonView
 
-  window*: Option[AppWindow]
+  window*: Option[WindowInfo]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

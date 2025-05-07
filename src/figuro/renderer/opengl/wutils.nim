@@ -38,7 +38,7 @@ proc writeWindowConfig*(window: Window, winCfgFile: string) =
     except Defect, CatchableError:
       debug "error writing window position"
 
-proc getWindowInfo*(window: Window): AppWindow =
+proc getWindowInfo*(window: Window): WindowInfo =
     app.requestedFrame.inc
 
     result.minimized = window.minimized()

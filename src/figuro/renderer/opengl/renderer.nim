@@ -28,7 +28,7 @@ type Renderer* = ref object
   updated*: Atomic[bool]
 
   nodes*: Renders
-  appWindow*: AppWindow
+  appWindow*: WindowInfo
 
   swapBuffers*: proc()
   setTitle*: proc(name: string)
@@ -358,7 +358,6 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
         app.running = false
         return
       RenderSetTitle(name):
-        # renderer.window.title = name
         renderer.setTitle(name)
 
   if update:
