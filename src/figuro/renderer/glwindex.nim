@@ -4,13 +4,13 @@ import pkg/pixie
 import pkg/opengl
 import pkg/windex
 
-import glutils
-import glcommons
-import ../../common/nodes/uinodes
-import ../../common/rchannels
-import ../../common/wincfgs
+import opengl/glutils
+import opengl/glcommons
+import opengl/renderer
 
-import renderer
+import ../common/nodes/uinodes
+import ../common/rchannels
+import ../common/wincfgs
 
 import pkg/sigils/weakrefs
 import pkg/chronicles

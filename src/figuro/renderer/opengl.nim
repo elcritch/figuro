@@ -16,9 +16,9 @@ import ./opengl/renderer
 import ./opengl/glutils
 
 when defined(figuroWindex):
-  import ./opengl/glwindow
+  import ./glwindex
 else:
-  import ./opengl/glwindow
+  import ./glwindex
 
 export Renderer, runRendererLoop
 
