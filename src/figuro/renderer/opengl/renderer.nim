@@ -332,11 +332,11 @@ proc renderFrame*(RendererBase: RendererBase) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(RendererBase: RendererBase) =
+proc renderAndSwap(renderer: RendererBase) =
   ## Does drawing operations.
 
   timeIt(drawFrame):
-    renderFrame(RendererBase)
+    renderFrame(renderer)
 
   var error: GLenum
   while (error = glGetError(); error != GL_NO_ERROR):
@@ -344,9 +344,9 @@ proc renderAndSwap(RendererBase: RendererBase) =
 
   timeIt(drawFrameSwap):
     # RendererBase.window.swapBuffers()
-    RendererBase.swapBuffers()
+    renderer.swapBuffers()
 
-proc pollAndRender*(RendererBase: RendererBase, poll = true) =
+proc pollAndRender*(renderer: RendererBase, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the RendererBase object
 
@@ -355,33 +355,33 @@ proc pollAndRender*(RendererBase: RendererBase, poll = true) =
 
   var update = false
   var cmd: RenderCommands
-  while RendererBase.rendInputList.tryRecv(cmd):
+  while renderer.rendInputList.tryRecv(cmd):
     match cmd:
       RenderUpdate(nlayers, rwindow):
-        RendererBase.nodes = nlayers
-        RendererBase.appWindow = rwindow
+        renderer.nodes = nlayers
+        renderer.appWindow = rwindow
         update = true
       RenderQuit:
         echo "QUITTING"
-        RendererBase.frame[].windowInfo.running = false
+        renderer.frame[].windowInfo.running = false
         app.running = false
         return
       RenderSetTitle(name):
-        RendererBase.setTitle(name)
+        renderer.setTitle(name)
 
   if update:
-    renderAndSwap(RendererBase)
+    renderAndSwap(renderer)
 
-proc runRendererLoop*(RendererBase: RendererBase) =
+proc runRendererLoop*(renderer: RendererBase) =
   threadEffects:
     RenderThread
   while app.running:
-    pollAndRender(RendererBase)
+    pollAndRender(renderer)
 
     # let avgMicros = time.micros.toInt() div 1_000
     # os.sleep(RendererBase.duration.inMilliseconds - avgMicros)
-    os.sleep(RendererBase.duration.inMilliseconds)
+    os.sleep(renderer.duration.inMilliseconds)
   debug "RendererBase loop exited"
   # RendererBase.window.close()
-  RendererBase.closeWindow()
+  renderer.closeWindow()
   debug "RendererBase window closed"
