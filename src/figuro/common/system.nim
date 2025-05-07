@@ -52,7 +52,10 @@ when not defined(nimscript):
       windex.getClipboardString()
 
   proc clipboardSet*(str: string) =
-    windex.setClipboardString(str)
+    when defined(linux):
+      warn "clipboardSet is broken on linux"
+    else:
+      windex.setClipboardString(str)
 
   proc clipboardImage*(): Image =
     when defined(linux):
