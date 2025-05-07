@@ -28,7 +28,7 @@ type Renderer* = ref object
   updated*: Atomic[bool]
 
   nodes*: Renders
-  renderWindow*: AppWindow
+  appWindow*: AppWindow
 
   swapBuffers*: proc()
   setTitle*: proc(name: string)
@@ -306,7 +306,7 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
+  ctx.beginFrame(renderer.appWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -350,7 +350,7 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
     match cmd:
       RenderUpdate(nlayers, rwindow):
         renderer.nodes = nlayers
-        renderer.renderWindow = rwindow
+        renderer.appWindow = rwindow
         update = true
       RenderQuit:
         echo "QUITTING"
