@@ -18,7 +18,7 @@ type
 
 variantp RenderCommands:
   RenderQuit
-  RenderUpdate(n: Renders, window: WindowInfo)
+  RenderUpdate(n: Renders, winInfo: WindowInfo)
   RenderSetTitle(name: string)
 
 type AppInputs* = object

@@ -58,10 +58,10 @@ proc getScaleInfo*(window: Window): ScaleInfo =
 proc setupWindow*(frame: WeakRef[AppFrame], window: Window) =
   let style: WindowStyle = frame[].windowStyle.convertStyle()
   assert not frame.isNil
-  if frame[].window.fullscreen:
-    window.fullscreen = frame[].window.fullscreen
+  if frame[].windowInfo.fullscreen:
+    window.fullscreen = frame[].windowInfo.fullscreen
   else:
-    window.size = ivec2(frame[].window.box.wh.scaled())
+    window.size = ivec2(frame[].windowInfo.box.wh.scaled())
 
   window.visible = true
 
