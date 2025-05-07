@@ -231,11 +231,6 @@ proc render(
   template parent(): auto =
     nodes[parentIdx.int]
 
-  # echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
-  # print node.uid
-  # print node.box
-  # print node.screenBox
-
   ## Draws the node.
   ##
   ## This is the primary routine that handles setting up the OpenGL
@@ -278,7 +273,6 @@ proc render(
       ctx.renderBoxes(node)
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    # echo "inner shadow: ", node.shadow[InnerShadow].repr
     ctx.beginMask()
     ctx.drawMasks(node)
     ctx.endMask()
@@ -288,14 +282,6 @@ proc render(
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  # ifrender NfScrollPanel in node.flags:
-  #   # handles scrolling panel
-  #   ctx.saveTransform()
-  #   ctx.translate(-node.offset)
-  # finally:
-  #   ctx.restoreTransform()
-
-  # echo "draw:children: ", repr childIdxs
   for childIdx in childIndex(nodes, nodeIdx):
     ctx.render(nodes, childIdx, nodeIdx)
 
