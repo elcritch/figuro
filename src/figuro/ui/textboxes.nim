@@ -1,7 +1,6 @@
 import std/unicode
 
 import ../commons
-import utils
 import chronicles
 
 type
@@ -38,7 +37,7 @@ proc runes*(self: TextBox): seq[Rune] =
   self.layout.runes
 
 proc toSlice[T](a: T): Slice[T] =
-  a .. a # Shortcut 
+  a .. a # Shortcut
 
 proc selWith*(self: TextBox, a = self.selectionImpl.a, b = self.selectionImpl.b): Slice[int] =
   result.a = a
@@ -78,7 +77,7 @@ proc newTextBox*(box: Box, font: UiFont): TextBox =
 
 proc updateLayout*(self: var TextBox) =
   ## Update layout from runes.
-  ## 
+  ##
   ## This appends an extra character at the end to get the cursor
   ## position at the end, which depends on the next character.
   ## Otherwise, this character is ignored.
@@ -158,7 +157,7 @@ proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
         return idx
 
 var wordBoundaryChars* = toHashSet[Rune]([
-  Rune('.'), Rune(','), Rune(':'), Rune(';'), 
+  Rune('.'), Rune(','), Rune(':'), Rune(';'),
   Rune('!'), Rune('?'), Rune('('), Rune(')'),
   Rune('['), Rune(']'), Rune('{'), Rune('}'),
   Rune('"'), Rune('\''), Rune('`'), Rune('-'),
@@ -176,15 +175,15 @@ proc findPrevWord*(self: TextBox): int =
       max(0, self.selection.a - 1)
     else:
       max(0, self.selection.b - 1)
-  
+
   # If we're already at a boundary, move back until we're not
   while i > 0 and self.runes()[i].isWordBoundary():
     dec(i)
-    
+
   # Now find the start of the current word
   while i > 0 and not self.runes()[i-1].isWordBoundary():
     dec(i)
-    
+
   return i - 1  # Return position before the word start
 
 proc findNextWord*(self: TextBox): int =
@@ -200,17 +199,17 @@ proc findNextWord*(self: TextBox): int =
   if self.runes().len() == 0 or i >= self.runes().len():
     warn "findNextWord:resturn:early: "
     return result
-    
+
   warn "findNextWord: ", i= i, runes= $self.runes()[i], rlen= self.runes().len(), isWordBoundary= self.runes()[i].isWordBoundary()
 
   # Skip current word
   while i < self.runes().len() and not self.runes()[i].isWordBoundary():
     inc(i)
-    
+
   # Skip word boundaries
   while i < self.runes().len() and self.runes()[i].isWordBoundary():
     inc(i)
-    
+
   if i == self.runes().len():
     return i
   else:

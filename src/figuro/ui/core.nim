@@ -1,5 +1,5 @@
 import std/[tables, unicode, os, strformat]
-import std/terminal
+
 import std/times
 import pkg/chronicles
 
@@ -140,12 +140,12 @@ proc getParams(doBody: NimNode): (NimNode, NimNode, NimNode) =
   echo "ON SIGNAL: ", params.treeRepr
 
 macro onSignal*(signal: untyped, blk: untyped) =
-  ## magic for creating a slot and connecting it to an event. 
-  ## 
-  ## the target object is taken from the first argument of the `do()` handler. 
+  ## magic for creating a slot and connecting it to an event.
+  ##
+  ## the target object is taken from the first argument of the `do()` handler.
   ## so `onSignal(doClicked) do(self: main): ...` connect to `self` in the local
   ## scope.
-  ## 
+  ##
   ## experimental, may be removed or changed in the future to be less magic
   let (target, params, body) =  getParams(blk)
   let args = repr(params)
@@ -186,7 +186,7 @@ template connectDefaults*[T](node: T) =
   connect(node, doDraw, node, T.handleContents())
   connect(node, doDraw, node, Figuro.handlePostDraw())
   # connect(node, doDraw, node, Figuro.handleTheme())
-  # only activate these if custom ones have been provided 
+  # only activate these if custom ones have been provided
 
   when T isnot BasicFiguro:
     when compiles(SignalTypes.initialize(T)):
@@ -286,7 +286,7 @@ proc postNode*(node: var Figuro) =
   # node.removeExtraChildren()
   nodeDepth.dec()
 
-import utils, macros, typetraits
+import macros, typetraits
 
 proc nodeInit*[T](parent: Figuro, name: Atom, preDraw: proc(current: Figuro) {.closure.}) {.nimcall.} =
   ## callback proc to initialized a new node, or re-use and existing node
@@ -311,7 +311,7 @@ template widgetRegister*[T](nn: Atom | static string, blk: untyped) =
   ##
   when not compiles(this.typeof):
     {.error: "No `this` variable found in the current scope! Figuro's APIs rely on an having a `this` variable referring to the current widget or node. Check that you have `withWidget` or `withRootWidget` at the top of your widget draw slots.".}
-  
+
   let childPreDraw = proc(c: Figuro) =
       let this {.inject.} = ## implicit variable in each widget block that references the current widget
         `T`(c)
@@ -320,14 +320,14 @@ template widgetRegister*[T](nn: Atom | static string, blk: untyped) =
 
 template new*(tp: typedesc, name: Atom | static string, blk: untyped) =
   ## Sets up a new widget instance by calling widgetRegister
-  ## 
+  ##
   ## Accepts types with incomplete generics and fills
   ## them in `tuple[]` for missing generics in the widget type.
-  ## 
+  ##
   ## E.g. if you have a `Button[T]` and you call
   ## `Button.new` this template will change it to
   ## `Button[tuple[]].new`.
-  ## 
+  ##
   when arity(tp) in [0, 1]:
     # non-generic type, note that arity(ref object) == 1
     widgetRegister[tp](name.toAtom(), blk)
@@ -379,4 +379,3 @@ template withRootWidget*(self, blk: untyped) =
     # this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`
-

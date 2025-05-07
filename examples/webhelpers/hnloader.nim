@@ -3,16 +3,11 @@ import std/httpclient
 import std/os
 import std/sequtils
 import std/strutils
-import std/sugar
-import std/osproc
-import std/streams
 import std/hashes
 # import chame/minidom
-import std/htmlparser
 import std/xmltree
 import std/strtabs
-
-import pretty
+import pkg/htmlparser
 
 type HtmlLoader* = ref object of Agent
 
@@ -119,7 +114,7 @@ proc loadPage*(loader: HtmlLoader, url: string) {.slot.} =
       if "submission" in getAttr(elem, "class"):
         if sub != nil: subs.add(move sub)
         sub = TableSubmission(subTr: elem)
-      
+
       if sub != nil and elem.attrs == nil:
         sub.subTextTr = elem
 
@@ -166,7 +161,7 @@ proc loadPage*(loader: HtmlLoader, url: string) {.slot.} =
             submission.subText.comments = parseInt(txts[0])
 
       submissions.add(submission)
-    
+
     # for sub in submissions:
     #   echo $sub
     emit loader.htmlDone(submissions)
@@ -192,7 +187,7 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
     else:
       let client = newHttpClient(timeout=1_000)
       let res = client.get(url)
-        
+
 
     when true:
       let document = parseHTML(res.body)
@@ -208,11 +203,11 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
           "html2markdown",
           options={poUsePath, poStdErrToStdOut}
         )
-        
+
         # Write HTML to stdin of html2markdown
         process.inputStream.write(res.body)
         process.inputStream.close()
-        
+
         # Read markdown from stdout
         markdown = process.outputStream.readAll()
         process.close()
@@ -221,7 +216,7 @@ proc loadPageMarkdown*(loader: HtmlLoader, url: string) {.slot.} =
         echo "error running html2markdown: ", $err.getStackTrace()
         markdown = "error running html2markdown:\n" & $err.msg
         markdown.add "try installing html2markdown: https://github.com/JohannesKaufmann/html-to-markdown"
-        
+
       when isMainModule:
         echo "markdown:\n", markdown
 
@@ -241,4 +236,3 @@ when isMainModule:
 
   let m = HtmlLoader()
   m.loadPageMarkdown("https://example.com")
-

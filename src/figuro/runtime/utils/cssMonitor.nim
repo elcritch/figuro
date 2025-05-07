@@ -3,7 +3,6 @@ import sigils
 import sigils/threads
 
 import ../../commons
-import ../../common/rchannels
 import ../../ui/core
 import ../../ui/cssengine
 when not defined(noFiguroDmonMonitor):
@@ -84,14 +83,14 @@ when not defined(noFiguroDmonMonitor):
     proc update(file: string) =
       notice "CSS Updated: ", file = file
       emit self.cssUpdate(file)
-      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing 
+      os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing
       notice "CSS Updated: second: ", file = file
       emit self.cssUpdate(file)
 
     let cssFiles = @[appFile, defaultTheme]
     var currTheme = ""
     for file in cssFiles:
-      if file.existsFile():
+      if file.fileExists():
         currTheme = file
 
     if currTheme.fileExists():

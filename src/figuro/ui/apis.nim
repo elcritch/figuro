@@ -76,11 +76,11 @@ template image*(name: string, color: Color = whiteColor) =
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##        Dimension Helpers
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-## 
-## These provide basic dimension units and helpers 
+##
+## These provide basic dimension units and helpers
 ## similar to those available in HTML. They help
 ## specify details like: "set node width to 100% of it's parents size."
-## 
+##
 
 template box*(
     x: UiScalar | Constraint,
@@ -139,50 +139,50 @@ template options*[T: enum](attr: set[T], state: bool = true) =
   this.setOptions(attr, state)
 
 template gridCols*(args: untyped) =
-  ## configure columns for CSS Grid template 
-  ## 
+  ## configure columns for CSS Grid template
+  ##
   ## the format is `["name"] 40'ui` for each grid line
   ## where
-  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `["name"]` is an optional name for each grid line
   ##   - `40''ui` is a require size for the grid line track
-  ## 
+  ##
   ## the size options are:
   ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
   ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
-  ## 
+  ##
   ## names can include multiple names (aliaes):
   ## - `["name", "header-line", "col1" ]` to make layout easier
-  ## 
+  ##
   # layout lmGrid
   parseGridTemplateColumns(this.gridTemplate, args)
 
 template gridRows*(args: untyped) =
-  ## configure rows for CSS Grid template 
-  ## 
+  ## configure rows for CSS Grid template
+  ##
   ## the format is `["name"] 40'ui` for each grid line
-  ## 
+  ##
   ## where
-  ##   - `["name"]` is an optional name for each grid line 
+  ##   - `["name"]` is an optional name for each grid line
   ##   - `40''ui` is a require size for the grid line track
-  ## 
+  ##
   ## the size options are:
   ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
   ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
   ## - `auto` whatever is left over
-  ## 
+  ##
   ## names can include multiple names (aliaes):
   ## - `["name", "header-line", "col1" ]` to make layout easier
-  ## 
+  ##
   parseGridTemplateRows(this.gridTemplate, args)
   # layout lmGrid
 
 ## ---------------------------------------------
 ##             Fidget Node APIs
 ## ---------------------------------------------
-## 
+##
 ## These APIs provide styling APIs for Fidget nodes.
-## 
+##
 
 template css*(color: static string): Color =
   ## Parses a CSS style color at compile time.
@@ -231,9 +231,9 @@ template cornerRadius*(radius: Constraint) {.thisWrapper.}
 ## ---------------------------------------------
 ##             Fidget Text APIs
 ## ---------------------------------------------
-## 
+##
 ## These APIs provide font APIs for Fidget nodes.
-## 
+##
 
 proc loadTypeFace*(name: string): TypefaceId =
   ## Sets all radius of all 4 corners.
@@ -242,49 +242,10 @@ proc loadTypeFace*(name: string): TypefaceId =
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ##             Node Layouts and Constraints
 ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-## 
+##
 ## These APIs provide the basic functionality for
-## setting up layouts and constraingts. 
-## 
-
-template gridCols*(args: untyped) =
-  ## configure columns for CSS Grid template 
-  ## 
-  ## the format is `["name"] 40'ui` for each grid line
-  ## where
-  ##   - `["name"]` is an optional name for each grid line 
-  ##   - `40''ui` is a require size for the grid line track
-  ## 
-  ## the size options are:
-  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
-  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
-  ## - `auto` whatever is left over
-  ## 
-  ## names can include multiple names (aliaes):
-  ## - `["name", "header-line", "col1" ]` to make layout easier
-  ## 
-  # layout lmGrid
-  parseGridTemplateColumns(this.gridTemplate, args)
-
-template gridRows*(args: untyped) =
-  ## configure rows for CSS Grid template 
-  ## 
-  ## the format is `["name"] 40'ui` for each grid line
-  ## 
-  ## where
-  ##   - `["name"]` is an optional name for each grid line 
-  ##   - `40''ui` is a require size for the grid line track
-  ## 
-  ## the size options are:
-  ## - `1'fr` for CSS Grid fractions (e.g. `1'fr 1 fr1` would be ~ 1/2, 1/2)
-  ## - `40'ui` UiScalar (aka 'pixels'), but helpers like `1'em` work here too
-  ## - `auto` whatever is left over
-  ## 
-  ## names can include multiple names (aliaes):
-  ## - `["name", "header-line", "col1" ]` to make layout easier
-  ## 
-  # layout lmGrid
-  parseGridTemplateRows(this.gridTemplate, args)
+## setting up layouts and constraingts.
+##
 
 template findGridColumn*(index: GridIndex): GridLine {.thisWrapper.}
 
@@ -336,13 +297,12 @@ template layoutItems*(justify, align: ConstraintBehavior) {.thisWrapper.}
 
 template gridAutoFlow*(item: GridFlow) {.thisWrapper.}
   ## Sets the CSS Grid auto-flow style.
-  ## 
+  ##
   ## When you have grid items that aren't explicitly placed on the grid,
-  ## the auto-placement algorithm kicks in to automatically place the items. 
+  ## the auto-placement algorithm kicks in to automatically place the items.
 
 template gridAutoColumns*(item: Constraint) {.thisWrapper.}
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
 
 template gridAutoRows*(item: Constraint) {.thisWrapper.}
   ## Specifies the size of any auto-generated grid tracks (aka implicit grid tracks).
-

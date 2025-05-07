@@ -3,8 +3,6 @@ import ../commons
 
 import core, utils
 
-import chronicles
-
 when defined(nimscript):
   {.pragma: runtimeVar, compileTime.}
 else:
@@ -108,7 +106,7 @@ proc maxEvt(a, b: EventsCapture): EventsCapture =
 
 proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonView] =
   ## Consume mouse buttons
-  ## 
+  ##
   if evPress in matchedEvents:
     result[evPress] = uxInputs.buttonPress * MouseButtons
     uxInputs.buttonPress.excl MouseButtons
@@ -131,7 +129,7 @@ proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonV
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
-  ## 
+  ##
 
   # if uxInputs.windowSize.isSome and rxWindowResize in node.attrs:
   #   refresh(node)
@@ -158,8 +156,8 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
     if NfClipContent in node.flags and result[ek].zlvl <= node.zlevel and ek != evDrag and
         not node.mouseOverlaps(false):
-      ## this node clips events, so it must overlap child events, 
-      ## e.g. ignore child captures if this node isn't also overlapping 
+      ## this node clips events, so it must overlap child events,
+      ## e.g. ignore child captures if this node isn't also overlapping
       result[ek] = captured
     elif ek == evHover and evHover in matchingEvts:
       result[ek].targets.incl(captured.targets)
@@ -183,15 +181,15 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 proc computeEvents*(frame: AppFrame) =
   ## mouse and gesture are handled separately as they can have separate
   ## node targets
-  ## 
+  ##
   ## It'd be nice to re-write this whole design. It sorta evolved
-  ## from previous setup which was more immediate mode based. 
-  ## There may be ways to simplify this by moving to a more 
+  ## from previous setup which was more immediate mode based.
+  ## There may be ways to simplify this by moving to a more
   ## event-object based design. This is already sorta done
   ## now that each evKind has it's own target list, but the
   ## `for ek in EventKinds` still persists since it'd require
   ## refactoring this all. :/
-  ## 
+  ##
   ## However, first tests would need to be written to ensure the
   ## behavior is kept. Events like drag, hover, and clicks all
   ## behave differently.
@@ -294,9 +292,9 @@ proc computeEvents*(frame: AppFrame) =
       let newClicks = clickTargets
       let delClicks = prevClicks - clickTargets
       # echo "click.buttons: ", click.buttons
-      # echo "buttonRelease: ", uxInputs.buttonRelease 
-      # echo "buttonPress: ", uxInputs.buttonPress 
-      # echo "buttonDown: ", uxInputs.buttonPress 
+      # echo "buttonRelease: ", uxInputs.buttonRelease
+      # echo "buttonPress: ", uxInputs.buttonPress
+      # echo "buttonDown: ", uxInputs.buttonPress
 
       for target in delClicks:
         target.events.excl evClickDone
@@ -333,7 +331,7 @@ proc computeEvents*(frame: AppFrame) =
           dragSource = target
           emit target.doDrag(Init, dragInitial, uxInputs.mouse.pos, true, dragSource)
         prevDrags.incl target
-      
+
       for target in prevDrags:
         emit target.doDrag(Done, dragInitial, uxInputs.mouse.pos, mouseOverlaps(target, false), dragSource)
 

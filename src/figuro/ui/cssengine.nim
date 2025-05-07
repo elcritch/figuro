@@ -46,7 +46,7 @@ proc checkMatch*(sel: CssSelector, node: Figuro): bool =
       # echo "failed class check"
       return
 
-  # if node.combinator == skPseudo and node. 
+  # if node.combinator == skPseudo and node.
 
   return true
 
@@ -85,7 +85,7 @@ proc checkMatchPseudo*(pseudo: CssSelector, node: Figuro): bool =
     once:
       warn "unhandled CSS psuedo class: ", cssPseudo = pseudo.cssType
     result = false
- 
+
   if result:
     trace "cssengine:matched pseudo", node= $node.name, pseudo= pseudo.cssType
   else:
@@ -270,7 +270,7 @@ proc evalRoot*(rule: CssBlock, node: Figuro, values: CssValues) =
     trace "cssengine", name= node.name, matchedNode= node.uid, rule= rule
     for prop in rule.properties:
       prop.apply(node, values)
-  
+
 proc applyThemeRoots*(node: Figuro) =
   trace "applyThemeRoots: ", node = node.getId(), name = node.name, wn = node.widgetName
   let values = node.frame[].theme.cssValues
@@ -287,64 +287,64 @@ proc eval*(rule: CssBlock, node: Figuro, values: CssValues) =
     matched = true
     prevCombinator = skNone
     currNode = node  # Keep track of which node we're currently matching against
+  block selectorLoop:
+    for i in 1 .. rule.selectors.len():
+      sel = rule.selectors[^i]
+      trace "SEL: ", sel = sel, comb = $prevCombinator
 
-  for i in 1 .. rule.selectors.len():
-    sel = rule.selectors[^i]
-    trace "SEL: ", sel = sel, comb = $prevCombinator
+      if sel.combinator == skPseudo:
+        if prevCombinator == skNone and sel.cssType in [atom"root", atom"default"]:
+          # if values != nil and not values.applied.contains(sel.cssType):
+          #   matched = true
+          #   values.applied.incl sel.cssType
+          # else:
+          #   matched = false
+          matched = false
+          continue
 
-    if sel.combinator == skPseudo:
-      if prevCombinator == skNone and sel.cssType in [atom"root", atom"default"]:
-        # if values != nil and not values.applied.contains(sel.cssType):
-        #   matched = true
-        #   values.applied.incl sel.cssType
-        # else:
-        #   matched = false
-        matched = false
+        prevCombinator = sel.combinator
         continue
 
-      prevCombinator = sel.combinator
-      continue
-
-    case prevCombinator
-    of skNone, skSelectorList:
-      trace "skNone/SelList:: ", prevCombinator = $prevCombinator
-      matched = matched and sel.checkMatch(currNode)
-      if not matched:
-        trace "not matched", name = currNode.name, wn = currNode.widgetName, sel = sel
-        break
-    of skPseudo:
-      # info "skPseudo: ", prevCombinator = $prevCombinator
-      matched = matched and sel.checkMatch(currNode)
-      matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(currNode)
-      if not matched:
-        # info "not matched", name = node.name, wn = node.widgetName, sel = sel
-        break
-    of skDirectChild:
-      if currNode.parent.isNil:
-        matched = false
-        break
-      else:
-        withRef currNode.parent, parent:
-          currNode = parent  # Move up to the parent
-          matched = matched and sel.checkMatch(currNode)
-          if not matched:
-            trace "not matched (parent)", name = currNode.name, wn = currNode.widgetName, sel = sel
-            break
-    of skDescendent:
-      var parentMatched = false
-      for p in currNode.parents():
-        trace "sel:p: ", parentUid = p.uid, name = p.name, wn = p.widgetName
-        parentMatched = sel.checkMatch(p)
-        if parentMatched:
-          currNode = p  # Set the current node to the matched parent
-          trace "sel:p:matched ", name = p.name, wn = p.widgetName, sel = sel
+      case prevCombinator
+      of skNone, skSelectorList:
+        trace "skNone/SelList:: ", prevCombinator = $prevCombinator
+        matched = matched and sel.checkMatch(currNode)
+        if not matched:
+          trace "not matched", name = currNode.name, wn = currNode.widgetName, sel = sel
+          break selectorLoop
+      of skPseudo:
+        # info "skPseudo: ", prevCombinator = $prevCombinator
+        matched = matched and sel.checkMatch(currNode)
+        matched = matched and rule.selectors[^(i-1)].checkMatchPseudo(currNode)
+        if not matched:
+          # info "not matched", name = node.name, wn = node.widgetName, sel = sel
+          break selectorLoop
+      of skDirectChild:
+        if currNode.parent.isNil:
+          matched = false
           break
-      matched = matched and parentMatched
-      if not matched:
-        break
+        else:
+          withRef currNode.parent, parent:
+            currNode = parent  # Move up to the parent
+            matched = matched and sel.checkMatch(currNode)
+            if not matched:
+              trace "not matched (parent)", name = currNode.name, wn = currNode.widgetName, sel = sel
+              break selectorLoop
+      of skDescendent:
+        var parentMatched = false
+        for p in currNode.parents():
+          trace "sel:p: ", parentUid = p.uid, name = p.name, wn = p.widgetName
+          parentMatched = sel.checkMatch(p)
+          if parentMatched:
+            currNode = p  # Set the current node to the matched parent
+            trace "sel:p:matched ", name = p.name, wn = p.widgetName, sel = sel
+            break selectorLoop
+        matched = matched and parentMatched
+        if not matched:
+          break selectorLoop
 
-    trace "selMatch: ", matched = matched, idx = i
-    prevCombinator = sel.combinator
+      trace "selMatch: ", matched = matched, idx = i
+      prevCombinator = sel.combinator
 
   if matched:
     trace "cssengine", name= node.name, matchedNode= node.uid, rule= rule

@@ -1,5 +1,5 @@
-import std/[unicode, sequtils]
-import pkg/vmath
+import std/unicode
+
 
 import nodes/basics
 import uimaths
