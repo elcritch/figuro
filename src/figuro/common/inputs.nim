@@ -1,5 +1,5 @@
-import std/[unicode, sequtils]
-import pkg/vmath
+
+
 import pkg/patty
 
 import nodes/basics
@@ -50,4 +50,3 @@ proc scrolled*(inputs: AppInputs): bool =
 
 proc dragging*(inputs: AppInputs): bool =
   return MouseButtons * inputs.buttonDown != {}
-  return MouseButtons * inputs.buttonRelease != {}

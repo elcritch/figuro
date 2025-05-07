@@ -1,5 +1,5 @@
 import std/[sequtils, tables, hashes]
-import std/[options, unicode, strformat]
+import std/[unicode, strformat]
 import std/paths
 import std/os
 import pkg/variant

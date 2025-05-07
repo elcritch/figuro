@@ -1,4 +1,4 @@
-import std/[options, unicode, hashes, strformat, strutils, tables, times]
+import std/[options, unicode, strutils, tables, times]
 import std/[os, json]
 import std/terminal
 
@@ -6,12 +6,11 @@ import pkg/pixie
 import pkg/windex
 import pkg/sigils/weakrefs
 
-import pkg/chronicles 
+import pkg/chronicles
 
 import ../commons
 import ../common/rchannels
 # import ../inputs
-import ./opengl/utils
 import ./opengl/window
 import ./opengl/renderer
 
@@ -42,7 +41,7 @@ type
     pos*: IVec2 = ivec2(100, 100)
     size*: IVec2 = ivec2(0, 0)
 
-proc windowCfgFile*(frame: WeakRef[AppFrame]): string = 
+proc windowCfgFile*(frame: WeakRef[AppFrame]): string =
   frame[].configFile & ".window"
 
 proc loadLastWindow*(frame: WeakRef[AppFrame]): WindowConfig =
@@ -83,7 +82,7 @@ proc configureWindowEvents(renderer: Renderer) =
 
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
-    if renderer.frame[].saveWindowState: 
+    if renderer.frame[].saveWindowState:
       writeWindowConfig(window, winCfgFile)
     app.running = false
 

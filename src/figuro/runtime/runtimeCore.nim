@@ -9,7 +9,6 @@ else:
   export opengl
 
 import pkg/chronicles
-import ../common/rchannels
 
 import std/os
 
@@ -21,7 +20,6 @@ import ../ui/[core, events]
 import ../common/nodes/uinodes
 import ../widget
 import utils/cssMonitor
-import utils/timers
 
 export core, events
 
@@ -96,7 +94,7 @@ proc appStart*(self: AppFrame) {.slot, forbids: [RenderThreadEff].} =
 proc getAppConfigFile(): string =
   # Build the full path to the Figuro config directory
   let configPath = joinPath(getConfigDir(), "figuro")
-  
+
   # Check if directory exists
   if not dirExists(configPath):
     try:
@@ -108,7 +106,7 @@ proc getAppConfigFile(): string =
       return ""
   else:
     trace "Figuro configuration directory already exists at: ", configPath
-  
+
   let appFile = os.getAppFilename().splitFile().name
   let configFile = configPath / appFile & ".json"
   notice "Figuro", configFile = configFile

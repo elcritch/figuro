@@ -3,7 +3,6 @@ import ./rchannels
 import nodes/uinodes
 import inputs
 import fonttypes
-import windex
 import pixie
 import chronicles
 
