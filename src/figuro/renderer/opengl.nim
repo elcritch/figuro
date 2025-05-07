@@ -35,7 +35,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
     frame[].windowInfo.box.w = sz.x.UiScalar
     frame[].windowInfo.box.h = sz.y.UiScalar
 
-  configureWindowEvents(renderer)
+  renderer.configureWindowEvents()
   renderer.frame[].windowInfo.running = true
   app.requestedFrame.inc
 
