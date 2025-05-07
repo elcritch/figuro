@@ -38,7 +38,10 @@ type
   Renderer* = ref object of RendererBase
     window: Window
 
-proc setupWindow*(frame: WeakRef[AppFrame], window: Window) =
+proc setupWindow*(
+    frame: WeakRef[AppFrame],
+    window: Window,
+) =
   let style: WindowStyle = frame[].windowStyle.convertStyle()
   assert not frame.isNil
   if frame[].windowInfo.fullscreen:
@@ -58,16 +61,15 @@ proc setupWindow*(frame: WeakRef[AppFrame], window: Window) =
   let winCfg = frame.loadLastWindow()
 
   window.`style=`(style)
-  # window.`pos=`(winCfg.pos)
+  window.`pos=`(winCfg.pos)
 
 proc newRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
 ): Renderer =
-  result = Renderer()
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  result.window = window
+  result = Renderer(window: window, frame: frame)
   startOpenGL(openglVersion)
 
   setupWindow(frame, window)

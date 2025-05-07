@@ -30,10 +30,6 @@ type RendererBase* = ref object of RootObj
   nodes*: Renders
   appWindow*: WindowInfo
 
-  # swapBuffers*: proc()
-  # setTitle*: proc(name: string)
-  # closeWindow*: proc()
-
 method swapBuffers*(r: RendererBase) {.base.} =
   discard
 
