@@ -20,7 +20,6 @@ const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 type RendererBase* = ref object of RootObj
   ctx*: Context
   duration*: Duration
-  # window*: Window
   uxInputList*: RChan[AppInputs]
   rendInputList*: RChan[RenderCommands]
   frame*: WeakRef[AppFrame]
@@ -51,8 +50,11 @@ proc newRendererBase*(
   app.pixelScale = forcePixelScale
   renderer.nodes = Renders()
   renderer.frame = frame
-  renderer.ctx =
-    newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
+  renderer.ctx = newContext(
+    atlasSize = atlasSize,
+    pixelate = false,
+    pixelScale = app.pixelScale,
+  )
   renderer.uxInputList = newRChan[AppInputs](5)
   renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
