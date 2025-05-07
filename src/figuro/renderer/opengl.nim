@@ -13,6 +13,7 @@ import ../common/rchannels
 # import ../inputs
 import ./opengl/glwindow
 import ./opengl/renderer
+import ./opengl/utils
 import ./opengl/wutils
 
 export Renderer, runRendererLoop
@@ -35,6 +36,8 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
     frame[].window.box.h = sz.y.UiScalar
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
+  startOpenGL(frame, window, openglVersion)
+
   let renderer = newRenderer(frame, window, 1.0, atlasSize)
   let renderCb = proc() =
     pollAndRender(renderer, poll = false)

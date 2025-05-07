@@ -37,7 +37,7 @@ proc newRenderer*(
 ): Renderer =
   app.pixelScale = forcePixelScale
   let renderer = Renderer(window: window)
-  startOpenGL(frame, window, openglVersion)
+  # startOpenGL(frame, window, openglVersion)
   renderer.nodes = Renders()
   renderer.frame = frame
   renderer.ctx =
