@@ -11,7 +11,7 @@ import pkg/chronicles
 import ../commons
 import ../common/rchannels
 # import ../inputs
-import ./opengl/window
+import ./opengl/glwindow
 import ./opengl/renderer
 
 export Renderer, runRendererLoop

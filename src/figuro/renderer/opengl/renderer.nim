@@ -10,7 +10,7 @@ import pkg/sigils
 import pkg/chronicles
 
 import ../../common/rchannels
-import window, glcommons, context, utils
+import glwindow, glcommons, context, utils
 
 import std/locks
 
