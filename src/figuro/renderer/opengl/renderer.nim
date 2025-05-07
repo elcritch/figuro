@@ -1,12 +1,8 @@
 import std/[hashes, os, tables, times, monotimes, unicode, atomics]
 export tables
 
-
-import pkg/chroma
-# import pkg/windex
-# import pkg/opengl
-
 from pixie import Image
+import pkg/chroma
 import pkg/sigils
 import pkg/chronicles
 
@@ -35,11 +31,11 @@ method swapBuffers*(r: Renderer) {.base.} = discard
 method setTitle*(r: Renderer, name: string) {.base.} = discard
 method closeWindow*(r: Renderer) {.base.} = discard
 method getScaleInfo*(r: Renderer): ScaleInfo {.base.} = discard
-method getWindowInfo*(r: Renderer): WindowInfo = discard
-method configureWindowEvents*(renderer: Renderer) = discard
-method setClipboard*(r: Renderer, cb: ClipboardContents) = discard
-method getClipboard*(r: Renderer): ClipboardContents = discard
-method copyInputs*(r: Renderer): AppInputs = discard
+method getWindowInfo*(r: Renderer): WindowInfo {.base.} = discard
+method configureWindowEvents*(renderer: Renderer) {.base.} = discard
+method setClipboard*(r: Renderer, cb: ClipboardContents) {.base.} = discard
+method getClipboard*(r: Renderer): ClipboardContents {.base.} = discard
+method copyInputs*(r: Renderer): AppInputs {.base.} = discard
 
 proc configureRenderer*(
     renderer: Renderer,
