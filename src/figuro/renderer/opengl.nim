@@ -21,15 +21,14 @@ export Renderer, runRendererLoop
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  let style: WindowStyle = frame[].windowStyle.convertStyle()
-  let winCfg = frame.loadLastWindow()
+  setupWindow(frame, window)
+  frame[].window.focused = true
 
   if app.autoUiScale:
     let scale = window.getScaleInfo()
     app.uiScale = min(scale.x, scale.y)
 
-  window.`style=`(style)
-  window.`pos=`(winCfg.pos)
+  let winCfg = frame.loadLastWindow()
   if winCfg.size.x != 0 and winCfg.size.y != 0:
     let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
     frame[].window.box.w = sz.x.UiScalar

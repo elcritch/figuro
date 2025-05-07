@@ -32,6 +32,17 @@ static:
   for i in 0 .. windex.Button.high().int:
     assert $Button(i) == $UiButton(i)
 
+proc convertStyle*(fs: FrameStyle): WindowStyle =
+  case fs
+  of FrameStyle.DecoratedResizable:
+    WindowStyle.DecoratedResizable
+  of FrameStyle.DecoratedFixedSized:
+    WindowStyle.Decorated
+  of FrameStyle.Undecorated:
+    WindowStyle.Undecorated
+  of FrameStyle.Transparent:
+    WindowStyle.Transparent
+
 proc toUi*(wbtn: windex.ButtonView): UiButtonView =
   when defined(nimscript):
     for b in set[Button](wbtn):
@@ -44,7 +55,8 @@ proc getScaleInfo*(window: Window): ScaleInfo =
   result.x = scale
   result.y = scale
 
-proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
+proc setupWindow*(frame: WeakRef[AppFrame], window: Window) =
+  let style: WindowStyle = frame[].windowStyle.convertStyle()
   assert not frame.isNil
   if frame[].window.fullscreen:
     window.fullscreen = frame[].window.fullscreen
@@ -60,6 +72,13 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
 
   window.makeContextCurrent()
 
+  let winCfg = frame.loadLastWindow()
+
+  window.`style=`(style)
+  # window.`pos=`(winCfg.pos)
+
+
+proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
   when not defined(emscripten):
     loadExtensions()
 
@@ -71,21 +90,9 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
     GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA
   )
 
-  frame[].window.focused = true
   useDepthBuffer(false)
 
 var lastMouse = Mouse()
-
-proc convertStyle*(fs: FrameStyle): WindowStyle =
-  case fs
-  of FrameStyle.DecoratedResizable:
-    WindowStyle.DecoratedResizable
-  of FrameStyle.DecoratedFixedSized:
-    WindowStyle.Decorated
-  of FrameStyle.Undecorated:
-    WindowStyle.Undecorated
-  of FrameStyle.Transparent:
-    WindowStyle.Transparent
 
 proc copyInputs(window: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
