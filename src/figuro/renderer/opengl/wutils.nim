@@ -37,15 +37,3 @@ proc writeWindowConfig*(window: Window, winCfgFile: string) =
       writeFile(winCfgFile, $(jn))
     except Defect, CatchableError:
       debug "error writing window position"
-
-proc getWindowInfo*(window: Window): WindowInfo =
-    app.requestedFrame.inc
-
-    result.minimized = window.minimized()
-    result.pixelRatio = window.contentScale()
-
-    var cwidth, cheight: cint
-    let size = window.size()
-
-    result.box.w = size.x.float32.descaled()
-    result.box.h = size.y.float32.descaled()

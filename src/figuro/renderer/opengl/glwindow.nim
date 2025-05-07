@@ -117,6 +117,18 @@ method swapBuffers*(r: Renderer) =
 method closeWindow*(r: Renderer) =
   r.window.close()
 
+method getWindowInfo*(r: Renderer): WindowInfo =
+    app.requestedFrame.inc
+
+    result.minimized = r.window.minimized()
+    result.pixelRatio = r.window.contentScale()
+
+    var cwidth, cheight: cint
+    let size = r.window.size()
+
+    result.box.w = size.x.float32.descaled()
+    result.box.h = size.y.float32.descaled()
+
 proc configureWindowEvents*(
     renderer: Renderer,
 ) =
@@ -140,7 +152,7 @@ proc configureWindowEvents*(
 
   window.onResize = proc() =
     # updateWindowSize(renderer.frame, window)
-    let windowState = getWindowInfo(window)
+    let windowState = renderer.getWindowInfo()
     var uxInput = window.copyInputs()
     uxInput.window = some windowState
     uxInputList.push(uxInput)
@@ -148,7 +160,7 @@ proc configureWindowEvents*(
 
   window.onFocusChange = proc() =
     var uxInput = window.copyInputs()
-    uxInput.window = some getWindowInfo(window)
+    uxInput.window = some renderer.getWindowInfo()
     uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =
