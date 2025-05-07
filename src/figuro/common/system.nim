@@ -46,20 +46,26 @@ when not defined(nimscript):
     getTypesetImpl(box, spans, hAlign, vAlign, minContent, wrap)
 
   proc clipboardText*(): string =
-    windex.getClipboardString()
+    when defined(linux):
+      warn "clipboardText is broken on linux"
+    else:
+      windex.getClipboardString()
 
   proc clipboardSet*(str: string) =
-    windex.setClipboardString(str)
+    when defined(linux):
+      warn "clipboardSet is broken on linux"
+    else:
+      windex.setClipboardString(str)
 
   proc clipboardImage*(): Image =
     when defined(linux):
       warn "clipboardImage is not implemented on linux"
     else:
-      windex.getClipboardImage()
+      getClipboardImage()
 
   when defined(clipboardImage):
     proc clipboardSet*(img: Image) =
       when defined(linux):
         warn "clipboardSet is not implemented on linux"
       else:
-        windex.setClipboardImage(img)
+        setClipboardImage(img)
