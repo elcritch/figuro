@@ -7,8 +7,12 @@ import pkg/windex
 import utils
 import glcommons
 import ../../common/nodes/uinodes
+import ../../common/rchannels
+
+import wutils
 
 import pkg/sigils/weakrefs
+import pkg/chronicles
 
 export AppFrame
 
@@ -72,3 +76,133 @@ proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int,
 
   useDepthBuffer(false)
   # updateWindowSize(frame, window)
+
+var lastMouse = Mouse()
+
+proc convertStyle*(fs: FrameStyle): WindowStyle =
+  case fs
+  of FrameStyle.DecoratedResizable:
+    WindowStyle.DecoratedResizable
+  of FrameStyle.DecoratedFixedSized:
+    WindowStyle.Decorated
+  of FrameStyle.Undecorated:
+    WindowStyle.Undecorated
+  of FrameStyle.Transparent:
+    WindowStyle.Transparent
+
+proc copyInputs(window: Window): AppInputs =
+  result = AppInputs(mouse: lastMouse)
+  result.buttonRelease = toUi window.buttonReleased()
+  result.buttonPress = toUi window.buttonPressed()
+  result.buttonDown = toUi window.buttonDown()
+  result.buttonToggle = toUi window.buttonToggle()
+
+proc configureWindowEvents*(
+    window: Window,
+    uxInputList: RChan[AppInputs],
+    frame: WeakRef[AppFrame],
+    renderCb: proc()
+) =
+  let winCfgFile = frame.windowCfgFile()
+
+  window.runeInputEnabled = true
+
+  let win {.cursor.} = window
+
+  window.onCloseRequest = proc() =
+    notice "onCloseRequest"
+    if frame[].saveWindowState:
+      writeWindowConfig(win, winCfgFile)
+    app.running = false
+
+  window.onMove = proc() =
+    discard
+    # debug "window moved: ", pos= window.pos
+
+  window.onResize = proc() =
+    # updateWindowSize(renderer.frame, window)
+    let windowState = getWindowInfo(win)
+    var uxInput = win.copyInputs()
+    uxInput.window = some windowState
+    uxInputList.push(uxInput)
+    renderCb() # pollAndRender(frame, poll = false)
+
+  window.onFocusChange = proc() =
+    var uxInput = win.copyInputs()
+    uxInput.window = some getWindowInfo(win)
+    uxInputList.push(uxInput)
+
+  window.onMouseMove = proc() =
+    var uxInput = AppInputs()
+    let pos = vec2(win.mousePos())
+    uxInput.mouse.pos = pos.descaled()
+    let prevPos = vec2(win.mousePrevPos())
+    uxInput.mouse.prev = prevPos.descaled()
+    uxInput.mouse.consumed = false
+    lastMouse = uxInput.mouse
+    lastMouse.consumed = true
+    uxInputList.push(uxInput)
+
+  window.onScroll = proc() =
+    var uxInput = AppInputs(mouse: lastMouse)
+    uxInput.mouse.consumed = false
+    uxInput.mouse.wheelDelta = win.scrollDelta().descaled()
+    uxInputList.push(uxInput)
+
+  window.onButtonPress = proc(button: windex.Button) =
+    let uxInput = win.copyInputs()
+    when defined(debugEvents):
+      stdout.styledWriteLine(
+        {styleDim},
+        fgWhite,
+        "buttonPress ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonPress,
+        fgWhite,
+        "buttonRelease ",
+        fgGreen,
+        $uxInput.buttonRelease,
+        fgWhite,
+        "buttonDown ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonDown,
+      ) # fgBlue, " time: " & $(time - lastButtonRelease) )
+    uxInputList.push(uxInput)
+
+  window.onButtonRelease = proc(button: Button) =
+    let uxInput = win.copyInputs()
+    when defined(debugEvents):
+      stdout.styledWriteLine(
+        {styleDim},
+        fgWhite,
+        "release ",
+        fgGreen,
+        $button,
+        fgWhite,
+        "buttonRelease ",
+        fgGreen,
+        $uxInput.buttonRelease,
+        fgWhite,
+        "buttonDown ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonDown,
+        fgWhite,
+        "buttonPress ",
+        {styleBright},
+        fgGreen,
+        $uxInput.buttonPress,
+      )
+    uxInputList.push(uxInput)
+
+  window.onRune = proc(rune: Rune) =
+    var uxInput = AppInputs(mouse: lastMouse)
+    uxInput.keyboard.rune = some rune
+    when defined(debugEvents):
+      stdout.styledWriteLine(
+        {styleDim}, fgWhite, "keyboardInput: ", {styleDim}, fgGreen, $rune
+      )
+    uxInputList.push(uxInput)
+
