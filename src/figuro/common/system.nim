@@ -5,6 +5,7 @@ import inputs
 import fonttypes
 import pixie
 import chronicles
+import windex
 
 export fonttypes
 
@@ -48,23 +49,23 @@ when not defined(nimscript):
     when defined(linux):
       warn "clipboardText is not implemented on linux"
     else:
-      getClipboardString()
+      windex.getClipboardString()
 
   proc clipboardSet*(str: string) =
     when defined(linux):
       warn "clipboardSet is not implemented on linux"
     else:
-      setClipboardString(str)
+      windex.setClipboardString(str)
 
   proc clipboardImage*(): Image =
     when defined(linux):
       warn "clipboardImage is not implemented on linux"
     else:
-      getClipboardImage()
+      windex.getClipboardImage()
 
   when defined(clipboardImage):
     proc clipboardSet*(img: Image) =
       when defined(linux):
         warn "clipboardSet is not implemented on linux"
       else:
-        setClipboardImage(img)
+        windex.setClipboardImage(img)
