@@ -74,8 +74,7 @@ proc draw*(self: Main) {.slot.} =
             fill css"white"
             border 1'ui, css"black"
             disabled self.running
-            overwrite true
-            options {NoErase, NoSelection}
+            options({OverwriteMode, NoErase, NoSelection})
             skipOnInput ':'
             if this.disabled:
               fill this.fill.darken(0.4)

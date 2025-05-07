@@ -41,9 +41,25 @@ template themeColor*(name: static string): Color =
   let varIdx = this.frame[].theme.cssValues.registerVariable(name)
   var res: CssValue
   if this.frame[].theme.cssValues.resolveVariable(varIdx, res):
-    res.c
+    if res.kind == CssValueKind.CssColor:
+      res.c
+    else:
+      blackColor
   else:
     blackColor
+    
+
+template themeSize*(name: static string): Constraint =
+  ## Returns the current theme.
+  let varIdx = this.frame[].theme.cssValues.registerVariable(name)
+  var res: CssValue
+  if this.frame[].theme.cssValues.resolveVariable(varIdx, res):
+    if res.kind == CssValueKind.CssSize:
+      res.cx
+    else:
+      0'ux
+  else:
+    0'ux
 
 template connect*(
     signal: typed,
@@ -103,10 +119,10 @@ proc hidden*(self: Figuro, state: bool) {.thisWrapper.} =
 proc hidden*(self: Figuro): bool =
   Hidden in self.userAttrs
 
-proc focus*(self: Figuro, state: bool) {.thisWrapper.} =
-  self.setUserAttr({Focus}, state)
-proc focus*(self: Figuro): bool =
-  Focus in self.userAttrs
+proc focusable*(self: Figuro, state: bool) {.thisWrapper.} =
+  self.setUserAttr({Focusable}, state)
+proc focusable*(self: Figuro): bool =
+  Focusable in self.userAttrs
 
 proc checked*(self: Figuro, state: bool) {.thisWrapper.} =
   self.setUserAttr({Checked}, state)
@@ -117,6 +133,10 @@ proc selected*(self: Figuro, state: bool) {.thisWrapper.} =
   self.setUserAttr({Selected}, state)
 proc selected*(self: Figuro): bool =
   Selected in self.userAttrs
+
+template options*[T: enum](attr: set[T], state: bool = true) =
+  mixin setOptions
+  this.setOptions(attr, state)
 
 template gridCols*(args: untyped) =
   ## configure columns for CSS Grid template

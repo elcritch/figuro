@@ -20,8 +20,6 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-var lastModificationTime: Table[string, Time]
-
 proc themePath*(): string =
   result = "theme.css".absolutePath()
 
@@ -30,9 +28,6 @@ proc appThemePath*(): string =
 
 proc loadTheme*(theme: string = themePath(), values: CssValues): CssTheme =
   if theme.fileExists():
-    # let ts = getLastModificationTime(theme)
-    # if theme notin lastModificationTime or ts > lastModificationTime[theme]:
-    # lastModificationTime[theme] = ts
     notice "Loading CSS file", cssFile = theme
     let parser = newCssParser(Path(theme))
     result = newCssTheme(parser, values)
@@ -86,7 +81,6 @@ when not defined(noFiguroDmonMonitor):
     notice "Started CSS Watcher", theme = defaultTheme, appTheme= appFile
 
     proc update(file: string) =
-      # let css = loadTheme(file)
       notice "CSS Updated: ", file = file
       emit self.cssUpdate(file)
       os.sleep(16) # TODO: fixme: this is a hack to ensure proper text resizing
@@ -104,8 +98,4 @@ when not defined(noFiguroDmonMonitor):
 
     while isRunning(getCurrentSigilThread()[]):
       let file = cssUpdates.recv()
-      if file != currTheme:
-        notice "CSS Skipping", file = file
-        continue
-      else:
-        file.update()
+      file.update()

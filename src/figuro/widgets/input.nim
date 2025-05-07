@@ -11,10 +11,11 @@ export textboxes
 echo "input: ", clipboardText()
 
 type
-  InputOptions* = enum
+  InputOptions* {.pure.} = enum
     NoErase
     NoSelection
     OnlyAllowDigits
+    OverwriteMode
 
   Input* = ref object of Figuro
     opts*: set[InputOptions]
@@ -27,9 +28,11 @@ type
   Cursor* = ref object of Figuro
   Selection* = ref object of Figuro
 
-proc options*(self: Input, opt: set[InputOptions], state = true) {.thisWrapper.} =
+proc setOptions*(self: Input, opt: set[InputOptions], state = true) {.thisWrapper.} =
   if state: self.opts.incl opt
   else: self.opts.excl opt
+  if OverwriteMode in opt:
+    self.text.options({Overwrite}, state)
 
 proc skipOnInput*(self: Input, runes: HashSet[Rune]) =
   ## skips the given runes and advances the cursor to the 
@@ -43,11 +46,6 @@ proc skipOnInput*(self: Input, msg: varargs[char]) {.thisWrapper.} =
   ## 
   ## useful for skipping "decorative" tokens like ':' in a time
   self.skipOnInput = msg.toRunes().toHashSet()
-
-proc overwrite*(self: Input): bool {.thisWrapper.} =
-  Overwrite in self.text.opts
-proc overwrite*(self: Input, state: bool) {.thisWrapper.} =
-  self.text.options({Overwrite}, state)
 
 proc font*(self: Input, font: UiFont) =
   self.text.font = font

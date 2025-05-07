@@ -104,9 +104,9 @@ proc draw*(self: Main) {.slot.} =
         size 80'pp, 100'ux
         fill themeColor("fig-widget-background-color").darken(0.3)
         onInit:
-          setElements this.data, @["one", "two", "three", "four", "five"]
-          multiSelect this.data, true
-          toggleIndex this.data, 1
+          this.data.setElements @["one", "two", "three", "four", "five"]
+          this.data.multiSelect true
+          this.data.toggleIndex 1
         # echo "COMBO: ", this.name, " :: ", this.screenBox
 
       Rectangle.new "filler":

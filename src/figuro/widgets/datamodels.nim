@@ -8,10 +8,16 @@ type
     selected: HashSet[int]
     multiSelect: bool
 
+proc clearElements*[T](self: SelectedElements[T]) =
+  self.elements.setLen(0)
+
 proc setElements*[T](self: SelectedElements[T], elements: seq[T]) =
   echo "setElements: ", elements
   self.elements = elements
   self.selected.clear()
+
+proc addElement*[T](self: SelectedElements[T], element: T) =
+  self.elements.add element
 
 proc elements*[T](self: SelectedElements[T]): seq[T] =
   self.elements

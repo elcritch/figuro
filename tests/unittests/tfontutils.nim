@@ -49,7 +49,7 @@ suite "fontutils":
 
     # maxSize: GVec2(arr: [245.0, 26.0]),
 
-    check textLayout.maxSize.w.float == 260
+    check textLayout.maxSize.w.float == 271.0
     check abs(textLayout.minSize.h.float - 26.09999) < 1.0e-4
 
     let

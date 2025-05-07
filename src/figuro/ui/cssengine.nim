@@ -156,6 +156,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
     values.setVariable(idx, prop.value)
     return
 
+  ## TODO: set font size
   case pname
   of "color":
     # is color in CSS really only for fonts?

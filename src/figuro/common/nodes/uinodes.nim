@@ -280,6 +280,14 @@ template connect*(
   ## template override
   when signalName(signal) == "doMouseClick":
     a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doSingleClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doDoubleClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doTripleClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
+  elif signalName(signal) == "doRightClick":
+    a.listens.signals.incl {evClickInit, evClickDone, evPress, evRelease}
   elif signalName(signal) == "doHover":
     a.listens.signals.incl {evHover}
   elif signalName(signal) == "doDrag":
@@ -333,41 +341,6 @@ proc refreshLayout*(node: Figuro) {.slot.} =
 ## the state of the node.
 ## 
 ## Also for general use by the widget author.
-proc setDisabled*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Disabled
-
-proc setEnabled*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Disabled
-
-proc setActive*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Active
-
-proc setInactive*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Active
-
-proc setChecked*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Checked
-
-proc setUnchecked*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Checked
-
-proc setFocused*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Focus
-
-proc setUnfocused*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Focus
-
-proc setSelected*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Selected
-
-proc setUnselected*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Selected
-
-proc setOpen*(fig: Figuro) {.slot.} =
-  fig.userAttrs.incl Open
-
-proc setClosed*(fig: Figuro) {.slot.} =
-  fig.userAttrs.excl Open
 
 proc setUserAttr*(fig: Figuro, attr: Attributes | set[Attributes], state: bool) =
   if state:

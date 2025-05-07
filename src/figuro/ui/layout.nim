@@ -33,6 +33,7 @@ proc checkParent(node: Figuro) =
 
 
 proc printLayout*(node: Figuro, depth = 0) =
+
   stdout.styledWriteLine(
     " ".repeat(depth),
     {styleDim},

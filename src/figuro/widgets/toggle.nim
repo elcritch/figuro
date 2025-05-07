@@ -15,7 +15,7 @@ proc doChange*(self: Toggle, value: bool) {.signal.}
 
 proc checked*(self: Toggle, value: bool) {.slot.} =
   if contains(self, Checked) != value: 
-    self.setUserAttr({Checked}, value)
+    self.setUserAttr(Checked, value)
     if value: self.fade.fadeIn() else: self.fade.fadeOut()
     emit self.doChange(value)
     refresh(self)
@@ -52,7 +52,7 @@ proc label*(self: TextToggle, spans: openArray[(UiFont, string)]) {.slot.} =
 
 proc checked*(self: TextToggle, value: bool) {.slot.} =
   if contains(self, Checked) != value:
-    self.setUserAttr({Checked}, value)
+    self.setUserAttr(Checked, value)
     refresh(self)
 
 proc draw*(self: TextToggle) {.slot.} =

@@ -5,7 +5,6 @@ import ../widget
 type
   ScrollPane* = ref object of Figuro
     isActive*: bool
-    disabled*: bool
     settings*: ScrollSettings
     window*: ScrollWindow
     barx*: ScrollBar
@@ -141,12 +140,42 @@ proc layoutResize*(self: ScrollPane, node: Figuro) {.slot.} =
   # debug "LAYOUT RESIZE: ", self = self.name, node = node.name, scrollPaneBox = self.box, nodeBox = node.box, scrollBodyBox = scrollBody.box
   scroll(self, initPosition(0, 0), force = true)
 
+proc hideGrandChildren*(self: ScrollPane, child: Figuro) =
+  ## hides grandchildren of the scrollpane if they are not overlapping with the scrollpane
+  ## a buffer equal to the number of overlapping grandchildren is kept visible
+  ## as well to avoid graphical glitches as the user scrolls
+  var
+    firstOverlapping = -1
+    lastOverlapping = -1
+    countOverlapping = 0
+
+  for idx, grandChild in child.children:
+    let isOverlapping = grandChild.screenBox.overlaps(self.screenBox)
+    grandChild.setUserAttr(Hidden, not isOverlapping)
+    if firstOverlapping == -1 and isOverlapping:
+      firstOverlapping = idx
+    if isOverlapping:
+      lastOverlapping = idx
+      countOverlapping.inc()
+
+  let bufferCount = max(countOverlapping div 2, 3)
+  let startIdx = max(0, firstOverlapping - bufferCount)
+  let endIdx = min(child.children.len() - 1, lastOverlapping + bufferCount)
+
+  for i in startIdx..<firstOverlapping:
+    child.children[i].setUserAttr(Hidden, false)
+
+  for i in lastOverlapping+1..<endIdx:
+    child.children[i].setUserAttr(Hidden, false)
+
 proc draw*(self: ScrollPane) {.slot.} =
   withWidget(self):
-    self.listens.events.incl evScroll
-    uinodes.connect(self, doScroll, self, ScrollPane.scroll)
-    uinodes.connect(self, doLayoutResize, self, ScrollPane.layoutResize)
     clipContent true
+    self.listens.events.incl evScroll
+    onInit:
+      uinodes.connect(self, doScroll, self, ScrollPane.scroll)
+      uinodes.connect(self, doLayoutResize, self, ScrollPane.layoutResize)
+
     this.cxMin = [0'ux, 0'ux]
     # this.shadow[DropShadow] = Shadow(blur: 4.0'ui, spread: 1.0'ui, x: 1.0'ui, y: 1.0'ui, color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.7))
 
@@ -165,9 +194,11 @@ proc draw*(self: ScrollPane) {.slot.} =
       this.flags.incl NfScrollPanel
       WidgetContents()
       scroll(self, initPosition(0, 0))
+
       for child in this.children:
-        # echo "CHILD: ", child.name
-        connect(child, doLayoutResize, self, layoutResize)
+        # connect(child, doLayoutResize, self, layoutResize)
+        child.setUserAttr(Hidden, not child.screenBox.overlaps(self.screenBox))
+        hideGrandChildren(self, child)
 
     if self.settings.vertical:
       Rectangle.new "scrollbar-vertical":

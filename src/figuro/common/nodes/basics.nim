@@ -36,20 +36,20 @@ type
     NfInitialized
     NfSkipLayout
     NfInactive
-    # user facing attributes
 
-  Attributes* = enum
-    SkipCss
-    Hidden
-    Disabled
-    Active
-    Checked
-    Open
-    Selected
-    Hover
-    Focus
-    FocusVisible
-    FocusWithin
+  Attributes* = enum ## user facing attributes
+    SkipCss ## Skip applying CSS to this node
+    Hidden ## Hidden from layout and rendering
+    Disabled ## Disabled from user interaction
+    Active ## Active from user interaction
+    Checked ## Checked from user interaction
+    Open ## Open from user interaction
+    Selected ## Selected from user interaction
+    Hover ## Hovered from user interaction
+    Focusable ## Focusable from user interaction
+    Focus ## Focused from user interaction
+    FocusVisible ## Focus visible from user interaction
+    FocusWithin ## Focus within from user interaction
 
 
   FieldSetAttrs* = enum

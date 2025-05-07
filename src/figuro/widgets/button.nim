@@ -26,13 +26,13 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot
   case kind:
   of Init:
     self.fade.fadeIn()
-    self.setUserAttr({Active}, true)
+    self.setUserAttr(Active, true)
   of Exit:
-    self.setUserAttr({Active}, false)
+    self.setUserAttr(Active, false)
     self.fade.fadeOut()
     return
   of Done:
-    self.setUserAttr({Active}, false)
+    self.setUserAttr(Active, false)
     if MouseLeft in buttons:
       emit self.doSingleClick()
     if DoubleClick in buttons:

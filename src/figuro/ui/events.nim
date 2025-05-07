@@ -135,6 +135,9 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
   #   refresh(node)
 
   for n in node.children:
+    if Hidden in n.userAttrs:
+      continue
+
     let child = computeNodeEvents(n)
     for ek in EventKinds:
       result[ek] = maxEvt(result[ek], child[ek])
