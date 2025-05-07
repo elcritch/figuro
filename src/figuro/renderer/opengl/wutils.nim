@@ -30,10 +30,9 @@ proc loadLastWindow*(frame: WeakRef[AppFrame]): WindowConfig =
       discard
   notice "loadLastWindow", config= result
 
-proc writeWindowConfig*(window: Window, winCfgFile: string) =
+proc writeWindowConfig*(wcfg: WindowConfig, winCfgFile: string) =
     try:
-      let wc = WindowConfig(pos: window.pos, size: window.size)
-      let jn = %*(wc)
+      let jn = %*(wcfg)
       writeFile(winCfgFile, $(jn))
     except Defect, CatchableError:
       debug "error writing window position"

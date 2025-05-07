@@ -143,7 +143,8 @@ proc configureWindowEvents*(
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
     if frame[].saveWindowState:
-      writeWindowConfig(window, winCfgFile)
+      let wc = WindowConfig(pos: window.pos, size: window.size)
+      writeWindowConfig(wc, winCfgFile)
     app.running = false
 
   window.onMove = proc() =
