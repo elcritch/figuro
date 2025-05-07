@@ -20,12 +20,13 @@ export Renderer, runRendererLoop
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
-  let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  setupWindow(frame, window)
+  let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
+
+  let renderer = newRenderer(frame, 1.0, atlasSize)
   frame[].windowInfo.focused = true
 
   if app.autoUiScale:
-    let scale = window.getScaleInfo()
+    let scale = renderer.getScaleInfo()
     app.uiScale = min(scale.x, scale.y)
 
   let winCfg = frame.loadLastWindow()
@@ -34,19 +35,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
     frame[].windowInfo.box.w = sz.x.UiScalar
     frame[].windowInfo.box.h = sz.y.UiScalar
 
-  let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
-  startOpenGL(frame, window, openglVersion)
-
-  let renderer = newRenderer(frame, 1.0, atlasSize)
-  let renderCb = proc() =
-    pollAndRender(renderer, poll = false)
-
-  configureWindowEvents(
-    renderer,
-    window,
-    frame,
-    renderCb,
-  )
+  configureWindowEvents(renderer)
   renderer.frame[].windowInfo.running = true
   app.requestedFrame.inc
 

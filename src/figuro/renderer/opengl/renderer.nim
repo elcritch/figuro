@@ -17,7 +17,7 @@ import std/locks
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type Renderer* = ref object
+type RendererBase* = ref object of RootObj
   ctx*: Context
   duration*: Duration
   # window*: Window
@@ -30,17 +30,29 @@ type Renderer* = ref object
   nodes*: Renders
   appWindow*: WindowInfo
 
-  swapBuffers*: proc()
-  setTitle*: proc(name: string)
-  closeWindow*: proc()
+  # swapBuffers*: proc()
+  # setTitle*: proc(name: string)
+  # closeWindow*: proc()
 
-proc newRenderer*(
+method swapBuffers*(r: RendererBase) {.base.} =
+  discard
+
+method setTitle*(r: RendererBase, name: string) {.base.} =
+  discard
+
+method closeWindow*(r: RendererBase) {.base.} =
+  discard
+
+method getScaleInfo*(r: RendererBase): ScaleInfo {.base.} =
+  discard
+
+proc newRendererBase*(
+    renderer: RendererBase,
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
-): Renderer =
+) =
   app.pixelScale = forcePixelScale
-  let renderer = Renderer()
   renderer.nodes = Renders()
   renderer.frame = frame
   renderer.ctx =
@@ -50,7 +62,6 @@ proc newRenderer*(
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
-  return renderer
 
 proc renderDrawable*(ctx: Context, node: Node) =
   ## TODO: draw non-node stuff?
@@ -303,15 +314,15 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
-proc renderFrame*(renderer: Renderer) =
-  let ctx: Context = renderer.ctx
+proc renderFrame*(RendererBase: RendererBase) =
+  let ctx: Context = RendererBase.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.appWindow.box.wh.scaled())
+  ctx.beginFrame(RendererBase.appWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
   # draw root
-  ctx.renderRoot(renderer.nodes)
+  ctx.renderRoot(RendererBase.nodes)
 
   ctx.restoreTransform()
   ctx.endFrame()
@@ -323,56 +334,56 @@ proc renderFrame*(renderer: Renderer) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: Renderer) =
+proc renderAndSwap(RendererBase: RendererBase) =
   ## Does drawing operations.
 
   timeIt(drawFrame):
-    renderFrame(renderer)
+    renderFrame(RendererBase)
 
   var error: GLenum
   while (error = glGetError(); error != GL_NO_ERROR):
     echo "gl error: " & $error.uint32
 
   timeIt(drawFrameSwap):
-    # renderer.window.swapBuffers()
-    renderer.swapBuffers()
+    # RendererBase.window.swapBuffers()
+    RendererBase.swapBuffers()
 
-proc pollAndRender*(renderer: Renderer, poll = true) =
+proc pollAndRender*(RendererBase: RendererBase, poll = true) =
   ## renders and draws a window given set of nodes passed
-  ## in via the Renderer object
+  ## in via the RendererBase object
 
   if poll:
     windex.pollEvents()
 
   var update = false
   var cmd: RenderCommands
-  while renderer.rendInputList.tryRecv(cmd):
+  while RendererBase.rendInputList.tryRecv(cmd):
     match cmd:
       RenderUpdate(nlayers, rwindow):
-        renderer.nodes = nlayers
-        renderer.appWindow = rwindow
+        RendererBase.nodes = nlayers
+        RendererBase.appWindow = rwindow
         update = true
       RenderQuit:
         echo "QUITTING"
-        renderer.frame[].windowInfo.running = false
+        RendererBase.frame[].windowInfo.running = false
         app.running = false
         return
       RenderSetTitle(name):
-        renderer.setTitle(name)
+        RendererBase.setTitle(name)
 
   if update:
-    renderAndSwap(renderer)
+    renderAndSwap(RendererBase)
 
-proc runRendererLoop*(renderer: Renderer) =
+proc runRendererLoop*(RendererBase: RendererBase) =
   threadEffects:
     RenderThread
   while app.running:
-    pollAndRender(renderer)
+    pollAndRender(RendererBase)
 
     # let avgMicros = time.micros.toInt() div 1_000
-    # os.sleep(renderer.duration.inMilliseconds - avgMicros)
-    os.sleep(renderer.duration.inMilliseconds)
-  debug "Renderer loop exited"
-  # renderer.window.close()
-  renderer.closeWindow()
-  debug "Renderer window closed"
+    # os.sleep(RendererBase.duration.inMilliseconds - avgMicros)
+    os.sleep(RendererBase.duration.inMilliseconds)
+  debug "RendererBase loop exited"
+  # RendererBase.window.close()
+  RendererBase.closeWindow()
+  debug "RendererBase window closed"

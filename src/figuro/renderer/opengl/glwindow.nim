@@ -32,28 +32,11 @@ static:
   for i in 0 .. windex.Button.high().int:
     assert $Button(i) == $UiButton(i)
 
-proc convertStyle*(fs: FrameStyle): WindowStyle =
-  case fs
-  of FrameStyle.DecoratedResizable:
-    WindowStyle.DecoratedResizable
-  of FrameStyle.DecoratedFixedSized:
-    WindowStyle.Decorated
-  of FrameStyle.Undecorated:
-    WindowStyle.Undecorated
-  of FrameStyle.Transparent:
-    WindowStyle.Transparent
+proc convertStyle*(fs: FrameStyle): WindowStyle
 
-proc toUi*(wbtn: windex.ButtonView): UiButtonView =
-  when defined(nimscript):
-    for b in set[Button](wbtn):
-      result.incl UiButton(b.int)
-  else:
-    copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
-
-proc getScaleInfo*(window: Window): ScaleInfo =
-  let scale = window.contentScale()
-  result.x = scale
-  result.y = scale
+type
+  Renderer* = ref object of RendererBase
+    window: Window
 
 proc setupWindow*(frame: WeakRef[AppFrame], window: Window) =
   let style: WindowStyle = frame[].windowStyle.convertStyle()
@@ -77,20 +60,42 @@ proc setupWindow*(frame: WeakRef[AppFrame], window: Window) =
   window.`style=`(style)
   # window.`pos=`(winCfg.pos)
 
+proc newRenderer*(
+    frame: WeakRef[AppFrame],
+    forcePixelScale: float32,
+    atlasSize: int,
+): Renderer =
+  result = Renderer()
+  let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
+  result.window = window
+  startOpenGL(openglVersion)
 
-proc startOpenGL*(frame: WeakRef[AppFrame], window: Window, openglVersion: (int, int)) =
-  when not defined(emscripten):
-    loadExtensions()
+  setupWindow(frame, window)
 
-  openglDebug()
+  result.newRendererBase(frame, forcePixelScale, atlasSize)
 
-  glEnable(GL_BLEND)
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-  glBlendFuncSeparate(
-    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA
-  )
+proc convertStyle*(fs: FrameStyle): WindowStyle =
+  case fs
+  of FrameStyle.DecoratedResizable:
+    WindowStyle.DecoratedResizable
+  of FrameStyle.DecoratedFixedSized:
+    WindowStyle.Decorated
+  of FrameStyle.Undecorated:
+    WindowStyle.Undecorated
+  of FrameStyle.Transparent:
+    WindowStyle.Transparent
 
-  useDepthBuffer(false)
+proc toUi*(wbtn: windex.ButtonView): UiButtonView =
+  when defined(nimscript):
+    for b in set[Button](wbtn):
+      result.incl UiButton(b.int)
+  else:
+    copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
+
+method getScaleInfo*(r: Renderer): ScaleInfo =
+  let scale = r.window.contentScale()
+  result.x = scale
+  result.y = scale
 
 var lastMouse = Mouse()
 
@@ -101,32 +106,30 @@ proc copyInputs(window: Window): AppInputs =
   result.buttonDown = toUi window.buttonDown()
   result.buttonToggle = toUi window.buttonToggle()
 
+method setTitle*(r: Renderer, name: string) =
+  r.window.title = name
+
+method swapBuffers*(r: Renderer) =
+  r.window.swapBuffers()
+
+method closeWindow*(r: Renderer) =
+  r.window.close()
+
 proc configureWindowEvents*(
     renderer: Renderer,
-    window: Window,
-    frame: WeakRef[AppFrame],
-    renderCb: proc()
 ) =
-  let win {.cursor.} = window
+  let window {.cursor.} = renderer.window
 
   let winCfgFile = renderer.frame.windowCfgFile()
   let uxInputList = renderer.uxInputList
-
-  renderer.setTitle = proc(name: string) =
-    window.title = name
-
-  renderer.swapBuffers = proc() =
-    window.swapBuffers()
-
-  renderer.closeWindow = proc() =
-    window.close()
+  let frame = renderer.frame
 
   window.runeInputEnabled = true
 
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
     if frame[].saveWindowState:
-      writeWindowConfig(win, winCfgFile)
+      writeWindowConfig(window, winCfgFile)
     app.running = false
 
   window.onMove = proc() =
@@ -135,22 +138,22 @@ proc configureWindowEvents*(
 
   window.onResize = proc() =
     # updateWindowSize(renderer.frame, window)
-    let windowState = getWindowInfo(win)
-    var uxInput = win.copyInputs()
+    let windowState = getWindowInfo(window)
+    var uxInput = window.copyInputs()
     uxInput.window = some windowState
     uxInputList.push(uxInput)
-    renderCb() # pollAndRender(frame, poll = false)
+    pollAndRender(renderer, poll = false)
 
   window.onFocusChange = proc() =
-    var uxInput = win.copyInputs()
-    uxInput.window = some getWindowInfo(win)
+    var uxInput = window.copyInputs()
+    uxInput.window = some getWindowInfo(window)
     uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =
     var uxInput = AppInputs()
-    let pos = vec2(win.mousePos())
+    let pos = vec2(window.mousePos())
     uxInput.mouse.pos = pos.descaled()
-    let prevPos = vec2(win.mousePrevPos())
+    let prevPos = vec2(window.mousePrevPos())
     uxInput.mouse.prev = prevPos.descaled()
     uxInput.mouse.consumed = false
     lastMouse = uxInput.mouse
@@ -160,11 +163,11 @@ proc configureWindowEvents*(
   window.onScroll = proc() =
     var uxInput = AppInputs(mouse: lastMouse)
     uxInput.mouse.consumed = false
-    uxInput.mouse.wheelDelta = win.scrollDelta().descaled()
+    uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
     uxInputList.push(uxInput)
 
   window.onButtonPress = proc(button: windex.Button) =
-    let uxInput = win.copyInputs()
+    let uxInput = window.copyInputs()
     when defined(debugEvents):
       stdout.styledWriteLine(
         {styleDim},
@@ -186,7 +189,7 @@ proc configureWindowEvents*(
     uxInputList.push(uxInput)
 
   window.onButtonRelease = proc(button: Button) =
-    let uxInput = win.copyInputs()
+    let uxInput = window.copyInputs()
     when defined(debugEvents):
       stdout.styledWriteLine(
         {styleDim},
