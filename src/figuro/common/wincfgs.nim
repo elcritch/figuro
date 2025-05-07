@@ -7,10 +7,8 @@ import pkg/opengl
 import pkg/windex
 import pkg/chronicles
 
-import utils
-import glcommons
-import ../../common/nodes/uinodes
-import ../../common/rchannels
+import nodes/uinodes
+import rchannels
 
 type
   WindowConfig* = object

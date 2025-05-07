@@ -3,21 +3,22 @@ export tables
 
 
 import pkg/chroma
-import pkg/windex
-import pkg/opengl
+# import pkg/windex
+# import pkg/opengl
+
 from pixie import Image
 import pkg/sigils
 import pkg/chronicles
 
 import ../../common/rchannels
 import ../../common/nodes/uinodes
-import glcommons, context, utils
+import glcommons, glcontext, glutils
 
 import std/locks
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type RendererBase* = ref object of RootObj
+type Renderer* = ref object of RootObj
   ctx*: Context
   duration*: Duration
   uxInputList*: RChan[AppInputs]
@@ -29,18 +30,19 @@ type RendererBase* = ref object of RootObj
   nodes*: Renders
   appWindow*: WindowInfo
 
-method swapBuffers*(r: RendererBase) {.base.} = discard
-method setTitle*(r: RendererBase, name: string) {.base.} = discard
-method closeWindow*(r: RendererBase) {.base.} = discard
-method getScaleInfo*(r: RendererBase): ScaleInfo {.base.} = discard
-method getWindowInfo*(r: RendererBase): WindowInfo = discard
-method configureWindowEvents*(renderer: RendererBase) = discard
-method setClipboard*(r: RendererBase, cb: ClipboardContents) = discard
-method getClipboard*(r: RendererBase): ClipboardContents = discard
-method copyInputs*(r: RendererBase): AppInputs = discard
+method pollEvents*(r: Renderer) {.base.} = discard
+method swapBuffers*(r: Renderer) {.base.} = discard
+method setTitle*(r: Renderer, name: string) {.base.} = discard
+method closeWindow*(r: Renderer) {.base.} = discard
+method getScaleInfo*(r: Renderer): ScaleInfo {.base.} = discard
+method getWindowInfo*(r: Renderer): WindowInfo = discard
+method configureWindowEvents*(renderer: Renderer) = discard
+method setClipboard*(r: Renderer, cb: ClipboardContents) = discard
+method getClipboard*(r: Renderer): ClipboardContents = discard
+method copyInputs*(r: Renderer): AppInputs = discard
 
-proc configureRendererBase*(
-    renderer: RendererBase,
+proc configureRenderer*(
+    renderer: Renderer,
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
@@ -311,7 +313,7 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
-proc renderFrame*(renderer: RendererBase) =
+proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(renderer.appWindow.box.wh.scaled())
@@ -331,25 +333,24 @@ proc renderFrame*(renderer: RendererBase) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: RendererBase) =
+proc renderAndSwap(renderer: Renderer) =
   ## Does drawing operations.
 
   timeIt(drawFrame):
     renderFrame(renderer)
 
-  var error: GLenum
-  while (error = glGetError(); error != GL_NO_ERROR):
-    echo "gl error: " & $error.uint32
+  for error in glErrors():
+    echo error
 
   timeIt(drawFrameSwap):
     renderer.swapBuffers()
 
-proc pollAndRender*(renderer: RendererBase, poll = true) =
+proc pollAndRender*(renderer: Renderer, poll = true) =
   ## renders and draws a window given set of nodes passed
-  ## in via the RendererBase object
+  ## in via the Renderer object
 
   if poll:
-    windex.pollEvents()
+    renderer.pollEvents()
 
   var update = false
   var cmd: RenderCommands
@@ -375,13 +376,13 @@ proc pollAndRender*(renderer: RendererBase, poll = true) =
   if update:
     renderAndSwap(renderer)
 
-proc runRendererLoop*(renderer: RendererBase) =
+proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
   while app.running:
     pollAndRender(renderer)
 
     os.sleep(renderer.duration.inMilliseconds)
-  debug "RendererBase loop exited"
+  debug "Renderer loop exited"
   renderer.closeWindow()
-  debug "RendererBase window closed"
+  debug "Renderer window closed"

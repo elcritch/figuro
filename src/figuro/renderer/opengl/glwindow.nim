@@ -4,12 +4,12 @@ import pkg/pixie
 import pkg/opengl
 import pkg/windex
 
-import utils
+import glutils
 import glcommons
 import ../../common/nodes/uinodes
 import ../../common/rchannels
+import ../../common/wincfgs
 
-import wutils
 import renderer
 
 import pkg/sigils/weakrefs
@@ -35,7 +35,7 @@ static:
 proc convertStyle*(fs: FrameStyle): WindowStyle
 
 type
-  Renderer* = ref object of RendererBase
+  RendererWindex* = ref object of Renderer
     window: Window
 
 proc setupWindow*(
@@ -63,18 +63,18 @@ proc setupWindow*(
   window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
-proc newRenderer*(
+proc newWindexRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
-): Renderer =
+): RendererWindex =
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  result = Renderer(window: window, frame: frame)
+  result = RendererWindex(window: window, frame: frame)
   startOpenGL(openglVersion)
 
   setupWindow(frame, window)
 
-  configureRendererBase(result, frame, forcePixelScale, atlasSize)
+  configureRenderer(result, frame, forcePixelScale, atlasSize)
 
 proc convertStyle*(fs: FrameStyle): WindowStyle =
   case fs
@@ -94,7 +94,13 @@ proc toUi*(wbtn: windex.ButtonView): UiButtonView =
   else:
     copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
-method getScaleInfo*(r: Renderer): ScaleInfo =
+method swapBuffers*(r: RendererWindex) =
+  r.window.swapBuffers()
+
+method pollEvents*(r: RendererWindex) =
+  windex.pollEvents()
+
+method getScaleInfo*(r: RendererWindex): ScaleInfo =
   let scale = r.window.contentScale()
   result.x = scale
   result.y = scale
@@ -108,30 +114,27 @@ proc copyInputs*(w: Window): AppInputs =
   result.buttonDown = toUi w.buttonDown()
   result.buttonToggle = toUi w.buttonToggle()
 
-method copyInputs*(r: Renderer): AppInputs =
+method copyInputs*(r: RendererWindex): AppInputs =
   copyInputs(r.window)
 
-method setClipboard*(r: Renderer, cb: ClipboardContents) =
+method setClipboard*(r: RendererWindex, cb: ClipboardContents) =
   match cb:
     ClipboardStr(str):
       windex.setClipboardString(str)
     ClipboardEmpty:
       discard
 
-method getClipboard*(r: Renderer): ClipboardContents =
+method getClipboard*(r: RendererWindex): ClipboardContents =
   let str = windex.getClipboardString()
   return ClipboardStr(str)
 
-method setTitle*(r: Renderer, name: string) =
+method setTitle*(r: RendererWindex, name: string) =
   r.window.title = name
 
-method swapBuffers*(r: Renderer) =
-  r.window.swapBuffers()
-
-method closeWindow*(r: Renderer) =
+method closeWindow*(r: RendererWindex) =
   r.window.close()
 
-method getWindowInfo*(r: Renderer): WindowInfo =
+method getWindowInfo*(r: RendererWindex): WindowInfo =
     app.requestedFrame.inc
 
     result.minimized = r.window.minimized()
@@ -143,7 +146,7 @@ method getWindowInfo*(r: Renderer): WindowInfo =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-method configureWindowEvents*(renderer: Renderer) =
+method configureWindowEvents*(renderer: RendererWindex) =
   let window {.cursor.} = renderer.window
 
   let winCfgFile = renderer.frame.windowCfgFile()

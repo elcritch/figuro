@@ -10,11 +10,15 @@ import pkg/chronicles
 
 import ../commons
 import ../common/rchannels
-# import ../inputs
-import ./opengl/glwindow
+import ../common/wincfgs
+
 import ./opengl/renderer
-import ./opengl/utils
-import ./opengl/wutils
+import ./opengl/glutils
+
+when defined(figuroWindex):
+  import ./opengl/glwindow
+else:
+  import ./opengl/glwindow
 
 export Renderer, runRendererLoop
 
@@ -22,7 +26,11 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
 
-  let renderer = newRenderer(frame, 1.0, atlasSize)
+  when defined(figuroWindex):
+    let renderer = newWindexRenderer(frame, 1.0, atlasSize)
+  else:
+    let renderer = newWindexRenderer(frame, 1.0, atlasSize)
+
   frame[].windowInfo.focused = true
 
   if app.autoUiScale:

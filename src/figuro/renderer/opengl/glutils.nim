@@ -44,6 +44,11 @@ proc setOpenGlHints*() =
     windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
     windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)
 
+iterator glErrors*(): string =
+  var error: GLenum
+  while (error = glGetError(); error != GL_NO_ERROR):
+    yield "gl error: " & $error.uint32
+
 proc clearDepthBuffer*() =
   glClear(GL_DEPTH_BUFFER_BIT)
 
