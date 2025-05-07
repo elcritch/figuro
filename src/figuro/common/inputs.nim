@@ -1,6 +1,5 @@
-
-
 import pkg/patty
+from pixie import Image
 
 import nodes/basics
 import nodes/render
@@ -20,6 +19,10 @@ variantp RenderCommands:
   RenderQuit
   RenderUpdate(n: Renders, winInfo: WindowInfo)
   RenderSetTitle(name: string)
+  ClipboardSetStr(str: string)
+  ClipboardSetImg(img: Image)
+  ClipboardGetStr
+  ClipboardGetImg
 
 type AppInputs* = object
   empty*: bool
@@ -32,6 +35,9 @@ type AppInputs* = object
   buttonToggle*: UiButtonView
 
   window*: Option[WindowInfo]
+
+  # clipboard*: Option[string]
+  # clipboardImage*: Option[Image]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

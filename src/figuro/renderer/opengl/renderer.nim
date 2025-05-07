@@ -47,6 +47,21 @@ method getWindowInfo*(r: RendererBase): WindowInfo =
 method configureWindowEvents*(renderer: RendererBase) =
   discard
 
+method clipboardSet*(r: RendererBase, str: string) =
+  discard
+
+method clipboardGetStr*(r: RendererBase): string =
+  discard
+
+method clipboardGetImg*(r: RendererBase): Image =
+  discard
+
+method clipboardSet*(r: RendererBase, img: Image) =
+  discard
+
+method copyInputs*(r: RendererBase): AppInputs =
+  discard
+
 proc configureRendererBase*(
     renderer: RendererBase,
     frame: WeakRef[AppFrame],
@@ -373,6 +388,18 @@ proc pollAndRender*(renderer: RendererBase, poll = true) =
         return
       RenderSetTitle(name):
         renderer.setTitle(name)
+      ClipboardSetStr(str):
+        renderer.clipboardSet(str)
+      ClipboardSetImg(img):
+        renderer.clipboardSet(img)
+      ClipboardGetStr:
+        var appInput = renderer.copyInputs()
+        # appInput.clipboard = some renderer.clipboardGetStr()
+        renderer.uxInputList.push(appInput)
+      ClipboardGetImg:
+        var appInput = renderer.copyInputs()
+        # appInput.clipboardImage = some renderer.clipboardGetImg()
+        renderer.uxInputList.push(appInput)
 
   if update:
     renderAndSwap(renderer)

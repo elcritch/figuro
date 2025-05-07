@@ -101,12 +101,24 @@ method getScaleInfo*(r: Renderer): ScaleInfo =
 
 var lastMouse = Mouse()
 
-proc copyInputs(window: Window): AppInputs =
+proc copyInputs*(w: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
-  result.buttonRelease = toUi window.buttonReleased()
-  result.buttonPress = toUi window.buttonPressed()
-  result.buttonDown = toUi window.buttonDown()
-  result.buttonToggle = toUi window.buttonToggle()
+  result.buttonRelease = toUi w.buttonReleased()
+  result.buttonPress = toUi w.buttonPressed()
+  result.buttonDown = toUi w.buttonDown()
+  result.buttonToggle = toUi w.buttonToggle()
+
+method copyInputs*(r: Renderer): AppInputs =
+  copyInputs(r.window)
+
+method clipboardSet*(r: Renderer, str: string) =
+  windex.setClipboardString(str)
+
+method clipboardGetStr*(r: Renderer): string =
+  windex.getClipboardString()
+
+method clipboardGetImg*(r: Renderer): Image =
+  windex.getClipboardImage()
 
 method setTitle*(r: Renderer, name: string) =
   r.window.title = name

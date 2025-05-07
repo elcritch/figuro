@@ -45,26 +45,27 @@ when not defined(nimscript):
   ): GlyphArrangement =
     getTypesetImpl(box, spans, hAlign, vAlign, minContent, wrap)
 
-  proc clipboardText*(): string =
+  proc clipboardText*(frame: AppFrame): string =
     when defined(linux):
       warn "clipboardText is broken on linux"
     else:
-      windex.getClipboardString()
+      # windex.getClipboardString()
+      frame.rendInputList.push(ClipboardGetStr())
 
-  proc clipboardSet*(str: string) =
+  proc clipboardSet*(frame: AppFrame, str: string) =
     when defined(linux):
       warn "clipboardSet is broken on linux"
     else:
       windex.setClipboardString(str)
 
-  proc clipboardImage*(): Image =
+  proc clipboardImage*(frame: AppFrame): Image =
     when defined(linux):
       warn "clipboardImage is not implemented on linux"
     else:
       getClipboardImage()
 
   when defined(clipboardImage):
-    proc clipboardSet*(img: Image) =
+    proc clipboardSet*(frame: AppFrame, img: Image) =
       when defined(linux):
         warn "clipboardSet is not implemented on linux"
       else:
