@@ -49,7 +49,6 @@ when not defined(nimscript):
     when defined(linux):
       warn "clipboardText is broken on linux"
     else:
-      # windex.getClipboardString()
       frame.rendInputList.push(RenderClipboardGet())
       return frame.clipboards.recv()
 
@@ -57,5 +56,4 @@ when not defined(nimscript):
     when defined(linux):
       warn "clipboardSet is broken on linux"
     else:
-      # windex.setClipboardString(str)
       frame.rendInputList.push(RenderClipboard(ClipboardStr(str)))
