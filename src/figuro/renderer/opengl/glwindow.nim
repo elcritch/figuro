@@ -129,9 +129,7 @@ method getWindowInfo*(r: Renderer): WindowInfo =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-proc configureWindowEvents*(
-    renderer: Renderer,
-) =
+method configureWindowEvents*(renderer: Renderer) =
   let window {.cursor.} = renderer.window
 
   let winCfgFile = renderer.frame.windowCfgFile()

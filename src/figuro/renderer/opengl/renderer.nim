@@ -44,6 +44,9 @@ method getScaleInfo*(r: RendererBase): ScaleInfo {.base.} =
 method getWindowInfo*(r: RendererBase): WindowInfo =
   discard
 
+method configureWindowEvents*(renderer: RendererBase) =
+  discard
+
 proc configureRendererBase*(
     renderer: RendererBase,
     frame: WeakRef[AppFrame],
