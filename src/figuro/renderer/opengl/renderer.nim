@@ -41,7 +41,7 @@ method closeWindow*(r: RendererBase) {.base.} =
 method getScaleInfo*(r: RendererBase): ScaleInfo {.base.} =
   discard
 
-proc newRendererBase*(
+proc configureRendererBase*(
     renderer: RendererBase,
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,

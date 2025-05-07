@@ -74,7 +74,7 @@ proc newRenderer*(
 
   setupWindow(frame, window)
 
-  result.newRendererBase(frame, forcePixelScale, atlasSize)
+  configureRendererBase(result, frame, forcePixelScale, atlasSize)
 
 proc convertStyle*(fs: FrameStyle): WindowStyle =
   case fs
