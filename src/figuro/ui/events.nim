@@ -67,9 +67,11 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
     if evt in node.listens.signals and res:
       result.incl(evt)
 
+  echo "checkAnyEvents:uxInputs.keyPress: ", uxInputs.keyPress
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
   node.checkEvent(evKeyPress, uxInputs.keyPress != {})
   node.checkEvent(evDrag, prevDrags.len() > 0)
+  echo "checkAnyEvents:uxInputs.keyPress:result: ", result
 
   if node.mouseOverlaps():
     node.checkEvent(evClickInit, uxInputs.buttonDown != {})
@@ -248,8 +250,9 @@ proc computeEvents*(frame: AppFrame) =
   ## handle keyboard presses
   block keyboardEvents:
     let keyPress = captured[evKeyPress]
+    echo "keyboardEvents:keyPress: ", keyPress.targets
     if keyPress.targets.len() > 0 and evKeyPress in keyPress.flags and
-        uxInputs.buttonPress != {} and not uxInputs.keyboard.consumed:
+        uxInputs.keyPress != {} and not uxInputs.keyboard.consumed:
       let pressed = uxInputs.keyPress
       let down = uxInputs.keyDown
 
