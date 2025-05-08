@@ -87,7 +87,7 @@ proc selectPrevStory*(self: Main) =
     self.currentStory = self.stories[clamp(idx - 1, 0, self.stories.len - 1)]
     refresh(self)
 
-proc doKeyPress*(self: Main, pressed: set[UiMouse], down: set[UiMouse]) {.slot.} =
+proc doKeyPress*(self: Main, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
   # echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
 
   if KeyJ in down:

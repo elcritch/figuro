@@ -378,7 +378,6 @@ proc getTypesetImpl*(
       bounding= minContent.bounding, boundH= result.bounding.h
 
     if minContent.bounding.h > result.bounding.h:
-      echo "minContent:bounding.h > result.bounding.h"
       let wh = vec2(wh.x, minContent.bounding.h.scaled())
       let minAdjusted = pixie.typeset(spans, bounds = wh, hAlign = ha, vAlign = va, wrap = wrap)
       result = convertArrangement(minAdjusted, box, uiSpans, hAlign, vAlign, gfonts)
