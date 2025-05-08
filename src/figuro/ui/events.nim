@@ -72,19 +72,19 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
   node.checkEvent(evDrag, prevDrags.len() > 0)
 
   if node.mouseOverlaps():
-    node.checkEvent(evClickInit, uxInputs.buttonDown)
+    node.checkEvent(evClickInit, uxInputs.buttonDown != {})
     when defined(clickOnDown):
       # click on mouse down
-      node.checkEvent(evClickDone, uxInputs.buttonDown)
+      node.checkEvent(evClickDone, uxInputs.buttonDown != {})
     else:
       # click on mouse button release
-      node.checkEvent(evClickDone, uxInputs.buttonRelease)
-    node.checkEvent(evPress, uxInputs.buttonDown)
-    node.checkEvent(evRelease, uxInputs.buttonRelease)
+      node.checkEvent(evClickDone, uxInputs.buttonRelease != {})
+    node.checkEvent(evPress, uxInputs.buttonDown != {})
+    node.checkEvent(evRelease, uxInputs.buttonRelease != {})
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)
-    node.checkEvent(evDrag, uxInputs.down())
+    node.checkEvent(evDrag, uxInputs.buttonDown != {})
     node.checkEvent(evDragEnd, dragReleased)
 
   if NfRootWindow in node.flags:
@@ -94,7 +94,8 @@ type
   EventsCapture* = object
     zlvl*: ZLevel
     flags*: EventFlags
-    buttons*: UiButtonView
+    mouse*: set[UiMouse]
+    keys*: set[UiKey]
     targets*: HashSet[Figuro]
 
   CapturedEvents* = array[EventKinds, EventsCapture]
@@ -103,34 +104,39 @@ proc `$`*(capture: EventsCapture): string =
   result = "EventsCapture("
   result &= $capture.zlvl & ","
   result &= $capture.flags & ","
-  result &= $capture.buttons & ","
+  result &= $capture.mouse & ","
+  result &= $capture.keys & ","
   result &= $capture.targets & ")"
 
 proc maxEvt(a, b: EventsCapture): EventsCapture =
   if b.zlvl >= a.zlvl and b.flags != {}: b else: a
 
-proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, UiButtonView] =
+proc consumeMouseButtons(matchedEvents: EventFlags): array[EventKinds, set[UiMouse]] =
   ## Consume mouse buttons
   ##
   if evPress in matchedEvents:
-    result[evPress] = uxInputs.buttonPress * MouseButtons
-    uxInputs.buttonPress.excl MouseButtons
+    result[evPress] = uxInputs.buttonPress
+    uxInputs.buttonPress = {}
   if evDown in matchedEvents:
-    result[evDown] = uxInputs.buttonDown * MouseButtons
-    uxInputs.buttonDown.excl MouseButtons
+    result[evDown] = uxInputs.buttonDown
+    uxInputs.buttonDown = {}
   if evRelease in matchedEvents:
-    result[evRelease] = uxInputs.buttonRelease * MouseButtons
-    # uxInputs.buttonRelease.excl MouseButtons
+    result[evRelease] = uxInputs.buttonRelease
   if evClickInit in matchedEvents:
-    result[evDown] = uxInputs.buttonDown * MouseButtons
-    result[evPress] = uxInputs.buttonPress * MouseButtons
+    result[evDown] = uxInputs.buttonDown
+    result[evPress] = uxInputs.buttonPress
     result[evClickInit] = result[evPress]
-    # uxInputs.buttonPress.excl MouseButtons
   if evClickDone in matchedEvents:
-    result[evDown] = uxInputs.buttonDown * MouseButtons
-    result[evRelease] = uxInputs.buttonRelease * MouseButtons
+    result[evDown] = uxInputs.buttonDown
+    result[evRelease] = uxInputs.buttonRelease
     result[evClickDone] = result[evRelease]
-    # uxInputs.buttonRelease.excl MouseButtons
+
+proc consumeKeyButtons(matchedEvents: EventFlags): array[EventKinds, set[UiKey]] =
+  ## Consume key buttons
+  ##
+  if evKeyPress in matchedEvents:
+    result[evKeyPress] = uxInputs.keyPress
+    # uxInputs.keyPress = {}
 
 proc computeNodeEvents*(node: Figuro): CapturedEvents =
   ## Compute mouse events
@@ -149,13 +155,15 @@ proc computeNodeEvents*(node: Figuro): CapturedEvents =
 
   let
     matchingEvts = node.checkAnyEvents()
-    buttons = matchingEvts.consumeMouseButtons()
+    mouseButtons = matchingEvts.consumeMouseButtons()
+    keyButtons = matchingEvts.consumeKeyButtons()
 
   for ek in EventKinds:
     let captured = EventsCapture(
       zlvl: node.zlevel,
       flags: matchingEvts * {ek},
-      buttons: buttons[ek],
+      mouse: mouseButtons[ek],
+      keys: keyButtons[ek],
       targets: toHashSet([node]),
     )
 
@@ -242,8 +250,8 @@ proc computeEvents*(frame: AppFrame) =
     let keyPress = captured[evKeyPress]
     if keyPress.targets.len() > 0 and evKeyPress in keyPress.flags and
         uxInputs.buttonPress != {} and not uxInputs.keyboard.consumed:
-      let pressed = uxInputs.buttonPress - MouseButtons
-      let down = uxInputs.buttonDown - MouseButtons
+      let pressed = uxInputs.keyPress
+      let down = uxInputs.keyDown
 
       # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
       for target in keyPress.targets:
@@ -283,12 +291,12 @@ proc computeEvents*(frame: AppFrame) =
       let clickTargets = clickInit.targets
       let newClicks = clickTargets
       let delClicks = prevClicks - clickTargets
-      let pressedKeys = uxInputs.buttonPress * MouseButtons
-      let downKeys = uxInputs.buttonDown * MouseButtons
+      let pressed = uxInputs.buttonPress
+      let down = uxInputs.buttonDown
 
       for target in newClicks:
         target.events.incl evClickDone
-        emit target.doMouseClick(Init, downKeys)
+        emit target.doMouseClick(Init, down)
         prevClicks.incl target
 
     let click = captured[evClickDone]
@@ -303,19 +311,19 @@ proc computeEvents*(frame: AppFrame) =
 
       for target in delClicks:
         target.events.excl evClickDone
-        emit target.doMouseClick(Exit, click.buttons)
+        emit target.doMouseClick(Exit, click.mouse)
         prevClicks.excl target
 
       for target in newClicks:
         target.events.incl evClickDone
-        emit target.doMouseClick(Done, click.buttons)
-        if MouseLeft in click.buttons:
+        emit target.doMouseClick(Done, click.mouse)
+        if MouseLeft in click.mouse:
           emit target.doSingleClick()
-        if DoubleClick in click.buttons:
+        if DoubleClick in click.mouse:
           emit target.doDoubleClick()
-        if MouseRight in click.buttons:
+        if MouseRight in click.mouse:
           emit target.doRightClick()
-        if TripleClick in click.buttons:
+        if TripleClick in click.mouse:
           emit target.doTripleClick()
         prevClicks.incl target
 

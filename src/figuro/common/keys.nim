@@ -177,8 +177,6 @@ type
     NumpadDivide # /
     NumpadEqual # =
 
-  KeyRange* = KeyA .. NumpadEqual
-
 const
 
   ModifierButtons* = {
