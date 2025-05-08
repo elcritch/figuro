@@ -20,7 +20,7 @@ proc checked*(self: Toggle, value: bool) {.slot.} =
     emit self.doChange(value)
     refresh(self)
 
-proc clicked*(self: Toggle, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*(self: Toggle, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   if MouseLeft in buttons and Done == kind:
     self.checked(not contains(self, Checked))
     emit self.doClicked()
