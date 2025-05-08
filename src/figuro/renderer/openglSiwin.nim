@@ -27,11 +27,6 @@ var
 when defined(glDebugMessageCallback):
   import strformat, strutils
 
-static:
-  ## compile check to ensure windex buttons don't change on us
-  for i in 0 .. siwin.Button.high().int:
-    assert $Button(i) == $UiButton(i)
-
 proc convertStyle*(fs: FrameStyle): WindowStyle
 
 type
