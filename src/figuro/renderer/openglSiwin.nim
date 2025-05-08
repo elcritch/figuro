@@ -35,7 +35,7 @@ static:
 proc convertStyle*(fs: FrameStyle): WindowStyle
 
 type
-  RendererWindex* = ref object of Renderer
+  RendererSiwin* = ref object of Renderer
     window: Window
 
 proc setupWindow*(
@@ -63,13 +63,13 @@ proc setupWindow*(
   window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
-proc newWindexRenderer*(
+proc newSiwinRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
-): RendererWindex =
+): RendererSiwin =
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  result = RendererWindex(window: window, frame: frame)
+  result = RendererSiwin(window: window, frame: frame)
   startOpenGL(openglVersion)
 
   setupWindow(frame, window)
@@ -94,13 +94,13 @@ proc toUi*(wbtn: windex.ButtonView): set[UiMouse] =
   else:
     copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
-method swapBuffers*(r: RendererWindex) =
+method swapBuffers*(r: RendererSiwin) =
   r.window.swapBuffers()
 
-method pollEvents*(r: RendererWindex) =
+method pollEvents*(r: RendererSiwin) =
   windex.pollEvents()
 
-method getScaleInfo*(r: RendererWindex): ScaleInfo =
+method getScaleInfo*(r: RendererSiwin): ScaleInfo =
   let scale = r.window.contentScale()
   result.x = scale
   result.y = scale
@@ -114,27 +114,27 @@ proc copyInputs*(w: Window): AppInputs =
   result.buttonDown = toUi w.buttonDown()
   result.buttonToggle = toUi w.buttonToggle()
 
-method copyInputs*(r: RendererWindex): AppInputs =
+method copyInputs*(r: RendererSiwin): AppInputs =
   copyInputs(r.window)
 
-method setClipboard*(r: RendererWindex, cb: ClipboardContents) =
+method setClipboard*(r: RendererSiwin, cb: ClipboardContents) =
   match cb:
     ClipboardStr(str):
       windex.setClipboardString(str)
     ClipboardEmpty:
       discard
 
-method getClipboard*(r: RendererWindex): ClipboardContents =
+method getClipboard*(r: RendererSiwin): ClipboardContents =
   let str = windex.getClipboardString()
   return ClipboardStr(str)
 
-method setTitle*(r: RendererWindex, name: string) =
+method setTitle*(r: RendererSiwin, name: string) =
   r.window.title = name
 
-method closeWindow*(r: RendererWindex) =
+method closeWindow*(r: RendererSiwin) =
   r.window.close()
 
-method getWindowInfo*(r: RendererWindex): WindowInfo =
+method getWindowInfo*(r: RendererSiwin): WindowInfo =
     app.requestedFrame.inc
 
     result.minimized = r.window.minimized()
@@ -146,7 +146,7 @@ method getWindowInfo*(r: RendererWindex): WindowInfo =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-method configureWindowEvents*(renderer: RendererWindex) =
+method configureWindowEvents*(renderer: RendererSiwin) =
   let window {.cursor.} = renderer.window
 
   let winCfgFile = renderer.frame.windowCfgFile()
