@@ -253,7 +253,7 @@ proc computeEvents*(frame: AppFrame) =
       let pressed = uxInputs.keyPress
       let down = uxInputs.keyDown
 
-      # echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
+      echo "keyboard input: ", " pressed: `", $pressed, "`", " down: `", $down, "`", " tgts: ", $keyPress.targets
       for target in keyPress.targets:
         emit target.doKeyPress(pressed, down)
 
