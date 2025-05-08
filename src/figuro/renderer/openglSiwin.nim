@@ -87,7 +87,7 @@ proc convertStyle*(fs: FrameStyle): WindowStyle =
   of FrameStyle.Transparent:
     WindowStyle.Transparent
 
-proc toUi*(wbtn: windex.ButtonView): UiButtonView =
+proc toUi*(wbtn: windex.ButtonView): set[UiMouse] =
   when defined(nimscript):
     for b in set[Button](wbtn):
       result.incl UiButton(b.int)

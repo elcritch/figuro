@@ -23,7 +23,7 @@ proc checked*(self: Checkbox, value: bool) {.slot.} =
       self.fade.fadeOut()
     emit self.doChange(value)
 
-proc clicked*(self: Checkbox, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*(self: Checkbox, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   if MouseLeft notin buttons:
     return
   case kind:

@@ -75,7 +75,7 @@ proc draw*(self: Main) {.slot.} =
       let btn = this
       proc clicked(btn: Button[(Fader, string)],
                     kind: EventKind,
-                    buttons: UiButtonView) {.slot.} =
+                    buttons: set[UiMouse]) {.slot.} =
         echo "clicked: ", btn.name, " kind: ", kind
         btn.state[1] = ""
         btn.state[0].fadeOut()

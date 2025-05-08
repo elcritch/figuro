@@ -26,7 +26,7 @@ type
 
   TabsList* = ref object of Tabs
 
-proc itemClicked*(self: Tabs, index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc itemClicked*(self: Tabs, index: int, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   if MouseLeft in buttons and Done == kind:
     self.data.toggleIndex(index)
 
