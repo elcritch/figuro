@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
     setTitle("Scrolling example")
     onSignal(doMouseClick) do(self: Main,
                               kind: EventKind,
-                              buttons: UiButtonView):
+                              buttons: set[UiMouse]):
             if kind == Done:
               # printLayout(self, cmTerminal)
               printLayout(self, 0)
