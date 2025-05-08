@@ -1,25 +1,22 @@
 import std/[hashes, os, tables, times, monotimes, unicode, atomics]
 export tables
 
-
-import pkg/chroma
-import pkg/windex
-import pkg/opengl
 from pixie import Image
+import pkg/chroma
 import pkg/sigils
 import pkg/chronicles
 
 import ../../common/rchannels
-import window, glcommons, context, utils
+import ../../common/nodes/uinodes
+import glcommons, glcontext, glutils
 
 import std/locks
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type Renderer* = ref object
+type Renderer* = ref object of RootObj
   ctx*: Context
   duration*: Duration
-  window*: Window
   uxInputList*: RChan[AppInputs]
   rendInputList*: RChan[RenderCommands]
   frame*: WeakRef[AppFrame]
@@ -27,27 +24,39 @@ type Renderer* = ref object
   updated*: Atomic[bool]
 
   nodes*: Renders
-  renderWindow*: AppWindow
+  appWindow*: WindowInfo
 
-proc newRenderer*(
+method pollEvents*(r: Renderer) {.base.} = discard
+method swapBuffers*(r: Renderer) {.base.} = discard
+method setTitle*(r: Renderer, name: string) {.base.} = discard
+method closeWindow*(r: Renderer) {.base.} = discard
+method getScaleInfo*(r: Renderer): ScaleInfo {.base.} = discard
+method getWindowInfo*(r: Renderer): WindowInfo {.base.} = discard
+method configureWindowEvents*(renderer: Renderer) {.base.} = discard
+method setClipboard*(r: Renderer, cb: ClipboardContents) {.base.} = discard
+method getClipboard*(r: Renderer): ClipboardContents {.base.} = discard
+method copyInputs*(r: Renderer): AppInputs {.base.} = discard
+
+proc configureRenderer*(
+    renderer: Renderer,
     frame: WeakRef[AppFrame],
-    window: Window,
     forcePixelScale: float32,
     atlasSize: int,
-): Renderer =
+) =
   app.pixelScale = forcePixelScale
-  let renderer = Renderer(window: window)
-  startOpenGL(frame, window, openglVersion)
   renderer.nodes = Renders()
   renderer.frame = frame
-  renderer.ctx =
-    newContext(atlasSize = atlasSize, pixelate = false, pixelScale = app.pixelScale)
+  renderer.ctx = newContext(
+    atlasSize = atlasSize,
+    pixelate = false,
+    pixelScale = app.pixelScale,
+  )
   renderer.uxInputList = newRChan[AppInputs](5)
   renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
   frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
-  return renderer
+  frame[].clipboards = newRChan[ClipboardContents](1)
 
 proc renderDrawable*(ctx: Context, node: Node) =
   ## TODO: draw non-node stuff?
@@ -231,11 +240,6 @@ proc render(
   template parent(): auto =
     nodes[parentIdx.int]
 
-  # echo "draw:idx: ", nodeIdx, " parent: ", parentIdx
-  # print node.uid
-  # print node.box
-  # print node.screenBox
-
   ## Draws the node.
   ##
   ## This is the primary routine that handles setting up the OpenGL
@@ -278,7 +282,6 @@ proc render(
       ctx.renderBoxes(node)
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    # echo "inner shadow: ", node.shadow[InnerShadow].repr
     ctx.beginMask()
     ctx.drawMasks(node)
     ctx.endMask()
@@ -288,14 +291,6 @@ proc render(
   # restores the opengl context back to the parent node's (see above)
   ctx.restoreTransform()
 
-  # ifrender NfScrollPanel in node.flags:
-  #   # handles scrolling panel
-  #   ctx.saveTransform()
-  #   ctx.translate(-node.offset)
-  # finally:
-  #   ctx.restoreTransform()
-
-  # echo "draw:children: ", repr childIdxs
   for childIdx in childIndex(nodes, nodeIdx):
     ctx.render(nodes, childIdx, nodeIdx)
 
@@ -317,9 +312,7 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
 proc renderFrame*(renderer: Renderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  # ctx.beginFrame(renderer.renderWindow.box.wh.scaled())
-  let size = renderer.window.size()
-  ctx.beginFrame(vec2(size.x.float32, size.y.float32))
+  ctx.beginFrame(renderer.appWindow.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -342,35 +335,39 @@ proc renderAndSwap(renderer: Renderer) =
   timeIt(drawFrame):
     renderFrame(renderer)
 
-  var error: GLenum
-  while (error = glGetError(); error != GL_NO_ERROR):
-    echo "gl error: " & $error.uint32
+  for error in glErrors():
+    echo error
 
   timeIt(drawFrameSwap):
-    renderer.window.swapBuffers()
+    renderer.swapBuffers()
 
 proc pollAndRender*(renderer: Renderer, poll = true) =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
 
   if poll:
-    windex.pollEvents()
+    renderer.pollEvents()
 
   var update = false
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
     match cmd:
-      RenderUpdate(nlayers, window):
+      RenderUpdate(nlayers, rwindow):
         renderer.nodes = nlayers
-        renderer.renderWindow = window
+        renderer.appWindow = rwindow
         update = true
       RenderQuit:
         echo "QUITTING"
-        renderer.frame[].window.running = false
+        renderer.frame[].windowInfo.running = false
         app.running = false
         return
       RenderSetTitle(name):
-        renderer.window.title = name
+        renderer.setTitle(name)
+      RenderClipboardGet:
+        let cb = renderer.getClipboard()
+        renderer.frame[].clipboards.push(cb)
+      RenderClipboard(cb):
+        renderer.setClipboard(cb)
 
   if update:
     renderAndSwap(renderer)
@@ -381,9 +378,7 @@ proc runRendererLoop*(renderer: Renderer) =
   while app.running:
     pollAndRender(renderer)
 
-    # let avgMicros = time.micros.toInt() div 1_000
-    # os.sleep(renderer.duration.inMilliseconds - avgMicros)
     os.sleep(renderer.duration.inMilliseconds)
   debug "Renderer loop exited"
-  renderer.window.close()
+  renderer.closeWindow()
   debug "Renderer window closed"

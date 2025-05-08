@@ -1,6 +1,5 @@
-
-
 import pkg/patty
+from pixie import Image
 
 import nodes/basics
 import nodes/render
@@ -11,15 +10,22 @@ type
   FrameStyle* {.pure.} = enum
     DecoratedResizable, DecoratedFixedSized, Undecorated, Transparent
 
-  AppWindow* = object
+  WindowInfo* = object
     box*: Box ## Screen size in logical coordinates.
     running*, focused*, minimized*, fullscreen*: bool
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
 
+variantp ClipboardContents:
+  ClipboardEmpty
+  ClipboardStr(str: string)
+  # ClipboardImg(img: Image)
+
 variantp RenderCommands:
   RenderQuit
-  RenderUpdate(n: Renders, window: AppWindow)
+  RenderUpdate(n: Renders, winInfo: WindowInfo)
   RenderSetTitle(name: string)
+  RenderClipboardGet
+  RenderClipboard(cb: ClipboardContents)
 
 type AppInputs* = object
   empty*: bool
@@ -31,7 +37,7 @@ type AppInputs* = object
   buttonRelease*: UiButtonView
   buttonToggle*: UiButtonView
 
-  window*: Option[AppWindow]
+  window*: Option[WindowInfo]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

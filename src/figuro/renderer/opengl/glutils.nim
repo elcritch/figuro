@@ -44,6 +44,11 @@ proc setOpenGlHints*() =
     windowHint(CONTEXT_VERSION_MAJOR, openglVersion[0].cint)
     windowHint(CONTEXT_VERSION_MINOR, openglVersion[1].cint)
 
+iterator glErrors*(): string =
+  var error: GLenum
+  while (error = glGetError(); error != GL_NO_ERROR):
+    yield "gl error: " & $error.uint32
+
 proc clearDepthBuffer*() =
   glClear(GL_DEPTH_BUFFER_BIT)
 
@@ -59,3 +64,18 @@ proc useDepthBuffer*(on: bool) =
   else:
     glDepthMask(GL_FALSE)
     glDisable(GL_DEPTH_TEST)
+
+
+proc startOpenGL*(openglVersion: (int, int)) =
+  when not defined(emscripten):
+    loadExtensions()
+
+  openglDebug()
+
+  glEnable(GL_BLEND)
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+  glBlendFuncSeparate(
+    GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA
+  )
+
+  useDepthBuffer(false)

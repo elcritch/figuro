@@ -13,6 +13,8 @@ export commons, system, uinodes
 import core
 export core
 
+import ../common/rchannels
+
 proc imagePath*(name: string): string =
   ## Returns the image path for the given node.
   if name.len == 0:
@@ -458,4 +460,3 @@ proc gridAutoRows*(current: Figuro, item: Constraint) =
   current.defaultGridTemplate()
   current.gridTemplate.autos[drow] = item
   current.fieldSet.incl fsGridAutoRows
-
