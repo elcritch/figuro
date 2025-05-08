@@ -32,3 +32,5 @@ requires "https://github.com/elcritch/windex >= 0.1.4"
 requires "chronicles >= 0.10.3"
 requires "dmon >= 0.4.0"
 requires "htmlparser"
+requires "siwin"
+

@@ -8,7 +8,7 @@ when defined(nimscript):
 else:
   {.pragma: runtimeVar, global.}
 
-proc defaultKeyConfigs(): array[ModifierKey, UiButtonView] =
+proc defaultKeyConfigs(): array[ModifierKey, set[UiKey]] =
   result[KNone] = {}
   result[KMeta] =
     when defined(macosx):
@@ -19,10 +19,10 @@ proc defaultKeyConfigs(): array[ModifierKey, UiButtonView] =
   result[KShift] = {KeyLeftShift, KeyRightShift}
   result[KMenu] = {KeyMenu}
 
-var keyConfig* {.runtimeVar.}: array[ModifierKey, UiButtonView] = defaultKeyConfigs()
+var keyConfig* {.runtimeVar.}: array[ModifierKey, set[UiKey]] = defaultKeyConfigs()
 var uxInputs* {.runtimeVar.} = AppInputs()
 
-proc matches(keys: UiButtonView, commands: ModifierKey): bool =
+proc matches(keys: set[UiKey], commands: ModifierKey): bool =
   let ck = keys * ModifierButtons
   if ck == {} and keyConfig[commands] == {}:
     result = true
@@ -30,9 +30,9 @@ proc matches(keys: UiButtonView, commands: ModifierKey): bool =
     result = ck < keyConfig[commands]
   echo "matches: ", " commands: ", $commands, " ck: ", $ck, " keyConfig: ", $keyConfig[commands], " result: ", result
 
-proc matches*(keys: UiButtonView, commands: set[ModifierKey]): bool =
+proc matches*(keys: set[UiKey], commands: set[ModifierKey]): bool =
   let ck = keys * ModifierButtons
-  var modKeys: UiButtonView = {}
+  var modKeys: set[UiKey] = {}
   for cmd in commands:
     modKeys.incl keyConfig[cmd]
 
@@ -68,14 +68,19 @@ proc checkAnyEvents*(node: Figuro): EventFlags =
       result.incl(evt)
 
   node.checkEvent(evKeyboardInput, uxInputs.keyboard.rune.isSome())
-  node.checkEvent(evKeyPress, uxInputs.buttonPress - MouseButtons != {})
+  node.checkEvent(evKeyPress, uxInputs.keyPress != {})
   node.checkEvent(evDrag, prevDrags.len() > 0)
 
   if node.mouseOverlaps():
-    node.checkEvent(evClickInit, uxInputs.down())
-    node.checkEvent(evClickDone, uxInputs.click())
-    node.checkEvent(evPress, uxInputs.down())
-    node.checkEvent(evRelease, uxInputs.release())
+    node.checkEvent(evClickInit, uxInputs.buttonDown)
+    when defined(clickOnDown):
+      # click on mouse down
+      node.checkEvent(evClickDone, uxInputs.buttonDown)
+    else:
+      # click on mouse button release
+      node.checkEvent(evClickDone, uxInputs.buttonRelease)
+    node.checkEvent(evPress, uxInputs.buttonDown)
+    node.checkEvent(evRelease, uxInputs.buttonRelease)
     node.checkEvent(evOverlapped, true)
     node.checkEvent(evHover, true)
     node.checkEvent(evScroll, uxInputs.mouse.wheelDelta.sum().float32.abs() > 0.0)

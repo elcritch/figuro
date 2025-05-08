@@ -58,8 +58,8 @@ type
 
   EventFlags* = set[EventKinds]
 
-  UiButton* = enum
-    ButtonUnknown
+  UiMouse* = enum
+    MouseUnknown
     MouseLeft
     MouseRight
     MouseMiddle
@@ -68,6 +68,9 @@ type
     DoubleClick
     TripleClick
     QuadrupleClick
+
+  UiKey* = enum
+    KeyUnknown
     Key0
     Key1
     Key2
@@ -174,14 +177,9 @@ type
     NumpadDivide # /
     NumpadEqual # =
 
-  UiButtonView* = set[UiButton]
   KeyRange* = KeyA .. NumpadEqual
 
 const
-  MouseButtons* = {
-    MouseLeft, MouseRight, MouseMiddle, MouseButton4, MouseButton5, DoubleClick,
-    TripleClick, QuadrupleClick,
-  }
 
   ModifierButtons* = {
     KeyLeftControl, KeyRightControl, KeyLeftSuper, KeyRightSuper, KeyLeftAlt,
