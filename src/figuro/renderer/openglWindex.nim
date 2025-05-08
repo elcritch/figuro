@@ -101,7 +101,6 @@ proc toKey(wbtn: windex.ButtonView): set[UiKey] =
     var value: UiKey
     if toKey(kb, value):
       result.incl value
-  echo "toKey: ", result
 
 method swapBuffers*(r: RendererWindex) =
   r.window.swapBuffers()
