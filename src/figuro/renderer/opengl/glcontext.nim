@@ -1211,7 +1211,7 @@ proc fillRoundedRectWithShadow*(
         offset = vec2(0, 0),
         spread = shadowSpreadLimit,
         blur = shadowBlurSizeLimit,
-        stroked = innerShadow,
+        stroked = false,
         lineWidth = 1.0,
         innerShadow = innerShadow,
         outerShadow = not innerShadow,
