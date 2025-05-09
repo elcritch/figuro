@@ -1216,7 +1216,7 @@ proc fillRoundedRectWithShadow*(
           lineWidth = 1.0,
           innerShadow = true,
           outerShadow = false,
-          innerShadowBorder = true,
+          innerShadowBorder = false,
           outerShadowFill = true,
         )
         # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
@@ -1225,10 +1225,10 @@ proc fillRoundedRectWithShadow*(
         let mainImg = generateCircleBox(
           radii = radii,
           offset = vec2(0, 0),
-          spread = 20,
-          blur = 20,
+          spread = shadowSpreadLimit,
+          blur = shadowBlurSizeLimit,
           stroked = false,
-          lineWidth = 2.0,
+          lineWidth = 1.0,
           outerShadow = true,
           innerShadow = false,
           innerShadowBorder = true,
