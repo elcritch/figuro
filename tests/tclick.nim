@@ -28,9 +28,9 @@ proc btnTick*(self: Button[int]) {.slot.} =
 
 proc btnClicked*(self: Button[int],
                   kind: EventKind,
-                  buttons: UiButtonView) {.slot.} =
+                  buttons: set[UiMouse]) {.slot.} =
   ## slot to increment a button when clicked
-  ## clicks have a type of `(EventKind, UiButtonView)` 
+  ## clicks have a type of `(EventKind, set[UiMouse])` 
   ## which we can use to check if it's a mouse click
   if kind == Done:
     if buttons in [{MouseLeft}, {DoubleClick}, {TripleClick}]:

@@ -31,13 +31,13 @@ proc toggleOpen*[T](self: Dropdown[T]) {.slot.} =
   echo "toggleOpen: ", Open in self.userAttrs
   self.setOpen(Open notin self.userAttrs)
 
-proc clicked*[T](self: Dropdown[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*[T](self: Dropdown[T], kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   if MouseLeft in buttons and kind == Done:
     self.toggleOpen()
   elif MouseLeft in buttons and kind == Exit:
     self.setOpen(false)
 
-proc itemClicked*[T](self: Dropdown[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc itemClicked*[T](self: Dropdown[T], index: int, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   if MouseLeft in buttons and kind == Done:
     self.data.selectIndex(index)
     self.setOpen(false)

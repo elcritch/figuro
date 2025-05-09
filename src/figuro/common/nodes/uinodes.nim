@@ -193,14 +193,14 @@ proc doLayoutResize*(fig: Figuro, node: Figuro) {.signal.}
   ## called after layout size changes
 proc doLoad*(fig: Figuro) {.signal.}
 proc doHover*(fig: Figuro, kind: EventKind) {.signal.}
-proc doMouseClick*(fig: Figuro, kind: EventKind, buttons: UiButtonView) {.signal.}
+proc doMouseClick*(fig: Figuro, kind: EventKind, buttons: set[UiMouse]) {.signal.}
 proc doSingleClick*(fig: Figuro) {.signal.}
 proc doDoubleClick*(fig: Figuro) {.signal.}
 proc doTripleClick*(fig: Figuro) {.signal.}
 proc doRightClick*(fig: Figuro) {.signal.}
 
 proc doKeyInput*(fig: Figuro, rune: Rune) {.signal.}
-proc doKeyPress*(fig: Figuro, pressed: UiButtonView, down: UiButtonView) {.signal.}
+proc doKeyPress*(fig: Figuro, pressed: set[UiKey], down: set[UiKey]) {.signal.}
 proc doScroll*(fig: Figuro, wheelDelta: Position) {.signal.}
 proc doDrag*(
   fig: Figuro, kind: EventKind,
@@ -232,10 +232,10 @@ proc draw*(fig: BasicFiguro) {.slot.} =
 proc keyInput*(fig: BasicFiguro, rune: Rune) {.slot.} =
   discard
 
-proc keyPress*(fig: BasicFiguro, pressed: UiButtonView, down: UiButtonView) {.slot.} =
+proc keyPress*(fig: BasicFiguro, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
   discard
 
-proc clicked*(self: BasicFiguro, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*(self: BasicFiguro, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   discard
 
 proc scroll*(fig: BasicFiguro, wheelDelta: Position) {.slot.} =
@@ -258,7 +258,7 @@ proc doLoadBubble*(fig: Figuro) {.slot.} =
 proc doHoverBubble*(fig: Figuro, kind: EventKind) {.slot.} =
   emit fig.doHover(kind)
 
-proc doMouseClickBubble*(fig: Figuro, kind: EventKind, buttonPress: UiButtonView) {.slot.} =
+proc doMouseClickBubble*(fig: Figuro, kind: EventKind, buttonPress: set[UiMouse]) {.slot.} =
   emit fig.doMouseClick(kind, buttonPress)
 
 proc doDragBubble*(

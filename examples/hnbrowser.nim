@@ -87,7 +87,7 @@ proc selectPrevStory*(self: Main) =
     self.currentStory = self.stories[clamp(idx - 1, 0, self.stories.len - 1)]
     refresh(self)
 
-proc doKeyPress*(self: Main, pressed: UiButtonView, down: UiButtonView) {.slot.} =
+proc doKeyPress*(self: Main, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
   # echo "\nMain:doKeyCommand: ", " pressed: ", $pressed, " down: ", $down
 
   if KeyJ in down:
@@ -134,7 +134,7 @@ proc draw*(self: Main) {.slot.} =
           size 50'pp, 50'ux
           offset 25'pp, 10'ux
 
-          onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+          onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: set[UiMouse]):
             echo "Load clicked: ", kind
             if kind == Done and not self.loading:
               emit self.htmlLoad("https://news.ycombinator.com")

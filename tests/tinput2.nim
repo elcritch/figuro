@@ -92,7 +92,7 @@ proc draw*(self: Main) {.slot.} =
               this.setText("00:00:00")
 
         Button[bool].new("countdown-button"):
-          proc btnClicked(self: Main, kind: EventKind, buttons: UiButtonView) {.slot.} =
+          proc btnClicked(self: Main, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
             if kind == Done:
               if buttons in [{MouseLeft}, {DoubleClick}, {TripleClick}]:
                 self.running = not self.running

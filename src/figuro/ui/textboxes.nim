@@ -197,10 +197,10 @@ proc findNextWord*(self: TextBox): int =
       max(0, self.selection.a + 1)
 
   if self.runes().len() == 0 or i >= self.runes().len():
-    warn "findNextWord:resturn:early: "
+    trace "findNextWord:resturn:early: "
     return result
 
-  warn "findNextWord: ", i= i, runes= $self.runes()[i], rlen= self.runes().len(), isWordBoundary= self.runes()[i].isWordBoundary()
+  trace "findNextWord: ", i= i, runes= $self.runes()[i], rlen= self.runes().len(), isWordBoundary= self.runes()[i].isWordBoundary()
 
   # Skip current word
   while i < self.runes().len() and not self.runes()[i].isWordBoundary():

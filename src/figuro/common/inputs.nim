@@ -32,27 +32,32 @@ type AppInputs* = object
   mouse*: Mouse
   keyboard*: Keyboard
 
-  buttonPress*: UiButtonView
-  buttonDown*: UiButtonView
-  buttonRelease*: UiButtonView
-  buttonToggle*: UiButtonView
+  buttonPress*: set[UiMouse]
+  buttonDown*: set[UiMouse]
+  buttonRelease*: set[UiMouse]
+  buttonToggle*: set[UiMouse]
+
+  keyPress*: set[UiKey]
+  keyDown*: set[UiKey]
+  keyRelease*: set[UiKey]
+  keyToggle*: set[UiKey]
 
   window*: Option[WindowInfo]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):
-    return MouseButtons * inputs.buttonDown != {}
+    return inputs.buttonDown != {}
   else:
-    return MouseButtons * inputs.buttonRelease != {}
+    return inputs.buttonRelease != {}
 
 proc down*(inputs: AppInputs): bool =
-  return MouseButtons * inputs.buttonDown != {}
+  return inputs.buttonDown != {}
 
 proc release*(inputs: AppInputs): bool =
-  return MouseButtons * inputs.buttonRelease != {}
+  return inputs.buttonRelease != {}
 
 proc scrolled*(inputs: AppInputs): bool =
   inputs.mouse.wheelDelta.x != 0.0'ui
 
 proc dragging*(inputs: AppInputs): bool =
-  return MouseButtons * inputs.buttonDown != {}
+  return inputs.buttonDown != {}

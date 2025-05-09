@@ -85,7 +85,7 @@ proc runes*(self: Input): seq[Rune] =
 proc getText*(self: Input): string =
   $self.text.runes()
 
-proc doKeyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.signal.}
+proc doKeyCommand*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.signal.}
 
 proc doUpdateInput*(self: Input, rune: Rune) {.signal.}
 
@@ -97,7 +97,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       self.cursorTick = (self.cursorTick + 1) mod 2
       refresh(self)
 
-proc clicked*(self: Input, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*(self: Input, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   self.active(kind == Done and not self.disabled)
   if self.active():
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -118,12 +118,11 @@ proc updateInput*(self: Input, rune: Rune) {.slot.} =
   self.text.update(self.box)
   refresh(self)
 
-proc getKey(p: UiButtonView): UiButton =
+proc getKey(p: set[UiKey]): UiKey =
   for x in p:
-    if x.ord in KeyRange.low.ord .. KeyRange.high.ord:
-      return x
+    return x
 
-proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
+proc keyCommand*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
   when defined(debugEvents):
     debug "input:keyCommand:",
       key= pressed,
@@ -139,7 +138,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
   let multiSelect = NoSelection notin self.opts
   if down.matches({KNone}):
     var update = true
-    case pressed.getKey
+    case pressed.getKey()
     of KeyBackspace:
       self.text.delete()
       self.text.update(self.box)
@@ -287,7 +286,7 @@ proc keyCommand*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.
   # self.text.updateSelection()
   refresh(self)
 
-proc keyPress*(self: Input, pressed: UiButtonView, down: UiButtonView) {.slot.} =
+proc keyPress*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
   when defined(debugEvents):
     notice "input:keyPress:",
       key= pressed,

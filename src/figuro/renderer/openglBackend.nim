@@ -17,6 +17,8 @@ import ./opengl/glutils
 
 when defined(figuroWindex):
   import ./openglWindex
+elif defined(figuroSiwin):
+  import ./openglSiwin
 else:
   import ./openglWindex
 
@@ -28,6 +30,8 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   when defined(figuroWindex):
     let renderer = newWindexRenderer(frame, 1.0, atlasSize)
+  elif defined(figuroSiwin):
+    let renderer = newSiwinRenderer(frame, 1.0, atlasSize)
   else:
     let renderer = newWindexRenderer(frame, 1.0, atlasSize)
 

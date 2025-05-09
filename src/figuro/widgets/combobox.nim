@@ -22,7 +22,7 @@ type
 
   ComboboxList*[T] = ref object of Combobox[T]
 
-proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc itemClicked*[T](self: Combobox[T], index: int, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   if MouseLeft in buttons and Done == kind:
     self.toggleIndex(index)
     self.open(false)
@@ -60,7 +60,7 @@ proc draw*[T](self: Combobox[T]) {.slot.} =
               this.value = elem
               this.combobox = self.unsafeWeakRef()
               WidgetContents()
-              onSignal(doMouseClick) do(this: ComboboxItem[T], kind: EventKind, buttons: UiButtonView):
+              onSignal(doMouseClick) do(this: ComboboxItem[T], kind: EventKind, buttons: set[UiMouse]):
                 if kind == Done and MouseLeft in buttons:
                   # this.selected = not this.selected
                   let combobox = this.queryParent(Combobox[T]).get()

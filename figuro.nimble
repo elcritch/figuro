@@ -1,4 +1,4 @@
-version       = "0.14.9"
+version       = "0.15.0"
 author        = "Jaremy Creechley"
 description   = "UI Engine for Nim"
 license       = "MIT"
@@ -32,3 +32,5 @@ requires "https://github.com/elcritch/windex >= 0.1.4"
 requires "chronicles >= 0.10.3"
 requires "dmon >= 0.4.0"
 requires "htmlparser"
+requires "siwin"
+

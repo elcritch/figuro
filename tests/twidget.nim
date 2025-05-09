@@ -34,7 +34,7 @@ proc draw*(self: Main) {.slot.} =
         size 80'pp, 60'ux
         label this, {defaultFont(): "Click me!"}
         cornerRadius 10.0'ui
-        onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+        onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: set[UiMouse]):
           echo "clicked: ", kind, " :: ", buttons
           # printLayout(self, cmTerminal)
         # echo "inner-shadow: ", this.shadow[InnerShadow]
@@ -117,7 +117,7 @@ proc draw*(self: Main) {.slot.} =
       Rectangle.new "filler":
         size 10'ux, 40'ux
 
-      onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: UiButtonView):
+      onSignal(doMouseClick) do(self: Main, kind: EventKind, buttons: set[UiMouse]):
         if kind == Done and MouseRight in buttons:
           printLayout(self, cmTerminal)
 

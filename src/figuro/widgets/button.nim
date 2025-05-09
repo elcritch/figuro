@@ -21,7 +21,7 @@ proc hover*[T](self: Button[T], kind: EventKind) {.slot.} =
 
 proc doClicked*[T](self: Button[T]) {.signal.}
 
-proc clicked*[T](self: Button[T], kind: EventKind, buttons: UiButtonView) {.slot.} =
+proc clicked*[T](self: Button[T], kind: EventKind, buttons: set[UiMouse]) {.slot.} =
   # echo "clicked: ", " kind: ", kind, " :: ", buttons, " id: ", self.getId, " clickOn: ", self.clickMode
   case kind:
   of Init:
