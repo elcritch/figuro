@@ -116,14 +116,20 @@ proc generateCircleBox*(
     )
 
     let spath = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
-    # spath.rect(0, 0, totalSize.float32, totalSize.float32)
 
     let combined = newImage(totalSize, totalSize)
     let ctx = newContext(combined)
-    ctx.saveLayer()
-    ctx.clip(spath, EvenOdd)
-    ctx.drawImage(shadow, pos = vec2(0, 0))
-    ctx.restore()
+    if innerShadow:
+      ctx.saveLayer()
+      ctx.clip(spath, EvenOdd)
+      ctx.drawImage(shadow, pos = vec2(0, 0))
+      ctx.restore()
+    if outerShadow:
+      spath.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctx.saveLayer()
+      ctx.clip(spath, EvenOdd)
+      ctx.drawImage(shadow, pos = vec2(0, 0))
+      ctx.restore()
     ctx.drawImage(img, pos = vec2(0, 0))
     return combined
   else:
