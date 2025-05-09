@@ -22,8 +22,6 @@ proc initialize*(self: Main) {.slot.} =
     self.toggles[kd] = true
     self.fades[kd] = Fader(minMax: 0.01..22.0,
                           inTimeMs: 1400, outTimeMs: 1400)
-  self.fades[FkRadius] = Fader(minMax: 4.0..22.0,
-                          inTimeMs: 1400, outTimeMs: 1400)
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
