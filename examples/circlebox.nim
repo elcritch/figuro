@@ -184,9 +184,10 @@ let imgAfillshadow = generateCircleBox(
   spread = 20.0'f32,
   blur = 20.0'f32,
   stroked = false,
-  lineWidth = 2.0,
+  lineWidth = 0.0,
   outerShadow = true,
   innerShadow = false,
+  innerShadowBorder = true,
   outerShadowFill = false,
 )
 
