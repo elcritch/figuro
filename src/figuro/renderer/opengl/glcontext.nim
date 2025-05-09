@@ -847,7 +847,7 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
 
     if hashes[dcTopLeft] notin ctx.entries:
       let radii = [radius.int, radius.int, radius.int, radius.int]
-      let circle = generateCircleBox(radii, stroked = false)
+      let circle = generateCircle(radius.int, stroked = false)
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
       let patchArray = [
@@ -920,7 +920,7 @@ proc strokeRoundedRect*(
 
     if hashes[0] notin ctx.entries:
       let radii = [radius.int, radius.int, radius.int, radius.int]
-      let circle = generateCircleBox(radii, stroked = true, lineWidth = weight)
+      let circle = generateCircle(radius.int, stroked = true, lineWidth = weight)
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
       let patchArray = [
@@ -1202,8 +1202,8 @@ proc fillRoundedRectWithShadow*(
       if mainKey notin shadowCache:
         echo "generating inner shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radiusLimit.round(2), " ", innerShadow
         let radii = [radius.int, radius.int, radius.int, radius.int]
-        let innerImg = generateCircleBox(
-          radii = radii,
+        let innerImg = generateCircle(
+          radius = radius.int,
           stroked = true,
           lineWidth = 6.0,
           offset = vec2(0, 0),
