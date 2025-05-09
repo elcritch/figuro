@@ -1216,8 +1216,8 @@ proc fillRoundedRectWithShadow*(
           lineWidth = 1.0,
           innerShadow = true,
           outerShadow = false,
-          innerShadowBorder = false,
-          outerShadowFill = false,
+          innerShadowBorder = true,
+          outerShadowFill = true,
         )
         mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
         shadowCache[mainKey] = mainImg
