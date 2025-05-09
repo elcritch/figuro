@@ -1,0 +1,140 @@
+import pixie, pixie/simd
+
+
+type
+  Directions* = enum
+    dTop
+    dRight
+    dBottom
+    dLeft
+
+  DirectionCorners* = enum
+    dcTopLeft
+    dcTopRight
+    dcBottomRight
+    dcBottomLeft
+
+proc generateCircleBox*(
+    radius: array[DirectionCorners, int],
+    offset = vec2(0, 0),
+    spread: float32 = 0.0'f32,
+    blur: float32 = 0.0'f32,
+    stroked: bool = true,
+    lineWidth: float32 = 0.0'f32,
+    fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
+    shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
+    innerShadow = true,
+    innerShadowBorder = true,
+): Image =
+  var maxRadius = 0
+  for r in radius:
+    maxRadius = max(maxRadius, r)
+  
+  # Additional size for spread and blur
+  let padding = (spread.int + blur.int)
+  let totalSize = maxRadius * 2 + padding * 2
+  
+  # Create a canvas large enough to contain the box with all effects
+  let img = newImage(totalSize, totalSize)
+  let ctx = newContext(img)
+  
+  # Calculate the inner box dimensions
+  let innerWidth = (totalSize - padding * 2).float32
+  let innerHeight = (totalSize - padding * 2).float32
+  
+  # Create a path for the rounded rectangle
+  let path = newPath()
+  
+  # Start at top right after the corner radius
+  let topRight = vec2(innerWidth - radius[dcTopRight].float32, 0)
+  path.moveTo(topRight + vec2(padding.float32, padding.float32))
+  
+  # Top right corner
+  let trControl = vec2(innerWidth, 0)
+  path.quadraticCurveTo(
+    trControl + vec2(padding.float32, padding.float32),
+    vec2(innerWidth, radius[dcTopRight].float32) + vec2(padding.float32, padding.float32)
+  )
+  
+  # Right side
+  path.lineTo(vec2(innerWidth, innerHeight - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+  
+  # Bottom right corner
+  let brControl = vec2(innerWidth, innerHeight)
+  path.quadraticCurveTo(
+    brControl + vec2(padding.float32, padding.float32),
+    vec2(innerWidth - radius[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
+  )
+  
+  # Bottom side
+  path.lineTo(vec2(radius[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
+  
+  # Bottom left corner
+  let blControl = vec2(0, innerHeight)
+  path.quadraticCurveTo(
+    blControl + vec2(padding.float32, padding.float32),
+    vec2(0, innerHeight - radius[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
+  )
+  
+  # Left side
+  path.lineTo(vec2(0, radius[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
+  
+  # Top left corner
+  let tlControl = vec2(0, 0)
+  path.quadraticCurveTo(
+    tlControl + vec2(padding.float32, padding.float32),
+    vec2(radius[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
+  )
+  
+  # Close the path
+  path.lineTo(topRight + vec2(padding.float32, padding.float32))
+  
+  # Draw the box
+  if stroked:
+    ctx.strokeStyle = fillStyle
+    ctx.lineWidth = lineWidth
+    ctx.stroke(path)
+  else:
+    ctx.fillStyle = fillStyle
+    ctx.fill(path)
+  
+  # Apply inner shadow if requested
+  if innerShadow:
+    let shadow = img.shadow(
+      offset = offset,
+      spread = spread,
+      blur = blur,
+      color = shadowColor
+    )
+    img.draw(shadow, blendMode = if innerShadowBorder: NormalBlend else: MaskBlend)
+
+  return img
+
+
+let imgA = generateCircleBox(
+  radius = [30, 20, 40, 10], # Different radius for each corner
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = true,
+  lineWidth = 2.0,
+  # fillStyle = rgba(200, 230, 255, 255),
+  # shadowColor = rgba(0, 0, 255, 100),
+)
+
+imgA.writeFile("examples/circlebox-asymmetric.png")
+
+
+let imgB = generateCircleBox(
+  radius = [30, 30, 30, 30], # Different radius for each corner
+  offset = vec2(0, 0),
+  spread = 0.0'f32,
+  blur = 10.0'f32,
+  stroked = false,
+  lineWidth = 2.0,
+  # fillStyle = rgba(200, 230, 255, 255),
+  # shadowColor = rgba(0, 0, 255, 100),
+)
+
+imgB.writeFile("examples/circlebox-symmetric.png")
+
