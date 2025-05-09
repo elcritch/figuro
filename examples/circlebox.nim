@@ -205,3 +205,16 @@ let imgD = generateCircleBox(
 
 imgD.writeFile("examples/circlebox-outer-only.png")
 
+# Only outer shadow example
+let imgE = generateCircleBox(
+  radius = [30, 30, 30, 30],
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = true,
+  lineWidth = 2.0,
+  outerShadow = true,
+  innerShadow = true,
+)
+
+imgE.writeFile("examples/circlebox-outer-inner.png")
