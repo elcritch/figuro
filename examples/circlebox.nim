@@ -43,52 +43,60 @@ proc generateCircleBox*(
   let innerWidth = (totalSize - padding * 2).float32
   let innerHeight = (totalSize - padding * 2).float32
   
-  # Create a path for the rounded rectangle
-  let path = newPath()
+  # Create a path for the rounded rectangle with the given dimensions and corner radii
+  proc createRoundedRectPath(
+    innerWidth, innerHeight: float32,
+    radius: array[DirectionCorners, int],
+    padding: int
+  ): Path =
+    result = newPath()
+    
+    # Start at top right after the corner radius
+    let topRight = vec2(innerWidth - radius[dcTopRight].float32, 0)
+    result.moveTo(topRight + vec2(padding.float32, padding.float32))
+    
+    # Top right corner
+    let trControl = vec2(innerWidth, 0)
+    result.quadraticCurveTo(
+      trControl + vec2(padding.float32, padding.float32),
+      vec2(innerWidth, radius[dcTopRight].float32) + vec2(padding.float32, padding.float32)
+    )
+    
+    # Right side
+    result.lineTo(vec2(innerWidth, innerHeight - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+    
+    # Bottom right corner
+    let brControl = vec2(innerWidth, innerHeight)
+    result.quadraticCurveTo(
+      brControl + vec2(padding.float32, padding.float32),
+      vec2(innerWidth - radius[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
+    )
+    
+    # Bottom side
+    result.lineTo(vec2(radius[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
+    
+    # Bottom left corner
+    let blControl = vec2(0, innerHeight)
+    result.quadraticCurveTo(
+      blControl + vec2(padding.float32, padding.float32),
+      vec2(0, innerHeight - radius[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
+    )
+    
+    # Left side
+    result.lineTo(vec2(0, radius[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
+    
+    # Top left corner
+    let tlControl = vec2(0, 0)
+    result.quadraticCurveTo(
+      tlControl + vec2(padding.float32, padding.float32),
+      vec2(radius[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
+    )
+    
+    # Close the path
+    result.lineTo(topRight + vec2(padding.float32, padding.float32))
   
-  # Start at top right after the corner radius
-  let topRight = vec2(innerWidth - radius[dcTopRight].float32, 0)
-  path.moveTo(topRight + vec2(padding.float32, padding.float32))
-  
-  # Top right corner
-  let trControl = vec2(innerWidth, 0)
-  path.quadraticCurveTo(
-    trControl + vec2(padding.float32, padding.float32),
-    vec2(innerWidth, radius[dcTopRight].float32) + vec2(padding.float32, padding.float32)
-  )
-  
-  # Right side
-  path.lineTo(vec2(innerWidth, innerHeight - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
-  
-  # Bottom right corner
-  let brControl = vec2(innerWidth, innerHeight)
-  path.quadraticCurveTo(
-    brControl + vec2(padding.float32, padding.float32),
-    vec2(innerWidth - radius[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
-  )
-  
-  # Bottom side
-  path.lineTo(vec2(radius[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
-  
-  # Bottom left corner
-  let blControl = vec2(0, innerHeight)
-  path.quadraticCurveTo(
-    blControl + vec2(padding.float32, padding.float32),
-    vec2(0, innerHeight - radius[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
-  )
-  
-  # Left side
-  path.lineTo(vec2(0, radius[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
-  
-  # Top left corner
-  let tlControl = vec2(0, 0)
-  path.quadraticCurveTo(
-    tlControl + vec2(padding.float32, padding.float32),
-    vec2(radius[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
-  )
-  
-  # Close the path
-  path.lineTo(topRight + vec2(padding.float32, padding.float32))
+  # Create the path for our rounded rectangle
+  let path = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
       
   # Draw the box
   if stroked:
@@ -106,6 +114,16 @@ proc generateCircleBox*(
       spread = spread,
       blur = blur,
       color = shadowColor
+    )
+    let filled = generateCircleBox(
+        radius = radius,
+        offset = vec2(0, 0),
+        spread = 0.0'f32,
+        blur = 0.0'f32,
+        stroked = false,
+        lineWidth = 0.0,
+        outerShadow = false,
+        innerShadow = false,
     )
     img.draw(shadow, blendMode = if innerShadowBorder: NormalBlend else: MaskBlend)
 
