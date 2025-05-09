@@ -26,22 +26,6 @@ proc addTarget*(self: Fader, node: Figuro, noRefresh = false) =
   if not noRefresh:
     connect(self, doFadeTick, node, Figuro.refresh(), true)
 
-proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
-  # echo "fade:startFade: ", fadeIn
-  self.active = true
-  self.ts = getMonoTime()
-  self.fadingIn = fadeIn
-  let delta = self.minMax.b - self.minMax.a
-  if self.inTimeMs > 0:
-    self.ratePerMs.a = delta / self.inTimeMs.toFloat
-  if self.outTimeMs > 0:
-    self.ratePerMs.b = delta / self.outTimeMs.toFloat
-  for tgt in self.targets:
-    # echo "fader:start:connect:root: ", tgt.frame[].root.name
-    connect(tgt.frame[].root, doTick, self, tick)
-    break
-  debug "fader:started: ", self = $self.unsafeWeakRef, amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs
-
 proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
   let rate = if self.fadingIn: self.ratePerMs.a else: self.ratePerMs.b
   let dt = delta.inMilliseconds.toFloat
@@ -70,6 +54,22 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
       disconnect(tgt.frame[].root, doTick, self)
       break
     emit self.doFadeTick(val, true)
+
+proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
+  # echo "fade:startFade: ", fadeIn
+  self.active = true
+  self.ts = getMonoTime()
+  self.fadingIn = fadeIn
+  let delta = self.minMax.b - self.minMax.a
+  if self.inTimeMs > 0:
+    self.ratePerMs.a = delta / self.inTimeMs.toFloat
+  if self.outTimeMs > 0:
+    self.ratePerMs.b = delta / self.outTimeMs.toFloat
+  for tgt in self.targets:
+    # echo "fader:start:connect:root: ", tgt.frame[].root.name
+    connect(tgt.frame[].root, doTick, self, tick)
+    break
+  debug "fader:started: ", self = $self.unsafeWeakRef, amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs
 
 proc stop*(self: Fader) {.slot.} =
   self.active = false
