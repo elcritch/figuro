@@ -739,12 +739,6 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
 
     let
       xy = rect.xy
-      # offsets = [
-      #   TR: vec2(w - rw, 0),
-      #   TL: vec2(0, 0),
-      #   BL: vec2(0, h - rh),
-      #   BR: vec2(w - rw, h - rh)
-      #   ]
       offsets = [
         dcTopLeft: vec2(0, 0),
         dcTopRight: vec2(w - rw, 0),
