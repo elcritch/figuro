@@ -23,6 +23,7 @@ proc generateCircleBox*(
     lineWidth: float32 = 0.0'f32,
     fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
     shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
+    outerShadow = true,
     innerShadow = true,
     innerShadowBorder = true,
 ): Image =
@@ -88,7 +89,7 @@ proc generateCircleBox*(
   
   # Close the path
   path.lineTo(topRight + vec2(padding.float32, padding.float32))
-  
+      
   # Draw the box
   if stroked:
     ctx.strokeStyle = fillStyle
@@ -118,11 +119,24 @@ let imgA = generateCircleBox(
   blur = 10.0'f32,
   stroked = true,
   lineWidth = 2.0,
-  # fillStyle = rgba(200, 230, 255, 255),
-  # shadowColor = rgba(0, 0, 255, 100),
+  outerShadow = false,
+  innerShadow = false,
 )
 
 imgA.writeFile("examples/circlebox-asymmetric.png")
+
+let imgAnostroke = generateCircleBox(
+  radius = [30, 20, 40, 10], # Different radius for each corner
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = false,
+  lineWidth = 0.0,
+  outerShadow = false,
+  innerShadow = false,
+)
+
+imgAnostroke.writeFile("examples/circlebox-asymmetric-nostroke.png")
 
 
 let imgB = generateCircleBox(
@@ -132,9 +146,37 @@ let imgB = generateCircleBox(
   blur = 10.0'f32,
   stroked = false,
   lineWidth = 2.0,
-  # fillStyle = rgba(200, 230, 255, 255),
-  # shadowColor = rgba(0, 0, 255, 100),
+  outerShadow = true,
+  innerShadow = false,
 )
 
 imgB.writeFile("examples/circlebox-symmetric.png")
+
+# Only inner shadow example
+let imgC = generateCircleBox(
+  radius = [30, 30, 30, 30],
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = true,
+  lineWidth = 2.0,
+  outerShadow = false,
+  innerShadow = true,
+)
+
+imgC.writeFile("examples/circlebox-inner-only.png")
+
+# Only outer shadow example
+let imgD = generateCircleBox(
+  radius = [30, 30, 30, 30],
+  offset = vec2(2, 2),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = true,
+  lineWidth = 2.0,
+  outerShadow = true,
+  innerShadow = false,
+)
+
+imgD.writeFile("examples/circlebox-outer-only.png")
 
