@@ -1167,7 +1167,7 @@ proc fillRoundedRectWithShadow*(
     # shadowKey = hash((7723, radius.int, sSpread, sBlur))
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
-    radiusLimit = 40.0
+    radiusLimit = radius
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
     shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
@@ -1189,12 +1189,19 @@ proc fillRoundedRectWithShadow*(
       # Generate shadow image
       if mainKey notin shadowCache:
         echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radiusLimit.round(2), " ", innerShadow
-        let mainImg = generateShadowImage(
-          radius = (radiusLimit).int,
+        let radii = [radiusLimit.int, radiusLimit.int, radiusLimit.int, radiusLimit.int]
+        let mainImg = generateCircleBox(
+          radii = radii,
           offset = vec2(shadowX, shadowY),
           spread = shadowSpreadLimit,
-          blur = shadowBlurSizeLimit
+          blur = shadowBlurSizeLimit,
+          stroked = false,
+          lineWidth = 0.0,
+          innerShadow = innerShadow,
+          outerShadow = not innerShadow,
+          innerShadowBorder = false,
         )
+        mainImg.writeFile("examples/renderer-shadowImage.png")
         shadowCache[mainKey] = mainImg
       shadowImg = shadowCache[mainKey].resize(newSize, newSize)
     else:

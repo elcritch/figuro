@@ -98,4 +98,5 @@ when not defined(noFiguroDmonMonitor):
 
     while isRunning(getCurrentSigilThread()[]):
       let file = cssUpdates.recv()
-      file.update()
+      if file in cssFiles:
+        file.update()
