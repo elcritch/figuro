@@ -115,17 +115,6 @@ proc generateCircleBox*(
       blur = blur,
       color = shadowColor
     )
-    let filled = generateCircleBox(
-        radius = radius,
-        offset = offset,
-        spread = 0.0'f32,
-        blur = 0.0'f32,
-        stroked = false,
-        lineWidth = 0.0,
-        outerShadow = false,
-        innerShadow = false,
-    )
-    # img.draw(shadow, blendMode = if innerShadowBorder: NormalBlend else: MaskBlend)
     let spath = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
 
     let combined = newImage(totalSize, totalSize)
