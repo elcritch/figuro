@@ -226,3 +226,17 @@ let imgE = generateCircleBox(
 )
 
 imgE.writeFile("examples/circlebox-outer-inner.png")
+
+let imgF = generateCircleBox(
+  radii = [30, 30, 30, 30],
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = true,
+  lineWidth = 2.0,
+  outerShadow = true,
+  innerShadow = true,
+  innerShadowBorder = false,
+)
+
+imgF.writeFile("examples/circlebox-inner-and-fill-outer.png")
