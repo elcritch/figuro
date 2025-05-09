@@ -45,58 +45,57 @@ proc generateCircleBox*(
   
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
-    path: var Path,
     innerWidth, innerHeight: float32,
     radius: array[DirectionCorners, int],
     padding: int
-  ) =
+  ): Path =
     # Start at top right after the corner radius
+    result = newPath()
     let topRight = vec2(innerWidth - radius[dcTopRight].float32, 0)
-    path.moveTo(topRight + vec2(padding.float32, padding.float32))
+    result.moveTo(topRight + vec2(padding.float32, padding.float32))
     
     # Top right corner
     let trControl = vec2(innerWidth, 0)
-    path.quadraticCurveTo(
+    result.quadraticCurveTo(
       trControl + vec2(padding.float32, padding.float32),
       vec2(innerWidth, radius[dcTopRight].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Right side
-    path.lineTo(vec2(innerWidth, innerHeight - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(innerWidth, innerHeight - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
     
     # Bottom right corner
     let brControl = vec2(innerWidth, innerHeight)
-    path.quadraticCurveTo(
+    result.quadraticCurveTo(
       brControl + vec2(padding.float32, padding.float32),
       vec2(innerWidth - radius[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
     )
     
     # Bottom side
-    path.lineTo(vec2(radius[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(radius[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
     
     # Bottom left corner
     let blControl = vec2(0, innerHeight)
-    path.quadraticCurveTo(
+    result.quadraticCurveTo(
       blControl + vec2(padding.float32, padding.float32),
       vec2(0, innerHeight - radius[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Left side
-    path.lineTo(vec2(0, radius[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(0, radius[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
     
     # Top left corner
     let tlControl = vec2(0, 0)
-    path.quadraticCurveTo(
+    result.quadraticCurveTo(
       tlControl + vec2(padding.float32, padding.float32),
       vec2(radius[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
     )
     
     # Close the path
-    path.lineTo(topRight + vec2(padding.float32, padding.float32))
+    result.lineTo(topRight + vec2(padding.float32, padding.float32))
   
   # Create the path for our rounded rectangle
-  var path = newPath()
-  createRoundedRectPath(path, innerWidth, innerHeight, radius, padding)
+  let path = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
       
   # Draw the box
   if stroked:
@@ -116,9 +115,8 @@ proc generateCircleBox*(
       color = shadowColor
     )
 
-    var spath = newPath()
-    createRoundedRectPath(spath, innerWidth, innerHeight, radius, padding)
-    spath.rect(0, 0, totalSize.float32, totalSize.float32)
+    let spath = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
+    # spath.rect(0, 0, totalSize.float32, totalSize.float32)
 
     let combined = newImage(totalSize, totalSize)
     let ctx = newContext(combined)
