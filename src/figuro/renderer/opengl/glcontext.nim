@@ -1219,7 +1219,7 @@ proc fillRoundedRectWithShadow*(
           innerShadowBorder = true,
           outerShadowFill = true,
         )
-        mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
+        # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
         shadowCache[mainKey] = mainImg
       else:
         let mainImg = generateCircleBox(
@@ -1234,7 +1234,7 @@ proc fillRoundedRectWithShadow*(
           innerShadowBorder = true,
           outerShadowFill = false,
         )
-        mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
+        # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
         shadowCache[mainKey] = mainImg
     shadowImg = shadowCache[mainKey].resize(newSize, newSize)
 
