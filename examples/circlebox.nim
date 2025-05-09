@@ -100,7 +100,7 @@ proc generateCircleBox*(
     ctx.fill(path)
   
   # Apply inner shadow if requested
-  if innerShadow:
+  if innerShadow or outerShadow:
     let shadow = img.shadow(
       offset = offset,
       spread = spread,
