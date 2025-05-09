@@ -111,7 +111,7 @@ proc generateCircleBox*(
     ctx.fill(path)
   
   # Apply inner shadow if requested
-  if innerShadow or outerShadow:
+  if innerShadow or outerShadow or outerShadowFill:
     let shadow = img.shadow(
       offset = offset,
       spread = spread,
@@ -129,6 +129,7 @@ proc generateCircleBox*(
       ctx.drawImage(shadow, pos = vec2(0, 0))
       ctx.restore()
     if outerShadowFill:
+      let spath = spath.copy()
       spath.rect(0, 0, totalSize.float32, totalSize.float32)
       ctx.saveLayer()
       ctx.clip(spath, EvenOdd)
@@ -137,6 +138,7 @@ proc generateCircleBox*(
       ctx.fill()
       ctx.restore()
     if outerShadow:
+      let spath = spath.copy()
       spath.rect(0, 0, totalSize.float32, totalSize.float32)
       ctx.saveLayer()
       ctx.clip(spath, EvenOdd)
@@ -243,7 +245,7 @@ let imgF = generateCircleBox(
   blur = 10.0'f32,
   stroked = true,
   lineWidth = 2.0,
-  outerShadow = false,
+  outerShadow = true,
   innerShadow = true,
   innerShadowBorder = false,
   outerShadowFill = true,
