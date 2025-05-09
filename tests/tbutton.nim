@@ -27,6 +27,7 @@ proc initialize*(self: Main) {.slot.} =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    size 100'pp, 100'pp
     fill css"grey"
     # fill css"white"
 

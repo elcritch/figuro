@@ -701,7 +701,7 @@ proc generateCircle(radius: int,
   return image
 
 proc generateCircleBox*(
-    radius: array[DirectionCorners, int],
+    radii: array[DirectionCorners, int],
     offset = vec2(0, 0),
     spread: float32 = 0.0'f32,
     blur: float32 = 0.0'f32,
@@ -714,7 +714,7 @@ proc generateCircleBox*(
     innerShadowBorder = true,
 ): Image =
   var maxRadius = 0
-  for r in radius:
+  for r in radii:
     maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
@@ -732,56 +732,56 @@ proc generateCircleBox*(
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
     innerWidth, innerHeight: float32,
-    radius: array[DirectionCorners, int],
+    radii: array[DirectionCorners, int],
     padding: int
   ): pixie.Path =
     # Start at top right after the corner radius
     result = newPath()
-    let topRight = vec2(innerWidth - radius[dcTopRight].float32, 0)
+    let topRight = vec2(innerWidth - radii[dcTopRight].float32, 0)
     result.moveTo(topRight + vec2(padding.float32, padding.float32))
     
     # Top right corner
     let trControl = vec2(innerWidth, 0)
     result.quadraticCurveTo(
       trControl + vec2(padding.float32, padding.float32),
-      vec2(innerWidth, radius[dcTopRight].float32) + vec2(padding.float32, padding.float32)
+      vec2(innerWidth, radii[dcTopRight].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Right side
-    result.lineTo(vec2(innerWidth, innerHeight - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(innerWidth, innerHeight - radii[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
     
     # Bottom right corner
     let brControl = vec2(innerWidth, innerHeight)
     result.quadraticCurveTo(
       brControl + vec2(padding.float32, padding.float32),
-      vec2(innerWidth - radius[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
+      vec2(innerWidth - radii[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
     )
     
     # Bottom side
-    result.lineTo(vec2(radius[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(radii[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
     
     # Bottom left corner
     let blControl = vec2(0, innerHeight)
     result.quadraticCurveTo(
       blControl + vec2(padding.float32, padding.float32),
-      vec2(0, innerHeight - radius[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
+      vec2(0, innerHeight - radii[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Left side
-    result.lineTo(vec2(0, radius[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(0, radii[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
     
     # Top left corner
     let tlControl = vec2(0, 0)
     result.quadraticCurveTo(
       tlControl + vec2(padding.float32, padding.float32),
-      vec2(radius[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
+      vec2(radii[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
     )
     
     # Close the path
     result.lineTo(topRight + vec2(padding.float32, padding.float32))
   
   # Create the path for our rounded rectangle
-  let path = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
+  let path = createRoundedRectPath(innerWidth, innerHeight, radii, padding)
       
   # Draw the box
   if stroked:
@@ -801,7 +801,7 @@ proc generateCircleBox*(
       color = shadowColor
     )
 
-    let spath = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
+    let spath = createRoundedRectPath(innerWidth, innerHeight, radii, padding)
 
     let combined = newImage(totalSize, totalSize)
     let ctx = newContext(combined)
@@ -846,7 +846,8 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
       hashes[quadrant] = qhash
 
     if hashes[dcTopLeft] notin ctx.entries:
-      let circle = generateCircle(radius.int, stroked = false)
+      let radii = [radius.int, radius.int, radius.int, radius.int]
+      let circle = generateCircleBox(radii, stroked = false)
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
       let patchArray = [
@@ -1200,8 +1201,9 @@ proc fillRoundedRectWithShadow*(
       # Generate inner shadow image
       if mainKey notin shadowCache:
         echo "generating inner shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radiusLimit.round(2), " ", innerShadow
-        let innerImg = generateCircle(
-          radius = (radiusLimit).int,
+        let radii = [radius.int, radius.int, radius.int, radius.int]
+        let innerImg = generateCircleBox(
+          radii = radii,
           stroked = true,
           lineWidth = 6.0,
           offset = vec2(0, 0),
