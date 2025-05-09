@@ -33,7 +33,7 @@ proc generateCircleBox*(
   
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
-  let totalSize = maxRadius * 2 + padding * 2
+  let totalSize = max(maxRadius * 2 + padding * 2, 4)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
@@ -45,40 +45,40 @@ proc generateCircleBox*(
   
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
-    innerWidth, innerHeight: float32,
+    width, height: float32,
     radius: array[DirectionCorners, int],
     padding: int
   ): Path =
     # Start at top right after the corner radius
     result = newPath()
-    let topRight = vec2(innerWidth - radius[dcTopRight].float32, 0)
+    let topRight = vec2(width - radius[dcTopRight].float32, 0)
     result.moveTo(topRight + vec2(padding.float32, padding.float32))
     
     # Top right corner
-    let trControl = vec2(innerWidth, 0)
+    let trControl = vec2(width, 0)
     result.quadraticCurveTo(
       trControl + vec2(padding.float32, padding.float32),
-      vec2(innerWidth, radius[dcTopRight].float32) + vec2(padding.float32, padding.float32)
+      vec2(width, radius[dcTopRight].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Right side
-    result.lineTo(vec2(innerWidth, innerHeight - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(width, height - radius[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
     
     # Bottom right corner
-    let brControl = vec2(innerWidth, innerHeight)
+    let brControl = vec2(width, height)
     result.quadraticCurveTo(
       brControl + vec2(padding.float32, padding.float32),
-      vec2(innerWidth - radius[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
+      vec2(width - radius[dcBottomRight].float32, height) + vec2(padding.float32, padding.float32)
     )
     
     # Bottom side
-    result.lineTo(vec2(radius[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(radius[dcBottomLeft].float32, height) + vec2(padding.float32, padding.float32))
     
     # Bottom left corner
-    let blControl = vec2(0, innerHeight)
+    let blControl = vec2(0, height)
     result.quadraticCurveTo(
       blControl + vec2(padding.float32, padding.float32),
-      vec2(0, innerHeight - radius[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
+      vec2(0, height - radius[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Left side
@@ -139,7 +139,7 @@ proc generateCircleBox*(
 
 
 let imgA = generateCircleBox(
-  radius = [30, 20, 40, 10], # Different radius for each corner
+  radius = [0, 20, 40, 10], # Different radius for each corner
   offset = vec2(0, 0),
   spread = 1.0'f32,
   blur = 10.0'f32,
@@ -166,7 +166,7 @@ imgAnostroke.writeFile("examples/circlebox-asymmetric-nostroke.png")
 
 
 let imgB = generateCircleBox(
-  radius = [30, 30, 30, 30], # Different radius for each corner
+  radius = [0, 0, 0, 0], # Different radius for each corner
   offset = vec2(0, 0),
   spread = 0.0'f32,
   blur = 10.0'f32,
