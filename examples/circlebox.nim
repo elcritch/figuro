@@ -130,7 +130,8 @@ proc generateCircleBox*(
       ctx.clip(spath, EvenOdd)
       ctx.drawImage(shadow, pos = vec2(0, 0))
       ctx.restore()
-    ctx.drawImage(img, pos = vec2(0, 0))
+    if innerShadowBorder:
+      ctx.drawImage(img, pos = vec2(0, 0))
     return combined
   else:
     return img
@@ -187,6 +188,7 @@ let imgC = generateCircleBox(
   lineWidth = 2.0,
   outerShadow = false,
   innerShadow = true,
+  innerShadowBorder = false,
 )
 
 imgC.writeFile("examples/circlebox-inner-only.png")
@@ -201,6 +203,7 @@ let imgD = generateCircleBox(
   lineWidth = 2.0,
   outerShadow = true,
   innerShadow = false,
+  innerShadowBorder = false,
 )
 
 imgD.writeFile("examples/circlebox-outer-only.png")
@@ -215,6 +218,7 @@ let imgE = generateCircleBox(
   lineWidth = 2.0,
   outerShadow = true,
   innerShadow = true,
+  innerShadowBorder = false,
 )
 
 imgE.writeFile("examples/circlebox-outer-inner.png")
