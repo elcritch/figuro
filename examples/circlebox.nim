@@ -128,7 +128,6 @@ proc generateCircleBox*(
     let ctx = newContext(combined)
     ctx.clip(spath, EvenOdd)
     ctx.drawImage(shadow, pos = vec2(0, 0))
-    # ctx.drawImage(filled, pos = vec2(0, 0))
     ctx.drawImage(img, pos = vec2(0, 0))
     return combined
   else:
