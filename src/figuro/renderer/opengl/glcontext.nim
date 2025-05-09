@@ -714,14 +714,18 @@ proc generateCircleBox*(
     outerShadow = true,
     innerShadow = true,
     innerShadowBorder = true,
+    outerShadowFill = false,
 ): Image =
+  let origRadii = radii
+  var radii: array[DirectionCorners, int]
   var maxRadius = 0
-  for r in radii:
+  for i, r in origRadii:
+    radii[i] = max(r, 0)
     maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
-  let totalSize = max(maxRadius * 2 + padding * 2, 10 + padding*2)
+  let totalSize = max(maxRadius * 2 + padding * 2, 10+padding*2)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
@@ -795,7 +799,7 @@ proc generateCircleBox*(
     ctx.fill(path)
   
   # Apply inner shadow if requested
-  if innerShadow or outerShadow:
+  if innerShadow or outerShadow or outerShadowFill:
     let shadow = img.shadow(
       offset = offset,
       spread = spread,
@@ -812,7 +816,17 @@ proc generateCircleBox*(
       ctx.clip(spath, EvenOdd)
       ctx.drawImage(shadow, pos = vec2(0, 0))
       ctx.restore()
+    if outerShadowFill:
+      let spath = spath.copy()
+      spath.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctx.saveLayer()
+      ctx.clip(spath, EvenOdd)
+      ctx.fillStyle = fillStyle
+      ctx.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctx.fill()
+      ctx.restore()
     if outerShadow:
+      let spath = spath.copy()
       spath.rect(0, 0, totalSize.float32, totalSize.float32)
       ctx.saveLayer()
       ctx.clip(spath, EvenOdd)
