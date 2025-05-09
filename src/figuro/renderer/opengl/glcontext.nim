@@ -713,13 +713,23 @@ proc generateCircleBox*(
     innerShadow = true,
     innerShadowBorder = true,
 ): Image =
+  let origRadii = radii
+  var radii: array[DirectionCorners, int]
   var maxRadius = 0
-  for r in radii:
+  for i, r in origRadii:
+    radii[i] = max(r, 1)
     maxRadius = max(maxRadius, r)
   
+  if maxRadius < 2:
+    let img = newImage(4, 4)
+    let ctx = newContext(img)
+    ctx.fillStyle = fillStyle
+    ctx.fillRect(0, 0, 4, 4)
+    return img
+
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
-  let totalSize = maxRadius * 2 + padding * 2
+  let totalSize = max(maxRadius * 2 + padding * 2, 4)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
@@ -731,40 +741,40 @@ proc generateCircleBox*(
   
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
-    innerWidth, innerHeight: float32,
+    width, height: float32,
     radii: array[DirectionCorners, int],
     padding: int
   ): pixie.Path =
     # Start at top right after the corner radius
     result = newPath()
-    let topRight = vec2(innerWidth - radii[dcTopRight].float32, 0)
+    let topRight = vec2(width - radii[dcTopRight].float32, 0)
     result.moveTo(topRight + vec2(padding.float32, padding.float32))
     
     # Top right corner
-    let trControl = vec2(innerWidth, 0)
+    let trControl = vec2(width, 0)
     result.quadraticCurveTo(
       trControl + vec2(padding.float32, padding.float32),
-      vec2(innerWidth, radii[dcTopRight].float32) + vec2(padding.float32, padding.float32)
+      vec2(width, radii[dcTopRight].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Right side
-    result.lineTo(vec2(innerWidth, innerHeight - radii[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(width, height - radii[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
     
     # Bottom right corner
-    let brControl = vec2(innerWidth, innerHeight)
+    let brControl = vec2(width, height)
     result.quadraticCurveTo(
       brControl + vec2(padding.float32, padding.float32),
-      vec2(innerWidth - radii[dcBottomRight].float32, innerHeight) + vec2(padding.float32, padding.float32)
+      vec2(width - radii[dcBottomRight].float32, height) + vec2(padding.float32, padding.float32)
     )
     
     # Bottom side
-    result.lineTo(vec2(radii[dcBottomLeft].float32, innerHeight) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(radii[dcBottomLeft].float32, height) + vec2(padding.float32, padding.float32))
     
     # Bottom left corner
-    let blControl = vec2(0, innerHeight)
+    let blControl = vec2(0, height)
     result.quadraticCurveTo(
       blControl + vec2(padding.float32, padding.float32),
-      vec2(0, innerHeight - radii[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
+      vec2(0, height - radii[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
     )
     
     # Left side
@@ -821,6 +831,7 @@ proc generateCircleBox*(
     return combined
   else:
     return img
+
 
 
 proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =

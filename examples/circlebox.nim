@@ -31,12 +31,12 @@ proc generateCircleBox*(
   var radii: array[DirectionCorners, int]
   var maxRadius = 0
   for i, r in origRadii:
-    radii[i] = max(r, 1)
+    radii[i] = max(r, 0)
     maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
-  let totalSize = max(maxRadius * 2 + padding * 2, 4)
+  let totalSize = max(maxRadius * 2 + padding * 2, 4+padding*2)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
@@ -171,7 +171,7 @@ imgAnostroke.writeFile("examples/circlebox-asymmetric-nostroke.png")
 let imgB = generateCircleBox(
   radii = [0, 0, 0, 0], # Different radius for each corner
   offset = vec2(0, 0),
-  spread = 0.0'f32,
+  spread = 2.0'f32,
   blur = 10.0'f32,
   stroked = false,
   lineWidth = 2.0,
