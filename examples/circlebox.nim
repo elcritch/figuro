@@ -178,6 +178,20 @@ let imgAnostroke = generateCircleBox(
 
 imgAnostroke.writeFile("examples/circlebox-asymmetric-nostroke.png")
 
+let imgAfillshadow = generateCircleBox(
+  radii = [30, 20, 40, 10], # Different radius for each corner
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = false,
+  lineWidth = 2.0,
+  outerShadow = true,
+  innerShadow = false,
+  outerShadowFill = false,
+)
+
+imgAfillshadow.writeFile("examples/circlebox-asymmetric-fill-shadow.png")
+
 
 let imgB = generateCircleBox(
   radii = [1, 1, 1, 1], # Different radius for each corner

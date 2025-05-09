@@ -1208,10 +1208,10 @@ proc fillRoundedRectWithShadow*(
       let radii = [radiusLimit.int, radiusLimit.int, radiusLimit.int, radiusLimit.int]
       let mainImg = generateCircleBox(
         radii = radii,
-        offset = vec2(shadowX, shadowY),
+        offset = vec2(0, 0),
         spread = shadowSpreadLimit,
         blur = shadowBlurSizeLimit,
-        stroked = false,
+        stroked = innerShadow,
         lineWidth = 1.0,
         innerShadow = innerShadow,
         outerShadow = not innerShadow,
