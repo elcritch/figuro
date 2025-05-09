@@ -117,7 +117,7 @@ proc generateCircleBox*(
     )
     let filled = generateCircleBox(
         radius = radius,
-        offset = vec2(0, 0),
+        offset = offset,
         spread = 0.0'f32,
         blur = 0.0'f32,
         stroked = false,
@@ -125,9 +125,19 @@ proc generateCircleBox*(
         outerShadow = false,
         innerShadow = false,
     )
-    img.draw(shadow, blendMode = if innerShadowBorder: NormalBlend else: MaskBlend)
+    # img.draw(shadow, blendMode = if innerShadowBorder: NormalBlend else: MaskBlend)
+    let spath = createRoundedRectPath(innerWidth, innerHeight, radius, padding)
 
-  return img
+    let combined = newImage(totalSize, totalSize)
+    let ctx = newContext(combined)
+    ctx.clip(spath)
+    ctx.drawImage(shadow, pos = vec2(0, 0))
+    # ctx.drawImage(filled, pos = vec2(0, 0))
+    ctx.drawImage(img, pos = vec2(0, 0))
+    return combined
+  else:
+    return img
+
 
 
 let imgA = generateCircleBox(
