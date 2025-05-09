@@ -48,7 +48,8 @@ proc generateCircleBox*(
     path: var Path,
     innerWidth, innerHeight: float32,
     radius: array[DirectionCorners, int],
-    padding: int
+    padding: int,
+    invert: bool = false,
   ) =
     # Start at top right after the corner radius
     let topRight = vec2(innerWidth - radius[dcTopRight].float32, 0)
@@ -93,6 +94,9 @@ proc generateCircleBox*(
     
     # Close the path
     path.lineTo(topRight + vec2(padding.float32, padding.float32))
+
+    if invert:
+      path.rect(0, 0, innerWidth+padding.float32*2, innerHeight+padding.float32*2)
   
   # Create the path for our rounded rectangle
   var path = newPath()
@@ -115,10 +119,10 @@ proc generateCircleBox*(
       blur = blur,
       color = shadowColor
     )
+
+    let invert = outerShadow
     var spath = newPath()
-    createRoundedRectPath(spath, innerWidth, innerHeight, radius, padding)
-    spath.rect(0, 0, totalSize.float32, totalSize.float32)
-    # createRoundedRectPath(spath, innerWidth, innerHeight, radius, padding)
+    createRoundedRectPath(spath, innerWidth, innerHeight, radius, padding, invert = invert)
 
     let combined = newImage(totalSize, totalSize)
     let ctx = newContext(combined)
