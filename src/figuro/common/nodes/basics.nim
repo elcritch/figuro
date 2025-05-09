@@ -21,6 +21,12 @@ type
     dBottom
     dLeft
 
+  DirectionCorners* = enum
+    dcTopLeft
+    dcTopRight
+    dcBottomRight
+    dcBottomLeft
+
   NodeKind* = enum
     ## Different types of nodes.
     nkFrame
