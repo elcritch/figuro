@@ -33,14 +33,14 @@ proc clicked*[T](self: Button[T], kind: EventKind, buttons: set[UiMouse]) {.slot
     return
   of Done:
     self.setUserAttr(Active, false)
-    if MouseLeft in buttons:
-      emit self.doSingleClick()
-    if DoubleClick in buttons:
-      emit self.doDoubleClick()
-    if MouseRight in buttons:
-      emit self.doRightClick()
-    if TripleClick in buttons:
-      emit self.doTripleClick()
+    # if MouseLeft in buttons:
+    #   emit self.doSingleClick()
+    # if DoubleClick in buttons:
+    #   emit self.doDoubleClick()
+    # if MouseRight in buttons:
+    #   emit self.doRightClick()
+    # if TripleClick in buttons:
+    #   emit self.doTripleClick()
 
     if self.clickMode == {Double} and DoubleClick notin buttons:
       return

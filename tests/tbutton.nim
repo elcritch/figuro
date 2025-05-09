@@ -42,13 +42,14 @@ proc draw*(self: Main) {.slot.} =
             let self = this.queryParent(Main).get()
             echo "btn: ", this.state, " ", self.toggles[this.state]
             if self.toggles[this.state]:
+              echo "fade in: ", this.state
               self.fades[this.state].fadeIn()
             else:
+              echo "fade out: ", this.state
               self.fades[this.state].fadeOut()
             self.toggles[this.state] = not self.toggles[this.state]
 
     Button[int] as "btn":
-      echo "btn"
       with this:
         box 40'ux, 30'ux, 30'pp, 30'pp
         fill css"#2B9F2B"
@@ -56,7 +57,7 @@ proc draw*(self: Main) {.slot.} =
         cornerRadius self.fades[FkRadius].amount.UiScalar
       for i in FadeKinds.toSeq():
         self.fades[i].addTarget(this)
-      echo "radius: ", self.fades[FkRadius].amount, " blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount
+      # echo "draw button: ", "radius: ", self.fades[FkRadius].amount, " blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount
       when true:
         this.shadow[DropShadow] = Shadow(
           blur: self.fades[FkBlur].amount.UiScalar,

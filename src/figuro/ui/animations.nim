@@ -39,17 +39,17 @@ proc tick*(self: Fader, now: MonoTime, delta: Duration) {.slot.} =
     if self.amount <= self.minMax.a:
       self.amount = self.minMax.a
       self.active = false
-  debug "fader:tick: ", self = $self.unsafeWeakRef, amount = self.amount, rate = rate, dt = dt, minMax = self.minMax
+  trace "fader:tick: ", self = $self.unsafeWeakRef, amount = self.amount, rate = rate, dt = dt, minMax = self.minMax
   
   let (x,y) = if self.fadingIn: (self.minMax.b, self.minMax.a)
               else: (self.minMax.a, self.minMax.b)
 
   let val = (amount: self.amount, perc: (self.amount-x)/(y-x))
   if self.active:
-    debug "fader:tick:send: ", self = $self.unsafeWeakRef, amount = self.amount, rate = rate, dt = dt, minMax = self.minMax
+    trace "fader:tick:send: ", self = $self.unsafeWeakRef, amount = self.amount, rate = rate, dt = dt, minMax = self.minMax
     emit self.doFadeTick(val, false)
   else:
-    debug "fader:stop: ", self = $self.unsafeWeakRef
+    trace "fader:stop: ", self = $self.unsafeWeakRef
     for tgt in self.targets:
       disconnect(tgt.frame[].root, doTick, self)
       break
@@ -69,7 +69,7 @@ proc startFade*(self: Fader, fadeIn: bool) {.slot.} =
     # echo "fader:start:connect:root: ", tgt.frame[].root.name
     connect(tgt.frame[].root, doTick, self, tick)
     break
-  debug "fader:started: ", self = $self.unsafeWeakRef, amt = self.amount, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs
+  trace "fader:started: ", self = $self.unsafeWeakRef, amt = self.amount, minMax = self.minMax, ratePerMs= self.ratePerMs, fadeOn= self.inTimeMs, fadeOut= self.outTimeMs
 
 proc stop*(self: Fader) {.slot.} =
   self.active = false
