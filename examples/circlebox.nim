@@ -26,6 +26,7 @@ proc generateCircleBox*(
     outerShadow = true,
     innerShadow = true,
     innerShadowBorder = true,
+    outerShadowFill = false,
 ): Image =
   let origRadii = radii
   var radii: array[DirectionCorners, int]
@@ -126,6 +127,14 @@ proc generateCircleBox*(
       ctx.saveLayer()
       ctx.clip(spath, EvenOdd)
       ctx.drawImage(shadow, pos = vec2(0, 0))
+      ctx.restore()
+    if outerShadowFill:
+      spath.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctx.saveLayer()
+      ctx.clip(spath, EvenOdd)
+      ctx.fillStyle = fillStyle
+      ctx.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctx.fill()
       ctx.restore()
     if outerShadow:
       spath.rect(0, 0, totalSize.float32, totalSize.float32)
@@ -234,9 +243,10 @@ let imgF = generateCircleBox(
   blur = 10.0'f32,
   stroked = true,
   lineWidth = 2.0,
-  outerShadow = true,
+  outerShadow = false,
   innerShadow = true,
   innerShadowBorder = false,
+  outerShadowFill = true,
 )
 
 imgF.writeFile("examples/circlebox-inner-and-fill-outer.png")
