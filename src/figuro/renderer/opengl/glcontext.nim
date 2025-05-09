@@ -536,6 +536,8 @@ proc sliceToNinePatch(img: Image): tuple[
     halfW = width div 2
     halfH = height div 2
   
+  echo "sliceToNinePatch: ", width, "x", height, " halfW: ", halfW, " halfH: ", halfH
+
   # Create the corner images - using the actual corner size or half the image size, whichever is smaller
   let 
     actualCornerW = halfW
@@ -713,23 +715,13 @@ proc generateCircleBox*(
     innerShadow = true,
     innerShadowBorder = true,
 ): Image =
-  let origRadii = radii
-  var radii: array[DirectionCorners, int]
   var maxRadius = 0
-  for i, r in origRadii:
-    radii[i] = max(r, 1)
+  for r in radii:
     maxRadius = max(maxRadius, r)
   
-  if maxRadius < 2:
-    let img = newImage(4, 4)
-    let ctx = newContext(img)
-    ctx.fillStyle = fillStyle
-    ctx.fillRect(0, 0, 4, 4)
-    return img
-
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
-  let totalSize = max(maxRadius * 2 + padding * 2, 4)
+  let totalSize = max(maxRadius * 2 + padding * 2, 10 + padding*2)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
@@ -843,13 +835,13 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   let
     w = rect.w.ceil()
     h = rect.h.ceil()
-    radius = min(radius, min(rect.w / 2, rect.h / 2)).ceil()
+    radius = max(1.0, min(radius, min(rect.w / 2, rect.h / 2))).ceil()
     rw = radius
     rh = radius
 
   let hash = hash((6118, (rw * 100).int, (rh * 100).int, (radius * 100).int))
 
-  if radius > 0.0:
+  if true:
     # let stroked = stroked and lineWidth <= radius
     var hashes: array[DirectionCorners, Hash]
     for quadrant in DirectionCorners:
@@ -1174,8 +1166,7 @@ proc fillRoundedRectWithShadow*(
     hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int, innerShadow))
 
   let 
-    sBlur = (shadowBlur * 100).int
-    # shadowKey = hash((7723, radius.int, sSpread, sBlur))
+    radius = max(1.0, radius)
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
     radiusLimit = radius
@@ -1190,15 +1181,16 @@ proc fillRoundedRectWithShadow*(
   # Check if we've already generated this shadow
   let shadowKeyBase = shadowKey !& 0
   # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
-  let newSize = shadowBlur.int + shadowSpread.int + radius.int
-  if newSize < 4:
-    return
+  let newSize = max(shadowBlur.int + shadowSpread.int + radius.int, 2)
+  # if newSize < 4:
+  #   return
+
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
     let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radiusLimit, innerShadow)
     # Generate shadow image
     if mainKey notin shadowCache:
-      echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSize.round(2), " ", shadowSpread.round(2), " ", radiusLimit.round(2), " ", innerShadow
+      echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
       let radii = [radiusLimit.int, radiusLimit.int, radiusLimit.int, radiusLimit.int]
       let mainImg = generateCircleBox(
         radii = radii,
