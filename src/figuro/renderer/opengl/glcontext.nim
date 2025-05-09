@@ -1194,11 +1194,11 @@ proc fillRoundedRectWithShadow*(
         offset = vec2(shadowX, shadowY),
         spread = shadowSpreadLimit,
         blur = shadowBlurSizeLimit,
-        stroked = true,
+        stroked = false,
         lineWidth = 1.0,
         innerShadow = innerShadow,
         outerShadow = not innerShadow,
-        innerShadowBorder = false,
+        innerShadowBorder = not innerShadow,
       )
       mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
       shadowCache[mainKey] = mainImg

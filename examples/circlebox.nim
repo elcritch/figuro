@@ -174,6 +174,7 @@ let imgB = generateCircleBox(
   lineWidth = 2.0,
   outerShadow = true,
   innerShadow = false,
+  innerShadowBorder = true,
 )
 
 imgB.writeFile("examples/circlebox-symmetric.png")
