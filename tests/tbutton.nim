@@ -18,17 +18,17 @@ type
 
 
 proc initialize*(self: Main) {.slot.} =
-  for i in FadeKinds.toSeq():
-    self.toggles[i] = true
-    self.fades[i] = Fader(minMax: 0.01..22.0,
+  for kd in FadeKinds:
+    self.toggles[kd] = true
+    self.fades[kd] = Fader(minMax: 0.01..22.0,
                           inTimeMs: 1400, outTimeMs: 1400)
-  # self.fades[FkRadius] = Fader(minMax: 4..22.0,
-  #                         inTimeMs: 1400, outTimeMs: 1400)
+  self.fades[FkRadius] = Fader(minMax: 0.0..22.0,
+                          inTimeMs: 1400, outTimeMs: 1400)
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
+    size 100'pp, 100'pp
     fill css"grey"
-    # fill css"white"
 
     for i, idx in FadeKinds.toSeq():
       capture i, idx:
@@ -40,9 +40,12 @@ proc draw*(self: Main) {.slot.} =
           label this, {defaultFont(): "Fade " & $this.state & " " & $self.fades[this.state].amount.round(2)}
           onSignal(doSingleClick) do(this: TextButton[FadeKinds]):
             let self = this.queryParent(Main).get()
+            echo "btn: ", this.state, " ", self.toggles[this.state]
             if self.toggles[this.state]:
+              echo "fade in: ", this.state
               self.fades[this.state].fadeIn()
             else:
+              echo "fade out: ", this.state
               self.fades[this.state].fadeOut()
             self.toggles[this.state] = not self.toggles[this.state]
 
@@ -50,23 +53,19 @@ proc draw*(self: Main) {.slot.} =
       with this:
         box 40'ux, 30'ux, 30'pp, 30'pp
         fill css"#2B9F2B"
-        # fill clearColor
-        # fill css"#2B9F2B" * 0.5
         border 3'ui, css"red"
         cornerRadius self.fades[FkRadius].amount.UiScalar
       for i in FadeKinds.toSeq():
         self.fades[i].addTarget(this)
-      echo "blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount
+      # echo "draw button: ", "radius: ", self.fades[FkRadius].amount, " blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount
       when true:
         this.shadow[DropShadow] = Shadow(
-          # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar, y: self.fades[FkY].amount.UiScalar,
           color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
       when true:
         this.shadow[InnerShadow] = Shadow(
-          # blur: self.blur.minMax.b.UiScalar - self.blur.amount.UiScalar + 0.1.UiScalar,
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar,

@@ -1,8 +1,15 @@
 import pixie, pixie/simd
 
+type
+  DirectionCorners* = enum
+    dcTopLeft
+    dcTopRight
+    dcBottomRight
+    dcBottomLeft
+
 proc generateCorner(
     radius: int,
-    quadrant: range[1 .. 4],
+    quadrant: DirectionCorners,
     stroked: bool,
     lineWidth: float32 = 0'f32,
     fillStyle = rgba(255, 255, 255, 255),
@@ -39,16 +46,16 @@ proc generateCorner(
       path.bezierCurveTo(blc, trc, tr)
 
     case quadrant
-    of 1:
-      ctx.rotate(270 * PI / 180)
-      ctx.translate(-tr)
-    of 2:
+    of dcTopLeft: # TL
       ctx.rotate(180 * PI / 180)
       ctx.translate(-br)
-    of 3:
+    of dcTopRight: # TR
+      ctx.rotate(270 * PI / 180)
+      ctx.translate(-tr)
+    of dcBottomLeft: # BL
       ctx.rotate(90 * PI / 180)
       ctx.translate(-bl)
-    of 4:
+    of dcBottomRight: # BR
       discard
 
     if doStroke:
@@ -88,7 +95,7 @@ proc generateCorner(
   result = image
 
 
-for i in 1..4:
+for i in DirectionCorners:
   let img = generateCorner(30, i, stroked = true,
               lineWidth = 3, innerShadow = true,
               spread = 1, blur = 10,

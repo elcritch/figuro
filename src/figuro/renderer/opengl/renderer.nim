@@ -150,7 +150,8 @@ proc renderDropShadows(ctx: Context, node: Node) =
         shadowY = shadow.y,
         shadowBlur = shadow.blur,
         shadowSpread = shadow.spread.float32,
-        shadowColor = shadow.color
+        shadowColor = shadow.color,
+        innerShadow = false,
       )
 
 proc renderInnerShadows(ctx: Context, node: Node) =

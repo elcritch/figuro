@@ -102,6 +102,7 @@ type
 
     kind*: NodeKind
     shadow*: array[ShadowStyle, Shadow]
+    # cornerRadius*: array[DirectionCorners, UiScalar]
     cornerRadius*: UiScalar
     image*: ImageStyle
     textLayout*: GlyphArrangement

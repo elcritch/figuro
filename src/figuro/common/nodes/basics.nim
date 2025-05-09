@@ -15,6 +15,18 @@ else:
 type NodeID* = int64
 
 type
+  Directions* = enum
+    dTop
+    dRight
+    dBottom
+    dLeft
+
+  DirectionCorners* = enum
+    dcTopLeft
+    dcTopRight
+    dcBottomRight
+    dcBottomLeft
+
   NodeKind* = enum
     ## Different types of nodes.
     nkFrame
