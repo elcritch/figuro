@@ -734,7 +734,12 @@ proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[Dire
   for r in result.mitems():
     r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
-proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radii: array[DirectionCorners, float32]) =
+proc fillRoundedRect*(
+    ctx: Context,
+    rect: Rect,
+    color: Color,
+    radii: array[DirectionCorners, float32],
+) =
   if rect.w <= 0 or rect.h <= -0:
     when defined(fidgetExtraDebugLogging):
       info "fillRoundedRect: too small: ", rect = rect
@@ -804,7 +809,11 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radii: array[Direc
   fillRect(ctx, rect(rect.x + rrw, rect.y + rh, rw, hrh), color)
 
 proc strokeRoundedRect*(
-    ctx: Context, rect: Rect, color: Color, weight: float32, radii: array[DirectionCorners, float32]
+    ctx: Context,
+    rect: Rect,
+    color: Color,
+    weight: float32,
+    radii: array[DirectionCorners, float32]
 ) =
   let fillStyle = rgba(255, 255, 255, 255)
 
@@ -825,33 +834,39 @@ proc strokeRoundedRect*(
     hash((6217, (rw * 100).int, (rh * 100).int, hash(radii), (weight * 100).int))
 
   if maxRadius > 0.0:
-    var hashes: array[4, Hash]
-    for quadrant in 1 .. 4:
-      let qhash = hash !& quadrant
-      hashes[quadrant - 1] = qhash
+    var hashes: array[DirectionCorners, Hash]
+    for quadrant in DirectionCorners:
+      let qhash = hash !& quadrant.int
+      hashes[quadrant] = qhash
 
-    if hashes[0] notin ctx.entries:
+    if hashes[dcTopRight] notin ctx.entries:
       # let radii = [radius.int, radius.int, radius.int, radius.int]
       let circle = generateCircleBox(radii, stroked = true, lineWidth = weight)
       circle.writeFile("examples/renderer-stroke-circle.png")
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
       let patchArray = [
-        patches.topRight, 
-        patches.topLeft,
-        patches.bottomLeft,
-        patches.bottomRight,
+        dcTopLeft: patches.topLeft,
+        dcTopRight: patches.topRight, 
+        dcBottomRight: patches.bottomRight,
+        dcBottomLeft: patches.bottomLeft,
       ]
 
-      for quadrant in 1 .. 4:
-        let img = patchArray[quadrant - 1]
-        ctx.putImage(hashes[quadrant - 1], img)
+      for quadrant in DirectionCorners:
+        let img = patchArray[quadrant]
+        ctx.putImage(hashes[quadrant], img)
 
     let
       xy = rect.xy
-      offsets = [vec2(w - rw, 0), vec2(0, 0), vec2(0, h - rh), vec2(w - rw, h - rh)]
+      offsets = [
+        dcTopLeft: vec2(0, 0),
+        dcTopRight: vec2(w - rw, 0),
+        dcBottomRight: vec2(w - rw, h - rh),
+        dcBottomLeft: vec2(0, h - rh),
+      ]
 
-    for corner in 0 .. 3:
+
+    for corner in DirectionCorners:
       let
         uvRect = ctx.entries[hashes[corner]]
         wh = rect.wh * ctx.atlasSize.float32
