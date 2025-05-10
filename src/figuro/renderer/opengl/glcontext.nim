@@ -1069,42 +1069,52 @@ proc fillRoundedRectWithShadow*(
   let newSize = max(shadowBlur.int + shadowSpread.int + maxRadius.int, 2)
 
   if shadowKeyBase notin ctx.entries:
-    var shadowImg: Image
-    let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radiusLimit, innerShadow)
-    # Generate shadow image
-    if mainKey notin shadowCache:
-      echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
+    var shadowImg: Image =
       if innerShadow:
-        let mainImg = generateCircleBox(
-          radii = radii,
-          offset = vec2(0, 0),
-          spread = shadowSpreadLimit,
-          blur = shadowBlurSizeLimit,
-          stroked = true,
-          lineWidth = 1.0,
-          innerShadow = true,
-          outerShadow = false,
-          innerShadowBorder = false,
-          outerShadowFill = true,
-        )
-        # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
-        shadowCache[mainKey] = mainImg
+        let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
+      # Generate shadow image
+        if mainKey notin shadowCache:
+          echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
+          let mainImg = generateCircleBox(
+            radii = radii,
+            offset = vec2(0, 0),
+            spread = shadowSpread,
+            blur = shadowBlur,
+            stroked = true,
+            lineWidth = 1.0,
+            innerShadow = true,
+            outerShadow = false,
+            innerShadowBorder = false,
+            outerShadowFill = false,
+          )
+          mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
+          shadowCache[mainKey] = mainImg
+          mainImg
+        else:
+          shadowCache[mainKey]
       else:
-        let mainImg = generateCircleBox(
-          radii = radii,
-          offset = vec2(0, 0),
-          spread = shadowSpreadLimit,
-          blur = shadowBlurSizeLimit,
-          stroked = false,
-          lineWidth = 1.0,
-          outerShadow = true,
-          innerShadow = false,
-          innerShadowBorder = true,
-          outerShadowFill = false,
-        )
-        # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
-        shadowCache[mainKey] = mainImg
-    shadowImg = shadowCache[mainKey].resize(newSize, newSize)
+        let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radiusLimit, innerShadow)
+        if mainKey notin shadowCache:
+          let mainImg = generateCircleBox(
+            radii = radii,
+            offset = vec2(0, 0),
+            spread = shadowSpreadLimit,
+            blur = shadowBlurSizeLimit,
+            stroked = false,
+            lineWidth = 1.0,
+            outerShadow = true,
+            innerShadow = false,
+            innerShadowBorder = true,
+            outerShadowFill = false,
+          )
+          # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
+          shadowCache[mainKey] = mainImg
+          mainImg
+        else:
+          shadowCache[mainKey]
+
+    if shadowImg.width != newSize or shadowImg.height != newSize:
+      shadowImg = shadowImg.resize(newSize, newSize)
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
@@ -1125,9 +1135,9 @@ proc fillRoundedRectWithShadow*(
     totalPadding = int(shadowBlur+shadowSpread) - 1
     corner = maxRadius + totalPadding.float32 + 1
 
-  if innerShadow:
-    totalPadding = int(shadowBlur+shadowSpread) - 1
-    corner = 2*(shadowBlur+shadowSpread) + 1
+  # if innerShadow:
+  #   totalPadding = int(shadowBlur+shadowSpread) - 1
+  #   corner = 2*(shadowBlur+shadowSpread) + 1
 
   let
     sbox = rect(
