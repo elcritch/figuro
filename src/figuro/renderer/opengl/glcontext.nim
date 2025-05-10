@@ -615,13 +615,8 @@ proc generateCircleBox*(
     innerShadowBorder = true,
     outerShadowFill = false,
 ): Image =
-  # var maxRadius = 0.0
-  # for r in radii:
-  #   maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
-  # let padding = (spread.int + blur.int)
-  # let totalSize = max(2*maxRadius.ceil().int + 2*padding, 4*padding)
   let lw = lineWidth.ceil()
   let (maxRadius, totalSize, padding, inner) = getCircleBoxSizes(radii, blur, spread)
   
@@ -630,8 +625,6 @@ proc generateCircleBox*(
   let ctx = newContext(img)
   
   # Calculate the inner box dimensions
-  # let innerWidth = (totalSize - padding * 2).float32
-  # let innerHeight = (totalSize - padding * 2).float32
   let innerWidth = inner.float32
   let innerHeight = inner.float32
   
