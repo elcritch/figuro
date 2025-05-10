@@ -202,7 +202,7 @@ proc setName*(current: Figuro, n: string) =
 proc border*(current: Figuro, weight: UiScalar, color: Color) =
   ## Sets border stroke & color on the given node.
   current.stroke.color = color
-  current.stroke.weight = weight.float32
+  current.stroke.weight = weight
 
 proc cssEnable*(current: Figuro, enable: bool) =
   ## Causes the parent to clip the children.

@@ -177,7 +177,7 @@ proc apply*(prop: CssProperty, node: Figuro, values: CssValues) =
     node.stroke.color = color
   of "border-width":
     let cx = sizeValue(prop.value, values)
-    setCxFixed(cx, node.stroke.weight)
+    setCxFixed(cx, node.stroke.weight, UiScalar)
   of "border-radius", "-fig-cornerRadius":
     let cx = sizeValue(prop.value, values)
     setCxFixed(cx, node.cornerRadius[dcTopLeft], UiScalar)

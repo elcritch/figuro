@@ -96,7 +96,9 @@ proc toRenderNode*(current: Figuro): render.Node =
   result.rotation = current.rotation
   result.fill = current.fill
   result.highlight = current.highlight
-  result.stroke = current.stroke
+
+  result.stroke.weight = current.stroke.weight.scaled
+  result.stroke.color = current.stroke.color
 
   result.image = current.image
 
