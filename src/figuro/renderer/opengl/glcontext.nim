@@ -617,8 +617,8 @@ proc generateCircleBox*(
   let ctx = newContext(img)
   
   # Calculate the inner box dimensions
-  let innerWidth = (totalSize - padding * 2).float32
-  let innerHeight = (totalSize - padding * 2).float32
+  let innerWidth = (totalSize - padding * 2).float32 - lw/2.0
+  let innerHeight = (totalSize - padding * 2).float32 - lw/2.0
   
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
