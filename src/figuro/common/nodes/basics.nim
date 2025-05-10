@@ -112,7 +112,11 @@ type
     color*: Color
 
   Stroke* = object
-    weight*: float32 # not uicoord?
+    weight*: UiScalar
+    color*: Color
+
+  RenderStroke* = object
+    weight*: float32
     color*: Color
 
   ImageId* = distinct Hash

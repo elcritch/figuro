@@ -286,17 +286,17 @@ suite "css exec":
     """
     setupMain(themeSrc)
     check btnA.fill == parseHtmlColor("#FF0000")
-    check btnA.stroke.weight == 3.0
+    check btnA.stroke.weight == 3.0'ui
     check btnA.stroke.color == parseHtmlColor("#00FF00")
 
     check btnB.fill == parseHtmlColor("#0000FF")
-    check btnB.stroke.weight == 0.0
+    check btnB.stroke.weight == 0.0'ui
     check btnB.stroke.color == clearColor
 
     ## Not a direct descendant of body or child2, should be orig
     # should be untouched
     check btnC.fill == initialColor
-    check btnC.stroke.weight == 0.0
+    check btnC.stroke.weight == 0.0'ui
     check btnC.stroke.color == clearColor
 
   test "css grandchild descdendant":
@@ -546,7 +546,7 @@ suite "css exec":
     check btnB.shadow[InnerShadow].blur == 0
     check btnB.shadow[InnerShadow].color == clearColor
     # check btnB.fill == parseHtmlColor("#FF0000")
-    check btnB.stroke.weight == 0.0
+    check btnB.stroke.weight == 0.0'ui
     check btnB.stroke.color == clearColor
 
   test "box shadow 2":
@@ -569,7 +569,7 @@ suite "css exec":
     check btnB.shadow[InnerShadow].blur == 0
     check btnB.shadow[InnerShadow].color == clearColor
     # check btnB.fill == parseHtmlColor("#FF0000")
-    check btnB.stroke.weight == 0.0
+    check btnB.stroke.weight == 0.0'ui
     check btnB.stroke.color == clearColor
 
   test "box shadow 3":
@@ -593,7 +593,7 @@ suite "css exec":
     check btnB.shadow[InnerShadow].blur == 0
     check btnB.shadow[InnerShadow].color == clearColor
     # check btnB.fill == parseHtmlColor("#FF0000")
-    check btnB.stroke.weight == 0.0
+    check btnB.stroke.weight == 0.0'ui
     check btnB.stroke.color == clearColor
 
   test "inset box shadow":
@@ -616,7 +616,7 @@ suite "css exec":
     check btnB.shadow[InnerShadow].blur == 10
     check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
     # check btnB.fill == parseHtmlColor("#FF0000")
-    check btnB.stroke.weight == 0.0
+    check btnB.stroke.weight == 0.0'ui
     check btnB.stroke.color == clearColor
 
   test "inset box shadow 2":
@@ -640,7 +640,7 @@ suite "css exec":
     check btnB.shadow[InnerShadow].spread == 20
     check btnB.shadow[InnerShadow].color == parseHtmlColor("red")
     # check btnB.fill == parseHtmlColor("#FF0000")
-    check btnB.stroke.weight == 0.0
+    check btnB.stroke.weight == 0.0'ui
     check btnB.stroke.color == clearColor
 
   test "box shadow none":
@@ -758,7 +758,7 @@ suite "css exec":
     
     # Check that variables are properly applied
     check btnB.fill == parseHtmlColor("#FF0000")
-    check btnB.stroke.weight == 10.0
+    check btnB.stroke.weight == 10.0'ui
     check btnB.stroke.color == parseHtmlColor("#00FF00")
     
     check btnD.fill == parseHtmlColor("#00FF00")
@@ -795,7 +795,7 @@ suite "css exec":
     
     # Check that nested variables are resolved correctly
     check btnB.fill == parseHtmlColor("#FF0000")
-    check btnB.stroke.weight == 5.0  # 5px * 2
+    check btnB.stroke.weight == 5.0'ui  # 5px * 2
     
     # Update base variables and check that dependent variables update
     let updatedThemeSrc = """
@@ -824,6 +824,6 @@ suite "css exec":
     
     # Check that updated nested variables are applied
     check btnB.fill == parseHtmlColor("#0000FF")
-    check btnB.stroke.weight == 8.0  # 8px * 2
+    check btnB.stroke.weight == 8.0'ui  # 8px * 2
 
 

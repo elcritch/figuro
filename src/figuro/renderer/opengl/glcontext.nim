@@ -207,6 +207,10 @@ func `[]`(t: var Table[Hash, Rect], key: string): Rect =
 proc hash(v: Vec2): Hash =
   hash((v.x, v.y))
 
+proc hash(radii: array[DirectionCorners, float32]): Hash =
+  for r in radii:
+    result = result !& hash(r)
+
 proc grow(ctx: Context) =
   ctx.draw()
   ctx.atlasSize = ctx.atlasSize * 2
@@ -585,125 +589,20 @@ proc sliceToNinePatch(img: Image): tuple[
     left: fleft
   )
   
-proc generateCorner(
-    radius: int,
-    quadrant: range[1 .. 4],
-    stroked: bool,
-    lineWidth: float32 = 0'f32,
-    fillStyle = rgba(255, 255, 255, 255),
-): Image =
-  const s = 4.0 / 3.0 * (sqrt(2.0) - 1.0)
-  let
-    x = radius.toFloat
-    y = radius.toFloat
-    r = radius.toFloat - lineWidth
-
-    tl = vec2(0, 0)
-    tr = vec2(x, 0)
-    bl = vec2(0, y)
-    br = vec2(x, y)
-    trc = tr + vec2(0, r * s)
-    blc = bl + vec2(r * s, 0)
-
-  template drawImpl(ctx: untyped, doStroke: bool) =
-    let path = newPath()
-    if doStroke:
-      let bl = vec2(0, y - lineWidth / 2)
-      let tr = vec2(x - lineWidth / 2, 0)
-      path.moveTo(bl)
-      path.bezierCurveTo(blc, trc, tr)
-    else:
-      path.moveTo(tr)
-      path.lineTo(tl)
-      path.lineTo(bl)
-      path.bezierCurveTo(blc, trc, tr)
-
-    case quadrant
-    of 1:
-      ctx.rotate(270 * PI / 180)
-      ctx.translate(-tr)
-    of 2:
-      ctx.rotate(180 * PI / 180)
-      ctx.translate(-br)
-    of 3:
-      ctx.rotate(90 * PI / 180)
-      ctx.translate(-bl)
-    of 4:
-      discard
-
-    if doStroke:
-      ctx.stroke(path)
-    else:
-      ctx.fill(path)
-
-  let image = newImage(radius, radius)
-
-  if not stroked:
-    let ctx1 = newContext(image)
-    ctx1.fillStyle = fillStyle
-    drawImpl(ctx1, doStroke = false)
-  else:
-    let ctx2 = newContext(image)
-    ctx2.strokeStyle = fillStyle
-    ctx2.lineCap = SquareCap
-    ctx2.lineWidth = lineWidth
-    drawImpl(ctx2, doStroke = true)
-
-  result = image
-
-proc generateCircle(radius: int,
-                         offset = vec2(0, 0), 
-                         spread: float32 = 0.0'f32,
-                         blur: float32 = 0.0'f32,
-                         stroked: bool = true,
-                         lineWidth: float32 = 0.0'f32,
-                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
-                         shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
-                         innerShadow = true,
-                         innerShadowBorder = true,
-                         ): Image =
-  if radius <= 0:
-    return newImage(1, 1)
-
-  let sz = 2*radius
-  let radius = radius.toFloat
-
-  let circle = newImage(sz, sz)
-  let ctx3 = newContext(circle)
-  ctx3.strokeStyle = fillStyle
-  ctx3.fillStyle = fillStyle
-  ctx3.lineCap = SquareCap
-  ctx3.lineWidth = lineWidth
-  ctx3.circle(radius, radius, radius-lineWidth/2)
-  if stroked:
-    ctx3.stroke()
-  else:
-    ctx3.fill()
-
-  let circleSolid = newImage(sz, sz)
-  let ctx4 = newContext(circleSolid)
-  ctx4.fillStyle = fillStyle
-  let innerRadiusMask = if innerShadowBorder: radius else: radius-lineWidth
-  ctx4.circle(radius, radius, innerRadiusMask)
-  ctx4.fill()
-  
-  let shadow = circle.shadow(
-    offset = offset,
-    spread = spread,
-    blur = blur,
-    color = shadowColor
-  )
-
-  let image = newImage(sz, sz)
-  if innerShadow:
-    image.draw(shadow)
-  image.draw(circle)
-  if innerShadow:
-    image.draw(circleSolid, blendMode = MaskBlend)
-  return image
+proc getCircleBoxSizes(
+    radii: array[DirectionCorners, float32],
+    blur: float32,
+    spread: float32
+): tuple[maxRadius: int, totalSize: int, padding: int, inner: int] =
+  result.maxRadius = 0
+  for r in radii:
+    result.maxRadius = max(result.maxRadius, r.ceil().int)
+  result.padding = spread.ceil().int + blur.ceil().int
+  result.totalSize = max(2*result.maxRadius + 2*result.padding, 4*result.padding)
+  result.inner = result.totalSize - 2*result.padding
 
 proc generateCircleBox*(
-    radii: array[DirectionCorners, int],
+    radii: array[DirectionCorners, float32],
     offset = vec2(0, 0),
     spread: float32 = 0.0'f32,
     blur: float32 = 0.0'f32,
@@ -716,78 +615,78 @@ proc generateCircleBox*(
     innerShadowBorder = true,
     outerShadowFill = false,
 ): Image =
-  let origRadii = radii
-  var radii: array[DirectionCorners, int]
-  var maxRadius = 0
-  for i, r in origRadii:
-    radii[i] = max(r, 0)
-    maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
-  let padding = (spread.int + blur.int)
-  let totalSize = max(maxRadius * 2 + padding * 2, 10+padding*2)
+  let lw = lineWidth.ceil()
+  let (maxRadius, totalSize, padding, inner) = getCircleBoxSizes(radii, blur, spread)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
   let ctx = newContext(img)
   
   # Calculate the inner box dimensions
-  let innerWidth = (totalSize - padding * 2).float32
-  let innerHeight = (totalSize - padding * 2).float32
+  let innerWidth = inner.float32
+  let innerHeight = inner.float32
   
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
     width, height: float32,
-    radii: array[DirectionCorners, int],
-    padding: int
+    radii: array[DirectionCorners, float32],
+    padding: float32,
+    lw: float32
   ): pixie.Path =
     # Start at top right after the corner radius
+    let hlw = lw / 2.0
+    let padding = padding + hlw
+    let width = width - lw
+    let height = height - lw
+
     result = newPath()
-    let topRight = vec2(width - radii[dcTopRight].float32, 0)
-    result.moveTo(topRight + vec2(padding.float32, padding.float32))
+    let topRight = vec2(width - radii[dcTopRight], 0)
+    result.moveTo(topRight + vec2(padding, padding))
     
     # Top right corner
     let trControl = vec2(width, 0)
     result.quadraticCurveTo(
-      trControl + vec2(padding.float32, padding.float32),
-      vec2(width, radii[dcTopRight].float32) + vec2(padding.float32, padding.float32)
+      trControl + vec2(padding, padding),
+      vec2(width, radii[dcTopRight]) + vec2(padding, padding)
     )
     
     # Right side
-    result.lineTo(vec2(width, height - radii[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(width, height - radii[dcBottomRight]) + vec2(padding, padding))
     
     # Bottom right corner
     let brControl = vec2(width, height)
     result.quadraticCurveTo(
-      brControl + vec2(padding.float32, padding.float32),
-      vec2(width - radii[dcBottomRight].float32, height) + vec2(padding.float32, padding.float32)
+      brControl + vec2(padding, padding),
+      vec2(width - radii[dcBottomRight], height) + vec2(padding, padding)
     )
     
     # Bottom side
-    result.lineTo(vec2(radii[dcBottomLeft].float32, height) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(radii[dcBottomLeft], height) + vec2(padding, padding))
     
     # Bottom left corner
     let blControl = vec2(0, height)
     result.quadraticCurveTo(
-      blControl + vec2(padding.float32, padding.float32),
-      vec2(0, height - radii[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
+      blControl + vec2(padding, padding),
+      vec2(0, height - radii[dcBottomLeft]) + vec2(padding, padding)
     )
     
     # Left side
-    result.lineTo(vec2(0, radii[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(0, radii[dcTopLeft]) + vec2(padding, padding))
     
     # Top left corner
     let tlControl = vec2(0, 0)
     result.quadraticCurveTo(
-      tlControl + vec2(padding.float32, padding.float32),
-      vec2(radii[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
+      tlControl + vec2(padding, padding),
+      vec2(radii[dcTopLeft], 0) + vec2(padding, padding)
     )
     
     # Close the path
-    result.lineTo(topRight + vec2(padding.float32, padding.float32))
+    result.lineTo(topRight + vec2(padding, padding))
   
   # Create the path for our rounded rectangle
-  let path = createRoundedRectPath(innerWidth, innerHeight, radii, padding)
+  let path = createRoundedRectPath(innerWidth, innerHeight, radii, padding.float32, lw)
       
   # Draw the box
   if stroked:
@@ -800,6 +699,19 @@ proc generateCircleBox*(
   
   # Apply inner shadow if requested
   if innerShadow or outerShadow or outerShadowFill:
+    let spath = createRoundedRectPath(innerWidth, innerHeight, radii, padding.float32, lw)
+
+    let ctxImg = newContext(img)
+    if outerShadowFill:
+      let spath = spath.copy()
+      spath.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctxImg.saveLayer()
+      ctxImg.clip(spath, EvenOdd)
+      ctxImg.fillStyle = fillStyle
+      ctxImg.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctxImg.fill()
+      ctxImg.restore()
+
     let shadow = img.shadow(
       offset = offset,
       spread = spread,
@@ -807,23 +719,14 @@ proc generateCircleBox*(
       color = shadowColor
     )
 
-    let spath = createRoundedRectPath(innerWidth, innerHeight, radii, padding)
-
     let combined = newImage(totalSize, totalSize)
     let ctx = newContext(combined)
     if innerShadow:
       ctx.saveLayer()
       ctx.clip(spath, EvenOdd)
       ctx.drawImage(shadow, pos = vec2(0, 0))
-      ctx.restore()
-    if outerShadowFill:
-      let spath = spath.copy()
-      spath.rect(0, 0, totalSize.float32, totalSize.float32)
-      ctx.saveLayer()
-      ctx.clip(spath, EvenOdd)
-      ctx.fillStyle = fillStyle
-      ctx.rect(0, 0, totalSize.float32, totalSize.float32)
-      ctx.fill()
+      ctx.drawImage(shadow, pos = vec2(0, 0))
+      ctx.drawImage(shadow, pos = vec2(0, 0))
       ctx.restore()
     if outerShadow:
       let spath = spath.copy()
@@ -838,33 +741,47 @@ proc generateCircleBox*(
   else:
     return img
 
+proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[DirectionCorners, float32] =
+  result = radii
+  for r in result.mitems():
+    r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
-
-proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
+proc fillRoundedRect*(
+    ctx: Context,
+    rect: Rect,
+    color: Color,
+    radii: array[DirectionCorners, float32],
+    weight: float32 = -1.0,
+    doStroke: bool = false,
+) =
   if rect.w <= 0 or rect.h <= -0:
-    when defined(fidgetExtraDebugLogging):
-      info "fillRoundedRect: too small: ", rect = rect
     return
 
   let
     w = rect.w.ceil()
     h = rect.h.ceil()
-    radius = max(1.0, min(radius, min(rect.w / 2, rect.h / 2))).ceil()
-    rw = radius
-    rh = radius
+    radii = clampRadii(radii, rect)
+    maxRadius = max(radii)
+    rw = maxRadius
+    rh = maxRadius
 
-  let hash = hash((6118, (rw * 100).int, (rh * 100).int, (radius * 100).int))
+  let hash =
+    hash((6217, (rw * 10).int, (rh * 10).int, hash(radii), (weight * 10).int, doStroke))
 
-  if true:
-    # let stroked = stroked and lineWidth <= radius
+  block drawCorners:
     var hashes: array[DirectionCorners, Hash]
     for quadrant in DirectionCorners:
       let qhash = hash !& quadrant.int
       hashes[quadrant] = qhash
 
-    if hashes[dcTopLeft] notin ctx.entries:
-      let radii = [radius.int, radius.int, radius.int, radius.int]
-      let circle = generateCircleBox(radii, stroked = false)
+    if hashes[dcTopRight] notin ctx.entries:
+      let circle =
+        if doStroke:
+          generateCircleBox(radii, stroked = true, lineWidth = weight)
+        else:
+          generateCircleBox(radii, stroked = false, lineWidth = weight)
+
+      # circle.writeFile("examples/renderer-stroke-circle.png")
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
       let patchArray = [
@@ -895,81 +812,16 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
 
       ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
 
-  let
-    rrw = w - rw
-    rrh = h - rh
-    wrw = w - 2 * rw
-    hrh = h - 2 * rh
-
-  fillRect(ctx, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
-
-  fillRect(ctx, rect(rect.x + rw, rect.y, wrw, rh), color)
-  fillRect(ctx, rect(rect.x + rw, rect.y + rrh, wrw, rh), color)
-
-  fillRect(ctx, rect(rect.x, rect.y + rh, rw, hrh), color)
-  fillRect(ctx, rect(rect.x + rrw, rect.y + rh, rw, hrh), color)
-
-proc strokeRoundedRect*(
-    ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
-) =
-  let fillStyle = rgba(255, 255, 255, 255)
-
-  if rect.w <= 0 or rect.h <= -0:
-    # when defined(fidgetExtraDebugLogging):
-    #   echo "fillRoundedRect: too small: ", rect
-    return
-
-  let
-    w = rect.w.ceil()
-    h = rect.h.ceil()
-    radius = min(radius, min(rect.w / 2, rect.h / 2)).ceil()
-    rw = radius
-    rh = radius
-
-  let hash =
-    hash((6217, (rw * 100).int, (rh * 100).int, (radius * 100).int, (weight * 100).int))
-
-  if radius > 0.0:
-    var hashes: array[4, Hash]
-    for quadrant in 1 .. 4:
-      let qhash = hash !& quadrant
-      hashes[quadrant - 1] = qhash
-
-    if hashes[0] notin ctx.entries:
-      let radii = [radius.int, radius.int, radius.int, radius.int]
-      let circle = generateCircleBox(radii, stroked = true, lineWidth = weight)
-      let patches = sliceToNinePatch(circle)
-      # Store each piece in the atlas
-      let patchArray = [
-        patches.topRight, 
-        patches.topLeft,
-        patches.bottomLeft,
-        patches.bottomRight,
-      ]
-
-      for quadrant in 1 .. 4:
-        let img = patchArray[quadrant - 1]
-        ctx.putImage(hashes[quadrant - 1], img)
-
+  block drawEdgeBoxes:
     let
-      xy = rect.xy
-      offsets = [vec2(w - rw, 0), vec2(0, 0), vec2(0, h - rh), vec2(w - rw, h - rh)]
-
-    for corner in 0 .. 3:
-      let
-        uvRect = ctx.entries[hashes[corner]]
-        wh = rect.wh * ctx.atlasSize.float32
-        pt = xy + offsets[corner]
-
-      ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
-
-  block:
-    let
-      ww = weight
-      rrw = w - ww
-      rrh = h - ww
+      ww = if doStroke: weight else: maxRadius
+      rrw = if doStroke: w - weight else: w - rw
+      rrh = if doStroke: h - weight else: h - rh
       wrw = w - 2 * rw
       hrh = h - 2 * rh
+
+    if not doStroke:
+      fillRect(ctx, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
 
     fillRect(ctx, rect(rect.x + rw, rect.y, wrw, ww), color)
     fillRect(ctx, rect(rect.x + rw, rect.y + rrh, wrw, ww), color)
@@ -1134,37 +986,12 @@ proc toScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
   result = (ctx.mat * vec3(v.x, v.y, 1)).xy
   result.y = -result.y + windowFrame.y
 
-proc generateShadowImage(
-    radius: int, offset: Vec2, 
-    spread: float32, blur: float32,
-): Image =
-  let adj = abs(spread.int+blur.int)
-  let sz = 2*radius + 2*adj
-
-  let circle = newImage(sz, sz)
-  let ctx3 = newContext(circle)
-  let center = radius.float32 + adj.float32
-  ctx3.fillStyle = rgba(255, 255, 255, 255)
-  ctx3.circle(center, center, radius.float32)
-  ctx3.fill()
-
-  let shadow3 = circle.shadow(
-    offset = offset,
-    spread = spread,
-    blur = blur,
-    color = rgba(255, 255, 255, 255)
-  )
-
-  let image = newImage(sz, sz)
-  image.draw(shadow3)
-  return image
-
 var shadowCache: Table[Hash, Image] = initTable[Hash, Image]()
 
 proc fillRoundedRectWithShadow*(
     ctx: Context,
     rect: Rect,
-    radius: float32, 
+    radii: array[DirectionCorners, float32],
     shadowX, shadowY, shadowBlur, shadowSpread: float32,
     shadowColor: Color,
     innerShadow = false,
@@ -1180,13 +1007,16 @@ proc fillRoundedRectWithShadow*(
     hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int, innerShadow))
 
   let 
-    radius = max(1.0, radius)
+    radii = clampRadii(radii, rect)
+    radiusLimit = max(radii)
+    # maxRadius = radiusLimit
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
-    radiusLimit = radius
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
-    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
+    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
+  
+  let (maxRadius, totalSize, padding, inner) = getCircleBoxSizes(radii, shadowBlur, shadowSpread)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -1194,49 +1024,56 @@ proc fillRoundedRectWithShadow*(
 
   # Check if we've already generated this shadow
   let shadowKeyBase = shadowKey !& 0
-  # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
-  let newSize = max(shadowBlur.int + shadowSpread.int + radius.int, 2)
-  # if newSize < 4:
-  #   return
+  # let newSize = max(shadowBlur.int + shadowSpread.int + maxRadius.int, 2)
+  let newSize = totalSize
 
   if shadowKeyBase notin ctx.entries:
-    var shadowImg: Image
-    let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radiusLimit, innerShadow)
-    # Generate shadow image
-    if mainKey notin shadowCache:
-      echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
-      let radii = [radiusLimit.int, radiusLimit.int, radiusLimit.int, radiusLimit.int]
+    var shadowImg: Image =
       if innerShadow:
-        let mainImg = generateCircleBox(
-          radii = radii,
-          offset = vec2(0, 0),
-          spread = shadowSpreadLimit,
-          blur = shadowBlurSizeLimit,
-          stroked = true,
-          lineWidth = 1.0,
-          innerShadow = true,
-          outerShadow = false,
-          innerShadowBorder = false,
-          outerShadowFill = true,
-        )
-        # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
-        shadowCache[mainKey] = mainImg
+        let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
+      # Generate shadow image
+        if mainKey notin shadowCache:
+          echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
+          let mainImg = generateCircleBox(
+            radii = radii,
+            offset = vec2(0, 0),
+            spread = shadowSpread,
+            blur = shadowBlur,
+            stroked = true,
+            lineWidth = 1.0,
+            innerShadow = true,
+            outerShadow = false,
+            innerShadowBorder = true,
+            outerShadowFill = true,
+          )
+          # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
+          shadowCache[mainKey] = mainImg
+          mainImg
+        else:
+          shadowCache[mainKey]
       else:
-        let mainImg = generateCircleBox(
-          radii = radii,
-          offset = vec2(0, 0),
-          spread = shadowSpreadLimit,
-          blur = shadowBlurSizeLimit,
-          stroked = false,
-          lineWidth = 1.0,
-          outerShadow = true,
-          innerShadow = false,
-          innerShadowBorder = true,
-          outerShadowFill = false,
-        )
-        # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
-        shadowCache[mainKey] = mainImg
-    shadowImg = shadowCache[mainKey].resize(newSize, newSize)
+        let mainKey = getShadowKey(shadowBlurSizeLimit, shadowSpreadLimit, radiusLimit, innerShadow)
+        if mainKey notin shadowCache:
+          let mainImg = generateCircleBox(
+            radii = radii,
+            offset = vec2(0, 0),
+            spread = shadowSpreadLimit,
+            blur = shadowBlurSizeLimit,
+            stroked = false,
+            lineWidth = 1.0,
+            outerShadow = true,
+            innerShadow = false,
+            innerShadowBorder = true,
+            outerShadowFill = false,
+          )
+          # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
+          shadowCache[mainKey] = mainImg
+          mainImg
+        else:
+          shadowCache[mainKey]
+
+    if shadowImg.width != newSize or shadowImg.height != newSize:
+      shadowImg = shadowImg.resize(newSize, newSize)
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
@@ -1254,12 +1091,9 @@ proc fillRoundedRectWithShadow*(
       ctx.putImage(ninePatchHashes[i], patchArray[i])
 
   var 
-    totalPadding = int(shadowBlur+shadowSpread) - 1
-    corner = radius + totalPadding.float32 + 1
-
-  if innerShadow:
-    totalPadding = int(shadowBlur+shadowSpread) - 1
-    corner = 2*(shadowBlur+shadowSpread) + 1
+    # totalPadding = int(shadowBlur+shadowSpread) - 1
+    totalPadding = padding.int
+    corner = totalPadding.float32 + inner.float32/2 + 1
 
   let
     sbox = rect(

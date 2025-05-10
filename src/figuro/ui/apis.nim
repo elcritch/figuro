@@ -222,11 +222,25 @@ template getTitle*(): string {.thisWrapper.}
 template setTitle*(title: string) {.thisWrapper.}
   ## Sets window title
 
+template cornerRadius*(radius: array[DirectionCorners, UiScalar]) {.thisWrapper.}
+  ## Sets corner radii
+
+template cornerRadius*(radius: array[DirectionCorners, Constraint]) {.thisWrapper.}
+  ## Sets corner radii
+
+template corners*(topLeft = 0'ui, topRight = 0'ui, bottomLeft = 0'ui, bottomRight = 0'ui) =
+  ## Sets corner radii
+  cornerRadius(this, [topLeft, topRight, bottomLeft, bottomRight])
+
 template cornerRadius*(radius: UiScalar) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
 template cornerRadius*(radius: Constraint) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
+
+template corners*(topLeft = 0'ux, topRight = 0'ux, bottomLeft = 0'ux, bottomRight = 0'ux) =
+  ## Sets corner radii
+  cornerRadius(this, [topLeft, topRight, bottomLeft, bottomRight])
 
 ## ---------------------------------------------
 ##             Fidget Text APIs

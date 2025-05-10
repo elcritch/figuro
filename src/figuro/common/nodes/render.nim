@@ -35,14 +35,14 @@ type
     rotation*: float32
     fill*: Color
     highlight*: Color
-    stroke*: Stroke
+    stroke*: RenderStroke
 
     image*: ImageStyle
 
     case kind*: NodeKind
     of nkRectangle:
       shadow*: array[ShadowStyle, RenderShadow]
-      cornerRadius*: float32
+      cornerRadius*: array[DirectionCorners, float32]
     of nkText:
       textLayout*: GlyphArrangement
     of nkDrawable:

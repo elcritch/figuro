@@ -202,7 +202,7 @@ proc setName*(current: Figuro, n: string) =
 proc border*(current: Figuro, weight: UiScalar, color: Color) =
   ## Sets border stroke & color on the given node.
   current.stroke.color = color
-  current.stroke.weight = weight.float32
+  current.stroke.weight = weight
 
 proc cssEnable*(current: Figuro, enable: bool) =
   ## Causes the parent to clip the children.
@@ -276,14 +276,24 @@ template setTitle*(current: Figuro, title: string) =
   ## Sets window title
   current.frame[].setWindowTitle(title)
 
+proc cornerRadius*(current: Figuro, radii: array[DirectionCorners, UiScalar]) =
+  ## Sets all radius of all 4 corners.
+  current.cornerRadius = radii
+  current.fieldSet.incl fsCornerRadius
+
 proc cornerRadius*(current: Figuro, radius: UiScalar) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = radius
+  cornerRadius(current, [radius, radius, radius, radius])
+
+proc cornerRadius*(current: Figuro, radii: array[DirectionCorners, Constraint]) =
+  ## Sets all radius of all 4 corners.
+  for corner in DirectionCorners:
+    current.cornerRadius[corner] = UiScalar(radii[corner].value.coord)
   current.fieldSet.incl fsCornerRadius
 
 proc cornerRadius*(current: Figuro, radius: Constraint) =
   ## Sets all radius of all 4 corners.
-  cornerRadius(current, UiScalar radius.value.coord)
+  cornerRadius(current, [radius, radius, radius, radius])
 
 ## ---------------------------------------------
 ##             Fidget Text APIs
