@@ -632,7 +632,7 @@ proc generateCircleBox*(
 
     result = newPath()
     let topRight = vec2(width - radii[dcTopRight], 0)
-    result.moveTo(topRight + vec2(padding.float32, padding.float32))
+    result.moveTo(topRight + vec2(padding, padding))
     
     # Top right corner
     let trControl = vec2(width, 0)
