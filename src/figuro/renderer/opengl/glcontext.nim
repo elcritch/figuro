@@ -739,88 +739,12 @@ proc fillRoundedRect*(
     rect: Rect,
     color: Color,
     radii: array[DirectionCorners, float32],
+    weight: float32 = -1.0,
 ) =
   if rect.w <= 0 or rect.h <= -0:
-    when defined(fidgetExtraDebugLogging):
-      info "fillRoundedRect: too small: ", rect = rect
     return
 
-  let
-    w = rect.w.ceil()
-    h = rect.h.ceil()
-    radii = clampRadii(radii, rect)
-    maxRadius = max(radii)
-    rw = maxRadius
-    rh = maxRadius
-
-  let hash = hash((6118, (rw * 100).int, (rh * 100).int, hash(radii)))
-
-  if true:
-    # let stroked = stroked and lineWidth <= radius
-    var hashes: array[DirectionCorners, Hash]
-    for quadrant in DirectionCorners:
-      let qhash = hash !& quadrant.int
-      hashes[quadrant] = qhash
-
-    if hashes[dcTopLeft] notin ctx.entries:
-      let circle = generateCircleBox(radii, stroked = false)
-      let patches = sliceToNinePatch(circle)
-      # Store each piece in the atlas
-      let patchArray = [
-        dcTopLeft: patches.topLeft,
-        dcTopRight: patches.topRight, 
-        dcBottomRight: patches.bottomRight,
-        dcBottomLeft: patches.bottomLeft,
-      ]
-
-      for quadrant in DirectionCorners:
-        let img = patchArray[quadrant]
-        ctx.putImage(hashes[quadrant], img)
-
-    let
-      xy = rect.xy
-      offsets = [
-        dcTopLeft: vec2(0, 0),
-        dcTopRight: vec2(w - rw, 0),
-        dcBottomRight: vec2(w - rw, h - rh),
-        dcBottomLeft: vec2(0, h - rh),
-      ]
-
-    for corner in DirectionCorners:
-      let
-        uvRect = ctx.entries[hashes[corner]]
-        wh = rect.wh * ctx.atlasSize.float32
-        pt = xy + offsets[corner]
-
-      ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
-
-  let
-    rrw = w - rw
-    rrh = h - rh
-    wrw = w - 2 * rw
-    hrh = h - 2 * rh
-
-  fillRect(ctx, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
-
-  fillRect(ctx, rect(rect.x + rw, rect.y, wrw, rh), color)
-  fillRect(ctx, rect(rect.x + rw, rect.y + rrh, wrw, rh), color)
-
-  fillRect(ctx, rect(rect.x, rect.y + rh, rw, hrh), color)
-  fillRect(ctx, rect(rect.x + rrw, rect.y + rh, rw, hrh), color)
-
-proc strokeRoundedRect*(
-    ctx: Context,
-    rect: Rect,
-    color: Color,
-    weight: float32,
-    radii: array[DirectionCorners, float32]
-) =
-  let fillStyle = rgba(255, 255, 255, 255)
-
-  if rect.w <= 0 or rect.h <= -0:
-    # when defined(fidgetExtraDebugLogging):
-    #   echo "fillRoundedRect: too small: ", rect
-    return
+  let doStroke = weight > 0.0
 
   let
     w = rect.w.ceil()
@@ -831,18 +755,22 @@ proc strokeRoundedRect*(
     rh = maxRadius
 
   let hash =
-    hash((6217, (rw * 100).int, (rh * 100).int, hash(radii), (weight * 100).int))
+    hash((6217, (rw * 10).int, (rh * 10).int, hash(radii), (weight * 10).int))
 
-  if maxRadius > 0.0:
+  block drawCorners:
     var hashes: array[DirectionCorners, Hash]
     for quadrant in DirectionCorners:
       let qhash = hash !& quadrant.int
       hashes[quadrant] = qhash
 
     if hashes[dcTopRight] notin ctx.entries:
-      # let radii = [radius.int, radius.int, radius.int, radius.int]
-      let circle = generateCircleBox(radii, stroked = true, lineWidth = weight)
-      circle.writeFile("examples/renderer-stroke-circle.png")
+      let circle =
+        if doStroke:
+          generateCircleBox(radii, stroked = true, lineWidth = weight)
+        else:
+          generateCircleBox(radii, stroked = false)
+
+      # circle.writeFile("examples/renderer-stroke-circle.png")
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
       let patchArray = [
@@ -865,7 +793,6 @@ proc strokeRoundedRect*(
         dcBottomLeft: vec2(0, h - rh),
       ]
 
-
     for corner in DirectionCorners:
       let
         uvRect = ctx.entries[hashes[corner]]
@@ -874,13 +801,16 @@ proc strokeRoundedRect*(
 
       ctx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
 
-  block:
+  block drawEdgeBoxes:
     let
-      ww = weight
-      rrw = w - ww
-      rrh = h - ww
+      ww = if doStroke: weight else: maxRadius
+      rrw = if doStroke: w - weight else: w - rw
+      rrh = if doStroke: h - weight else: h - rh
       wrw = w - 2 * rw
       hrh = h - 2 * rh
+
+    if not doStroke:
+      fillRect(ctx, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
 
     fillRect(ctx, rect(rect.x + rw, rect.y, wrw, ww), color)
     fillRect(ctx, rect(rect.x + rw, rect.y + rrh, wrw, ww), color)

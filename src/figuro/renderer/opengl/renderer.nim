@@ -225,11 +225,11 @@ proc renderBoxes(ctx: Context, node: Node) =
       ctx.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.strokeRoundedRect(
+    ctx.fillRoundedRect(
       rect = node.screenBox.atXY(0'f32, 0'f32),
       color = node.stroke.color,
-      weight = node.stroke.weight,
       radii = node.cornerRadius,
+      weight = node.stroke.weight,
     )
 
 proc render(
