@@ -222,6 +222,12 @@ template getTitle*(): string {.thisWrapper.}
 template setTitle*(title: string) {.thisWrapper.}
   ## Sets window title
 
+template cornerRadius*(radius: array[DirectionCorners, UiScalar]) {.thisWrapper.}
+  ## Sets corner radii
+
+template cornerRadius*(radius: array[DirectionCorners, Constraint]) {.thisWrapper.}
+  ## Sets corner radii
+
 template cornerRadius*(radius: UiScalar) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
 
