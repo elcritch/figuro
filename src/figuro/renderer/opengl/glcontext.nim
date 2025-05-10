@@ -740,11 +740,10 @@ proc fillRoundedRect*(
     color: Color,
     radii: array[DirectionCorners, float32],
     weight: float32 = -1.0,
+    doStroke: bool = false,
 ) =
   if rect.w <= 0 or rect.h <= -0:
     return
-
-  let doStroke = weight > 0.0
 
   let
     w = rect.w.ceil()
@@ -755,7 +754,7 @@ proc fillRoundedRect*(
     rh = maxRadius
 
   let hash =
-    hash((6217, (rw * 10).int, (rh * 10).int, hash(radii), (weight * 10).int))
+    hash((6217, (rw * 10).int, (rh * 10).int, hash(radii), (weight * 10).int, doStroke))
 
   block drawCorners:
     var hashes: array[DirectionCorners, Hash]
@@ -768,7 +767,7 @@ proc fillRoundedRect*(
         if doStroke:
           generateCircleBox(radii, stroked = true, lineWidth = weight)
         else:
-          generateCircleBox(radii, stroked = false)
+          generateCircleBox(radii, stroked = false, lineWidth = weight)
 
       # circle.writeFile("examples/renderer-stroke-circle.png")
       let patches = sliceToNinePatch(circle)

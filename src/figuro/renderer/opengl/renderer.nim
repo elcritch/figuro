@@ -205,6 +205,7 @@ proc renderBoxes(ctx: Context, node: Node) =
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.fill,
         radii = node.cornerRadius,
+        weight = node.stroke.weight,
       )
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
@@ -215,6 +216,7 @@ proc renderBoxes(ctx: Context, node: Node) =
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.highlight,
         radii = node.cornerRadius,
+        weight = node.stroke.weight,
       )
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
@@ -230,6 +232,7 @@ proc renderBoxes(ctx: Context, node: Node) =
       color = node.stroke.color,
       radii = node.cornerRadius,
       weight = node.stroke.weight,
+      doStroke = true,
     )
 
 proc render(
