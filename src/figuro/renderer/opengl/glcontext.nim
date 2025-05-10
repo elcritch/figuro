@@ -1007,12 +1007,14 @@ proc fillRoundedRectWithShadow*(
   let 
     radii = clampRadii(radii, rect)
     radiusLimit = max(radii)
-    maxRadius = radiusLimit
+    # maxRadius = radiusLimit
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
     shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
+  
+  let (maxRadius, totalSize, padding, inner) = getCircleBoxSizes(radii, shadowBlur, shadowSpread)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -1020,7 +1022,8 @@ proc fillRoundedRectWithShadow*(
 
   # Check if we've already generated this shadow
   let shadowKeyBase = shadowKey !& 0
-  let newSize = max(shadowBlur.int + shadowSpread.int + maxRadius.int, 2)
+  # let newSize = max(shadowBlur.int + shadowSpread.int + maxRadius.int, 2)
+  let newSize = totalSize
 
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image =
@@ -1086,8 +1089,9 @@ proc fillRoundedRectWithShadow*(
       ctx.putImage(ninePatchHashes[i], patchArray[i])
 
   var 
-    totalPadding = int(shadowBlur+shadowSpread) - 1
-    corner = maxRadius + totalPadding.float32 + 1
+    # totalPadding = int(shadowBlur+shadowSpread) - 1
+    totalPadding = padding.int
+    corner = totalPadding.float32 + inner.float32/2 + 1
 
   # if innerShadow:
   #   totalPadding = int(shadowBlur+shadowSpread) - 1
