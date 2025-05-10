@@ -1067,6 +1067,8 @@ proc toScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
   result = (ctx.mat * vec3(v.x, v.y, 1)).xy
   result.y = -result.y + windowFrame.y
 
+var shadowCache: Table[Hash, Image] = initTable[Hash, Image]()
+
 proc fillRoundedRectWithShadow*(
     ctx: Context,
     rect: Rect,
