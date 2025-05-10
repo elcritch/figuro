@@ -54,7 +54,12 @@ proc draw*(self: Main) {.slot.} =
         box 40'ux, 30'ux, 30'pp, 30'pp
         fill css"#2B9F2B"
         border 3'ui, css"red"
-        cornerRadius self.fades[FkRadius].amount.UiScalar
+        cornerRadius [
+          self.fades[FkTopLeft].amount.UiScalar,
+          self.fades[FkTopRight].amount.UiScalar,
+          self.fades[FkBottomLeft].amount.UiScalar,
+          self.fades[FkBottomRight].amount.UiScalar
+        ]
       for i in FadeKinds.toSeq():
         self.fades[i].addTarget(this)
       # echo "draw button: ", "radius: ", self.fades[FkRadius].amount, " blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount
