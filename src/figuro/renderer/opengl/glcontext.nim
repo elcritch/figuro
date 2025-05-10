@@ -625,10 +625,10 @@ proc generateCircleBox*(
     width, height: float32,
     radii: array[DirectionCorners, float32],
     padding: float32,
-    lineWidth: float32
+    lw: float32
   ): pixie.Path =
     # Start at top right after the corner radius
-    let hlw = lineWidth / 2.0
+    let hlw = lw / 2.0
 
     result = newPath()
     let topRight = vec2(width - radii[dcTopRight], 0)
