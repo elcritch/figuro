@@ -691,6 +691,19 @@ proc generateCircleBox*(
   
   # Apply inner shadow if requested
   if innerShadow or outerShadow or outerShadowFill:
+    let spath = createRoundedRectPath(innerWidth, innerHeight, radii, padding.float32, lw)
+
+    let ctxImg = newContext(img)
+    if outerShadowFill:
+      let spath = spath.copy()
+      spath.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctxImg.saveLayer()
+      ctxImg.clip(spath, EvenOdd)
+      ctxImg.fillStyle = fillStyle
+      ctxImg.rect(0, 0, totalSize.float32, totalSize.float32)
+      ctxImg.fill()
+      ctxImg.restore()
+
     let shadow = img.shadow(
       offset = offset,
       spread = spread,
@@ -698,23 +711,12 @@ proc generateCircleBox*(
       color = shadowColor
     )
 
-    let spath = createRoundedRectPath(innerWidth, innerHeight, radii, padding.float32, lw)
-
     let combined = newImage(totalSize, totalSize)
     let ctx = newContext(combined)
     if innerShadow:
       ctx.saveLayer()
       ctx.clip(spath, EvenOdd)
       ctx.drawImage(shadow, pos = vec2(0, 0))
-      ctx.restore()
-    if outerShadowFill:
-      let spath = spath.copy()
-      spath.rect(0, 0, totalSize.float32, totalSize.float32)
-      ctx.saveLayer()
-      ctx.clip(spath, EvenOdd)
-      ctx.fillStyle = fillStyle
-      ctx.rect(0, 0, totalSize.float32, totalSize.float32)
-      ctx.fill()
       ctx.restore()
     if outerShadow:
       let spath = spath.copy()
@@ -1029,7 +1031,7 @@ proc fillRoundedRectWithShadow*(
             innerShadow = true,
             outerShadow = false,
             innerShadowBorder = true,
-            outerShadowFill = false,
+            outerShadowFill = true,
           )
           mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
           shadowCache[mainKey] = mainImg
