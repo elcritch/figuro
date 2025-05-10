@@ -9,7 +9,7 @@ type
   Counter* = object
 
   FadeKinds* = enum
-    FkBlur, FkSpread, FkRadius, FkX, FkY
+    FkBlur, FkSpread, FkRadius, FkX, FkY, FkTopLeft, FkTopRight, FkBottomLeft, FkBottomRight
 
   Main* = ref object of Figuro
     mainRect: Figuro
