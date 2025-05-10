@@ -585,57 +585,6 @@ proc sliceToNinePatch(img: Image): tuple[
     left: fleft
   )
   
-proc generateCircle(radius: int,
-                         offset = vec2(0, 0), 
-                         spread: float32 = 0.0'f32,
-                         blur: float32 = 0.0'f32,
-                         stroked: bool = true,
-                         lineWidth: float32 = 0.0'f32,
-                         fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
-                         shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
-                         innerShadow = true,
-                         innerShadowBorder = true,
-                         ): Image =
-  if radius <= 0:
-    return newImage(1, 1)
-
-  let sz = 2*radius
-  let radius = radius.toFloat
-
-  let circle = newImage(sz, sz)
-  let ctx3 = newContext(circle)
-  ctx3.strokeStyle = fillStyle
-  ctx3.fillStyle = fillStyle
-  ctx3.lineCap = SquareCap
-  ctx3.lineWidth = lineWidth
-  ctx3.circle(radius, radius, radius-lineWidth/2)
-  if stroked:
-    ctx3.stroke()
-  else:
-    ctx3.fill()
-
-  let circleSolid = newImage(sz, sz)
-  let ctx4 = newContext(circleSolid)
-  ctx4.fillStyle = fillStyle
-  let innerRadiusMask = if innerShadowBorder: radius else: radius-lineWidth
-  ctx4.circle(radius, radius, innerRadiusMask)
-  ctx4.fill()
-  
-  let shadow = circle.shadow(
-    offset = offset,
-    spread = spread,
-    blur = blur,
-    color = shadowColor
-  )
-
-  let image = newImage(sz, sz)
-  if innerShadow:
-    image.draw(shadow)
-  image.draw(circle)
-  if innerShadow:
-    image.draw(circleSolid, blendMode = MaskBlend)
-  return image
-
 proc generateCircleBox*(
     radii: array[DirectionCorners, int],
     offset = vec2(0, 0),
