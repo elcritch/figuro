@@ -725,6 +725,8 @@ proc generateCircleBox*(
       ctx.saveLayer()
       ctx.clip(spath, EvenOdd)
       ctx.drawImage(shadow, pos = vec2(0, 0))
+      ctx.drawImage(shadow, pos = vec2(0, 0))
+      ctx.drawImage(shadow, pos = vec2(0, 0))
       ctx.restore()
     if outerShadow:
       let spath = spath.copy()
@@ -1041,10 +1043,10 @@ proc fillRoundedRectWithShadow*(
             lineWidth = 1.0,
             innerShadow = true,
             outerShadow = false,
-            innerShadowBorder = true,
+            innerShadowBorder = false,
             outerShadowFill = true,
           )
-          mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
+          # mainImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & ".png")
           shadowCache[mainKey] = mainImg
           mainImg
         else:
