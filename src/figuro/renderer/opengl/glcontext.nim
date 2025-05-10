@@ -1067,33 +1067,6 @@ proc toScreen*(ctx: Context, windowFrame: Vec2, v: Vec2): Vec2 =
   result = (ctx.mat * vec3(v.x, v.y, 1)).xy
   result.y = -result.y + windowFrame.y
 
-proc generateShadowImage(
-    radius: int, offset: Vec2, 
-    spread: float32, blur: float32,
-): Image =
-  let adj = abs(spread.int+blur.int)
-  let sz = 2*radius + 2*adj
-
-  let circle = newImage(sz, sz)
-  let ctx3 = newContext(circle)
-  let center = radius.float32 + adj.float32
-  ctx3.fillStyle = rgba(255, 255, 255, 255)
-  ctx3.circle(center, center, radius.float32)
-  ctx3.fill()
-
-  let shadow3 = circle.shadow(
-    offset = offset,
-    spread = spread,
-    blur = blur,
-    color = rgba(255, 255, 255, 255)
-  )
-
-  let image = newImage(sz, sz)
-  image.draw(shadow3)
-  return image
-
-var shadowCache: Table[Hash, Image] = initTable[Hash, Image]()
-
 proc fillRoundedRectWithShadow*(
     ctx: Context,
     rect: Rect,
