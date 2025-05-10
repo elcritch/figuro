@@ -589,6 +589,18 @@ proc sliceToNinePatch(img: Image): tuple[
     left: fleft
   )
   
+proc getCircleBoxSizes(
+    radii: array[DirectionCorners, float32],
+    blur: float32,
+    spread: float32
+): tuple[maxRadius: int, totalSize: int, padding: int, inner: int] =
+  result.maxRadius = 0
+  for r in radii:
+    result.maxRadius = max(result.maxRadius, r.ceil().int)
+  result.padding = spread.ceil().int + blur.ceil().int
+  result.totalSize = max(2*result.maxRadius + 2*result.padding, 4*result.padding)
+  result.inner = result.totalSize - 2*result.padding
+
 proc generateCircleBox*(
     radii: array[DirectionCorners, float32],
     offset = vec2(0, 0),
@@ -603,22 +615,25 @@ proc generateCircleBox*(
     innerShadowBorder = true,
     outerShadowFill = false,
 ): Image =
-  var maxRadius = 0.0
-  for r in radii:
-    maxRadius = max(maxRadius, r)
+  # var maxRadius = 0.0
+  # for r in radii:
+  #   maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
-  let padding = (spread.int + blur.int)
+  # let padding = (spread.int + blur.int)
+  # let totalSize = max(2*maxRadius.ceil().int + 2*padding, 4*padding)
   let lw = lineWidth.ceil()
-  let totalSize = max(maxRadius.ceil().int * 2 + padding * 2, 10+padding*2)
+  let (maxRadius, totalSize, padding, inner) = getCircleBoxSizes(radii, blur, spread)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
   let ctx = newContext(img)
   
   # Calculate the inner box dimensions
-  let innerWidth = (totalSize - padding * 2).float32
-  let innerHeight = (totalSize - padding * 2).float32
+  # let innerWidth = (totalSize - padding * 2).float32
+  # let innerHeight = (totalSize - padding * 2).float32
+  let innerWidth = inner.float32
+  let innerHeight = inner.float32
   
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
@@ -998,10 +1013,10 @@ proc fillRoundedRectWithShadow*(
 
   let 
     radii = clampRadii(radii, rect)
-    maxRadius = max(radii)
+    radiusLimit = max(radii)
+    maxRadius = radiusLimit
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
-    radiusLimit = maxRadius
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
     shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
