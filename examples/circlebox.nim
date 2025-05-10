@@ -21,6 +21,7 @@ proc generateCircleBox*(
     spread: float32 = 0.0'f32,
     blur: float32 = 0.0'f32,
     stroked: bool = true,
+    filled: bool = true,
     lineWidth: float32 = 0.0'f32,
     fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
     shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
@@ -111,7 +112,8 @@ proc generateCircleBox*(
     ctx.strokeStyle = fillStyle
     ctx.lineWidth = lineWidth
     ctx.stroke(path)
-  else:
+
+  if filled:
     ctx.fillStyle = fillStyle
     ctx.fill(path)
   
@@ -167,6 +169,20 @@ let imgA = generateCircleBox(
 )
 
 imgA.writeFile("examples/circlebox-asymmetric.png")
+
+let imgAstroke = generateCircleBox(
+  radii = [0'f32, 20'f32, 40'f32, 10'f32], # Different radius for each corner
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = true,
+  filled = true,
+  lineWidth = 2.0,
+  outerShadow = false,
+  innerShadow = false,
+)
+
+imgAstroke.writeFile("examples/circlebox-asymmetric-stroke.png")
 
 let imgAnostroke = generateCircleBox(
   radii = [30'f32, 20'f32, 40'f32, 10'f32], # Different radius for each corner
