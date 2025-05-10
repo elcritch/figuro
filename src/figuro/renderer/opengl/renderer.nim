@@ -113,7 +113,7 @@ macro postRender() =
     result.add postRenderImpl.pop()
 
 proc drawMasks(ctx: Context, node: Node) =
-  if node.cornerRadius != 0:
+  if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
     ctx.fillRoundedRect(
       rect(0, 0, node.screenBox.w, node.screenBox.h),
       rgba(255, 0, 0, 255).color,
@@ -145,7 +145,7 @@ proc renderDropShadows(ctx: Context, node: Node) =
     else:
       ctx.fillRoundedRectWithShadow(
         rect = node.screenBox.atXY(0'f32, 0'f32),
-        radius = node.cornerRadius,
+        radii = node.cornerRadius,
         shadowX = shadow.x,
         shadowY = shadow.y,
         shadowBlur = shadow.blur,
@@ -187,7 +187,7 @@ proc renderInnerShadows(ctx: Context, node: Node) =
     var rect = node.screenBox.atXY(0'f32, 0'f32)
     ctx.fillRoundedRectWithShadow(
       rect = node.screenBox.atXY(0'f32, 0'f32),
-      radius = node.cornerRadius,
+      radii = node.cornerRadius,
       shadowX = shadow.x,
       shadowY = shadow.y,
       shadowBlur = shadow.blur,
@@ -199,22 +199,22 @@ proc renderInnerShadows(ctx: Context, node: Node) =
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
-    if node.cornerRadius > 0:
+    if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       discard
       ctx.fillRoundedRect(
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.fill,
-        radius = node.cornerRadius,
+        radii = node.cornerRadius,
       )
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
 
   if node.highlight.a > 0'f32:
-    if node.cornerRadius > 0:
+    if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       ctx.fillRoundedRect(
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.highlight,
-        radius = node.cornerRadius,
+        radii = node.cornerRadius,
       )
     else:
       ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
@@ -229,7 +229,7 @@ proc renderBoxes(ctx: Context, node: Node) =
       rect = node.screenBox.atXY(0'f32, 0'f32),
       color = node.stroke.color,
       weight = node.stroke.weight,
-      radius = node.cornerRadius,
+      radii = node.cornerRadius,
     )
 
 proc render(

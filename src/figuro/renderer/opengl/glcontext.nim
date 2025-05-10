@@ -207,6 +207,10 @@ func `[]`(t: var Table[Hash, Rect], key: string): Rect =
 proc hash(v: Vec2): Hash =
   hash((v.x, v.y))
 
+proc hash(radii: array[DirectionCorners, float32]): Hash =
+  for r in radii:
+    result = result !& hash(r)
+
 proc grow(ctx: Context) =
   ctx.draw()
   ctx.atlasSize = ctx.atlasSize * 2
@@ -586,7 +590,7 @@ proc sliceToNinePatch(img: Image): tuple[
   )
   
 proc generateCircleBox*(
-    radii: array[DirectionCorners, int],
+    radii: array[DirectionCorners, float32],
     offset = vec2(0, 0),
     spread: float32 = 0.0'f32,
     blur: float32 = 0.0'f32,
@@ -599,16 +603,13 @@ proc generateCircleBox*(
     innerShadowBorder = true,
     outerShadowFill = false,
 ): Image =
-  let origRadii = radii
-  var radii: array[DirectionCorners, int]
-  var maxRadius = 0
-  for i, r in origRadii:
-    radii[i] = max(r, 0)
+  var maxRadius = 0.0
+  for r in radii:
     maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
-  let totalSize = max(maxRadius * 2 + padding * 2, 10+padding*2)
+  let totalSize = max(maxRadius.ceil().int * 2 + padding * 2, 10+padding*2)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
@@ -621,7 +622,7 @@ proc generateCircleBox*(
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
     width, height: float32,
-    radii: array[DirectionCorners, int],
+    radii: array[DirectionCorners, float32],
     padding: int
   ): pixie.Path =
     # Start at top right after the corner radius
@@ -721,8 +722,12 @@ proc generateCircleBox*(
   else:
     return img
 
+proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[DirectionCorners, float32] =
+  result = radii
+  for r in result.mitems():
+    r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
-proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
+proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radii: array[DirectionCorners, float32]) =
   if rect.w <= 0 or rect.h <= -0:
     when defined(fidgetExtraDebugLogging):
       info "fillRoundedRect: too small: ", rect = rect
@@ -731,11 +736,12 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   let
     w = rect.w.ceil()
     h = rect.h.ceil()
-    radius = max(1.0, min(radius, min(rect.w / 2, rect.h / 2))).ceil()
-    rw = radius
-    rh = radius
+    radii = clampRadii(radii, rect)
+    maxRadius = max(radii)
+    rw = maxRadius
+    rh = maxRadius
 
-  let hash = hash((6118, (rw * 100).int, (rh * 100).int, (radius * 100).int))
+  let hash = hash((6118, (rw * 100).int, (rh * 100).int, hash(radii)))
 
   if true:
     # let stroked = stroked and lineWidth <= radius
@@ -745,7 +751,6 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
       hashes[quadrant] = qhash
 
     if hashes[dcTopLeft] notin ctx.entries:
-      let radii = [radius.int, radius.int, radius.int, radius.int]
       let circle = generateCircleBox(radii, stroked = false)
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
@@ -792,7 +797,7 @@ proc fillRoundedRect*(ctx: Context, rect: Rect, color: Color, radius: float32) =
   fillRect(ctx, rect(rect.x + rrw, rect.y + rh, rw, hrh), color)
 
 proc strokeRoundedRect*(
-    ctx: Context, rect: Rect, color: Color, weight: float32, radius: float32
+    ctx: Context, rect: Rect, color: Color, weight: float32, radii: array[DirectionCorners, float32]
 ) =
   let fillStyle = rgba(255, 255, 255, 255)
 
@@ -804,21 +809,22 @@ proc strokeRoundedRect*(
   let
     w = rect.w.ceil()
     h = rect.h.ceil()
-    radius = min(radius, min(rect.w / 2, rect.h / 2)).ceil()
-    rw = radius
-    rh = radius
+    radii = clampRadii(radii, rect)
+    maxRadius = max(radii)
+    rw = maxRadius
+    rh = maxRadius
 
   let hash =
-    hash((6217, (rw * 100).int, (rh * 100).int, (radius * 100).int, (weight * 100).int))
+    hash((6217, (rw * 100).int, (rh * 100).int, hash(radii), (weight * 100).int))
 
-  if radius > 0.0:
+  if maxRadius > 0.0:
     var hashes: array[4, Hash]
     for quadrant in 1 .. 4:
       let qhash = hash !& quadrant
       hashes[quadrant - 1] = qhash
 
     if hashes[0] notin ctx.entries:
-      let radii = [radius.int, radius.int, radius.int, radius.int]
+      # let radii = [radius.int, radius.int, radius.int, radius.int]
       let circle = generateCircleBox(radii, stroked = true, lineWidth = weight)
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
@@ -1021,7 +1027,7 @@ var shadowCache: Table[Hash, Image] = initTable[Hash, Image]()
 proc fillRoundedRectWithShadow*(
     ctx: Context,
     rect: Rect,
-    radius: float32, 
+    radii: array[DirectionCorners, float32],
     shadowX, shadowY, shadowBlur, shadowSpread: float32,
     shadowColor: Color,
     innerShadow = false,
@@ -1037,13 +1043,14 @@ proc fillRoundedRectWithShadow*(
     hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int, innerShadow))
 
   let 
-    radius = max(1.0, radius)
+    radii = clampRadii(radii, rect)
+    maxRadius = max(radii)
     shadowBlurSizeLimit = 14.0
     shadowSpreadLimit = 14.0
-    radiusLimit = radius
+    radiusLimit = maxRadius
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
-    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radius, innerShadow)
+    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -1051,10 +1058,7 @@ proc fillRoundedRectWithShadow*(
 
   # Check if we've already generated this shadow
   let shadowKeyBase = shadowKey !& 0
-  # echo "blur size: ", shadowBlurSize.round(2), " shadowBlur: ", shadowBlur.round(2), " shadowSpread: ", shadowSpread.round(2)
-  let newSize = max(shadowBlur.int + shadowSpread.int + radius.int, 2)
-  # if newSize < 4:
-  #   return
+  let newSize = max(shadowBlur.int + shadowSpread.int + maxRadius.int, 2)
 
   if shadowKeyBase notin ctx.entries:
     var shadowImg: Image
@@ -1062,7 +1066,6 @@ proc fillRoundedRectWithShadow*(
     # Generate shadow image
     if mainKey notin shadowCache:
       echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
-      let radii = [radiusLimit.int, radiusLimit.int, radiusLimit.int, radiusLimit.int]
       if innerShadow:
         let mainImg = generateCircleBox(
           radii = radii,
@@ -1112,7 +1115,7 @@ proc fillRoundedRectWithShadow*(
 
   var 
     totalPadding = int(shadowBlur+shadowSpread) - 1
-    corner = radius + totalPadding.float32 + 1
+    corner = maxRadius + totalPadding.float32 + 1
 
   if innerShadow:
     totalPadding = int(shadowBlur+shadowSpread) - 1

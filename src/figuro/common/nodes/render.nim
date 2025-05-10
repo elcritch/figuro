@@ -42,7 +42,7 @@ type
     case kind*: NodeKind
     of nkRectangle:
       shadow*: array[ShadowStyle, RenderShadow]
-      cornerRadius*: float32
+      cornerRadius*: array[DirectionCorners, float32]
     of nkText:
       textLayout*: GlyphArrangement
     of nkDrawable:

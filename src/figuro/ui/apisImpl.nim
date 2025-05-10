@@ -278,7 +278,7 @@ template setTitle*(current: Figuro, title: string) =
 
 proc cornerRadius*(current: Figuro, radius: UiScalar) =
   ## Sets all radius of all 4 corners.
-  current.cornerRadius = radius
+  current.cornerRadius = [radius, radius, radius, radius]
   current.fieldSet.incl fsCornerRadius
 
 proc cornerRadius*(current: Figuro, radius: Constraint) =

@@ -120,7 +120,10 @@ proc toRenderNode*(current: Figuro): render.Node =
       shadow.color = orig.color
       shadow.spread = orig.spread.scaled
       result.shadow[InnerShadow] = shadow
-    result.cornerRadius = current.cornerRadius.scaled
+
+    for corner in DirectionCorners:
+      result.cornerRadius[corner] = current.cornerRadius[corner].scaled
+
   # of nkImage:
   #   result.image = current.image
   of nkText:
