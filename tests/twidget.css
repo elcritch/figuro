@@ -15,7 +15,7 @@ Dropdown {
 TextButton {
   border-radius: 10px;
   box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.2);
-  box-shadow: 2px 2px 6px 0px rgba(255, 255, 255, 0.15) inset;
+  box-shadow: 2px 2px 6px 0px rgba(255, 255, 255, 0.07) inset;
 }
 
 Dropdown #combobox {
@@ -57,8 +57,9 @@ Slider #thumb {
 #widgets-vert {
   left: 12%;
   width: 76%;
-  border-width: 1px;
-  border-color: green;
+  border-width: 6px;
+  /* border-color: green; */
+  background-color: rgba(74, 76, 74, 0.051);
 }
 
 Toggle {
