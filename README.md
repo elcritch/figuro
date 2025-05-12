@@ -65,9 +65,9 @@ startFiguro(frame)
 
 Figuro now uses Nimble by default.
 
-First install the latest Nimble version or at least version 0.16.4:
+First install the latest Nimble version or at least version 0.18:
 ```sh
-nimble install nimble@\#head
+nimble install nimble
 ```
 
 Next install Figuro: 
