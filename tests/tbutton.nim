@@ -9,7 +9,7 @@ type
   Counter* = object
 
   FadeKinds* = enum
-    FkBlur, FkSpread, FkRadius, FkX, FkY
+    FkBlur, FkSpread, FkRadius, FkX, FkY, FkTopLeft, FkTopRight, FkBottomLeft, FkBottomRight
 
   Main* = ref object of Figuro
     mainRect: Figuro
@@ -50,11 +50,14 @@ proc draw*(self: Main) {.slot.} =
             self.toggles[this.state] = not self.toggles[this.state]
 
     Button[int] as "btn":
-      with this:
-        box 40'ux, 30'ux, 30'pp, 30'pp
-        fill css"#2B9F2B"
-        border 3'ui, css"red"
-        cornerRadius self.fades[FkRadius].amount.UiScalar
+      box 40'ux, 30'ux, 30'pp, 30'pp
+      fill css"#2B9F2B"
+      border 5'ui, css"red"
+      corners topLeft = self.fades[FkTopLeft].amount.UiScalar,
+              topRight = self.fades[FkTopRight].amount.UiScalar,
+              bottomLeft = self.fades[FkBottomLeft].amount.UiScalar,
+              bottomRight = self.fades[FkBottomRight].amount.UiScalar
+
       for i in FadeKinds.toSeq():
         self.fades[i].addTarget(this)
       # echo "draw button: ", "radius: ", self.fades[FkRadius].amount, " blur: ", self.fades[FkBlur].amount, " spread: ", self.fades[FkSpread].amount, " x: ", self.fades[FkX].amount, " y: ", self.fades[FkY].amount

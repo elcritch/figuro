@@ -14,12 +14,14 @@ type
     dcBottomRight
     dcBottomLeft
 
+
 proc generateCircleBox*(
-    radii: array[DirectionCorners, int],
+    radii: array[DirectionCorners, float32],
     offset = vec2(0, 0),
     spread: float32 = 0.0'f32,
     blur: float32 = 0.0'f32,
     stroked: bool = true,
+    filled: bool = true,
     lineWidth: float32 = 0.0'f32,
     fillStyle: ColorRGBA = rgba(255, 255, 255, 255),
     shadowColor: ColorRGBA = rgba(255, 255, 255, 255),
@@ -28,16 +30,14 @@ proc generateCircleBox*(
     innerShadowBorder = true,
     outerShadowFill = false,
 ): Image =
-  let origRadii = radii
-  var radii: array[DirectionCorners, int]
-  var maxRadius = 0
-  for i, r in origRadii:
-    radii[i] = max(r, 0)
+  var maxRadius = 0.0
+  for r in radii:
     maxRadius = max(maxRadius, r)
   
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
-  let totalSize = max(maxRadius * 2 + padding * 2, 10+padding*2)
+  let lw = lineWidth.ceil()
+  let totalSize = max(maxRadius.ceil().int * 2 + padding * 2, 10+padding*2)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
@@ -46,67 +46,74 @@ proc generateCircleBox*(
   # Calculate the inner box dimensions
   let innerWidth = (totalSize - padding * 2).float32
   let innerHeight = (totalSize - padding * 2).float32
-  
+
   # Create a path for the rounded rectangle with the given dimensions and corner radii
   proc createRoundedRectPath(
     width, height: float32,
-    radii: array[DirectionCorners, int],
-    padding: int
-  ): Path =
+    radii: array[DirectionCorners, float32],
+    padding: float32,
+    lw: float32
+  ): pixie.Path =
     # Start at top right after the corner radius
+    let hlw = lw / 2.0
+    let padding = padding + hlw
+    let width = width - lw
+    let height = height - lw
+
     result = newPath()
-    let topRight = vec2(width - radii[dcTopRight].float32, 0)
-    result.moveTo(topRight + vec2(padding.float32, padding.float32))
+    let topRight = vec2(width - radii[dcTopRight], 0)
+    result.moveTo(topRight + vec2(padding, padding))
     
     # Top right corner
     let trControl = vec2(width, 0)
     result.quadraticCurveTo(
-      trControl + vec2(padding.float32, padding.float32),
-      vec2(width, radii[dcTopRight].float32) + vec2(padding.float32, padding.float32)
+      trControl + vec2(padding, padding),
+      vec2(width, radii[dcTopRight]) + vec2(padding, padding)
     )
     
     # Right side
-    result.lineTo(vec2(width, height - radii[dcBottomRight].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(width, height - radii[dcBottomRight]) + vec2(padding, padding))
     
     # Bottom right corner
     let brControl = vec2(width, height)
     result.quadraticCurveTo(
-      brControl + vec2(padding.float32, padding.float32),
-      vec2(width - radii[dcBottomRight].float32, height) + vec2(padding.float32, padding.float32)
+      brControl + vec2(padding, padding),
+      vec2(width - radii[dcBottomRight], height) + vec2(padding, padding)
     )
     
     # Bottom side
-    result.lineTo(vec2(radii[dcBottomLeft].float32, height) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(radii[dcBottomLeft], height) + vec2(padding, padding))
     
     # Bottom left corner
     let blControl = vec2(0, height)
     result.quadraticCurveTo(
-      blControl + vec2(padding.float32, padding.float32),
-      vec2(0, height - radii[dcBottomLeft].float32) + vec2(padding.float32, padding.float32)
+      blControl + vec2(padding, padding),
+      vec2(0, height - radii[dcBottomLeft]) + vec2(padding, padding)
     )
     
     # Left side
-    result.lineTo(vec2(0, radii[dcTopLeft].float32) + vec2(padding.float32, padding.float32))
+    result.lineTo(vec2(0, radii[dcTopLeft]) + vec2(padding, padding))
     
     # Top left corner
     let tlControl = vec2(0, 0)
     result.quadraticCurveTo(
-      tlControl + vec2(padding.float32, padding.float32),
-      vec2(radii[dcTopLeft].float32, 0) + vec2(padding.float32, padding.float32)
+      tlControl + vec2(padding, padding),
+      vec2(radii[dcTopLeft], 0) + vec2(padding, padding)
     )
     
     # Close the path
-    result.lineTo(topRight + vec2(padding.float32, padding.float32))
+    result.lineTo(topRight + vec2(padding, padding))
   
   # Create the path for our rounded rectangle
-  let path = createRoundedRectPath(innerWidth, innerHeight, radii, padding)
+  let path = createRoundedRectPath(innerWidth, innerHeight, radii, padding.float32, lw)
       
   # Draw the box
   if stroked:
     ctx.strokeStyle = fillStyle
     ctx.lineWidth = lineWidth
     ctx.stroke(path)
-  else:
+
+  if filled:
     ctx.fillStyle = fillStyle
     ctx.fill(path)
   
@@ -119,7 +126,7 @@ proc generateCircleBox*(
       color = shadowColor
     )
 
-    let spath = createRoundedRectPath(innerWidth, innerHeight, radii, padding)
+    let spath = createRoundedRectPath(innerWidth, innerHeight, radii, padding.float32, lw)
 
     let combined = newImage(totalSize, totalSize)
     let ctx = newContext(combined)
@@ -150,10 +157,8 @@ proc generateCircleBox*(
   else:
     return img
 
-
-
 let imgA = generateCircleBox(
-  radii = [0, 20, 40, 10], # Different radius for each corner
+  radii = [0'f32, 20'f32, 40'f32, 10'f32], # Different radius for each corner
   offset = vec2(0, 0),
   spread = 1.0'f32,
   blur = 10.0'f32,
@@ -165,8 +170,22 @@ let imgA = generateCircleBox(
 
 imgA.writeFile("examples/circlebox-asymmetric.png")
 
+let imgAstroke = generateCircleBox(
+  radii = [0'f32, 20'f32, 40'f32, 10'f32], # Different radius for each corner
+  offset = vec2(0, 0),
+  spread = 1.0'f32,
+  blur = 10.0'f32,
+  stroked = true,
+  filled = true,
+  lineWidth = 2.0,
+  outerShadow = false,
+  innerShadow = false,
+)
+
+imgAstroke.writeFile("examples/circlebox-asymmetric-stroke.png")
+
 let imgAnostroke = generateCircleBox(
-  radii = [30, 20, 40, 10], # Different radius for each corner
+  radii = [30'f32, 20'f32, 40'f32, 10'f32], # Different radius for each corner
   offset = vec2(0, 0),
   spread = 1.0'f32,
   blur = 10.0'f32,
@@ -179,7 +198,7 @@ let imgAnostroke = generateCircleBox(
 imgAnostroke.writeFile("examples/circlebox-asymmetric-nostroke.png")
 
 let imgAfillshadow = generateCircleBox(
-  radii = [30, 20, 40, 10], # Different radius for each corner
+  radii = [30'f32, 20'f32, 40'f32, 10'f32], # Different radius for each corner
   offset = vec2(0, 0),
   spread = 20.0'f32,
   blur = 20.0'f32,
@@ -195,7 +214,7 @@ imgAfillshadow.writeFile("examples/circlebox-asymmetric-fill-shadow.png")
 
 
 let imgB = generateCircleBox(
-  radii = [1, 1, 1, 1], # Different radius for each corner
+  radii = [1'f32, 1'f32, 1'f32, 1'f32], # Different radius for each corner
   offset = vec2(0, 0),
   spread = 0.0'f32,
   blur = 10.0'f32,
@@ -210,7 +229,7 @@ imgB.writeFile("examples/circlebox-symmetric.png")
 
 # Only inner shadow example
 let imgC = generateCircleBox(
-  radii = [30, 30, 30, 30],
+  radii = [30'f32, 30'f32, 30'f32, 30'f32],
   offset = vec2(0, 0),
   spread = 1.0'f32,
   blur = 10.0'f32,
@@ -225,7 +244,7 @@ imgC.writeFile("examples/circlebox-inner-only.png")
 
 # Only outer shadow example
 let imgD = generateCircleBox(
-  radii = [30, 30, 30, 30],
+  radii = [30'f32, 30'f32, 30'f32, 30'f32],
   offset = vec2(2, 2),
   spread = 1.0'f32,
   blur = 10.0'f32,
@@ -240,7 +259,7 @@ imgD.writeFile("examples/circlebox-outer-only.png")
 
 # Only outer shadow example
 let imgE = generateCircleBox(
-  radii = [30, 30, 30, 30],
+  radii = [30'f32, 30'f32, 30'f32, 30'f32],
   offset = vec2(0, 0),
   spread = 1.0'f32,
   blur = 10.0'f32,
@@ -254,7 +273,7 @@ let imgE = generateCircleBox(
 imgE.writeFile("examples/circlebox-outer-inner.png")
 
 let imgF = generateCircleBox(
-  radii = [30, 30, 30, 30],
+  radii = [30'f32, 30'f32, 30'f32, 30'f32],
   offset = vec2(0, 0),
   spread = 1.0'f32,
   blur = 10.0'f32,
@@ -269,7 +288,7 @@ let imgF = generateCircleBox(
 imgF.writeFile("examples/circlebox-inner-and-fill-outer.png")
 
 let imgG = generateCircleBox(
-  radii = [10, 10, 10, 10],
+  radii = [10'f32, 10'f32, 10'f32, 10'f32],
   offset = vec2(0, 0),
   spread = 0.0'f32,
   blur = 5.0'f32,

@@ -14,7 +14,7 @@ type
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
     size 100'pp, 100'pp
-    cornerRadius 10.0'ui
+    cornerRadius [0.0'ui, 0.0'ui, 10.0'ui, 10.0'ui]
     fill css"lightgrey"
     border 3'ui, blackColor
     padding 10'ux
