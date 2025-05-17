@@ -25,14 +25,18 @@ proc draw*(self: Main) {.slot.} =
       fill "#2A9EEA".parseHtmlColor * 0.7
       Input.new "input":
         box 10'ux, 10'ux, 400'ux, 100'ux
-        align Middle 
-        justify Center
+        align Middle
+        justify Left
         font UiFont(typefaceId: defaultTypeface(), size: 28'ui)
         foreground css"darkred"
         fill css"white"
         clipContent true
+        # options({OverwriteMode})
         onInit:
           this.setText "hello world"
+          this.text.shiftCursor(TheEnd)
+          this.activate()
+
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui), saveWindowState = false)

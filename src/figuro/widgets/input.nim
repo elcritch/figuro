@@ -30,18 +30,18 @@ proc setOptions*(self: Input, opt: set[InputOptions], state = true) {.thisWrappe
   if state: self.opts.incl opt
   else: self.opts.excl opt
   if OverwriteMode in opt:
-    self.text.options({Overwrite}, state)
+    self.text.options({TextOptions.Overwrite}, state)
 
 proc skipOnInput*(self: Input, runes: HashSet[Rune]) =
-  ## skips the given runes and advances the cursor to the 
+  ## skips the given runes and advances the cursor to the
   ## next rune when a user inputs a key
-  ## 
+  ##
   ## useful for skipping "decorative" tokens like ':' in a time
   self.skipOnInput = runes
 proc skipOnInput*(self: Input, msg: varargs[char]) {.thisWrapper.} =
-  ## skips the given runes and advances the cursor to the 
+  ## skips the given runes and advances the cursor to the
   ## next rune when a user inputs a key
-  ## 
+  ##
   ## useful for skipping "decorative" tokens like ':' in a time
   self.skipOnInput = msg.toRunes().toHashSet()
 
@@ -78,6 +78,7 @@ proc skipSelectedRune*(self: Input, skips: HashSet[Rune] = self.skipOnInput) =
 
 proc setText*(self: Input, txt: string) {.slot.} =
   runes(self, txt.toRunes())
+  refresh(self)
 
 proc runes*(self: Input): seq[Rune] =
   self.text.runes()
@@ -97,7 +98,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       self.cursorTick = (self.cursorTick + 1) mod 2
       refresh(self)
 
-proc clicked*(self: Input, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
+proc activate*(self: Input, kind: EventKind = Done) =
   self.active(kind == Done and not self.disabled)
   if self.active():
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
@@ -106,6 +107,9 @@ proc clicked*(self: Input, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
     self.listens.signals.excl {evKeyboardInput, evKeyPress}
     self.cursorTick = 0
   refresh(self)
+
+proc clicked*(self: Input, kind: EventKind, buttons: set[UiMouse]) {.slot.} =
+  self.activate(kind)
 
 proc keyInput*(self: Input, rune: Rune) {.slot.} =
   when defined(debugEvents):
@@ -135,28 +139,28 @@ proc keyCommand*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
       downShift = down.matches({KShift}),
       downAltShift = down.matches({KAlt, KShift})
 
-  let multiSelect = NoSelection notin self.opts
+  # let multiSelect = NoSelection notin self.opts
   if down.matches({KNone}):
     var update = true
     case pressed.getKey()
     of KeyBackspace:
-      self.text.delete()
+      self.text.delete(Left)
       self.text.update(self.box)
     of KeyDelete:
-      self.text.delete(dir = right)
+      self.text.delete(Right)
       self.text.update(self.box)
     of KeyLeft:
-      self.text.cursorLeft()
+      self.text.shiftCursor(Left)
     of KeyRight:
-      self.text.cursorRight()
+      self.text.shiftCursor(Right)
     of KeyHome:
-      self.text.cursorStart()
+      self.text.shiftCursor(Beginning)
     of KeyEnd:
-      self.text.cursorEnd()
+      self.text.shiftCursor(TheEnd)
     of KeyUp:
-      self.text.cursorUp()
+      self.text.shiftCursor(Up)
     of KeyDown:
-      self.text.cursorDown()
+      self.text.shiftCursor(Down)
     of KeyEscape:
       self.clicked(Exit, {})
     of KeyEnter:
@@ -166,11 +170,11 @@ proc keyCommand*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
   elif down.matches({KMeta}):
     case pressed.getKey
     of KeyA:
-      self.text.cursorSelectAll()
+      self.text.selectAll()
     of KeyLeft:
-      self.text.cursorStart()
+      self.text.shiftCursor(PreviousWord)
     of KeyRight:
-      self.text.cursorEnd()
+      self.text.shiftCursor(NextWord)
     of KeyC:
       if self.text.hasSelection():
         echo "copying... ", self.text.selected()
@@ -185,102 +189,67 @@ proc keyCommand*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
             self.text.update(self.box)
         _:
           discard
-
     of KeyX:
       if self.text.hasSelection() and NoErase notin self.opts:
         let selectedText = $self.text.selected()
         self.frame[].clipboardSet(selectedText)
-        self.text.delete()
+        # self.text.delete()
         self.text.update(self.box)
+    # of KeyP:
+    #   self.text.insert("hola ".toRunes())
     else:
       discard
   elif down.matches({KShift}):
     case pressed.getKey
     of KeyLeft:
-      self.text.cursorLeft(growSelection = multiSelect)
+      self.text.shiftCursor(Left, select = true)
     of KeyRight:
-      self.text.cursorRight(growSelection = multiSelect)
+      self.text.shiftCursor(Right, select = true)
     of KeyUp:
-      self.text.cursorUp(growSelection = multiSelect)
+      self.text.shiftCursor(Up, select = true)
     of KeyDown:
-      self.text.cursorDown(growSelection = multiSelect)
+      self.text.shiftCursor(Down, select = true)
     of KeyHome:
-      self.text.cursorStart(growSelection = multiSelect)
+      self.text.shiftCursor(Beginning, select = true)
     of KeyEnd:
-      self.text.cursorEnd(growSelection = multiSelect)
+      self.text.shiftCursor(TheEnd, select = true)
     else:
       discard
   elif down.matches({KAlt}):
     case pressed.getKey
-    of KeyLeft:
-      let idx = self.text.findPrevWord()
-      if idx >= 0:
-        self.text.selection = (idx+1) .. (idx+1)
-      else:
-        # Handle case where we're at the beginning
-        self.text.selection = 0 .. 0
-    of KeyRight:
-      let idx = self.text.findNextWord()
-      self.text.selection = idx .. idx
     of KeyBackspace:
-      if self.text.selection.a > 0 and NoErase notin self.opts:
-        let 
-          curPos = self.text.selection.a
-          idx = self.text.findPrevWord()
-        if idx >= 0:
-          self.text.runes.delete((idx+1) ..< curPos)
-          self.text.selection = (idx+1) .. (idx+1)
-          self.text.update(self.box)
-        else:
-          # Delete to the beginning
-          self.text.runes.delete(0 ..< curPos)
-          self.text.selection = 0 .. 0
-          self.text.update(self.box)
-    else: 
+      # Delete the word to the left of the cursor
+      # If there's a selection, just delete it
+      if self.text.cursorPos == 0: return
+      if self.text.hasSelection() and NoErase notin self.opts:
+        self.text.deleteSelected()
+      # Otherwise delete to word boundary
+      elif NoErase notin self.opts:
+        self.text.delete(PreviousWord)
+    else:
       discard
   elif down.matches({KAlt, KShift}):
     case pressed.getKey
-    of KeyLeft:
-      if not self.text.hasSelection():
-        self.text.growing = left
-
-      let idx = self.text.findPrevWord()
-      if self.text.growing == left:
-        self.text.selection = self.text.selWith(a = idx+1)
-      else:
-        self.text.selection = self.text.selWith(b = idx)
-
-    of KeyRight:
-      if not self.text.hasSelection():
-        self.text.growing = right
-
-      let idx = self.text.findNextWord()
-      if self.text.growing == right:
-        self.text.selection = self.text.selWith(b = idx)
-      else:
-        self.text.selection = self.text.selWith(a = idx+1)
-
     of KeyBackspace:
+      # Delete the word to the left of the cursor
       # If there's a selection, just delete it
-      if self.text.hasSelection() and self.text.selection.a != self.text.selection.b and NoErase notin self.opts:
-        self.text.delete()
-        self.text.update(self.box)
+      if self.text.cursorPos == 0: return
+      if self.text.hasSelection() and NoErase notin self.opts:
+        self.text.deleteSelected()
       # Otherwise delete to word boundary
-      elif self.text.selection.a > 0 and NoErase notin self.opts:
-        let 
-          curPos = self.text.selection.a
-          idx = self.text.findPrevWord()
-        if idx >= 0:
-          self.text.runes.delete((idx+1) ..< curPos)
-          self.text.selection = (idx+1) .. (idx+1)
-          self.text.update(self.box)
-        else:
-          # Delete to the beginning
-          self.text.runes.delete(0 ..< curPos)
-          self.text.selection = 0 .. 0
-          self.text.update(self.box)
+      elif NoErase notin self.opts:
+        self.text.delete(PreviousWord)
+        self.text.update(self.box)
     else:
       discard
+  elif down.matches({KMeta, KShift}):
+    case pressed.getKey
+      of KeyLeft:
+        self.text.shiftCursor(PreviousWord, select = true)
+      of KeyRight:
+        self.text.shiftCursor(NextWord, select = true)
+      else:
+        discard
 
   self.cursorTick = 1
   # self.text.updateSelection()
@@ -295,13 +264,18 @@ proc keyPress*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
       dir= self.text.growing
   emit self.doKeyCommand(pressed, down)
 
-# proc layoutResize*(self: Input, node: Figuro, resize: tuple[prev: Position, curr: Position]) {.slot.} =
-#   self.text.update(self.box)
-#   refresh(self)
+proc layoutResize*(self: Input, node: Figuro) {.slot.} =
+  ## Update text layout and cursor position when the Input widget's box changes
+  self.text.update(self.box)
+  self.text.updateCursor()
+  refresh(self)
 
 proc initialize*(self: Input) {.slot.} =
   self.text = newTextBox(self.box, self.frame[].theme.font)
-  # connect(self, doLayoutResize, self, layoutResize)
+  connect(self.frame[].root, doTick, self, tick)
+  connect(self, doLayoutResize, self, layoutResize)
+  connect(self, doKeyCommand, self, Input.keyCommand)
+  connect(self, doUpdateInput, self, updateInput)
 
 proc draw*(self: Cursor) {.slot.} =
   ## Cursor widget!
@@ -317,15 +291,11 @@ proc draw*(self: Input) {.slot.} =
   ## Input widget!
   withWidget(self):
 
-    if not connected(self, doKeyCommand, self, keyCommand):
-      connect(self, doKeyCommand, self, Input.keyCommand)
-    if not connected(self, doUpdateInput, self):
-      connect(self, doUpdateInput, self, updateInput)
-
     Text.new "basicText":
       this.textLayout = self.text.layout
       WidgetContents()
       foreground this, self.color
+
 
     Cursor.new "input-cursor":
       this.boxOf(self.text.cursorRect)
@@ -339,7 +309,3 @@ proc draw*(self: Input) {.slot.} =
           with this:
             boxOf self.text.selectionRects[i]
             fill css"#A0A0FF" * 0.4
-
-    if self.text.box != self.box:
-      self.text.update(self.box)
-

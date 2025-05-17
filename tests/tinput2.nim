@@ -14,7 +14,7 @@ const
   window_size = (width: 480'ui, height: 180'ui)
   offset = (left: 4'ux, top: 4'ux)
 
-type 
+type
   Main* = ref object of Figuro
     value: float
     hasHovered: bool
@@ -60,7 +60,7 @@ proc draw*(self: Main) {.slot.} =
       Vertical.new "vlayout":
         size 100'pp, 100'pp
         contentHeight cx"auto", gap = 0'ui
-        
+
         Rectangle.new "input-outer":
           # Test text input
           border 1'ui, css"black"
@@ -84,7 +84,8 @@ proc draw*(self: Main) {.slot.} =
               template currCharColon(): bool = this.text.runeAtCursor() == Rune(':')
               if isDigit:
                 this.updateInput(rune)
-                this.text.cursorNext()
+            onInit:
+              this.activate()
 
             connect(this, doUpdateInput, this, overrideUpdateInput)
             if not this.textChanged(""):
