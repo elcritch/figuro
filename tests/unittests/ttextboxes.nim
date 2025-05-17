@@ -47,16 +47,16 @@ suite "text boxes (single line)":
     check text.selection == 9..9
 
   test "basic deletes":
-    check text.selection == 4..4
+    text.selection = 4..4
     for i in countdown(3,0):
-      text.delete()
+      text.delete(Left)
       check text.selection == i..i
-      check text.runes == "abcdefghi".toRunes()[0..<i]
+      check text.runes == "abcd".toRunes()[0..<i]
     check text.runes == "".toRunes()
     check text.selection == 0..0
 
   test "insert at beginning":
-    text.selection = 0..0
+    text.shiftCursor(Beginning)
     text.insert(Rune('A'))
     check text.selection == 1..1
     check text.runes == "Aabcd".toRunes()
@@ -74,7 +74,7 @@ suite "text boxes (single line)":
     check text.runes == "aBcd".toRunes()
 
   test "re-insert at end":
-    text.selectionImpl = 4..4
+    text.selectionRange = 4..4
     text.insert(Rune('E'))
     check text.selection == 5..5
     check text.runes == "abcdE".toRunes()
@@ -88,64 +88,64 @@ suite "text boxes (single line)":
   test "cursor right":
     text.selection = 0..0
     for i in 1..4:
-      text.cursorRight()
+      text.shiftCursor(Right)
       check text.selection == i..i
     # extra should clamp
-    text.cursorRight()
+    text.shiftCursor(Right)
     check text.selection == 4..4
     check text.runes == "abcd".toRunes()
 
   test "cursor grow right":
     text.selection = 0..0
     for i in 1..4:
-      text.cursorRight(growSelection=true)
+      text.shiftCursor(Right, select = true)
       check text.selection == 0..i
     # extra should clamp
-    text.cursorRight(growSelection=true)
+    text.shiftCursor(Right, select = true)
     check text.selection == 0..4
     check text.runes == "abcd".toRunes()
 
   test "cursor left":
     text.selection = 4..4
     for i in countdown(3,0):
-      text.cursorLeft()
+      text.shiftCursor(Left)
       check text.selection == i..i
     # extra should clamp
-    text.cursorLeft()
+    text.shiftCursor(Left)
     check text.selection == 0..0
     check text.runes == "abcd".toRunes()
 
   test "cursor grow left":
     text.selection = 4..4
     for i in countdown(3,0):
-      text.cursorLeft(growSelection=true)
+      text.shiftCursor(Left, select = true)
       check text.selection == i..4
     # extra should clamp
-    text.cursorLeft(growSelection=true)
+    text.shiftCursor(Left, select = true)
     check text.selection == 0..4
     check text.runes == "abcd".toRunes()
 
   test "cursor up":
     text.selection = 2..2
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 0..0
     check text.runes == "abcd".toRunes()
 
   test "cursor up grow":
     text.selection = 2..2
-    text.cursorUp(growSelection=true)
+    text.shiftCursor(Up, select=true)
     check text.selection == 0..2
     check text.runes == "abcd".toRunes()
 
   test "cursor down":
     text.selection = 2..2
-    text.cursorDown()
+    text.shiftCursor(Down)
     check text.selection == 4..4
     check text.runes == "abcd".toRunes()
 
   test "cursor down grow":
     text.selection = 2..2
-    text.cursorDown(growSelection=true)
+    text.shiftCursor(Down, select=true)
     check text.selection == 2..4
     check text.runes == "abcd".toRunes()
 
@@ -174,28 +174,33 @@ suite "text boxes (single line)":
   test "set text overwrite":
     text.opts.incl Overwrite
 
-    text.selection = 0..0
+    text.placeCursor(0)
     text.insert("o".runeAt(0))
     check text.runes == "obcd".toRunes()
+    text.placeCursor(0)
     text.insert("u".runeAt(0))
     check text.runes == "ubcd".toRunes()
 
-    text.selection = 1..1
+    text.placeCursor(1)
     text.insert("x".runeAt(0))
     check text.runes == "uxcd".toRunes()
+    text.placeCursor(1)
     text.insert("y".runeAt(0))
     check text.runes == "uycd".toRunes()
 
-  test "set text overwrite end":
-    text.opts.incl Overwrite
 
-    text.selection = 4..4
-    text.insert("x".runeAt(0))
-    check text.runes == "abcd".toRunes()
+  # The insert proc needs another option like RangeLimit;
+  # otherwise, Overwrite can't be used as a general purpose toggle.
+  # test "set text overwrite end":
+  #   text.opts.incl Overwrite
 
-    text.selection = 3..3
-    text.insert("x".runeAt(0))
-    check text.runes == "abcx".toRunes()
+  #   text.selection = 4..4
+  #   text.insert("x".runeAt(0))
+  #   check text.runes == "abcd".toRunes()
+
+  #   text.selection = 3..3
+  #   text.insert("x".runeAt(0))
+  #   check text.runes == "abcx".toRunes()
 
   test "set text overwrite selected":
     text.opts.incl Overwrite
@@ -206,6 +211,7 @@ suite "text boxes (single line)":
   test "set text overwrite many selected":
     text.opts.incl Overwrite
     text.selection = 2..4
+    text.placeCursor(2)
     text.insert("xy".toRunes())
     check text.runes == "abxy".toRunes()
 
@@ -237,27 +243,27 @@ suite "text boxes (single line)":
     check tx.selection == 0..3
     check tx.runes == "one".toRunes()
 
-  test "cursor grow direction handling (right)":
+  test "cursor grow direction handling (Right)":
     text.selection = 0..0
-    text.cursorRight(growSelection=true)
+    text.shiftCursor(Right, select = true)
     check text.selection == 0..1
-    text.cursorRight(growSelection=true)
+    text.shiftCursor(Right, select = true)
     check text.selection == 0..2
-    text.cursorLeft(growSelection=true)
+    text.shiftCursor(Left, select = true)
     check text.selection == 0..1
-    text.cursorLeft(growSelection=true)
+    text.shiftCursor(Left, select = true)
     check text.selection == 0..0
     check text.runes == "abcd".toRunes()
 
-  test "cursor grow direction handling (left)":
+  test "cursor grow direction handling (Left)":
     text.selection = 2..2
-    text.cursorLeft(growSelection=true)
+    text.shiftCursor(Left, select = true)
     check text.selection == 1..2
-    text.cursorLeft(growSelection=true)
+    text.shiftCursor(Left, select = true)
     check text.selection == 0..2
-    text.cursorRight(growSelection=true)
+    text.shiftCursor(Right, select = true)
     check text.selection == 1..2
-    text.cursorRight(growSelection=true)
+    text.shiftCursor(Right, select = true)
     check text.selection == 2..2
     check text.runes == "abcd".toRunes()
 
@@ -274,42 +280,42 @@ suite "textboxes (two line)":
 
   test "cursor up":
     text.selection = 6..6
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 2..2
 
     text.selection = 5..5
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 1..1
 
     text.selection = 7..7
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 3..3
 
     text.selection = 8..8
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 3..3
     check text.runes == "one\ntwos".toRunes()
 
   test "cursor up grow":
     text.selection = 6..6
-    text.cursorUp(growSelection=true)
+    text.shiftCursor(Up, select = true)
     check text.selection == 2..6
-    text.cursorUp(growSelection=true)
+    text.shiftCursor(Up, select = true)
     check text.selection == 0..6
     check text.runes == "one\ntwos".toRunes()
 
   test "cursor down":
     text.selection = 2..2
-    text.cursorDown()
+    text.shiftCursor(Down)
     check text.selection == 6..6
     text.selection = 3..3
-    text.cursorDown()
+    text.shiftCursor(Down)
     check text.selection == 7..7
     check text.runes == "one\ntwos".toRunes()
 
   test "cursor down grow":
     text.selection = 2..2
-    text.cursorDown(growSelection=true)
+    text.shiftCursor(Down, select=true)
     check text.selection == 2..6
     check text.runes == "one\ntwos".toRunes()
 
@@ -326,47 +332,47 @@ suite "textboxes (three line)":
 
   test "cursor up":
     text.selection = 10..10
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 5..5
 
     text.selection = 11..11
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 6..6
 
     text.selection = 12..12
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 7..7
 
     text.selection = 14..14
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 8..8
 
     text.selection = 15..15
-    text.cursorUp()
+    text.shiftCursor(Up)
     check text.selection == 8..8
 
     check text.runes == "one\ntwos\nthrees".toRunes()
 
   test "cursor up grow":
     text.selection = 6..6
-    text.cursorUp(growSelection=true)
+    text.shiftCursor(Up, select=true)
     check text.selection == 2..6
-    text.cursorUp(growSelection=true)
+    text.shiftCursor(Up, select=true)
     check text.selection == 0..6
     check text.runes == "one\ntwos\nthrees".toRunes()
 
   test "cursor down":
     text.selection = 2..2
-    text.cursorDown()
+    text.shiftCursor(Down)
     check text.selection == 6..6
     text.selection = 3..3
-    text.cursorDown()
+    text.shiftCursor(Down)
     check text.selection == 7..7
     check text.runes == "one\ntwos\nthrees".toRunes()
 
   test "cursor down grow":
     text.selection = 2..2
-    text.cursorDown(growSelection=true)
+    text.shiftCursor(Down, select=true)
     check text.selection == 2..6
     check text.runes == "one\ntwos\nthrees".toRunes()
 
@@ -379,29 +385,29 @@ suite "textbox move words":
 
   test "cursor word right":
     text.selection = 0..0
-    text.cursorWordRight()
-    check text.selection == 3..3
+    text.shiftCursor(NextWord)
+    check text.selection == 4..4
 
     text.selection = 5..5
-    text.cursorWordRight()
-    check text.selection == 8..8
+    text.shiftCursor(NextWord)
+    check text.selection == 9..9
     check text.runes == "one twos threes".toRunes()
 
   test "cursor word right grow":
     text.selection = 0..0
-    text.cursorWordRight(growSelection=true)
-    check text.selection == 0..3
+    text.shiftCursor(NextWord, select = true)
+    check text.selection == 0..4
 
     text.selection = 5..5
-    text.cursorWordRight(growSelection=true)
-    check text.selection == 5..8
+    text.shiftCursor(NextWord, select = true)
+    check text.selection == 5..9
     check text.runes == "one twos threes".toRunes()
 
   test "cursor word left":
     text.selection = 5..5
-    text.cursorWordLeft()
+    text.shiftCursor(PreviousWord)
     check text.selection == 4..4
 
-    text.cursorWordLeft()
+    text.shiftCursor(PreviousWord)
     check text.selection == 0..0
     check text.runes == "one twos threes".toRunes()

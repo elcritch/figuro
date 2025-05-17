@@ -4,18 +4,27 @@ import ../commons
 import chronicles
 
 type
-  TextDirection* = enum
-    left
-    right
+  Orient* = enum
+    Left
+    Right
+    Up
+    Down
+    Beginning
+    TheEnd
+    NextWord
+    PreviousWord
 
-  TextOptions* {.pure.} = enum
+
+  TextOptions* = enum
     Overwrite
     Rtl # this needs more work
 
   TextBox* = object
-    selectionImpl*: Slice[int]
+    selectionRange*: Slice[int]
     opts*: set[TextOptions]
-    growing*: TextDirection
+    cursorPos*: int = 0
+    anchor: int = 0 # The anchor is the location a selection starts from.
+    selectionExists = false
       # Text editors store selection direction to control how keys behave
     selectionRects*: seq[Box]
     cursorRect*: Box
@@ -39,35 +48,93 @@ proc runes*(self: TextBox): seq[Rune] =
 proc toSlice[T](a: T): Slice[T] =
   a .. a # Shortcut
 
-proc selWith*(self: TextBox, a = self.selectionImpl.a, b = self.selectionImpl.b): Slice[int] =
-  result.a = a
-  result.b = b
-
 proc `selection`*(self: var TextBox): Slice[int] =
-  self.selectionImpl
+  self.selectionRange
 proc `selection`*(self: TextBox): Slice[int] =
-  self.selectionImpl
+  self.selectionRange
 
 proc hasSelection*(self: TextBox): bool =
-  self.selection != 0 .. 0 and self.layout.runes.len() > 0 and self.selection.a != self.selection.b
+  return self.selectionExists
 
 proc selected*(self: TextBox): seq[Rune] =
-  for i in self.selection.a ..< self.selection.b:
+  for i in self.selectionRange.a ..< self.selectionRange.b:
     result.add self.layout.runes[i]
 
-proc clamped*(self: TextBox, dir = right, offset = 0, inclusive=true): int =
+# A common problem that comes up is dealing with the difference between
+# possible cursor positions and valid rune indices.
+#
+# For a text of length N there are N+1 possible cursor positions
+# (from 0 at the beginning to N at the end).
+# For a text of length N, valid rune indices are 0 to N-1.
+#
+# So when you use a select-all function you get a slice of 0-N,
+# but when you try to delete that you might get an error because
+# no rune exists at N.
+
+proc clamped*(self: TextBox, dir: Orient = Right, offset = 0, inclusive=true): int =
+# The main goal of `clamped` is to return an integer value (an index)
+# that is "clamped" or restricted to be within the valid bounds of
+# the text runes (characters) in the `TextBox`.
+# This helps prevent errors that might arise from trying to
+# access an index outside the actual text length
+# (e.g., when moving the cursor or defining a selection).
   let endj = if inclusive: 0 else: 1
   let ln = self.layout.runes.len() - endj
   case dir
-  of left:
-    result = clamp(self.selection.a + offset, 0, ln)
-  of right:
-    result = clamp(self.selection.b + offset, 0, ln)
+  of Left:
+    result = clamp(self.selectionRange.a + offset, 0, ln)
+  of Right:
+    result = clamp(self.selectionRange.b + offset, 0, ln)
+  else: discard
 
 proc runeAtCursor*(self: TextBox): Rune =
   if self.runes().len() == 0:
     return Rune(0)
-  result = self.layout.runes[self.clamped(left, 0, inclusive=false)]
+  result = self.layout.runes[self.clamped(Left, 0, inclusive=false)]
+
+proc findLine*(self: TextBox, down: bool, select: bool = false): int =
+  ## Finds the index of the line in self.layout.lines that contains the
+  ## relevant cursor/selection point.
+  ## - `down`: Indicates the direction of intended cursor movement (true for down, false for up).
+  ##           Used when `select` is false to determine which end of selection to check.
+  ## - `select`: True if the selection is currently being grown (e.g., Shift + Arrow).
+  ##             Defaults to false.
+
+  result = -1 # Default to -1 if no line is found
+
+  # If layout.lines is empty, we can't find a line.
+  # This can happen if the textbox is empty and updateLayout hasn't run or produced lines.
+  # However, updateLayout typically ensures at least one line definition for an empty box due to the temp char.
+  if self.layout.lines.len == 0:
+    return -1
+
+  var charPosToFind: int
+  if select:
+    charPosToFind = self.cursorPos
+  else:
+    if down:
+      charPosToFind = self.selectionRange.b
+    else:
+      charPosToFind = self.selectionRange.a
+
+  let clampedCharPos = clamp(charPosToFind, 0, self.runes().len())
+
+  for idx, lineSlice in self.layout.lines:
+    # Standard case: character position is within the rune indices of the line.
+    if clampedCharPos >= lineSlice.a and clampedCharPos <= lineSlice.b:
+      return idx
+
+    # Edge case: Cursor is at the very end of the text (position `runes.len()`),
+    # which is 1 past the last character index (`runes.len() - 1`).
+    # This position is considered to be on the last line if the text is not empty
+    # and the last line indeed ends at the last character.
+    if idx == self.layout.lines.high and      # It's the last line
+       clampedCharPos == self.runes().len() and # Position is at the end of all runes
+       self.runes().len() > 0 and              # And there are runes (text is not empty)
+       lineSlice.b == self.runes().len() - 1:  # Last line ends at the last rune index
+      return idx
+
+  return result
 
 proc newTextBox*(box: Box, font: UiFont): TextBox =
   result = TextBox()
@@ -95,67 +162,6 @@ iterator slices(selection: Slice[int], lines: seq[Slice[int]]): Slice[int] =
     else: # handle full lines
       yield line.a .. line.a
 
-proc updateCursor(self: var TextBox) =
-  # echo "updateCursor:sel: ", self.selectionImpl
-  # echo "updateCursor:selRect: ", self.selectionRects
-  # print "updateCursor:layout: ", self.layout
-  if self.layout.selectionRects.len() == 0:
-    return
-
-  var cursor: Rect
-  case self.growing
-  of left:
-    cursor = self.layout.selectionRects[self.selection.a]
-  of right:
-    cursor = self.layout.selectionRects[self.selection.b]
-
-  ## this is gross but works for now
-  let fontSize = self.font.size.scaled()
-  cursor.w = max(0.08 * fontSize, 3.0)
-  self.cursorRect = cursor.descaled()
-
-proc updateSelection*(self: var TextBox) =
-  ## update selection boxes, each line has it's own selection box
-  self.selectionRects.setLen(0)
-  self.selectionImpl = self.clamped(left) .. self.clamped(right)
-  for sel in self.selectionImpl.slices(self.layout.lines):
-    let lhs = self.layout.selectionRects[sel.a]
-    let rhs = self.layout.selectionRects[sel.b]
-    # rect starts on left hand side
-    var rect = lhs
-    # find the width and height of the rect
-    rect.w = rhs.x - lhs.x
-    rect.h = (rhs.y + rhs.h) - lhs.y
-    self.selectionRects.add rect.descaled()
-  self.updateCursor()
-
-proc `selection=`*(self: var TextBox, sel: Slice[int]) =
-  self.selectionImpl = sel
-  self.updateSelection()
-
-proc update*(self: var TextBox, box: Box, font = self.font) =
-  self.box = box
-  self.font = font
-  self.updateLayout()
-  self.updateSelection()
-
-proc findLine*(self: TextBox, down: bool, isGrowingSelection = false): int =
-  result = -1
-  let lhs = self.selection.a
-  let rhs = self.selection.b
-  for idx, line in self.layout.lines:
-    if isGrowingSelection:
-      if self.growing == left and lhs in line:
-        return idx
-      if self.growing == right and rhs in line:
-        return idx
-    else:
-      if down:
-        if rhs in line:
-          return idx
-      elif lhs in line:
-        return idx
-
 var wordBoundaryChars* = toHashSet[Rune]([
   Rune('.'), Rune(','), Rune(':'), Rune(';'),
   Rune('!'), Rune('?'), Rune('('), Rune(')'),
@@ -170,214 +176,261 @@ proc isWordBoundary(r: Rune): bool =
 
 proc findPrevWord*(self: TextBox): int =
   # Start from the character before the current position
-  var i =
-    if self.growing == left:
-      max(0, self.selection.a - 1)
-    else:
-      max(0, self.selection.b - 1)
-
+  var i = self.cursorPos - 1
   # If we're already at a boundary, move back until we're not
   while i > 0 and self.runes()[i].isWordBoundary():
     dec(i)
-
   # Now find the start of the current word
   while i > 0 and not self.runes()[i-1].isWordBoundary():
     dec(i)
-
-  return i - 1  # Return position before the word start
+  return i  # Return position before the word start
 
 proc findNextWord*(self: TextBox): int =
   result = self.runes().len()
-
   # Start from the current position
-  var i =
-    if self.growing == right:
-      max(0, self.selection.b + 1)
-    else:
-      max(0, self.selection.a + 1)
-
+  var i = self.cursorPos
   if self.runes().len() == 0 or i >= self.runes().len():
     trace "findNextWord:resturn:early: "
     return result
-
   trace "findNextWord: ", i= i, runes= $self.runes()[i], rlen= self.runes().len(), isWordBoundary= self.runes()[i].isWordBoundary()
-
   # Skip current word
   while i < self.runes().len() and not self.runes()[i].isWordBoundary():
     inc(i)
-
   # Skip word boundaries
   while i < self.runes().len() and self.runes()[i].isWordBoundary():
     inc(i)
+  return i
 
-  if i == self.runes().len():
-    return i
+# --- Selection ---
+
+proc updateSelection*(self: var TextBox) =
+  ## update selection boxes, each line has it's own selection box
+  self.selectionRects.setLen(0)
+  for sel in self.selectionRange.slices(self.layout.lines):
+    let lhs = self.layout.selectionRects[sel.a]
+    let rhs = self.layout.selectionRects[sel.b]
+    # rect starts on Left hand side
+    var rect = lhs
+    # find the width and height of the rect
+    rect.w = rhs.x - lhs.x
+    rect.h = (rhs.y + rhs.h) - lhs.y
+    self.selectionRects.add rect.descaled()
+
+proc growSelection*(self: var TextBox) =
+  self.selectionRange.a = min(self.cursorPos, self.anchor)
+  self.selectionRange.b = max(self.cursorPos, self.anchor)
+  if not self.selectionExists: self.selectionExists = true
+  self.updateSelection()
+
+proc clearSelection*(self: var TextBox) =
+  self.anchor = self.cursorPos
+  self.selectionRange.a = self.cursorPos
+  self.selectionRange.b = self.cursorPos
+  if self.selectionExists:
+    self.selectionExists = false
+    self.updateSelection()
+
+# --- Cursor ---
+
+proc updateCursor*(self: var TextBox) =
+  # echo "updateCursor:sel: ", self.selectionRange
+  # echo "updateCursor:selRect: ", self.selectionRects
+  # print "updateCursor:layout: ", self.layout
+  if self.layout.selectionRects.len() == 0:
+    return
+
+  var cursor: Rect
+  cursor = self.layout.selectionRects[self.cursorPos]
+
+  ## this is gross but works for now
+  let fontSize = self.font.size.scaled()
+  cursor.w = max(0.08 * fontSize, 3.0)
+  self.cursorRect = cursor.descaled()
+
+proc placeCursor*(self: var TextBox, pos: int, select = false) =
+  # Places the keyboard cursor at the specified position.
+  # Clears the selection and brings the anchor along unless
+  # clearSelection is set to false.
+  self.cursorPos = clamp(pos, 0, self.runes().len())
+  self.updateCursor()
+  if select: self.growSelection()
+  else: self.clearSelection()
+
+proc shiftCursorDown*(self: var TextBox, select = false): int =
+  ## Move cursor or selection down one line.
+  ## - `select`: If true, extends the selection downwards.
+  ##             If false, moves the cursor and clears any existing selection.
+
+  let presentLineIdx = self.findLine(down = true, select = select)
+
+  # If findLine returns -1 (e.g., empty layout), do nothing.
+  if presentLineIdx == -1:
+    return
+
+  # Get the start rune index of the current line.
+  let currentLineStartIdx = self.layout.lines[presentLineIdx].a
+
+  # Handle the edge case: If already on the last line.
+  if presentLineIdx == self.layout.lines.high:
+    return self.runes().len()
+
+  # Handle moving from any line other than the last line.
   else:
-    return i - 1
+    # Calculate the index of the line below the current one.
+    let nextLineIdx = clamp(presentLineIdx + 1, 0, self.layout.lines.high)
+    # Get the rune index range (Slice) of the line below.
+    let nextLineSlice = self.layout.lines[nextLineIdx]
 
-proc delete*(self: var TextBox, dir = left) =
-  if self.selection.len() > 1:
-    let delSlice = self.clamped(left) .. self.clamped(right, offset = -1)
-    if self.runes().len() > 1:
-      self.runes().delete(delSlice)
-    self.selection = self.clamped(left).toSlice()
-  elif dir == left and self.selection.len() == 1 and self.selection.a != 0:
-      if self.runes().len() >= 1:
-        self.layout.runes.delete(self.clamped(left, offset = -1))
-      self.selection = toSlice(self.clamped(left, offset = -1))
-  elif dir == right and self.selection.len() == 1 and self.selection.b != self.runes().len():
-    if self.runes().len() >= 1:
-      self.layout.runes.delete(self.clamped(right, offset = 0))
-    self.selection = toSlice(self.clamped(right, offset = 0))
+    # Calculate the horizontal offset (difference in rune indices)
+    # from the start of the current line to the cursor's Right edge.
+    let horizontalOffset = self.clamped(Right) - currentLineStartIdx
 
-proc insert*(self: var TextBox, rune: Rune) =
-  if self.selection.len() > 1:
-    self.delete()
+    # Calculate the target rune index on the next line.
+    # Add the horizontal offset to the start of the next line.
+    # Ensure the target index doesn't go beyond the end index of the next line.
+    return min(nextLineSlice.a + horizontalOffset, nextLineSlice.b)
 
-  if Overwrite in self.opts:
-    let idx = self.clamped(left)
-    if idx < self.runes.len():
-      self.runes[idx] = rune
+proc shiftCursorUp*(self: var TextBox, select = false): int =
+  ## Move cursor or selection up one line.
+  ## - `select`: If true, extends the selection upwards.
+  ##             If false, moves the cursor and clears any existing selection.
+
+  let presentLineIdx = self.findLine(down = false, select = select)
+  if presentLineIdx == -1:
+    return
+
+  let currentLineStartIdx = self.layout.lines[presentLineIdx].a
+  if presentLineIdx == 0:
+    return 0
   else:
-    self.runes.insert(rune, self.clamped(left))
-    self.updateLayout()
-    self.selection = toSlice(self.selection.a + 1)
+    let previousLineIdx = clamp(presentLineIdx - 1, 0, self.layout.lines.high)
+    let previousLineSlice = self.layout.lines[previousLineIdx]
+    let horizontalOffset = self.clamped(Left) - currentLineStartIdx
+    return min(previousLineSlice.a + horizontalOffset, previousLineSlice.b)
 
-proc insert*(self: var TextBox, runes: seq[Rune]) =
-  let manySelected = self.selection.len() > 1
-  if manySelected:
-    self.delete()
+proc shiftCursor*(self: var TextBox,
+                              orientation: Orient,
+                              select = false) =
+  # Shifts the keyboard cursor based on an orientation.
+  # Options include: Right, Left, Up, Down,
+  # Beginning, TheEnd, PreviousWord, NextWord.
+  # Clears the selection and brings the anchor along unless
+  # select is set to true.
+  let pos: int = case orientation
+    of Right: self.cursorPos + 1
+    of Left: self.cursorPos - 1
+    of NextWord: self.findNextWord()
+    of PreviousWord: self.findPrevWord()
+    of Beginning: 0
+    of TheEnd: self.runes().len()
+    of Up: self.shiftCursorUp(select)
+    of Down: self.shiftCursorDown(select)
+  self.cursorPos = clamp(pos, 0, self.runes().len())
+  self.updateCursor()
+  if select: self.growSelection()
+  else: self.clearSelection()
 
-  if Overwrite in self.opts and not manySelected:
-    for i in 0..<runes.len():
-      let idx = self.clamped(left) + i
-      if idx < self.runes.len():
-        self.runes[idx] = runes[i]
+proc setCursor*(self: var TextBox) =
+  self.updateCursor()
+
+proc `selection=`*(self: var TextBox, sel: Slice[int]) =
+  if sel.a == sel.b:
+    self.cursorPos = sel.a
+    self.clearSelection()
   else:
-    self.runes.insert(runes, self.clamped(left))
-    self.updateLayout()
-    self.selection = toSlice(self.selection.a + runes.len())
+    self.selectionRange = sel
+    self.anchor = sel.a
+    self.cursorPos = sel.b
+    self.updateCursor()
+    if not self.selectionExists: self.selectionExists = true
+    self.updateSelection()
 
-proc replaceText*(self: var TextBox, runes: seq[Rune]) =
-  var selection = self.selection
-  self.layout.runes = runes
-  selection.b = self.clamped(right)
-  if self.selection.len() == 1:
-    selection.a = selection.b - self.selection.len() + 1
-  selection.a = self.clamped(left)
-  self.selection = selection
-
-proc cursorStart*(self: var TextBox, growSelection = false) =
-  if growSelection:
-    self.growing = left
-    self.selection = self.selWith(a=0)
-  else:
-    self.selection = 0 .. 0
-
-proc cursorEnd*(self: var TextBox, growSelection = false) =
-  if growSelection:
-    self.selection = self.selWith(b=self.runes.len)
-    self.growing = right
-  else:
-    self.selection = toSlice self.runes.len()
-
-proc cursorLeft*(self: var TextBox, growSelection = false) =
-  if growSelection:
-    if self.selection.len() == 1:
-      self.growing = left
-    case self.growing
-    of left:
-      self.selection = self.selWith(a= self.clamped(left, offset = -1))
-    of right:
-      self.selection = self.selWith(b= self.clamped(right, offset = -1))
-  else:
-    self.selection = toSlice self.clamped(self.growing, offset = -1)
-
-proc cursorRight*(self: var TextBox, growSelection = false) =
-  if growSelection:
-    if self.selection.len() == 1:
-      self.growing = right
-
-    case self.growing
-    of left:
-      self.selection = self.selWith(a= self.clamped(left, offset = 1))
-    of right:
-      self.selection = self.selWith(b= self.clamped(right, offset = 1))
-  else:
-    # if self.selection.len != 1 and growing == right:
-    self.selection = toSlice self.clamped(self.growing, offset = 1)
-
-proc cursorNext*(self: var TextBox, growSelection = false) =
-  if Rtl notin self.opts:
-    self.cursorRight(growSelection)
-  else:
-    self.cursorLeft(growSelection)
-
-proc cursorDown*(self: var TextBox, growSelection = false) =
-  ## Move cursor or selection down
-  let
-    presentLine = self.findLine(true, growSelection)
-    startCurrLine = self.layout.lines[presentLine].a
-    nextLine = clamp(presentLine + 1, 0, self.layout.lines.high)
-    lineStart = self.layout.lines[nextLine]
-
-  # echo "cursorDown: ", " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
-  if presentLine == self.layout.lines.high:
-    # if last line, goto end
-    let b = self.layout.lines[^1].b
-    if growSelection:
-      self.selection = self.selWith(b= b)
-    else:
-      self.selection = toSlice(b)
-  else:
-    let
-      lineDiff = self.clamped(right) - startCurrLine
-      sel = min(lineStart.a + lineDiff, lineStart.b)
-    if growSelection:
-      self.selection = self.selWith(b= sel)
-    else:
-      self.selection = toSlice(sel)
-  # textBox.adjustScroll()
-
-proc cursorUp*(self: var TextBox, growSelection = false) =
-  ## Move cursor or selection up
-  let
-    presentLine = self.findLine(true, growSelection)
-    startCurrLine = self.layout.lines[presentLine].a
-    nextLine = clamp(presentLine - 1, 0, self.layout.lines.high)
-    lineStart = self.layout.lines[nextLine]
-
-  # echo "cursorUp: ", " present: ", presentLine, " start: ", startCurrLine, " nextLine: ", nextLine, " lineStart: ", lineStart
-  if presentLine == 0:
-    # if first line, goto start
-    if growSelection:
-      self.selection = self.selWith(a= 0)
-    else:
-      self.selection = toSlice(0)
-  else:
-    let lineDiff = self.clamped(left) - startCurrLine
-    let sel = min(lineStart.a + lineDiff, lineStart.b)
-    # echo "lineDiff:alt: ", startCurrLine - self.clamped(left), " sel: ", lineStart.a + lineDiff
-    # echo "lineDiff: ", lineDiff, " sel: ", lineStart.a, " b: ", lineStart.b
-    if growSelection:
-      self.selection = self.selWith(a= sel)
-    else:
-      self.selection = toSlice(sel)
-  # textBox.adjustScroll()
-
-proc cursorSelectAll*(self: var TextBox) =
+proc selectAll*(self: var TextBox) =
+  self.anchor = 0
+  self.cursorPos = self.runes.len
   self.selection = 0 .. self.runes.len
 
-proc cursorWordLeft*(self: var TextBox, growSelection = false) =
-  let idx = findPrevWord(self)
-  if growSelection:
-    self.selection = self.selWith(a= idx + 1)
-  else:
-    self.selection = toSlice(idx + 1)
+proc update*(self: var TextBox, box: Box, font = self.font) =
+  self.box = box
+  self.font = font
+  self.updateLayout()
+  self.updateSelection()
 
-proc cursorWordRight*(self: var TextBox, growSelection = false) =
-  let idx = findNextWord(self)
-  if growSelection:
-    self.selection = self.selWith(b= idx)
+proc deleteSelected*(self: var TextBox) =
+  # Deletes a selection range.
+  let delSlice = self.clamped(Left) .. self.clamped(Right, offset = -1)
+  let cursorOnLeft = self.cursorPos == self.selectionRange.a
+  if not cursorOnLeft: self.placeCursor(self.selectionRange.a)
+  if self.runes().len() != 0:
+    self.runes().delete(delSlice)
+    self.clearSelection()
+
+proc delete*(self: var TextBox, orientation: Orient) =
+  # Deletes a rune in the specified direction from the cursor.
+  # Shifts the cursor in cases where that is expected.
+  # Deletes a selection range if one exists.
+  if self.selectionExists:
+    self.deleteSelected()
+    return
+  case orientation
+    of Left:
+      if self.cursorPos != 0:
+        self.runes().delete(self.cursorPos - 1)
+        self.shiftCursor(Left)
+    of Right:
+      if self.cursorPos != self.runes().len():
+        self.runes().delete(self.cursorPos)
+    of PreviousWord:
+      let idx = clamp(self.findPrevWord(), 0, self.runes().len())
+      self.runes.delete((idx) ..< self.cursorPos)
+      self.placeCursor(idx)
+    else: discard
+
+proc insert*(self: var TextBox, rune: Rune) =
+
+  if self.selectionExists:
+    self.deleteSelected()
+
+  if Overwrite in self.opts:
+    if self.cursorPos < self.runes.len():
+      self.runes[self.cursorPos] = rune
+    else:
+      self.runes.insert(rune, self.cursorPos)
   else:
-    self.selection = toSlice(idx)
+    self.runes.insert(rune, self.cursorPos)
+
+  self.updateLayout()
+  self.shiftCursor(Right)
+
+proc insert*(self: var TextBox, runes: seq[Rune]) =
+
+  if self.hasSelection():
+    self.deleteSelected()
+
+  if Overwrite in self.opts:
+    for i in 0..<runes.len():
+      if self.cursorPos < self.runes.len():
+        self.runes[self.cursorPos] = runes[i]
+        inc(self.cursorPos)
+  else:
+    self.runes.insert(runes, self.cursorPos)
+    self.cursorPos = self.cursorPos + runes.len()
+
+  self.placeCursor(self.cursorPos)
+  self.updateLayout()
+
+
+proc replaceText*(self: var TextBox, runes: seq[Rune]) =
+  var selection = self.selectionRange
+  self.layout.runes = runes
+  selection.b = self.clamped(Right)
+  if self.selectionRange.len() == 1:
+    selection.a = selection.b - self.selectionRange.len() + 1
+  selection.a = self.clamped(Left)
+  self.selectionRange = selection
+
+proc cursorNext*(self: var TextBox) =
+  if Rtl notin self.opts:
+    self.shiftCursor(Right)
+  else:
+    self.shiftCursor(Left)
