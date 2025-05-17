@@ -1,4 +1,3 @@
-
 # Figuro
 
 Figuro is a open source framework for building *beautiful*, *interactive*, and *efficient* applications. It compiles small binaries with support for multiple platforms.
@@ -16,6 +15,44 @@ Originally based on Fidget, Figuro has now diverged quite significantly and incl
 Example theming:
 
 ![Theming](https://i.ibb.co/jPNGZkL7/HNBrowser.gif)
+
+## Widget Lifecycle
+
+The following diagram illustrates the lifecycle of a Figuro widget/node:
+
+```mermaid
+graph TD
+    A[Widget Creation] --> B[preNode]
+    B --> C[connectDefaults]
+    C --> D{Initialized?}
+    D -->|No| E[doInitialize]
+    D -->|Yes| F[Skip initialization]
+    E --> G[doDraw]
+    F --> G
+    G --> G1[clearDraw]
+    G1 --> G2[handlePreDraw]
+    G2 --> G3[widget.draw]
+    G3 --> G4[handleContents]
+    G4 --> G5[handlePostDraw]
+    
+    %% Event handling can happen at any time
+    H[Events] --> H1[doMouseClick]
+    H --> H2[doDrag]
+    H --> H3[doHover]
+    H --> H4[doKeyInput] 
+    H --> H5[doKeyPress]
+    H --> H6[doTick]
+    
+    I[Render] --> I1[renderFrame]
+    
+    G5 --> I
+    
+    classDef process fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef signal fill:#bbf,stroke:#33f,stroke-width:2px;
+    
+    class G1,G2,G3,G4,G5 process;
+    class E,G,H1,H2,H3,H4,H5,H6 signal;
+```
 
 ## Example
 
