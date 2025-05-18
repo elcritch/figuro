@@ -72,12 +72,12 @@ proc selected*(self: TextBox): seq[Rune] =
 # no rune exists at N.
 
 proc clamped*(self: TextBox, dir: Orient = Right, offset = 0, inclusive=true): int =
-# The main goal of `clamped` is to return an integer value (an index)
-# that is "clamped" or restricted to be within the valid bounds of
-# the text runes (characters) in the `TextBox`.
-# This helps prevent errors that might arise from trying to
-# access an index outside the actual text length
-# (e.g., when moving the cursor or defining a selection).
+  ## The main goal of `clamped` is to return an integer value (an index)
+  ## that is "clamped" or restricted to be within the valid bounds of
+  ## the text runes (characters) in the `TextBox`.
+  ## This helps prevent errors that might arise from trying to
+  ## access an index outside the actual text length
+  ## (e.g., when moving the cursor or defining a selection).
   let endj = if inclusive: 0 else: 1
   let ln = self.layout.runes.len() - endj
   case dir
