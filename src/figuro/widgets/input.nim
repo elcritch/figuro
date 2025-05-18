@@ -98,7 +98,7 @@ proc tick*(self: Input, now: MonoTime, delta: Duration) {.slot.} =
       self.cursorTick = (self.cursorTick + 1) mod 2
       refresh(self)
 
-proc activate*(self: Input, kind: EventKind = Done) =
+proc activate*(self: Input, kind: EventKind = Done) {.slot.} =
   self.active(kind == Done and not self.disabled)
   if self.active():
     self.listens.signals.incl {evKeyboardInput, evKeyPress}
