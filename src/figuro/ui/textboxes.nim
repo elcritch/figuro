@@ -390,7 +390,10 @@ proc insert*(self: var TextBox,
             rune: Rune,
             overWrite = false,
             rangeLimit = 0) =
-
+  ## Inserts a rune at the current cursor position.
+  ## overWrite: If set to true, then replace the rune in front of cursorPos.
+  ## rangeLimit: If set to a number larger than 0,
+  ## then this function will not insert a rune once there are that many runes.
   if self.selectionExists:
     self.deleteSelected()
 
