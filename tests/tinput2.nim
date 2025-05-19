@@ -82,12 +82,15 @@ proc draw*(self: Main) {.slot.} =
             proc overrideUpdateInput(this: Input, rune: Rune) {.slot.} =
               let isDigit = rune <=% Rune('9') and rune.char in {'0'..'9'}
               template currCharColon(): bool = this.text.runeAtCursor() == Rune(':')
+              this.skipSelectedRune()
               if isDigit:
-                this.updateInput(rune)
+                this.text.insert(rune, overWrite = true, rangeLimit = 8)
             onInit:
               this.activate()
 
+            disconnect(this, doUpdateInput, this, updateInput)
             connect(this, doUpdateInput, this, overrideUpdateInput)
+
             if not this.textChanged(""):
               # set default
               this.setText("00:00:00")

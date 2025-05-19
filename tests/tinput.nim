@@ -37,7 +37,6 @@ proc draw*(self: Main) {.slot.} =
           this.text.shiftCursor(TheEnd)
           this.activate()
 
-
 var main = Main.new()
 var frame = newAppFrame(main, size=(720'ui, 140'ui), saveWindowState = false)
 startFiguro(frame)

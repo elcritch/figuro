@@ -172,66 +172,53 @@ suite "text boxes (single line)":
     check tx.runes == "alpha".toRunes()
 
   test "set text overwrite":
-    text.opts.incl Overwrite
-
     text.placeCursor(0)
-    text.insert("o".runeAt(0))
+    text.insert("o".runeAt(0), overWrite = true)
     check text.runes == "obcd".toRunes()
     text.placeCursor(0)
-    text.insert("u".runeAt(0))
+    text.insert("u".runeAt(0), true)
     check text.runes == "ubcd".toRunes()
 
     text.placeCursor(1)
-    text.insert("x".runeAt(0))
+    text.insert("x".runeAt(0), true)
     check text.runes == "uxcd".toRunes()
     text.placeCursor(1)
-    text.insert("y".runeAt(0))
+    text.insert("y".runeAt(0), true)
     check text.runes == "uycd".toRunes()
 
+  test "set text overwrite end, with rangelimit":
+    text.selection = 4..4
+    text.insert("x".runeAt(0), true, rangeLimit = 4)
+    check text.runes == "abcd".toRunes()
 
-  # The insert proc needs another option like RangeLimit;
-  # otherwise, Overwrite can't be used as a general purpose toggle.
-  # test "set text overwrite end":
-  #   text.opts.incl Overwrite
-
-  #   text.selection = 4..4
-  #   text.insert("x".runeAt(0))
-  #   check text.runes == "abcd".toRunes()
-
-  #   text.selection = 3..3
-  #   text.insert("x".runeAt(0))
-  #   check text.runes == "abcx".toRunes()
+    text.selection = 3..3
+    text.insert("x".runeAt(0), true, 4)
+    check text.runes == "abcx".toRunes()
 
   test "set text overwrite selected":
-    text.opts.incl Overwrite
     text.selection = 2..3
-    text.insert("o".runeAt(0))
+    text.insert("o".runeAt(0), true)
     check text.runes == "abo".toRunes()
 
   test "set text overwrite many selected":
-    text.opts.incl Overwrite
     text.selection = 2..4
     text.placeCursor(2)
-    text.insert("xy".toRunes())
+    text.insert("xy".toRunes(), true)
     check text.runes == "abxy".toRunes()
 
   test "set text overwrite many selected":
-    text.opts.incl Overwrite
     text.selection = 4..4
-    text.insert("x".toRunes())
+    text.insert("x".toRunes(), true)
     check text.runes == "abcd".toRunes()
 
   test "set text overwrite single":
-    text.opts.incl Overwrite
     text.selection = 0..0
-    text.insert("x".toRunes())
+    text.insert("x".toRunes(), true)
     check text.runes == "xbcd".toRunes()
 
   test "set text overwrite multiple":
-    text.opts.incl Overwrite
-
     text.selection = 0..0
-    text.insert("xy".toRunes())
+    text.insert("xy".toRunes(), true)
     check text.runes == "xycd".toRunes()
 
   test "set text with longer selected text":

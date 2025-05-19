@@ -309,13 +309,13 @@ proc shiftCursorUp*(self: var TextBox, select = false): int =
     return min(previousLineSlice.a + horizontalOffset, previousLineSlice.b)
 
 proc shiftCursor*(self: var TextBox,
-                              orientation: Orient,
-                              select = false) =
-  # Shifts the keyboard cursor based on an orientation.
-  # Options include: Right, Left, Up, Down,
-  # Beginning, TheEnd, PreviousWord, NextWord.
-  # Clears the selection and brings the anchor along unless
-  # select is set to true.
+                  orientation: Orient,
+                  select = false) =
+  ## Shifts the keyboard cursor based on an orientation.
+  ## Options include: Right, Left, Up, Down,
+  ## Beginning, TheEnd, PreviousWord, NextWord.
+  ## Clears the selection and brings the anchor along unless
+  ## select is set to true.
   let pos: int = case orientation
     of Right: self.cursorPos + 1
     of Left: self.cursorPos - 1
@@ -386,28 +386,46 @@ proc delete*(self: var TextBox, orientation: Orient) =
       self.placeCursor(idx)
     else: discard
 
-proc insert*(self: var TextBox, rune: Rune) =
+proc insert*(self: var TextBox,
+            rune: Rune,
+            overWrite = false,
+            rangeLimit = 0) =
 
   if self.selectionExists:
     self.deleteSelected()
 
-  if Overwrite in self.opts:
+  # 1. no overWrite, no rangeLimit
+  if not overWrite and rangeLimit == 0:
+    self.runes.insert(rune, self.cursorPos)
+  # 2. no overWrite, yes rangeLimit
+  elif not overWrite and rangeLimit > 0:
+    if rangeLimit > self.runes.len:
+     self.runes.insert(rune, self.cursorPos)
+  # 3. yes overWrite, no rangeLimit
+  elif overWrite and rangeLimit == 0:
     if self.cursorPos < self.runes.len():
       self.runes[self.cursorPos] = rune
     else:
       self.runes.insert(rune, self.cursorPos)
-  else:
-    self.runes.insert(rune, self.cursorPos)
+  # 4. yes overWrite, yes rangeLimit
+  elif overWrite and rangeLimit > 0:
+    if self.cursorPos <= rangeLimit - 1:
+      if self.cursorPos < self.runes.len():
+        self.runes[self.cursorPos] = rune
+      else:
+        self.runes.insert(rune, self.cursorPos)
 
   self.updateLayout()
   self.shiftCursor(Right)
 
-proc insert*(self: var TextBox, runes: seq[Rune]) =
+proc insert*(self: var TextBox,
+            runes: seq[Rune],
+            overWrite = false) =
 
-  if self.hasSelection():
+  if self.selectionExists:
     self.deleteSelected()
 
-  if Overwrite in self.opts:
+  if overWrite:
     for i in 0..<runes.len():
       if self.cursorPos < self.runes.len():
         self.runes[self.cursorPos] = runes[i]
