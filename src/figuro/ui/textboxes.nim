@@ -92,11 +92,8 @@ proc runeAtCursor*(self: TextBox): Rune =
     return Rune(0)
   result = self.layout.runes[self.clamped(Left, 0, inclusive=false)]
 
-proc findLine*(self: TextBox, down: bool): int =
-  ## Finds the index of the line in self.layout.lines that contains the
-  ## relevant cursor/selection point.
-  ##
-  ## `down`: Indicates the direction of intended cursor movement (true for down, false for up).
+proc findLine*(self: TextBox): int =
+  ## Returns the line the cursor is on.
 
   result = -1 # Default to -1 if no line is found
 
@@ -240,7 +237,7 @@ proc updateCursor*(self: var TextBox) =
 proc placeCursor*(self: var TextBox, pos: int, select = false) =
   # Places the keyboard cursor at the specified position (`pos`).
   #
-  # If `select` is false (default, then the selection is cleared
+  # If `select` is false (default), then the selection is cleared
   # and the archor is moved with the cursor. Otherwise, a selection
   # will be created.
   self.cursorPos = clamp(pos, 0, self.runes().len())
@@ -251,7 +248,7 @@ proc placeCursor*(self: var TextBox, pos: int, select = false) =
 proc shiftCursorDown(self: var TextBox): int =
   ## Returns the target position for a downward movement of the cursor.
 
-  let presentLineIdx = self.findLine(down = true)
+  let presentLineIdx = self.findLine()
 
   # If findLine returns -1 (e.g., empty layout), do nothing.
   if presentLineIdx == -1:
@@ -282,7 +279,7 @@ proc shiftCursorDown(self: var TextBox): int =
 proc shiftCursorUp(self: var TextBox): int =
   ## Returns the target position for a upward movement of the cursor.
 
-  let presentLineIdx = self.findLine(down = false)
+  let presentLineIdx = self.findLine()
   if presentLineIdx == -1:
     return
 
@@ -379,6 +376,7 @@ proc insert*(self: var TextBox,
             overWrite = false,
             rangeLimit = 0) =
   ## Inserts a rune at the current cursor position.
+  ##
   ## overWrite: If set to true, then replace the rune in front of cursorPos.
   ## rangeLimit: If set to a number larger than 0,
   ## then this function will not insert a rune once there are that many runes.
