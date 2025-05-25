@@ -22,6 +22,7 @@ type
     cursorTick: int
     cursorCnt: int
     skipOnInput*: HashSet[Rune]
+    rangeLimit*: int = 0
 
   Cursor* = ref object of Figuro
   Selection* = ref object of Figuro
@@ -29,8 +30,6 @@ type
 proc setOptions*(self: Input, opt: set[InputOptions], state = true) {.thisWrapper.} =
   if state: self.opts.incl opt
   else: self.opts.excl opt
-  if OverwriteMode in opt:
-    self.text.options({TextOptions.Overwrite}, state)
 
 proc skipOnInput*(self: Input, runes: HashSet[Rune]) =
   ## skips the given runes and advances the cursor to the
@@ -118,7 +117,10 @@ proc keyInput*(self: Input, rune: Rune) {.slot.} =
 
 proc updateInput*(self: Input, rune: Rune) {.slot.} =
   self.skipSelectedRune()
-  self.text.insert(rune)
+  if OverwriteMode in self.opts:
+    self.text.insert(rune, overWrite = true, self.rangeLimit)
+  else:
+    self.text.insert(rune, overWrite = false, self.rangeLimit)
   self.text.update(self.box)
   refresh(self)
 
@@ -144,11 +146,13 @@ proc keyCommand*(self: Input, pressed: set[UiKey], down: set[UiKey]) {.slot.} =
     var update = true
     case pressed.getKey()
     of KeyBackspace:
-      self.text.delete(Left)
-      self.text.update(self.box)
+      if NoErase notin self.opts:
+        self.text.delete(Left)
+        self.text.update(self.box)
     of KeyDelete:
-      self.text.delete(Right)
-      self.text.update(self.box)
+      if NoErase notin self.opts:
+        self.text.delete(Right)
+        self.text.update(self.box)
     of KeyLeft:
       self.text.shiftCursor(Left)
     of KeyRight:
