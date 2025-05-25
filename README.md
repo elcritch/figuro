@@ -28,7 +28,7 @@ import figuro/widgets/[button, scrollpane, vertical]
 import figuro
 
 let
-  font = UiFont(typefaceId: defaultTypeface, size: 22)
+  font = UiFont(typefaceId: defaultTypeface(), size: 22)
 
 type
   Main* = ref object of Figuro
@@ -51,14 +51,13 @@ proc draw*(self: Main) {.slot.} =
       size 96'pp, 90'pp
       Vertical.new "":
         offset 10'ux, 10'ux
-        itemHeight cx"max-content"
+        contentHeight cx"max-content"
         for idx in 0 .. 15:
           buttonItem(self, this, idx)
 
 var main = Main.new()
 var frame = newAppFrame(main, size=(600'ui, 480'ui))
 startFiguro(frame)
-
 ```
 
 ## Installation - Trying it out
