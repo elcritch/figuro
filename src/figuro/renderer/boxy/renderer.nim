@@ -23,7 +23,7 @@ proc newBoxyBoxyRenderer*(
     atlasSize: int,
 ): BoxyRenderer =
   result = BoxyRenderer()
-  configureBaseBoxyRenderer(result, frame, forcePixelScale, atlasSize)
+  configureBaseRenderer(result, frame, forcePixelScale, atlasSize)
   result.bxy = newBoxy(atlasSize = atlasSize)
 
 proc renderDrawable*(bxy: Boxy, node: Node) =
