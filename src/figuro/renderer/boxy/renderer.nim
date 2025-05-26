@@ -231,7 +231,8 @@ proc renderBoxes(bxy: Boxy, node: Node) =
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
     if bxy.cacheImage(node.image.name, node.image.id.Hash):
-      bxy.drawImage($(node.image.id.Hash), pos = vec2(0, 0), color = node.image.color, size = size)
+      let rect = rect(0, 0, size.x, size.y)
+      bxy.drawImage($(node.image.id.Hash), rect, node.image.color)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     bxy.drawRoundedRect(
