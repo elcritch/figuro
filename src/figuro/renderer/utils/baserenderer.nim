@@ -109,5 +109,5 @@ method runRendererLoop*(renderer: Renderer) {.base.} =
 
     os.sleep(renderer.duration.inMilliseconds)
   debug "Renderer loop exited"
-  renderer.closeWindow()
+  renderer.window.closeWindow()
   debug "Renderer window closed"
