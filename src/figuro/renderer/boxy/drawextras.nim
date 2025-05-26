@@ -83,11 +83,8 @@ proc drawRoundedRect*(
 
     for corner in DirectionCorners:
       let
-        # uvRect = bxy.entries[hashes[corner]]
-        # wh = rect.wh * bxy.atlasSize.float32
         pt = xy + offsets[corner]
 
-      # bxy.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
       bxy.drawImage($hashes[corner], pt, color)
 
   block drawEdgeBoxes:
