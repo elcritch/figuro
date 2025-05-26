@@ -20,10 +20,11 @@ type OpenGLRenderer* = ref object of Renderer
   ctx*: Context
 
 proc newOpenGLRenderer*(
+    window: RendererWindow,
     frame: WeakRef[AppFrame],
     atlasSize: int,
 ): OpenGLRenderer =
-  result = OpenGLRenderer()
+  result = OpenGLRenderer(window: window)
   configureBaseRenderer(result, frame, 1.0, atlasSize)
   result.ctx = newContext(
     atlasSize = atlasSize,
