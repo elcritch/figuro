@@ -20,7 +20,7 @@ proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[Dire
     r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
 proc drawRoundedRect*(
-    bxy: Context,
+    bxy: Boxy,
     rect: Rect,
     color: Color,
     radii: array[DirectionCorners, float32],
@@ -66,7 +66,7 @@ proc drawRoundedRect*(
 
       for quadrant in DirectionCorners:
         let img = patchArray[quadrant]
-        bxy.putImage(hashes[quadrant], img)
+        bxy.addImage($hashes[quadrant], img)
 
     let
       xy = rect.xy
@@ -79,11 +79,12 @@ proc drawRoundedRect*(
 
     for corner in DirectionCorners:
       let
-        uvRect = bxy.entries[hashes[corner]]
-        wh = rect.wh * bxy.atlasSize.float32
+        # uvRect = bxy.entries[hashes[corner]]
+        # wh = rect.wh * bxy.atlasSize.float32
         pt = xy + offsets[corner]
 
-      bxy.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
+      # bxy.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
+      bxy.drawImage($hashes[corner], pt, color)
 
   block drawEdgeBoxes:
     let
@@ -94,10 +95,10 @@ proc drawRoundedRect*(
       hrh = h - 2 * rh
 
     if not doStroke:
-      fillRect(bxy, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
+      bxy.drawRect(rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
 
-    fillRect(bxy, rect(rect.x + rw, rect.y, wrw, ww), color)
-    fillRect(bxy, rect(rect.x + rw, rect.y + rrh, wrw, ww), color)
+    bxy.drawRect(rect(rect.x + rw, rect.y, wrw, ww), color)
+    bxy.drawRect(rect(rect.x + rw, rect.y + rrh, wrw, ww), color)
 
-    fillRect(bxy, rect(rect.x, rect.y + rh, ww, hrh), color)
-    fillRect(bxy, rect(rect.x + rrw, rect.y + rh, ww, hrh), color)
+    bxy.drawRect(rect(rect.x, rect.y + rh, ww, hrh), color)
+    bxy.drawRect(rect(rect.x + rrw, rect.y + rh, ww, hrh), color)
