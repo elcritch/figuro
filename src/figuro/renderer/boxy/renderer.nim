@@ -262,11 +262,6 @@ proc render(
   if NfDisableRender in node.flags:
     return
 
-  # setup the opengl context to match the current node size and position
-
-  # bxy.saveTransform()
-  # bxy.translate(node.screenBox.xy)
-
   # handle node rotation
   ifrender node.rotation != 0:
     bxy.translate(node.screenBox.wh / 2)
@@ -299,9 +294,6 @@ proc render(
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
     bxy.renderInnerShadows(node)
-
-  # restores the opengl context back to the parent node's (see above)
-  # bxy.restoreTransform()
 
   for childIdx in childIndex(nodes, nodeIdx):
     bxy.render(nodes, childIdx, nodeIdx)
