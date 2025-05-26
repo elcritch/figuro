@@ -26,6 +26,8 @@ type
     frame*: WeakRef[AppFrame]
 
 method swapBuffers*(r: Renderer) {.base.} = discard
+method pollAndRender*(renderer: Renderer, poll = true) {.base.} = discard
+
 method configureRenderer*(
     renderer: Renderer,
     window: RendererWindow,
@@ -34,15 +36,15 @@ method configureRenderer*(
     atlasSize: int,
 ) {.base.} = discard
 
-method pollEvents*(r: RendererWindow) {.base.} = discard
-method setTitle*(r: RendererWindow, name: string) {.base.} = discard
-method closeWindow*(r: RendererWindow) {.base.} = discard
-method getScaleInfo*(r: RendererWindow): ScaleInfo {.base.} = discard
-method getWindowInfo*(r: RendererWindow): WindowInfo {.base.} = discard
-method configureWindowEvents*(renderer: RendererWindow) {.base.} = discard
-method setClipboard*(r: RendererWindow, cb: ClipboardContents) {.base.} = discard
-method getClipboard*(r: RendererWindow): ClipboardContents {.base.} = discard
-method copyInputs*(r: RendererWindow): AppInputs {.base.} = discard
+method pollEvents*(w: RendererWindow) {.base.} = discard
+method setTitle*(w: RendererWindow, name: string) {.base.} = discard
+method closeWindow*(w: RendererWindow) {.base.} = discard
+method getScaleInfo*(w: RendererWindow): ScaleInfo {.base.} = discard
+method getWindowInfo*(w: RendererWindow): WindowInfo {.base.} = discard
+method configureWindowEvents*(w: RendererWindow, r: Renderer) {.base.} = discard
+method setClipboard*(w: RendererWindow, cb: ClipboardContents) {.base.} = discard
+method getClipboard*(w: RendererWindow): ClipboardContents {.base.} = discard
+method copyInputs*(w: RendererWindow): AppInputs {.base.} = discard
 
 proc configureBaseRenderer*(
     renderer: Renderer,

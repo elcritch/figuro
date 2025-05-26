@@ -4,6 +4,7 @@ import std/terminal
 import pkg/pixie
 import pkg/opengl
 import pkg/windex
+import pkg/chronicles
 
 import ./utils/glutils
 
@@ -161,12 +162,11 @@ method getWindowInfo*(r: WindexWindow): WindowInfo =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-method configureWindowEvents*(renderer: WindexWindow) =
-  let window {.cursor.} = renderer.window
-
-  let winCfgFile = renderer.frame.windowCfgFile()
-  let uxInputList = renderer.uxInputList
-  let frame = renderer.frame
+method configureWindowEvents*(w: WindexWindow, r: Renderer) =
+  let winCfgFile = w.frame.windowCfgFile()
+  let uxInputList = w.uxInputList
+  let frame = w.frame
+  let window = w.window
 
   window.runeInputEnabled = true
 
@@ -183,15 +183,15 @@ method configureWindowEvents*(renderer: WindexWindow) =
 
   window.onResize = proc() =
     # updateWindowSize(renderer.frame, window)
-    let windowState = renderer.getWindowInfo()
+    let windowState = w.getWindowInfo()
     var uxInput = window.copyInputs()
     uxInput.window = some windowState
     uxInputList.push(uxInput)
-    pollAndRender(renderer, poll = false)
+    r.pollAndRender(poll = false)
 
   window.onFocusChange = proc() =
     var uxInput = window.copyInputs()
-    uxInput.window = some renderer.getWindowInfo()
+    uxInput.window = some w.getWindowInfo()
     uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =
