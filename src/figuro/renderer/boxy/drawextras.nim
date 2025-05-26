@@ -109,7 +109,7 @@ proc generateCircleBox*(
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
-  let byx = newContext(img)
+  let bxy = newContext(img)
   
   # Calculate the inner box dimensions
   let innerWidth = inner.float32
@@ -177,12 +177,12 @@ proc generateCircleBox*(
       
   # Draw the box
   if stroked:
-    byx.strokeStyle = fillStyle
-    byx.lineWidth = lineWidth
-    byx.stroke(path)
+    bxy.strokeStyle = fillStyle
+    bxy.lineWidth = lineWidth
+    bxy.stroke(path)
   else:
-    byx.fillStyle = fillStyle
-    byx.fill(path)
+    bxy.fillStyle = fillStyle
+    bxy.fill(path)
   
   # Apply inner shadow if requested
   if innerShadow or outerShadow or outerShadowFill:
@@ -207,23 +207,23 @@ proc generateCircleBox*(
     )
 
     let combined = newImage(totalSize, totalSize)
-    let byx = newContext(combined)
+    let bxy = newContext(combined)
     if innerShadow:
-      byx.saveLayer()
-      byx.clip(spath, EvenOdd)
-      byx.drawImage(shadow, pos = vec2(0, 0))
-      byx.drawImage(shadow, pos = vec2(0, 0))
-      byx.drawImage(shadow, pos = vec2(0, 0))
-      byx.restore()
+      bxy.saveLayer()
+      bxy.clip(spath, EvenOdd)
+      bxy.drawImage(shadow, pos = vec2(0, 0))
+      bxy.drawImage(shadow, pos = vec2(0, 0))
+      bxy.drawImage(shadow, pos = vec2(0, 0))
+      bxy.restore()
     if outerShadow:
       let spath = spath.copy()
       spath.rect(0, 0, totalSize.float32, totalSize.float32)
-      byx.saveLayer()
-      byx.clip(spath, EvenOdd)
-      byx.drawImage(shadow, pos = vec2(0, 0))
-      byx.restore()
+      bxy.saveLayer()
+      bxy.clip(spath, EvenOdd)
+      bxy.drawImage(shadow, pos = vec2(0, 0))
+      bxy.restore()
     if innerShadowBorder:
-      byx.drawImage(img, pos = vec2(0, 0))
+      bxy.drawImage(img, pos = vec2(0, 0))
     return combined
   else:
     return img
@@ -234,7 +234,7 @@ proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[Dire
     r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
 proc drawRoundedRect*(
-    byx: Context,
+    bxy: Context,
     rect: Rect,
     color: Color,
     radii: array[DirectionCorners, float32],
@@ -261,7 +261,7 @@ proc drawRoundedRect*(
       let qhash = hash !& quadrant.int
       hashes[quadrant] = qhash
 
-    if hashes[dcTopRight] notin byx.entries:
+    if hashes[dcTopRight] notin bxy.entries:
       let circle =
         if doStroke:
           generateCircleBox(radii, stroked = true, lineWidth = weight)
@@ -280,7 +280,7 @@ proc drawRoundedRect*(
 
       for quadrant in DirectionCorners:
         let img = patchArray[quadrant]
-        byx.putImage(hashes[quadrant], img)
+        bxy.putImage(hashes[quadrant], img)
 
     let
       xy = rect.xy
@@ -293,11 +293,11 @@ proc drawRoundedRect*(
 
     for corner in DirectionCorners:
       let
-        uvRect = byx.entries[hashes[corner]]
-        wh = rect.wh * byx.atlasSize.float32
+        uvRect = bxy.entries[hashes[corner]]
+        wh = rect.wh * bxy.atlasSize.float32
         pt = xy + offsets[corner]
 
-      byx.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
+      bxy.drawUvRect(pt, pt + rw, uvRect.xy, uvRect.xy + uvRect.wh, color)
 
   block drawEdgeBoxes:
     let
@@ -308,10 +308,10 @@ proc drawRoundedRect*(
       hrh = h - 2 * rh
 
     if not doStroke:
-      fillRect(byx, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
+      fillRect(bxy, rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
 
-    fillRect(byx, rect(rect.x + rw, rect.y, wrw, ww), color)
-    fillRect(byx, rect(rect.x + rw, rect.y + rrh, wrw, ww), color)
+    fillRect(bxy, rect(rect.x + rw, rect.y, wrw, ww), color)
+    fillRect(bxy, rect(rect.x + rw, rect.y + rrh, wrw, ww), color)
 
-    fillRect(byx, rect(rect.x, rect.y + rh, ww, hrh), color)
-    fillRect(byx, rect(rect.x + rrw, rect.y + rh, ww, hrh), color)
+    fillRect(bxy, rect(rect.x, rect.y + rh, ww, hrh), color)
+    fillRect(bxy, rect(rect.x + rrw, rect.y + rh, ww, hrh), color)
