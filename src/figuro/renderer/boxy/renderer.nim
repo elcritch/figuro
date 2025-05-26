@@ -197,7 +197,7 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
 proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
   if bxy.hasImage($imageId):
     return true
-  let image = bxy.readImage(filePath)
+  let image = readImage(filePath)
   if image.width == 0 or image.height == 0:
     return false
   bxy.addImage($imageId, image)
