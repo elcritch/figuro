@@ -185,13 +185,13 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
       weight = padding + spread,
       doStroke = true,
     )
-    bxy.drawRoundedRect(
-      box2,
-      node.shadow[InnerShadow].color,
-      node.cornerRadius,
-      weight = padding/2 + spread,
-      doStroke = true,
-    )
+    # bxy.drawRoundedRect(
+    #   box2,
+    #   node.shadow[InnerShadow].color,
+    #   node.cornerRadius,
+    #   weight = padding/2 + spread,
+    #   doStroke = true,
+    # )
     # bxy.blurEffect(node.shadow[InnerShadow].blur)
     # bxy.pushLayer()
     # bxy.drawRoundedRect(
