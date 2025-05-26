@@ -174,10 +174,6 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
     box.xy = box.xy + vec2(offset.x, offset.y)
     box.wh = box.wh
 
-    # var box2 = node.screenBox 
-    # box2.xy = box2.xy + vec2(offset.x, offset.y) - vec2(padding/2, padding/2)
-    # box2.wh = box2.wh + vec2(padding, padding)
-
     bxy.drawRoundedRect(
       box,
       rgba(0, 0, 255, 255).color,
@@ -187,21 +183,14 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
       doStroke = true,
       outerShadowFill = true,
     )
-    # bxy.drawRoundedRect(
-    #   box2,
-    #   node.shadow[InnerShadow].color,
-    #   node.cornerRadius,
-    #   weight = padding/2 + spread,
-    #   doStroke = true,
-    # )
-    # bxy.blurEffect(node.shadow[InnerShadow].blur)
-    # bxy.pushLayer()
-    # bxy.drawRoundedRect(
-    #   box,
-    #   rgba(255, 0, 0, 255).color,
-    #   node.cornerRadius,
-    # )
-    # bxy.popLayer(blendMode = MaskBlend)
+    bxy.blurEffect(node.shadow[InnerShadow].blur)
+    bxy.pushLayer()
+    bxy.drawRoundedRect(
+      box,
+      rgba(255, 0, 0, 255).color,
+      node.cornerRadius,
+    )
+    bxy.popLayer(blendMode = MaskBlend)
     bxy.popLayer(blendMode = NormalBlend)
 
 proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
