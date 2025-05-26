@@ -72,6 +72,7 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
 
+  echo "POLLANDRENDER"
   if poll:
     renderer.window.pollEvents()
 

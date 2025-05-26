@@ -320,6 +320,8 @@ proc renderFrame*(renderer: BoxyRenderer) =
 proc renderAndSwap(renderer: BoxyRenderer) =
   ## Does drawing operations.
 
+  echo "RENDERANDSWAP"
+
   timeIt(drawFrame):
     renderFrame(renderer)
 
@@ -328,45 +330,3 @@ proc renderAndSwap(renderer: BoxyRenderer) =
 
   timeIt(drawFrameSwap):
     renderer.swapBuffers()
-
-proc pollAndRender*(renderer: BoxyRenderer, poll = true) =
-  ## renders and draws a window given set of nodes passed
-  ## in via the BoxyRenderer object
-
-  if poll:
-    renderer.window.pollEvents()
-
-  var update = false
-  var cmd: RenderCommands
-  while renderer.rendInputList.tryRecv(cmd):
-    match cmd:
-      RenderUpdate(nlayers, rwindow):
-        renderer.nodes = nlayers
-        renderer.window.info = rwindow
-        update = true
-      RenderQuit:
-        echo "QUITTING"
-        renderer.frame[].windowInfo.running = false
-        app.running = false
-        return
-      RenderSetTitle(name):
-        renderer.window.setTitle(name)
-      RenderClipboardGet:
-        let cb = renderer.window.getClipboard()
-        renderer.frame[].clipboards.push(cb)
-      RenderClipboard(cb):
-        renderer.window.setClipboard(cb)
-
-  if update:
-    renderAndSwap(renderer)
-
-proc runBoxyRendererLoop*(renderer: BoxyRenderer) =
-  threadEffects:
-    RenderThread
-  while app.running:
-    pollAndRender(renderer)
-
-    os.sleep(renderer.duration.inMilliseconds)
-  debug "BoxyRenderer loop exited"
-  renderer.window.closeWindow()
-  debug "BoxyRenderer window closed"
