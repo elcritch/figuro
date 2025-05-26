@@ -164,12 +164,16 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
       )
   else:
     bxy.pushLayer()
-    let box = node.screenBox
+    let spread = node.shadow[InnerShadow].spread
+    var box = node.screenBox 
+    box.xy = box.xy + vec2(-spread, -spread)
+    box.wh = box.wh + vec2(2*spread, 2*spread)
+
     bxy.drawRoundedRect(
       box,
       node.shadow[InnerShadow].color,
       node.cornerRadius,
-      weight = node.shadow[InnerShadow].spread,
+      weight = node.shadow[InnerShadow].spread.min(1.0),
       doStroke = true,
     )
     bxy.blurEffect(node.shadow[InnerShadow].blur)
