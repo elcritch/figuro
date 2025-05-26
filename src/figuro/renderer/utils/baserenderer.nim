@@ -25,7 +25,6 @@ type
     updated*: Atomic[bool]
 
     nodes*: Renders
-    frame*: WeakRef[AppFrame]
 
 method swapBuffers*(r: Renderer) {.base.} = discard
 method renderAndSwap*(r: Renderer) {.base.} = discard
@@ -56,7 +55,6 @@ proc configureBaseRenderer*(
 ) =
   app.pixelScale = forcePixelScale
   renderer.nodes = Renders()
-  renderer.frame = frame
   renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
   frame[].rendInputList = renderer.rendInputList
@@ -87,14 +85,14 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
         update = true
       RenderQuit:
         echo "QUITTING"
-        renderer.frame[].windowInfo.running = false
+        renderer.window.frame[].windowInfo.running = false
         app.running = false
         return
       RenderSetTitle(name):
         renderer.window.setTitle(name)
       RenderClipboardGet:
         let cb = renderer.window.getClipboard()
-        renderer.frame[].clipboards.push(cb)
+        renderer.window.frame[].clipboards.push(cb)
       RenderClipboard(cb):
         renderer.window.setClipboard(cb)
 
