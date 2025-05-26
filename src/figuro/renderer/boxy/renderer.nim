@@ -163,19 +163,17 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
         radius = node.cornerRadius - blur,
       )
   else:
-    discard
-    # let shadow = node.shadow[InnerShadow]
-    # var rect = node.screenBox.atXY(0'f32, 0'f32)
-    # bxy.fillRoundedRectWithShadow(
-    #   rect = node.screenBox.atXY(0'f32, 0'f32),
-    #   radii = node.cornerRadius,
-    #   shadowX = shadow.x,
-    #   shadowY = shadow.y,
-    #   shadowBlur = shadow.blur,
-    #   shadowSpread = shadow.spread.float32,
-    #   shadowColor = shadow.color,
-    #   innerShadow = true,
-    # )
+    bxy.pushLayer()
+    let box = node.screenBox
+    bxy.drawRoundedRect(
+      box,
+      node.shadow[InnerShadow].color,
+      node.cornerRadius,
+      weight = node.shadow[InnerShadow].spread,
+      doStroke = true,
+    )
+    bxy.blurEffect(node.shadow[InnerShadow].blur)
+    bxy.popLayer(blendMode = NormalBlend)
 
 proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
   if bxy.hasImage(toKey(imageId)):
@@ -282,19 +280,7 @@ proc render(
       bxy.renderBoxes(node)
 
   ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    bxy.pushLayer()
-    bxy.saveTransform()
-    bxy.translate(-node.screenBox.xy)
-    bxy.drawRoundedRect(
-      rect(0, 0, node.screenBox.w, node.screenBox.h),
-      node.shadow[InnerShadow].color,
-      node.cornerRadius,
-      weight = node.shadow[InnerShadow].spread,
-      doStroke = true,
-    )
-    bxy.blurEffect(node.shadow[InnerShadow].blur)
-    bxy.restoreTransform()
-    bxy.popLayer(blendMode = NormalBlend)
+    bxy.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)
   bxy.restoreTransform()
