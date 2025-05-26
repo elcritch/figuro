@@ -183,19 +183,7 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
       outerShadowFill = true,
     )
 
-    var obox = box
-    obox.xy = obox.xy - vec2(padding, padding)
-    obox.wh = obox.wh + vec2(2*padding, 2*padding)
-    let xy = obox.xy
-    let rectTop = rect(xy, vec2(obox.w, padding))
-    let rectLeft = rect(xy + vec2(0, padding), vec2(padding, obox.h - 2*padding))
-    let rectBottom = rect(xy + vec2(0, obox.h - padding), vec2(obox.w, padding))
-    let rectRight = rect(xy + vec2(obox.w - padding, padding), vec2(padding, obox.h - 2*padding))
-
-    bxy.drawRoundedRect(rectTop, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
-    bxy.drawRoundedRect(rectLeft, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
-    bxy.drawRoundedRect(rectBottom, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
-    bxy.drawRoundedRect(rectRight, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
+    bxy.drawOuterBox(box, padding, node.shadow[InnerShadow].color)
 
     bxy.blurEffect(node.shadow[InnerShadow].blur)
     # bxy.pushLayer()

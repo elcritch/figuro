@@ -19,6 +19,22 @@ proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[Dire
   for r in result.mitems():
     r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
+proc drawOuterBox*(bxy: Boxy, rect: Rect, padding: float32, color: Color) =
+
+    var obox = rect
+    obox.xy = obox.xy - vec2(padding, padding)
+    obox.wh = obox.wh + vec2(2*padding, 2*padding)
+    let xy = obox.xy
+    let rectTop = rect(xy, vec2(obox.w, padding))
+    let rectLeft = rect(xy + vec2(0, padding), vec2(padding, obox.h - 2*padding))
+    let rectBottom = rect(xy + vec2(0, obox.h - padding), vec2(obox.w, padding))
+    let rectRight = rect(xy + vec2(obox.w - padding, padding), vec2(padding, obox.h - 2*padding))
+
+    bxy.drawRect(rectTop, color)
+    bxy.drawRect(rectLeft, color)
+    bxy.drawRect(rectBottom, color)
+    bxy.drawRect(rectRight, color)
+
 proc drawRoundedRect*(
     bxy: Boxy,
     rect: Rect,
