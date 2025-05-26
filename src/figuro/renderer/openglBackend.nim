@@ -42,7 +42,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   frame[].windowInfo.focused = true
 
   if app.autoUiScale:
-    let scale = renderer.getScaleInfo()
+    let scale = renderer.window.getScaleInfo()
     app.uiScale = min(scale.x, scale.y)
 
   let winCfg = frame.loadLastWindow()
