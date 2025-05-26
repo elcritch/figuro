@@ -78,7 +78,6 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
   var update = false
   var cmd: RenderCommands
   while renderer.rendInputList.tryRecv(cmd):
-    echo "POLLANDRENDERER:RECV: ", cmd.kind
     match cmd:
       RenderUpdate(nlayers, rwindow):
         renderer.nodes = nlayers
