@@ -308,6 +308,7 @@ proc renderFrame*(renderer: BoxyRenderer) =
     size = renderer.window.info.box.wh.scaled()
     isize = ivec2(size)
   bxy.beginFrame(isize)
+  bxy.pushLayer()
   bxy.saveTransform()
   # bxy.scale(bxy.pixelScale)
 
@@ -315,6 +316,7 @@ proc renderFrame*(renderer: BoxyRenderer) =
   bxy.renderRoot(renderer.nodes)
 
   bxy.restoreTransform()
+  bxy.popLayer()
   bxy.endFrame()
 
   when defined(testOneFrame):
