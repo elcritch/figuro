@@ -72,7 +72,7 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
   ## in via the Renderer object
 
   if poll:
-    renderer.pollEvents()
+    renderer.window.pollEvents()
 
   var update = false
   var cmd: RenderCommands
