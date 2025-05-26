@@ -58,7 +58,6 @@ proc drawRoundedRect*(
         else:
           generateCircleBox(radii, stroked = false, lineWidth = weight)
 
-      # circle.writeFile("examples/renderer-stroke-circle.png")
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
       let patchArray = [
