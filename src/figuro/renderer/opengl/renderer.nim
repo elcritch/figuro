@@ -318,4 +318,4 @@ method renderAndSwap*(renderer: OpenGLRenderer) =
     echo error
 
   timeIt(drawFrameSwap):
-    renderer.swapBuffers()
+    renderer.window.swapBuffers()

@@ -26,7 +26,6 @@ type
 
     nodes*: Renders
 
-method swapBuffers*(r: Renderer) {.base.} = discard
 method renderAndSwap*(r: Renderer) {.base.} = discard
 
 method configureRenderer*(
