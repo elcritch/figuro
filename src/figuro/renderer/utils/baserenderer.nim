@@ -100,7 +100,7 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
 
   if update:
     echo "calling renderAndSwap"
-    renderAndSwap(renderer)
+    renderer.renderAndSwap()
 
 method runRendererLoop*(renderer: Renderer) {.base.} =
   threadEffects:
