@@ -298,7 +298,7 @@ proc renderFrame*(renderer: BoxyRenderer) =
   let bxy: Boxy = renderer.bxy
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   let
-    size = renderer.appWindow.box.wh.scaled()
+    size = renderer.window.appWindow.box.wh.scaled()
     isize = ivec2(size)
   bxy.beginFrame(isize)
   bxy.saveTransform()

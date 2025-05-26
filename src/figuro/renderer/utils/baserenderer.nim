@@ -11,7 +11,7 @@ import ../../common/wincfgs
 
 type
   RendererWindow* = ref object of RootObj
-    appWindow*: WindowInfo
+    info*: WindowInfo
     frame*: WeakRef[AppFrame]
     uxInputList*: RChan[AppInputs]
 
