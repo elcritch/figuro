@@ -35,7 +35,8 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   else:
     let window = newWindexRenderer(frame)
 
-  configureRenderer(window, frame, 1.0, atlasSize)
+  let renderer = newBoxyRenderer(frame, 1.0, atlasSize)
+
   frame[].windowInfo.focused = true
 
   if app.autoUiScale:
@@ -48,7 +49,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
     frame[].windowInfo.box.w = sz.x.UiScalar
     frame[].windowInfo.box.h = sz.y.UiScalar
 
-  renderer.configureWindowEvents()
+  renderer.configureWindowEvents(window)
   renderer.frame[].windowInfo.running = true
   app.requestedFrame.inc
 

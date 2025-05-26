@@ -16,14 +16,14 @@ const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 type BoxyRenderer* = ref object of BaseRenderer
   bxy*: Boxy
 
-proc configureRenderer*(
-    renderer: Renderer,
+proc newBoxyRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
-) =
-  configureBaseRenderer(renderer, frame, forcePixelScale, atlasSize)
-  renderer.bxy = newBoxy(atlasSize = atlasSize)
+): BoxyRenderer =
+  result = BoxyRenderer()
+  configureBaseRenderer(result, frame, forcePixelScale, atlasSize)
+  result.bxy = newBoxy(atlasSize = atlasSize)
 
 proc renderDrawable*(bxy: Boxy, node: Node) =
   # ## TODO: draw non-node stuff?
