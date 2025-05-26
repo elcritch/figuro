@@ -278,12 +278,12 @@ proc render(
     bxy.renderDropShadows(node)
 
   # handle clipping children content based on this node
-  ifrender NfClipContent in node.flags:
-    bxy.beginMask()
-    bxy.drawMasks(node)
-    bxy.endMask()
-  finally:
-    bxy.popMask()
+  # ifrender NfClipContent in node.flags:
+  #   bxy.beginMask()
+  #   bxy.drawMasks(node)
+  #   bxy.endMask()
+  # finally:
+  #   bxy.popMask()
 
   ifrender true:
     if node.kind == nkText:
@@ -293,12 +293,12 @@ proc render(
     elif node.kind == nkRectangle:
       bxy.renderBoxes(node)
 
-  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    bxy.beginMask()
-    bxy.drawMasks(node)
-    bxy.endMask()
-    bxy.renderInnerShadows(node)
-    bxy.popMask()
+  # ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
+  #   bxy.beginMask()
+  #   bxy.drawMasks(node)
+  #   bxy.endMask()
+  #   bxy.renderInnerShadows(node)
+  #   bxy.popMask()
 
   # restores the opengl context back to the parent node's (see above)
   bxy.restoreTransform()
@@ -315,7 +315,7 @@ proc renderRoot*(bxy: Boxy, nodes: var Renders) {.forbids: [AppMainThreadEff].} 
   var img: (Hash, Image)
   while glyphImageChan.tryRecv(img):
     # echo "img: ", img
-    bxy.putImage(img[0], img[1])
+    bxy.addImage($img[0], img[1])
 
   for zlvl, list in nodes.layers.pairs():
     for rootIdx in list.rootIds:
