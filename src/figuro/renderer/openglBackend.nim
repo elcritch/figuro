@@ -28,14 +28,7 @@ export baserenderer
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
-
-  when defined(figuroWindex):
-    let window = newWindexWindow(frame)
-  elif defined(figuroSiwin):
-    let window = newSiwinRenderer(frame)
-  else:
-    let window = newWindexWindow(frame)
-
+  let window = newWindexWindow(frame)
   let renderer = newOpenGLRenderer(window, frame, atlasSize)
 
   frame[].windowInfo.focused = true
