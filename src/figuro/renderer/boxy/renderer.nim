@@ -317,7 +317,7 @@ proc renderFrame*(renderer: BoxyRenderer) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: BoxyRenderer) =
+method renderAndSwap*(renderer: BoxyRenderer) =
   ## Does drawing operations.
 
   echo "RENDERANDSWAP"
