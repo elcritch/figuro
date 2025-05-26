@@ -257,14 +257,14 @@ proc render(
   finally:
     # bxy.drawMasks(node)
     bxy.pushLayer()
-    bxy.saveTransform()
-    bxy.translate(node.screenBox.xy)
+    # bxy.saveTransform()
+    # bxy.translate(node.screenBox.xy)
     bxy.drawRoundedRect(
-      rect(0, 0, node.screenBox.w, node.screenBox.h),
+      node.screenBox,
       rgba(255, 0, 0, 255).color,
       node.cornerRadius,
     )
-    bxy.restoreTransform()
+    # bxy.restoreTransform()
     bxy.popLayer(blendMode = MaskBlend)
     bxy.popLayer(blendMode = NormalBlend)
 
