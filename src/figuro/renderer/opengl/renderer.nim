@@ -8,7 +8,8 @@ import pkg/chronicles
 
 import ../../common/rchannels
 import ../../common/nodes/uinodes
-import glcommons, glcontext, glutils
+import ../utils/glutils
+import glcommons, glcontext
 
 import std/locks
 

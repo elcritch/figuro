@@ -5,9 +5,9 @@ import pkg/pixie
 import pkg/opengl
 import pkg/windex
 
-import opengl/glutils
-import opengl/glcommons
-import opengl/renderer
+import ./utils/glutils
+import ./opengl/glcommons
+import ./opengl/renderer
 
 import ../common/nodes/uinodes
 import ../common/rchannels

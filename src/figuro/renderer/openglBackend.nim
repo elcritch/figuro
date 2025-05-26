@@ -13,7 +13,7 @@ import ../common/rchannels
 import ../common/wincfgs
 
 import ./opengl/renderer
-import ./opengl/glutils
+import ./utils/glutils
 
 when defined(figuroWindex):
   import ./openglWindex
