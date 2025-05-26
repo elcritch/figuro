@@ -5,9 +5,13 @@ import pkg/pixie
 import pkg/opengl
 import pkg/windex
 
-import ./utils/glutils
-import ./opengl/glcommons
-import ./opengl/renderer
+when defined(boxyRenderer):
+  import ./utils/glutils
+  import ./boxy/renderer
+else:
+  import ./utils/glutils
+  import ./opengl/glcommons
+  import ./opengl/renderer
 
 import ../common/nodes/uinodes
 import ../common/rchannels
