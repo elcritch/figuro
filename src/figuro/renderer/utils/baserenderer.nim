@@ -13,11 +13,11 @@ type
   RendererWindow* = ref object of RootObj
     appWindow*: WindowInfo
     frame*: WeakRef[AppFrame]
+    uxInputList*: RChan[AppInputs]
 
   Renderer* = ref object of RootObj
     window*: RendererWindow
     duration*: Duration
-    uxInputList*: RChan[AppInputs]
     rendInputList*: RChan[RenderCommands]
     lock*: Lock
     updated*: Atomic[bool]
@@ -53,9 +53,14 @@ proc configureBaseRenderer*(
   app.pixelScale = forcePixelScale
   renderer.nodes = Renders()
   renderer.frame = frame
-  renderer.uxInputList = newRChan[AppInputs](5)
   renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
-  frame[].uxInputList = renderer.uxInputList
   frame[].rendInputList = renderer.rendInputList
-  frame[].clipboards = newRChan[ClipboardContents](1)
+
+proc configureBaseWindow*(
+    window: RendererWindow,
+) =
+  assert not window.frame.isNil
+  window.uxInputList = newRChan[AppInputs](5)
+  window.frame[].uxInputList = window.uxInputList
+  window.frame[].clipboards = newRChan[ClipboardContents](1)

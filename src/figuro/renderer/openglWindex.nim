@@ -68,12 +68,12 @@ proc newWindexRenderer*(
     frame: WeakRef[AppFrame],
 ): WindexWindow =
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  result = WindexWindow(window: window)
+  result = WindexWindow(window: window, frame: frame)
   startOpenGL(openglVersion)
 
   setupWindow(frame, window)
 
-  # configureRenderer(result, frame, forcePixelScale, atlasSize)
+  configureBaseWindow(result)
 
 proc convertStyle*(fs: FrameStyle): WindowStyle =
   case fs
@@ -105,13 +105,13 @@ proc toKey(wbtn: windex.ButtonView): set[UiKey] =
     if toKey(kb, value):
       result.incl value
 
-method swapBuffers*(r: RendererWindex) =
+method swapBuffers*(r: WindexWindow) =
   r.window.swapBuffers()
 
-method pollEvents*(r: RendererWindex) =
+method pollEvents*(r: WindexWindow) =
   windex.pollEvents()
 
-method getScaleInfo*(r: RendererWindex): ScaleInfo =
+method getScaleInfo*(r: WindexWindow): ScaleInfo =
   let scale = r.window.contentScale()
   result.x = scale
   result.y = scale
@@ -129,27 +129,27 @@ proc copyInputs*(w: Window): AppInputs =
   result.keyDown = toKey(w.buttonDown())
   result.keyToggle = toKey(w.buttonToggle())
 
-method copyInputs*(r: RendererWindex): AppInputs =
+method copyInputs*(r: WindexWindow): AppInputs =
   copyInputs(r.window)
 
-method setClipboard*(r: RendererWindex, cb: ClipboardContents) =
+method setClipboard*(r: WindexWindow, cb: ClipboardContents) =
   match cb:
     ClipboardStr(str):
       windex.setClipboardString(str)
     ClipboardEmpty:
       discard
 
-method getClipboard*(r: RendererWindex): ClipboardContents =
+method getClipboard*(r: WindexWindow): ClipboardContents =
   let str = windex.getClipboardString()
   return ClipboardStr(str)
 
-method setTitle*(r: RendererWindex, name: string) =
+method setTitle*(r: WindexWindow, name: string) =
   r.window.title = name
 
-method closeWindow*(r: RendererWindex) =
+method closeWindow*(r: WindexWindow) =
   r.window.close()
 
-method getWindowInfo*(r: RendererWindex): WindowInfo =
+method getWindowInfo*(r: WindexWindow): WindowInfo =
     app.requestedFrame.inc
 
     result.minimized = r.window.minimized()
@@ -161,7 +161,7 @@ method getWindowInfo*(r: RendererWindex): WindowInfo =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-method configureWindowEvents*(renderer: RendererWindex) =
+method configureWindowEvents*(renderer: WindexWindow) =
   let window {.cursor.} = renderer.window
 
   let winCfgFile = renderer.frame.windowCfgFile()
