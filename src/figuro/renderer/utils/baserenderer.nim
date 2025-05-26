@@ -36,6 +36,7 @@ method configureRenderer*(
     atlasSize: int,
 ) {.base.} = discard
 
+method swapBuffers*(r: RendererWindow) {.base.} = discard
 method pollEvents*(w: RendererWindow) {.base.} = discard
 method setTitle*(w: RendererWindow, name: string) {.base.} = discard
 method closeWindow*(w: RendererWindow) {.base.} = discard
