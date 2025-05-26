@@ -1,18 +1,12 @@
 import std/[hashes, os, tables, times, monotimes, unicode, atomics]
+import std/locks
 export tables
-
-from pixie import Image
-import pkg/chroma
-import pkg/sigils
-import pkg/chronicles
-import pkg/boxy
 
 import ../../common/rchannels
 import ../../common/nodes/uinodes
 import ../utils/glutils
-import glcommons
-
-import std/locks
+import ./glcommons
+import ./drawextras
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
@@ -113,7 +107,7 @@ macro postRender() =
 
 proc drawMasks(bxy: Boxy, node: Node) =
   if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
-    bxy.fillRoundedRect(
+    bxy.drawRoundedRect(
       rect(0, 0, node.screenBox.w, node.screenBox.h),
       rgba(255, 0, 0, 255).color,
       node.cornerRadius,

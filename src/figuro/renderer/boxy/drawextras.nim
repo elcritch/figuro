@@ -1,5 +1,11 @@
 import glcommons
 
+from pixie import Image
+import pkg/chroma
+import pkg/sigils
+import pkg/chronicles
+import pkg/boxy
+
 proc hash(v: Vec2): Hash =
   hash((v.x, v.y))
 
@@ -227,7 +233,7 @@ proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[Dire
   for r in result.mitems():
     r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
-proc fillRoundedRect*(
+proc drawRoundedRect*(
     ctx: Context,
     rect: Rect,
     color: Color,
