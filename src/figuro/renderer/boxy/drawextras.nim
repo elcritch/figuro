@@ -26,6 +26,7 @@ proc drawRoundedRect*(
     radii: array[DirectionCorners, float32],
     weight: float32 = -1.0,
     doStroke: bool = false,
+    outerShadowFill: bool = false,
 ) =
   if rect.w <= 0 or rect.h <= -0:
     return
@@ -50,7 +51,7 @@ proc drawRoundedRect*(
     if not bxy.hasImage($hashes[dcTopRight]):
       let circle =
         if doStroke:
-          generateCircleBox(radii, stroked = true, lineWidth = weight)
+          generateCircleBox(radii, stroked = true, lineWidth = weight, outerShadowFill = outerShadowFill)
         else:
           generateCircleBox(radii, stroked = false, lineWidth = weight)
 

@@ -168,22 +168,24 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
     let spread = node.shadow[InnerShadow].spread
     let blur = node.shadow[InnerShadow].blur
     let offset = node.shadow[InnerShadow]
-    let padding = blur * 4 + max(offset.x, offset.y)
+    let padding = blur * 2 + max(offset.x, offset.y)
 
     var box = node.screenBox 
-    box.xy = box.xy + vec2(offset.x, offset.y) - vec2(padding, padding)
-    box.wh = box.wh + vec2(2*padding, 2*padding)
+    box.xy = box.xy + vec2(offset.x, offset.y)
+    box.wh = box.wh
 
-    var box2 = node.screenBox 
-    box2.xy = box2.xy + vec2(offset.x, offset.y) - vec2(padding/2, padding/2)
-    box2.wh = box2.wh + vec2(padding, padding)
+    # var box2 = node.screenBox 
+    # box2.xy = box2.xy + vec2(offset.x, offset.y) - vec2(padding/2, padding/2)
+    # box2.wh = box2.wh + vec2(padding, padding)
 
     bxy.drawRoundedRect(
       box,
       rgba(0, 0, 255, 255).color,
-      [0'f32, 0'f32, 0'f32, 0'f32],
-      weight = padding + spread,
+      # [0'f32, 0'f32, 0'f32, 0'f32],
+      node.cornerRadius,
+      weight = spread,
       doStroke = true,
+      outerShadowFill = true,
     )
     # bxy.drawRoundedRect(
     #   box2,
