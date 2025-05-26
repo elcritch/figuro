@@ -288,7 +288,6 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
 proc renderFrame*(renderer: OpenGLRenderer) =
-  echo "RENDERFRAME: opengl"
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(renderer.window.info.box.wh.scaled())
