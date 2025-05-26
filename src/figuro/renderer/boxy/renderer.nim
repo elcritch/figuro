@@ -41,6 +41,9 @@ proc renderDrawable*(bxy: Boxy, node: Node) =
 proc renderText(bxy: Boxy, node: Node) {.forbids: [AppMainThreadEff].} =
   ## draw characters (glyphs)
 
+  bxy.saveTransform()
+  bxy.translate(node.screenBox.xy)
+
   for glyph in node.textLayout.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
       # Don't draw space, even if font has a char for it.
@@ -56,6 +59,8 @@ proc renderText(bxy: Boxy, node: Node) {.forbids: [AppMainThreadEff].} =
       trace "no glyph in context: ", glyphId= glyphId, glyph= glyph.rune, glyphRepr= repr(glyph.rune)
       continue
     bxy.drawImage(toKey(glyphId), charPos, node.fill)
+  
+  bxy.restoreTransform()
 
 import macros except `$`
 
@@ -184,24 +189,24 @@ proc renderBoxes(bxy: Boxy, node: Node) =
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       discard
       bxy.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+        rect = node.screenBox,
         color = node.fill,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      bxy.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
+      bxy.drawRect(node.screenBox, node.fill)
 
   if node.highlight.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       bxy.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+        rect = node.screenBox,
         color = node.highlight,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      bxy.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
+      bxy.drawRect(node.screenBox, node.highlight)
 
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
@@ -211,7 +216,7 @@ proc renderBoxes(bxy: Boxy, node: Node) =
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     bxy.drawRoundedRect(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+      rect = node.screenBox,
       color = node.stroke.color,
       radii = node.cornerRadius,
       weight = node.stroke.weight,
@@ -241,7 +246,7 @@ proc render(
   # setup the opengl context to match the current node size and position
 
   bxy.saveTransform()
-  bxy.translate(node.screenBox.xy)
+  # bxy.translate(node.screenBox.xy)
 
   # handle node rotation
   ifrender node.rotation != 0:
@@ -250,7 +255,20 @@ proc render(
     bxy.translate(-node.screenBox.wh / 2)
 
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-    bxy.renderDropShadows(node)
+    # bxy.renderDropShadows(node)
+    bxy.pushLayer()
+    let spread = node.shadow[DropShadow].spread
+    var box = node.screenBox 
+    box.xy = box.xy + vec2(-spread, -spread)
+    box.wh = box.wh + vec2(2*spread, 2*spread)
+
+    bxy.drawRoundedRect(
+      box,
+      node.shadow[DropShadow].color,
+      node.cornerRadius,
+    )
+    bxy.blurEffect(node.shadow[DropShadow].blur)
+    bxy.popLayer(blendMode = NormalBlend)
 
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
@@ -285,12 +303,6 @@ proc render(
       doStroke = true,
     )
     bxy.blurEffect(node.shadow[InnerShadow].blur)
-    # bxy.dropShadowEffect(
-    #   color(1, 0, 0, 1),
-    #   vec2(node.shadow[InnerShadow].x, node.shadow[InnerShadow].y),
-    #   node.shadow[InnerShadow].blur,
-    #   node.shadow[InnerShadow].spread,
-    # )
     bxy.restoreTransform()
     bxy.popLayer(blendMode = NormalBlend)
 
