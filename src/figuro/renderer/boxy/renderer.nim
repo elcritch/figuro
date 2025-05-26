@@ -121,9 +121,10 @@ proc renderDropShadows(bxy: Boxy, node: Node) =
     else:
       discard
       bxy.pushLayer()
+      let offset = node.shadow[DropShadow]
       let spread = node.shadow[DropShadow].spread
       var box = node.screenBox 
-      box.xy = box.xy + vec2(-spread, -spread)
+      box.xy = box.xy + vec2(-spread, -spread) + vec2(offset.x, offset.y)
       box.wh = box.wh + vec2(2*spread, 2*spread)
 
       bxy.drawRoundedRect(
@@ -165,8 +166,10 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
   else:
     bxy.pushLayer()
     let spread = node.shadow[InnerShadow].spread
+    let offset = node.shadow[InnerShadow]
     var box = node.screenBox 
-    box.xy = box.xy + vec2(-spread, -spread)
+    box.xy = box.xy + vec2(offset.x, offset.y)
+    # box.xy = box.xy + vec2(-spread, -spread)
     box.wh = box.wh + vec2(2*spread, 2*spread)
 
     bxy.drawRoundedRect(
@@ -176,7 +179,7 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
       weight = node.shadow[InnerShadow].spread.min(1.0),
       doStroke = true,
     )
-    bxy.blurEffect(node.shadow[InnerShadow].blur)
+    # bxy.blurEffect(node.shadow[InnerShadow].blur)
     bxy.popLayer(blendMode = NormalBlend)
 
 proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
