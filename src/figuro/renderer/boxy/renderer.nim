@@ -330,4 +330,4 @@ method renderAndSwap*(renderer: BoxyRenderer) =
     echo error
 
   timeIt(drawFrameSwap):
-    renderer.swapBuffers()
+    renderer.window.swapBuffers()
