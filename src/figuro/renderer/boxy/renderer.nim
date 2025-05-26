@@ -18,11 +18,12 @@ type BoxyRenderer* = ref object of Renderer
   bxy*: Boxy
 
 proc newBoxyRenderer*(
+    window: RendererWindow,
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
 ): BoxyRenderer =
-  result = BoxyRenderer()
+  result = BoxyRenderer(window: window)
   configureBaseRenderer(result, frame, forcePixelScale, atlasSize)
   result.bxy = newBoxy(atlasSize = atlasSize)
 
