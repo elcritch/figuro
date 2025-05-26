@@ -22,7 +22,7 @@ proc newBoxyBoxyRenderer*(
     forcePixelScale: float32,
     atlasSize: int,
 ): BoxyRenderer =
-  result = BoxyBoxyRenderer()
+  result = BoxyRenderer()
   configureBaseBoxyRenderer(result, frame, forcePixelScale, atlasSize)
   result.bxy = newBoxy(atlasSize = atlasSize)
 
