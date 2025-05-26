@@ -36,7 +36,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   else:
     let window = newWindexWindow(frame)
 
-  let renderer = newBoxyRenderer(frame, 1.0, atlasSize)
+  let renderer = newOpenGLRenderer(frame, atlasSize)
 
 
   frame[].windowInfo.focused = true

@@ -20,7 +20,6 @@ type OpenGLRenderer* = ref object of Renderer
   ctx*: Context
 
 proc newOpenGLRenderer*(
-    renderer: Renderer,
     frame: WeakRef[AppFrame],
     atlasSize: int,
 ): OpenGLRenderer =
