@@ -21,7 +21,7 @@ proc newBoxyBoxyRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
-): BoxyBoxyRenderer =
+): BoxyRenderer =
   result = BoxyBoxyRenderer()
   configureBaseBoxyRenderer(result, frame, forcePixelScale, atlasSize)
   result.bxy = newBoxy(atlasSize = atlasSize)
