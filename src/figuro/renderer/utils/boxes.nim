@@ -3,7 +3,7 @@ import pkg/chroma
 
 import ../../common/nodes/basics
 
-proc sliceToNinePatch(img: Image): tuple[
+proc sliceToNinePatch*(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
   top, right, bottom, left: Image
 ] =
@@ -66,7 +66,7 @@ proc sliceToNinePatch(img: Image): tuple[
     left: fleft
   )
   
-proc getCircleBoxSizes(
+proc getCircleBoxSizes*(
     radii: array[DirectionCorners, float32],
     blur: float32,
     spread: float32
