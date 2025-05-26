@@ -12,8 +12,8 @@ import ../commons
 import ../common/rchannels
 import ../common/wincfgs
 
-import ./opengl/renderer
 import ./utils/glutils
+import ./boxy/renderer
 
 when defined(figuroWindex):
   import ./openglWindex
@@ -29,11 +29,11 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
 
   when defined(figuroWindex):
-    let window = newWindexRenderer(frame)
+    let window = newWindexWindow(frame)
   elif defined(figuroSiwin):
     let window = newSiwinRenderer(frame)
   else:
-    let window = newWindexRenderer(frame)
+    let window = newWindexWindow(frame)
 
   let renderer = newBoxyRenderer(frame, 1.0, atlasSize)
 

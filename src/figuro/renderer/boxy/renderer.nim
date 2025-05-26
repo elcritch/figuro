@@ -8,21 +8,22 @@ import pkg/chronicles
 import ../../common/rchannels
 import ../../common/nodes/uinodes
 import ../utils/glutils
+import ../utils/baserenderer
 import ./glcommons
 import ./drawextras
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type BoxyRenderer* = ref object of BaseRenderer
+type BoxyRenderer* = ref object of Renderer
   bxy*: Boxy
 
-proc newBoxyRenderer*(
+proc newBoxyBoxyRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
-): BoxyRenderer =
-  result = BoxyRenderer()
-  configureBaseRenderer(result, frame, forcePixelScale, atlasSize)
+): BoxyBoxyRenderer =
+  result = BoxyBoxyRenderer()
+  configureBaseBoxyRenderer(result, frame, forcePixelScale, atlasSize)
   result.bxy = newBoxy(atlasSize = atlasSize)
 
 proc renderDrawable*(bxy: Boxy, node: Node) =
@@ -293,7 +294,7 @@ proc renderRoot*(bxy: Boxy, nodes: var Renders) {.forbids: [AppMainThreadEff].} 
     for rootIdx in list.rootIds:
       bxy.render(list.nodes, rootIdx, -1.NodeIdx)
 
-proc renderFrame*(renderer: Renderer) =
+proc renderFrame*(renderer: BoxyRenderer) =
   let bxy: Boxy = renderer.bxy
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   let
@@ -316,7 +317,7 @@ proc renderFrame*(renderer: Renderer) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: Renderer) =
+proc renderAndSwap(renderer: BoxyRenderer) =
   ## Does drawing operations.
 
   timeIt(drawFrame):
@@ -328,9 +329,9 @@ proc renderAndSwap(renderer: Renderer) =
   timeIt(drawFrameSwap):
     renderer.swapBuffers()
 
-proc pollAndRender*(renderer: Renderer, poll = true) =
+proc pollAndRender*(renderer: BoxyRenderer, poll = true) =
   ## renders and draws a window given set of nodes passed
-  ## in via the Renderer object
+  ## in via the BoxyRenderer object
 
   if poll:
     renderer.pollEvents()
@@ -359,13 +360,13 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
   if update:
     renderAndSwap(renderer)
 
-proc runRendererLoop*(renderer: Renderer) =
+proc runBoxyRendererLoop*(renderer: BoxyRenderer) =
   threadEffects:
     RenderThread
   while app.running:
     pollAndRender(renderer)
 
     os.sleep(renderer.duration.inMilliseconds)
-  debug "Renderer loop exited"
+  debug "BoxyRenderer loop exited"
   renderer.closeWindow()
-  debug "Renderer window closed"
+  debug "BoxyRenderer window closed"

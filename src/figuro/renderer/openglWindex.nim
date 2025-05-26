@@ -65,7 +65,7 @@ proc setupWindow*(
   window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
-proc newWindexRenderer*(
+proc newWindexWindow*(
     frame: WeakRef[AppFrame],
 ): WindexWindow =
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
