@@ -13,6 +13,7 @@ import ../common/rchannels
 import ../common/wincfgs
 
 import ./utils/glutils
+import ./utils/baserenderer
 import ./boxy/renderer
 
 when defined(figuroWindex):
@@ -22,7 +23,7 @@ elif defined(figuroSiwin):
 else:
   import ./openglWindex
 
-export Renderer, runRendererLoop
+export baserenderer
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 

@@ -26,7 +26,6 @@ type
     frame*: WeakRef[AppFrame]
 
 method swapBuffers*(r: Renderer) {.base.} = discard
-method pollAndRender*(renderer: Renderer, poll = true) {.base.} = discard
 
 method configureRenderer*(
     renderer: Renderer,
@@ -66,3 +65,46 @@ proc configureBaseWindow*(
   window.uxInputList = newRChan[AppInputs](5)
   window.frame[].uxInputList = window.uxInputList
   window.frame[].clipboards = newRChan[ClipboardContents](1)
+
+
+method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
+  ## renders and draws a window given set of nodes passed
+  ## in via the Renderer object
+
+  if poll:
+    renderer.pollEvents()
+
+  var update = false
+  var cmd: RenderCommands
+  while renderer.rendInputList.tryRecv(cmd):
+    match cmd:
+      RenderUpdate(nlayers, rwindow):
+        renderer.nodes = nlayers
+        renderer.appWindow = rwindow
+        update = true
+      RenderQuit:
+        echo "QUITTING"
+        renderer.frame[].windowInfo.running = false
+        app.running = false
+        return
+      RenderSetTitle(name):
+        renderer.setTitle(name)
+      RenderClipboardGet:
+        let cb = renderer.getClipboard()
+        renderer.frame[].clipboards.push(cb)
+      RenderClipboard(cb):
+        renderer.setClipboard(cb)
+
+  if update:
+    renderAndSwap(renderer)
+
+method runRendererLoop*(renderer: Renderer) {.base.} =
+  threadEffects:
+    RenderThread
+  while app.running:
+    pollAndRender(renderer)
+
+    os.sleep(renderer.duration.inMilliseconds)
+  debug "Renderer loop exited"
+  renderer.closeWindow()
+  debug "Renderer window closed"

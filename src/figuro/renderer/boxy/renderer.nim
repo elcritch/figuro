@@ -298,7 +298,7 @@ proc renderFrame*(renderer: BoxyRenderer) =
   let bxy: Boxy = renderer.bxy
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   let
-    size = renderer.window.appWindow.box.wh.scaled()
+    size = renderer.window.info.box.wh.scaled()
     isize = ivec2(size)
   bxy.beginFrame(isize)
   bxy.saveTransform()
@@ -334,7 +334,7 @@ proc pollAndRender*(renderer: BoxyRenderer, poll = true) =
   ## in via the BoxyRenderer object
 
   if poll:
-    renderer.pollEvents()
+    renderer.window.pollEvents()
 
   var update = false
   var cmd: RenderCommands
@@ -342,7 +342,7 @@ proc pollAndRender*(renderer: BoxyRenderer, poll = true) =
     match cmd:
       RenderUpdate(nlayers, rwindow):
         renderer.nodes = nlayers
-        renderer.appWindow = rwindow
+        renderer.window.info = rwindow
         update = true
       RenderQuit:
         echo "QUITTING"
@@ -350,12 +350,12 @@ proc pollAndRender*(renderer: BoxyRenderer, poll = true) =
         app.running = false
         return
       RenderSetTitle(name):
-        renderer.setTitle(name)
+        renderer.window.setTitle(name)
       RenderClipboardGet:
-        let cb = renderer.getClipboard()
+        let cb = renderer.window.getClipboard()
         renderer.frame[].clipboards.push(cb)
       RenderClipboard(cb):
-        renderer.setClipboard(cb)
+        renderer.window.setClipboard(cb)
 
   if update:
     renderAndSwap(renderer)
@@ -368,5 +368,5 @@ proc runBoxyRendererLoop*(renderer: BoxyRenderer) =
 
     os.sleep(renderer.duration.inMilliseconds)
   debug "BoxyRenderer loop exited"
-  renderer.closeWindow()
+  renderer.window.closeWindow()
   debug "BoxyRenderer window closed"
