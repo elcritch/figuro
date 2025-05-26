@@ -72,7 +72,6 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
   ## renders and draws a window given set of nodes passed
   ## in via the Renderer object
 
-  echo "POLLANDRENDER"
   if poll:
     renderer.window.pollEvents()
 
@@ -99,7 +98,6 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
         renderer.window.setClipboard(cb)
 
   if update:
-    echo "calling renderAndSwap"
     renderer.renderAndSwap()
 
 method runRendererLoop*(renderer: Renderer) {.base.} =
