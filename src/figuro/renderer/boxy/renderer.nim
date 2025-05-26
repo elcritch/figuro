@@ -17,6 +17,13 @@ const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 type BoxyRenderer* = ref object of Renderer
   bxy*: Boxy
 
+var boxyKey = newStringOfCap(128) 
+
+template toKey(hash: Hash): string =
+  boxyKey.setLen(0)
+  boxyKey.add($hash)
+  boxyKey
+
 proc newBoxyRenderer*(
     window: RendererWindow,
     frame: WeakRef[AppFrame],
@@ -45,10 +52,10 @@ proc renderText(bxy: Boxy, node: Node) {.forbids: [AppMainThreadEff].} =
       # is 0.84 (or 5/6) factor a constant for all fonts?
       # charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*0.84) # empirically determined
       charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*1.0) # empirically determined
-    if not bxy.hasImage($glyphId):
+    if not bxy.hasImage(toKey(glyphId)):
       trace "no glyph in context: ", glyphId= glyphId, glyph= glyph.rune, glyphRepr= repr(glyph.rune)
       continue
-    bxy.drawImage($glyphId, charPos, node.fill)
+    bxy.drawImage(toKey(glyphId), charPos, node.fill)
 
 import macros except `$`
 
@@ -163,12 +170,12 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
     # )
 
 proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
-  if bxy.hasImage($imageId):
+  if bxy.hasImage(toKey(imageId)):
     return true
   let image = readImage(filePath)
   if image.width == 0 or image.height == 0:
     return false
-  bxy.addImage($imageId, image)
+  bxy.addImage(toKey(imageId), image)
   return true
 
 proc renderBoxes(bxy: Boxy, node: Node) =
@@ -200,7 +207,7 @@ proc renderBoxes(bxy: Boxy, node: Node) =
     let size = vec2(node.screenBox.w, node.screenBox.h)
     if bxy.cacheImage(node.image.name, node.image.id.Hash):
       let rect = rect(0, 0, size.x, size.y)
-      bxy.drawImage($(node.image.id.Hash), rect, node.image.color)
+      bxy.drawImage(toKey(node.image.id.Hash), rect, node.image.color)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     bxy.drawRoundedRect(
@@ -288,7 +295,7 @@ proc renderRoot*(bxy: Boxy, nodes: var Renders) {.forbids: [AppMainThreadEff].} 
   var img: (Hash, Image)
   while glyphImageChan.tryRecv(img):
     # echo "img: ", img
-    bxy.addImage($img[0], img[1])
+    bxy.addImage(toKey(img[0]), img[1])
 
   for zlvl, list in nodes.layers.pairs():
     for rootIdx in list.rootIds:
