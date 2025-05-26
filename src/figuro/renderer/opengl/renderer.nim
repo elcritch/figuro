@@ -9,55 +9,28 @@ import pkg/chronicles
 import ../../common/rchannels
 import ../../common/nodes/uinodes
 import ../utils/glutils
+import ../utils/baserenderer
 import glcommons, glcontext
 
 import std/locks
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type Renderer* = ref object of RootObj
+type OpenGLRenderer* = ref object of Renderer
   ctx*: Context
-  duration*: Duration
-  uxInputList*: RChan[AppInputs]
-  rendInputList*: RChan[RenderCommands]
-  frame*: WeakRef[AppFrame]
-  lock*: Lock
-  updated*: Atomic[bool]
 
-  nodes*: Renders
-  appWindow*: WindowInfo
-
-method pollEvents*(r: Renderer) {.base.} = discard
-method swapBuffers*(r: Renderer) {.base.} = discard
-method setTitle*(r: Renderer, name: string) {.base.} = discard
-method closeWindow*(r: Renderer) {.base.} = discard
-method getScaleInfo*(r: Renderer): ScaleInfo {.base.} = discard
-method getWindowInfo*(r: Renderer): WindowInfo {.base.} = discard
-method configureWindowEvents*(renderer: Renderer) {.base.} = discard
-method setClipboard*(r: Renderer, cb: ClipboardContents) {.base.} = discard
-method getClipboard*(r: Renderer): ClipboardContents {.base.} = discard
-method copyInputs*(r: Renderer): AppInputs {.base.} = discard
-
-proc configureRenderer*(
+proc newOpenGLRenderer*(
     renderer: Renderer,
     frame: WeakRef[AppFrame],
-    forcePixelScale: float32,
     atlasSize: int,
-) =
-  app.pixelScale = forcePixelScale
-  renderer.nodes = Renders()
-  renderer.frame = frame
-  renderer.ctx = newContext(
+): OpenGLRenderer =
+  result = OpenGLRenderer()
+  configureBaseRenderer(result, frame, 1.0, atlasSize)
+  result.ctx = newContext(
     atlasSize = atlasSize,
     pixelate = false,
     pixelScale = app.pixelScale,
   )
-  renderer.uxInputList = newRChan[AppInputs](5)
-  renderer.rendInputList = newRChan[RenderCommands](5)
-  renderer.lock.initLock()
-  frame[].uxInputList = renderer.uxInputList
-  frame[].rendInputList = renderer.rendInputList
-  frame[].clipboards = newRChan[ClipboardContents](1)
 
 proc renderDrawable*(ctx: Context, node: Node) =
   ## TODO: draw non-node stuff?
@@ -314,10 +287,10 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
-proc renderFrame*(renderer: Renderer) =
+proc renderFrame*(renderer: OpenGLRenderer) =
   let ctx: Context = renderer.ctx
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.appWindow.box.wh.scaled())
+  ctx.beginFrame(renderer.window.info.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
 
@@ -334,7 +307,7 @@ proc renderFrame*(renderer: Renderer) =
     img.writeFile("screenshot.png")
     quit()
 
-method renderAndSwap*(renderer: Renderer) =
+method renderAndSwap*(renderer: OpenGLRenderer) =
   ## Does drawing operations.
 
   timeIt(drawFrame):
