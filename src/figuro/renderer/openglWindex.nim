@@ -5,21 +5,21 @@ import pkg/pixie
 import pkg/opengl
 import pkg/windex
 
-when defined(boxyRenderer):
-  import ./utils/glutils
-  import ./boxy/renderer
-else:
-  import ./utils/glutils
-  import ./opengl/glcommons
-  import ./opengl/renderer
+import ./utils/glutils
+
+# when defined(boxyRenderer):
+#   import ./boxy/renderer
+# else:
+#   import ./utils/glutils
+#   import ./opengl/glcommons
+#   import ./opengl/renderer
 
 import ../common/nodes/uinodes
 import ../common/rchannels
 import ../common/wincfgs
 import ../common/shared
 
-import pkg/sigils/weakrefs
-import pkg/chronicles
+import ./utils/baserenderer
 
 export AppFrame
 
@@ -36,7 +36,7 @@ when defined(glDebugMessageCallback):
 proc convertStyle*(fs: FrameStyle): WindowStyle
 
 type
-  RendererWindex* = ref object of Renderer
+  WindexWindow* = ref object of RendererWindow
     window: Window
 
 proc setupWindow*(
@@ -66,16 +66,14 @@ proc setupWindow*(
 
 proc newWindexRenderer*(
     frame: WeakRef[AppFrame],
-    forcePixelScale: float32,
-    atlasSize: int,
-): RendererWindex =
+): WindexWindow =
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  result = RendererWindex(window: window, frame: frame)
+  result = WindexWindow(window: window)
   startOpenGL(openglVersion)
 
   setupWindow(frame, window)
 
-  configureRenderer(result, frame, forcePixelScale, atlasSize)
+  # configureRenderer(result, frame, forcePixelScale, atlasSize)
 
 proc convertStyle*(fs: FrameStyle): WindowStyle =
   case fs

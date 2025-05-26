@@ -13,28 +13,8 @@ import ./drawextras
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type Renderer* = ref object of RootObj
+type BoxyRenderer* = ref object of BaseRenderer
   bxy*: Boxy
-  duration*: Duration
-  uxInputList*: RChan[AppInputs]
-  rendInputList*: RChan[RenderCommands]
-  frame*: WeakRef[AppFrame]
-  lock*: Lock
-  updated*: Atomic[bool]
-
-  nodes*: Renders
-  appWindow*: WindowInfo
-
-method pollEvents*(r: Renderer) {.base.} = discard
-method swapBuffers*(r: Renderer) {.base.} = discard
-method setTitle*(r: Renderer, name: string) {.base.} = discard
-method closeWindow*(r: Renderer) {.base.} = discard
-method getScaleInfo*(r: Renderer): ScaleInfo {.base.} = discard
-method getWindowInfo*(r: Renderer): WindowInfo {.base.} = discard
-method configureWindowEvents*(renderer: Renderer) {.base.} = discard
-method setClipboard*(r: Renderer, cb: ClipboardContents) {.base.} = discard
-method getClipboard*(r: Renderer): ClipboardContents {.base.} = discard
-method copyInputs*(r: Renderer): AppInputs {.base.} = discard
 
 proc configureRenderer*(
     renderer: Renderer,
@@ -42,16 +22,8 @@ proc configureRenderer*(
     forcePixelScale: float32,
     atlasSize: int,
 ) =
-  app.pixelScale = forcePixelScale
-  renderer.nodes = Renders()
-  renderer.frame = frame
+  configureBaseRenderer(renderer, frame, forcePixelScale, atlasSize)
   renderer.bxy = newBoxy(atlasSize = atlasSize)
-  renderer.uxInputList = newRChan[AppInputs](5)
-  renderer.rendInputList = newRChan[RenderCommands](5)
-  renderer.lock.initLock()
-  frame[].uxInputList = renderer.uxInputList
-  frame[].rendInputList = renderer.rendInputList
-  frame[].clipboards = newRChan[ClipboardContents](1)
 
 proc renderDrawable*(bxy: Boxy, node: Node) =
   # ## TODO: draw non-node stuff?

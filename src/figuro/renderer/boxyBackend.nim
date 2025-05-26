@@ -29,12 +29,13 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
 
   when defined(figuroWindex):
-    let renderer = newWindexRenderer(frame, 1.0, atlasSize)
+    let window = newWindexRenderer(frame)
   elif defined(figuroSiwin):
-    let renderer = newSiwinRenderer(frame, 1.0, atlasSize)
+    let window = newSiwinRenderer(frame)
   else:
-    let renderer = newWindexRenderer(frame, 1.0, atlasSize)
+    let window = newWindexRenderer(frame)
 
+  configureRenderer(window, frame, 1.0, atlasSize)
   frame[].windowInfo.focused = true
 
   if app.autoUiScale:
