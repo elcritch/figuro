@@ -57,13 +57,14 @@ proc configureRenderer*(
   frame[].clipboards = newRChan[ClipboardContents](1)
 
 proc renderDrawable*(ctx: Context, node: Node) =
-  ## TODO: draw non-node stuff?
-  for point in node.points:
-    # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
-    let
-      pos = point
-      bx = node.box.atXY(pos.x, pos.y)
-    ctx.fillRect(bx, node.fill)
+  # ## TODO: draw non-node stuff?
+  discard
+  # for point in node.points:
+  #   # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
+  #   let
+  #     pos = point
+  #     bx = node.box.atXY(pos.x, pos.y)
+  #   ctx.fillRect(bx, node.fill)
 
 proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
   ## draw characters (glyphs)
