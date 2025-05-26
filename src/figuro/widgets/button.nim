@@ -58,8 +58,8 @@ proc draw*[T](self: Button[T]) {.slot.} =
   ## button widget!
   withWidget(self):
 
-    # with this:
-    #   clipContent true
+    with this:
+      clipContent true
     withOptional self:
       cornerRadius 10.0'ui
 
