@@ -1,4 +1,3 @@
-
 # Figuro
 
 Figuro is a open source framework for building *beautiful*, *interactive*, and *efficient* applications. It compiles small binaries with support for multiple platforms.
@@ -16,6 +15,56 @@ Originally based on Fidget, Figuro has now diverged quite significantly and incl
 Example theming:
 
 ![Theming](https://i.ibb.co/jPNGZkL7/HNBrowser.gif)
+
+## Widget Lifecycle
+
+The following diagram illustrates the lifecycle of a Figuro widget/node:
+
+```mermaid
+graph TD
+    A[Widget Creation] --> B[preNode]
+    B --> C[connectDefaults]
+    C --> D{Initialized?}
+    D -->|No| E[doInitialize]
+    D -->|Yes| F[Skip initialization]
+    
+    %% Draw signal and its processes
+    E --> G[doDraw Signal]
+    F --> G
+    G -.-> GA[Draw Processes]
+    GA --> G1[clearDraw]
+    G1 --> G2[handlePreDraw]
+    G2 --> G3[widget.draw]
+    G3 --> G4[handleContents]
+    G4 --> G5[handlePostDraw]
+    
+    %% Event handling 
+    H[DefaultEvents] --> H1[doMouseClick]
+    H --> H2[doDrag]
+    H --> H3[doHover]
+    H --> H4[doKeyInput] 
+    H --> H5[doKeyPress]
+    H --> H6[doTick]
+    
+    %% These events trigger before draw and may cause refresh
+    H -.-> Z[May trigger refresh]
+    Z -.-> G
+    
+    G5 --> I[Render]
+    I --> I1[renderFrame]
+
+    %% Note about refresh
+    N[Note: Draw is only triggered<br/>on initialize or when<br/>refresh is called]
+    N -.-> G
+    
+    classDef process fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef signal fill:#bbf,stroke:#33f,stroke-width:2px;
+    classDef note fill:#ffffcc,stroke:#999,stroke-width:1px,stroke-dasharray: 5 5;
+    
+    class G1,G2,G3,G4,G5,GA process;
+    class E,G,H1,H2,H3,H4,H5,H6 signal;
+    class N note;
+```
 
 ## Example
 
