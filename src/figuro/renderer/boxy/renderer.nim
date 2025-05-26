@@ -30,12 +30,6 @@ proc newBoxyRenderer*(
 proc renderDrawable*(bxy: Boxy, node: Node) =
   # ## TODO: draw non-node stuff?
   discard
-  # for point in node.points:
-  #   # bxy.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
-  #   let
-  #     pos = point
-  #     bx = node.box.atXY(pos.x, pos.y)
-  #   bxy.fillRect(bx, node.fill)
 
 proc renderText(bxy: Boxy, node: Node) {.forbids: [AppMainThreadEff].} =
   ## draw characters (glyphs)
@@ -307,12 +301,14 @@ proc renderFrame*(renderer: BoxyRenderer) =
     size = renderer.window.info.box.wh.scaled()
     isize = ivec2(size)
   bxy.beginFrame(isize)
+  bxy.pushLayer()
   bxy.saveTransform()
 
   # draw root
   bxy.renderRoot(renderer.nodes)
 
   bxy.restoreTransform()
+  bxy.popLayer()
   bxy.endFrame()
 
   when defined(testOneFrame):
