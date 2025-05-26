@@ -276,8 +276,7 @@ proc render(
     bxy.translate(-node.screenBox.wh / 2)
 
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-    # bxy.renderDropShadows(node)
-    discard
+    bxy.renderDropShadows(node)
 
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
