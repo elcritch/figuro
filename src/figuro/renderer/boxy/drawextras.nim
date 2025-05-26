@@ -32,6 +32,7 @@ proc drawRoundedRect*(
 
   if radii == [0.0, 0.0, 0.0, 0.0]:
     bxy.drawRect(rect, color)
+    return
 
   let
     w = rect.w.ceil()

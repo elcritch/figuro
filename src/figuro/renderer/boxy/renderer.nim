@@ -268,13 +268,6 @@ proc render(
     bxy.popLayer(blendMode = MaskBlend)
     bxy.popLayer(blendMode = NormalBlend)
 
-  # ifrender NfClipContent in node.flags:
-  #   bxy.beginMask()
-  #   bxy.drawMasks(node)
-  #   bxy.endMask()
-  # finally:
-  #   bxy.popMask()
-
   ifrender true:
     if node.kind == nkText:
       bxy.renderText(node)
