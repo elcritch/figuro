@@ -16,6 +16,9 @@ switch("styleCheck", "hint")
 --define:"chronicles_log_level:DEBUG"
 # --define:"chronicles_log_level:TRACE"
 
+if defined(boxyRenderer):
+  --passc:"-Wno-incompatible-function-pointer-types"
+
 --hint:"ConvFromXtoItselfNotNeeded:off"
 
 if not defined(emscripten):
