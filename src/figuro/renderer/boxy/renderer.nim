@@ -194,6 +194,15 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
     #   innerShadow = true,
     # )
 
+proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
+  if bxy.hasImage($imageId):
+    return true
+  let image = bxy.readImage(filePath)
+  if image.width == 0 or image.height == 0:
+    return false
+  bxy.addImage($imageId, image)
+  return true
+
 proc renderBoxes(bxy: Boxy, node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
@@ -222,7 +231,7 @@ proc renderBoxes(bxy: Boxy, node: Node) =
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
     if bxy.cacheImage(node.image.name, node.image.id.Hash):
-      bxy.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
+      bxy.drawImage($node.image.id, pos = vec2(0, 0), color = node.image.color, size = size)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     bxy.drawRoundedRect(
