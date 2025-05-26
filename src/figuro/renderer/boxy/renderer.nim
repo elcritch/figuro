@@ -255,8 +255,18 @@ proc render(
   ifrender NfClipContent in node.flags:
     bxy.pushLayer()
   finally:
-    bxy.drawMasks(node)
-    bxy.popLayer()
+    # bxy.drawMasks(node)
+    bxy.pushLayer()
+    bxy.saveTransform()
+    bxy.translate(node.screenBox.xy)
+    bxy.drawRoundedRect(
+      rect(0, 0, node.screenBox.w, node.screenBox.h),
+      rgba(255, 0, 0, 255).color,
+      node.cornerRadius,
+    )
+    bxy.restoreTransform()
+    bxy.popLayer(blendMode = MaskBlend)
+    bxy.popLayer(blendMode = NormalBlend)
 
   # ifrender NfClipContent in node.flags:
   #   bxy.beginMask()
