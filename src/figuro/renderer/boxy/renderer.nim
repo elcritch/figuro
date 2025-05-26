@@ -273,12 +273,26 @@ proc render(
     elif node.kind == nkRectangle:
       bxy.renderBoxes(node)
 
-  # ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-  #   bxy.beginMask()
-  #   bxy.drawMasks(node)
-  #   bxy.endMask()
-  #   bxy.renderInnerShadows(node)
-  #   bxy.popMask()
+  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
+    bxy.pushLayer()
+    bxy.saveTransform()
+    bxy.translate(-node.screenBox.xy)
+    bxy.drawRoundedRect(
+      rect(0, 0, node.screenBox.w, node.screenBox.h),
+      node.shadow[InnerShadow].color,
+      node.cornerRadius,
+      weight = node.shadow[InnerShadow].spread,
+      doStroke = true,
+    )
+    bxy.blurEffect(node.shadow[InnerShadow].blur)
+    # bxy.dropShadowEffect(
+    #   color(1, 0, 0, 1),
+    #   vec2(node.shadow[InnerShadow].x, node.shadow[InnerShadow].y),
+    #   node.shadow[InnerShadow].blur,
+    #   node.shadow[InnerShadow].spread,
+    # )
+    bxy.restoreTransform()
+    bxy.popLayer(blendMode = NormalBlend)
 
   # restores the opengl context back to the parent node's (see above)
   bxy.restoreTransform()
