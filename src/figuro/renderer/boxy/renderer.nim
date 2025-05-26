@@ -120,16 +120,19 @@ proc renderDropShadows(bxy: Boxy, node: Node) =
           bxy.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
     else:
       discard
-      # bxy.fillRoundedRectWithShadow(
-      #   rect = node.screenBox.atXY(0'f32, 0'f32),
-      #   radii = node.cornerRadius,
-      #   shadowX = shadow.x,
-      #   shadowY = shadow.y,
-      #   shadowBlur = shadow.blur,
-      #   shadowSpread = shadow.spread.float32,
-      #   shadowColor = shadow.color,
-      #   innerShadow = false,
-      # )
+      bxy.pushLayer()
+      let spread = node.shadow[DropShadow].spread
+      var box = node.screenBox 
+      box.xy = box.xy + vec2(-spread, -spread)
+      box.wh = box.wh + vec2(2*spread, 2*spread)
+
+      bxy.drawRoundedRect(
+        box,
+        node.shadow[DropShadow].color,
+        node.cornerRadius,
+      )
+      bxy.blurEffect(node.shadow[DropShadow].blur)
+      bxy.popLayer(blendMode = NormalBlend)
 
 proc renderInnerShadows(bxy: Boxy, node: Node) =
   ## drawing poor man's inner shadows
@@ -255,20 +258,7 @@ proc render(
     bxy.translate(-node.screenBox.wh / 2)
 
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-    # bxy.renderDropShadows(node)
-    bxy.pushLayer()
-    let spread = node.shadow[DropShadow].spread
-    var box = node.screenBox 
-    box.xy = box.xy + vec2(-spread, -spread)
-    box.wh = box.wh + vec2(2*spread, 2*spread)
-
-    bxy.drawRoundedRect(
-      box,
-      node.shadow[DropShadow].color,
-      node.cornerRadius,
-    )
-    bxy.blurEffect(node.shadow[DropShadow].blur)
-    bxy.popLayer(blendMode = NormalBlend)
+    bxy.renderDropShadows(node)
 
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
