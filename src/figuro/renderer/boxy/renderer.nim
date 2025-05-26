@@ -2,6 +2,9 @@ import std/[hashes, os, tables, times, monotimes, unicode, atomics]
 import std/locks
 export tables
 
+import pkg/boxy
+import pkg/chronicles
+
 import ../../common/rchannels
 import ../../common/nodes/uinodes
 import ../utils/glutils
@@ -113,7 +116,7 @@ proc drawMasks(bxy: Boxy, node: Node) =
       node.cornerRadius,
     )
   else:
-    bxy.fillRect(
+    bxy.drawRect(
       rect(0, 0, node.screenBox.w, node.screenBox.h), rgba(255, 0, 0, 255).color
     )
 
@@ -136,16 +139,17 @@ proc renderDropShadows(bxy: Boxy, node: Node) =
           let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
           bxy.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
     else:
-      bxy.fillRoundedRectWithShadow(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
-        radii = node.cornerRadius,
-        shadowX = shadow.x,
-        shadowY = shadow.y,
-        shadowBlur = shadow.blur,
-        shadowSpread = shadow.spread.float32,
-        shadowColor = shadow.color,
-        innerShadow = false,
-      )
+      discard
+      # bxy.fillRoundedRectWithShadow(
+      #   rect = node.screenBox.atXY(0'f32, 0'f32),
+      #   radii = node.cornerRadius,
+      #   shadowX = shadow.x,
+      #   shadowY = shadow.y,
+      #   shadowBlur = shadow.blur,
+      #   shadowSpread = shadow.spread.float32,
+      #   shadowColor = shadow.color,
+      #   innerShadow = false,
+      # )
 
 proc renderInnerShadows(bxy: Boxy, node: Node) =
   ## drawing poor man's inner shadows
@@ -176,43 +180,44 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
         radius = node.cornerRadius - blur,
       )
   else:
-    let shadow = node.shadow[InnerShadow]
-    var rect = node.screenBox.atXY(0'f32, 0'f32)
-    bxy.fillRoundedRectWithShadow(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
-      radii = node.cornerRadius,
-      shadowX = shadow.x,
-      shadowY = shadow.y,
-      shadowBlur = shadow.blur,
-      shadowSpread = shadow.spread.float32,
-      shadowColor = shadow.color,
-      innerShadow = true,
-    )
+    discard
+    # let shadow = node.shadow[InnerShadow]
+    # var rect = node.screenBox.atXY(0'f32, 0'f32)
+    # bxy.fillRoundedRectWithShadow(
+    #   rect = node.screenBox.atXY(0'f32, 0'f32),
+    #   radii = node.cornerRadius,
+    #   shadowX = shadow.x,
+    #   shadowY = shadow.y,
+    #   shadowBlur = shadow.blur,
+    #   shadowSpread = shadow.spread.float32,
+    #   shadowColor = shadow.color,
+    #   innerShadow = true,
+    # )
 
 proc renderBoxes(bxy: Boxy, node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       discard
-      bxy.fillRoundedRect(
+      bxy.drawRoundedRect(
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.fill,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      bxy.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
+      bxy.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
 
   if node.highlight.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
-      bxy.fillRoundedRect(
+      bxy.drawRoundedRect(
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.highlight,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      bxy.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
+      bxy.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
@@ -220,7 +225,7 @@ proc renderBoxes(bxy: Boxy, node: Node) =
       bxy.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    bxy.fillRoundedRect(
+    bxy.drawRoundedRect(
       rect = node.screenBox.atXY(0'f32, 0'f32),
       color = node.stroke.color,
       radii = node.cornerRadius,
