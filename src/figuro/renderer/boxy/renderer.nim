@@ -268,8 +268,8 @@ proc render(
     bxy.rotate(node.rotation / 180 * PI)
     bxy.translate(-node.screenBox.wh / 2)
 
-  # ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-  #   bxy.renderDropShadows(node)
+  ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
+    bxy.renderDropShadows(node)
 
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
@@ -292,8 +292,8 @@ proc render(
     elif node.kind == nkRectangle:
       bxy.renderBoxes(node)
 
-  # ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-  #   bxy.renderInnerShadows(node)
+  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
+    bxy.renderInnerShadows(node)
 
   for childIdx in childIndex(nodes, nodeIdx):
     bxy.render(nodes, childIdx, nodeIdx)
