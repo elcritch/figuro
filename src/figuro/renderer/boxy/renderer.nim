@@ -83,7 +83,7 @@ proc renderText(bxy: Boxy, node: Node) {.forbids: [AppMainThreadEff].} =
     if not bxy.hasImage($glyphId):
       trace "no glyph in context: ", glyphId= glyphId, glyph= glyph.rune, glyphRepr= repr(glyph.rune)
       continue
-    bxy.drawImage(glyphId, charPos, node.fill.toColor())
+    bxy.drawImage($glyphId, charPos, node.fill)
 
 import macros except `$`
 
