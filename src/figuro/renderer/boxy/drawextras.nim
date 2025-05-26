@@ -30,7 +30,7 @@ proc drawRoundedRect*(
   if rect.w <= 0 or rect.h <= -0:
     return
 
-  if radii == [0.0, 0.0, 0.0, 0.0]:
+  if radii == [0.0'f32, 0.0, 0.0, 0.0]:
     bxy.drawRect(rect, color)
     return
 
