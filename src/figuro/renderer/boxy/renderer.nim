@@ -264,7 +264,7 @@ proc render(
 
   # setup the opengl context to match the current node size and position
 
-  bxy.saveTransform()
+  # bxy.saveTransform()
   # bxy.translate(node.screenBox.xy)
 
   # handle node rotation
@@ -301,7 +301,7 @@ proc render(
     bxy.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)
-  bxy.restoreTransform()
+  # bxy.restoreTransform()
 
   for childIdx in childIndex(nodes, nodeIdx):
     bxy.render(nodes, childIdx, nodeIdx)
