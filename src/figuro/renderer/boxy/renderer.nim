@@ -174,14 +174,17 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
     box.xy = box.xy + vec2(offset.x, offset.y)
     box.wh = box.wh
 
-    bxy.drawRoundedRect(
-      box,
-      node.shadow[InnerShadow].color,
-      node.cornerRadius,
-      weight = spread,
-      doStroke = true,
-      outerShadowFill = true,
-    )
+    if spread > node.cornerRadius[dcTopLeft] and spread > node.cornerRadius[dcTopRight] and spread > node.cornerRadius[dcBottomLeft] and spread > node.cornerRadius[dcBottomRight]:
+      bxy.drawOuterBox(box, spread, node.shadow[InnerShadow].color)
+    else:
+      bxy.drawRoundedRect(
+        box,
+        node.shadow[InnerShadow].color,
+        node.cornerRadius,
+        weight = spread,
+        doStroke = true,
+        outerShadowFill = true,
+      )
 
     bxy.drawOuterBox(box, padding, node.shadow[InnerShadow].color)
 
