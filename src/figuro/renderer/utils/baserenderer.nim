@@ -99,6 +99,7 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
         renderer.window.setClipboard(cb)
 
   if update:
+    echo "calling renderAndSwap"
     renderAndSwap(renderer)
 
 method runRendererLoop*(renderer: Renderer) {.base.} =

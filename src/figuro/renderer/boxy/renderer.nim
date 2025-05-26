@@ -320,7 +320,7 @@ proc renderFrame*(renderer: BoxyRenderer) =
 method renderAndSwap*(renderer: BoxyRenderer) =
   ## Does drawing operations.
 
-  echo "RENDERANDSWAP"
+  echo "RENDERANDSWAP: boxy"
 
   timeIt(drawFrame):
     renderFrame(renderer)
