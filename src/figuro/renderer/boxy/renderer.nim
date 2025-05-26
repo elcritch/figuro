@@ -308,7 +308,6 @@ proc renderFrame*(renderer: BoxyRenderer) =
     isize = ivec2(size)
   bxy.beginFrame(isize)
   bxy.saveTransform()
-  # bxy.scale(bxy.pixelScale)
 
   # draw root
   bxy.renderRoot(renderer.nodes)
