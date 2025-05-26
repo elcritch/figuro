@@ -252,6 +252,12 @@ proc render(
     bxy.renderDropShadows(node)
 
   # handle clipping children content based on this node
+  ifrender NfClipContent in node.flags:
+    bxy.pushLayer()
+  finally:
+    bxy.drawMasks(node)
+    bxy.popLayer()
+
   # ifrender NfClipContent in node.flags:
   #   bxy.beginMask()
   #   bxy.drawMasks(node)
