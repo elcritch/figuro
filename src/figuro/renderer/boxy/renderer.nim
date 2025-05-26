@@ -17,7 +17,7 @@ const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 type BoxyRenderer* = ref object of Renderer
   bxy*: Boxy
 
-proc newBoxyBoxyRenderer*(
+proc newBoxyRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
