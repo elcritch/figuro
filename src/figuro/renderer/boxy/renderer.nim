@@ -168,7 +168,7 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
     let spread = node.shadow[InnerShadow].spread
     let blur = node.shadow[InnerShadow].blur
     let offset = node.shadow[InnerShadow]
-    let padding = blur * 2 + max(offset.x, offset.y)
+    let padding = ceil(blur + spread + max(offset.x, offset.y))
 
     var box = node.screenBox 
     box.xy = box.xy + vec2(offset.x, offset.y)
@@ -176,21 +176,35 @@ proc renderInnerShadows(bxy: Boxy, node: Node) =
 
     bxy.drawRoundedRect(
       box,
-      rgba(0, 0, 255, 255).color,
-      # [0'f32, 0'f32, 0'f32, 0'f32],
+      node.shadow[InnerShadow].color,
       node.cornerRadius,
       weight = spread,
       doStroke = true,
       outerShadowFill = true,
     )
+
+    var obox = box
+    obox.xy = obox.xy - vec2(padding, padding)
+    obox.wh = obox.wh + vec2(2*padding, 2*padding)
+    let xy = obox.xy
+    let rectTop = rect(xy, vec2(obox.w, padding))
+    let rectLeft = rect(xy + vec2(0, padding), vec2(padding, obox.h - 2*padding))
+    let rectBottom = rect(xy + vec2(0, obox.h - padding), vec2(obox.w, padding))
+    let rectRight = rect(xy + vec2(obox.w - padding, padding), vec2(padding, obox.h - 2*padding))
+
+    bxy.drawRoundedRect(rectTop, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
+    bxy.drawRoundedRect(rectLeft, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
+    bxy.drawRoundedRect(rectBottom, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
+    bxy.drawRoundedRect(rectRight, node.shadow[InnerShadow].color, [0'f32, 0'f32, 0'f32, 0'f32],)
+
     bxy.blurEffect(node.shadow[InnerShadow].blur)
-    bxy.pushLayer()
-    bxy.drawRoundedRect(
-      box,
-      rgba(255, 0, 0, 255).color,
-      node.cornerRadius,
-    )
-    bxy.popLayer(blendMode = MaskBlend)
+    # bxy.pushLayer()
+    # bxy.drawRoundedRect(
+    #   box,
+    #   rgba(255, 0, 0, 255).color,
+    #   node.cornerRadius,
+    # )
+    # bxy.popLayer(blendMode = MaskBlend)
     bxy.popLayer(blendMode = NormalBlend)
 
 proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
@@ -274,7 +288,8 @@ proc render(
     bxy.translate(-node.screenBox.wh / 2)
 
   ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-    bxy.renderDropShadows(node)
+    # bxy.renderDropShadows(node)
+    discard
 
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
