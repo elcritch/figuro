@@ -334,7 +334,7 @@ proc renderFrame*(renderer: Renderer) =
     img.writeFile("screenshot.png")
     quit()
 
-proc renderAndSwap(renderer: Renderer) =
+method renderAndSwap*(renderer: Renderer) =
   ## Does drawing operations.
 
   timeIt(drawFrame):

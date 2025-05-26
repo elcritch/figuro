@@ -1,6 +1,8 @@
 import std/locks
 import std/atomics
 import std/times
+import std/os
+import pkg/chronicles
 
 import ../../common/shared
 import ../../common/nodes/render
@@ -26,6 +28,7 @@ type
     frame*: WeakRef[AppFrame]
 
 method swapBuffers*(r: Renderer) {.base.} = discard
+method renderAndSwap*(r: Renderer) {.base.} = discard
 
 method configureRenderer*(
     renderer: Renderer,
@@ -80,7 +83,7 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
     match cmd:
       RenderUpdate(nlayers, rwindow):
         renderer.nodes = nlayers
-        renderer.appWindow = rwindow
+        renderer.window.info = rwindow
         update = true
       RenderQuit:
         echo "QUITTING"
@@ -88,12 +91,12 @@ method pollAndRender*(renderer: Renderer, poll = true) {.base.} =
         app.running = false
         return
       RenderSetTitle(name):
-        renderer.setTitle(name)
+        renderer.window.setTitle(name)
       RenderClipboardGet:
-        let cb = renderer.getClipboard()
+        let cb = renderer.window.getClipboard()
         renderer.frame[].clipboards.push(cb)
       RenderClipboard(cb):
-        renderer.setClipboard(cb)
+        renderer.window.setClipboard(cb)
 
   if update:
     renderAndSwap(renderer)
