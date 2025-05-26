@@ -16,6 +16,7 @@ else:
 import ../common/nodes/uinodes
 import ../common/rchannels
 import ../common/wincfgs
+import ../common/shared
 
 import pkg/sigils/weakrefs
 import pkg/chronicles

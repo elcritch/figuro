@@ -324,9 +324,12 @@ proc renderRoot*(bxy: Boxy, nodes: var Renders) {.forbids: [AppMainThreadEff].} 
 proc renderFrame*(renderer: Renderer) =
   let bxy: Boxy = renderer.bxy
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  bxy.beginFrame(renderer.appWindow.box.wh.scaled())
+  let
+    size = renderer.appWindow.box.wh.scaled()
+    isize = ivec2(size)
+  bxy.beginFrame(isize)
   bxy.saveTransform()
-  bxy.scale(bxy.pixelScale)
+  # bxy.scale(bxy.pixelScale)
 
   # draw root
   bxy.renderRoot(renderer.nodes)
