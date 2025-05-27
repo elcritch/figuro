@@ -95,7 +95,7 @@ proc drawRoundedRect*(
 
     for corner in DirectionCorners:
       let
-        pt = xy + offsets[corner]
+        pt = ceil(xy + offsets[corner])
 
       bxy.drawImage($hashes[corner], pt, color)
 
@@ -108,10 +108,10 @@ proc drawRoundedRect*(
       hrh = h - 2 * rh
 
     if not doStroke:
-      bxy.drawRect(rect(rect.x + rw, rect.y + rh, wrw, hrh), color)
+      bxy.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
 
-    bxy.drawRect(rect(rect.x + rw, rect.y, wrw, ww), color)
-    bxy.drawRect(rect(rect.x + rw, rect.y + rrh, wrw, ww), color)
+    bxy.drawRect(rect(ceil(rect.x + rw), ceil(rect.y), wrw, ww), color)
+    bxy.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rrh), wrw, ww), color)
 
-    bxy.drawRect(rect(rect.x, rect.y + rh, ww, hrh), color)
-    bxy.drawRect(rect(rect.x + rrw, rect.y + rh, ww, hrh), color)
+    bxy.drawRect(rect(ceil(rect.x), ceil(rect.y + rh), ww, hrh), color)
+    bxy.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + rh), ww, hrh), color)
