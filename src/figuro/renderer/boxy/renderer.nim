@@ -10,7 +10,7 @@ import ../../common/nodes/uinodes
 import ../utils/glutils
 import ../utils/baserenderer
 import ./glcommons
-import ./drawextras
+import ../utils/drawextras
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
