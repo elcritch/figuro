@@ -21,7 +21,6 @@ type Context* = ref object
   atlasShader, maskShader, activeShader: Shader
   atlasTexture: Texture
   maskTextureWrite: int ## Index into max textures for writing.
-  maskTextureRead: int ## Index into max textures for rendering.
   maskTextures: seq[Texture] ## Masks array for pushing and popping.
   atlasSize: int ## Size x size dimensions of the atlas
   atlasMargin: int ## Default margin between images
@@ -615,7 +614,6 @@ proc popMask*(ctx: Context) =
   ctx.flush()
 
   dec ctx.maskTextureWrite
-  ctx.maskTextureRead = ctx.maskTextureWrite
 
 proc beginFrame*(ctx: Context, frameSize: Vec2, proj: Mat4) =
   ## Starts a new frame.
@@ -647,7 +645,6 @@ proc beginFrame*(ctx: Context, frameSize: Vec2) =
 proc endFrame*(ctx: Context) =
   ## Ends a frame.
   assert ctx.frameBegun == true, "ctx.beginFrame was not called first."
-  assert ctx.maskTextureRead == 0, "Not all masks have been popped."
   assert ctx.maskTextureWrite == 0, "Not all masks have been popped."
   ctx.frameBegun = false
 
