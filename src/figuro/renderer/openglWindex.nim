@@ -8,13 +8,6 @@ import pkg/chronicles
 
 import ./utils/glutils
 
-# when defined(boxyRenderer):
-#   import ./boxy/renderer
-# else:
-#   import ./utils/glutils
-#   import ./opengl/glcommons
-#   import ./opengl/renderer
-
 import ../common/nodes/uinodes
 import ../common/rchannels
 import ../common/wincfgs
@@ -24,7 +17,6 @@ import ./utils/baserenderer
 
 export AppFrame
 
-# import ../patches/textboxes
 var
   cursorDefault*: Cursor
   cursorPointer*: Cursor
