@@ -1,9 +1,12 @@
-import glcommons
+# import glcommons
+import std/hashes
+
+import ../../commons
+import ../../common/nodes/render
 
 import pkg/chroma
 import pkg/sigils
 import pkg/chronicles
-import pkg/boxy
 
 import ../utils/boxes
 
@@ -14,12 +17,12 @@ proc hash(radii: array[DirectionCorners, float32]): Hash =
   for r in radii:
     result = result !& hash(r)
 
-proc clampRadii(radii: array[DirectionCorners, float32], rect: Rect): array[DirectionCorners, float32] =
+proc clampRadii*(radii: array[DirectionCorners, float32], rect: Rect): array[DirectionCorners, float32] =
   result = radii
   for r in result.mitems():
     r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
 
-proc drawOuterBox*(bxy: Boxy, rect: Rect, padding: float32, color: Color) =
+proc drawOuterBox*[R](bxy: R, rect: Rect, padding: float32, color: Color) =
 
     var obox = rect
     obox.xy = obox.xy - vec2(padding, padding)
@@ -35,8 +38,8 @@ proc drawOuterBox*(bxy: Boxy, rect: Rect, padding: float32, color: Color) =
     bxy.drawRect(rectBottom, color)
     bxy.drawRect(rectRight, color)
 
-proc drawRoundedRect*(
-    bxy: Boxy,
+proc drawRoundedRect*[R](
+    bxy: R,
     rect: Rect,
     color: Color,
     radii: array[DirectionCorners, float32],
@@ -44,6 +47,8 @@ proc drawRoundedRect*(
     doStroke: bool = false,
     outerShadowFill: bool = false,
 ) =
+  mixin toKey, hasImage, addImage
+
   if rect.w <= 0 or rect.h <= -0:
     return
 
@@ -64,7 +69,7 @@ proc drawRoundedRect*(
       let qhash = hash !& quadrant.int
       hashes[quadrant] = qhash
 
-    if not bxy.hasImage($hashes[dcTopRight]):
+    if not bxy.hasImage(toKey(hashes[dcTopRight])):
       let circle =
         if doStroke:
           generateCircleBox(radii, stroked = true, lineWidth = weight, outerShadowFill = outerShadowFill)
@@ -82,7 +87,7 @@ proc drawRoundedRect*(
 
       for quadrant in DirectionCorners:
         let img = patchArray[quadrant]
-        bxy.addImage($hashes[quadrant], img)
+        bxy.addImage(toKey(hashes[quadrant]), img)
 
     let
       xy = rect.xy
@@ -97,7 +102,7 @@ proc drawRoundedRect*(
       let
         pt = ceil(xy + offsets[corner])
 
-      bxy.drawImage($hashes[corner], pt, color)
+      bxy.drawImage(toKey(hashes[corner]), pt, color)
 
   block drawEdgeBoxes:
     let

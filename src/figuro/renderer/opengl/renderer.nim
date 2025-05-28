@@ -39,7 +39,7 @@ proc renderDrawable*(ctx: Context, node: Node) =
     let
       pos = point
       bx = node.box.atXY(pos.x, pos.y)
-    ctx.fillRect(bx, node.fill)
+    ctx.drawRect(bx, node.fill)
 
 proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
   ## draw characters (glyphs)
@@ -88,13 +88,13 @@ macro postRender() =
 
 proc drawMasks(ctx: Context, node: Node) =
   if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
-    ctx.fillRoundedRect(
+    ctx.drawRoundedRect(
       rect(0, 0, node.screenBox.w, node.screenBox.h),
       rgba(255, 0, 0, 255).color,
       node.cornerRadius,
     )
   else:
-    ctx.fillRect(
+    ctx.drawRect(
       rect(0, 0, node.screenBox.w, node.screenBox.h), rgba(255, 0, 0, 255).color
     )
 
@@ -115,7 +115,7 @@ proc renderDropShadows(ctx: Context, node: Node) =
           let xblur: float32 = i.toFloat() * blurAmt
           let yblur: float32 = j.toFloat() * blurAmt
           let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
-          ctx.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+          ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
     else:
       ctx.fillRoundedRectWithShadow(
         rect = node.screenBox.atXY(0'f32, 0'f32),
@@ -175,25 +175,25 @@ proc renderBoxes(ctx: Context, node: Node) =
   if node.fill.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       discard
-      ctx.fillRoundedRect(
+      ctx.drawRoundedRect(
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.fill,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
+      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
 
   if node.highlight.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
-      ctx.fillRoundedRect(
+      ctx.drawRoundedRect(
         rect = node.screenBox.atXY(0'f32, 0'f32),
         color = node.highlight,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      ctx.fillRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
+      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
 
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
@@ -201,7 +201,7 @@ proc renderBoxes(ctx: Context, node: Node) =
       ctx.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.fillRoundedRect(
+    ctx.drawRoundedRect(
       rect = node.screenBox.atXY(0'f32, 0'f32),
       color = node.stroke.color,
       radii = node.cornerRadius,
