@@ -33,4 +33,5 @@ requires "chronicles >= 0.10.3"
 requires "dmon >= 0.4.0"
 requires "htmlparser"
 requires "siwin"
+requires "boxy"
 
