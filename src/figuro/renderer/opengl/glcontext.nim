@@ -588,7 +588,6 @@ proc beginMask*(ctx: Context) =
 
   ctx.flush(ctx.maskTextureWrite)
 
-  ctx.maskTextureRead = ctx.maskTextureWrite
   inc ctx.maskTextureWrite
   if ctx.maskTextureWrite >= ctx.maskTextures.len:
     ctx.addMaskTexture(ctx.frameSize)
@@ -609,8 +608,6 @@ proc endMask*(ctx: Context) =
   ctx.flush(ctx.maskTextureWrite-1)
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0)
-
-  ctx.maskTextureRead = ctx.maskTextureWrite
 
   ctx.activeShader = ctx.atlasShader
 
