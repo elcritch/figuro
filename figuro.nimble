@@ -34,4 +34,5 @@ requires "dmon >= 0.4.0"
 requires "htmlparser"
 requires "siwin"
 requires "boxy"
+# requires "https://github.com/thorvg/thorvg#head"
 
