@@ -1,6 +1,6 @@
 switch("styleCheck", "hint")
 
---define:boxyRenderer
+# --define:boxyRenderer
 
 --path:"$nim" ## important for nimscripter
 
