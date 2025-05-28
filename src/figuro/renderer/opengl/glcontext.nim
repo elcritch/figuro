@@ -44,7 +44,7 @@ type Context* = ref object
   uvs: tuple[buffer: Buffer, data: seq[float32]]
   indices: tuple[buffer: Buffer, data: seq[uint16]]
 
-proc draw(ctx: Context)
+proc flush(ctx: Context, maskTextureRead: int = ctx.maskTextureWrite)
 
 proc toKey*(h: Hash): Hash = h
 proc hasImage*(ctx: Context, key: Hash): bool =
@@ -220,7 +220,7 @@ proc hash(radii: array[DirectionCorners, float32]): Hash =
     result = result !& hash(r)
 
 proc grow(ctx: Context) =
-  ctx.draw()
+  ctx.flush()
   ctx.atlasSize = ctx.atlasSize * 2
   info "grow atlasSize ", atlasSize = ctx.atlasSize
   ctx.heights.setLen(ctx.atlasSize)
@@ -306,7 +306,7 @@ proc putFlippy*(ctx: Context, path: Hash, flippy: Flippy) =
     x = x div 2
     y = y div 2
 
-proc draw(ctx: Context) =
+proc flush(ctx: Context, maskTextureRead: int = ctx.maskTextureWrite) =
   ## Flips - draws current buffer and starts a new one.
   if ctx.quadCount == 0:
     return
@@ -326,7 +326,7 @@ proc draw(ctx: Context) =
 
   if ctx.activeShader.hasUniform("maskTex"):
     glActiveTexture(GL_TEXTURE1)
-    glBindTexture(GL_TEXTURE_2D, ctx.maskTextures[ctx.maskTextureRead].textureId)
+    glBindTexture(GL_TEXTURE_2D, ctx.maskTextures[maskTextureRead].textureId)
     ctx.activeShader.setUniform("maskTex", 1)
 
   ctx.activeShader.bindUniforms()
@@ -341,7 +341,7 @@ proc draw(ctx: Context) =
 proc checkBatch(ctx: Context) =
   if ctx.quadCount == ctx.maxQuads:
     # ctx is full dump the images in the ctx now and start a new batch
-    ctx.draw()
+    ctx.flush()
 
 proc setVert2(buf: var seq[float32], i: int, v: Vec2) =
   buf[i * 2 + 0] = v.x
@@ -571,7 +571,7 @@ proc clearMask*(ctx: Context) =
   ## Sets mask off (actually fills the mask with white).
   assert ctx.frameBegun == true, "ctx.beginFrame has not been called."
 
-  ctx.draw()
+  ctx.flush()
 
   ctx.setUpMaskFramebuffer()
 
@@ -586,10 +586,10 @@ proc beginMask*(ctx: Context) =
   assert ctx.maskBegun == false, "ctx.beginMask has already been called."
   ctx.maskBegun = true
 
-  ctx.draw()
+  ctx.flush(ctx.maskTextureWrite)
 
+  ctx.maskTextureRead = ctx.maskTextureWrite
   inc ctx.maskTextureWrite
-  ctx.maskTextureRead = ctx.maskTextureWrite - 1
   if ctx.maskTextureWrite >= ctx.maskTextures.len:
     ctx.addMaskTexture(ctx.frameSize)
 
@@ -606,7 +606,7 @@ proc endMask*(ctx: Context) =
   assert ctx.maskBegun == true, "ctx.maskBegun has not been called."
   ctx.maskBegun = false
 
-  ctx.draw()
+  ctx.flush(ctx.maskTextureWrite-1)
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
@@ -615,7 +615,7 @@ proc endMask*(ctx: Context) =
   ctx.activeShader = ctx.atlasShader
 
 proc popMask*(ctx: Context) =
-  ctx.draw()
+  ctx.flush()
 
   dec ctx.maskTextureWrite
   ctx.maskTextureRead = ctx.maskTextureWrite
@@ -654,7 +654,7 @@ proc endFrame*(ctx: Context) =
   assert ctx.maskTextureWrite == 0, "Not all masks have been popped."
   ctx.frameBegun = false
 
-  ctx.draw()
+  ctx.flush()
 
 proc translate*(ctx: Context, v: Vec2) =
   ## Translate the internal transform.
