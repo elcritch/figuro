@@ -32,6 +32,9 @@ type
     window: Window
     globals*: SiwinGlobals
 
+    initializedGLContext*: bool = false
+    atlasSize*: int
+
 proc setupWindow*(
     frame: WeakRef[AppFrame],
     window: Window,
@@ -56,6 +59,7 @@ proc newSiwinRenderer*(
     forcePixelScale: float32,
     atlasSize: int,
 ): RendererSiwin =
+  info "starting siwin renderer"
   let globals = newSiwinGlobals(
     preferedPlatform =
       case getEnv("FIGURO_SIWIN_BACKEND", "auto")
@@ -65,16 +69,17 @@ proc newSiwinRenderer*(
   )
 
   let window = newOpenglWindow(globals, title = "Figuro", size = ivec2(1280, 800))
-  result = RendererSiwin(window: window, frame: frame)
-  startOpenGL(openglVersion)
+  var renderer = RendererSiwin(window: window, frame: frame, atlasSize: atlasSize)
 
+  startOpenGL(openglVersion)
   setupWindow(frame, window)
 
-  configureRenderer(result, frame, forcePixelScale, atlasSize)
+  configureRenderer(renderer, frame, forcePixelScale, atlasSize, initializeContext = false)
+
+  renderer
 
 method swapBuffers*(r: RendererSiwin) =
   # r.window.swapBuffers()
-
   # It's a no-op for now.
   return
 
@@ -95,6 +100,18 @@ method getClipboard*(r: RendererSiwin): ClipboardContents =
   warn "TODO: siwin backend: clipboard read"
   return ClipboardStr("")
 
+method run*(renderer: RendererSiwin) =
+  renderer.window.run(
+    WindowEventsHandler(
+      onRender: proc(event: RenderEvent) =
+        info "render frame"
+        if not renderer.initializedGLContext:
+          notice "siwin backend is initializing GL context (it was deferred earlier)"
+          renderer.ctx = initializeGLContext(renderer.atlasSize)
+          renderer.initializedGLContext = true
+    )
+  )
+
 method setTitle*(r: RendererSiwin, name: string) =
   r.window.title = name
 
@@ -114,6 +131,8 @@ method getWindowInfo*(r: RendererSiwin): WindowInfo =
     result.box.h = size.y.float32.descaled()
 
 method configureWindowEvents*(renderer: RendererSiwin) =
+  info "configuring window events"
+
   let window {.cursor.} = renderer.window
 
   let winCfgFile = renderer.frame.windowCfgFile()
