@@ -36,21 +36,27 @@ method configureWindowEvents*(renderer: Renderer) {.base.} = discard
 method setClipboard*(r: Renderer, cb: ClipboardContents) {.base.} = discard
 method getClipboard*(r: Renderer): ClipboardContents {.base.} = discard
 method copyInputs*(r: Renderer): AppInputs {.base.} = discard
+method run*(r: Renderer) {.base.} = discard
+
+proc initializeGLContext*(atlasSize: int): Context =
+  newContext(
+    atlasSize = atlasSize,
+    pixelate = false,
+    pixelScale = app.pixelScale
+  )
 
 proc configureRenderer*(
     renderer: Renderer,
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
+    initializeContext: bool = true
 ) =
   app.pixelScale = forcePixelScale
   renderer.nodes = Renders()
   renderer.frame = frame
-  renderer.ctx = newContext(
-    atlasSize = atlasSize,
-    pixelate = false,
-    pixelScale = app.pixelScale,
-  )
+  if initializeContext:
+    renderer.ctx = initializeGLContext(atlasSize)
   renderer.uxInputList = newRChan[AppInputs](5)
   renderer.rendInputList = newRChan[RenderCommands](5)
   renderer.lock.initLock()
@@ -379,10 +385,15 @@ proc pollAndRender*(renderer: Renderer, poll = true) =
 proc runRendererLoop*(renderer: Renderer) =
   threadEffects:
     RenderThread
-  while app.running:
-    pollAndRender(renderer)
+  
+  when not defined(figuroSiwin):
+    while app.running:
+      pollAndRender(renderer)
 
-    os.sleep(renderer.duration.inMilliseconds)
+      os.sleep(renderer.duration.inMilliseconds)
+  else:
+    renderer.run()
+
   debug "Renderer loop exited"
   renderer.closeWindow()
   debug "Renderer window closed"

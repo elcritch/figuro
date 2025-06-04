@@ -1,4 +1,4 @@
-import std/strformat
+import std/[os, strformat]
 
 import pkg/pixie
 import pkg/opengl
@@ -9,7 +9,7 @@ import opengl/glcommons
 import opengl/renderer
 
 import ../common/nodes/uinodes
-import ../common/rchannels
+import ../common/[inputs, rchannels]
 import ../common/wincfgs
 
 import pkg/sigils/weakrefs
@@ -27,17 +27,18 @@ var
 when defined(glDebugMessageCallback):
   import strformat, strutils
 
-proc convertStyle*(fs: FrameStyle): WindowStyle
-
 type
   RendererSiwin* = ref object of Renderer
     window: Window
+    globals*: SiwinGlobals
+
+    initializedGLContext*: bool = false
+    atlasSize*: int
 
 proc setupWindow*(
     frame: WeakRef[AppFrame],
     window: Window,
 ) =
-  let style: WindowStyle = frame[].windowStyle.convertStyle()
   assert not frame.isNil
   if frame[].windowInfo.fullscreen:
     window.fullscreen = frame[].windowInfo.fullscreen
@@ -51,77 +52,65 @@ proc setupWindow*(
       "Failed to open window. GL version:" & &"{openglVersion[0]}.{$openglVersion[1]}"
     )
 
-  window.makeContextCurrent()
-
   let winCfg = frame.loadLastWindow()
-
-  window.`style=`(style)
-  window.`pos=`(winCfg.pos)
 
 proc newSiwinRenderer*(
     frame: WeakRef[AppFrame],
     forcePixelScale: float32,
     atlasSize: int,
 ): RendererSiwin =
-  let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  result = RendererSiwin(window: window, frame: frame)
-  startOpenGL(openglVersion)
+  info "starting siwin renderer"
+  let globals = newSiwinGlobals(
+    preferedPlatform =
+      case getEnv("FIGURO_SIWIN_BACKEND", "auto")
+      of "x11": x11
+      of "wayland": wayland
+      else: defaultPreferedPlatform()
+  )
 
+  let window = newOpenglWindow(globals, title = "Figuro", size = ivec2(1280, 800))
+  var renderer = RendererSiwin(window: window, frame: frame, atlasSize: atlasSize)
+
+  startOpenGL(openglVersion)
   setupWindow(frame, window)
 
-  configureRenderer(result, frame, forcePixelScale, atlasSize)
+  configureRenderer(renderer, frame, forcePixelScale, atlasSize, initializeContext = false)
 
-proc convertStyle*(fs: FrameStyle): WindowStyle =
-  case fs
-  of FrameStyle.DecoratedResizable:
-    WindowStyle.DecoratedResizable
-  of FrameStyle.DecoratedFixedSized:
-    WindowStyle.Decorated
-  of FrameStyle.Undecorated:
-    WindowStyle.Undecorated
-  of FrameStyle.Transparent:
-    WindowStyle.Transparent
-
-proc toUi*(wbtn: windex.ButtonView): set[UiMouse] =
-  when defined(nimscript):
-    for b in set[Button](wbtn):
-      result.incl UiButton(b.int)
-  else:
-    copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
+  renderer
 
 method swapBuffers*(r: RendererSiwin) =
-  r.window.swapBuffers()
+  # r.window.swapBuffers()
+  # It's a no-op for now.
+  return
 
 method pollEvents*(r: RendererSiwin) =
-  windex.pollEvents()
+  # It's a no-op on this backend.
+  return
 
 method getScaleInfo*(r: RendererSiwin): ScaleInfo =
-  let scale = r.window.contentScale()
-  result.x = scale
-  result.y = scale
-
-var lastMouse = Mouse()
-
-proc copyInputs*(w: Window): AppInputs =
-  result = AppInputs(mouse: lastMouse)
-  result.buttonRelease = toUi w.buttonReleased()
-  result.buttonPress = toUi w.buttonPressed()
-  result.buttonDown = toUi w.buttonDown()
-  result.buttonToggle = toUi w.buttonToggle()
-
-method copyInputs*(r: RendererSiwin): AppInputs =
-  copyInputs(r.window)
+  # TODO: implement
+  result.x = 1
+  result.y = 1
 
 method setClipboard*(r: RendererSiwin, cb: ClipboardContents) =
-  match cb:
-    ClipboardStr(str):
-      windex.setClipboardString(str)
-    ClipboardEmpty:
-      discard
+  warn "TODO: siwin backend: clipboard write"
+  return
 
 method getClipboard*(r: RendererSiwin): ClipboardContents =
-  let str = windex.getClipboardString()
-  return ClipboardStr(str)
+  warn "TODO: siwin backend: clipboard read"
+  return ClipboardStr("")
+
+method run*(renderer: RendererSiwin) =
+  renderer.window.run(
+    WindowEventsHandler(
+      onRender: proc(event: RenderEvent) =
+        info "render frame"
+        if not renderer.initializedGLContext:
+          notice "siwin backend is initializing GL context (it was deferred earlier)"
+          renderer.ctx = initializeGLContext(renderer.atlasSize)
+          renderer.initializedGLContext = true
+    )
+  )
 
 method setTitle*(r: RendererSiwin, name: string) =
   r.window.title = name
@@ -133,7 +122,7 @@ method getWindowInfo*(r: RendererSiwin): WindowInfo =
     app.requestedFrame.inc
 
     result.minimized = r.window.minimized()
-    result.pixelRatio = r.window.contentScale()
+    result.pixelRatio = 1.0 # r.window.contentScale()
 
     var cwidth, cheight: cint
     let size = r.window.size()
@@ -142,14 +131,15 @@ method getWindowInfo*(r: RendererSiwin): WindowInfo =
     result.box.h = size.y.float32.descaled()
 
 method configureWindowEvents*(renderer: RendererSiwin) =
+  info "configuring window events"
+
   let window {.cursor.} = renderer.window
 
   let winCfgFile = renderer.frame.windowCfgFile()
   let uxInputList = renderer.uxInputList
   let frame = renderer.frame
 
-  window.runeInputEnabled = true
-
+  #[
   window.onCloseRequest = proc() =
     notice "onCloseRequest"
     if frame[].saveWindowState:
@@ -247,4 +237,5 @@ method configureWindowEvents*(renderer: RendererSiwin) =
         {styleDim}, fgWhite, "keyboardInput: ", {styleDim}, fgGreen, $rune
       )
     uxInputList.push(uxInput)
-
+  
+  ]#
