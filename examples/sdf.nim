@@ -42,6 +42,7 @@ proc signedRoundedBox*(
     pos: ColorRGBA,
     neg: ColorRGBA,
     factor: float32 = 4,
+    spread: float32 = 0.0,
     mode: SDFMode = sdfModeFeatherInv
 ) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
@@ -71,7 +72,7 @@ proc signedRoundedBox*(
         let f = 1 / sqrt(PI * s2) * exp(-1 * sd^2 / s2)
         c.a = uint8(f * 255)
       of sdfModeDropShadow:
-        let sd = sd / factor
+        let sd = sd / factor - spread / 2
         let f = 1 / sqrt(PI * s2) * exp(-1 * sd^2 / s2)
         c.a = if sd >= 0.0: uint8(f * 255) else: 255
       let idx = image.dataIndex(x, y)
@@ -98,7 +99,7 @@ proc main() =
     ctx.fillRoundedRect(rect(center - wh/2, wh), 20.0)
     let shadow = rect.shadow(
       offset = vec2(0, 0),
-      spread = 0.0,
+      spread = 10.0,
       blur = 20.0,
       color = neg
       )
@@ -159,9 +160,11 @@ proc main() =
                     r = corners,
                     pos = pos,
                     neg = neg,
+                    factor = 20,
+                    spread = 10.0,
                     mode = sdfModeDropShadow)
 
   image.writeFile("tests/rounded_box_drop_shadow.png")
 
-for i in 0 ..< 3:
+for i in 0 ..< 1:
   main()
