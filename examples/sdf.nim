@@ -168,5 +168,5 @@ proc main() =
 
   image.writeFile("tests/rounded_box_drop_shadow.png")
 
-for i in 0 ..< 1:
+for i in 0 ..< 3:
   main()
