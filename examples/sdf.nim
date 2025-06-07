@@ -49,7 +49,7 @@ proc main() =
   signedRoundedBox(image,
                     center = vec2(200.0, 200.0),
                     b = vec2(100.0, 100.0),
-                    r = vec4(50.0, 50.0, 50.0, 50.0),
+                    r = vec4(0.0, 20.0, 50.0, 70.0),
                     pos = rgba(255, 0, 0, 255),
                     neg = rgba(0, 0, 255, 255))
 
