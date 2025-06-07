@@ -1,6 +1,8 @@
 import std/math, std/monotimes, std/times
 import pixie, vmath, pixie/simd
 
+import sdftypes
+
 # Import NEON SIMD implementation when available
 when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
   import simd/sdneon

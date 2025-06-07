@@ -2,6 +2,8 @@ import std/math
 import pixie, vmath, chroma
 import nimsimd/hassimd, nimsimd/neon
 
+import ../sdftypes
+
 when defined(release):
   {.push checks: off.}
 
@@ -73,11 +75,6 @@ proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {
     min_max_q = vminq_f32(max_q, zero)
   
   result = vaddq_f32(vsubq_f32(vaddq_f32(min_max_q, length_vec), corner_radius), zero)
-
-type
-  SDFMode* = enum
-    sdfModeFeather
-    sdfModeClip
 
 proc signedRoundedBoxFeatherNeon*(
     image: Image,
