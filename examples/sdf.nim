@@ -78,12 +78,11 @@ proc main() =
   let corners = vec4(0.0, 10.0, 20.0, 30.0)
 
   timeIt:
-    let rect = newImage(300, 300)
-    let ctx = newContext(rect)
+    let ctx = newContext(image)
     ctx.fillStyle = pos
     ctx.fillRoundedRect(rect(center - center/2, vec2(200.0, 200.0)), 10.0)
 
-  rect.writeFile("tests/rounded_box_base.png")
+  image.writeFile("tests/rounded_box_base.png")
 
   when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
     echo "Using NEON SIMD implementation"
