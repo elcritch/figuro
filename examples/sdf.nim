@@ -42,6 +42,7 @@ proc signedRoundedBox*(
     r: Vec4,
     pos: ColorRGBA,
     neg: ColorRGBA,
+    factor: float32 = 4.0,
     mode: SDFMode = sdfModeFeatherInv
 ) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
@@ -59,9 +60,9 @@ proc signedRoundedBox*(
       of sdfModeClip:
         discard
       of sdfModeFeather:
-        c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+        c.a = uint8(max(0.0, min(255, (factor*sd) + 127)))
       of sdfModeFeatherInv:
-        c.a = 255 - uint8(max(0.0, min(255, (4*sd) + 127)))
+        c.a = 255 - uint8(max(0.0, min(255, (factor*sd) + 127)))
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
 
