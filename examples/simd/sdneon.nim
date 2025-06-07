@@ -12,20 +12,6 @@ when not compiles(vsqrtq_f32(float32x4(0.0))):
 when not compiles(vcvtq_u32_f32(float32x4(0.0))):
   func vcvtq_u32_f32*(a: float32x4): uint32x4 {.header: "arm_neon.h".}
 
-# Helper function for the sdRoundedBox calculation
-proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
-  ## Signed distance function for a rounded box
-  var cornerRadius = r
-  
-  # Select appropriate corner radius based on quadrant
-  cornerRadius.xy = if p.x > 0.0: r.xy else: r.zw
-  cornerRadius.x = if p.y > 0.0: cornerRadius.x else: cornerRadius.y
-  
-  # Calculate distance
-  let q = abs(p) - b + vec2(cornerRadius.x, cornerRadius.x)
-  
-  result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
-
 proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {.inline.} =
   ## SIMD version of signed distance function for rounded box
   ## Processes 4 pixels at once
