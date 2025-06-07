@@ -76,10 +76,10 @@ proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {
   
   result = vaddq_f32(vsubq_f32(vaddq_f32(min_max_q, length_vec), corner_radius), zero)
 
-proc signedRoundedBoxFeatherNeon*(
+proc signedRoundedBoxNeon*(
     image: Image,
     center: Vec2,
-    b: Vec2,
+    wh: Vec2,
     r: Vec4,
     pos: ColorRGBA, neg: ColorRGBA,
     mode: SDFMode = sdfModeFeather
@@ -93,8 +93,8 @@ proc signedRoundedBoxFeatherNeon*(
     neg_rgbx = neg.rgbx()
     center_x = center.x
     center_y = center.y
-    b_x = b.x
-    b_y = b.y
+    b_x = wh.x / 2.0
+    b_y = wh.y / 2.0
     four_vec = vmovq_n_f32(4.0)
     offset_vec = vmovq_n_f32(127.0)
     zero_vec = vmovq_n_f32(0.0)

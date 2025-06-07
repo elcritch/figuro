@@ -35,7 +35,7 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   
   result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
 
-proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, mode: SDFMode = sdfModeFeather) {.hasSimd, raises: [].} =
+proc signedRoundedBox*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, mode: SDFMode = sdfModeFeather) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
   ## p: point to test
   ## b: box half-extents (width/2, height/2)
@@ -87,20 +87,9 @@ proc main() =
 
   image.writeFile("tests/rounded_box_base.png")
 
-  when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
-    echo "Using NEON SIMD implementation"
-    timeIt:
-      signedRoundedBoxFeatherNeon(image,
-                    center = center,
-                    b = vec2(100.0, 100.0),
-                    r = corners,
-                    pos = pos,
-                    neg = neg,
-                    mode = sdfModeClip)
-  else:
-    echo "Using regular implementation"
-    timeIt:
-      signedRoundedBoxFeather(image,
+  echo "Using regular implementation"
+  timeIt:
+    signedRoundedBox(image,
                     center = center,
                     wh = vec2(100.0, 100.0),
                     r = corners,
@@ -110,20 +99,10 @@ proc main() =
 
   image.writeFile("tests/rounded_box.png")
 
-  when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
-    echo "Using NEON SIMD implementation for feather"
-    timeIt:
-      signedRoundedBoxFeatherNeon(image,
-                    center = center,
-                    b = vec2(100.0, 100.0),
-                    r = corners,
-                    pos = pos,
-                    neg = neg,
-                    mode = sdfModeFeather)
-  else:
-    echo "Using regular implementation for feather"
-    timeIt:
-      signedRoundedBoxFeather(image,
+
+  echo "Using regular implementation for feather"
+  timeIt:
+    signedRoundedBox(image,
                     center = center,
                     wh = vec2(100.0, 100.0),
                     r = corners,
