@@ -29,7 +29,7 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   
   result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
 
-proc signedRoundedBox*(image: Image, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
+proc signedRoundedBox*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
   ## p: point to test
   ## b: box half-extents (width/2, height/2)
@@ -37,18 +37,19 @@ proc signedRoundedBox*(image: Image, b: Vec2, r: Vec4, pos: ColorRGBA, neg: Colo
   ## Returns: signed distance (negative inside, positive outside)
   for y in 0 ..< image.height:
     for x in 0 ..< image.width:
-      let p = vec2(x.float32, y.float32)
+      let p = vec2(x.float32, y.float32) - center
       let sd = sdRoundedBox(p, b, r)
       let color = if sd < 0.0: pos else: neg
       let idx = image.dataIndex(x, y)
       image.data[idx] = color.rgbx()
 
 proc main() =
-  let image = newImage(100, 100)
+  let image = newImage(400, 400)
 
   signedRoundedBox(image,
-                    b = vec2(50.0, 50.0),
-                    r = vec4(10.0, 10.0, 10.0, 10.0),
+                    center = vec2(200.0, 200.0),
+                    b = vec2(100.0, 100.0),
+                    r = vec4(50.0, 50.0, 50.0, 50.0),
                     pos = rgba(255, 0, 0, 255),
                     neg = rgba(0, 0, 255, 255))
 
