@@ -53,7 +53,7 @@ proc signedRoundedBox*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: Color
       of sdfModeFeather:
         c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
       of sdfModeFeatherInv:
-        c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+        c.a = 255 - uint8(max(0.0, min(255, (4*sd) + 127)))
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
 
