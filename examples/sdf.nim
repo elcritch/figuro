@@ -4,8 +4,8 @@ import pixie, vmath, pixie/simd
 import sdftypes
 
 # Import NEON SIMD implementation when available
-# when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
-#   import simd/sdneon
+when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
+  import simd/sdneon
 
 proc invert*(image: Image) {.hasSimd, raises: [].} =
   ## Inverts all of the colors and alpha.
@@ -108,6 +108,16 @@ proc main() =
 
   image.writeFile("tests/rounded_box.png")
 
+  timeIt "feather":
+    signedRoundedBox(image,
+                    center = center,
+                    wh = wh,
+                    r = corners,
+                    pos = pos,
+                    neg = neg,
+                    mode = sdfModeFeather)
+
+  image.writeFile("tests/rounded_box_feather.png")
 
   timeIt "feather":
     signedRoundedBox(image,
@@ -118,7 +128,7 @@ proc main() =
                     neg = neg,
                     mode = sdfModeFeatherInv)
 
-  image.writeFile("tests/rounded_box_feather.png")
+  image.writeFile("tests/rounded_box_feather_inv.png")
 
 for i in 0 ..< 3:
   main()

@@ -82,6 +82,7 @@ proc signedRoundedBoxNeon*(
     wh: Vec2,
     r: Vec4,
     pos: ColorRGBA, neg: ColorRGBA,
+    factor: float32 = 4.0,
     mode: SDFMode = sdfModeFeather
 ) {.simd, raises: [].} =
   ## NEON SIMD optimized version of signedRoundedBoxFeather
@@ -95,7 +96,7 @@ proc signedRoundedBoxNeon*(
     center_y = center.y
     b_x = wh.x / 2.0
     b_y = wh.y / 2.0
-    four_vec = vmovq_n_f32(4.0)
+    four_vec = vmovq_n_f32(factor)
     offset_vec = vmovq_n_f32(127.0)
     zero_vec = vmovq_n_f32(0.0)
     f255_vec = vmovq_n_f32(255.0)
@@ -141,7 +142,7 @@ proc signedRoundedBoxNeon*(
 
       of sdfModeFeather:
         # Feathered mode: calculate alpha values using SIMD
-        # Calculate alpha values: uint8(max(0.0, min(255, (4*sd) + 127)))
+        # Calculate alpha values: uint8(max(0.0, min(255, (factor*sd) + 127)))
         let
           scaled_sd = vmulq_f32(sd_vec, four_vec)
           alpha_float = vaddq_f32(scaled_sd, offset_vec)
@@ -150,6 +151,34 @@ proc signedRoundedBoxNeon*(
         
         # Convert to uint8
         let alpha_u32 = vcvtq_u32_f32(alpha_clamped)
+        var alpha_array: array[4, uint32]
+        vst1q_u32(alpha_array[0].addr, alpha_u32)
+        
+        # Process only the actual pixels (not the padded ones)
+        for i in 0 ..< remainingPixels:
+          let
+            sd = sd_array[i]
+            base_color = if sd < 0.0: pos_rgbx else: neg_rgbx
+            alpha = alpha_array[i].uint8
+            idx = row_start + x + i
+          
+          var final_color = base_color
+          final_color.a = alpha
+          image.data[idx] = final_color
+
+      of sdfModeFeatherInv:
+        # Inverted feathered mode: calculate alpha values using SIMD then invert
+        # Calculate alpha values: 255 - uint8(max(0.0, min(255, (factor*sd) + 127)))
+        let
+          scaled_sd = vmulq_f32(sd_vec, four_vec)
+          alpha_float = vaddq_f32(scaled_sd, offset_vec)
+          alpha_clamped_low = vmaxq_f32(alpha_float, zero_vec)
+          alpha_clamped = vminq_f32(alpha_clamped_low, f255_vec)
+          # Invert alpha by subtracting from 255
+          alpha_inverted = vsubq_f32(f255_vec, alpha_clamped)
+        
+        # Convert to uint8
+        let alpha_u32 = vcvtq_u32_f32(alpha_inverted)
         var alpha_array: array[4, uint32]
         vst1q_u32(alpha_array[0].addr, alpha_u32)
         
