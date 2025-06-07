@@ -1,4 +1,4 @@
-import std/math
+import std/math, std/monotimes, std/times
 import pixie, vmath, pixie/simd
 
 proc invert*(image: Image) {.hasSimd, raises: [].} =
@@ -43,10 +43,32 @@ proc signedRoundedBox*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorR
       let idx = image.dataIndex(x, y)
       image.data[idx] = color.rgbx()
 
+proc signedRoundedBoxFeather*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
+  ## Signed distance function for a rounded box
+  ## p: point to test
+  ## b: box half-extents (width/2, height/2)
+  ## r: corner radii as Vec4 (x=top-right, y=bottom-right, z=bottom-left, w=top-left)
+  ## Returns: signed distance (negative inside, positive outside)
+  for y in 0 ..< image.height:
+    for x in 0 ..< image.width:
+      let p = vec2(x.float32, y.float32) - center
+      let sd = sdRoundedBox(p, b, r)
+      var color = if sd < 0.0: pos else: neg
+      color.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+      let idx = image.dataIndex(x, y)
+      image.data[idx] = color.rgbx()
+
+template timeIt(body: untyped) =
+  let start = getMonoTime()
+  body
+  let stop = getMonoTime()
+  echo "Time: ", inMilliseconds(stop - start)
+
 proc main() =
   let image = newImage(400, 400)
 
-  signedRoundedBox(image,
+  timeIt:
+    signedRoundedBox(image,
                     center = vec2(200.0, 200.0),
                     b = vec2(100.0, 100.0),
                     r = vec4(0.0, 20.0, 50.0, 70.0),
@@ -54,5 +76,14 @@ proc main() =
                     neg = rgba(0, 0, 255, 255))
 
   image.writeFile("tests/rounded_box.png")
+
+  timeIt:
+    signedRoundedBoxFeather(image,
+                    center = vec2(200.0, 200.0),
+                    b = vec2(100.0, 100.0),
+                    r = vec4(0.0, 20.0, 50.0, 70.0),
+                    pos = rgba(255, 0, 0, 255),
+                    neg = rgba(0, 0, 255, 255))
+  image.writeFile("tests/rounded_box_feather.png")
 
 main()
