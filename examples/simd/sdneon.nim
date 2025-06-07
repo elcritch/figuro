@@ -83,6 +83,7 @@ proc signedRoundedBoxNeon*(
     r: Vec4,
     pos: ColorRGBA, neg: ColorRGBA,
     factor: float32 = 4.0,
+    spread: float32 = 0.0,
     mode: SDFMode = sdfModeFeather
 ) {.simd, raises: [].} =
   ## NEON SIMD optimized version of signedRoundedBoxFeather
@@ -229,10 +230,65 @@ proc signedRoundedBoxNeon*(
           var final_color = base_color
           final_color.a = alpha
           image.data[idx] = final_color
-      
-      of sdfModeDropShadow:
-        discard
 
+      of sdfModeDropShadow:
+        # Drop shadow mode: transform sd and apply Gaussian with conditional alpha
+        # sd = sd / factor * s - spread / 8.8
+        # f = 1 / sqrt(2 * PI * s^2) * exp(-1 * sd^2 / (2 * s^2))
+        # alpha = if sd > 0.0: min(f * 255 * 6, 255) else: 255
+        const
+          s = 2.2'f32
+          s_squared = s * s
+          two_s_squared = 2.0'f32 * s_squared
+          gaussian_coeff = 1.0'f32 / sqrt(2.0'f32 * PI * s_squared)
+        
+        # Transform sd values using SIMD: sd = sd / factor * s - spread / 8.8
+        let
+          factor_vec = vmovq_n_f32(factor)
+          s_vec = vmovq_n_f32(s)
+          spread_offset = vmovq_n_f32(spread / 8.8'f32)
+          # Use multiplication by reciprocal instead of division
+          factor_reciprocal = vmovq_n_f32(1.0'f32 / factor)
+          transformed_sd = vsubq_f32(
+            vmulq_f32(vmulq_f32(sd_vec, factor_reciprocal), s_vec),
+            spread_offset
+          )
+        
+        # Calculate sd^2 using SIMD for all 4 pixels
+        let sd_squared = vmulq_f32(transformed_sd, transformed_sd)
+        
+        # Extract values for exponential calculation and conditional logic
+        var 
+          sd_squared_array: array[4, float32]
+          transformed_sd_array: array[4, float32]
+        vst1q_f32(sd_squared_array[0].addr, sd_squared)
+        vst1q_f32(transformed_sd_array[0].addr, transformed_sd)
+        
+        var alpha_array: array[4, uint8]
+        for i in 0 ..< 4:
+          let
+            transformed_sd_val = transformed_sd_array[i]
+            exp_val = exp(-1.0'f32 * sd_squared_array[i] / two_s_squared)
+            f = gaussian_coeff * exp_val
+          
+          if transformed_sd_val > 0.0'f32:
+            let alpha_val = min(f * 255.0'f32 * 6.0'f32, 255.0'f32)
+            alpha_array[i] = uint8(alpha_val)
+          else:
+            alpha_array[i] = 255'u8
+        
+        # Process only the actual pixels (not the padded ones)
+        for i in 0 ..< remainingPixels:
+          let
+            sd = sd_array[i]
+            base_color = if sd < 0.0: pos_rgbx else: neg_rgbx
+            alpha = alpha_array[i]
+            idx = row_start + x + i
+          
+          var final_color = base_color
+          final_color.a = alpha
+          image.data[idx] = final_color
+      
       x += remainingPixels
 
 when defined(release):
