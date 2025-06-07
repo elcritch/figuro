@@ -35,7 +35,15 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   
   result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
 
-proc signedRoundedBox*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, mode: SDFMode = sdfModeFeather) {.hasSimd, raises: [].} =
+proc signedRoundedBox*(
+    image: Image,
+    center: Vec2,
+    wh: Vec2,
+    r: Vec4,
+    pos: ColorRGBA,
+    neg: ColorRGBA,
+    mode: SDFMode = sdfModeFeatherInv
+) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
   ## p: point to test
   ## b: box half-extents (width/2, height/2)

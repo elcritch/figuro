@@ -14,7 +14,7 @@ when not compiles(vsqrtq_f32(float32x4(0.0))):
 when not compiles(vcvtq_u32_f32(float32x4(0.0))):
   func vcvtq_u32_f32*(a: float32x4): uint32x4 {.header: "arm_neon.h".}
 
-proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {.inline.} =
+proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {.inline, raises: [].} =
   ## SIMD version of signed distance function for rounded box
   ## Processes 4 pixels at once
   
@@ -83,7 +83,7 @@ proc signedRoundedBoxNeon*(
     r: Vec4,
     pos: ColorRGBA, neg: ColorRGBA,
     mode: SDFMode = sdfModeFeather
-) {.simd.} =
+) {.simd, raises: [].} =
   ## NEON SIMD optimized version of signedRoundedBoxFeather
   ## Processes pixels in chunks of 4 with padding for remaining pixels
   ## clip: if true, use solid colors without feathering based on SDF sign
