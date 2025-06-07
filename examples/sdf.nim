@@ -47,7 +47,6 @@ proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos
       case mode:
       of sdfModeClip:
         var c = if sd < 0.0: pos else: neg
-        c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
       of sdfModeFeather:
         var c = if sd < 0.0: pos else: neg
         c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
