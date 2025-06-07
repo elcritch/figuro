@@ -78,10 +78,21 @@ proc main() =
   let corners = vec4(0.0, 10.0, 20.0, 30.0)
   let wh = vec2(200.0, 200.0)
 
+  echo "Using NEON SIMD implementation"
   timeIt:
-    let ctx = newContext(image)
+    let rect = newImage(300, 300)
+    let ctx = newContext(rect)
     ctx.fillStyle = pos
-    ctx.fillRoundedRect(rect(center - wh/2, wh), 10.0)
+    ctx.fillRoundedRect(rect(center - wh/2, wh), 20.0)
+    let shadow = rect.shadow(
+      offset = vec2(0, 0),
+      spread = 10.0,
+      blur = 20.0,
+      color = neg
+      )
+    
+    image.draw(shadow)
+    image.draw(rect)
 
   image.writeFile("tests/rounded_box_base.png")
 
