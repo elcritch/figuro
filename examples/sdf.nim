@@ -69,13 +69,14 @@ template timeIt(body: untyped) =
   echo "Time: ", inMilliseconds(stop - start)
 
 proc main() =
-  let image = newImage(400, 400)
+  let image = newImage(300, 300)
+  let center = vec2(150.0, 150.0)
 
   when not defined(nosimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
     echo "Using NEON SIMD implementation"
     timeIt:
       signedRoundedBoxFeatherNeon(image,
-                    center = vec2(200.0, 200.0),
+                    center = center,
                     b = vec2(100.0, 100.0),
                     r = vec4(0.0, 20.0, 50.0, 70.0),
                     pos = rgba(255, 0, 0, 255),
@@ -84,7 +85,7 @@ proc main() =
     echo "Using regular implementation"
     timeIt:
       signedRoundedBox(image,
-                    center = vec2(200.0, 200.0),
+                    center = center,
                     b = vec2(100.0, 100.0),
                     r = vec4(0.0, 20.0, 50.0, 70.0),
                     pos = rgba(255, 0, 0, 255),
@@ -96,7 +97,7 @@ proc main() =
     echo "Using NEON SIMD implementation for feather"
     timeIt:
       signedRoundedBoxFeatherNeon(image,
-                    center = vec2(200.0, 200.0),
+                    center = center,
                     b = vec2(100.0, 100.0),
                     r = vec4(0.0, 20.0, 50.0, 70.0),
                     pos = rgba(255, 0, 0, 255),
@@ -105,7 +106,7 @@ proc main() =
     echo "Using regular implementation for feather"
     timeIt:
       signedRoundedBoxFeather(image,
-                    center = vec2(200.0, 200.0),
+                    center = center,
                     b = vec2(100.0, 100.0),
                     r = vec4(0.0, 20.0, 50.0, 70.0),
                     pos = rgba(255, 0, 0, 255),
