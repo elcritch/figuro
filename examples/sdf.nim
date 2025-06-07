@@ -4,8 +4,8 @@ import pixie, vmath, pixie/simd
 import sdftypes
 
 # Import NEON SIMD implementation when available
-when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
-  import simd/sdneon
+# when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
+#   import simd/sdneon
 
 proc invert*(image: Image) {.hasSimd, raises: [].} =
   ## Inverts all of the colors and alpha.
@@ -23,7 +23,6 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   ## b: box half-extents (width/2, height/2)
   ## r: corner radii as Vec4 (x=top-right, y=bottom-right, z=bottom-left, w=top-left)
   ## Returns: signed distance (negative inside, positive outside)
-  
   var cornerRadius = r
   
   # Select appropriate corner radius based on quadrant
@@ -63,6 +62,11 @@ proc signedRoundedBox*(
         c.a = uint8(max(0.0, min(255, (factor*sd) + 127)))
       of sdfModeFeatherInv:
         c.a = 255 - uint8(max(0.0, min(255, (factor*sd) + 127)))
+      of sdfModeFeatherGaussian:
+        c.a = 255 - uint8(max(0.0, min(255, (factor*sd) + 127)))
+        let
+          s = factor
+          a = 1 / sqrt(2 * PI * s^2) * exp(-1 * sd^2 / (2 * s^2))
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
 
@@ -119,7 +123,7 @@ proc main() =
 
   image.writeFile("tests/rounded_box_feather.png")
 
-  timeIt "feather":
+  timeIt "featherInv":
     signedRoundedBox(image,
                     center = center,
                     wh = wh,
@@ -129,6 +133,17 @@ proc main() =
                     mode = sdfModeFeatherInv)
 
   image.writeFile("tests/rounded_box_feather_inv.png")
+
+  timeIt "dropShadow":
+    signedRoundedBox(image,
+                    center = center,
+                    wh = wh,
+                    r = corners,
+                    pos = pos,
+                    neg = neg,
+                    mode = sdfModeFeatherGaussian)
+
+  image.writeFile("tests/rounded_box_feather_gaussian.png")
 
 for i in 0 ..< 3:
   main()
