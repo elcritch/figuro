@@ -4,8 +4,8 @@ import pixie, vmath, pixie/simd
 import sdftypes
 
 # Import NEON SIMD implementation when available
-when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
-  import simd/sdneon
+# when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
+#   import simd/sdneon
 
 proc invert*(image: Image) {.hasSimd, raises: [].} =
   ## Inverts all of the colors and alpha.
@@ -52,14 +52,16 @@ proc signedRoundedBox*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: Color
         discard
       of sdfModeFeather:
         c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+      of sdfModeFeatherInv:
+        c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
 
-template timeIt(body: untyped) =
+template timeIt(name: string, body: untyped) =
   let start = getMonoTime()
   body
   let stop = getMonoTime()
-  echo "Time: ", inMilliseconds(stop - start), " ms"
+  echo name, ": ", inMilliseconds(stop - start), " ms"
 
 proc main() =
   let image = newImage(300, 300)
@@ -69,8 +71,7 @@ proc main() =
   let corners = vec4(0.0, 10.0, 20.0, 30.0)
   let wh = vec2(200.0, 200.0)
 
-  echo "Using NEON SIMD implementation"
-  timeIt:
+  timeIt "base":
     let rect = newImage(300, 300)
     let ctx = newContext(rect)
     ctx.fillStyle = pos
@@ -87,8 +88,7 @@ proc main() =
 
   image.writeFile("tests/rounded_box_base.png")
 
-  echo "Using regular implementation"
-  timeIt:
+  timeIt "clip":
     signedRoundedBox(image,
                     center = center,
                     wh = wh,
@@ -100,15 +100,14 @@ proc main() =
   image.writeFile("tests/rounded_box.png")
 
 
-  echo "Using regular implementation for feather"
-  timeIt:
+  timeIt "feather":
     signedRoundedBox(image,
                     center = center,
                     wh = wh,
                     r = corners,
                     pos = pos,
                     neg = neg,
-                    mode = sdfModeFeather)
+                    mode = sdfModeFeatherInv)
 
   image.writeFile("tests/rounded_box_feather.png")
 
