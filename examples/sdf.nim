@@ -74,9 +74,9 @@ proc signedRoundedBox*(
         # let sd = sd / factor - spread / 2
         let s = 2.2
         # let sd = sd - factor/4
-        let sd = sd / factor * s
+        let sd = sd / factor * s - spread / 8.8
         let f = 1 / sqrt(2 * PI * s^2) * exp(-1 * sd^2 / (2 * s^2))
-        c.a = if sd > 0.0: uint8(f * 255 * 2.5) else: 255
+        c.a = if sd > 0.0: uint8(min(f * 255 * 6, 255)) else: 255
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
 
@@ -91,7 +91,7 @@ proc main() =
   let center = vec2(150.0, 150.0)
   let pos = rgba(255, 0, 0, 255)
   let neg = rgba(0, 0, 255, 255)
-  let corners = vec4(0.0, 10.0, 20.0, 30.0)
+  let corners = vec4(0.0, 20.0, 40.0, 80.0)
   let wh = vec2(200.0, 200.0)
 
   timeIt "base":
@@ -101,8 +101,8 @@ proc main() =
     ctx.fillRoundedRect(rect(center - wh/2, wh), 20.0)
     let shadow = rect.shadow(
       offset = vec2(0, 0),
-      spread = 10.0,
-      blur = 20.0,
+      spread = 20.0,
+      blur = 10.0,
       color = neg
       )
     
@@ -162,8 +162,8 @@ proc main() =
                     r = corners,
                     pos = pos,
                     neg = neg,
-                    factor = 20,
-                    spread = 10.0,
+                    factor = 10,
+                    spread = 20.0,
                     mode = sdfModeDropShadow)
 
   image.writeFile("tests/rounded_box_drop_shadow.png")
