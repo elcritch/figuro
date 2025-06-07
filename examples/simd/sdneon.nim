@@ -74,7 +74,19 @@ proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {
   
   result = vaddq_f32(vsubq_f32(vaddq_f32(min_max_q, length_vec), corner_radius), zero)
 
-proc signedRoundedBoxFeatherNeon*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, clip: bool = false) {.simd.} =
+type
+  SDFMode* = enum
+    sdfModeFeather
+    sdfModeClip
+
+proc signedRoundedBoxFeatherNeon*(
+    image: Image,
+    center: Vec2,
+    b: Vec2,
+    r: Vec4,
+    pos: ColorRGBA, neg: ColorRGBA,
+    mode: SDFMode = sdfModeFeather
+) {.simd.} =
   ## NEON SIMD optimized version of signedRoundedBoxFeather
   ## Processes pixels in chunks of 4 with padding for remaining pixels
   ## clip: if true, use solid colors without feathering based on SDF sign
@@ -119,7 +131,8 @@ proc signedRoundedBoxFeatherNeon*(image: Image, center: Vec2, b: Vec2, r: Vec4, 
       var sd_array: array[4, float32]
       vst1q_f32(sd_array[0].addr, sd_vec)
       
-      if clip:
+      case mode:
+      of sdfModeClip:
         # Clipped mode: use solid colors based on SDF sign
         for i in 0 ..< remainingPixels:
           let
@@ -128,7 +141,8 @@ proc signedRoundedBoxFeatherNeon*(image: Image, center: Vec2, b: Vec2, r: Vec4, 
             idx = row_start + x + i
           
           image.data[idx] = final_color
-      else:
+
+      of sdfModeFeather:
         # Feathered mode: calculate alpha values using SIMD
         # Calculate alpha values: uint8(max(0.0, min(255, (4*sd) + 127)))
         let

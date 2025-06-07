@@ -33,7 +33,7 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   
   result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
 
-proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, clip: bool = false) {.hasSimd, raises: [].} =
+proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, mode: SDFMode = sdfModeFeather) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
   ## p: point to test
   ## b: box half-extents (width/2, height/2)
@@ -44,14 +44,15 @@ proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos
     for x in 0 ..< image.width:
       let p = vec2(x.float32, y.float32) - center
       let sd = sdRoundedBox(p, b, r)
-      if clip:
-        var color = if sd < 0.0: pos else: neg
-        color.a = uint8(max(0.0, min(255, (4*sd) + 127)))
-      else:
-        var color = if sd < 0.0: pos else: neg
-        color.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+      case mode:
+      of sdfModeClip:
+        var c = if sd < 0.0: pos else: neg
+        c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+      of sdfModeFeather:
+        var c = if sd < 0.0: pos else: neg
+        c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
       let idx = image.dataIndex(x, y)
-      image.data[idx] = color.rgbx()
+      image.data[idx] = c.rgbx()
 
 template timeIt(body: untyped) =
   let start = getMonoTime()
@@ -94,7 +95,7 @@ proc main() =
                     r = corners,
                     pos = pos,
                     neg = neg,
-                    clip = true)
+                    mode = sdfModeClip)
   else:
     echo "Using regular implementation"
     timeIt:
@@ -103,7 +104,8 @@ proc main() =
                     wh = vec2(100.0, 100.0),
                     r = corners,
                     pos = pos,
-                    neg = neg)
+                    neg = neg,
+                    mode = sdfModeFeather)
 
   image.writeFile("tests/rounded_box.png")
 
@@ -115,7 +117,8 @@ proc main() =
                     b = vec2(100.0, 100.0),
                     r = corners,
                     pos = pos,
-                    neg = neg)
+                    neg = neg,
+                    mode = sdfModeFeather)
   else:
     echo "Using regular implementation for feather"
     timeIt:
@@ -124,7 +127,8 @@ proc main() =
                     wh = vec2(100.0, 100.0),
                     r = corners,
                     pos = pos,
-                    neg = neg)
+                    neg = neg,
+                    mode = sdfModeFeather)
 
   image.writeFile("tests/rounded_box_feather.png")
 
