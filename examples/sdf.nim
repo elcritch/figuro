@@ -76,11 +76,12 @@ proc main() =
   let pos = rgba(255, 0, 0, 255)
   let neg = rgba(0, 0, 255, 255)
   let corners = vec4(0.0, 10.0, 20.0, 30.0)
+  let wh = vec2(200.0, 200.0)
 
   timeIt:
     let ctx = newContext(image)
     ctx.fillStyle = pos
-    ctx.fillRoundedRect(rect(center - center/2, vec2(200.0, 200.0)), 10.0)
+    ctx.fillRoundedRect(rect(center - wh/2, wh), 10.0)
 
   image.writeFile("tests/rounded_box_base.png")
 
