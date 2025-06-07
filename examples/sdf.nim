@@ -91,11 +91,11 @@ proc main() =
   timeIt:
     signedRoundedBox(image,
                     center = center,
-                    wh = vec2(100.0, 100.0),
+                    wh = wh,
                     r = corners,
                     pos = pos,
                     neg = neg,
-                    mode = sdfModeFeather)
+                    mode = sdfModeClip)
 
   image.writeFile("tests/rounded_box.png")
 
@@ -104,7 +104,7 @@ proc main() =
   timeIt:
     signedRoundedBox(image,
                     center = center,
-                    wh = vec2(100.0, 100.0),
+                    wh = wh,
                     r = corners,
                     pos = pos,
                     neg = neg,
