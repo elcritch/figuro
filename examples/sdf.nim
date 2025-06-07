@@ -2,7 +2,7 @@ import std/math, std/monotimes, std/times
 import pixie, vmath, pixie/simd
 
 # Import NEON SIMD implementation when available
-when defined(arm) or defined(arm64) or defined(aarch64):
+when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
   import simd/sdneon
 
 proc invert*(image: Image) {.hasSimd, raises: [].} =
@@ -33,7 +33,7 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   
   result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
 
-proc signedRoundedBox*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
+proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, clip: bool = false) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
   ## p: point to test
   ## b: box half-extents (width/2, height/2)
@@ -44,23 +44,12 @@ proc signedRoundedBox*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: Color
     for x in 0 ..< image.width:
       let p = vec2(x.float32, y.float32) - center
       let sd = sdRoundedBox(p, b, r)
-      let color = if sd < 0.0: pos else: neg
-      let idx = image.dataIndex(x, y)
-      image.data[idx] = color.rgbx()
-
-proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
-  ## Signed distance function for a rounded box
-  ## p: point to test
-  ## b: box half-extents (width/2, height/2)
-  ## r: corner radii as Vec4 (x=top-right, y=bottom-right, z=bottom-left, w=top-left)
-  ## Returns: signed distance (negative inside, positive outside)
-  let b = wh / 2.0
-  for y in 0 ..< image.height:
-    for x in 0 ..< image.width:
-      let p = vec2(x.float32, y.float32) - center
-      let sd = sdRoundedBox(p, b, r)
-      var color = if sd < 0.0: pos else: neg
-      color.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+      if clip:
+        var color = if sd < 0.0: pos else: neg
+        color.a = uint8(max(0.0, min(255, (4*sd) + 127)))
+      else:
+        var color = if sd < 0.0: pos else: neg
+        color.a = uint8(max(0.0, min(255, (4*sd) + 127)))
       let idx = image.dataIndex(x, y)
       image.data[idx] = color.rgbx()
 
@@ -139,5 +128,5 @@ proc main() =
 
   image.writeFile("tests/rounded_box_feather.png")
 
-for i in 0 ..< 1:
+for i in 0 ..< 3:
   main()
