@@ -46,11 +46,11 @@ proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos
     for x in 0 ..< image.width:
       let p = vec2(x.float32, y.float32) - center
       let sd = sdRoundedBox(p, b, r)
+      var c: ColorRGBA = if sd < 0.0: pos else: neg
       case mode:
       of sdfModeClip:
-        var c = if sd < 0.0: pos else: neg
+        discard
       of sdfModeFeather:
-        var c = if sd < 0.0: pos else: neg
         c.a = uint8(max(0.0, min(255, (4*sd) + 127)))
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
@@ -100,7 +100,7 @@ proc main() =
   else:
     echo "Using regular implementation"
     timeIt:
-      signedRoundedBox(image,
+      signedRoundedBoxFeather(image,
                     center = center,
                     wh = vec2(100.0, 100.0),
                     r = corners,
