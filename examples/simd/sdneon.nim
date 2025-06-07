@@ -193,7 +193,46 @@ proc signedRoundedBoxNeon*(
           var final_color = base_color
           final_color.a = alpha
           image.data[idx] = final_color
+
+      of sdfModeFeatherGaussian:
+        # Gaussian feathered mode: calculate Gaussian alpha values
+        # f = 1 / sqrt(2 * PI * s^2) * exp(-1 * sd^2 / (2 * s^2))
+        const
+          s = 2.2'f32
+          s_squared = s * s
+          two_s_squared = 2.0'f32 * s_squared
+          gaussian_coeff = 1.0'f32 / sqrt(2.0'f32 * PI * s_squared)
+        
+        # Calculate sd^2 using SIMD for all 4 pixels
+        let sd_squared = vmulq_f32(sd_vec, sd_vec)
+        
+        # Extract values for exponential calculation (no efficient SIMD exp available)
+        var sd_squared_array: array[4, float32]
+        vst1q_f32(sd_squared_array[0].addr, sd_squared)
+        
+        var alpha_array: array[4, uint8]
+        for i in 0 ..< 4:
+          let
+            exp_val = exp(-1.0'f32 * sd_squared_array[i] / two_s_squared)
+            f = gaussian_coeff * exp_val
+            alpha_val = f * 255.0'f32
+          alpha_array[i] = uint8(min(255.0'f32, max(0.0'f32, alpha_val)))
+        
+        # Process only the actual pixels (not the padded ones)
+        for i in 0 ..< remainingPixels:
+          let
+            sd = sd_array[i]
+            base_color = if sd < 0.0: pos_rgbx else: neg_rgbx
+            alpha = alpha_array[i]
+            idx = row_start + x + i
+          
+          var final_color = base_color
+          final_color.a = alpha
+          image.data[idx] = final_color
       
+      of sdfModeDropShadow:
+        discard
+
       x += remainingPixels
 
 when defined(release):
