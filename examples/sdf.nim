@@ -33,12 +33,13 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   
   result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
 
-proc signedRoundedBox*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
+proc signedRoundedBox*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
   ## p: point to test
   ## b: box half-extents (width/2, height/2)
   ## r: corner radii as Vec4 (x=top-right, y=bottom-right, z=bottom-left, w=top-left)
   ## Returns: signed distance (negative inside, positive outside)
+  let b = wh / 2.0
   for y in 0 ..< image.height:
     for x in 0 ..< image.width:
       let p = vec2(x.float32, y.float32) - center
@@ -47,12 +48,13 @@ proc signedRoundedBox*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorR
       let idx = image.dataIndex(x, y)
       image.data[idx] = color.rgbx()
 
-proc signedRoundedBoxFeather*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
+proc signedRoundedBoxFeather*(image: Image, center: Vec2, wh: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
   ## p: point to test
   ## b: box half-extents (width/2, height/2)
   ## r: corner radii as Vec4 (x=top-right, y=bottom-right, z=bottom-left, w=top-left)
   ## Returns: signed distance (negative inside, positive outside)
+  let b = wh / 2.0
   for y in 0 ..< image.height:
     for x in 0 ..< image.width:
       let p = vec2(x.float32, y.float32) - center
@@ -71,46 +73,57 @@ template timeIt(body: untyped) =
 proc main() =
   let image = newImage(300, 300)
   let center = vec2(150.0, 150.0)
+  let pos = rgba(255, 0, 0, 255)
+  let neg = rgba(0, 0, 255, 255)
+  let corners = vec4(0.0, 10.0, 20.0, 30.0)
 
-  when not defined(nosimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
+  timeIt:
+    let rect = newImage(300, 300)
+    let ctx = newContext(rect)
+    ctx.fillStyle = pos
+    ctx.fillRoundedRect(rect(center - center/2, vec2(200.0, 200.0)), 10.0)
+
+  rect.writeFile("tests/rounded_box_base.png")
+
+  when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
     echo "Using NEON SIMD implementation"
     timeIt:
       signedRoundedBoxFeatherNeon(image,
                     center = center,
                     b = vec2(100.0, 100.0),
-                    r = vec4(0.0, 20.0, 50.0, 70.0),
-                    pos = rgba(255, 0, 0, 255),
-                    neg = rgba(0, 0, 255, 255))
+                    r = corners,
+                    pos = pos,
+                    neg = neg)
   else:
     echo "Using regular implementation"
     timeIt:
       signedRoundedBox(image,
                     center = center,
-                    b = vec2(100.0, 100.0),
-                    r = vec4(0.0, 20.0, 50.0, 70.0),
-                    pos = rgba(255, 0, 0, 255),
-                    neg = rgba(0, 0, 255, 255))
+                    wh = vec2(100.0, 100.0),
+                    r = corners,
+                    pos = pos,
+                    neg = neg)
 
   image.writeFile("tests/rounded_box.png")
 
-  when not defined(nosimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
+  when not defined(pixieNoSimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
     echo "Using NEON SIMD implementation for feather"
     timeIt:
       signedRoundedBoxFeatherNeon(image,
                     center = center,
                     b = vec2(100.0, 100.0),
-                    r = vec4(0.0, 20.0, 50.0, 70.0),
-                    pos = rgba(255, 0, 0, 255),
-                    neg = rgba(0, 0, 255, 255))
+                    r = corners,
+                    pos = pos,
+                    neg = neg)
   else:
     echo "Using regular implementation for feather"
     timeIt:
       signedRoundedBoxFeather(image,
                     center = center,
-                    b = vec2(100.0, 100.0),
-                    r = vec4(0.0, 20.0, 50.0, 70.0),
-                    pos = rgba(255, 0, 0, 255),
-                    neg = rgba(0, 0, 255, 255))
+                    wh = vec2(100.0, 100.0),
+                    r = corners,
+                    pos = pos,
+                    neg = neg)
 
   image.writeFile("tests/rounded_box_feather.png")
 
