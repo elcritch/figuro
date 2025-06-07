@@ -52,8 +52,6 @@ proc signedRoundedBox*(
   ## Returns: signed distance (negative inside, positive outside)
   let
     b = wh / 2.0
-    s = factor / 2.2
-    s2 = 2 * s^2
 
   for y in 0 ..< image.height:
     for x in 0 ..< image.width:
@@ -68,13 +66,17 @@ proc signedRoundedBox*(
       of sdfModeFeatherInv:
         c.a = 255 - uint8(max(0.0, min(255, (factor*sd) + 127)))
       of sdfModeFeatherGaussian:
-        let sd = sd / factor
-        let f = 1 / sqrt(PI * s2) * exp(-1 * sd^2 / s2)
+        let sd = sd
+        let s = 2.2
+        let f = 1 / sqrt(2 * PI * s^2) * exp(-1 * sd^2 / (2 * s^2))
         c.a = uint8(f * 255)
       of sdfModeDropShadow:
-        let sd = sd / factor - spread / 2
-        let f = 1 / sqrt(PI * s2) * exp(-1 * sd^2 / s2)
-        c.a = if sd >= 0.0: uint8(f * 255) else: 255
+        # let sd = sd / factor - spread / 2
+        let s = 2.2
+        # let sd = sd - factor/4
+        let sd = sd / factor * s
+        let f = 1 / sqrt(2 * PI * s^2) * exp(-1 * sd^2 / (2 * s^2))
+        c.a = if sd > 0.0: uint8(f * 255 * 2.5) else: 255
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
 
