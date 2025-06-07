@@ -41,7 +41,7 @@ proc signedRoundedBox*(
     r: Vec4,
     pos: ColorRGBA,
     neg: ColorRGBA,
-    factor: float32 = 4.0,
+    factor: float32 = 2.2,
     mode: SDFMode = sdfModeFeatherInv
 ) {.hasSimd, raises: [].} =
   ## Signed distance function for a rounded box
@@ -49,7 +49,11 @@ proc signedRoundedBox*(
   ## b: box half-extents (width/2, height/2)
   ## r: corner radii as Vec4 (x=top-right, y=bottom-right, z=bottom-left, w=top-left)
   ## Returns: signed distance (negative inside, positive outside)
-  let b = wh / 2.0
+  let
+    b = wh / 2.0
+    s = 2.2
+    s2 = 2 * s^2
+
   for y in 0 ..< image.height:
     for x in 0 ..< image.width:
       let p = vec2(x.float32, y.float32) - center
@@ -63,10 +67,9 @@ proc signedRoundedBox*(
       of sdfModeFeatherInv:
         c.a = 255 - uint8(max(0.0, min(255, (factor*sd) + 127)))
       of sdfModeFeatherGaussian:
-        c.a = 255 - uint8(max(0.0, min(255, (factor*sd) + 127)))
-        let
-          s = factor
-          a = 1 / sqrt(2 * PI * s^2) * exp(-1 * sd^2 / (2 * s^2))
+        let sd = sd / factor
+        let f = 1 / sqrt(PI * s2) * exp(-1 * sd^2 / s2)
+        c.a = uint8(f * 255)
       let idx = image.dataIndex(x, y)
       image.data[idx] = c.rgbx()
 
@@ -91,7 +94,7 @@ proc main() =
     ctx.fillRoundedRect(rect(center - wh/2, wh), 20.0)
     let shadow = rect.shadow(
       offset = vec2(0, 0),
-      spread = 10.0,
+      spread = 0.0,
       blur = 20.0,
       color = neg
       )
@@ -134,7 +137,7 @@ proc main() =
 
   image.writeFile("tests/rounded_box_feather_inv.png")
 
-  timeIt "dropShadow":
+  timeIt "featherGaussian":
     signedRoundedBox(image,
                     center = center,
                     wh = wh,
