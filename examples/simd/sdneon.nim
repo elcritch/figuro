@@ -26,7 +26,7 @@ proc sdRoundedBox*(p: Vec2, b: Vec2, r: Vec4): float32 {.inline.} =
   
   result = min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0, 0.0))) - cornerRadius.x
 
-proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 =
+proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {.inline.} =
   ## SIMD version of signed distance function for rounded box
   ## Processes 4 pixels at once
   

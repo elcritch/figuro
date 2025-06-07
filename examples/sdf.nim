@@ -68,7 +68,7 @@ template timeIt(body: untyped) =
   let start = getMonoTime()
   body
   let stop = getMonoTime()
-  echo "Time: ", inMilliseconds(stop - start)
+  echo "Time: ", inMilliseconds(stop - start), " ms"
 
 proc main() =
   let image = newImage(300, 300)
@@ -138,4 +138,5 @@ proc main() =
 
   image.writeFile("tests/rounded_box_feather.png")
 
-main()
+for i in 0 ..< 20:
+  main()
