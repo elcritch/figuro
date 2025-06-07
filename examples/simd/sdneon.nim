@@ -88,9 +88,10 @@ proc sdRoundedBoxSimd*(px, py: float32x4, bx, by: float32, r: Vec4): float32x4 {
   
   result = vaddq_f32(vsubq_f32(vaddq_f32(min_max_q, length_vec), corner_radius), zero)
 
-proc signedRoundedBoxFeatherNeon*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA) {.simd.} =
+proc signedRoundedBoxFeatherNeon*(image: Image, center: Vec2, b: Vec2, r: Vec4, pos: ColorRGBA, neg: ColorRGBA, clip: bool = false) {.simd.} =
   ## NEON SIMD optimized version of signedRoundedBoxFeather
   ## Processes pixels in chunks of 4 with padding for remaining pixels
+  ## clip: if true, use solid colors without feathering based on SDF sign
   
   let
     pos_rgbx = pos.rgbx()
@@ -132,29 +133,40 @@ proc signedRoundedBoxFeatherNeon*(image: Image, center: Vec2, b: Vec2, r: Vec4, 
       var sd_array: array[4, float32]
       vst1q_f32(sd_array[0].addr, sd_vec)
       
-      # Calculate alpha values: uint8(max(0.0, min(255, (4*sd) + 127)))
-      let
-        scaled_sd = vmulq_f32(sd_vec, four_vec)
-        alpha_float = vaddq_f32(scaled_sd, offset_vec)
-        alpha_clamped_low = vmaxq_f32(alpha_float, zero_vec)
-        alpha_clamped = vminq_f32(alpha_clamped_low, f255_vec)
-      
-      # Convert to uint8
-      let alpha_u32 = vcvtq_u32_f32(alpha_clamped)
-      var alpha_array: array[4, uint32]
-      vst1q_u32(alpha_array[0].addr, alpha_u32)
-      
-      # Process only the actual pixels (not the padded ones)
-      for i in 0 ..< remainingPixels:
+      if clip:
+        # Clipped mode: use solid colors based on SDF sign
+        for i in 0 ..< remainingPixels:
+          let
+            sd = sd_array[i]
+            final_color = if sd < 0.0: pos_rgbx else: neg_rgbx
+            idx = row_start + x + i
+          
+          image.data[idx] = final_color
+      else:
+        # Feathered mode: calculate alpha values using SIMD
+        # Calculate alpha values: uint8(max(0.0, min(255, (4*sd) + 127)))
         let
-          sd = sd_array[i]
-          base_color = if sd < 0.0: pos_rgbx else: neg_rgbx
-          alpha = alpha_array[i].uint8
-          idx = row_start + x + i
+          scaled_sd = vmulq_f32(sd_vec, four_vec)
+          alpha_float = vaddq_f32(scaled_sd, offset_vec)
+          alpha_clamped_low = vmaxq_f32(alpha_float, zero_vec)
+          alpha_clamped = vminq_f32(alpha_clamped_low, f255_vec)
         
-        var final_color = base_color
-        final_color.a = alpha
-        image.data[idx] = final_color
+        # Convert to uint8
+        let alpha_u32 = vcvtq_u32_f32(alpha_clamped)
+        var alpha_array: array[4, uint32]
+        vst1q_u32(alpha_array[0].addr, alpha_u32)
+        
+        # Process only the actual pixels (not the padded ones)
+        for i in 0 ..< remainingPixels:
+          let
+            sd = sd_array[i]
+            base_color = if sd < 0.0: pos_rgbx else: neg_rgbx
+            alpha = alpha_array[i].uint8
+            idx = row_start + x + i
+          
+          var final_color = base_color
+          final_color.a = alpha
+          image.data[idx] = final_color
       
       x += remainingPixels
 

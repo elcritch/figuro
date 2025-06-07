@@ -104,7 +104,8 @@ proc main() =
                     b = vec2(100.0, 100.0),
                     r = corners,
                     pos = pos,
-                    neg = neg)
+                    neg = neg,
+                    clip = true)
   else:
     echo "Using regular implementation"
     timeIt:
@@ -138,5 +139,5 @@ proc main() =
 
   image.writeFile("tests/rounded_box_feather.png")
 
-for i in 0 ..< 20:
+for i in 0 ..< 1:
   main()

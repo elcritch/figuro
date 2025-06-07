@@ -14,6 +14,7 @@ proc main() =
     height = 400
     image1 = newImage(width, height)
     image2 = newImage(width, height)
+    image3 = newImage(width, height)  # For clipped version
     center = vec2(200.0, 200.0)
     b = vec2(100.0, 100.0)
     r = vec4(0.0, 20.0, 50.0, 70.0)
@@ -34,12 +35,16 @@ proc main() =
         let idx = image1.dataIndex(x, y)
         image1.data[idx] = color.rgbx()
 
-  # Test NEON SIMD implementation
-  timeIt("NEON SIMD implementation"):
-    signedRoundedBoxFeatherNeon(image2, center, b, r, pos, neg)
+  # Test NEON SIMD implementation (feathered)
+  timeIt("NEON SIMD implementation (feathered)"):
+    signedRoundedBoxFeatherNeon(image2, center, b, r, pos, neg, clip = false)
 
-  # Verify correctness by comparing a few sample pixels
-  echo "\nVerifying correctness:"
+  # Test NEON SIMD implementation (clipped)
+  timeIt("NEON SIMD implementation (clipped)"):
+    signedRoundedBoxFeatherNeon(image3, center, b, r, pos, neg, clip = true)
+
+  # Verify correctness by comparing feathered versions
+  echo "\nVerifying feathered correctness:"
   var differences = 0
   var maxDifference = 0
 
@@ -62,16 +67,35 @@ proc main() =
           echo "Difference at (", x, ",", y, "): Regular=(", pixel1.r, ",", pixel1.g, ",", pixel1.b, ",", pixel1.a, 
                ") SIMD=(", pixel2.r, ",", pixel2.g, ",", pixel2.b, ",", pixel2.a, ") diff=", diff
 
-  echo "Total differences in sample: ", differences, "/", min(height, 10) * min(width, 10)
+  echo "Total differences in feathered sample: ", differences, "/", min(height, 10) * min(width, 10)
   echo "Max difference: ", maxDifference
+
+  # Verify clipped version has solid colors
+  echo "\nVerifying clipped version:"
+  var solidColors = 0
+  for y in 0 ..< min(height, 20):
+    for x in 0 ..< min(width, 20):
+      let 
+        idx = image3.dataIndex(x, y)
+        pixel = image3.data[idx]
+      
+      if (pixel.r == pos.r and pixel.g == pos.g and pixel.b == pos.b and pixel.a == pos.a) or
+         (pixel.r == neg.r and pixel.g == neg.g and pixel.b == neg.b and pixel.a == neg.a):
+        solidColors += 1
+
+  echo "Solid color pixels in clipped version: ", solidColors, "/", min(height, 20) * min(width, 20)
   
   # Save test images
   image1.writeFile("test_regular.png")
-  image2.writeFile("test_simd.png")
-  echo "\nImages saved as test_regular.png and test_simd.png"
+  image2.writeFile("test_simd_feathered.png")
+  image3.writeFile("test_simd_clipped.png")
+  echo "\nImages saved as:"
+  echo "  test_regular.png (reference)"
+  echo "  test_simd_feathered.png (SIMD with feathering)"
+  echo "  test_simd_clipped.png (SIMD clipped to solid colors)"
   
   if differences == 0:
-    echo "✓ Perfect match - SIMD implementation is correct!"
+    echo "✓ Perfect match - SIMD feathered implementation is correct!"
   elif maxDifference <= 1:
     echo "✓ Very close match - minor rounding differences acceptable"
   else:
