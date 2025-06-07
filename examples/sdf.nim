@@ -1,6 +1,10 @@
 import std/math, std/monotimes, std/times
 import pixie, vmath, pixie/simd
 
+# Import NEON SIMD implementation when available
+when defined(arm) or defined(arm64) or defined(aarch64):
+  import simd/sdneon
+
 proc invert*(image: Image) {.hasSimd, raises: [].} =
   ## Inverts all of the colors and alpha.
   for i in 0 ..< image.data.len:
@@ -67,8 +71,19 @@ template timeIt(body: untyped) =
 proc main() =
   let image = newImage(400, 400)
 
-  timeIt:
-    signedRoundedBox(image,
+  when not defined(nosimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
+    echo "Using NEON SIMD implementation"
+    timeIt:
+      signedRoundedBoxFeatherNeon(image,
+                    center = vec2(200.0, 200.0),
+                    b = vec2(100.0, 100.0),
+                    r = vec4(0.0, 20.0, 50.0, 70.0),
+                    pos = rgba(255, 0, 0, 255),
+                    neg = rgba(0, 0, 255, 255))
+  else:
+    echo "Using regular implementation"
+    timeIt:
+      signedRoundedBox(image,
                     center = vec2(200.0, 200.0),
                     b = vec2(100.0, 100.0),
                     r = vec4(0.0, 20.0, 50.0, 70.0),
@@ -77,13 +92,25 @@ proc main() =
 
   image.writeFile("tests/rounded_box.png")
 
-  timeIt:
-    signedRoundedBoxFeather(image,
+  when not defined(nosimd) and (defined(arm) or defined(arm64) or defined(aarch64)):
+    echo "Using NEON SIMD implementation for feather"
+    timeIt:
+      signedRoundedBoxFeatherNeon(image,
                     center = vec2(200.0, 200.0),
                     b = vec2(100.0, 100.0),
                     r = vec4(0.0, 20.0, 50.0, 70.0),
                     pos = rgba(255, 0, 0, 255),
                     neg = rgba(0, 0, 255, 255))
+  else:
+    echo "Using regular implementation for feather"
+    timeIt:
+      signedRoundedBoxFeather(image,
+                    center = vec2(200.0, 200.0),
+                    b = vec2(100.0, 100.0),
+                    r = vec4(0.0, 20.0, 50.0, 70.0),
+                    pos = rgba(255, 0, 0, 255),
+                    neg = rgba(0, 0, 255, 255))
+
   image.writeFile("tests/rounded_box_feather.png")
 
 main()
