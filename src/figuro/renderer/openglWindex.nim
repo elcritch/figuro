@@ -4,21 +4,19 @@ import std/terminal
 import pkg/pixie
 import pkg/opengl
 import pkg/windex
+import pkg/chronicles
 
-import opengl/glutils
-import opengl/glcommons
-import opengl/renderer
+import ./utils/glutils
 
 import ../common/nodes/uinodes
 import ../common/rchannels
 import ../common/wincfgs
+import ../common/shared
 
-import pkg/sigils/weakrefs
-import pkg/chronicles
+import ./utils/baserenderer
 
 export AppFrame
 
-# import ../patches/textboxes
 var
   cursorDefault*: Cursor
   cursorPointer*: Cursor
@@ -31,7 +29,7 @@ when defined(glDebugMessageCallback):
 proc convertStyle*(fs: FrameStyle): WindowStyle
 
 type
-  RendererWindex* = ref object of Renderer
+  WindexWindow* = ref object of RendererWindow
     window: Window
 
 proc setupWindow*(
@@ -59,18 +57,16 @@ proc setupWindow*(
   window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
-proc newWindexRenderer*(
+proc newWindexWindow*(
     frame: WeakRef[AppFrame],
-    forcePixelScale: float32,
-    atlasSize: int,
-): RendererWindex =
+): WindexWindow =
   let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
-  result = RendererWindex(window: window, frame: frame)
+  result = WindexWindow(window: window, frame: frame)
   startOpenGL(openglVersion)
 
   setupWindow(frame, window)
 
-  configureRenderer(result, frame, forcePixelScale, atlasSize)
+  configureBaseWindow(result)
 
 proc convertStyle*(fs: FrameStyle): WindowStyle =
   case fs
@@ -102,13 +98,13 @@ proc toKey(wbtn: windex.ButtonView): set[UiKey] =
     if toKey(kb, value):
       result.incl value
 
-method swapBuffers*(r: RendererWindex) =
+method swapBuffers*(r: WindexWindow) =
   r.window.swapBuffers()
 
-method pollEvents*(r: RendererWindex) =
+method pollEvents*(r: WindexWindow) =
   windex.pollEvents()
 
-method getScaleInfo*(r: RendererWindex): ScaleInfo =
+method getScaleInfo*(r: WindexWindow): ScaleInfo =
   let scale = r.window.contentScale()
   result.x = scale
   result.y = scale
@@ -126,27 +122,27 @@ proc copyInputs*(w: Window): AppInputs =
   result.keyDown = toKey(w.buttonDown())
   result.keyToggle = toKey(w.buttonToggle())
 
-method copyInputs*(r: RendererWindex): AppInputs =
+method copyInputs*(r: WindexWindow): AppInputs =
   copyInputs(r.window)
 
-method setClipboard*(r: RendererWindex, cb: ClipboardContents) =
+method setClipboard*(r: WindexWindow, cb: ClipboardContents) =
   match cb:
     ClipboardStr(str):
       windex.setClipboardString(str)
     ClipboardEmpty:
       discard
 
-method getClipboard*(r: RendererWindex): ClipboardContents =
+method getClipboard*(r: WindexWindow): ClipboardContents =
   let str = windex.getClipboardString()
   return ClipboardStr(str)
 
-method setTitle*(r: RendererWindex, name: string) =
+method setTitle*(r: WindexWindow, name: string) =
   r.window.title = name
 
-method closeWindow*(r: RendererWindex) =
+method closeWindow*(r: WindexWindow) =
   r.window.close()
 
-method getWindowInfo*(r: RendererWindex): WindowInfo =
+method getWindowInfo*(r: WindexWindow): WindowInfo =
     app.requestedFrame.inc
 
     result.minimized = r.window.minimized()
@@ -158,12 +154,11 @@ method getWindowInfo*(r: RendererWindex): WindowInfo =
     result.box.w = size.x.float32.descaled()
     result.box.h = size.y.float32.descaled()
 
-method configureWindowEvents*(renderer: RendererWindex) =
-  let window {.cursor.} = renderer.window
-
-  let winCfgFile = renderer.frame.windowCfgFile()
-  let uxInputList = renderer.uxInputList
-  let frame = renderer.frame
+method configureWindowEvents*(w: WindexWindow, r: Renderer) =
+  let winCfgFile = w.frame.windowCfgFile()
+  let uxInputList = w.uxInputList
+  let frame = w.frame
+  let window = w.window
 
   window.runeInputEnabled = true
 
@@ -180,15 +175,15 @@ method configureWindowEvents*(renderer: RendererWindex) =
 
   window.onResize = proc() =
     # updateWindowSize(renderer.frame, window)
-    let windowState = renderer.getWindowInfo()
+    let windowState = w.getWindowInfo()
     var uxInput = window.copyInputs()
     uxInput.window = some windowState
     uxInputList.push(uxInput)
-    pollAndRender(renderer, poll = false)
+    r.pollAndRender(poll = false)
 
   window.onFocusChange = proc() =
     var uxInput = window.copyInputs()
-    uxInput.window = some renderer.getWindowInfo()
+    uxInput.window = some w.getWindowInfo()
     uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =

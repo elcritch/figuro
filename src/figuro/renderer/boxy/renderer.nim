@@ -1,48 +1,48 @@
 import std/[hashes, os, tables, times, monotimes, unicode, atomics]
+import std/locks
 export tables
 
-from pixie import Image
-import pkg/chroma
-import pkg/sigils
+import pkg/boxy
 import pkg/chronicles
 
 import ../../common/rchannels
 import ../../common/nodes/uinodes
 import ../utils/glutils
 import ../utils/baserenderer
-import glcommons, glcontext
-
-import std/locks
+import ./glcommons
+import ../utils/drawextras
 
 const FastShadows {.booldefine: "figuro.fastShadows".}: bool = false
 
-type OpenGLRenderer* = ref object of Renderer
-  ctx*: Context
+type BoxyRenderer* = ref object of Renderer
+  bxy*: Boxy
 
-proc newOpenGLRenderer*(
+var boxyKey = newStringOfCap(128) 
+
+template toKey(hash: Hash): string =
+  boxyKey.setLen(0)
+  boxyKey.add($hash)
+  boxyKey
+
+proc newBoxyRenderer*(
     window: RendererWindow,
     frame: WeakRef[AppFrame],
+    forcePixelScale: float32,
     atlasSize: int,
-): OpenGLRenderer =
-  result = OpenGLRenderer(window: window)
-  configureBaseRenderer(result, frame, 1.0, atlasSize)
-  result.ctx = newContext(
-    atlasSize = atlasSize,
-    pixelate = false,
-    pixelScale = app.pixelScale,
-  )
+): BoxyRenderer =
+  result = BoxyRenderer(window: window)
+  configureBaseRenderer(result, frame, forcePixelScale, atlasSize)
+  result.bxy = newBoxy(atlasSize = atlasSize)
 
-proc renderDrawable*(ctx: Context, node: Node) =
-  ## TODO: draw non-node stuff?
-  for point in node.points:
-    # ctx.linePolygon(node.poly, node.stroke.weight, node.stroke.color)
-    let
-      pos = point
-      bx = node.box.atXY(pos.x, pos.y)
-    ctx.drawRect(bx, node.fill)
+proc renderDrawable*(bxy: Boxy, node: Node) =
+  # ## TODO: draw non-node stuff?
+  discard
 
-proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
+proc renderText(bxy: Boxy, node: Node) {.forbids: [AppMainThreadEff].} =
   ## draw characters (glyphs)
+
+  bxy.saveTransform()
+  bxy.translate(node.screenBox.xy)
 
   for glyph in node.textLayout.glyphs():
     if unicode.isWhiteSpace(glyph.rune):
@@ -55,10 +55,12 @@ proc renderText(ctx: Context, node: Node) {.forbids: [AppMainThreadEff].} =
       # is 0.84 (or 5/6) factor a constant for all fonts?
       # charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*0.84) # empirically determined
       charPos = vec2(glyph.pos.x, glyph.pos.y - glyph.descent*1.0) # empirically determined
-    if glyphId notin ctx.entries:
+    if not bxy.hasImage(toKey(glyphId)):
       trace "no glyph in context: ", glyphId= glyphId, glyph= glyph.rune, glyphRepr= repr(glyph.rune)
       continue
-    ctx.drawImage(glyphId, charPos, node.fill)
+    bxy.drawImage(toKey(glyphId), charPos, node.fill)
+  
+  bxy.restoreTransform()
 
 import macros except `$`
 
@@ -86,19 +88,19 @@ macro postRender() =
   while postRenderImpl.len() > 0:
     result.add postRenderImpl.pop()
 
-proc drawMasks(ctx: Context, node: Node) =
+proc drawMasks(bxy: Boxy, node: Node) =
   if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
-    ctx.drawRoundedRect(
+    bxy.drawRoundedRect(
       rect(0, 0, node.screenBox.w, node.screenBox.h),
       rgba(255, 0, 0, 255).color,
       node.cornerRadius,
     )
   else:
-    ctx.drawRect(
+    bxy.drawRect(
       rect(0, 0, node.screenBox.w, node.screenBox.h), rgba(255, 0, 0, 255).color
     )
 
-proc renderDropShadows(ctx: Context, node: Node) =
+proc renderDropShadows(bxy: Boxy, node: Node) =
   ## drawing shadows with 9-patch technique
   let shadow = node.shadow[DropShadow]
   if shadow.blur > 0.0:
@@ -115,20 +117,25 @@ proc renderDropShadows(ctx: Context, node: Node) =
           let xblur: float32 = i.toFloat() * blurAmt
           let yblur: float32 = j.toFloat() * blurAmt
           let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
-          ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+          bxy.fillRoundedRect(rect = box, color = color, radius = node.cornerRadius)
     else:
-      ctx.fillRoundedRectWithShadow(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
-        radii = node.cornerRadius,
-        shadowX = shadow.x,
-        shadowY = shadow.y,
-        shadowBlur = shadow.blur,
-        shadowSpread = shadow.spread.float32,
-        shadowColor = shadow.color,
-        innerShadow = false,
-      )
+      discard
+      bxy.pushLayer()
+      let offset = node.shadow[DropShadow]
+      let spread = node.shadow[DropShadow].spread
+      var box = node.screenBox 
+      box.xy = box.xy + vec2(-spread, -spread) + vec2(offset.x, offset.y)
+      box.wh = box.wh + vec2(2*spread, 2*spread)
 
-proc renderInnerShadows(ctx: Context, node: Node) =
+      bxy.drawRoundedRect(
+        box,
+        node.shadow[DropShadow].color,
+        node.cornerRadius,
+      )
+      bxy.blurEffect(node.shadow[DropShadow].blur)
+      bxy.popLayer(blendMode = NormalBlend)
+
+proc renderInnerShadows(bxy: Boxy, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
@@ -150,59 +157,85 @@ proc renderInnerShadows(ctx: Context, node: Node) =
         box.h += shadow.y
       else:
         box.y += shadow.y + blurAmt
-      ctx.strokeRoundedRect(
+      bxy.strokeRoundedRect(
         rect = box,
         color = color,
         weight = blur,
         radius = node.cornerRadius - blur,
       )
   else:
-    let shadow = node.shadow[InnerShadow]
-    var rect = node.screenBox.atXY(0'f32, 0'f32)
-    ctx.fillRoundedRectWithShadow(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
-      radii = node.cornerRadius,
-      shadowX = shadow.x,
-      shadowY = shadow.y,
-      shadowBlur = shadow.blur,
-      shadowSpread = shadow.spread.float32,
-      shadowColor = shadow.color,
-      innerShadow = true,
+    bxy.pushLayer()
+    let spread = node.shadow[InnerShadow].spread
+    let blur = node.shadow[InnerShadow].blur
+    let offset = node.shadow[InnerShadow]
+    let padding = blur + spread + max(abs(offset.x), abs(offset.y))
+
+    var box = node.screenBox 
+    box.xy = box.xy + vec2(offset.x, offset.y)
+    box.wh = box.wh
+
+    bxy.drawRoundedRect(
+      box,
+      node.shadow[InnerShadow].color,
+      node.cornerRadius,
+      weight = spread,
+      doStroke = true,
+      outerShadowFill = true,
     )
 
-proc renderBoxes(ctx: Context, node: Node) =
+    bxy.drawOuterBox(box, padding, node.shadow[InnerShadow].color)
+
+    bxy.blurEffect(node.shadow[InnerShadow].blur)
+    bxy.pushLayer()
+    bxy.drawRoundedRect(
+      node.screenBox,
+      rgba(255, 0, 0, 255).color,
+      node.cornerRadius,
+    )
+    bxy.popLayer(blendMode = MaskBlend)
+    bxy.popLayer(blendMode = NormalBlend)
+
+proc cacheImage*(bxy: Boxy, filePath: string, imageId: Hash): bool =
+  if bxy.hasImage(toKey(imageId)):
+    return true
+  let image = readImage(filePath)
+  if image.width == 0 or image.height == 0:
+    return false
+  bxy.addImage(toKey(imageId), image)
+  return true
+
+proc renderBoxes(bxy: Boxy, node: Node) =
   ## drawing boxes for rectangles
   if node.fill.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       discard
-      ctx.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+      bxy.drawRoundedRect(
+        rect = node.screenBox,
         color = node.fill,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
+      bxy.drawRect(node.screenBox, node.fill)
 
   if node.highlight.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
-      ctx.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+      bxy.drawRoundedRect(
+        rect = node.screenBox,
         color = node.highlight,
         radii = node.cornerRadius,
         weight = node.stroke.weight,
       )
     else:
-      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
+      bxy.drawRect(node.screenBox, node.highlight)
 
   if node.image.id.int != 0:
-    let size = vec2(node.screenBox.w, node.screenBox.h)
-    if ctx.cacheImage(node.image.name, node.image.id.Hash):
-      ctx.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
+    if bxy.cacheImage(node.image.name, node.image.id.Hash):
+      bxy.drawImage(toKey(node.image.id.Hash), node.screenBox, node.image.color)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
-    ctx.drawRoundedRect(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+    bxy.drawRoundedRect(
+      rect = node.screenBox,
       color = node.stroke.color,
       radii = node.cornerRadius,
       weight = node.stroke.weight,
@@ -210,7 +243,7 @@ proc renderBoxes(ctx: Context, node: Node) =
     )
 
 proc render(
-    ctx: Context, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx
+    bxy: Boxy, nodes: seq[Node], nodeIdx, parentIdx: NodeIdx
 ) {.forbids: [AppMainThreadEff].} =
   template node(): auto =
     nodes[nodeIdx.int]
@@ -229,76 +262,73 @@ proc render(
   if NfDisableRender in node.flags:
     return
 
-  # setup the opengl context to match the current node size and position
-
-  ctx.saveTransform()
-  ctx.translate(node.screenBox.xy)
-
   # handle node rotation
   ifrender node.rotation != 0:
-    ctx.translate(node.screenBox.wh / 2)
-    ctx.rotate(node.rotation / 180 * PI)
-    ctx.translate(-node.screenBox.wh / 2)
+    bxy.translate(node.screenBox.wh / 2)
+    bxy.rotate(node.rotation / 180 * PI)
+    bxy.translate(-node.screenBox.wh / 2)
 
-  ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
-    ctx.renderDropShadows(node)
+  # ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
+  #   bxy.renderDropShadows(node)
 
   # handle clipping children content based on this node
   ifrender NfClipContent in node.flags:
-    ctx.beginMask()
-    ctx.drawMasks(node)
-    ctx.endMask()
+    bxy.pushLayer()
   finally:
-    ctx.popMask()
+    bxy.pushLayer()
+    bxy.drawRoundedRect(
+      node.screenBox,
+      rgba(255, 0, 0, 255).color,
+      node.cornerRadius,
+    )
+    bxy.popLayer(blendMode = MaskBlend)
+    bxy.popLayer(blendMode = NormalBlend)
 
   ifrender true:
     if node.kind == nkText:
-      ctx.renderText(node)
+      bxy.renderText(node)
     elif node.kind == nkDrawable:
-      ctx.renderDrawable(node)
+      bxy.renderDrawable(node)
     elif node.kind == nkRectangle:
-      ctx.renderBoxes(node)
+      bxy.renderBoxes(node)
 
-  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    ctx.beginMask()
-    ctx.drawMasks(node)
-    ctx.endMask()
-    ctx.renderInnerShadows(node)
-    ctx.popMask()
-
-  # restores the opengl context back to the parent node's (see above)
-  ctx.restoreTransform()
+  # ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
+  #   bxy.renderInnerShadows(node)
 
   for childIdx in childIndex(nodes, nodeIdx):
-    ctx.render(nodes, childIdx, nodeIdx)
+    bxy.render(nodes, childIdx, nodeIdx)
 
   # finally blocks will be run here, in reverse order
   postRender()
 
-proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff].} =
+proc renderRoot*(bxy: Boxy, nodes: var Renders) {.forbids: [AppMainThreadEff].} =
   # draw root for each level
   # currLevel = zidx
   var img: (Hash, Image)
   while glyphImageChan.tryRecv(img):
     # echo "img: ", img
-    ctx.putImage(img[0], img[1])
+    bxy.addImage(toKey(img[0]), img[1])
 
   for zlvl, list in nodes.layers.pairs():
     for rootIdx in list.rootIds:
-      ctx.render(list.nodes, rootIdx, -1.NodeIdx)
+      bxy.render(list.nodes, rootIdx, -1.NodeIdx)
 
-proc renderFrame*(renderer: OpenGLRenderer) =
-  let ctx: Context = renderer.ctx
+proc renderFrame*(renderer: BoxyRenderer) =
+  let bxy: Boxy = renderer.bxy
   clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
-  ctx.beginFrame(renderer.window.info.box.wh.scaled())
-  ctx.saveTransform()
-  ctx.scale(ctx.pixelScale)
+  let
+    size = renderer.window.info.box.wh.scaled()
+    isize = ivec2(size)
+  bxy.beginFrame(isize)
+  # bxy.pushLayer()
+  # bxy.saveTransform()
 
   # draw root
-  ctx.renderRoot(renderer.nodes)
+  bxy.renderRoot(renderer.nodes)
 
-  ctx.restoreTransform()
-  ctx.endFrame()
+  # bxy.restoreTransform()
+  # bxy.popLayer()
+  bxy.endFrame()
 
   when defined(testOneFrame):
     ## This is used for test only
@@ -307,7 +337,7 @@ proc renderFrame*(renderer: OpenGLRenderer) =
     img.writeFile("screenshot.png")
     quit()
 
-method renderAndSwap*(renderer: OpenGLRenderer) =
+method renderAndSwap*(renderer: BoxyRenderer) =
   ## Does drawing operations.
 
   timeIt(drawFrame):

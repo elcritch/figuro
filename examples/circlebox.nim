@@ -37,7 +37,7 @@ proc generateCircleBox*(
   # Additional size for spread and blur
   let padding = (spread.int + blur.int)
   let lw = lineWidth.ceil()
-  let totalSize = max(maxRadius.ceil().int * 2 + padding * 2, 10+padding*2)
+  let totalSize = max(2*maxRadius.ceil().int + 2*padding, 10+2*padding)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)
