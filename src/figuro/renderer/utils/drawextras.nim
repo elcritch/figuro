@@ -7,7 +7,7 @@ import ../../common/nodes/render
 import pkg/chroma
 import pkg/sigils
 import pkg/chronicles
-import pkg/pixie/images
+import pkg/pixie
 import pkg/sdfy
 
 import ../utils/boxes
@@ -69,6 +69,8 @@ proc drawRoundedRect*[R](
             generateCircleBox(radii, stroked = false, lineWidth = weight)
         else:
           block:
+            let fill = rgba(255, 255, 255, 255)
+            let clear = rgba(0, 0, 0, 0)
             var center = vec2(rect.x + rw, rect.y + rh)
             let wh = vec2(2*rw, 2*rh)
             let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
@@ -78,21 +80,22 @@ proc drawRoundedRect*[R](
                     center = center,
                     wh = wh,
                     params = RoundedBoxParams(r: corners),
-                    pos = color.to(ColorRGBA),
-                    neg = rgba(0, 0, 0, 0).to(ColorRGBA),
-                    factor = 4.0,
+                    pos = fill.to(ColorRGBA),
+                    neg = clear.to(ColorRGBA),
+                    factor = 6.0,
                     spread = 0.0,
-                    mode = sdfModeFeather)
+                    mode = sdfModeAnnular)
             else:
               drawSdfShape(circle,
                     center = center,
                     wh = wh,
                     params = RoundedBoxParams(r: corners),
-                    pos = color.to(ColorRGBA),
-                    neg = rgba(0, 0, 0, 0).to(ColorRGBA),
-                    factor = 4.0,
+                    pos = fill.to(ColorRGBA),
+                    neg = clear.to(ColorRGBA),
+                    factor = 6.0,
                     spread = 0.0,
-                    mode = sdfModeFeather)
+                    mode = sdfModeClipAA)
+            # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rect.w & "x" & $rect.h & ".png")
             circle
 
       let patches = sliceToNinePatch(circle)
