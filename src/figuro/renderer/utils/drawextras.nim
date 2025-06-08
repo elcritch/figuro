@@ -139,23 +139,31 @@ proc drawRoundedRect*[R](
         dcBottomRight: vec2(w - rw, h - rh),
         dcBottomLeft: vec2(0, h - rh),
       ]
-      sideOffsets = [
-        dTop: vec2(rw, 0),
-        dRight: vec2(w - rw, rh),
-        dBottom: vec2(w - rw, h - rh),
-        dLeft: vec2(0, h - rh),
-      ]
-
     for corner in DirectionCorners:
       let
         pt = ceil(xy + offsets[corner])
 
-      # ctx.drawImage(toKey(hashes[corner]), pt, color)
+      ctx.drawImage(toKey(hashes[corner]), pt, color)
     
+    let
+      sideOffsets = [
+        dTop: vec2(rw, 0),
+        dRight: vec2(w - rw, rh),
+        dBottom: vec2(rw, h - rh),
+        dLeft: vec2(0, rh),
+      ]
+      sideDims = [
+        dTop: vec2(w - 2*rw, rh),
+        dRight: vec2(rw, h - 2*rh),
+        dBottom: vec2(w - 2*rw, rh),
+        dLeft: vec2(rw, h - 2*rh),
+      ]
+
     for side in Directions:
       let
         pt = ceil(xy + sideOffsets[side])
-      ctx.drawImage(toKey(sideHashes[side]), pt, color)
+        dim = sideDims[side]
+      ctx.drawImageAdj(toKey(sideHashes[side]), pt, color, dim)
 
   block drawEdgeBoxes:
     let
