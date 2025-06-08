@@ -15,6 +15,7 @@ requires "bumpy"
 requires "pretty"
 requires "stew == 0.2.0"
 requires "chronicles >= 0.10.3"
+requires "https://github.com/elcritch/sdfy >= 0.5.0"
 requires "supersnappy >= 2.1.3"
 requires "variant >= 0.2.12"
 requires "opengl >= 1.2.6"
@@ -25,7 +26,6 @@ requires "cdecl >= 0.7.5"
 requires "asynctools >= 0.1.1"
 requires "nimsimd >= 1.2.5"
 requires "threading >= 0.2.1"
-requires "msgpack4nim"
 requires "stack_strings"
 requires "micros"
 requires "stylus >= 0.1.3"
@@ -41,6 +41,7 @@ feature "boxy":
 
 feature "nimvm":
   requires "nimscripter >= 1.1.5"
+  requires "msgpack4nim"
 
 feature "thorvg":
   requires "https://github.com/thorvg/thorvg#head"
