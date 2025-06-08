@@ -74,7 +74,8 @@ proc drawRoundedRect*[R](
             var center = vec2(rect.x + rw, rect.y + rh)
             let wh = vec2(2*rw, 2*rh)
             let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
-            let circle = newImage(int(2*rw), int(2*rh))
+            let cbs = getCircleBoxSizes(radii, 0.0, 0.0)
+            let circle = newImage(cbs.totalSize, cbs.totalSize)
             if doStroke:
               drawSdfShape(circle,
                     center = center,

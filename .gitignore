@@ -5,6 +5,7 @@ nim.cfg
 vendor/*/
 nimcache
 *.out
+.DS_Store
 
 .tool-versions
 *.dSYM/
