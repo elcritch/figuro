@@ -150,7 +150,7 @@ proc drawRoundedRect*[R](
       let
         pt = ceil(xy + offsets[corner])
 
-      ctx.drawImage(toKey(hashes[corner]), pt, color)
+      # ctx.drawImage(toKey(hashes[corner]), pt, color)
     
     for side in Directions:
       let
@@ -165,12 +165,15 @@ proc drawRoundedRect*[R](
       wrw = w - 2 * rw
       hrh = h - 2 * rh
 
-    if not doStroke:
-      ctx.drawRect(rect(ceil(rect.x + rw + 1), ceil(rect.y + rh + 1), wrw, hrh), color)
-
     when defined(figuroNoSDF):
+      if not doStroke:
+        ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
       ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y), wrw, ww), color)
       ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rrh), wrw, ww), color)
 
       ctx.drawRect(rect(ceil(rect.x), ceil(rect.y + rh), ww, hrh), color)
       ctx.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + rh), ww, hrh), color)
+    else:
+      if not doStroke:
+        ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
+
