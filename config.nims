@@ -1,5 +1,7 @@
 switch("styleCheck", "hint")
 
+# --define:boxyRenderer
+
 --path:"$nim" ## important for nimscripter
 
 # --gc:orc
@@ -13,6 +15,9 @@ switch("styleCheck", "hint")
 --debugInfo
 --define:"chronicles_log_level:DEBUG"
 # --define:"chronicles_log_level:TRACE"
+
+if defined(boxyRenderer):
+  --passc:"-Wno-incompatible-function-pointer-types"
 
 --hint:"ConvFromXtoItselfNotNeeded:off"
 

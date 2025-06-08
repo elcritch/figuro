@@ -2,8 +2,11 @@ when defined(js):
   import figuro/htmlbackend
   export htmlbackend
 elif defined(blank):
-  import engine/blank
+  import ../renderer/blank
   export blank
+elif defined(boxyRenderer):
+  import ../renderer/boxyBackend
+  export boxyBackend
 else:
   import ../renderer/openglBackend
   export openglBackend

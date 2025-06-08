@@ -22,7 +22,7 @@ proc initialize*(self: Main) {.slot.} =
     self.toggles[kd] = true
     self.fades[kd] = Fader(minMax: 0.01..22.0,
                           inTimeMs: 1400, outTimeMs: 1400)
-  self.fades[FkRadius] = Fader(minMax: 0.0..22.0,
+  self.fades[FkTopLeft] = Fader(minMax: 2.0..8.0,
                           inTimeMs: 1400, outTimeMs: 1400)
 
 proc draw*(self: Main) {.slot.} =
@@ -73,7 +73,7 @@ proc draw*(self: Main) {.slot.} =
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar,
           y: self.fades[FkY].amount.UiScalar,
-          color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
+          color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.6))
 
       Text.new "btnText":
         size 100'pp, 100'pp

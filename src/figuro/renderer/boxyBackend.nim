@@ -14,7 +14,7 @@ import ../common/wincfgs
 
 import ./utils/glutils
 import ./utils/baserenderer
-import ./opengl/renderer
+import ./boxy/renderer
 
 when defined(figuroWindex):
   import ./openglWindex
@@ -28,8 +28,15 @@ export baserenderer
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let atlasSize = 1024 shl (app.uiScale.round().toInt() + 1)
-  let window = newWindexWindow(frame)
-  let renderer = newOpenGLRenderer(window, frame, atlasSize)
+
+  when defined(figuroWindex):
+    let window = newWindexWindow(frame)
+  elif defined(figuroSiwin):
+    let window = newSiwinRenderer(frame)
+  else:
+    let window = newWindexWindow(frame)
+
+  let renderer = newBoxyRenderer(window, frame, 1.0, atlasSize)
 
   frame[].windowInfo.focused = true
 
