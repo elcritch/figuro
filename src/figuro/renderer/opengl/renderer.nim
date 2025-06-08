@@ -10,6 +10,7 @@ import ../../common/rchannels
 import ../../common/nodes/uinodes
 import ../utils/glutils
 import ../utils/baserenderer
+import ../utils/drawshadows
 import glcommons, glcontext
 
 import std/locks

@@ -9,20 +9,9 @@ import pkg/sigils
 import pkg/chronicles
 
 import ../utils/boxes
+import ./drawutils
 
-proc hash(v: Vec2): Hash =
-  hash((v.x, v.y))
-
-proc hash(radii: array[DirectionCorners, float32]): Hash =
-  for r in radii:
-    result = result !& hash(r)
-
-proc clampRadii*(radii: array[DirectionCorners, float32], rect: Rect): array[DirectionCorners, float32] =
-  result = radii
-  for r in result.mitems():
-    r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).ceil()
-
-proc drawOuterBox*[R](bxy: R, rect: Rect, padding: float32, color: Color) =
+proc drawOuterBox*[R](ctx: R, rect: Rect, padding: float32, color: Color) =
 
     var obox = rect
     obox.xy = obox.xy - vec2(padding, padding)
@@ -33,13 +22,13 @@ proc drawOuterBox*[R](bxy: R, rect: Rect, padding: float32, color: Color) =
     let rectBottom = rect(xy + vec2(0, obox.h - padding), vec2(obox.w, padding))
     let rectRight = rect(xy + vec2(obox.w - padding, padding), vec2(padding, obox.h - 2*padding))
 
-    bxy.drawRect(rectTop, color)
-    bxy.drawRect(rectLeft, color)
-    bxy.drawRect(rectBottom, color)
-    bxy.drawRect(rectRight, color)
+    ctx.drawRect(rectTop, color)
+    ctx.drawRect(rectLeft, color)
+    ctx.drawRect(rectBottom, color)
+    ctx.drawRect(rectRight, color)
 
 proc drawRoundedRect*[R](
-    bxy: R,
+    ctx: R,
     rect: Rect,
     color: Color,
     radii: array[DirectionCorners, float32],
@@ -69,7 +58,7 @@ proc drawRoundedRect*[R](
       let qhash = hash !& quadrant.int
       hashes[quadrant] = qhash
 
-    if not bxy.hasImage(toKey(hashes[dcTopRight])):
+    if not ctx.hasImage(toKey(hashes[dcTopRight])):
       let circle =
         if doStroke:
           generateCircleBox(radii, stroked = true, lineWidth = weight, outerShadowFill = outerShadowFill)
@@ -87,7 +76,7 @@ proc drawRoundedRect*[R](
 
       for quadrant in DirectionCorners:
         let img = patchArray[quadrant]
-        bxy.addImage(toKey(hashes[quadrant]), img)
+        ctx.addImage(toKey(hashes[quadrant]), img)
 
     let
       xy = rect.xy
@@ -102,7 +91,7 @@ proc drawRoundedRect*[R](
       let
         pt = ceil(xy + offsets[corner])
 
-      bxy.drawImage(toKey(hashes[corner]), pt, color)
+      ctx.drawImage(toKey(hashes[corner]), pt, color)
 
   block drawEdgeBoxes:
     let
@@ -113,10 +102,10 @@ proc drawRoundedRect*[R](
       hrh = h - 2 * rh
 
     if not doStroke:
-      bxy.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
+      ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
 
-    bxy.drawRect(rect(ceil(rect.x + rw), ceil(rect.y), wrw, ww), color)
-    bxy.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rrh), wrw, ww), color)
+    ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y), wrw, ww), color)
+    ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rrh), wrw, ww), color)
 
-    bxy.drawRect(rect(ceil(rect.x), ceil(rect.y + rh), ww, hrh), color)
-    bxy.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + rh), ww, hrh), color)
+    ctx.drawRect(rect(ceil(rect.x), ceil(rect.y + rh), ww, hrh), color)
+    ctx.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + rh), ww, hrh), color)
