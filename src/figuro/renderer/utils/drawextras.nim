@@ -7,6 +7,8 @@ import ../../common/nodes/render
 import pkg/chroma
 import pkg/sigils
 import pkg/chronicles
+import pkg/pixie/images
+import pkg/sdfy
 
 import ../utils/boxes
 import ./drawutils
@@ -60,10 +62,38 @@ proc drawRoundedRect*[R](
 
     if not ctx.hasImage(toKey(hashes[dcTopRight])):
       let circle =
-        if doStroke:
-          generateCircleBox(radii, stroked = true, lineWidth = weight, outerShadowFill = outerShadowFill)
+        when defined(figuroNoSDF):
+          if doStroke:
+            generateCircleBox(radii, stroked = true, lineWidth = weight, outerShadowFill = outerShadowFill)
+          else:
+            generateCircleBox(radii, stroked = false, lineWidth = weight)
         else:
-          generateCircleBox(radii, stroked = false, lineWidth = weight)
+          block:
+            var center = vec2(rect.x + rw, rect.y + rh)
+            let wh = vec2(2*rw, 2*rh)
+            let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
+            let circle = newImage(int(2*rw), int(2*rh))
+            if doStroke:
+              drawSdfShape(circle,
+                    center = center,
+                    wh = wh,
+                    params = RoundedBoxParams(r: corners),
+                    pos = color.to(ColorRGBA),
+                    neg = rgba(0, 0, 0, 0).to(ColorRGBA),
+                    factor = 4.0,
+                    spread = 0.0,
+                    mode = sdfModeFeather)
+            else:
+              drawSdfShape(circle,
+                    center = center,
+                    wh = wh,
+                    params = RoundedBoxParams(r: corners),
+                    pos = color.to(ColorRGBA),
+                    neg = rgba(0, 0, 0, 0).to(ColorRGBA),
+                    factor = 4.0,
+                    spread = 0.0,
+                    mode = sdfModeFeather)
+            circle
 
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
