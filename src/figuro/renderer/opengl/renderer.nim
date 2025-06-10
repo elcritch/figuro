@@ -118,7 +118,7 @@ proc renderDropShadows(ctx: Context, node: Node) =
           let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
           ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
     else:
-      ctx.fillRoundedRectWithShadow(
+      ctx.fillRoundedRectWithShadowSdf(
         rect = node.screenBox.atXY(0'f32, 0'f32),
         radii = node.cornerRadius,
         shadowX = shadow.x,

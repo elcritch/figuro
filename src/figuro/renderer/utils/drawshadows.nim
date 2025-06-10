@@ -7,7 +7,7 @@ import ../../common/nodes/render
 import pkg/chroma
 import pkg/sigils
 import pkg/chronicles
-import pkg/pixie/images
+import pkg/pixie
 import pkg/sdfy
 
 import ../utils/boxes
@@ -188,7 +188,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     # shadowSpreadLimit = shadowSpread
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
-    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
+    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit.float32, innerShadow)
   
   let (maxRadius, sideSize, totalSize, padding, inner) = getCircleBoxSizes(radii, shadowBlur, shadowSpread, 0.0, rect.w, rect.h)
   
@@ -206,10 +206,10 @@ proc fillRoundedRectWithShadowSdf*[R](
     var center = vec2(rect.x + cbs.sideSize.float32, rect.y + cbs.sideSize.float32)
     let wh = vec2(2*cbs.sideSize.float32, 2*cbs.sideSize.float32)
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
-    let shadowImg = newImage(newSize, newSize)
+    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit.float32, innerShadow)
+    var shadowImg = newImage(newSize, newSize)
 
     if innerShadow:
-      let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
       # Generate shadow image
       if mainKey notin shadowCache:
         # echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
@@ -217,7 +217,6 @@ proc fillRoundedRectWithShadowSdf*[R](
       else:
         shadowImg = shadowCache[mainKey]
     else:
-      let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
       # echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
       if mainKey notin shadowCache:
           drawSdfShape(
@@ -231,7 +230,8 @@ proc fillRoundedRectWithShadowSdf*[R](
                   spread = shadowSpread,
                   mode = sdfModeDropShadow)
           shadowCache[mainKey] = shadowImg
-          shadowImg
+          echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " ", cbs.sideSize, "x", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")"
+          shadowImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
       else:
         shadowImg = shadowCache[mainKey]
 
