@@ -241,9 +241,9 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.putImage(ninePatchHashes[i], patchArray[i])
 
   var 
-    # totalPadding = int(shadowBlur+shadowSpread) - 1
     totalPadding = cbs.padding.int
-    corner = totalPadding.float32 + cbs.sideSize.float32/2 + 1
+    # corner = totalPadding.float32 + cbs.sideSize.float32/2 + 1
+    corner = totalPadding.float32 + 1
 
   let
     sbox = rect(
