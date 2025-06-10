@@ -57,12 +57,8 @@ proc drawRoundedRect*[R](
   block drawCorners:
     var hashes: array[DirectionCorners, Hash]
     for quadrant in DirectionCorners:
-      let qhash = hash !& hash(19) !& quadrant.int
+      let qhash = hash !& quadrant.int
       hashes[quadrant] = qhash
-    var sideHashes: array[Directions, Hash]
-    for side in Directions:
-      let shash = hash !& hash(23) !& side.int
-      sideHashes[side] = shash
 
     if not ctx.hasImage(toKey(hashes[dcTopRight])):
       let circle =
@@ -77,11 +73,8 @@ proc drawRoundedRect*[R](
             let clear = rgba(0, 0, 0, 0)
             var center = vec2(rect.x + rw, rect.y + rh)
             let wh = vec2(2*rw, 2*rh)
-            # let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
-            # let corners = vec4(radii[dcBottomRight], radii[dcTopRight], radii[dcBottomLeft], radii[dcTopLeft])
-            let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
-            let cbs = getCircleBoxSizes(radii, 0.0, 0.0)
-            let circle = newImage(cbs.totalSize, cbs.totalSize)
+            let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
+            let circle = newImage(int(2*rw), int(2*rh))
             if doStroke:
               drawSdfShape(circle,
                     center = center,
@@ -89,7 +82,7 @@ proc drawRoundedRect*[R](
                     params = RoundedBoxParams(r: corners),
                     pos = fill.to(ColorRGBA),
                     neg = clear.to(ColorRGBA),
-                    factor = 5.5,
+                    factor = 6.0,
                     spread = 0.0,
                     mode = sdfModeAnnular)
             else:
@@ -99,10 +92,10 @@ proc drawRoundedRect*[R](
                     params = RoundedBoxParams(r: corners),
                     pos = fill.to(ColorRGBA),
                     neg = clear.to(ColorRGBA),
-                    factor = 5.5,
+                    factor = 6.0,
                     spread = 0.0,
                     mode = sdfModeClipAA)
-            circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rect.w & "x" & $rect.h & ".png")
+            # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rect.w & "x" & $rect.h & ".png")
             circle
 
       let patches = sliceToNinePatch(circle)
@@ -118,19 +111,6 @@ proc drawRoundedRect*[R](
         let img = patchArray[quadrant]
         ctx.addImage(toKey(hashes[quadrant]), img)
 
-      let sidePatchArray = [
-        dTop: patches.top,
-        dRight: patches.right,
-        dBottom: patches.bottom,
-        dLeft: patches.left,
-      ]
-
-      for side in Directions:
-        let img = sidePatchArray[side]
-        ctx.addImage(toKey(sideHashes[side]), img)
-
-        img.writeFile("tests/circlebox-side-" & $side & "-stroke-" & $doStroke & "-rect" & $rect.w & "x" & $rect.h & ".png")
-
     let
       xy = rect.xy
       offsets = [
@@ -139,31 +119,12 @@ proc drawRoundedRect*[R](
         dcBottomRight: vec2(w - rw, h - rh),
         dcBottomLeft: vec2(0, h - rh),
       ]
+
     for corner in DirectionCorners:
       let
         pt = ceil(xy + offsets[corner])
 
       ctx.drawImage(toKey(hashes[corner]), pt, color)
-    
-    let
-      sideOffsets = [
-        dTop: vec2(rw, 0),
-        dRight: vec2(w - rw, rh),
-        dBottom: vec2(rw, h - rh),
-        dLeft: vec2(0, rh),
-      ]
-      sideDims = [
-        dTop: vec2(w - 2*rw, rh),
-        dRight: vec2(rw, h - 2*rh),
-        dBottom: vec2(w - 2*rw, rh),
-        dLeft: vec2(rw, h - 2*rh),
-      ]
-
-    for side in Directions:
-      let
-        pt = ceil(xy + sideOffsets[side])
-        dim = sideDims[side]
-      ctx.drawImageAdj(toKey(sideHashes[side]), pt, color, dim)
 
   block drawEdgeBoxes:
     let
@@ -173,15 +134,11 @@ proc drawRoundedRect*[R](
       wrw = w - 2 * rw
       hrh = h - 2 * rh
 
-    when defined(figuroNoSDF):
-      if not doStroke:
-        ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
-      ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y), wrw, ww), color)
-      ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rrh), wrw, ww), color)
+    if not doStroke:
+      ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
 
-      ctx.drawRect(rect(ceil(rect.x), ceil(rect.y + rh), ww, hrh), color)
-      ctx.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + rh), ww, hrh), color)
-    else:
-      if not doStroke:
-        ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
+    ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y), wrw, ww), color)
+    ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rrh), wrw, ww), color)
 
+    ctx.drawRect(rect(ceil(rect.x), ceil(rect.y + rh), ww, hrh), color)
+    ctx.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + rh), ww, hrh), color)

@@ -69,13 +69,14 @@ proc sliceToNinePatch*(img: Image): tuple[
 proc getCircleBoxSizes*(
     radii: array[DirectionCorners, float32],
     blur: float32,
-    spread: float32
+    spread: float32,
+    weight: float32 = 0.0,
 ): tuple[maxRadius: int, totalSize: int, padding: int, inner: int] =
   result.maxRadius = 0
   for r in radii:
     result.maxRadius = max(result.maxRadius, r.ceil().int)
   result.padding = spread.ceil().int + blur.ceil().int
-  result.totalSize = max(2*result.maxRadius + 2*result.padding, 4*result.padding)
+  result.totalSize = max(max(2*result.maxRadius + 2*result.padding, 4*result.padding), weight.ceil().int)
   result.inner = result.totalSize - 2*result.padding
 
 proc generateCircleBox*(
