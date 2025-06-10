@@ -95,7 +95,7 @@ proc drawRoundedRect*[R](
                     factor = 6.0,
                     spread = 0.0,
                     mode = sdfModeClipAA)
-            # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rect.w & "x" & $rect.h & ".png")
+            # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rw & "x" & $rh & ".png")
             circle
 
       let patches = sliceToNinePatch(circle)
