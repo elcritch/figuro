@@ -54,7 +54,7 @@ proc drawRoundedRect*[R](
     rh = cbs.sideSize.float32
 
   let hash =
-    hash((6217, (rw * 10).int, (rh * 10).int, hash(radii), (weight * 10).int, doStroke))
+    hash((6217, (rw * 1).int, (rh * 1).int, hash(radii), (weight * 1).int, doStroke))
 
   block drawCorners:
     var hashes: array[DirectionCorners, Hash]
