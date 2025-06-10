@@ -57,7 +57,7 @@ proc fillRoundedRectWithShadow*[R](
     var shadowImg: Image =
       if innerShadow:
         let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
-      # Generate shadow image
+        # Generate shadow image
         if mainKey notin shadowCache:
           echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
           let mainImg = generateCircleBox(
