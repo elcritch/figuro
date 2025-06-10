@@ -181,12 +181,10 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   let 
     radii = clampRadii(radii, rect)
-    cbs  = getCircleBoxSizes(radii, 0.0, 0.0, 0.0, rect.w, rect.h)
-    shadowBlurSize = shadowBlur
-    shadowSpread = shadowSpread
+    cbs  = getCircleBoxSizes(radii, blur = shadowBlur, spread = shadowSpread, weight = 0.0, width = rect.w, height = rect.h)
     maxRadius = cbs.maxRadius
-    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, maxRadius.float32, innerShadow)
-    wh = vec2(2*cbs.totalSize.float32, 2*cbs.totalSize.float32)
+    shadowKey = getShadowKey(shadowBlur, shadowSpread, maxRadius.float32, innerShadow)
+    wh = vec2(cbs.inner.float32/2, cbs.inner.float32/2)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -201,7 +199,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     const whiteColor = rgba(255, 255, 255, 255)
     let center = vec2(rect.x + cbs.totalSize.float32, rect.y + cbs.totalSize.float32)
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
-    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, maxRadius.float32, innerShadow)
+    let mainKey = getShadowKey(shadowBlur, shadowSpread, maxRadius.float32, innerShadow)
     var shadowImg = newImage(newSize, newSize)
 
     if innerShadow:
@@ -225,8 +223,8 @@ proc fillRoundedRectWithShadowSdf*[R](
                   spread = shadowSpread,
                   mode = sdfModeDropShadow)
           shadowCache[mainKey] = shadowImg
-          echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")"
-          shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
+          echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius, " padding:", cbs.padding, " inner:", cbs.inner
+          shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
       else:
         shadowImg = shadowCache[mainKey]
 
