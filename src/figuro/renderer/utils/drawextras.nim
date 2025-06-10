@@ -74,7 +74,7 @@ proc drawRoundedRect*[R](
             let fill = rgba(255, 255, 255, 255)
             let clear = rgba(0, 0, 0, 0)
             var center = vec2(rect.x + rw, rect.y + rh)
-            let wh = vec2(2*rw, 2*rh)
+            let wh = vec2(2*rw+1, 2*rh+1)
             let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
             let circle = newImage(int(2*rw), int(2*rh))
             if doStroke:
@@ -84,7 +84,7 @@ proc drawRoundedRect*[R](
                     params = RoundedBoxParams(r: corners),
                     pos = fill.to(ColorRGBA),
                     neg = clear.to(ColorRGBA),
-                    factor = weight,
+                    factor = weight + 0.5,
                     spread = 0.0,
                     mode = sdfModeAnnular)
             else:
