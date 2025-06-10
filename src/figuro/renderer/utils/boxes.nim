@@ -17,7 +17,7 @@ proc sliceToNinePatch*(img: Image): tuple[
     halfW = width div 2
     halfH = height div 2
   
-  echo "sliceToNinePatch: ", width, "x", height, " halfW: ", halfW, " halfH: ", halfH
+  # echo "sliceToNinePatch: ", width, "x", height, " halfW: ", halfW, " halfH: ", halfH
 
   # Create the corner images - using the actual corner size or half the image size, whichever is smaller
   let 

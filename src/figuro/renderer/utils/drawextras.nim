@@ -53,8 +53,8 @@ proc drawRoundedRect*[R](
     rw = cbs.sideSize.float32
     rh = cbs.sideSize.float32
 
-  let hash =
-    hash((6217, (rw * 1).int, (rh * 1).int, hash(radii), (weight * 1).int, doStroke))
+  let rhash = radii[dcTopLeft].int !& radii[dcTopRight].int !& radii[dcBottomLeft].int !& radii[dcBottomRight].int
+  let hash = hash((6217, (rw * 1).int, (rh * 1).int, (weight * 1).int, doStroke)) !& rhash
 
   block drawCorners:
     var hashes: array[DirectionCorners, Hash]
@@ -78,6 +78,7 @@ proc drawRoundedRect*[R](
             # let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
             let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
             let circle = newImage(int(2*rw), int(2*rh))
+            echo "drawing circle: ", doStroke, " sz:", rect.w, "x", rect.h, " ", rw, "x", rh, " weight: ", weight, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")", " rhash: ", rhash, " "
             if doStroke:
               drawSdfShape(circle,
                     center = center,

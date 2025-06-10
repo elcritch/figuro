@@ -213,7 +213,7 @@ proc renderBoxes(bxy: Boxy, node: Node) =
         rect = node.screenBox,
         color = node.fill,
         radii = node.cornerRadius,
-        weight = node.stroke.weight,
+        # weight = node.stroke.weight,
       )
     else:
       bxy.drawRect(node.screenBox, node.fill)
@@ -224,7 +224,7 @@ proc renderBoxes(bxy: Boxy, node: Node) =
         rect = node.screenBox,
         color = node.highlight,
         radii = node.cornerRadius,
-        weight = node.stroke.weight,
+        # weight = node.stroke.weight,
       )
     else:
       bxy.drawRect(node.screenBox, node.highlight)
