@@ -181,14 +181,11 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   let 
     radii = clampRadii(radii, rect)
-    # maxRadius = radiusLimit
     cbs  = getCircleBoxSizes(radii, 0.0, 0.0, 0.0, rect.w, rect.h)
-    radiusLimit = cbs.maxRadius
-    # shadowBlurSizeLimit = shadowBlur
-    # shadowSpreadLimit = shadowSpread
     shadowBlurSize = shadowBlur
     shadowSpread = shadowSpread
-    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit.float32, innerShadow)
+    maxRadius = cbs.maxRadius
+    shadowKey = getShadowKey(shadowBlurSize, shadowSpread, maxRadius.float32, innerShadow)
   
   let (maxRadius, sideSize, totalSize, padding, inner) = getCircleBoxSizes(radii, shadowBlur, shadowSpread, 0.0, rect.w, rect.h)
   
@@ -206,7 +203,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     var center = vec2(rect.x + cbs.sideSize.float32, rect.y + cbs.sideSize.float32)
     let wh = vec2(2*cbs.sideSize.float32, 2*cbs.sideSize.float32)
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
-    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit.float32, innerShadow)
+    let mainKey = getShadowKey(shadowBlurSize, shadowSpread, maxRadius.float32, innerShadow)
     var shadowImg = newImage(newSize, newSize)
 
     if innerShadow:
