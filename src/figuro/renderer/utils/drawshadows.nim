@@ -186,8 +186,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     shadowSpread = shadowSpread
     maxRadius = cbs.maxRadius
     shadowKey = getShadowKey(shadowBlurSize, shadowSpread, maxRadius.float32, innerShadow)
-  
-  let (maxRadius, sideSize, totalSize, padding, inner) = getCircleBoxSizes(radii, shadowBlur, shadowSpread, 0.0, rect.w, rect.h)
+    wh = vec2(2*cbs.totalSize.float32, 2*cbs.totalSize.float32)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
@@ -196,12 +195,11 @@ proc fillRoundedRectWithShadowSdf*[R](
   # Check if we've already generated this shadow
   let shadowKeyBase = shadowKey !& 0
   # let newSize = max(shadowBlur.int + shadowSpread.int + maxRadius.int, 2)
-  let newSize = totalSize
+  let newSize = cbs.totalSize
 
   if shadowKeyBase notin ctx.entries:
     const whiteColor = rgba(255, 255, 255, 255)
-    var center = vec2(rect.x + cbs.sideSize.float32, rect.y + cbs.sideSize.float32)
-    let wh = vec2(2*cbs.sideSize.float32, 2*cbs.sideSize.float32)
+    let center = vec2(rect.x + cbs.totalSize.float32, rect.y + cbs.totalSize.float32)
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
     let mainKey = getShadowKey(shadowBlurSize, shadowSpread, maxRadius.float32, innerShadow)
     var shadowImg = newImage(newSize, newSize)
@@ -249,8 +247,8 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   var 
     # totalPadding = int(shadowBlur+shadowSpread) - 1
-    totalPadding = padding.int
-    corner = totalPadding.float32 + inner.float32/2 + 1
+    totalPadding = cbs.padding.int
+    corner = totalPadding.float32 + cbs.sideSize.float32/2 + 1
 
   let
     sbox = rect(
