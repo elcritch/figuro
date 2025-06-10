@@ -223,7 +223,7 @@ proc fillRoundedRectWithShadowSdf*[R](
                   mode = sdfModeDropShadow)
       # shadowCache[shadowKey] = shadowImg
       echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius
-      # shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
+      shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
