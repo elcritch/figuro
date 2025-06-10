@@ -84,7 +84,7 @@ proc drawRoundedRect*[R](
                     params = RoundedBoxParams(r: corners),
                     pos = fill.to(ColorRGBA),
                     neg = clear.to(ColorRGBA),
-                    factor = 6.0,
+                    factor = weight,
                     spread = 0.0,
                     mode = sdfModeAnnular)
             else:
@@ -94,7 +94,7 @@ proc drawRoundedRect*[R](
                     params = RoundedBoxParams(r: corners),
                     pos = fill.to(ColorRGBA),
                     neg = clear.to(ColorRGBA),
-                    factor = 6.0,
+                    factor = weight,
                     spread = 0.0,
                     mode = sdfModeClipAA)
             # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rw & "x" & $rh & "-mr" & $maxRadius & ".png")
