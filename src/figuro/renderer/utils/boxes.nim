@@ -86,7 +86,7 @@ proc getCircleBoxSizes*(
 
   result.padding = padding
   result.sideSize = max(min(result.maxRadius, min(bw, bh)), ww)
-  result.totalSize = max(ww, max(2*result.maxRadius + 3*padding, 5*padding))
+  result.totalSize = max(ww, max(2*result.maxRadius + 2*padding, 4*padding))
   # result.inner = result.totalSize - 2*result.padding
   result.inner = 2*result.sideSize
 

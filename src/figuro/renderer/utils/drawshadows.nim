@@ -219,12 +219,12 @@ proc fillRoundedRectWithShadowSdf*[R](
                   params = RoundedBoxParams(r: corners),
                   pos = whiteColor,
                   neg = whiteColor,
-                  factor = shadowBlur * 0.8,
+                  factor = shadowBlur * 0.7,
                   spread = shadowSpread,
                   mode = sdfModeDropShadow)
           shadowCache[mainKey] = shadowImg
           echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius
-          shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
+          # shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
       else:
         shadowImg = shadowCache[mainKey]
 
