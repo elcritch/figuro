@@ -76,7 +76,7 @@ proc getCircleBoxSizes*(
   for r in radii:
     result.maxRadius = max(result.maxRadius, r.ceil().int)
   result.padding = spread.ceil().int + blur.ceil().int
-  result.totalSize = max(max(2*result.maxRadius + 2*result.padding, 4*result.padding), weight.ceil().int)
+  result.totalSize = max(max(2*result.maxRadius + 2*result.padding, 4*result.padding), ceil(2*weight).int)
   result.inner = result.totalSize - 2*result.padding
 
 proc generateCircleBox*(

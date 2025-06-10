@@ -46,10 +46,12 @@ proc drawRoundedRect*[R](
   let
     w = rect.w.ceil()
     h = rect.h.ceil()
-    radii = clampRadii(radii, rect)
-    maxRadius = max(radii)
-    rw = maxRadius
-    rh = maxRadius
+    # radii = clampRadii(radii, rect)
+    # maxRadius = max(radii)
+    cbs = getCircleBoxSizes(radii, 0.0, 0.0, weight)
+    maxRadius = cbs.maxRadius
+    rw = cbs.totalSize.float32
+    rh = cbs.totalSize.float32
 
   let hash =
     hash((6217, (rw * 10).int, (rh * 10).int, hash(radii), (weight * 10).int, doStroke))
@@ -57,7 +59,7 @@ proc drawRoundedRect*[R](
   block drawCorners:
     var hashes: array[DirectionCorners, Hash]
     for quadrant in DirectionCorners:
-      let qhash = hash !& quadrant.int
+      let qhash = hash !& hash(41) !& quadrant.int
       hashes[quadrant] = qhash
 
     if not ctx.hasImage(toKey(hashes[dcTopRight])):
@@ -95,7 +97,7 @@ proc drawRoundedRect*[R](
                     factor = 6.0,
                     spread = 0.0,
                     mode = sdfModeClipAA)
-            # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rw & "x" & $rh & ".png")
+            # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rw & "x" & $rh & "-mr" & $maxRadius & ".png")
             circle
 
       let patches = sliceToNinePatch(circle)
@@ -128,7 +130,7 @@ proc drawRoundedRect*[R](
 
   block drawEdgeBoxes:
     let
-      ww = if doStroke: weight else: maxRadius
+      ww = if doStroke: weight else: maxRadius.float32
       rrw = if doStroke: w - weight else: w - rw
       rrh = if doStroke: h - weight else: h - rh
       wrw = w - 2 * rw
