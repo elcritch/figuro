@@ -71,10 +71,13 @@ proc getCircleBoxSizes*(
     blur: float32,
     spread: float32,
     weight: float32 = 0.0,
-): tuple[maxRadius: int, totalSize: int, padding: int, inner: int] =
+    width = float32.high(),
+    height = float32.high(),
+): tuple[maxRadius, sideSize, totalSize, padding, inner: int] =
   result.maxRadius = 0
   for r in radii:
     result.maxRadius = max(result.maxRadius, r.ceil().int)
+  result.sideSize = max(result.maxRadius.min(width.ceil().int).min(height.ceil().int), 2*weight.ceil().int)
   result.padding = spread.ceil().int + blur.ceil().int
   result.totalSize = max(max(2*result.maxRadius + 2*result.padding, 4*result.padding), ceil(2*weight).int)
   result.inner = result.totalSize - 2*result.padding
@@ -96,7 +99,7 @@ proc generateCircleBox*(
   
   # Additional size for spread and blur
   let lw = lineWidth.ceil()
-  let (maxRadius, totalSize, padding, inner) = getCircleBoxSizes(radii, blur, spread)
+  let (maxRadius, sideSize, totalSize, padding, inner) = getCircleBoxSizes(radii, blur, spread, lineWidth)
   
   # Create a canvas large enough to contain the box with all effects
   let img = newImage(totalSize, totalSize)

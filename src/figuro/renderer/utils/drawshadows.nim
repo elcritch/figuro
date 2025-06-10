@@ -42,7 +42,7 @@ proc fillRoundedRectWithShadow*[R](
     shadowSpread = shadowSpread
     shadowKey = getShadowKey(shadowBlurSize, shadowSpread, radiusLimit, innerShadow)
   
-  let (maxRadius, totalSize, padding, inner) = getCircleBoxSizes(radii, shadowBlur, shadowSpread)
+  let (maxRadius, sideSize, totalSize, padding, inner) = getCircleBoxSizes(radii, shadowBlur, shadowSpread, 0.0, rect.w, rect.h)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:

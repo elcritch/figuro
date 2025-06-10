@@ -48,10 +48,10 @@ proc drawRoundedRect*[R](
     h = rect.h.ceil()
     # radii = clampRadii(radii, rect)
     # maxRadius = max(radii)
-    cbs = getCircleBoxSizes(radii, 0.0, 0.0, weight)
+    cbs = getCircleBoxSizes(radii, 0.0, 0.0, weight, w, h)
     maxRadius = cbs.maxRadius
-    rw = cbs.totalSize.float32
-    rh = cbs.totalSize.float32
+    rw = cbs.sideSize.float32
+    rh = cbs.sideSize.float32
 
   let hash =
     hash((6217, (rw * 10).int, (rh * 10).int, hash(radii), (weight * 10).int, doStroke))
@@ -130,7 +130,8 @@ proc drawRoundedRect*[R](
 
   block drawEdgeBoxes:
     let
-      ww = if doStroke: weight else: maxRadius.float32
+      ww = if doStroke: weight else: cbs.sideSize.float32
+      # ww = cbs.sideSize.float32
       rrw = if doStroke: w - weight else: w - rw
       rrh = if doStroke: h - weight else: h - rh
       wrw = w - 2 * rw
