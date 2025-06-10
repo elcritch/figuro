@@ -197,7 +197,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   if shadowKeyBase notin ctx.entries:
     const whiteColor = rgba(255, 255, 255, 255)
-    let center = vec2(rect.x + cbs.totalSize.float32, rect.y + cbs.totalSize.float32)
+    let center = vec2(cbs.totalSize.float32/2, cbs.totalSize.float32/2)
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
     let mainKey = getShadowKey(shadowBlur, shadowSpread, maxRadius.float32, innerShadow)
     var shadowImg = newImage(newSize, newSize)
@@ -219,11 +219,11 @@ proc fillRoundedRectWithShadowSdf*[R](
                   params = RoundedBoxParams(r: corners),
                   pos = whiteColor,
                   neg = whiteColor,
-                  factor = shadowBlur, 
+                  factor = shadowBlur * 0.8,
                   spread = shadowSpread,
                   mode = sdfModeDropShadow)
           shadowCache[mainKey] = shadowImg
-          echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius, " padding:", cbs.padding, " inner:", cbs.inner
+          echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius
           shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
       else:
         shadowImg = shadowCache[mainKey]
