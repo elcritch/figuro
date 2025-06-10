@@ -225,8 +225,8 @@ proc fillRoundedRectWithShadowSdf*[R](
                   spread = shadowSpread,
                   mode = sdfModeDropShadow)
           shadowCache[mainKey] = shadowImg
-          echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " ", cbs.sideSize, "x", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")"
-          shadowImg.writeFile("examples/renderer-shadowImage-" & $innerShadow & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
+          echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")"
+          shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
       else:
         shadowImg = shadowCache[mainKey]
 
