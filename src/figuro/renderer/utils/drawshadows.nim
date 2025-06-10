@@ -219,7 +219,7 @@ proc fillRoundedRectWithShadowSdf*[R](
                   params = RoundedBoxParams(r: corners),
                   pos = whiteColor,
                   neg = whiteColor,
-                  factor = shadowBlur * 0.7,
+                  factor = shadowBlur * 0.75,
                   spread = shadowSpread,
                   mode = sdfModeDropShadow)
           shadowCache[mainKey] = shadowImg
