@@ -176,14 +176,15 @@ proc fillRoundedRectWithShadowSdf*[R](
     
   # First, draw the shadow
   # Generate shadow key for caching
-  proc getShadowKey(blur: float32, spread: float32, radius: float32, innerShadow: bool): Hash =
-    hash((7723, (blur * 1).int, (spread * 1).int, (radius * 1).int, innerShadow))
+  proc getShadowKey(blur: float32, spread: float32, innerShadow: bool): Hash =
+    hash((7723, (blur * 1).int, (spread * 1).int, innerShadow))
 
   let 
     radii = clampRadii(radii, rect)
+    rhash = radii[dcTopLeft].int !& radii[dcTopRight].int !& radii[dcBottomLeft].int !& radii[dcBottomRight].int
     cbs  = getCircleBoxSizes(radii, blur = shadowBlur, spread = shadowSpread, weight = 0.0, width = rect.w, height = rect.h)
     maxRadius = cbs.maxRadius
-    shadowKey = getShadowKey(shadowBlur, shadowSpread, maxRadius.float32, innerShadow)
+    shadowKey = getShadowKey(shadowBlur, shadowSpread, innerShadow) !& rhash
     wh = vec2(cbs.inner.float32/2, cbs.inner.float32/2)
   
   var ninePatchHashes: array[8, Hash]
