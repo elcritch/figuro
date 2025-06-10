@@ -133,6 +133,8 @@ proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
+  return
+
   when FastShadows:
     let shadow = node.shadow[InnerShadow]
     let n = shadow.blur.toInt
