@@ -82,11 +82,11 @@ proc getCircleBoxSizes*(
   let bh = height.ceil().int
   let blur = blur.ceil().int
   let spread = spread.ceil().int
-  let padding = spread + blur
+  let padding = max(spread + blur, result.maxRadius)
 
   result.padding = padding
   result.sideSize = min(result.maxRadius, min(bw, bh)).max(ww)
-  result.totalSize = max(ww, max(2*result.maxRadius + 2*padding, 4*padding))
+  result.totalSize = 2*result.sidesize + 3*padding
   result.inner = 2*result.sideSize
 
 proc generateCircleBox*(
