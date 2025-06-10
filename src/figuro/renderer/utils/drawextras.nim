@@ -75,7 +75,8 @@ proc drawRoundedRect*[R](
             let clear = rgba(0, 0, 0, 0)
             var center = vec2(rect.x + rw, rect.y + rh)
             let wh = vec2(2*rw+1, 2*rh+1)
-            let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
+            # let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
+            let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
             let circle = newImage(int(2*rw), int(2*rh))
             if doStroke:
               drawSdfShape(circle,
