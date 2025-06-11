@@ -73,6 +73,7 @@ proc getCircleBoxSizes*(
     weight: float32 = 0.0,
     width = float32.high(),
     height = float32.high(),
+    innerShadow = false,
 ): tuple[maxRadius, sideSize, totalSize, padding, inner: int] =
   result.maxRadius = 0
   for r in radii:
@@ -85,7 +86,10 @@ proc getCircleBoxSizes*(
   let padding = max(spread + blur, result.maxRadius)
 
   result.padding = padding
-  result.sideSize = min(result.maxRadius, min(bw, bh)).max(ww)
+  if innerShadow:
+    result.sideSize = min(result.maxRadius + padding, min(bw, bh)).max(ww)
+  else:
+    result.sideSize = min(result.maxRadius, min(bw, bh)).max(ww)
   result.totalSize = 3*result.sidesize + 3*padding
   result.inner = 3*result.sideSize
 
