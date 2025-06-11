@@ -244,7 +244,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   var 
     totalPadding = cbs.padding.int
-    corner = totalPadding.float32 + cbs.sideSize.float32/2 + 1
+    corner = totalPadding.float32 + cbs.sideSize.float32 + 1
     # corner = totalPadding.float32 + 1
 
   let
