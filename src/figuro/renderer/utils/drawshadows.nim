@@ -216,7 +216,7 @@ proc fillRoundedRectWithShadowSdf*[R](
                 spread = shadowSpread,
                 mode = mode)
     # echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius
-    shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
+    # shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
@@ -275,6 +275,6 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor*1.0, leftEdge.wh)
   
   # Center (stretched both ways)
-  let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
   if not innerShadow:
+    let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
     ctx.drawRect(center, shadowColor)
