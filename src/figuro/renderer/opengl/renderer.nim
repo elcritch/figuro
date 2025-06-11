@@ -102,38 +102,42 @@ proc drawMasks(ctx: Context, node: Node) =
 proc renderDropShadows(ctx: Context, node: Node) =
   ## drawing shadows with 9-patch technique
   let shadow = node.shadow[DropShadow]
-  if shadow.blur > 0.0:
-    when FastShadows:
-      ## should add a primitive to opengl.context to
-      ## do this with pixie and 9-patch, but that's a headache
-      let shadow = node.shadow[DropShadow]
-      var color = shadow.color
-      const N = 3
-      color.a = color.a * 1.0/(N*N*N)
-      let blurAmt = shadow.blur * shadow.spread / (12*N*N)
-      for i in -N .. N:
-        for j in -N .. N:
-          let xblur: float32 = i.toFloat() * blurAmt
-          let yblur: float32 = j.toFloat() * blurAmt
-          let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
-          ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
-    else:
-      ctx.fillRoundedRectWithShadowSdf(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
-        radii = node.cornerRadius,
-        shadowX = shadow.x,
-        shadowY = shadow.y,
-        shadowBlur = shadow.blur,
-        shadowSpread = shadow.spread.float32,
-        shadowColor = shadow.color,
-        innerShadow = false,
-      )
+  if shadow.blur <= 0.0 and shadow.spread <= 0.0:
+    return
+
+  when FastShadows:
+    ## should add a primitive to opengl.context to
+    ## do this with pixie and 9-patch, but that's a headache
+    let shadow = node.shadow[DropShadow]
+    var color = shadow.color
+    const N = 3
+    color.a = color.a * 1.0/(N*N*N)
+    let blurAmt = shadow.blur * shadow.spread / (12*N*N)
+    for i in -N .. N:
+      for j in -N .. N:
+        let xblur: float32 = i.toFloat() * blurAmt
+        let yblur: float32 = j.toFloat() * blurAmt
+        let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
+        ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+  else:
+    ctx.fillRoundedRectWithShadowSdf(
+      rect = node.screenBox.atXY(0'f32, 0'f32),
+      radii = node.cornerRadius,
+      shadowX = shadow.x,
+      shadowY = shadow.y,
+      shadowBlur = shadow.blur,
+      shadowSpread = shadow.spread.float32,
+      shadowColor = shadow.color,
+      innerShadow = false,
+    )
 
 proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
-  return
+  let shadow = node.shadow[InnerShadow]
+  if shadow.blur <= 0.0 and shadow.spread <= 0.0:
+    return
 
   when FastShadows:
     let shadow = node.shadow[InnerShadow]
@@ -241,7 +245,7 @@ proc render(
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
 
-  ifrender node.kind == nkRectangle and (node.shadow[DropShadow].blur > 0.0 or node.shadow[DropShadow].spread > 0.0):
+  ifrender node.kind == nkRectangle:
     ctx.renderDropShadows(node)
 
   # handle clipping children content based on this node
@@ -260,7 +264,7 @@ proc render(
     elif node.kind == nkRectangle:
       ctx.renderBoxes(node)
 
-  ifrender node.kind == nkRectangle and (node.shadow[InnerShadow].blur > 0.0 or node.shadow[InnerShadow].spread > 0.0):
+  ifrender node.kind == nkRectangle:
     ctx.beginMask()
     ctx.drawMasks(node)
     ctx.endMask()
