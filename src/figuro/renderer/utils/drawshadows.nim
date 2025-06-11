@@ -182,10 +182,12 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   let 
     radii = clampRadii(radii, rect)
+    shadowBlur = shadowBlur.ceil().float32
+    shadowSpread = shadowSpread.ceil().float32
     cbs  = getCircleBoxSizes(radii, blur = shadowBlur, spread = shadowSpread, weight = 0.0, width = rect.w, height = rect.h)
     maxRadius = cbs.maxRadius
     shadowKey = getShadowKey(shadowBlur, shadowSpread, innerShadow, radii)
-    wh = vec2(cbs.inner.float32/2, cbs.inner.float32/2)
+    wh = vec2(cbs.inner.float32, cbs.inner.float32)
   
   var ninePatchHashes: array[8, Hash]
   for i in 0..7:
