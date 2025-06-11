@@ -162,6 +162,7 @@ proc renderInnerShadows(ctx: Context, node: Node) =
         radius = node.cornerRadius - blur,
       )
   else:
+    echo "inner shadow color: ", shadow.color
     var rect = node.screenBox.atXY(0'f32, 0'f32)
     ctx.fillRoundedRectWithShadowSdf(
       rect = node.screenBox.atXY(0'f32, 0'f32),

@@ -177,7 +177,7 @@ proc fillRoundedRectWithShadowSdf*[R](
   # First, draw the shadow
   # Generate shadow key for caching
   proc getShadowKey(blur: float32, spread: float32, innerShadow: bool, radii: array[DirectionCorners, float32]): Hash =
-    result = hash((7723, (blur * 1).int, (spread * 1).int, innerShadow))
+    result = hash((7723, blur.int, spread.int, innerShadow))
     result = result !& radii[dcTopLeft].int !& radii[dcTopRight].int !& radii[dcBottomLeft].int !& radii[dcBottomRight].int
 
   let 
@@ -233,6 +233,9 @@ proc fillRoundedRectWithShadowSdf*[R](
       ninePatchHashes[i] = shadowKey !& i
       ctx.putImage(ninePatchHashes[i], patchArray[i])
 
+    if innerShadow:
+      echo "making inner shadow", " top left hash: ", ninePatchHashes[0], " shadow keybase: ", shadowKeyBase
+
   var 
     totalPadding = cbs.padding.int
     corner = totalPadding.float32 + cbs.sideSize.float32 + 1
@@ -263,6 +266,9 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.drawImageAdj(ninePatchHashes[2], bottomLeft.xy, shadowColor, bottomLeft.wh)
   ctx.drawImageAdj(ninePatchHashes[3], bottomRight.xy, shadowColor, bottomRight.wh)
   
+  if innerShadow:
+    echo "inner shadow", " top left hash: ", ninePatchHashes[0]
+
   # Draw edges
   # Top edge (stretched horizontally)
   let topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
