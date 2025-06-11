@@ -241,7 +241,7 @@ proc render(
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
 
-  ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
+  ifrender node.kind == nkRectangle and (node.shadow[DropShadow].blur > 0.0 or node.shadow[DropShadow].spread > 0.0):
     ctx.renderDropShadows(node)
 
   # handle clipping children content based on this node
@@ -260,7 +260,7 @@ proc render(
     elif node.kind == nkRectangle:
       ctx.renderBoxes(node)
 
-  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
+  ifrender node.kind == nkRectangle and (node.shadow[InnerShadow].blur > 0.0 or node.shadow[InnerShadow].spread > 0.0):
     ctx.beginMask()
     ctx.drawMasks(node)
     ctx.endMask()

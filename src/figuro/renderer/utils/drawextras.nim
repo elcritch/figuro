@@ -78,7 +78,7 @@ proc drawRoundedRect*[R](
             # let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
             let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
             let circle = newImage(int(2*rw), int(2*rh))
-            echo "drawing circle: ", doStroke, " sz:", rect.w, "x", rect.h, " ", rw, "x", rh, " weight: ", weight, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")", " rhash: ", rhash, " "
+            # echo "drawing circle: ", doStroke, " sz:", rect.w, "x", rect.h, " ", rw, "x", rh, " weight: ", weight, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")", " rhash: ", rhash, " "
             if doStroke:
               drawSdfShape(circle,
                     center = center,
