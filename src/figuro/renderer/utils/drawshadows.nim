@@ -268,9 +268,6 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.drawImageAdj(ninePatchHashes[2], bottomLeft.xy, shadowColor, bottomLeft.wh)
   ctx.drawImageAdj(ninePatchHashes[3], bottomRight.xy, shadowColor, bottomRight.wh)
   
-  if innerShadow:
-    echo "inner shadow", " top left hash: ", ninePatchHashes[0]
-
   # Draw edges
   # Top edge (stretched horizontally)
   let topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
