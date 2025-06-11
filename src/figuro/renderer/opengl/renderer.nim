@@ -108,7 +108,6 @@ proc renderDropShadows(ctx: Context, node: Node) =
   when FastShadows:
     ## should add a primitive to opengl.context to
     ## do this with pixie and 9-patch, but that's a headache
-    let shadow = node.shadow[DropShadow]
     var color = shadow.color
     const N = 3
     color.a = color.a * 1.0/(N*N*N)
@@ -140,7 +139,6 @@ proc renderInnerShadows(ctx: Context, node: Node) =
     return
 
   when FastShadows:
-    let shadow = node.shadow[InnerShadow]
     let n = shadow.blur.toInt
     var color = shadow.color
     color.a = 2*color.a/n.toFloat
@@ -164,9 +162,8 @@ proc renderInnerShadows(ctx: Context, node: Node) =
         radius = node.cornerRadius - blur,
       )
   else:
-    let shadow = node.shadow[InnerShadow]
     var rect = node.screenBox.atXY(0'f32, 0'f32)
-    ctx.fillRoundedRectWithShadow(
+    ctx.fillRoundedRectWithShadowSdf(
       rect = node.screenBox.atXY(0'f32, 0'f32),
       radii = node.cornerRadius,
       shadowX = shadow.x,

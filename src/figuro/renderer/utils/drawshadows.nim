@@ -204,28 +204,19 @@ proc fillRoundedRectWithShadowSdf*[R](
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
     var shadowImg = newImage(newSize, newSize)
 
-    if innerShadow:
-      # Generate shadow image
-      if shadowKey notin shadowCache:
-        # echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
-        discard
-      else:
-        shadowImg = shadowCache[shadowKey]
-    else:
-      # echo "generating main shadow image: ", mainKey, " blur: ", shadowBlurSizeLimit.round(2), " spread: ", shadowSpreadLimit.round(2), " radius: ", radiusLimit.round(2), " ", innerShadow
-      drawSdfShape(
-                  shadowImg,
-                  center = center,
-                  wh = wh,
-                  params = RoundedBoxParams(r: corners),
-                  pos = whiteColor,
-                  neg = whiteColor,
-                  factor = shadowBlur * 0.6,
-                  spread = shadowSpread,
-                  mode = sdfModeDropShadow)
-      # shadowCache[shadowKey] = shadowImg
-      # echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius
-      shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
+    let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
+    drawSdfShape(
+                shadowImg,
+                center = center,
+                wh = wh,
+                params = RoundedBoxParams(r: corners),
+                pos = whiteColor,
+                neg = whiteColor,
+                factor = shadowBlur * 0.6,
+                spread = shadowSpread,
+                mode = sdfModeDropShadow)
+    # echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius
+    # shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
