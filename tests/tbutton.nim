@@ -52,7 +52,7 @@ proc draw*(self: Main) {.slot.} =
     Button[int] as "btn":
       box 40'ux, 30'ux, 30'pp, 30'pp
       fill css"#2B9F2B"
-      border 5'ui, css"red"
+      # border 5'ui, css"red"
       corners topLeft = self.fades[FkTopLeft].amount.UiScalar,
               topRight = self.fades[FkTopRight].amount.UiScalar,
               bottomLeft = self.fades[FkBottomLeft].amount.UiScalar,
@@ -66,14 +66,14 @@ proc draw*(self: Main) {.slot.} =
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar, y: self.fades[FkY].amount.UiScalar,
-          color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
+          color: Color(r: 1.0, g: 0.0, b: 0.0, a: 0.99))
       when true:
         this.shadow[InnerShadow] = Shadow(
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar,
           y: self.fades[FkY].amount.UiScalar,
-          color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.99))
+          color: Color(r: 0.0, g: 0.0, b: 1.0, a: 0.99))
 
       Text.new "btnText":
         size 100'pp, 100'pp
