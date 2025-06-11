@@ -176,15 +176,15 @@ proc fillRoundedRectWithShadowSdf*[R](
     
   # First, draw the shadow
   # Generate shadow key for caching
-  proc getShadowKey(blur: float32, spread: float32, innerShadow: bool): Hash =
-    hash((7723, (blur * 1).int, (spread * 1).int, innerShadow))
+  proc getShadowKey(blur: float32, spread: float32, innerShadow: bool, radii: array[DirectionCorners, float32]): Hash =
+    result = hash((7723, (blur * 1).int, (spread * 1).int, innerShadow))
+    result = result !& radii[dcTopLeft].int !& radii[dcTopRight].int !& radii[dcBottomLeft].int !& radii[dcBottomRight].int
 
   let 
     radii = clampRadii(radii, rect)
-    rhash = radii[dcTopLeft].int !& radii[dcTopRight].int !& radii[dcBottomLeft].int !& radii[dcBottomRight].int
     cbs  = getCircleBoxSizes(radii, blur = shadowBlur, spread = shadowSpread, weight = 0.0, width = rect.w, height = rect.h)
     maxRadius = cbs.maxRadius
-    shadowKey = getShadowKey(shadowBlur, shadowSpread, innerShadow) !& rhash
+    shadowKey = getShadowKey(shadowBlur, shadowSpread, innerShadow, radii)
     wh = vec2(cbs.inner.float32/2, cbs.inner.float32/2)
   
   var ninePatchHashes: array[8, Hash]
@@ -223,7 +223,7 @@ proc fillRoundedRectWithShadowSdf*[R](
                   mode = sdfModeDropShadow)
       # shadowCache[shadowKey] = shadowImg
       echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius
-      shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & ".png")
+      shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
@@ -242,8 +242,8 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   var 
     totalPadding = cbs.padding.int
-    # corner = totalPadding.float32 + cbs.sideSize.float32/2 + 1
-    corner = totalPadding.float32 + 1
+    corner = totalPadding.float32 + cbs.sideSize.float32/2 + 1
+    # corner = totalPadding.float32 + 1
 
   let
     sbox = rect(
