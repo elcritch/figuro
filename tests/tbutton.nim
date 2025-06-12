@@ -52,7 +52,7 @@ proc draw*(self: Main) {.slot.} =
     Button[int] as "btn":
       box 40'ux, 30'ux, 30'pp, 30'pp
       fill css"#2B9F2B"
-      # border 5'ui, css"red"
+      border 5'ui, css"darkgreen"
       corners topLeft = self.fades[FkTopLeft].amount.UiScalar,
               topRight = self.fades[FkTopRight].amount.UiScalar,
               bottomLeft = self.fades[FkBottomLeft].amount.UiScalar,
