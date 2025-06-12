@@ -20,7 +20,7 @@ type
 proc initialize*(self: Main) {.slot.} =
   for kd in FadeKinds:
     self.toggles[kd] = true
-    self.fades[kd] = Fader(minMax: 0.01..22.0,
+    self.fades[kd] = Fader(minMax: 0.0..34.0,
                           inTimeMs: 1400, outTimeMs: 1400)
   self.fades[FkTopLeft] = Fader(minMax: 2.0..8.0,
                           inTimeMs: 1400, outTimeMs: 1400)
@@ -50,7 +50,7 @@ proc draw*(self: Main) {.slot.} =
             self.toggles[this.state] = not self.toggles[this.state]
 
     Button[int] as "btn":
-      box 40'ux, 30'ux, 30'pp, 30'pp
+      box 50'ux, 40'ux, 30'pp, 30'pp
       fill css"#2B9F2B"
       border 5'ui, css"darkgreen"
       corners topLeft = self.fades[FkTopLeft].amount.UiScalar,
