@@ -64,8 +64,14 @@ proc fillRoundedRectWithShadowSdf*[R](
   # use the left side of the shadow key to check if we've already generated this shadow
   let newSize = cbs.totalSize
   let shadowKeyLeft = getShadowKey(shadowKey, radii, dLeft)
+  var missingAnyCorner = false
+  for corner in DirectionCorners:
+    if cornerHashes[corner] notin ctx.entries:
+      missingAnyCorner = true
+      break
 
-  if shadowKeyLeft notin ctx.entries:
+  if shadowKeyLeft notin ctx.entries or missingAnyCorner:
+    echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius, " -rTL:", radii[dcTopLeft], " -rTR:", radii[dcTopRight], " -rBL:", radii[dcBottomLeft], " -rBR:", radii[dcBottomRight]
     const whiteColor = rgba(255, 255, 255, 255)
     let center = vec2(cbs.totalSize.float32/2, cbs.totalSize.float32/2)
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
@@ -112,9 +118,9 @@ proc fillRoundedRectWithShadowSdf*[R](
         of dcTopRight:
           image.flipHorizontal()
         of dcBottomRight:
+          image.flipHorizontal()
           image.flipVertical()
         of dcBottomLeft:
-          image.flipHorizontal()
           image.flipVertical()
         ctx.putImage(cornerHash, image)
 
