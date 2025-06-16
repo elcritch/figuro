@@ -193,6 +193,6 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.drawImageAdj(sideHashes[dLeft], leftEdge.xy, shadowColor, leftEdge.wh)
   
   # Center (stretched both ways)
-  # if not innerShadow:
-  #   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
-  #   ctx.drawRect(center, shadowColor)
+  if not innerShadow:
+    let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
+    ctx.drawRect(center, shadowColor)
