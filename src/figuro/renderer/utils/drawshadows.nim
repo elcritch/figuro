@@ -127,14 +127,9 @@ proc fillRoundedRectWithShadowSdf*[R](
       let sideHash = getShadowKey(shadowKey, radii, side)
       ctx.putImage(sideHash, sideArray[side])
 
-    # patchArray[0].writeFile("tests/renderer-shadowImage-topleft-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
-    # if innerShadow:
-    #   echo "making inner shadow", " top left hash: ", ninePatchHashes[0], " shadow keybase: ", shadowKeyBase
-
   var 
     totalPadding = (cbs.totalSize.float32 - cbs.inner.float32) / 2
     corner = totalPadding.float32 + cbs.inner.float32 / 2
-    # corner = totalPadding.float32 + 1
 
   let
     sbox = rect(
