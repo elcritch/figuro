@@ -57,12 +57,12 @@ proc drawRoundedRect*[R](
   let hash = hash((6217, int(rw * 1), int(rh * 1), int(weight * 1), int(cbs.sideSize * 1), doStroke, outerShadowFill)) !& rhash
 
   block drawCorners:
-    var hashes: array[DirectionCorners, Hash]
-    for quadrant in DirectionCorners:
-      let qhash = hash !& hash(41) !& quadrant.int
-      hashes[quadrant] = qhash
+    var cornerHashes: array[DirectionCorners, Hash]
+    for corner in DirectionCorners:
+      let qhash = hash !& hash(41) !& corner.int
+      cornerHashes[corner] = qhash
 
-    if not ctx.hasImage(toKey(hashes[dcTopRight])):
+    if not ctx.hasImage(toKey(cornerHashes[dcTopRight])):
       let circle =
         when defined(figuroNoSDF):
           if doStroke:
@@ -102,31 +102,31 @@ proc drawRoundedRect*[R](
 
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
-      let patchArray = [
+      let cornerImages = [
         dcTopLeft: patches.topLeft,
         dcTopRight: patches.topRight, 
         dcBottomRight: patches.bottomRight,
         dcBottomLeft: patches.bottomLeft,
       ]
 
-      for quadrant in DirectionCorners:
-        let img = patchArray[quadrant]
-        ctx.addImage(toKey(hashes[quadrant]), img)
+      for corner in DirectionCorners:
+        let img = cornerImages[corner]
+        ctx.addImage(toKey(cornerHashes[corner]), img)
 
     let
       xy = rect.xy
       offsets = [
         dcTopLeft: vec2(0, 0),
         dcTopRight: vec2(w - rw, 0),
-        dcBottomRight: vec2(0, h - rh),
-        dcBottomLeft: vec2(w - rw, h - rh),
+        dcBottomRight: vec2(w - rw, h - rh),
+        dcBottomLeft: vec2(0, h - rh),
       ]
 
     for corner in DirectionCorners:
       let
         pt = ceil(xy + offsets[corner])
 
-      ctx.drawImage(toKey(hashes[corner]), pt, color)
+      ctx.drawImage(toKey(cornerHashes[corner]), pt, color)
 
   block drawEdgeBoxes:
     let
