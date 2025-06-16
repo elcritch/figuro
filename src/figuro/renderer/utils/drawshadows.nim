@@ -102,10 +102,9 @@ proc fillRoundedRectWithShadowSdf*[R](
       dLeft: patches.left,
     ]
 
-    var radiisDone: array[DirectionCorners, float32] = [NaN.float32, NaN.float32, NaN.float32, NaN.float32]
     for corner in DirectionCorners:
-      if radii[corner] notin radiisDone:
-        let cornerHash = getShadowKey(shadowKey, radii, corner)
+      let cornerHash = cornerHashes[corner]
+      if cornerHash notin ctx.entries:
         let image = cornerArray[corner]
         case corner:
         of dcTopLeft:
@@ -118,7 +117,6 @@ proc fillRoundedRectWithShadowSdf*[R](
           image.flipHorizontal()
           image.flipVertical()
         ctx.putImage(cornerHash, image)
-        radiisDone[corner] = radii[corner]
 
     for side in Directions:
       let sideHash = getShadowKey(shadowKey, radii, side)
