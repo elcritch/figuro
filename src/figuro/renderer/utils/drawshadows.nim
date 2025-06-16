@@ -132,8 +132,8 @@ proc fillRoundedRectWithShadowSdf*[R](
     #   echo "making inner shadow", " top left hash: ", ninePatchHashes[0], " shadow keybase: ", shadowKeyBase
 
   var 
-    totalPadding = cbs.padding.int
-    corner = totalPadding.float32 + cbs.inner.float32
+    totalPadding = (cbs.totalSize.float32 - cbs.inner.float32) / 2
+    corner = totalPadding.float32 + cbs.inner.float32 / 2
     # corner = totalPadding.float32 + 1
 
   let
