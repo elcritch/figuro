@@ -56,16 +56,21 @@ proc drawRoundedRect*[R](
     rw = cbs.sideSize.float32
     rh = cbs.sideSize.float32
 
-  let rhash = hash((int(radii[dcTopLeft]), int(radii[dcTopRight]), int(radii[dcBottomRight]), int(radii[dcBottomLeft])))
-  let hash = hash((6217, int(rw * 1), int(rh * 1), int(weight * 1), int(cbs.sideSize * 1), doStroke, outerShadowFill)) !& rhash
-
+  # let rhash = hash((int(radii[dcTopLeft]), int(radii[dcTopRight]), int(radii[dcBottomRight]), int(radii[dcBottomLeft])))
+  let hash = hash((6217, int(rw * 1), int(rh * 1), int(weight * 1), int(cbs.sideSize * 1), doStroke, outerShadowFill))
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
     for corner in DirectionCorners:
-      let qhash = hash((hash, 41, corner.int))
+      let qhash = hash((hash, 41, int(radii[corner])))
       cornerHashes[corner] = qhash
 
-    if not ctx.hasImage(toKey(cornerHashes[dcTopRight])):
+    var missingAnyCorner = false
+    for corner in DirectionCorners:
+      if cornerHashes[corner] notin ctx.entries:
+        missingAnyCorner = true
+        break
+
+    if missingAnyCorner:
       let circle =
         when defined(figuroNoSDF):
           if doStroke:
@@ -112,23 +117,55 @@ proc drawRoundedRect*[R](
       ]
 
       for corner in DirectionCorners:
-        let img = cornerImages[corner]
-        ctx.addImage(toKey(cornerHashes[corner]), img)
+        let cornerHash = cornerHashes[corner]
+        if cornerHash notin ctx.entries:
+          let image = cornerImages[corner]
+          case corner:
+          of dcTopLeft:
+            discard
+          of dcTopRight:
+            image.flipHorizontal()
+          of dcBottomRight:
+            image.flipHorizontal()
+            image.flipVertical()
+          of dcBottomLeft:
+            image.flipVertical()
+          ctx.addImage(toKey(cornerHash), image)
 
     let
       xy = rect.xy
-      offsets: array[DirectionCorners, Vec2] = [
-        dcTopLeft: vec2(0, 0),
-        dcTopRight: vec2(w - rw, 0),
-        dcBottomLeft: vec2(0, h - rh),
-        dcBottomRight: vec2(w - rw, h - rh),
-      ]
+      zero = vec2(0, 0)
+      cornerSize = vec2(rw, rh)
+      topLeft = xy + vec2(0, 0)
+      topRight = xy + vec2(w - rw, 0)
+      bottomLeft = xy + vec2(0, h - rh)
+      bottomRight = xy + vec2(w - rw, h - rh)
 
-    for corner in DirectionCorners:
-      let
-        pt = ceil(xy + offsets[corner])
+    ctx.saveTransform()
+    ctx.translate(topLeft)
+    ctx.drawImage(cornerHashes[dcTopLeft], zero, color)
+    ctx.restoreTransform()
 
-      ctx.drawImage(toKey(cornerHashes[corner]), pt, color)
+    ctx.saveTransform()
+    ctx.translate(topRight + cornerSize / 2)
+    ctx.rotate(-Pi/2)
+    ctx.translate(-cornerSize / 2)
+    ctx.drawImage(cornerHashes[dcTopRight], zero, color)
+    ctx.restoreTransform()
+
+    ctx.saveTransform()
+    ctx.translate(bottomLeft + cornerSize / 2)
+    ctx.rotate(Pi/2)
+    ctx.translate(-cornerSize / 2)
+    ctx.drawImage(cornerHashes[dcBottomLeft], zero, color)
+    ctx.restoreTransform()
+
+    ctx.saveTransform()
+    ctx.translate(bottomRight + cornerSize / 2)
+    ctx.rotate(Pi)
+    ctx.translate(-cornerSize / 2)
+    ctx.drawImage(cornerHashes[dcBottomRight], zero, color)
+    ctx.restoreTransform()
 
   block drawEdgeBoxes:
     let

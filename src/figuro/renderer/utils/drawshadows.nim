@@ -93,13 +93,13 @@ proc fillRoundedRectWithShadowSdf*[R](
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
 
-    let cornerArray = [
+    let cornerImages = [
       dcTopLeft: patches.topLeft,
       dcTopRight: patches.topRight, 
       dcBottomLeft: patches.bottomLeft,
       dcBottomRight: patches.bottomRight,
     ]
-    let sideArray = [
+    let sideImages = [
       dTop: patches.top,
       dRight: patches.right,
       dBottom: patches.bottom,
@@ -109,7 +109,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     for corner in DirectionCorners:
       let cornerHash = cornerHashes[corner]
       if cornerHash notin ctx.entries:
-        let image = cornerArray[corner]
+        let image = cornerImages[corner]
         case corner:
         of dcTopLeft:
           discard
@@ -125,7 +125,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     for side in Directions:
       let sideHash = getShadowKey(shadowKey, radii, side)
-      ctx.putImage(sideHash, sideArray[side])
+      ctx.putImage(sideHash, sideImages[side])
 
   var 
     totalPadding = (cbs.totalSize.float32 - cbs.inner.float32) / 2
