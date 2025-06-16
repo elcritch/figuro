@@ -74,7 +74,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius, " -rTL:", radii[dcTopLeft], " -rTR:", radii[dcTopRight], " -rBL:", radii[dcBottomLeft], " -rBR:", radii[dcBottomRight]
     const whiteColor = rgba(255, 255, 255, 255)
     let center = vec2(cbs.totalSize.float32/2, cbs.totalSize.float32/2)
-    let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
+    let corners = vec4(radii[dcBottomRight], radii[dcTopRight], radii[dcBottomLeft], radii[dcTopLeft])
     var shadowImg = newImage(newSize, newSize)
     let wh = if innerShadow: vec2(cbs.inner.float32 - 2*shadowSpread, cbs.inner.float32 - 2*shadowSpread) else: vec2(cbs.inner.float32, cbs.inner.float32)
     let spread = if innerShadow: 0.0 else: shadowSpread

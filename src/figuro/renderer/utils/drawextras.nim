@@ -76,7 +76,7 @@ proc drawRoundedRect*[R](
             var center = vec2(rw, rh)
             let wh = vec2(2*rw+1, 2*rh+1)
             # let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
-            let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
+            let corners = vec4(radii[dcBottomRight], radii[dcTopRight], radii[dcBottomLeft], radii[dcTopLeft])
             let circle = newImage(int(2*rw), int(2*rh))
             # echo "drawing circle: ", doStroke, " sz:", rect.w, "x", rect.h, " ", rw, "x", rh, " weight: ", weight, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")", " rhash: ", rhash, " "
             if doStroke:
