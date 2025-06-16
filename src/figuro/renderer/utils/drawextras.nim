@@ -61,12 +61,12 @@ proc drawRoundedRect*[R](
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
     for corner in DirectionCorners:
-      let qhash = hash((hash, 41, int(radii[corner])))
-      cornerHashes[corner] = qhash
+      cornerHashes[corner] = hash((hash, 41, int(radii[corner])))
 
     var missingAnyCorner = false
     for corner in DirectionCorners:
       if cornerHashes[corner] notin ctx.entries:
+        echo "missing corner: ", corner, " hash: ", cornerHashes[corner]
         missingAnyCorner = true
         break
 
@@ -128,7 +128,7 @@ proc drawRoundedRect*[R](
             image.flipVertical()
           of dcBottomLeft:
             image.flipVertical()
-          ctx.addImage(toKey(cornerHash), image)
+          ctx.putImage(toKey(cornerHash), image)
 
     let
       xy = rect.xy
