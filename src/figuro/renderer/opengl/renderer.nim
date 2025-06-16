@@ -90,13 +90,13 @@ macro postRender() =
 proc drawMasks(ctx: Context, node: Node) =
   if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
     ctx.drawRoundedRect(
-      rect(0, 0, node.screenBox.w, node.screenBox.h),
+      node.screenBox,
       rgba(255, 0, 0, 255).color,
       node.cornerRadius,
     )
   else:
     ctx.drawRect(
-      rect(0, 0, node.screenBox.w, node.screenBox.h), rgba(255, 0, 0, 255).color
+      node.screenBox, rgba(255, 0, 0, 255).color
     )
 
 proc renderDropShadows(ctx: Context, node: Node) =
@@ -120,7 +120,7 @@ proc renderDropShadows(ctx: Context, node: Node) =
         ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
   else:
     ctx.fillRoundedRectWithShadowSdf(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+      rect = node.screenBox,
       radii = node.cornerRadius,
       shadowX = shadow.x,
       shadowY = shadow.y,
@@ -145,7 +145,7 @@ proc renderInnerShadows(ctx: Context, node: Node) =
     let blurAmt = shadow.blur / n.toFloat
     for i in 0 .. n:
       let blur: float32 = i.toFloat() * blurAmt
-      var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
+      var box = node.screenBox
       # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
       if shadow.x >= 0'f32:
         box.w += shadow.x
@@ -162,9 +162,8 @@ proc renderInnerShadows(ctx: Context, node: Node) =
         radius = node.cornerRadius - blur,
       )
   else:
-    var rect = node.screenBox.atXY(0'f32, 0'f32)
     ctx.fillRoundedRectWithShadowSdf(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+      rect = node.screenBox,
       radii = node.cornerRadius,
       shadowX = shadow.x,
       shadowY = shadow.y,
@@ -176,26 +175,27 @@ proc renderInnerShadows(ctx: Context, node: Node) =
 
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
+
   if node.fill.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       discard
       ctx.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+        rect = node.screenBox,
         color = node.fill,
         radii = node.cornerRadius,
       )
     else:
-      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
+      ctx.drawRect(node.screenBox, node.fill)
 
   if node.highlight.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       ctx.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+        rect = node.screenBox,
         color = node.highlight,
         radii = node.cornerRadius,
       )
     else:
-      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
+      ctx.drawRect(node.screenBox, node.highlight)
 
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
@@ -204,7 +204,7 @@ proc renderBoxes(ctx: Context, node: Node) =
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.drawRoundedRect(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+      rect = node.screenBox,
       color = node.stroke.color,
       radii = node.cornerRadius,
       weight = node.stroke.weight,
@@ -233,8 +233,8 @@ proc render(
 
   # setup the opengl context to match the current node size and position
 
-  ctx.saveTransform()
-  ctx.translate(node.screenBox.xy)
+  # ctx.saveTransform()
+  # ctx.translate(node.screenBox.xy)
 
   # handle node rotation
   ifrender node.rotation != 0:
@@ -246,33 +246,36 @@ proc render(
     ctx.renderDropShadows(node)
 
   # handle clipping children content based on this node
-  ifrender NfClipContent in node.flags:
-    ctx.beginMask()
-    ctx.drawMasks(node)
-    ctx.endMask()
-  finally:
-    ctx.popMask()
+  # ifrender NfClipContent in node.flags:
+  #   ctx.beginMask()
+  #   ctx.drawMasks(node)
+  #   ctx.endMask()
+  # finally:
+  #   ctx.popMask()
 
   ifrender true:
     if node.kind == nkText:
+      ctx.saveTransform()
+      ctx.translate(node.screenBox.xy)
       ctx.renderText(node)
+      ctx.restoreTransform()
     elif node.kind == nkDrawable:
       ctx.renderDrawable(node)
     elif node.kind == nkRectangle:
       ctx.renderBoxes(node)
 
   ifrender node.kind == nkRectangle:
-    if NfClipContent notin node.flags:
-      ctx.beginMask()
-      ctx.drawMasks(node)
-      ctx.endMask()
-      ctx.renderInnerShadows(node)
-      ctx.popMask()
-    else:
-      ctx.renderInnerShadows(node)
+    # if NfClipContent notin node.flags:
+    #   ctx.beginMask()
+    #   ctx.drawMasks(node)
+    #   ctx.endMask()
+    #   ctx.renderInnerShadows(node)
+    #   ctx.popMask()
+    # else:
+    ctx.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)
-  ctx.restoreTransform()
+  # ctx.restoreTransform()
 
   for childIdx in childIndex(nodes, nodeIdx):
     ctx.render(nodes, childIdx, nodeIdx)

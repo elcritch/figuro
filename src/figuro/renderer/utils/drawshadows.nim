@@ -34,7 +34,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     result = hash((7723, blur.int, spread.int, innerShadow))
 
   proc getShadowKey(shadowKey: Hash, radii: array[DirectionCorners, float32], corner: DirectionCorners): Hash =
-    result = shadowKey !& hash(2474431) !& hash(radii[corner].int) !& hash(corner.int)
+    result = shadowKey !& hash(2474431) !& hash(radii[corner].int)
 
   proc getShadowKey(shadowKey: Hash, radii: array[Directions, float32], side: Directions): Hash =
     result = shadowKey !& hash(971767) !& hash(side.int)
@@ -104,12 +104,21 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     var radiisDone: array[DirectionCorners, float32] = [NaN.float32, NaN.float32, NaN.float32, NaN.float32]
     for corner in DirectionCorners:
-      let cornerHash = getShadowKey(shadowKey, radii, corner)
-      ctx.putImage(cornerHash, cornerArray[corner])
-      # if radii[corner] notin radiisDone:
-      #   let cornerHash = getShadowKey(shadowKey, radii, corner)
-      #   ctx.putImage(cornerHash, patchArray[corner])
-      #   radiisDone[corner] = radii[corner]
+      if radii[corner] notin radiisDone:
+        let cornerHash = getShadowKey(shadowKey, radii, corner)
+        let image = cornerArray[corner]
+        case corner:
+        of dcTopLeft:
+          discard
+        of dcTopRight:
+          image.flipHorizontal()
+        of dcBottomRight:
+          image.flipVertical()
+        of dcBottomLeft:
+          image.flipHorizontal()
+          image.flipVertical()
+        ctx.putImage(cornerHash, image)
+        radiisDone[corner] = radii[corner]
 
     for side in Directions:
       let sideHash = getShadowKey(shadowKey, radii, side)
@@ -138,17 +147,35 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   # Draw the corners
   let 
+    zero = vec2(0, 0)
     topLeft = rect(sbox.x, sbox.y, corner, corner)
     topRight = rect(sbox.x + sbox.w - corner, sbox.y, corner, corner)
     bottomLeft = rect(sbox.x, sbox.y + sbox.h - corner, corner, corner)
     bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
   
   # Draw corners
+
   ctx.drawImageAdj(cornerHashes[dcTopLeft], topLeft.xy, shadowColor, topLeft.wh)
-  ctx.drawImageAdj(cornerHashes[dcTopRight], topRight.xy, shadowColor, topRight.wh)
-  ctx.drawImageAdj(cornerHashes[dcBottomLeft], bottomLeft.xy, shadowColor, bottomLeft.wh)
-  ctx.drawImageAdj(cornerHashes[dcBottomRight], bottomRight.xy, shadowColor, bottomRight.wh)
-  
+
+  ctx.saveTransform()
+  ctx.translate(vec2(-topRight.w, topRight.h))
+  ctx.rotate(-Pi/2)
+  # ctx.translate(-topRight.xy)
+  ctx.drawImageAdj(cornerHashes[dcTopRight], zero, shadowColor, topRight.wh)
+  ctx.restoreTransform()
+
+  ctx.saveTransform()
+  # ctx.rotate(Pi/2)
+  ctx.translate(bottomLeft.xy)
+  ctx.drawImageAdj(cornerHashes[dcBottomLeft], zero, shadowColor, bottomLeft.wh)
+  ctx.restoreTransform()
+
+  ctx.saveTransform()
+  # ctx.rotate(Pi/2)
+  ctx.translate(bottomRight.xy)
+  ctx.drawImageAdj(cornerHashes[dcBottomRight], zero, shadowColor, bottomRight.wh)
+  ctx.restoreTransform()
+
   # Draw edges
   # Top edge (stretched horizontally)
   let
@@ -163,6 +190,6 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.drawImageAdj(sideHashes[dLeft], leftEdge.xy, shadowColor, leftEdge.wh)
   
   # Center (stretched both ways)
-  if not innerShadow:
-    let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
-    ctx.drawRect(center, shadowColor)
+  # if not innerShadow:
+  #   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
+  #   ctx.drawRect(center, shadowColor)
