@@ -71,10 +71,9 @@ proc fillRoundedRectWithShadowSdf*[R](
       break
 
   if shadowKeyLeft notin ctx.entries or missingAnyCorner:
-    echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius, " -rTL:", radii[dcTopLeft], " -rTR:", radii[dcTopRight], " -rBL:", radii[dcBottomLeft], " -rBR:", radii[dcBottomRight]
+    let corners = radii.cornersToSdfRadii()
     const whiteColor = rgba(255, 255, 255, 255)
     let center = vec2(cbs.totalSize.float32/2, cbs.totalSize.float32/2)
-    let corners = vec4(radii[dcBottomRight], radii[dcTopRight], radii[dcBottomLeft], radii[dcTopLeft])
     var shadowImg = newImage(newSize, newSize)
     let wh = if innerShadow: vec2(cbs.inner.float32 - 2*shadowSpread, cbs.inner.float32 - 2*shadowSpread) else: vec2(cbs.inner.float32, cbs.inner.float32)
     let spread = if innerShadow: 0.0 else: shadowSpread
@@ -90,8 +89,6 @@ proc fillRoundedRectWithShadowSdf*[R](
                 factor = shadowBlur,
                 spread = spread,
                 mode = mode)
-    echo "drawing shadow: ", innerShadow, " sz:", rect.w, "x", rect.h, " total:", cbs.totalSize, " inner:", cbs.inner, " padding:", cbs.padding, " side:", cbs.sideSize, " blur: ", shadowBlur, " spread: ", shadowSpread, " maxr:", maxRadius, " -rTL:", radii[dcTopLeft], " -rTR:", radii[dcTopRight], " -rBL:", radii[dcBottomLeft], " -rBR:", radii[dcBottomRight]
-    # shadowImg.writeFile("tests/renderer-shadowImage-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
@@ -124,8 +121,6 @@ proc fillRoundedRectWithShadowSdf*[R](
         of dcBottomLeft:
           image.flipVertical()
         
-        if not innerShadow:
-          echo "putting corner: ", corner, " size: ", newSize, " hash: ", cornerHash, " radius: ", radii[corner]
         ctx.putImage(cornerHash, image)
 
     for side in Directions:
@@ -162,10 +157,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
   
   # Draw corners
-  echo "cornerHashes: ", " tL: ", cornerHashes[dcTopLeft], " tR: ", cornerHashes[dcTopRight], " bL: ", cornerHashes[dcBottomLeft], " bR: ", cornerHashes[dcBottomRight]
-  echo "cornerRadius: ", " tL: ", radii[dcTopLeft], " tR: ", radii[dcTopRight], " bL: ", radii[dcBottomLeft], " bR: ", radii[dcBottomRight]
 
-  ctx.saveTransform()
   ctx.drawImageAdj(cornerHashes[dcTopLeft], topLeft.xy, shadowColor, topLeft.wh)
 
   ctx.saveTransform()
@@ -188,7 +180,6 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.rotate(Pi)
   ctx.translate(-bottomRight.wh / 2)
   ctx.drawImageAdj(cornerHashes[dcBottomRight], zero, shadowColor, bottomRight.wh)
-  ctx.restoreTransform()
   ctx.restoreTransform()
 
   # Draw edges

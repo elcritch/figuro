@@ -13,6 +13,9 @@ import pkg/sdfy
 import ../utils/boxes
 import ./drawutils
 
+proc cornersToSdfRadii*(radii: array[DirectionCorners, float32]): Vec4 =
+  vec4(radii[dcBottomRight], radii[dcTopRight], radii[dcBottomLeft], radii[dcTopLeft])
+
 proc drawOuterBox*[R](ctx: R, rect: Rect, padding: float32, color: Color) =
 
     var obox = rect
@@ -75,8 +78,7 @@ proc drawRoundedRect*[R](
             let clear = rgba(0, 0, 0, 0)
             var center = vec2(rw, rh)
             let wh = vec2(2*rw+1, 2*rh+1)
-            # let corners = vec4(radii[dcTopRight], radii[dcBottomRight], radii[dcBottomLeft], radii[dcTopLeft])
-            let corners = vec4(radii[dcBottomRight], radii[dcTopRight], radii[dcBottomLeft], radii[dcTopLeft])
+            let corners = radii.cornersToSdfRadii()
             let circle = newImage(int(2*rw), int(2*rh))
             # echo "drawing circle: ", doStroke, " sz:", rect.w, "x", rect.h, " ", rw, "x", rh, " weight: ", weight, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")", " rhash: ", rhash, " "
             if doStroke:
