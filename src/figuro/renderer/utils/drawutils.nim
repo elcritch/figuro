@@ -21,4 +21,4 @@ proc clampRadii*(radii: array[DirectionCorners, float32], rect: Rect): array[Dir
   let maxRadius = min(rect.w / 2, rect.h / 2)
   result = radii
   for corner in DirectionCorners:
-    result[corner] = max(1.0, min(radii[corner], maxRadius)).ceil()
+    result[corner] = max(1.0, min(radii[corner], maxRadius)).round()
