@@ -165,6 +165,7 @@ proc fillRoundedRectWithShadowSdf*[R](
   echo "cornerHashes: ", " tL: ", cornerHashes[dcTopLeft], " tR: ", cornerHashes[dcTopRight], " bL: ", cornerHashes[dcBottomLeft], " bR: ", cornerHashes[dcBottomRight]
   echo "cornerRadius: ", " tL: ", radii[dcTopLeft], " tR: ", radii[dcTopRight], " bL: ", radii[dcBottomLeft], " bR: ", radii[dcBottomRight]
 
+  ctx.saveTransform()
   ctx.drawImageAdj(cornerHashes[dcTopLeft], topLeft.xy, shadowColor, topLeft.wh)
 
   ctx.saveTransform()
@@ -187,6 +188,7 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.rotate(Pi)
   ctx.translate(-bottomRight.wh / 2)
   ctx.drawImageAdj(cornerHashes[dcBottomRight], zero, shadowColor, bottomRight.wh)
+  ctx.restoreTransform()
   ctx.restoreTransform()
 
   # Draw edges
