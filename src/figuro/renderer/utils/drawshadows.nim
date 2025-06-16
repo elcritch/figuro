@@ -84,10 +84,14 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     # Store each piece in the atlas
     let patchArray = [
-      patches.topLeft, patches.topRight, 
-      patches.bottomLeft, patches.bottomRight,
-      patches.top, patches.right, 
-      patches.bottom, patches.left
+      patches.topLeft,
+      patches.topRight, 
+      patches.bottomLeft,
+      patches.bottomRight,
+      patches.top,
+      patches.right, 
+      patches.bottom,
+      patches.left,
     ]
 
     for i in 0..7:
@@ -95,7 +99,6 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.putImage(ninePatchHashes[i], patchArray[i])
 
     # patchArray[0].writeFile("tests/renderer-shadowImage-topleft-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
-
     # if innerShadow:
     #   echo "making inner shadow", " top left hash: ", ninePatchHashes[0], " shadow keybase: ", shadowKeyBase
 
