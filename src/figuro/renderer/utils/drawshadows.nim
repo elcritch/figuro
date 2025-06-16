@@ -153,7 +153,10 @@ proc fillRoundedRectWithShadowSdf*[R](
   
   # Draw corners
 
-  ctx.drawImageAdj(cornerHashes[dcTopLeft], topLeft.xy, shadowColor, topLeft.wh)
+  ctx.saveTransform()
+  ctx.translate(topLeft.xy)
+  ctx.drawImageAdj(cornerHashes[dcTopLeft], zero, shadowColor, topLeft.wh)
+  ctx.restoreTransform()
 
   ctx.saveTransform()
   ctx.translate(topRight.xy + topRight.wh / 2)
