@@ -32,7 +32,12 @@ proc fillRoundedRectWithShadowSdf*[R](
   # Generate shadow key for caching
   proc getShadowKey(blur: float32, spread: float32, innerShadow: bool, radii: array[DirectionCorners, float32]): Hash =
     result = hash((7723, blur.int, spread.int, innerShadow))
-    result = result !& radii[dcTopLeft].int !& radii[dcTopRight].int !& radii[dcBottomLeft].int !& radii[dcBottomRight].int
+
+  proc getShadowKey(shadowKey: Hash, radii: array[DirectionCorners, float32], corner: DirectionCorners): Hash =
+    result = shadowKey !& hash(2474431) !& hash(radii[corner].int) !& hash(corner.int)
+
+  proc getShadowKey(shadowKey: Hash, radii: array[Directions, float32], side: Directions): Hash =
+    result = shadowKey !& hash(971767) !& hash(side.int)
 
   let 
     radii = clampRadii(radii, rect)
@@ -48,16 +53,19 @@ proc fillRoundedRectWithShadowSdf*[R](
     shadowKey = getShadowKey(shadowBlur, shadowSpread, innerShadow, radii)
     wh = vec2(cbs.inner.float32, cbs.inner.float32)
   
-  var ninePatchHashes: array[8, Hash]
-  for i in 0..7:
-    ninePatchHashes[i] = shadowKey !& i
+  var cornerHashes: array[DirectionCorners, Hash]
+  for corner in DirectionCorners:
+    cornerHashes[corner] = getShadowKey(shadowKey, radii, corner)
 
-  # Check if we've already generated this shadow
-  let shadowKeyBase = shadowKey !& 0
-  # let newSize = max(shadowBlur.int + shadowSpread.int + maxRadius.int, 2)
+  var sideHashes: array[Directions, Hash]
+  for side in Directions:
+    sideHashes[side] = getShadowKey(shadowKey, radii, side)
+
+  # use the left side of the shadow key to check if we've already generated this shadow
   let newSize = cbs.totalSize
+  let shadowKeyLeft = getShadowKey(shadowKey, radii, dLeft)
 
-  if shadowKeyBase notin ctx.entries:
+  if shadowKeyLeft notin ctx.entries:
     const whiteColor = rgba(255, 255, 255, 255)
     let center = vec2(cbs.totalSize.float32/2, cbs.totalSize.float32/2)
     let corners = vec4(radii[dcBottomLeft], radii[dcTopRight], radii[dcBottomRight], radii[dcTopLeft])
@@ -81,22 +89,31 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
-
-    # Store each piece in the atlas
-    let patchArray = [
-      patches.topLeft,
-      patches.topRight, 
-      patches.bottomLeft,
-      patches.bottomRight,
-      patches.top,
-      patches.right, 
-      patches.bottom,
-      patches.left,
+    let cornerArray = [
+      dcTopLeft: patches.topLeft,
+      dcTopRight: patches.topRight, 
+      dcBottomRight: patches.bottomRight,
+      dcBottomLeft: patches.bottomLeft,
+    ]
+    let sideArray = [
+      dTop: patches.top,
+      dRight: patches.right,
+      dBottom: patches.bottom,
+      dLeft: patches.left,
     ]
 
-    for i in 0..7:
-      ninePatchHashes[i] = shadowKey !& i
-      ctx.putImage(ninePatchHashes[i], patchArray[i])
+    var radiisDone: array[DirectionCorners, float32] = [NaN.float32, NaN.float32, NaN.float32, NaN.float32]
+    for corner in DirectionCorners:
+      let cornerHash = getShadowKey(shadowKey, radii, corner)
+      ctx.putImage(cornerHash, cornerArray[corner])
+      # if radii[corner] notin radiisDone:
+      #   let cornerHash = getShadowKey(shadowKey, radii, corner)
+      #   ctx.putImage(cornerHash, patchArray[corner])
+      #   radiisDone[corner] = radii[corner]
+
+    for side in Directions:
+      let sideHash = getShadowKey(shadowKey, radii, side)
+      ctx.putImage(sideHash, sideArray[side])
 
     # patchArray[0].writeFile("tests/renderer-shadowImage-topleft-" & $innerShadow & "-maxr" & $maxRadius & "-totalsz" & $cbs.totalSize & "-sidesz" & $cbs.sideSize & "-blur" & $shadowBlur & "-spread" & $shadowSpread & "-rTL" & $radii[dcTopLeft] & "-rTR" & $radii[dcTopRight] & "-rBL" & $radii[dcBottomLeft] & "-rBR" & $radii[dcBottomRight] & ".png")
     # if innerShadow:
@@ -127,21 +144,23 @@ proc fillRoundedRectWithShadowSdf*[R](
     bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
   
   # Draw corners
-  ctx.drawImageAdj(ninePatchHashes[0], topLeft.xy, shadowColor, topLeft.wh)
-  ctx.drawImageAdj(ninePatchHashes[1], topRight.xy, shadowColor, topRight.wh)
-  ctx.drawImageAdj(ninePatchHashes[2], bottomLeft.xy, shadowColor, bottomLeft.wh)
-  ctx.drawImageAdj(ninePatchHashes[3], bottomRight.xy, shadowColor, bottomRight.wh)
+  ctx.drawImageAdj(cornerHashes[dcTopLeft], topLeft.xy, shadowColor, topLeft.wh)
+  ctx.drawImageAdj(cornerHashes[dcTopRight], topRight.xy, shadowColor, topRight.wh)
+  ctx.drawImageAdj(cornerHashes[dcBottomLeft], bottomLeft.xy, shadowColor, bottomLeft.wh)
+  ctx.drawImageAdj(cornerHashes[dcBottomRight], bottomRight.xy, shadowColor, bottomRight.wh)
   
   # Draw edges
   # Top edge (stretched horizontally)
-  let topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
-  ctx.drawImageAdj(ninePatchHashes[4], topEdge.xy, shadowColor, topEdge.wh)
-  let rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
-  ctx.drawImageAdj(ninePatchHashes[5], rightEdge.xy, shadowColor, rightEdge.wh)
-  let bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
-  ctx.drawImageAdj(ninePatchHashes[6], bottomEdge.xy, shadowColor, bottomEdge.wh)
-  let leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
-  ctx.drawImageAdj(ninePatchHashes[7], leftEdge.xy, shadowColor, leftEdge.wh)
+  let
+    topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
+    rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
+    bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
+    leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
+
+  ctx.drawImageAdj(sideHashes[dTop], topEdge.xy, shadowColor, topEdge.wh)
+  ctx.drawImageAdj(sideHashes[dRight], rightEdge.xy, shadowColor, rightEdge.wh)
+  ctx.drawImageAdj(sideHashes[dBottom], bottomEdge.xy, shadowColor, bottomEdge.wh)
+  ctx.drawImageAdj(sideHashes[dLeft], leftEdge.xy, shadowColor, leftEdge.wh)
   
   # Center (stretched both ways)
   if not innerShadow:
