@@ -123,6 +123,9 @@ proc fillRoundedRectWithShadowSdf*[R](
           image.flipVertical()
         of dcBottomLeft:
           image.flipVertical()
+        
+        if not innerShadow:
+          echo "putting corner: ", corner, " size: ", newSize, " hash: ", cornerHash, " radius: ", radii[corner]
         ctx.putImage(cornerHash, image)
 
     for side in Directions:
@@ -159,6 +162,8 @@ proc fillRoundedRectWithShadowSdf*[R](
     bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
   
   # Draw corners
+  echo "cornerHashes: ", " tL: ", cornerHashes[dcTopLeft], " tR: ", cornerHashes[dcTopRight], " bL: ", cornerHashes[dcBottomLeft], " bR: ", cornerHashes[dcBottomRight]
+  echo "cornerRadius: ", " tL: ", radii[dcTopLeft], " tR: ", radii[dcTopRight], " bL: ", radii[dcBottomLeft], " bR: ", radii[dcBottomRight]
 
   ctx.drawImageAdj(cornerHashes[dcTopLeft], topLeft.xy, shadowColor, topLeft.wh)
 

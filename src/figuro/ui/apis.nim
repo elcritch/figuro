@@ -230,7 +230,7 @@ template cornerRadius*(radius: array[DirectionCorners, Constraint]) {.thisWrappe
 
 template corners*(topLeft = 0'ui, topRight = 0'ui, bottomLeft = 0'ui, bottomRight = 0'ui) =
   ## Sets corner radii
-  cornerRadius(this, [topLeft, topRight, bottomLeft, bottomRight])
+  cornerRadius(this, [dcTopLeft: topLeft, dcTopRight: topRight, dcBottomRight: bottomRight, dcBottomLeft: bottomLeft])
 
 template cornerRadius*(radius: UiScalar) {.thisWrapper.}
   ## Sets all radius of all 4 corners.
@@ -240,7 +240,7 @@ template cornerRadius*(radius: Constraint) {.thisWrapper.}
 
 template corners*(topLeft = 0'ux, topRight = 0'ux, bottomLeft = 0'ux, bottomRight = 0'ux) =
   ## Sets corner radii
-  cornerRadius(this, [topLeft, topRight, bottomLeft, bottomRight])
+  cornerRadius(this, [dcTopLeft: topLeft, dcTopRight: topRight,  dcBottomRight: bottomRight, dcBottomLeft: bottomLeft])
 
 ## ---------------------------------------------
 ##             Fidget Text APIs

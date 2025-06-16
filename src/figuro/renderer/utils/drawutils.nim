@@ -18,6 +18,7 @@ proc hash(radii: array[DirectionCorners, float32]): Hash =
     result = result !& hash(r)
 
 proc clampRadii*(radii: array[DirectionCorners, float32], rect: Rect): array[DirectionCorners, float32] =
+  let maxRadius = min(rect.w / 2, rect.h / 2)
   result = radii
-  for r in result.mitems():
-    r = max(1.0, min(r, min(rect.w / 2, rect.h / 2))).round()
+  for corner in DirectionCorners:
+    result[corner] = max(1.0, min(radii[corner], maxRadius)).round()
