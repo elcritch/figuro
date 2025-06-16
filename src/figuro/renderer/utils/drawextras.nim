@@ -53,11 +53,11 @@ proc drawRoundedRect*[R](
     # maxRadius = max(radii)
     cbs = getCircleBoxSizes(radii, 0.0, 0.0, weight, w, h)
     maxRadius = cbs.maxRadius
-    rw = cbs.sideSize.float32
-    rh = cbs.sideSize.float32
+    bw = cbs.sideSize.float32
+    bh = cbs.sideSize.float32
 
   # let rhash = hash((int(radii[dcTopLeft]), int(radii[dcTopRight]), int(radii[dcBottomRight]), int(radii[dcBottomLeft])))
-  let hash = hash((6217, int(rw * 1), int(rh * 1), int(weight * 1), int(cbs.sideSize * 1), doStroke, outerShadowFill))
+  let hash = hash((6217, int(bw), int(bh), int(weight), int(cbs.sideSize), doStroke, outerShadowFill))
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
     for corner in DirectionCorners:
@@ -81,10 +81,10 @@ proc drawRoundedRect*[R](
           block:
             let fill = rgba(255, 255, 255, 255)
             let clear = rgba(0, 0, 0, 0)
-            var center = vec2(rw, rh)
-            let wh = vec2(2*rw+1, 2*rh+1)
+            var center = vec2(bw, bh)
+            let wh = vec2(2*bw+1, 2*bh+1)
             let corners = radii.cornersToSdfRadii()
-            let circle = newImage(int(2*rw), int(2*rh))
+            let circle = newImage(int(2*bw), int(2*bh))
             # echo "drawing circle: ", doStroke, " sz:", rect.w, "x", rect.h, " ", rw, "x", rh, " weight: ", weight, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")", " rhash: ", rhash, " "
             if doStroke:
               drawSdfShape(circle,
@@ -135,11 +135,11 @@ proc drawRoundedRect*[R](
     let
       xy = rect.xy
       zero = vec2(0, 0)
-      cornerSize = vec2(rw, rh)
+      cornerSize = vec2(bw, bh)
       topLeft = xy + vec2(0, 0)
-      topRight = xy + vec2(w - rw, 0)
-      bottomLeft = xy + vec2(0, h - rh)
-      bottomRight = xy + vec2(w - rw, h - rh)
+      topRight = xy + vec2(w - bw, 0)
+      bottomLeft = xy + vec2(0, h - bh)
+      bottomRight = xy + vec2(w - bw, h - bh)
 
     ctx.saveTransform()
     ctx.translate(topLeft)
@@ -171,16 +171,16 @@ proc drawRoundedRect*[R](
     let
       ww = if doStroke: weight else: cbs.sideSize.float32
       # ww = cbs.sideSize.float32
-      rrw = if doStroke: w - weight else: w - rw
-      rrh = if doStroke: h - weight else: h - rh
-      wrw = w - 2 * rw
-      hrh = h - 2 * rh
+      rrw = if doStroke: w - weight else: w - bw
+      rrh = if doStroke: h - weight else: h - bh
+      wrw = w - 2 * bw
+      hrh = h - 2 * bh
 
     if not doStroke:
-      ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rh), wrw, hrh), color)
+      ctx.drawRect(rect(ceil(rect.x + bw), ceil(rect.y + bh), wrw, hrh), color)
 
-    ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y), wrw, ww), color)
-    ctx.drawRect(rect(ceil(rect.x + rw), ceil(rect.y + rrh), wrw, ww), color)
+    ctx.drawRect(rect(ceil(rect.x + bw), ceil(rect.y), wrw, ww), color)
+    ctx.drawRect(rect(ceil(rect.x + bw), ceil(rect.y + rrh), wrw, ww), color)
 
-    ctx.drawRect(rect(ceil(rect.x), ceil(rect.y + rh), ww, hrh), color)
-    ctx.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + rh), ww, hrh), color)
+    ctx.drawRect(rect(ceil(rect.x), ceil(rect.y + bh), ww, hrh), color)
+    ctx.drawRect(rect(ceil(rect.x + rrw), ceil(rect.y + bh), ww, hrh), color)
