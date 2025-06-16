@@ -50,7 +50,7 @@ proc draw*(self: Main) {.slot.} =
             self.toggles[this.state] = not self.toggles[this.state]
 
     Button[int] as "btn":
-      box 20'pp, 20'pp, 30'pp, 30'pp
+      box 40'ux, 40'ux, 30'pp, 30'pp
       fill css"#2B9F2B" * 0.5
       border 5'ui, css"darkgreen" * 0.5
       corners topLeft = self.fades[FkTopLeft].amount.UiScalar,
