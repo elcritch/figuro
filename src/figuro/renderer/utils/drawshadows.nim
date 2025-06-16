@@ -30,8 +30,8 @@ proc fillRoundedRectWithShadowSdf*[R](
     
   # First, draw the shadow
   # Generate shadow key for caching
-  proc getShadowKey(blur: float32, spread: float32, innerShadow: bool, radii: array[DirectionCorners, float32]): Hash =
-    result = hash((7723, blur.int, spread.int, innerShadow))
+  proc getShadowKey(blur: float32, spread: float32, totalSize: int, innerShadow: bool, radii: array[DirectionCorners, float32]): Hash =
+    result = hash((7723, blur.int, spread.int, innerShadow, totalSize))
 
   proc getShadowKey(shadowKey: Hash, radii: array[DirectionCorners, float32], corner: DirectionCorners): Hash =
     result = shadowKey !& hash(2474431) !& hash(radii[corner].int)
@@ -50,7 +50,7 @@ proc fillRoundedRectWithShadowSdf*[R](
                              height = rect.h,
                              innerShadow = innerShadow)
     maxRadius = cbs.maxRadius
-    shadowKey = getShadowKey(shadowBlur, shadowSpread, innerShadow, radii)
+    shadowKey = getShadowKey(shadowBlur, shadowSpread, cbs.totalSize, innerShadow, radii)
     wh = vec2(cbs.inner.float32, cbs.inner.float32)
   
   var cornerHashes: array[DirectionCorners, Hash]
@@ -158,9 +158,10 @@ proc fillRoundedRectWithShadowSdf*[R](
   ctx.drawImageAdj(cornerHashes[dcTopLeft], topLeft.xy, shadowColor, topLeft.wh)
 
   ctx.saveTransform()
-  ctx.translate(vec2(-topRight.w, topRight.h))
+  # ctx.translate(vec2(+topRight.w/2, topRight.h/2))
+  ctx.translate(topRight.xy + topRight.wh / 2)
   ctx.rotate(-Pi/2)
-  # ctx.translate(-topRight.xy)
+  ctx.translate(-topRight.wh / 2)
   ctx.drawImageAdj(cornerHashes[dcTopRight], zero, shadowColor, topRight.wh)
   ctx.restoreTransform()
 

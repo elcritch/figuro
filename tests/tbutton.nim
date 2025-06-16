@@ -66,14 +66,14 @@ proc draw*(self: Main) {.slot.} =
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar, y: self.fades[FkY].amount.UiScalar,
-          color: Color(r: 1.0, g: 0.0, b: 0.0, a: 0.99))
+          color: Color(r: 1.0, g: 0.0, b: 0.0, a: 0.4))
       when true:
         this.shadow[InnerShadow] = Shadow(
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar,
           y: self.fades[FkY].amount.UiScalar,
-          color: Color(r: 0.0, g: 0.0, b: 1.0, a: 0.99))
+          color: Color(r: 0.0, g: 0.0, b: 1.0, a: 0.4))
 
       Text.new "btnText":
         size 100'pp, 100'pp
