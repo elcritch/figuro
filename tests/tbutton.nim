@@ -20,7 +20,7 @@ type
 proc initialize*(self: Main) {.slot.} =
   for kd in FadeKinds:
     self.toggles[kd] = true
-    self.fades[kd] = Fader(minMax: 1.0..34.0,
+    self.fades[kd] = Fader(minMax: 0.1..34.0,
                           inTimeMs: 1400, outTimeMs: 1400)
   self.fades[FkTopLeft] = Fader(minMax: 2.0..8.0,
                           inTimeMs: 1400, outTimeMs: 1400)
