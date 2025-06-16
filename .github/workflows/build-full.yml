@@ -33,7 +33,7 @@ jobs:
 
     - name: Install Nimble
       run: |
-        nimble install nimble
+        nimble install nimble@0.18.4
         nim -v
         nimble -v
 
