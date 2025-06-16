@@ -34,10 +34,10 @@ proc fillRoundedRectWithShadowSdf*[R](
     result = hash((7723, blur.int, spread.int, innerShadow, totalSize))
 
   proc getShadowKey(shadowKey: Hash, radii: array[DirectionCorners, float32], corner: DirectionCorners): Hash =
-    result = shadowKey !& hash(2474431) !& hash(radii[corner].int)
+    result = hash((shadowKey, 2474431, int(radii[corner])))
 
   proc getShadowKey(shadowKey: Hash, radii: array[Directions, float32], side: Directions): Hash =
-    result = shadowKey !& hash(971767) !& hash(side.int)
+    result = hash((shadowKey, 971767, int(side)))
 
   let 
     radii = clampRadii(radii, rect)
