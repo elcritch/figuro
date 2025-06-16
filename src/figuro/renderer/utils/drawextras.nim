@@ -50,13 +50,12 @@ proc drawRoundedRect*[R](
     w = rect.w.ceil()
     h = rect.h.ceil()
     radii = clampRadii(radii, rect)
-    # maxRadius = max(radii)
     cbs = getCircleBoxSizes(radii, 0.0, 0.0, weight, w, h)
     maxRadius = cbs.maxRadius
     bw = cbs.sideSize.float32
     bh = cbs.sideSize.float32
 
-  let hash = hash((6217, int(bw), int(bh), int(weight), int(cbs.sideSize), doStroke, outerShadowFill))
+  let hash = hash((6217, int(cbs.sideSize), int(cbs.maxRadius), int(weight), doStroke, outerShadowFill))
 
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
