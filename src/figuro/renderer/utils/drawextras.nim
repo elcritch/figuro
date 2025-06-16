@@ -65,7 +65,7 @@ proc drawRoundedRect*[R](
     var missingAnyCorner = false
     for corner in DirectionCorners:
       if cornerHashes[corner] notin ctx.entries:
-        echo "missing corner: ", corner, " hash: ", cornerHashes[corner]
+        echo "missing corner: ", corner, " hash: ", cornerHashes[corner], " radius: ", radii[corner], " sideSize: ", cbs.sideSize, " maxRadius: ", cbs.maxRadius, " weight: ", weight, " doStroke: ", doStroke, " outerShadowFill: ", outerShadowFill
         missingAnyCorner = true
         break
 
