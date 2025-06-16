@@ -118,8 +118,8 @@ proc drawRoundedRect*[R](
       offsets = [
         dcTopLeft: vec2(0, 0),
         dcTopRight: vec2(w - rw, 0),
-        dcBottomRight: vec2(w - rw, h - rh),
-        dcBottomLeft: vec2(0, h - rh),
+        dcBottomRight: vec2(0, h - rh),
+        dcBottomLeft: vec2(w - rw, h - rh),
       ]
 
     for corner in DirectionCorners:
