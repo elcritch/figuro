@@ -59,7 +59,7 @@ proc drawRoundedRect*[R](
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
     for corner in DirectionCorners:
-      let qhash = hash !& hash(41) !& corner.int
+      let qhash = hash((hash, 41, corner.int))
       cornerHashes[corner] = qhash
 
     if not ctx.hasImage(toKey(cornerHashes[dcTopRight])):
@@ -102,11 +102,11 @@ proc drawRoundedRect*[R](
 
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
-      let cornerImages = [
+      let cornerImages: array[DirectionCorners, Image] = [
         dcTopLeft: patches.topLeft,
         dcTopRight: patches.topRight, 
-        dcBottomRight: patches.bottomRight,
         dcBottomLeft: patches.bottomLeft,
+        dcBottomRight: patches.bottomRight,
       ]
 
       for corner in DirectionCorners:
@@ -115,11 +115,11 @@ proc drawRoundedRect*[R](
 
     let
       xy = rect.xy
-      offsets = [
+      offsets: array[DirectionCorners, Vec2] = [
         dcTopLeft: vec2(0, 0),
         dcTopRight: vec2(w - rw, 0),
-        dcBottomRight: vec2(w - rw, h - rh),
         dcBottomLeft: vec2(0, h - rh),
+        dcBottomRight: vec2(w - rw, h - rh),
       ]
 
     for corner in DirectionCorners:

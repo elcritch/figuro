@@ -24,8 +24,8 @@ type
   DirectionCorners* = enum
     dcTopLeft
     dcTopRight
-    dcBottomRight
     dcBottomLeft
+    dcBottomRight
 
   NodeKind* = enum
     ## Different types of nodes.

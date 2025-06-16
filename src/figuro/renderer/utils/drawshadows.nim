@@ -99,8 +99,8 @@ proc fillRoundedRectWithShadowSdf*[R](
     let cornerArray = [
       dcTopLeft: patches.topLeft,
       dcTopRight: patches.topRight, 
-      dcBottomRight: patches.bottomRight,
       dcBottomLeft: patches.bottomLeft,
+      dcBottomRight: patches.bottomRight,
     ]
     let sideArray = [
       dTop: patches.top,

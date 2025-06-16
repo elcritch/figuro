@@ -240,9 +240,12 @@ proc render(
 
   # handle node rotation
   ifrender node.rotation != 0:
+    ctx.saveTransform()
     ctx.translate(node.screenBox.wh / 2)
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
+  finally:
+    ctx.restoreTransform()
 
   ifrender node.kind == nkRectangle:
     ctx.renderDropShadows(node)
