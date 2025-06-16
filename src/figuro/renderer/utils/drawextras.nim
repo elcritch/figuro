@@ -56,8 +56,8 @@ proc drawRoundedRect*[R](
     bw = cbs.sideSize.float32
     bh = cbs.sideSize.float32
 
-  # let rhash = hash((int(radii[dcTopLeft]), int(radii[dcTopRight]), int(radii[dcBottomRight]), int(radii[dcBottomLeft])))
   let hash = hash((6217, int(bw), int(bh), int(weight), int(cbs.sideSize), doStroke, outerShadowFill))
+
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
     for corner in DirectionCorners:
@@ -85,7 +85,6 @@ proc drawRoundedRect*[R](
             let wh = vec2(2*bw+1, 2*bh+1)
             let corners = radii.cornersToSdfRadii()
             let circle = newImage(int(2*bw), int(2*bh))
-            # echo "drawing circle: ", doStroke, " sz:", rect.w, "x", rect.h, " ", rw, "x", rh, " weight: ", weight, " r(", radii[dcTopLeft], ",", radii[dcTopRight], ",", radii[dcBottomLeft], ",", radii[dcBottomRight], ")", " rhash: ", rhash, " "
             if doStroke:
               drawSdfShape(circle,
                     center = center,
@@ -104,7 +103,6 @@ proc drawRoundedRect*[R](
                     pos = fill.to(ColorRGBA),
                     neg = clear.to(ColorRGBA),
                     mode = sdfModeClipAA)
-            # circle.writeFile("tests/circlebox-" & "stroke-" & $doStroke & "-rect" & $rw & "x" & $rh & "-mr" & $maxRadius & ".png")
             circle
 
       let patches = sliceToNinePatch(circle)
