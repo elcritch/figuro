@@ -95,6 +95,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     # Slice it into 9-patch pieces
     let patches = sliceToNinePatch(shadowImg)
+
     let cornerArray = [
       dcTopLeft: patches.topLeft,
       dcTopRight: patches.topRight, 
