@@ -52,14 +52,10 @@ proc drawRoundedRect*[R](
     for corner in DirectionCorners:
       cornerHashes[corner] = hash((hash, 41, int(radii[corner])))
 
-    var missingAnyCorner = false
     for corner in DirectionCorners:
-      if cornerHashes[corner] notin ctx.entries:
-        # echo "missing corner: ", corner, " hash: ", cornerHashes[corner], " radius: ", radii[corner], " sideSize: ", cbs.sideSize, " maxRadius: ", cbs.maxRadius, " weight: ", weight, " doStroke: ", doStroke, " outerShadowFill: ", outerShadowFill
-        missingAnyCorner = true
-        break
+      if cornerHashes[corner] in ctx.entries:
+        continue
 
-    if missingAnyCorner:
       let fill = rgba(255, 255, 255, 255)
       let clear = rgba(0, 0, 0, 0)
       var center = vec2(bw, bh)
@@ -86,30 +82,20 @@ proc drawRoundedRect*[R](
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      let patches = sliceToNinePatch(circle)
-      # Store each piece in the atlas
-      let cornerImages: array[DirectionCorners, Image] = [
-        dcTopLeft: patches.topLeft,
-        dcTopRight: patches.topRight, 
-        dcBottomLeft: patches.bottomLeft,
-        dcBottomRight: patches.bottomRight,
-      ]
-
-      for corner in DirectionCorners:
-        let cornerHash = cornerHashes[corner]
-        if cornerHash notin ctx.entries:
-          let image = cornerImages[corner]
-          case corner:
-          of dcTopLeft:
-            discard
-          of dcTopRight:
-            image.flipHorizontal()
-          of dcBottomRight:
-            image.flipHorizontal()
-            image.flipVertical()
-          of dcBottomLeft:
-            image.flipVertical()
-          ctx.putImage(toKey(cornerHash), image)
+      let cornerHash = cornerHashes[corner]
+      if cornerHash notin ctx.entries:
+        let image = cornerImages[corner]
+        case corner:
+        of dcTopLeft:
+          discard
+        of dcTopRight:
+          image.flipHorizontal()
+        of dcBottomRight:
+          image.flipHorizontal()
+          image.flipVertical()
+        of dcBottomLeft:
+          image.flipVertical()
+        ctx.putImage(toKey(cornerHash), image)
 
     let
       xy = rect.xy
