@@ -50,3 +50,26 @@ proc getCircleBoxSizes*(
     result.sideSize = min(result.maxRadius, min(bw, bh)).max(ww)
   result.totalSize = 3*result.sidesize + 3*padding
   result.inner = 3*result.sideSize
+
+proc roundedBoxCornerSizes*(
+    radii: array[DirectionCorners, float32],
+    blur: float32,
+    spread: float32,
+    weight: float32 = 0.0,
+    width = float32.high(),
+    height = float32.high(),
+    innerShadow = false,
+): array[DirectionCorners, tuple[corner, side, padding: int]] =
+  let ww = int(1.5*weight.round())
+  let bw = width.round().int
+  let bh = height.round().int
+
+  let padding = spread + 1.5 * blur
+  let sideSize =
+    if innerShadow:
+      min(result.maxRadius + padding, min(bw, bh)).max(ww)
+    else:
+      min(result.maxRadius, min(bw, bh)).max(ww)
+
+  for corner in DirectionCorners:
+    result[corner] = (corner, sideSize, padding)
