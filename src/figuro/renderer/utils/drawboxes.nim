@@ -62,7 +62,7 @@ proc drawRoundedRect*[R](
 
       var image = newImage(int(2*bw), int(2*bh))
       let cornerCbs = cornerCbs[corner]
-      let corners = [cornerCbs.radius, cornerCbs.radius, cornerCbs.radius, cornerCbs.radius]
+      let corners = vec4(cornerCbs.radius.float32)
 
       if doStroke:
         drawSdfShape(image,
