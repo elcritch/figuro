@@ -60,32 +60,31 @@ proc drawRoundedRect*[R](
         break
 
     if missingAnyCorner:
-      let circle = block:
-        let fill = rgba(255, 255, 255, 255)
-        let clear = rgba(0, 0, 0, 0)
-        var center = vec2(bw, bh)
-        let wh = vec2(2*bw+1, 2*bh+1)
-        let corners = radii.cornersToSdfRadii()
-        let circle = newImage(int(2*bw), int(2*bh))
-        if doStroke:
-          drawSdfShape(circle,
-                center = center,
-                wh = wh,
-                params = RoundedBoxParams(r: corners),
-                pos = fill.to(ColorRGBA),
-                neg = clear.to(ColorRGBA),
-                factor = weight + 0.5,
-                spread = 0.0,
-                mode = sdfModeAnnular)
-        else:
-          drawSdfShape(circle,
-                center = center,
-                wh = wh,
-                params = RoundedBoxParams(r: corners),
-                pos = fill.to(ColorRGBA),
-                neg = clear.to(ColorRGBA),
-                mode = sdfModeClipAA)
-        circle
+      let fill = rgba(255, 255, 255, 255)
+      let clear = rgba(0, 0, 0, 0)
+      var center = vec2(bw, bh)
+      let wh = vec2(2*bw+1, 2*bh+1)
+      let corners = radii.cornersToSdfRadii()
+      var circle = newImage(int(2*bw), int(2*bh))
+
+      if doStroke:
+        drawSdfShape(circle,
+              center = center,
+              wh = wh,
+              params = RoundedBoxParams(r: corners),
+              pos = fill.to(ColorRGBA),
+              neg = clear.to(ColorRGBA),
+              factor = weight + 0.5,
+              spread = 0.0,
+              mode = sdfModeAnnular)
+      else:
+        drawSdfShape(circle,
+              center = center,
+              wh = wh,
+              params = RoundedBoxParams(r: corners),
+              pos = fill.to(ColorRGBA),
+              neg = clear.to(ColorRGBA),
+              mode = sdfModeClipAA)
 
       let patches = sliceToNinePatch(circle)
       # Store each piece in the atlas
