@@ -150,12 +150,13 @@ proc drawRoundedRect*[R](
       ctx.rotate(angles[corner])
       ctx.translate(-csizes[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, darkGrey)
-      ctx.restoreTransform()
 
       if cornerCbs[corner].sideDelta > 0:
         let inner = cornerCbs[corner].inner.float32
         let sideDelta = cornerCbs[corner].sideDelta.float32
-        ctx.drawRect(rect(cpos[corner].x, cpos[corner].y, inner, sideDelta), color)
+        ctx.drawRect(rect(0, inner, inner, sideDelta), color)
+
+      ctx.restoreTransform()
 
   block drawEdgeBoxes:
     let
