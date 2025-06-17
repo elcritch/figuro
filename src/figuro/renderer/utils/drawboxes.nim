@@ -94,7 +94,7 @@ proc drawRoundedRect*[R](
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      if cornerCbs.radius != 40:
+      if color.a != 1.0:
         var msg = "corner"
         msg &= (if doStroke: "-stroke" else: "-noStroke") 
         msg &= "-weight" & $weight 
@@ -128,8 +128,8 @@ proc drawRoundedRect*[R](
 
       darkGrey = rgba(50, 50, 50, 255).to(Color)
 
-    if cornerCbs[dcBottomLeft].radius != 40:
-      echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " doStroke: " & $doStroke
+    if color.a != 1.0:
+      echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " doStroke: " & $doStroke
 
     ctx.saveTransform()
     ctx.translate(topLeft)
