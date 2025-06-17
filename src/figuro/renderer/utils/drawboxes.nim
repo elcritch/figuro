@@ -121,7 +121,7 @@ proc drawRoundedRect*[R](
       bottomRight = xy + vec2(w - bw + cornerCbs[dcBottomRight].sideDelta.float32,
                               h - bh + cornerCbs[dcBottomRight].sideDelta.float32)
 
-      tlCornerSize = vec2(cornerCbs[dcTopLeft].sideSize.float32, cornerCbs[dcTopLeft].sideSize.float32)
+      tlCornerSize = vec2(0.0, 0.0)
       trCornerSize = vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32)
       blCornerSize = vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32)
       brCornerSize = vec2(cornerCbs[dcBottomRight].sideSize.float32, cornerCbs[dcBottomRight].sideSize.float32)
@@ -132,8 +132,9 @@ proc drawRoundedRect*[R](
       echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
 
     ctx.saveTransform()
-    ctx.translate(topLeft)
+    ctx.translate(topLeft + tlCornerSize / 2)
     ctx.drawImage(cornerHashes[dcTopLeft], zero, darkGrey)
+    ctx.translate(-tlCornerSize / 2)
     ctx.restoreTransform()
 
     ctx.saveTransform()
