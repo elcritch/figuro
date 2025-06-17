@@ -146,29 +146,6 @@ proc drawRoundedRect*[R](
       ctx.drawImage(cornerHashes[corner], zero, darkGrey)
       ctx.restoreTransform()
 
-    # ctx.saveTransform()
-    # ctx.translate(topRight + trCornerSize / 2)
-    # ctx.rotate(-Pi/2)
-    # ctx.translate(-trCornerSize / 2)
-    # ctx.drawImage(cornerHashes[dcTopRight], zero, darkGrey)
-    # ctx.restoreTransform()
-
-    # ctx.saveTransform()
-    # # ctx.translate(bottomLeft)
-    # ctx.translate(bottomLeft + blCornerSize / 2)
-    # ctx.rotate(Pi/2)
-    # ctx.translate(-blCornerSize / 2)
-    # ctx.drawImage(cornerHashes[dcBottomLeft], zero, darkGrey)
-    # # ctx.drawImage(cornerHashes[dcBottomLeft], zero, rgba(0, 0, 0, 255).to(Color))
-    # ctx.restoreTransform()
-
-    # ctx.saveTransform()
-    # ctx.translate(bottomRight + brCornerSize / 2)
-    # ctx.rotate(Pi)
-    # ctx.translate(-brCornerSize / 2)
-    # ctx.drawImage(cornerHashes[dcBottomRight], zero, darkGrey)
-    # ctx.restoreTransform()
-
   block drawEdgeBoxes:
     let
       ww = if doStroke: weight else: cbs.sideSize.float32
