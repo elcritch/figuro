@@ -66,8 +66,8 @@ proc drawRoundedRect*[R](
 
       if doStroke:
         drawSdfShape(image,
-              center = vec2(cornerCbs.center, cornerCbs.center),
-              wh = vec2(cornerCbs.sideSize, cornerCbs.sideSize),
+              center = vec2(cornerCbs.center.float32, cornerCbs.center.float32),
+              wh = vec2(cornerCbs.sideSize.float32, cornerCbs.sideSize.float32),
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
@@ -76,8 +76,8 @@ proc drawRoundedRect*[R](
               mode = sdfModeAnnular)
       else:
         drawSdfShape(image,
-              center = vec2(cornerCbs.center, cornerCbs.center),
-              wh = vec2(cornerCbs.sideSize, cornerCbs.sideSize),
+              center = vec2(cornerCbs.center.float32, cornerCbs.center.float32),
+              wh = vec2(cornerCbs.sideSize.float32, cornerCbs.sideSize.float32),
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
