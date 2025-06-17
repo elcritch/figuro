@@ -10,11 +10,7 @@ import pkg/chronicles
 import pkg/pixie
 import pkg/sdfy
 
-import ../utils/boxes
 import ./drawutils
-
-proc cornersToSdfRadii*(radii: array[DirectionCorners, float32]): Vec4 =
-  vec4(radii[dcBottomRight], radii[dcTopRight], radii[dcBottomLeft], radii[dcTopLeft])
 
 proc sliceToNinePatch*(img: Image): tuple[
   topLeft, topRight, bottomLeft, bottomRight: Image,
@@ -79,33 +75,6 @@ proc sliceToNinePatch*(img: Image): tuple[
     left: fleft
   )
   
-proc getCircleBoxSizes*(
-    radii: array[DirectionCorners, float32],
-    blur: float32,
-    spread: float32,
-    weight: float32 = 0.0,
-    width = float32.high(),
-    height = float32.high(),
-    innerShadow = false,
-): tuple[maxRadius, sideSize, totalSize, padding, inner: int] =
-  result.maxRadius = 0
-  for r in radii:
-    result.maxRadius = max(result.maxRadius, r.round().int)
-  let ww = int(1.5*weight.round())
-  let bw = width.round().int
-  let bh = height.round().int
-  let blur = blur.round().int
-  let spread = spread.round().int
-  let padding = max(spread + blur, result.maxRadius)
-
-  result.padding = padding
-  if innerShadow:
-    result.sideSize = min(result.maxRadius + padding, min(bw, bh)).max(ww)
-  else:
-    result.sideSize = min(result.maxRadius, min(bw, bh)).max(ww)
-  result.totalSize = 3*result.sidesize + 3*padding
-  result.inner = 3*result.sideSize
-
 proc generateCircleBox*(
     radii: array[DirectionCorners, float32],
     offset = vec2(0, 0),

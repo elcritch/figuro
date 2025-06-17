@@ -10,7 +10,7 @@ import pkg/chronicles
 import pkg/pixie
 import pkg/sdfy
 
-import ../utils/boxes
+import ../utils/drawextras
 import ./drawutils
 
 var shadowCache: Table[Hash, Image] = initTable[Hash, Image]()

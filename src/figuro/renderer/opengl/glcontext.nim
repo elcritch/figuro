@@ -7,8 +7,8 @@ import pixie/simd
 import pkg/chronicles
 
 import ../../commons
-import ../utils/boxes
 import ../utils/drawextras
+import ../utils/drawboxes
 import ../utils/drawshadows
 
 export drawextras

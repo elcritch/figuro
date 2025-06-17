@@ -11,6 +11,7 @@ import ../../common/nodes/uinodes
 import ../utils/glutils
 import ../utils/baserenderer
 import ../utils/drawshadows
+import ../utils/drawboxes
 import glcommons, glcontext
 
 import std/locks
