@@ -59,7 +59,7 @@ proc roundedBoxCornerSizes*(
     width = float32.high(),
     height = float32.high(),
     innerShadow = false,
-): array[DirectionCorners, tuple[corner, side, padding, sideSize, inner, totalSize: int]] =
+): array[DirectionCorners, tuple[dim, side, padding, sideSize, inner, totalSize: int]] =
   let ww = int(1.5*weight.round())
   let bw = width.round().int
   let bh = height.round().int
@@ -67,7 +67,7 @@ proc roundedBoxCornerSizes*(
   for r in radii:
     maxRadius = max(maxRadius, r.round().int)
 
-  let padding = spread + 1.5 * blur
+  let padding = int(round(spread + 1.5 * blur))
   let sideSize =
     if innerShadow:
       min(maxRadius + padding, min(bw, bh)).max(ww)
@@ -77,4 +77,5 @@ proc roundedBoxCornerSizes*(
   let inner = 3*sideSize
 
   for corner in DirectionCorners:
-    result[corner] = (corner, sideSize, padding, sideSize, inner, totalSize)
+    let dim = max(int(round(radii[corner])), ww) + 1
+    result[corner] = (dim, sideSize, padding, sideSize, inner, totalSize)
