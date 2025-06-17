@@ -61,5 +61,5 @@ proc roundedBoxCornerSizes*(
   for corner in DirectionCorners:
     let dim = max(int(round(radii[corner])), ww) + 1
     let sideSize = int(round(1.5*cbs.padding.float32)) + dim
-    let center = int(round(1.5*cbs.padding.float32))
+    let center = sideSize - 1
     result[corner] = (int(round(radii[corner])), sideSize, dim, sideSize - dim, center)

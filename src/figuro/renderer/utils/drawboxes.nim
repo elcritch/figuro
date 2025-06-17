@@ -60,14 +60,14 @@ proc drawRoundedRect*[R](
       if cornerHashes[corner] in ctx.entries:
         continue
 
-      var image = newImage(int(2*bw), int(2*bh))
       let cornerCbs = cornerCbs[corner]
       let corners = vec4(cornerCbs.radius.float32)
+      var image = newImage(cornerCbs.sideSize, cornerCbs.sideSize)
 
       if doStroke:
         drawSdfShape(image,
               center = vec2(cornerCbs.center.float32, cornerCbs.center.float32),
-              wh = vec2(cornerCbs.sideSize.float32, cornerCbs.sideSize.float32),
+              wh = vec2(2*cornerCbs.sideSize.float32, 2*cornerCbs.sideSize.float32),
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
@@ -83,9 +83,9 @@ proc drawRoundedRect*[R](
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      let msg = "corner-" & $corner & "-" & $cornerCbs.sideSize & "-" & $cornerCbs.center & "-" & $cornerCbs.radius & "-" & $weight & "-" & $doStroke & "-" & $outerShadowFill
+      let msg = "corner-" & $corner & "-sideSize" & $cornerCbs.sideSize & "-center" & $cornerCbs.center & "-radius" & $cornerCbs.radius & "-weight" & $weight & "-doStroke" & $doStroke & "-outerShadowFill" & $outerShadowFill
       echo "generating corner: ", msg
-      image.writeFile("tests/" & msg & ".png")
+      image.writeFile("examples/" & msg & ".png")
       ctx.putImage(toKey(cornerHashes[corner]), image)
 
     let
