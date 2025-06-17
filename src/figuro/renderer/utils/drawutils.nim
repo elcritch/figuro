@@ -41,7 +41,8 @@ proc getCircleBoxSizes*(
   let bh = height.round().int
   let blur = blur.round().int
   let spread = spread.round().int
-  let padding = max(spread + blur, result.maxRadius)
+  # let padding = max(spread + blur, result.maxRadius)
+  let padding = spread + blur
 
   result.padding = padding
   if innerShadow:

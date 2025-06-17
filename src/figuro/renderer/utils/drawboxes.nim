@@ -63,11 +63,12 @@ proc drawRoundedRect*[R](
       let cornerCbs = cornerCbs[corner]
       let corners = vec4(cornerCbs.radius.float32)
       var image = newImage(cornerCbs.sideSize, cornerCbs.sideSize)
+      let wh = vec2(2*cornerCbs.sideSize.float32, 2*cornerCbs.sideSize.float32)
 
       if doStroke:
         drawSdfShape(image,
               center = vec2(cornerCbs.center.float32, cornerCbs.center.float32),
-              wh = vec2(2*cornerCbs.sideSize.float32, 2*cornerCbs.sideSize.float32),
+              wh = wh,
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
@@ -77,13 +78,13 @@ proc drawRoundedRect*[R](
       else:
         drawSdfShape(image,
               center = vec2(cornerCbs.center.float32, cornerCbs.center.float32),
-              wh = vec2(cornerCbs.sideSize.float32, cornerCbs.sideSize.float32),
+              wh = wh,
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      let msg = "corner-" & $corner & "-sideSize" & $cornerCbs.sideSize & "-center" & $cornerCbs.center & "-radius" & $cornerCbs.radius & "-weight" & $weight & "-doStroke" & $doStroke & "-outerShadowFill" & $outerShadowFill
+      let msg = "corner-" & $corner & "-sideSize" & $cornerCbs.sideSize & "-wh" & $wh.x & "-padding" & $cbs.padding & "-center" & $cornerCbs.center & "-radius" & $cornerCbs.radius & "-weight" & $weight & "-doStroke" & $doStroke & "-outerShadowFill" & $outerShadowFill
       echo "generating corner: ", msg
       image.writeFile("examples/" & msg & ".png")
       ctx.putImage(toKey(cornerHashes[corner]), image)
