@@ -115,50 +115,59 @@ proc drawRoundedRect*[R](
       xy = rect.xy
       zero = vec2(0, 0)
       cornerSize = vec2(bw, bh)
-      topLeft = xy + vec2(0, 0)
-      topRight = xy + vec2(w - bw + cornerCbs[dcTopRight].sideDelta.float32, 0)
-      bottomLeft = xy + vec2(0, h - bh + cornerCbs[dcBottomLeft].sideDelta.float32)
-      bottomRight = xy + vec2(w - bw + cornerCbs[dcBottomRight].sideDelta.float32,
-                              h - bh + cornerCbs[dcBottomRight].sideDelta.float32)
 
-      tlCornerSize = vec2(0.0, 0.0)
-      trCornerSize = vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32)
-      blCornerSize = vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32)
-      brCornerSize = vec2(cornerCbs[dcBottomRight].sideSize.float32, cornerCbs[dcBottomRight].sideSize.float32)
+      cpos = [
+        dcTopLeft: xy + vec2(0, 0),
+        dcTopRight: xy + vec2(w - bw + cornerCbs[dcTopRight].sideDelta.float32, 0),
+        dcBottomLeft: xy + vec2(0, h - bh + cornerCbs[dcBottomLeft].sideDelta.float32),
+        dcBottomRight: xy + vec2(w - bw + cornerCbs[dcBottomRight].sideDelta.float32,
+                                h - bh + cornerCbs[dcBottomRight].sideDelta.float32)
+      ]
+
+      csizes = [
+        dcTopLeft: vec2(0.0, 0.0),
+        dcTopRight: vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32),
+        dcBottomLeft: vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32),
+        dcBottomRight: vec2(cornerCbs[dcBottomRight].sideSize.float32, cornerCbs[dcBottomRight].sideSize.float32)
+      ]
 
       darkGrey = rgba(50, 50, 50, 255).to(Color)
 
-    if color.a != 1.0:
-      echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
+      angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2, dcBottomLeft: Pi/2, dcBottomRight: Pi]
 
-    ctx.saveTransform()
-    ctx.translate(topLeft + tlCornerSize / 2)
-    ctx.drawImage(cornerHashes[dcTopLeft], zero, darkGrey)
-    ctx.translate(-tlCornerSize / 2)
-    ctx.restoreTransform()
+    # if color.a != 1.0:
+    #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
 
-    ctx.saveTransform()
-    ctx.translate(topRight + trCornerSize / 2)
-    ctx.rotate(-Pi/2)
-    ctx.translate(-trCornerSize / 2)
-    ctx.drawImage(cornerHashes[dcTopRight], zero, darkGrey)
-    ctx.restoreTransform()
+    for corner in DirectionCorners:
+      ctx.saveTransform()
+      ctx.translate(cpos[corner] + csizes[corner] / 2)
+      ctx.rotate(angles[corner])
+      ctx.translate(-csizes[corner] / 2)
+      ctx.drawImage(cornerHashes[corner], zero, darkGrey)
+      ctx.restoreTransform()
 
-    ctx.saveTransform()
-    # ctx.translate(bottomLeft)
-    ctx.translate(bottomLeft + blCornerSize / 2)
-    ctx.rotate(Pi/2)
-    ctx.translate(-blCornerSize / 2)
-    ctx.drawImage(cornerHashes[dcBottomLeft], zero, darkGrey)
-    # ctx.drawImage(cornerHashes[dcBottomLeft], zero, rgba(0, 0, 0, 255).to(Color))
-    ctx.restoreTransform()
+    # ctx.saveTransform()
+    # ctx.translate(topRight + trCornerSize / 2)
+    # ctx.rotate(-Pi/2)
+    # ctx.translate(-trCornerSize / 2)
+    # ctx.drawImage(cornerHashes[dcTopRight], zero, darkGrey)
+    # ctx.restoreTransform()
 
-    ctx.saveTransform()
-    ctx.translate(bottomRight + brCornerSize / 2)
-    ctx.rotate(Pi)
-    ctx.translate(-brCornerSize / 2)
-    ctx.drawImage(cornerHashes[dcBottomRight], zero, darkGrey)
-    ctx.restoreTransform()
+    # ctx.saveTransform()
+    # # ctx.translate(bottomLeft)
+    # ctx.translate(bottomLeft + blCornerSize / 2)
+    # ctx.rotate(Pi/2)
+    # ctx.translate(-blCornerSize / 2)
+    # ctx.drawImage(cornerHashes[dcBottomLeft], zero, darkGrey)
+    # # ctx.drawImage(cornerHashes[dcBottomLeft], zero, rgba(0, 0, 0, 255).to(Color))
+    # ctx.restoreTransform()
+
+    # ctx.saveTransform()
+    # ctx.translate(bottomRight + brCornerSize / 2)
+    # ctx.rotate(Pi)
+    # ctx.translate(-brCornerSize / 2)
+    # ctx.drawImage(cornerHashes[dcBottomRight], zero, darkGrey)
+    # ctx.restoreTransform()
 
   block drawEdgeBoxes:
     let
