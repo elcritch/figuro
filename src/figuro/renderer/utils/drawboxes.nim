@@ -53,21 +53,21 @@ proc drawRoundedRect*[R](
     for corner in DirectionCorners:
       cornerHashes[corner] = hash((hash, 41, int(radii[corner])))
 
+    let fill = rgba(255, 255, 255, 255)
+    let clear = rgba(0, 0, 0, 0)
+
     for corner in DirectionCorners:
       if cornerHashes[corner] in ctx.entries:
         continue
 
-      let fill = rgba(255, 255, 255, 255)
-      let clear = rgba(0, 0, 0, 0)
-      var center = vec2(bw, bh)
-      let wh = vec2(2*bw+1, 2*bh+1)
-      let corners = radii.cornersToSdfRadii()
       var image = newImage(int(2*bw), int(2*bh))
+      let cornerCbs = cornerCbs[corner]
+      let corners = [cornerCbs.radius, cornerCbs.radius, cornerCbs.radius, cornerCbs.radius]
 
       if doStroke:
         drawSdfShape(image,
-              center = center,
-              wh = wh,
+              center = vec2(cornerCbs.center, cornerCbs.center),
+              wh = vec2(cornerCbs.sideSize, cornerCbs.sideSize),
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
@@ -76,8 +76,8 @@ proc drawRoundedRect*[R](
               mode = sdfModeAnnular)
       else:
         drawSdfShape(image,
-              center = center,
-              wh = wh,
+              center = vec2(cornerCbs.center, cornerCbs.center),
+              wh = vec2(cornerCbs.sideSize, cornerCbs.sideSize),
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
