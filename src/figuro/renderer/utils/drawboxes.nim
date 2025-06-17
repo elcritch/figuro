@@ -118,10 +118,16 @@ proc drawRoundedRect*[R](
 
       cpos = [
         dcTopLeft: xy + vec2(0, 0),
-        dcTopRight: xy + vec2(w - bw + cornerCbs[dcTopRight].sideDelta.float32, 0),
-        dcBottomLeft: xy + vec2(0, h - bh + cornerCbs[dcBottomLeft].sideDelta.float32),
-        dcBottomRight: xy + vec2(w - bw + cornerCbs[dcBottomRight].sideDelta.float32,
-                                h - bh + cornerCbs[dcBottomRight].sideDelta.float32)
+        dcTopRight: xy + vec2(w - bw, 0),
+        dcBottomLeft: xy + vec2(0, h - bh),
+        dcBottomRight: xy + vec2(w - bw, h - bh)
+      ]
+
+      coffset = [
+        dcTopLeft: vec2(0, 0),
+        dcTopRight: vec2(cornerCbs[dcTopRight].sideDelta.float32, 0),
+        dcBottomLeft: vec2(0, cornerCbs[dcBottomLeft].sideDelta.float32),
+        dcBottomRight: vec2(cornerCbs[dcBottomRight].sideDelta.float32, cornerCbs[dcBottomRight].sideDelta.float32)
       ]
 
       csizes = [
@@ -140,11 +146,16 @@ proc drawRoundedRect*[R](
 
     for corner in DirectionCorners:
       ctx.saveTransform()
-      ctx.translate(cpos[corner] + csizes[corner] / 2)
+      ctx.translate(cpos[corner] + coffset[corner] + csizes[corner] / 2)
       ctx.rotate(angles[corner])
       ctx.translate(-csizes[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, darkGrey)
       ctx.restoreTransform()
+
+      if cornerCbs[corner].sideDelta > 0:
+        let inner = cornerCbs[corner].inner.float32
+        let sideDelta = cornerCbs[corner].sideDelta.float32
+        ctx.drawRect(rect(cpos[corner].x, cpos[corner].y, inner, sideDelta), color)
 
   block drawEdgeBoxes:
     let
