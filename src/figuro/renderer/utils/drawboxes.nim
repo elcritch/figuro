@@ -45,7 +45,8 @@ proc drawRoundedRect*[R](
     bw = cbs.sideSize.float32
     bh = cbs.sideSize.float32
 
-  let hash = hash((6217, int(cbs.sideSize), int(cbs.maxRadius), int(weight), doStroke, outerShadowFill))
+  # let hash = hash((6217, int(cbs.sideSize), int(cbs.maxRadius), int(weight), doStroke, outerShadowFill))
+  let hash = hash((6217, doStroke, outerShadowFill, cbs.padding, cbs.weightSize))
   let cornerCbs = cbs.roundedBoxCornerSizes(radii)
 
   block drawCorners:
@@ -84,9 +85,20 @@ proc drawRoundedRect*[R](
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      let msg = "corner-" & $corner & "-sideSize" & $cornerCbs.sideSize & "-wh" & $wh.x & "-padding" & $cbs.padding & "-center" & $cornerCbs.center & "-radius" & $cornerCbs.radius & "-weight" & $weight & "-doStroke" & $doStroke & "-outerShadowFill" & $outerShadowFill
-      echo "generating corner: ", msg
-      image.writeFile("examples/" & msg & ".png")
+      if doStroke:
+        var msg = "corner"
+        msg &= "-weight" & $weight 
+        msg &= "-radius" & $cornerCbs.radius 
+        msg &= "-sideSize" & $cornerCbs.sideSize 
+        msg &= "-wh" & $wh.x 
+        msg &= "-padding" & $cbs.padding 
+        msg &= "-center" & $cornerCbs.center 
+        msg &= "-doStroke" & (if doStroke: "true" else: "false") 
+        msg &= "-outerShadowFill" & (if outerShadowFill: "true" else: "false")
+        msg &= "-corner-" & $corner 
+        msg &= "-hash" & $cast[uint](int(cornerHashes[corner]))
+        echo "generating corner: ", msg
+        image.writeFile("examples/" & msg & ".png")
       ctx.putImage(toKey(cornerHashes[corner]), image)
 
     let
