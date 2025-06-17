@@ -94,7 +94,7 @@ proc drawRoundedRect*[R](
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      if color.a != 1.0:
+      if color.a != 1.0 and false:
         var msg = "corner"
         msg &= (if doStroke: "-stroke" else: "-noStroke") 
         msg &= "-weight" & $weight 
@@ -154,7 +154,12 @@ proc drawRoundedRect*[R](
       if cornerCbs[corner].sideDelta > 0:
         let inner = cornerCbs[corner].inner.float32
         let sideDelta = cornerCbs[corner].sideDelta.float32
+        let sideSize = cornerCbs[corner].sideSize.float32
+        # inner patch left, right, and then center
         ctx.drawRect(rect(0, inner, inner, sideDelta), color)
+        ctx.drawRect(rect(inner, 0, sideDelta, sideSize), color)
+        # we could do two boxes, but this matches our shadow needs
+        ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), color)
 
       ctx.restoreTransform()
 
