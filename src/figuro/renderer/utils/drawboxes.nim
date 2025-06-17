@@ -140,10 +140,11 @@ proc drawRoundedRect*[R](
     ctx.restoreTransform()
 
     ctx.saveTransform()
+    # ctx.translate(bottomLeft)
     ctx.translate(bottomLeft + blCornerSize / 2)
     ctx.rotate(Pi/2)
     ctx.translate(-blCornerSize / 2)
-    ctx.drawImage(cornerHashes[dcBottomLeft], zero, color)
+    ctx.drawImage(cornerHashes[dcBottomLeft], zero, rgba(0, 0, 0, 255).to(Color))
     ctx.restoreTransform()
 
     ctx.saveTransform()
