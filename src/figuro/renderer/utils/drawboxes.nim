@@ -61,10 +61,10 @@ proc drawRoundedRect*[R](
       var center = vec2(bw, bh)
       let wh = vec2(2*bw+1, 2*bh+1)
       let corners = radii.cornersToSdfRadii()
-      var circle = newImage(int(2*bw), int(2*bh))
+      var image = newImage(int(2*bw), int(2*bh))
 
       if doStroke:
-        drawSdfShape(circle,
+        drawSdfShape(image,
               center = center,
               wh = wh,
               params = RoundedBoxParams(r: corners),
@@ -74,7 +74,7 @@ proc drawRoundedRect*[R](
               spread = 0.0,
               mode = sdfModeAnnular)
       else:
-        drawSdfShape(circle,
+        drawSdfShape(image,
               center = center,
               wh = wh,
               params = RoundedBoxParams(r: corners),
@@ -82,20 +82,7 @@ proc drawRoundedRect*[R](
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      let cornerHash = cornerHashes[corner]
-      if cornerHash notin ctx.entries:
-        let image = cornerImages[corner]
-        case corner:
-        of dcTopLeft:
-          discard
-        of dcTopRight:
-          image.flipHorizontal()
-        of dcBottomRight:
-          image.flipHorizontal()
-          image.flipVertical()
-        of dcBottomLeft:
-          image.flipVertical()
-        ctx.putImage(toKey(cornerHash), image)
+      ctx.putImage(toKey(cornerHashes[corner]), image)
 
     let
       xy = rect.xy
