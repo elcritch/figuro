@@ -83,6 +83,9 @@ proc drawRoundedRect*[R](
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
+      let msg = "corner-" & $corner & "-" & $cornerCbs.sideSize & "-" & $cornerCbs.center & "-" & $cornerCbs.radius & "-" & $weight & "-" & $doStroke & "-" & $outerShadowFill
+      echo "generating corner: ", msg
+      image.writeFile("tests/" & msg & ".png")
       ctx.putImage(toKey(cornerHashes[corner]), image)
 
     let
