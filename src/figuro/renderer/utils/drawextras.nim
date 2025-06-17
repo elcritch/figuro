@@ -8,7 +8,6 @@ import pkg/chroma
 import pkg/sigils
 import pkg/chronicles
 import pkg/pixie
-import pkg/sdfy
 
 import ./drawutils
 
