@@ -22,6 +22,15 @@ proc drawOuterBox*[R](ctx: R, rect: Rect, padding: float32, color: Color) =
     ctx.drawRect(rectBottom, color)
     ctx.drawRect(rectRight, color)
 
+proc toHex*(h: Hash): string =
+  const HexChars = "0123456789ABCDEF"
+  result = newString(sizeof(Hash) * 2)
+  var h = h
+  for i in countdown(result.high, 0):
+    result[i] = HexChars[h and 0xF]
+    h = h shr 4
+
+
 proc drawRoundedRect*[R](
     ctx: R,
     rect: Rect,
@@ -73,7 +82,7 @@ proc drawRoundedRect*[R](
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
-              factor = weight + 0.5,
+              factor = cbs.weightSize.float32,
               spread = 0.0,
               mode = sdfModeAnnular)
       else:
@@ -96,7 +105,7 @@ proc drawRoundedRect*[R](
         msg &= "-doStroke" & (if doStroke: "true" else: "false") 
         msg &= "-outerShadowFill" & (if outerShadowFill: "true" else: "false")
         msg &= "-corner-" & $corner 
-        msg &= "-hash" & $cast[uint](int(cornerHashes[corner]))
+        msg &= "-hash" & toHex(cornerHashes[corner])
         echo "generating corner: ", msg
         image.writeFile("examples/" & msg & ".png")
       ctx.putImage(toKey(cornerHashes[corner]), image)
@@ -110,29 +119,37 @@ proc drawRoundedRect*[R](
       bottomLeft = xy + vec2(0, h - bh)
       bottomRight = xy + vec2(w - bw, h - bh)
 
+      tlCornerSize = vec2(cornerCbs[dcTopLeft].sideSize.float32, cornerCbs[dcTopLeft].sideSize.float32)
+      trCornerSize = vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32)
+      blCornerSize = vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32)
+      brCornerSize = vec2(cornerCbs[dcBottomRight].sideSize.float32, cornerCbs[dcBottomRight].sideSize.float32)
+
+    if doStroke:
+      echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize
+
     ctx.saveTransform()
     ctx.translate(topLeft)
     ctx.drawImage(cornerHashes[dcTopLeft], zero, color)
     ctx.restoreTransform()
 
     ctx.saveTransform()
-    ctx.translate(topRight + cornerSize / 2)
+    ctx.translate(topRight + trCornerSize / 2)
     ctx.rotate(-Pi/2)
-    ctx.translate(-cornerSize / 2)
+    ctx.translate(-trCornerSize / 2)
     ctx.drawImage(cornerHashes[dcTopRight], zero, color)
     ctx.restoreTransform()
 
     ctx.saveTransform()
-    ctx.translate(bottomLeft + cornerSize / 2)
+    ctx.translate(bottomLeft + blCornerSize / 2)
     ctx.rotate(Pi/2)
-    ctx.translate(-cornerSize / 2)
+    ctx.translate(-blCornerSize / 2)
     ctx.drawImage(cornerHashes[dcBottomLeft], zero, color)
     ctx.restoreTransform()
 
     ctx.saveTransform()
-    ctx.translate(bottomRight + cornerSize / 2)
+    ctx.translate(bottomRight + brCornerSize / 2)
     ctx.rotate(Pi)
-    ctx.translate(-cornerSize / 2)
+    ctx.translate(-brCornerSize / 2)
     ctx.drawImage(cornerHashes[dcBottomRight], zero, color)
     ctx.restoreTransform()
 
