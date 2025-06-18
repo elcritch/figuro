@@ -187,9 +187,54 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   block drawEdges:
     discard
-    # # Draw edges
-    # # Top edge (stretched horizontally)
+    # Draw edges
+    # Top edge (stretched horizontally)
+
+    let
+      corner = cbs.maxRadius.float32
+      xy = rect.xy
+      zero = vec2(0, 0)
+      cornerSize = vec2(bw, bh)
+      padding = cbs.padding.float32
+      paddingOffset = cbs.paddingOffset.float32
+
+      cpos = [
+        dLeft: xy + vec2(0, 0),
+        dRight: xy + vec2(w, 0),
+        dBottom: xy + vec2(0, h),
+        dTop: xy + vec2(w, h)
+      ]
+
+      coffset = [
+        dLeft: vec2(paddingOffset, h - 2*corner),
+        dRight: vec2(paddingOffset, h - 2*corner),
+        dBottom: vec2(w - 2*corner, paddingOffset),
+        dTop: vec2(w - 2*corner, paddingOffset)
+      ]
+
+      csizes = [
+        dLeft: vec2(paddingOffset, h - 2*corner),
+        dRight: vec2(paddingOffset, h - 2*corner),
+        dBottom: vec2(w - 2*corner, paddingOffset),
+        dTop: vec2(w - 2*corner, paddingOffset)
+      ]
+
+      angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2, dcBottomLeft: Pi/2, dcBottomRight: Pi]
+
+    # if color.a != 1.0:
+    #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
+
+    for side in Directions:
+      ctx.saveTransform()
+      ctx.translate(cpos[side] + coffset[side] + csizes[side] / 2)
+      ctx.rotate(angles[side])
+      ctx.translate(-csizes[side] / 2)
+      ctx.drawImage(sideHashes[side], zero, shadowColor)
+      ctx.restoreTransform()
     # let
+    #   paddingOffset = cbs.paddingOffset.float32
+    #   corner = cbs.paddingOffset.float32
+    #   sbox = rect(-paddingOffset, -paddingOffset, w + paddingOffset, h + paddingOffset)
     #   topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
     #   rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
     #   bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
@@ -200,7 +245,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     # ctx.drawImageAdj(sideHashes[dBottom], bottomEdge.xy, shadowColor, bottomEdge.wh)
     # ctx.drawImageAdj(sideHashes[dLeft], leftEdge.xy, shadowColor, leftEdge.wh)
     
-    # # Center (stretched both ways)
+    # Center (stretched both ways)
     # if not innerShadow:
     #   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
     #   ctx.drawRect(center, shadowColor)
