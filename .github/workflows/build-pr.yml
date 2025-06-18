@@ -14,8 +14,6 @@ jobs:
         os:
           - ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-
     - name: Cache packages
       uses: actions/cache@v3
       with:
@@ -33,6 +31,8 @@ jobs:
         nimble install nimble@0.18.2
         nim -v
         nimble -v
+
+    - uses: actions/checkout@v1
 
     - name: Install Deps
       run: |
