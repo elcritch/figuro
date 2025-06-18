@@ -187,7 +187,7 @@ proc fillRoundedRectWithShadowSdf*[R](
           # we could do two boxes, but this matches our shadow needs
           ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
-      ctx.drawImage(sideHashes[sides[corner]], vec2(0, -csizes[corner].x), darkGrey)
+      ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, csizes[corner].x), darkGrey, vec2(paddingOffset, h - 2*cbs.maxRadius.float32))
       ctx.restoreTransform()
 
   block drawEdges:
