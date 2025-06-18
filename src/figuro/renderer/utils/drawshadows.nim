@@ -72,11 +72,12 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       let cornerCbs = cornerCbs[corner]
       let corners = vec4(cornerCbs.radius.float32)
-      var shadowImg = newImage(cornerCbs.sideSize, cornerCbs.sideSize)
       let wh = vec2(2*cornerCbs.inner.float32, 2*cornerCbs.inner.float32)
 
       let spread = if innerShadow: 0.0 else: shadowSpread
       let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
+
+      var shadowImg = newImage(cornerCbs.sideSize, cornerCbs.sideSize)
 
       drawSdfShape(shadowImg,
                   center = vec2(cornerCbs.center.float32),
@@ -150,9 +151,9 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     for corner in DirectionCorners:
       ctx.saveTransform()
-      ctx.translate(ceil(cpos[corner] + coffset[corner] + ccenter[corner] / 2))
+      ctx.translate(floor(cpos[corner] + coffset[corner] + ccenter[corner] / 2))
       ctx.rotate(angles[corner])
-      ctx.translate(ceil(-ccenter[corner] / 2))
+      ctx.translate((-ccenter[corner] / 2))
       ctx.drawImage(cornerHashes[corner], zero, shadowColor)
 
       let sideAdj = (maxRadius.float32 - cornerCbs[corner].inner.float32)
