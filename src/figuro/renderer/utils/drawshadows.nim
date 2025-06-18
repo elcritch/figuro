@@ -150,7 +150,7 @@ proc fillRoundedRectWithShadowSdf*[R](
         dcBottomRight: vec2(0, 0)
       ]
 
-      csizes = [
+      ccenter = [
         dcTopLeft: vec2(0.0, 0.0),
         dcTopRight: vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32),
         dcBottomLeft: vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32),
@@ -158,6 +158,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ]
 
       darkGrey = rgba(50, 50, 50, 255).to(Color)
+      black = rgba(0, 0, 0, 255).to(Color)
 
       angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2, dcBottomLeft: Pi/2, dcBottomRight: Pi]
 
@@ -167,9 +168,9 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     for corner in DirectionCorners:
       ctx.saveTransform()
-      ctx.translate(cpos[corner] + coffset[corner] + csizes[corner] / 2)
+      ctx.translate(cpos[corner] + coffset[corner] + ccenter[corner] / 2)
       ctx.rotate(angles[corner])
-      ctx.translate(-csizes[corner] / 2)
+      ctx.translate(-ccenter[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, shadowColor)
 
       if false and cornerCbs[corner].sideDelta > 0:
@@ -187,7 +188,9 @@ proc fillRoundedRectWithShadowSdf*[R](
           # we could do two boxes, but this matches our shadow needs
           ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
-      ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, csizes[corner].x), darkGrey, vec2(paddingOffset, h - 2*cbs.maxRadius.float32))
+      let sideDim = if sides[corner] in [dTop, dBottom]: w else: h
+      ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32),
+                       darkGrey, vec2(paddingOffset, sideDim - 2*cbs.maxRadius.float32))
       ctx.restoreTransform()
 
   block drawEdges:

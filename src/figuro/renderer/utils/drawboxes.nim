@@ -131,7 +131,7 @@ proc drawRoundedRect*[R](
         dcBottomRight: vec2(cornerCbs[dcBottomRight].sideDelta.float32, cornerCbs[dcBottomRight].sideDelta.float32)
       ]
 
-      csizes = [
+      ccenter = [
         dcTopLeft: vec2(0.0, 0.0),
         dcTopRight: vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32),
         dcBottomLeft: vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32),
@@ -147,9 +147,9 @@ proc drawRoundedRect*[R](
 
     for corner in DirectionCorners:
       ctx.saveTransform()
-      ctx.translate(cpos[corner] + coffset[corner] + csizes[corner] / 2)
+      ctx.translate(cpos[corner] + coffset[corner] + ccenter[corner] / 2)
       ctx.rotate(angles[corner])
-      ctx.translate(-csizes[corner] / 2)
+      ctx.translate(-ccenter[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, color)
 
       if cornerCbs[corner].sideDelta > 0:
