@@ -30,15 +30,6 @@ proc fillRoundedRectWithShadowSdf*[R](
     
   # First, draw the shadow
   # Generate shadow key for caching
-  proc getShadowKey(blur: float32, spread: float32, totalSize: int, innerShadow: bool, radii: array[DirectionCorners, float32]): Hash =
-    result = hash((7723, blur.int, spread.int, innerShadow, totalSize))
-
-  proc getShadowKey(shadowKey: Hash, radii: array[DirectionCorners, float32], corner: DirectionCorners): Hash =
-    result = hash((shadowKey, 2474431, int(radii[corner])))
-
-  proc getShadowKey(shadowKey: Hash, radii: array[Directions, float32], side: Directions): Hash =
-    result = hash((shadowKey, 971767, int(side)))
-
   let 
     radii = clampRadii(radii, rect)
     shadowBlur = shadowBlur.round().float32
@@ -50,149 +41,126 @@ proc fillRoundedRectWithShadowSdf*[R](
                              height = rect.h,
                              innerShadow = innerShadow)
     maxRadius = cbs.maxRadius
-    shadowKey = getShadowKey(shadowBlur, shadowSpread, cbs.totalSize, innerShadow, radii)
     wh = vec2(cbs.inner.float32, cbs.inner.float32)
+
+    shadowKey = hash((7723, shadowBlur.int, shadowSpread.int, innerShadow))
   
-  var cornerHashes: array[DirectionCorners, Hash]
-  for corner in DirectionCorners:
-    cornerHashes[corner] = getShadowKey(shadowKey, radii, corner)
+  let cornerCbs = cbs.roundedBoxCornerSizes(radii)
 
   var sideHashes: array[Directions, Hash]
   for side in Directions:
-    sideHashes[side] = getShadowKey(shadowKey, radii, side)
+    sideHashes[side] = hash((shadowKey, 971767, int(side)))
 
-  # use the left side of the shadow key to check if we've already generated this shadow
-  let newSize = cbs.totalSize
-  let shadowKeyLeft = getShadowKey(shadowKey, radii, dLeft)
-  var missingAnyCorner = false
-  for corner in DirectionCorners:
-    if cornerHashes[corner] notin ctx.entries:
-      missingAnyCorner = true
-      break
+  block drawCorners:
+    var cornerHashes: array[DirectionCorners, Hash]
+    for corner in DirectionCorners:
+      cornerHashes[corner] = hash((shadowKey, 2474431, int(radii[corner])))
 
-  if shadowKeyLeft notin ctx.entries or missingAnyCorner:
-    let corners = radii.cornersToSdfRadii()
+    # use the left side of the shadow key to check if we've already generated this shadow
     const whiteColor = rgba(255, 255, 255, 255)
-    let center = vec2(cbs.totalSize.float32/2, cbs.totalSize.float32/2)
-    var shadowImg = newImage(newSize, newSize)
-    let wh = if innerShadow: vec2(cbs.inner.float32 - 2*shadowSpread, cbs.inner.float32 - 2*shadowSpread) else: vec2(cbs.inner.float32, cbs.inner.float32)
-    let spread = if innerShadow: 0.0 else: shadowSpread
-
-    let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
-    drawSdfShape(
-                shadowImg,
-                center = center,
-                wh = wh,
-                params = RoundedBoxParams(r: corners),
-                pos = whiteColor,
-                neg = whiteColor,
-                factor = shadowBlur,
-                spread = spread,
-                mode = mode)
-
-    # Slice it into 9-patch pieces
-    let patches = sliceToNinePatch(shadowImg)
-
-    let cornerImages = [
-      dcTopLeft: patches.topLeft,
-      dcTopRight: patches.topRight, 
-      dcBottomLeft: patches.bottomLeft,
-      dcBottomRight: patches.bottomRight,
-    ]
-    let sideImages = [
-      dTop: patches.top,
-      dRight: patches.right,
-      dBottom: patches.bottom,
-      dLeft: patches.left,
-    ]
 
     for corner in DirectionCorners:
-      let cornerHash = cornerHashes[corner]
-      if cornerHash notin ctx.entries:
-        let image = cornerImages[corner]
-        case corner:
-        of dcTopLeft:
+      if cornerHashes[corner] in ctx.entries:
+        continue
+
+      let corners = vec4(cornerCbs[corner].radius.float32)
+      var shadowImg = newImage(cornerCbs.sideSize, cornerCbs.sideSize)
+      let wh = vec2(2*cornerCbs.sideSize.float32, 2*cornerCbs.sideSize.float32)
+
+      let spread = if innerShadow: 0.0 else: shadowSpread
+      let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
+
+      drawSdfShape(shadowImg,
+                  center = vec2(cornerCbs.center.float32),
+                  wh = wh,
+                  params = RoundedBoxParams(r: corners),
+                  pos = whiteColor,
+                  neg = whiteColor,
+                  factor = shadowBlur,
+                  spread = spread,
+                  mode = mode)
+
+      ctx.putImage(cornerHashes[corner], shadowImg)
+
+    var 
+      totalPadding = (cbs.totalSize.float32 - cbs.inner.float32) / 2
+      corner = totalPadding.float32 + cbs.inner.float32 / 2
+
+    let
+      xy = rect.xy
+      bw = cornerCbs[dcTopLeft].sideSize.float32
+      bh = cornerCbs[dcTopLeft].sideSize.float32
+      zero = vec2(0, 0)
+      cornerSize = vec2(bw, bh)
+
+      cpos = [
+        dcTopLeft: xy + vec2(0, 0),
+        dcTopRight: xy + vec2(w - bw, 0),
+        dcBottomLeft: xy + vec2(0, h - bh),
+        dcBottomRight: xy + vec2(w - bw, h - bh)
+      ]
+
+      coffset = [
+        dcTopLeft: vec2(0, 0),
+        dcTopRight: vec2(cornerCbs[dcTopRight].sideDelta.float32, 0),
+        dcBottomLeft: vec2(0, cornerCbs[dcBottomLeft].sideDelta.float32),
+        dcBottomRight: vec2(cornerCbs[dcBottomRight].sideDelta.float32, cornerCbs[dcBottomRight].sideDelta.float32)
+      ]
+
+      csizes = [
+        dcTopLeft: vec2(0.0, 0.0),
+        dcTopRight: vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32),
+        dcBottomLeft: vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32),
+        dcBottomRight: vec2(cornerCbs[dcBottomRight].sideSize.float32, cornerCbs[dcBottomRight].sideSize.float32)
+      ]
+
+      darkGrey = rgba(50, 50, 50, 255).to(Color)
+
+      angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2, dcBottomLeft: Pi/2, dcBottomRight: Pi]
+
+    # if color.a != 1.0:
+    #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
+
+    for corner in DirectionCorners:
+      ctx.saveTransform()
+      ctx.translate(cpos[corner] + coffset[corner] + csizes[corner] / 2)
+      ctx.rotate(angles[corner])
+      ctx.translate(-csizes[corner] / 2)
+      ctx.drawImage(cornerHashes[corner], zero, color)
+
+      if cornerCbs[corner].sideDelta > 0:
+        let inner = cornerCbs[corner].inner.float32
+        let sideDelta = cornerCbs[corner].sideDelta.float32
+        let sideSize = cornerCbs[corner].sideSize.float32
+        # inner patch left, right, and then center
+        if innerShadow:
           discard
-        of dcTopRight:
-          image.flipHorizontal()
-        of dcBottomRight:
-          image.flipHorizontal()
-          image.flipVertical()
-        of dcBottomLeft:
-          image.flipVertical()
-        
-        ctx.putImage(cornerHash, image)
+          # ctx.drawRect(rect(0, inner, cbs.weightSize.float32, sideDelta), color)
+          # ctx.drawRect(rect(inner, 0, sideDelta, cbs.weightSize.float32), color)
+        else:
+          ctx.drawRect(rect(0, inner, inner, sideDelta), color)
+          ctx.drawRect(rect(inner, 0, sideDelta, sideSize), color)
+          # we could do two boxes, but this matches our shadow needs
+          ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), color)
 
-    for side in Directions:
-      let sideHash = getShadowKey(shadowKey, radii, side)
-      ctx.putImage(sideHash, sideImages[side])
+      ctx.restoreTransform()
 
-  var 
-    totalPadding = (cbs.totalSize.float32 - cbs.inner.float32) / 2
-    corner = totalPadding.float32 + cbs.inner.float32 / 2
+  block drawEdges:
+    discard
+    # # Draw edges
+    # # Top edge (stretched horizontally)
+    # let
+    #   topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
+    #   rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
+    #   bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
+    #   leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
 
-  let
-    sbox = rect(
-      rect.x - totalPadding.float32 + shadowX,
-      rect.y - totalPadding.float32 + shadowY,
-      rect.w + 2 * totalPadding.float32,
-      rect.h + 2 * totalPadding.float32
-    )
-    halfW = sbox.w / 2
-    halfH = sbox.h / 2
-    centerX = sbox.x + halfW
-    centerY = sbox.y + halfH
-
-  # Draw the corners
-  let 
-    zero = vec2(0, 0)
-    topLeft = rect(sbox.x, sbox.y, corner, corner)
-    topRight = rect(sbox.x + sbox.w - corner, sbox.y, corner, corner)
-    bottomLeft = rect(sbox.x, sbox.y + sbox.h - corner, corner, corner)
-    bottomRight = rect(sbox.x + sbox.w - corner, sbox.y + sbox.h - corner, corner, corner)
-  
-  # Draw corners
-
-  ctx.saveTransform()
-  ctx.translate(topLeft.xy)
-  ctx.drawImageAdj(cornerHashes[dcTopLeft], zero, shadowColor, topLeft.wh)
-  ctx.restoreTransform()
-
-  ctx.saveTransform()
-  ctx.translate(topRight.xy + topRight.wh / 2)
-  ctx.rotate(-Pi/2)
-  ctx.translate(-topRight.wh / 2)
-  ctx.drawImageAdj(cornerHashes[dcTopRight], zero, shadowColor, topRight.wh)
-  ctx.restoreTransform()
-
-  ctx.saveTransform()
-  ctx.translate(bottomLeft.xy + bottomLeft.wh / 2)
-  ctx.rotate(Pi/2)
-  ctx.translate(-bottomLeft.wh / 2)
-  ctx.drawImageAdj(cornerHashes[dcBottomLeft], zero, shadowColor, bottomLeft.wh)
-  ctx.restoreTransform()
-
-  ctx.saveTransform()
-  ctx.translate(bottomRight.xy + bottomRight.wh / 2)
-  ctx.rotate(Pi)
-  ctx.translate(-bottomRight.wh / 2)
-  ctx.drawImageAdj(cornerHashes[dcBottomRight], zero, shadowColor, bottomRight.wh)
-  ctx.restoreTransform()
-
-  # Draw edges
-  # Top edge (stretched horizontally)
-  let
-    topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
-    rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
-    bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
-    leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
-
-  ctx.drawImageAdj(sideHashes[dTop], topEdge.xy, shadowColor, topEdge.wh)
-  ctx.drawImageAdj(sideHashes[dRight], rightEdge.xy, shadowColor, rightEdge.wh)
-  ctx.drawImageAdj(sideHashes[dBottom], bottomEdge.xy, shadowColor, bottomEdge.wh)
-  ctx.drawImageAdj(sideHashes[dLeft], leftEdge.xy, shadowColor, leftEdge.wh)
-  
-  # Center (stretched both ways)
-  if not innerShadow:
-    let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
-    ctx.drawRect(center, shadowColor)
+    # ctx.drawImageAdj(sideHashes[dTop], topEdge.xy, shadowColor, topEdge.wh)
+    # ctx.drawImageAdj(sideHashes[dRight], rightEdge.xy, shadowColor, rightEdge.wh)
+    # ctx.drawImageAdj(sideHashes[dBottom], bottomEdge.xy, shadowColor, bottomEdge.wh)
+    # ctx.drawImageAdj(sideHashes[dLeft], leftEdge.xy, shadowColor, leftEdge.wh)
+    
+    # # Center (stretched both ways)
+    # if not innerShadow:
+    #   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
+    #   ctx.drawRect(center, shadowColor)

@@ -77,7 +77,7 @@ proc drawRoundedRect*[R](
 
       if doStroke:
         drawSdfShape(image,
-              center = vec2(cornerCbs.center.float32, cornerCbs.center.float32),
+              center = vec2(cornerCbs.center.float32),
               wh = wh,
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
