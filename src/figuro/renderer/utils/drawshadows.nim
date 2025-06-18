@@ -160,6 +160,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     # if color.a != 1.0:
     #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
+    let sides = [dcTopLeft: dTop, dcTopRight: dRight, dcBottomLeft: dBottom, dcBottomRight: dLeft]
 
     for corner in DirectionCorners:
       ctx.saveTransform()
@@ -183,46 +184,48 @@ proc fillRoundedRectWithShadowSdf*[R](
           # we could do two boxes, but this matches our shadow needs
           ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
+      ctx.drawImage(sideHashes[sides[corner]], vec2(csizes[corner].x, 0), darkGrey)
       ctx.restoreTransform()
 
   block drawEdges:
+    discard
     # Draw edges
     # Top edge (stretched horizontally)
-    let
-      corner = cbs.maxRadius.float32
-      xy = rect.xy
-      zero = vec2(0, 0)
-      cornerSize = vec2(bw, bh)
-      padding = cbs.padding.float32
-      paddingOffset = cbs.paddingOffset.float32
+    # let
+    #   corner = cbs.maxRadius.float32
+    #   xy = rect.xy
+    #   zero = vec2(0, 0)
+    #   cornerSize = vec2(bw, bh)
+    #   padding = cbs.padding.float32
+    #   paddingOffset = cbs.paddingOffset.float32
 
-      spos = [
-        dTop: xy + vec2(corner, -paddingOffset),
-        dRight: xy + vec2(paddingOffset, corner),
-        dBottom: xy + vec2(corner, paddingOffset),
-        dLeft: xy + vec2(-paddingOffset, corner)
-      ]
+    #   spos = [
+    #     dTop: xy + vec2(corner, -paddingOffset),
+    #     dRight: xy + vec2(paddingOffset, corner),
+    #     dBottom: xy + vec2(corner, paddingOffset),
+    #     dLeft: xy + vec2(-paddingOffset, corner)
+    #   ]
 
-      ssizes = [
-        dTop: vec2(w - 2*corner, paddingOffset),
-        dRight: vec2(paddingOffset, h - 2*corner),
-        dBottom: vec2(w - 2*corner, paddingOffset),
-        dLeft: vec2(paddingOffset, h - 2*corner)
-      ]
+    #   ssizes = [
+    #     dTop: vec2(w - 2*corner, paddingOffset),
+    #     dRight: vec2(paddingOffset, h - 2*corner),
+    #     dBottom: vec2(w - 2*corner, paddingOffset),
+    #     dLeft: vec2(paddingOffset, h - 2*corner)
+    #   ]
 
-      # sangles = [dLeft: 0.0, dRight: -Pi/2, dBottom: Pi/2, dTop: Pi]
-      sangles = [dTop: Pi, dRight: Pi/2, dBottom: 0.0, dLeft: -Pi/2]
+    #   # sangles = [dLeft: 0.0, dRight: -Pi/2, dBottom: Pi/2, dTop: Pi]
+    #   sangles = [dTop: Pi, dRight: Pi/2, dBottom: 0.0, dLeft: -Pi/2]
 
-    # if color.a != 1.0:
-    #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
+    # # if color.a != 1.0:
+    # #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
 
-    for side in Directions:
-      ctx.saveTransform()
-      ctx.translate(spos[side] + ssizes[side] / 2)
-      ctx.rotate(sangles[side])
-      ctx.translate(-ssizes[side] / 2)
-      ctx.drawImageAdj(sideHashes[side], zero, shadowColor, ssizes[side])
-      ctx.restoreTransform()
+    # for side in Directions:
+    #   ctx.saveTransform()
+    #   ctx.translate(spos[side] + ssizes[side] / 2)
+    #   ctx.rotate(sangles[side])
+    #   ctx.translate(-ssizes[side] / 2)
+    #   ctx.drawImageAdj(sideHashes[side], zero, shadowColor, ssizes[side])
+    #   ctx.restoreTransform()
 
     # let
     #   paddingOffset = cbs.paddingOffset.float32
