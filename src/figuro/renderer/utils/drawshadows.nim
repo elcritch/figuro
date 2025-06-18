@@ -155,24 +155,25 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.translate(-ccenter[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, shadowColor)
 
+      let sideAdj = (cbs.maxRadius.float32 - cornerCbs[corner].inner.float32)
+      let inner = cornerCbs[corner].inner.float32
+      let sideDelta = cornerCbs[corner].sideDelta.float32
+      let sideSize = cornerCbs[corner].sideSize.float32
+
       if cornerCbs[corner].sideDelta > 0:
-        let inner = cornerCbs[corner].inner.float32
-        let sideDelta = cornerCbs[corner].sideDelta.float32
-        let sideSize = cornerCbs[corner].sideSize.float32
         # inner patch left, right, and then center
         if innerShadow:
           discard
           # ctx.drawRect(rect(0, inner, cbs.weightSize.float32, sideDelta), color)
           # ctx.drawRect(rect(inner, 0, sideDelta, cbs.weightSize.float32), color)
         else:
-          ctx.drawRect(rect(0, inner, inner, sideDelta), shadowColor)
           ctx.drawRect(rect(paddingOffset, paddingOffset + inner, inner, sideDelta), darkGrey)
+          ctx.drawRect(rect(paddingOffset + inner, paddingOffset, sideDelta, cbs.maxRadius.float32), darkGrey)
           # we could do two boxes, but this matches our shadow needs
           # ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
-      let sideDim = if sides[corner] in [dTop, dBottom]: w else: h
-      let sideAdj = (cbs.maxRadius.float32 - cornerCbs[corner].inner.float32)
+      let borderDim = if sides[corner] in [dTop, dBottom]: w else: h
       let prevSideAdj = (cbs.maxRadius.float32 - cornerCbs[prevCorner[corner]].inner.float32)
-      let sideSize = vec2(paddingOffset, sideDim - 2*cbs.maxRadius.float32 + sideAdj + prevSideAdj)
-      ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32), shadowColor, sideSize)
+      let borderSize = vec2(paddingOffset, borderDim - 2*cbs.maxRadius.float32 + sideAdj + prevSideAdj)
+      ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32), shadowColor, borderSize)
       ctx.restoreTransform()
