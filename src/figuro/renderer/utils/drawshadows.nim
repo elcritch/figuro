@@ -119,11 +119,17 @@ proc fillRoundedRectWithShadowSdf*[R](
         dcBottomRight: xy + vec2(w - bw, h - bh)
       ]
 
-      coffset = [
+      cpad = [
         dcTopLeft: vec2(-paddingOffset, -paddingOffset),
         dcTopRight: vec2(paddingOffset, -paddingOffset),
         dcBottomLeft: vec2(-paddingOffset, paddingOffset),
         dcBottomRight: vec2(paddingOffset, paddingOffset)
+      ]
+      coffset = [
+        dcTopLeft: vec2(-paddingOffset, -paddingOffset),
+        dcTopRight: vec2(0, -paddingOffset),
+        dcBottomLeft: vec2(-paddingOffset, 0),
+        dcBottomRight: vec2(0, 0)
       ]
 
       csizes = [
@@ -147,7 +153,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.translate(-csizes[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, shadowColor)
 
-      if cornerCbs[corner].sideDelta > 0:
+      if false and cornerCbs[corner].sideDelta > 0:
         let inner = cornerCbs[corner].inner.float32
         let sideDelta = cornerCbs[corner].sideDelta.float32
         let sideSize = cornerCbs[corner].sideSize.float32
