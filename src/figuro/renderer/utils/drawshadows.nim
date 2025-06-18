@@ -53,7 +53,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   var sideHashes: array[Directions, Hash]
   for side in Directions:
-    sideHashes[side] = hash((shadowKey, 971767, int(side)))
+    sideHashes[side] = hash((shadowKey, 971767, int(cbs.padding)))
 
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
@@ -84,22 +84,42 @@ proc fillRoundedRectWithShadowSdf*[R](
                   factor = shadowBlur,
                   spread = spread,
                   mode = mode)
+      ctx.putImage(cornerHashes[corner], shadowImg)
+
+    for side in Directions:
+      if sideHashes[side] in ctx.entries:
+        continue
+
+      let corners = vec4(0)
+      var shadowImg = newImage(cbs.paddingOffset, 4)
+      let wh = vec2(12, 12)
+
+      let spread = if innerShadow: 0.0 else: shadowSpread
+      let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
+
+      drawSdfShape(shadowImg,
+                  center = vec2(cbs.paddingOffset.float32, 6),
+                  wh = wh,
+                  params = RoundedBoxParams(r: corners),
+                  pos = whiteColor,
+                  neg = whiteColor,
+                  factor = shadowBlur,
+                  spread = spread,
+                  mode = mode)
 
       if true:
-        var msg = "shadow"
+        var msg = "shadow-side"
         msg &= (if innerShadow: "inner" else: "outer")
         msg &= "-weight" & $shadowBlur 
-        msg &= "-radius" & $cornerCbs.radius 
-        msg &= "-sideSize" & $cornerCbs.sideSize 
+        msg &= "-sideSize" & $cbs.sideSize 
         msg &= "-wh" & $wh.x 
         msg &= "-padding" & $cbs.padding 
-        msg &= "-center" & $cornerCbs.center 
-        msg &= "-corner-" & $corner 
-        msg &= "-hash" & toHex(cornerHashes[corner])
+        msg &= "-side-" & $side 
+        msg &= "-hash" & toHex(sideHashes[side])
         echo "generating shadow: ", msg
         shadowImg.writeFile("examples/" & msg & ".png")
 
-      ctx.putImage(cornerHashes[corner], shadowImg)
+      ctx.putImage(sideHashes[side], shadowImg)
 
     var 
       totalPadding = (cbs.totalSize.float32 - cbs.inner.float32) / 2
