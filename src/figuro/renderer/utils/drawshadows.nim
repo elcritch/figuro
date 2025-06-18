@@ -155,7 +155,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.translate(-ccenter[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, shadowColor)
 
-      let sideAdj = (cbs.maxRadius.float32 - cornerCbs[corner].inner.float32)
+      let sideAdj = (maxRadius.float32 - cornerCbs[corner].inner.float32)
       let inner = cornerCbs[corner].inner.float32
       let sideDelta = cornerCbs[corner].sideDelta.float32
       let sideSize = cornerCbs[corner].sideSize.float32
@@ -173,7 +173,12 @@ proc fillRoundedRectWithShadowSdf*[R](
           # ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
       let borderDim = if sides[corner] in [dTop, dBottom]: w else: h
-      let prevSideAdj = (cbs.maxRadius.float32 - cornerCbs[prevCorner[corner]].inner.float32)
-      let borderSize = vec2(paddingOffset, borderDim - 2*cbs.maxRadius.float32 + sideAdj + prevSideAdj)
+      let prevSideAdj = (maxRadius.float32 - cornerCbs[prevCorner[corner]].inner.float32)
+      let borderSize = vec2(paddingOffset, borderDim - 2*maxRadius.float32 + sideAdj + prevSideAdj)
       ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32), shadowColor, borderSize)
       ctx.restoreTransform()
+
+    ctx.drawRect(rect(rect.x + maxRadius.float32, rect.y, w - 2*maxRadius.float32, h), shadowColor)
+
+    ctx.drawRect(rect(rect.x, rect.y + maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
+    ctx.drawRect(rect(rect.x + w - maxRadius.float32, rect.y + maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
