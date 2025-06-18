@@ -95,7 +95,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       let corners = vec4(0)
       var shadowImg = newImage(cbs.paddingOffset, 4)
-      let wh = vec2(12, 12)
+      let wh = vec2(1, 12)
 
       let spread = if innerShadow: 0.0 else: shadowSpread
       let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
@@ -124,9 +124,6 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       ctx.putImage(sideHashes[side], shadowImg)
 
-    var 
-      corner = cbs.sideSize.float32
-
     let
       xy = rect.xy
       zero = vec2(0, 0)
@@ -150,7 +147,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ]
 
       ccenter = [
-        dcTopLeft: vec2(0.0, 0.0),
+        dcTopLeft: vec2(cornerCbs[dcTopLeft].sideSize.float32, cornerCbs[dcTopLeft].sideSize.float32),
         dcTopRight: vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32),
         dcBottomLeft: vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32),
         dcBottomRight: vec2(cornerCbs[dcBottomRight].sideSize.float32, cornerCbs[dcBottomRight].sideSize.float32)
@@ -194,62 +191,3 @@ proc fillRoundedRectWithShadowSdf*[R](
       let sideSize = vec2(paddingOffset, sideDim - 2*cbs.maxRadius.float32 + sideAdj + prevSideAdj)
       ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32), shadowColor, sideSize)
       ctx.restoreTransform()
-
-  block drawEdges:
-    discard
-    # Draw edges
-    # Top edge (stretched horizontally)
-    # let
-    #   corner = cbs.maxRadius.float32
-    #   xy = rect.xy
-    #   zero = vec2(0, 0)
-    #   cornerSize = vec2(bw, bh)
-    #   padding = cbs.padding.float32
-    #   paddingOffset = cbs.paddingOffset.float32
-
-    #   spos = [
-    #     dTop: xy + vec2(corner, -paddingOffset),
-    #     dRight: xy + vec2(paddingOffset, corner),
-    #     dBottom: xy + vec2(corner, paddingOffset),
-    #     dLeft: xy + vec2(-paddingOffset, corner)
-    #   ]
-
-    #   ssizes = [
-    #     dTop: vec2(w - 2*corner, paddingOffset),
-    #     dRight: vec2(paddingOffset, h - 2*corner),
-    #     dBottom: vec2(w - 2*corner, paddingOffset),
-    #     dLeft: vec2(paddingOffset, h - 2*corner)
-    #   ]
-
-    #   # sangles = [dLeft: 0.0, dRight: -Pi/2, dBottom: Pi/2, dTop: Pi]
-    #   sangles = [dTop: Pi, dRight: Pi/2, dBottom: 0.0, dLeft: -Pi/2]
-
-    # # if color.a != 1.0:
-    # #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
-
-    # for side in Directions:
-    #   ctx.saveTransform()
-    #   ctx.translate(spos[side] + ssizes[side] / 2)
-    #   ctx.rotate(sangles[side])
-    #   ctx.translate(-ssizes[side] / 2)
-    #   ctx.drawImageAdj(sideHashes[side], zero, shadowColor, ssizes[side])
-    #   ctx.restoreTransform()
-
-    # let
-    #   paddingOffset = cbs.paddingOffset.float32
-    #   corner = cbs.paddingOffset.float32
-    #   sbox = rect(-paddingOffset, -paddingOffset, w + paddingOffset, h + paddingOffset)
-    #   topEdge = rect(sbox.x + corner, sbox.y, sbox.w - 2 * corner, corner)
-    #   rightEdge = rect( sbox.x + sbox.w - corner, sbox.y + corner, corner, sbox.h - 2 * corner)
-    #   bottomEdge = rect( sbox.x + corner, sbox.y + sbox.h - corner, sbox.w - 2 * corner, corner)
-    #   leftEdge = rect( sbox.x, sbox.y + corner, corner, sbox.h - 2 * corner)
-
-    # ctx.drawImageAdj(sideHashes[dTop], topEdge.xy, shadowColor, topEdge.wh)
-    # ctx.drawImageAdj(sideHashes[dRight], rightEdge.xy, shadowColor, rightEdge.wh)
-    # ctx.drawImageAdj(sideHashes[dBottom], bottomEdge.xy, shadowColor, bottomEdge.wh)
-    # ctx.drawImageAdj(sideHashes[dLeft], leftEdge.xy, shadowColor, leftEdge.wh)
-    
-    # Center (stretched both ways)
-    # if not innerShadow:
-    #   let center = rect(sbox.x + corner, sbox.y + corner, sbox.w - 2 * corner, sbox.h - 2 * corner)
-    #   ctx.drawRect(center, shadowColor)
