@@ -186,10 +186,8 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.restoreTransform()
 
   block drawEdges:
-    discard
     # Draw edges
     # Top edge (stretched horizontally)
-
     let
       corner = cbs.maxRadius.float32
       xy = rect.xy
@@ -199,27 +197,28 @@ proc fillRoundedRectWithShadowSdf*[R](
       paddingOffset = cbs.paddingOffset.float32
 
       spos = [
-        dLeft: xy + vec2(0, 0),
+        dTop: xy + vec2(w, h),
         dRight: xy + vec2(w, 0),
         dBottom: xy + vec2(0, h),
-        dTop: xy + vec2(w, h)
+        dLeft: xy + vec2(0, 0)
       ]
 
       soffset = [
-        dLeft: vec2(paddingOffset, h - 2*corner),
+        dTop: vec2(w - 2*corner, paddingOffset),
         dRight: vec2(paddingOffset, h - 2*corner),
         dBottom: vec2(w - 2*corner, paddingOffset),
-        dTop: vec2(w - 2*corner, paddingOffset)
+        dLeft: vec2(paddingOffset, h - 2*corner)
       ]
 
       ssizes = [
-        dLeft: vec2(paddingOffset, h - 2*corner),
+        dTop: vec2(w - 2*corner, paddingOffset),
         dRight: vec2(paddingOffset, h - 2*corner),
         dBottom: vec2(w - 2*corner, paddingOffset),
-        dTop: vec2(w - 2*corner, paddingOffset)
+        dLeft: vec2(paddingOffset, h - 2*corner)
       ]
 
-      sangles = [dLeft: 0.0, dRight: -Pi/2, dBottom: Pi/2, dTop: Pi]
+      # sangles = [dLeft: 0.0, dRight: -Pi/2, dBottom: Pi/2, dTop: Pi]
+      sangles = [dTop: Pi, dRight: Pi/2, dBottom: 0.0, dLeft: -Pi/2]
 
     # if color.a != 1.0:
     #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
