@@ -165,7 +165,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     # if color.a != 1.0:
     #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
     let sides = [dcTopLeft: dLeft, dcTopRight: dTop, dcBottomLeft: dBottom, dcBottomRight: dRight]
-    let prevCorner = [dcTopLeft: dcBottomLeft, dcTopRight: dcBottomRight, dcBottomLeft: dcTopLeft, dcBottomRight: dcTopRight]
+    let prevCorner = [dcTopLeft: dcBottomLeft, dcTopRight: dcTopLeft, dcBottomLeft: dcBottomRight, dcBottomRight: dcTopRight]
 
     for corner in DirectionCorners:
       ctx.saveTransform()
