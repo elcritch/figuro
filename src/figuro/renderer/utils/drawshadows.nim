@@ -109,19 +109,6 @@ proc fillRoundedRectWithShadowSdf*[R](
                   factor = shadowBlur,
                   spread = spread,
                   mode = mode)
-
-      if true:
-        var msg = "shadow-side"
-        msg &= (if innerShadow: "inner" else: "outer")
-        msg &= "-weight" & $shadowBlur 
-        msg &= "-sideSize" & $cbs.sideSize 
-        msg &= "-wh" & $wh.x 
-        msg &= "-padding" & $cbs.padding 
-        msg &= "-side-" & $side 
-        msg &= "-hash" & toHex(sideHashes[side])
-        echo "generating shadow: ", msg
-        # shadowImg.writeFile("examples/" & msg & ".png")
-
       ctx.putImage(sideHashes[side], shadowImg)
 
     let
@@ -158,8 +145,6 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2, dcBottomLeft: Pi/2, dcBottomRight: Pi]
 
-    # if color.a != 1.0:
-    #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
     let sides = [dcTopLeft: dLeft, dcTopRight: dTop, dcBottomLeft: dBottom, dcBottomRight: dRight]
     let prevCorner = [dcTopLeft: dcBottomLeft, dcTopRight: dcTopLeft, dcBottomLeft: dcBottomRight, dcBottomRight: dcTopRight]
 
@@ -170,7 +155,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.translate(-ccenter[corner] / 2)
       ctx.drawImage(cornerHashes[corner], zero, shadowColor)
 
-      if false and cornerCbs[corner].sideDelta > 0:
+      if cornerCbs[corner].sideDelta > 0:
         let inner = cornerCbs[corner].inner.float32
         let sideDelta = cornerCbs[corner].sideDelta.float32
         let sideSize = cornerCbs[corner].sideSize.float32
@@ -181,9 +166,9 @@ proc fillRoundedRectWithShadowSdf*[R](
           # ctx.drawRect(rect(inner, 0, sideDelta, cbs.weightSize.float32), color)
         else:
           ctx.drawRect(rect(0, inner, inner, sideDelta), shadowColor)
-          ctx.drawRect(rect(inner, 0, sideDelta, sideSize), shadowColor)
+          ctx.drawRect(rect(paddingOffset, paddingOffset + inner, inner, sideDelta), darkGrey)
           # we could do two boxes, but this matches our shadow needs
-          ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
+          # ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
       let sideDim = if sides[corner] in [dTop, dBottom]: w else: h
       let sideAdj = (cbs.maxRadius.float32 - cornerCbs[corner].inner.float32)
