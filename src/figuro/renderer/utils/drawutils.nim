@@ -36,7 +36,7 @@ proc getCircleBoxSizes*(
   result.maxRadius = 0
   for r in radii:
     result.maxRadius = max(result.maxRadius, r.round().int)
-  let ww = int(1.5*weight.round())
+  let ww = int(weight.round())
   let bw = width.round().int
   let bh = height.round().int
   let blur = blur.round().int

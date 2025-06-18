@@ -109,6 +109,7 @@ proc drawRoundedRect*[R](
         msg &= "-hash" & toHex(cornerHashes[corner])
         echo "generating corner: ", msg
         image.writeFile("examples/" & msg & ".png")
+
       ctx.putImage(toKey(cornerHashes[corner]), image)
 
     let
@@ -156,10 +157,14 @@ proc drawRoundedRect*[R](
         let sideDelta = cornerCbs[corner].sideDelta.float32
         let sideSize = cornerCbs[corner].sideSize.float32
         # inner patch left, right, and then center
-        ctx.drawRect(rect(0, inner, inner, sideDelta), color)
-        ctx.drawRect(rect(inner, 0, sideDelta, sideSize), color)
-        # we could do two boxes, but this matches our shadow needs
-        ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), color)
+        if doStroke:
+          ctx.drawRect(rect(0, inner, cbs.weightSize.float32, sideDelta), color)
+          ctx.drawRect(rect(inner, 0, sideDelta, cbs.weightSize.float32), color)
+        else:
+          ctx.drawRect(rect(0, inner, inner, sideDelta), color)
+          ctx.drawRect(rect(inner, 0, sideDelta, sideSize), color)
+          # we could do two boxes, but this matches our shadow needs
+          ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), color)
 
       ctx.restoreTransform()
 
