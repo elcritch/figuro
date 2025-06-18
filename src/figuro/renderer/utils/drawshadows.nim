@@ -114,9 +114,10 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       cpos = [
         dcTopLeft: xy + vec2(0, 0),
-        dcTopRight: xy + vec2(w - bw, 0),
-        dcBottomLeft: xy + vec2(0, h - bh),
-        dcBottomRight: xy + vec2(w - bw, h - bh)
+        dcTopRight: xy + vec2(w - cornerCbs[dcTopRight].inner.float32, 0),
+        dcBottomLeft: xy + vec2(0, h - cornerCbs[dcBottomLeft].inner.float32),
+        dcBottomRight: xy + vec2(w - cornerCbs[dcBottomRight].inner.float32,
+                                 h - cornerCbs[dcBottomRight].inner.float32)
       ]
 
       coffset = [
