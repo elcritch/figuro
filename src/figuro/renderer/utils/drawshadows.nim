@@ -110,20 +110,13 @@ proc fillRoundedRectWithShadowSdf*[R](
       zero = vec2(0, 0)
       cornerSize = vec2(bw, bh)
       padding = cbs.padding.float32
-      paddingOffset = 1.5*cbs.padding.float32
+      paddingOffset = cbs.paddingOffset.float32
 
       cpos = [
         dcTopLeft: xy + vec2(0, 0),
         dcTopRight: xy + vec2(w - bw, 0),
         dcBottomLeft: xy + vec2(0, h - bh),
         dcBottomRight: xy + vec2(w - bw, h - bh)
-      ]
-
-      cpad = [
-        dcTopLeft: vec2(-paddingOffset, -paddingOffset),
-        dcTopRight: vec2(paddingOffset, -paddingOffset),
-        dcBottomLeft: vec2(-paddingOffset, paddingOffset),
-        dcBottomRight: vec2(paddingOffset, paddingOffset)
       ]
 
       coffset = [
