@@ -251,13 +251,13 @@ proc render(
   ifrender node.kind == nkRectangle:
     ctx.renderDropShadows(node)
 
-  # # handle clipping children content based on this node
-  # ifrender NfClipContent in node.flags:
-  #   ctx.beginMask()
-  #   ctx.drawMasks(node)
-  #   ctx.endMask()
-  # finally:
-  #   ctx.popMask()
+  # handle clipping children content based on this node
+  ifrender NfClipContent in node.flags:
+    ctx.beginMask()
+    ctx.drawMasks(node)
+    ctx.endMask()
+  finally:
+    ctx.popMask()
 
   ifrender true:
     if node.kind == nkText:
