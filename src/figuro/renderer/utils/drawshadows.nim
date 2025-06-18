@@ -151,7 +151,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     for corner in DirectionCorners:
       ctx.saveTransform()
-      ctx.translate(floor(cpos[corner] + coffset[corner] + ccenter[corner] / 2))
+      ctx.translate(floor(cpos[corner] + coffset[corner] + ccenter[corner] / 2)) # important, floor once here, not after
       ctx.rotate(angles[corner])
       ctx.translate((-ccenter[corner] / 2))
       ctx.drawImage(cornerHashes[corner], zero, shadowColor)
