@@ -14,11 +14,13 @@ jobs:
         os:
           - ubuntu-latest
     steps:
-    - name: Cache packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.nimble
-        key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
+    - uses: actions/checkout@v1
+
+    # - name: Cache packages
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ~/.nimble
+    #     key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
 
     - uses: iffy/install-nim@v4
       with:
@@ -31,8 +33,6 @@ jobs:
         nimble install nimble@0.18.2
         nim -v
         nimble -v
-
-    - uses: actions/checkout@v1
 
     - name: Install Deps
       run: |
