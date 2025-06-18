@@ -120,7 +120,7 @@ proc fillRoundedRectWithShadowSdf*[R](
         msg &= "-side-" & $side 
         msg &= "-hash" & toHex(sideHashes[side])
         echo "generating shadow: ", msg
-        shadowImg.writeFile("examples/" & msg & ".png")
+        # shadowImg.writeFile("examples/" & msg & ".png")
 
       ctx.putImage(sideHashes[side], shadowImg)
 
