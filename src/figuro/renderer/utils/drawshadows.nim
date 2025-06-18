@@ -48,7 +48,10 @@ proc fillRoundedRectWithShadowSdf*[R](
     bh = cbs.sideSize.float32
 
     shadowKey = hash((7723, shadowBlur.int, shadowSpread.int, innerShadow))
-  
+
+  if cbs.paddingOffset == 0:
+    return
+
   let cornerCbs = cbs.roundedBoxCornerSizes(radii)
 
   var sideHashes: array[Directions, Hash]
@@ -87,7 +90,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.putImage(cornerHashes[corner], shadowImg)
 
     for side in Directions:
-      if sideHashes[side] in ctx.entries:
+      if sideHashes[side] in ctx.entries or cbs.paddingOffset == 0:
         continue
 
       let corners = vec4(0)
@@ -184,7 +187,7 @@ proc fillRoundedRectWithShadowSdf*[R](
           # we could do two boxes, but this matches our shadow needs
           ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
-      ctx.drawImage(sideHashes[sides[corner]], vec2(csizes[corner].x, 0), darkGrey)
+      ctx.drawImage(sideHashes[sides[corner]], vec2(0, -csizes[corner].x), darkGrey)
       ctx.restoreTransform()
 
   block drawEdges:
