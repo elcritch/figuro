@@ -19,11 +19,12 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    # - name: Cache packages
-    #   uses: actions/cache@v3
-    #   with:
-    #     path: ~/.nimble
-    #     key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
+    - name: Cache packages
+      if: matrix.nimversion != '2.0.14'
+      uses: actions/cache@v3
+      with:
+        path: ~/.nimble
+        key: ${{ runner.os }}-${{ hashFiles('figuro.nimble') }}
 
     - uses: iffy/install-nim@v4
       with:
