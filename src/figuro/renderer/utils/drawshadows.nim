@@ -31,6 +31,8 @@ proc fillRoundedRectWithShadowSdf*[R](
   # First, draw the shadow
   # Generate shadow key for caching
   let 
+    w = rect.w.ceil()
+    h = rect.h.ceil()
     radii = clampRadii(radii, rect)
     shadowBlur = shadowBlur.round().float32
     shadowSpread = shadowSpread.round().float32
@@ -42,6 +44,8 @@ proc fillRoundedRectWithShadowSdf*[R](
                              innerShadow = innerShadow)
     maxRadius = cbs.maxRadius
     wh = vec2(cbs.inner.float32, cbs.inner.float32)
+    bw = cbs.sideSize.float32
+    bh = cbs.sideSize.float32
 
     shadowKey = hash((7723, shadowBlur.int, shadowSpread.int, innerShadow))
   
@@ -63,7 +67,8 @@ proc fillRoundedRectWithShadowSdf*[R](
       if cornerHashes[corner] in ctx.entries:
         continue
 
-      let corners = vec4(cornerCbs[corner].radius.float32)
+      let cornerCbs = cornerCbs[corner]
+      let corners = vec4(cornerCbs.radius.float32)
       var shadowImg = newImage(cornerCbs.sideSize, cornerCbs.sideSize)
       let wh = vec2(2*cornerCbs.sideSize.float32, 2*cornerCbs.sideSize.float32)
 
@@ -80,6 +85,20 @@ proc fillRoundedRectWithShadowSdf*[R](
                   spread = spread,
                   mode = mode)
 
+      if true:
+        var msg = "shadow"
+        msg &= (if innerShadow: "inner" else: "outer")
+        msg &= "-weight" & $shadowBlur 
+        msg &= "-radius" & $cornerCbs.radius 
+        msg &= "-sideSize" & $cornerCbs.sideSize 
+        msg &= "-wh" & $wh.x 
+        msg &= "-padding" & $cbs.padding 
+        msg &= "-center" & $cornerCbs.center 
+        msg &= "-corner-" & $corner 
+        msg &= "-hash" & toHex(cornerHashes[corner])
+        echo "generating shadow: ", msg
+        shadowImg.writeFile("examples/" & msg & ".png")
+
       ctx.putImage(cornerHashes[corner], shadowImg)
 
     var 
@@ -88,16 +107,15 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     let
       xy = rect.xy
-      bw = cornerCbs[dcTopLeft].sideSize.float32
-      bh = cornerCbs[dcTopLeft].sideSize.float32
       zero = vec2(0, 0)
       cornerSize = vec2(bw, bh)
+      padding = cbs.padding.float32
 
       cpos = [
-        dcTopLeft: xy + vec2(0, 0),
-        dcTopRight: xy + vec2(w - bw, 0),
-        dcBottomLeft: xy + vec2(0, h - bh),
-        dcBottomRight: xy + vec2(w - bw, h - bh)
+        dcTopLeft: xy + vec2(0, 0) + vec2(-padding, -padding),
+        dcTopRight: xy + vec2(w - bw, 0) + vec2(padding, -padding),
+        dcBottomLeft: xy + vec2(0, h - bh) + vec2(-padding, padding),
+        dcBottomRight: xy + vec2(w - bw, h - bh) + vec2(padding, padding)
       ]
 
       coffset = [
@@ -126,7 +144,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.translate(cpos[corner] + coffset[corner] + csizes[corner] / 2)
       ctx.rotate(angles[corner])
       ctx.translate(-csizes[corner] / 2)
-      ctx.drawImage(cornerHashes[corner], zero, color)
+      ctx.drawImage(cornerHashes[corner], zero, shadowColor)
 
       if cornerCbs[corner].sideDelta > 0:
         let inner = cornerCbs[corner].inner.float32
@@ -138,10 +156,10 @@ proc fillRoundedRectWithShadowSdf*[R](
           # ctx.drawRect(rect(0, inner, cbs.weightSize.float32, sideDelta), color)
           # ctx.drawRect(rect(inner, 0, sideDelta, cbs.weightSize.float32), color)
         else:
-          ctx.drawRect(rect(0, inner, inner, sideDelta), color)
-          ctx.drawRect(rect(inner, 0, sideDelta, sideSize), color)
+          ctx.drawRect(rect(0, inner, inner, sideDelta), shadowColor)
+          ctx.drawRect(rect(inner, 0, sideDelta, sideSize), shadowColor)
           # we could do two boxes, but this matches our shadow needs
-          ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), color)
+          ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
       ctx.restoreTransform()
 
