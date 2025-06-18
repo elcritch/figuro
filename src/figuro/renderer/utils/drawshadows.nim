@@ -198,39 +198,40 @@ proc fillRoundedRectWithShadowSdf*[R](
       padding = cbs.padding.float32
       paddingOffset = cbs.paddingOffset.float32
 
-      cpos = [
+      spos = [
         dLeft: xy + vec2(0, 0),
         dRight: xy + vec2(w, 0),
         dBottom: xy + vec2(0, h),
         dTop: xy + vec2(w, h)
       ]
 
-      coffset = [
+      soffset = [
         dLeft: vec2(paddingOffset, h - 2*corner),
         dRight: vec2(paddingOffset, h - 2*corner),
         dBottom: vec2(w - 2*corner, paddingOffset),
         dTop: vec2(w - 2*corner, paddingOffset)
       ]
 
-      csizes = [
+      ssizes = [
         dLeft: vec2(paddingOffset, h - 2*corner),
         dRight: vec2(paddingOffset, h - 2*corner),
         dBottom: vec2(w - 2*corner, paddingOffset),
         dTop: vec2(w - 2*corner, paddingOffset)
       ]
 
-      angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2, dcBottomLeft: Pi/2, dcBottomRight: Pi]
+      sangles = [dLeft: 0.0, dRight: -Pi/2, dBottom: Pi/2, dTop: Pi]
 
     # if color.a != 1.0:
     #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
 
     for side in Directions:
       ctx.saveTransform()
-      ctx.translate(cpos[side] + coffset[side] + csizes[side] / 2)
-      ctx.rotate(angles[side])
-      ctx.translate(-csizes[side] / 2)
+      ctx.translate(spos[side] + soffset[side] + ssizes[side] / 2)
+      ctx.rotate(sangles[side])
+      ctx.translate(-ssizes[side] / 2)
       ctx.drawImage(sideHashes[side], zero, shadowColor)
       ctx.restoreTransform()
+
     # let
     #   paddingOffset = cbs.paddingOffset.float32
     #   corner = cbs.paddingOffset.float32
