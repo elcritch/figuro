@@ -165,6 +165,7 @@ proc fillRoundedRectWithShadowSdf*[R](
     # if color.a != 1.0:
     #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
     let sides = [dcTopLeft: dLeft, dcTopRight: dTop, dcBottomLeft: dBottom, dcBottomRight: dRight]
+    let prevCorner = [dcTopLeft: dcBottomLeft, dcTopRight: dcBottomRight, dcBottomLeft: dcTopLeft, dcBottomRight: dcTopRight]
 
     for corner in DirectionCorners:
       ctx.saveTransform()
@@ -189,8 +190,11 @@ proc fillRoundedRectWithShadowSdf*[R](
           ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), shadowColor)
 
       let sideDim = if sides[corner] in [dTop, dBottom]: w else: h
-      ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32),
-                       darkGrey, vec2(paddingOffset, sideDim - 2*cbs.maxRadius.float32))
+      let sideSize = cornerCbs[corner].sideSize.float32
+      let sideAdj = (cbs.maxRadius.float32 - cornerCbs[corner].inner.float32)
+      let prevSideAdj = (cbs.maxRadius.float32 - cornerCbs[prevCorner[corner]].inner.float32)
+      ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, sideSize),
+                       darkGrey, vec2(paddingOffset, sideDim - 2*cbs.maxRadius.float32 + sideAdj + prevSideAdj))
       ctx.restoreTransform()
 
   block drawEdges:
