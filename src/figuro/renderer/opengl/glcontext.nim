@@ -16,6 +16,9 @@ export drawextras
 logScope:
   scope = "opengl"
 
+proc round*(v: Vec2): Vec2 =
+  vec2(round(v.x), round(v.y))
+
 const quadLimit = 10_921
 
 type Context* = ref object
@@ -390,10 +393,10 @@ proc drawUvRect(ctx: Context, at, to: Vec2, uvAt, uvTo: Vec2, color: Color) =
 
   let
     posQuad = [
-      ceil(ctx.mat * vec2(at.x, to.y)),
-      ceil(ctx.mat * vec2(to.x, to.y)),
-      ceil(ctx.mat * vec2(to.x, at.y)),
-      ceil(ctx.mat * vec2(at.x, at.y)),
+      round(ctx.mat * vec2(at.x, to.y)),
+      round(ctx.mat * vec2(to.x, to.y)),
+      round(ctx.mat * vec2(to.x, at.y)),
+      round(ctx.mat * vec2(at.x, at.y)),
     ]
     uvQuad = [
       vec2(uvAt.x, uvTo.y),
