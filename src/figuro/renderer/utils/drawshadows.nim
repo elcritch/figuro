@@ -197,17 +197,10 @@ proc fillRoundedRectWithShadowSdf*[R](
       paddingOffset = cbs.paddingOffset.float32
 
       spos = [
-        dTop: xy + vec2(w, h),
-        dRight: xy + vec2(w, 0),
-        dBottom: xy + vec2(0, h),
-        dLeft: xy + vec2(0, 0)
-      ]
-
-      soffset = [
-        dTop: vec2(w - 2*corner, paddingOffset),
-        dRight: vec2(paddingOffset, h - 2*corner),
-        dBottom: vec2(w - 2*corner, paddingOffset),
-        dLeft: vec2(paddingOffset, h - 2*corner)
+        dTop: xy + vec2(corner, -paddingOffset),
+        dRight: xy + vec2(paddingOffset, corner),
+        dBottom: xy + vec2(corner, paddingOffset),
+        dLeft: xy + vec2(-paddingOffset, corner)
       ]
 
       ssizes = [
@@ -225,10 +218,10 @@ proc fillRoundedRectWithShadowSdf*[R](
 
     for side in Directions:
       ctx.saveTransform()
-      ctx.translate(spos[side] + soffset[side] + ssizes[side] / 2)
+      ctx.translate(spos[side] + ssizes[side] / 2)
       ctx.rotate(sangles[side])
       ctx.translate(-ssizes[side] / 2)
-      ctx.drawImage(sideHashes[side], zero, shadowColor)
+      ctx.drawImageAdj(sideHashes[side], zero, shadowColor, ssizes[side])
       ctx.restoreTransform()
 
     # let
