@@ -125,8 +125,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       ctx.putImage(sideHashes[side], shadowImg)
 
     var 
-      totalPadding = (cbs.totalSize.float32 - cbs.inner.float32) / 2
-      corner = totalPadding.float32 + cbs.inner.float32 / 2
+      corner = cbs.sideSize.float32
 
     let
       xy = rect.xy
