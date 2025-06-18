@@ -270,15 +270,15 @@ proc render(
     elif node.kind == nkRectangle:
       ctx.renderBoxes(node)
 
-  # ifrender node.kind == nkRectangle:
-  #   if NfClipContent notin node.flags:
-  #     ctx.beginMask()
-  #     ctx.drawMasks(node)
-  #     ctx.endMask()
-  #     ctx.renderInnerShadows(node)
-  #     ctx.popMask()
-  #   else:
-  #     ctx.renderInnerShadows(node)
+  ifrender node.kind == nkRectangle:
+    if NfClipContent notin node.flags:
+      ctx.beginMask()
+      ctx.drawMasks(node)
+      ctx.endMask()
+      ctx.renderInnerShadows(node)
+      ctx.popMask()
+    else:
+      ctx.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)
   # ctx.restoreTransform()
