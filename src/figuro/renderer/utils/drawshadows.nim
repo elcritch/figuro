@@ -125,6 +125,7 @@ proc fillRoundedRectWithShadowSdf*[R](
         dcBottomLeft: vec2(-paddingOffset, paddingOffset),
         dcBottomRight: vec2(paddingOffset, paddingOffset)
       ]
+
       coffset = [
         dcTopLeft: vec2(-paddingOffset, -paddingOffset),
         dcTopRight: vec2(0, -paddingOffset),
