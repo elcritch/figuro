@@ -20,6 +20,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Cache packages
+      if: matrix.nimversion != '2.0.14'
       uses: actions/cache@v3
       with:
         path: ~/.nimble
@@ -33,7 +34,7 @@ jobs:
 
     - name: Install Nimble
       run: |
-        nimble install nimble
+        nimble install nimble@0.18.2
         nim -v
         nimble -v
 
