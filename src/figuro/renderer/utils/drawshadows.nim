@@ -88,6 +88,8 @@ proc fillRoundedRectWithShadowSdf*[R](
                   factor = shadowBlur,
                   spread = spread,
                   mode = mode)
+      if innerShadow:
+        shadowImg.writeFile("examples/shadow-" & $corner & "-radius" & $cornerCbs.radius & ".png")
       ctx.putImage(cornerHashes[corner], shadowImg)
 
     for side in Directions:
