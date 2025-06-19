@@ -135,8 +135,6 @@ proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
-  if true:
-    return
   let shadow = node.shadow[InnerShadow]
   if shadow.blur <= 0.0 and shadow.spread <= 0.0:
     return
