@@ -17,6 +17,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Cache packages
+      if: matrix.nimversion != '2.0.14'
       uses: actions/cache@v3
       with:
         path: ~/.nimble
