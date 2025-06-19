@@ -201,7 +201,7 @@ proc renderBoxes(ctx: Context, node: Node) =
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
     if ctx.cacheImage(node.image.name, node.image.id.Hash):
-      ctx.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
+      ctx.drawImage(node.image.id.Hash, pos = node.screenBox.xy, color = node.image.color, size = size)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.drawRoundedRect(
