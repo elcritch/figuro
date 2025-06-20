@@ -11,6 +11,7 @@ proc logTiming(name, time: string) =
 const
   timeItSmoothing {.intdefine.} = 10
   alpha = 1.0 / timeItSmoothing.toFloat
+  printEvery = 1_00
 
 proc toMillis*(t: TimeIt): float =
   round(t.micros / 1_000.0, 3)
@@ -28,7 +29,7 @@ macro timeIt*(timer, blk: untyped) =
       let micros = res.inMicroseconds.toFloat
       `timer`.micros =  alpha * micros + (1.0-alpha) * `timer`.micros
       `timer`.count.inc
-      if `timer`.count mod 1_000 == 0:
+      if `timer`.count mod printEvery == 0:
         let num = toMillis(`timer`)
         logTiming($`name`, $num.formatBiggestFloat(ffDecimal, 3) & " ms")
   else:

@@ -10,6 +10,8 @@ import ../../common/rchannels
 import ../../common/nodes/uinodes
 import ../utils/glutils
 import ../utils/baserenderer
+import ../utils/drawshadows
+import ../utils/drawboxes
 import glcommons, glcontext
 
 import std/locks
@@ -89,58 +91,62 @@ macro postRender() =
 proc drawMasks(ctx: Context, node: Node) =
   if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
     ctx.drawRoundedRect(
-      rect(0, 0, node.screenBox.w, node.screenBox.h),
+      node.screenBox,
       rgba(255, 0, 0, 255).color,
       node.cornerRadius,
     )
   else:
     ctx.drawRect(
-      rect(0, 0, node.screenBox.w, node.screenBox.h), rgba(255, 0, 0, 255).color
+      node.screenBox, rgba(255, 0, 0, 255).color
     )
 
 proc renderDropShadows(ctx: Context, node: Node) =
   ## drawing shadows with 9-patch technique
   let shadow = node.shadow[DropShadow]
-  if shadow.blur > 0.0:
-    when FastShadows:
-      ## should add a primitive to opengl.context to
-      ## do this with pixie and 9-patch, but that's a headache
-      let shadow = node.shadow[DropShadow]
-      var color = shadow.color
-      const N = 3
-      color.a = color.a * 1.0/(N*N*N)
-      let blurAmt = shadow.blur * shadow.spread / (12*N*N)
-      for i in -N .. N:
-        for j in -N .. N:
-          let xblur: float32 = i.toFloat() * blurAmt
-          let yblur: float32 = j.toFloat() * blurAmt
-          let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
-          ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
-    else:
-      ctx.fillRoundedRectWithShadow(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
-        radii = node.cornerRadius,
-        shadowX = shadow.x,
-        shadowY = shadow.y,
-        shadowBlur = shadow.blur,
-        shadowSpread = shadow.spread.float32,
-        shadowColor = shadow.color,
-        innerShadow = false,
-      )
+  if shadow.blur <= 0.0 and shadow.spread <= 0.0:
+    return
+
+  when FastShadows:
+    ## should add a primitive to opengl.context to
+    ## do this with pixie and 9-patch, but that's a headache
+    var color = shadow.color
+    const N = 3
+    color.a = color.a * 1.0/(N*N*N)
+    let blurAmt = shadow.blur * shadow.spread / (12*N*N)
+    for i in -N .. N:
+      for j in -N .. N:
+        let xblur: float32 = i.toFloat() * blurAmt
+        let yblur: float32 = j.toFloat() * blurAmt
+        let box = node.screenBox.atXY(x = shadow.x + xblur, y = shadow.y + yblur)
+        ctx.drawRoundedRect(rect = box, color = color, radius = node.cornerRadius)
+  else:
+    ctx.fillRoundedRectWithShadowSdf(
+      rect = node.screenBox,
+      radii = node.cornerRadius,
+      shadowX = shadow.x,
+      shadowY = shadow.y,
+      shadowBlur = shadow.blur,
+      shadowSpread = shadow.spread.float32,
+      shadowColor = shadow.color,
+      innerShadow = false,
+    )
 
 proc renderInnerShadows(ctx: Context, node: Node) =
   ## drawing poor man's inner shadows
   ## this is even more incorrect than drop shadows, but it's something
   ## and I don't actually want to think today ;)
+  let shadow = node.shadow[InnerShadow]
+  if shadow.blur <= 0.0 and shadow.spread <= 0.0:
+    return
+
   when FastShadows:
-    let shadow = node.shadow[InnerShadow]
     let n = shadow.blur.toInt
     var color = shadow.color
     color.a = 2*color.a/n.toFloat
     let blurAmt = shadow.blur / n.toFloat
     for i in 0 .. n:
       let blur: float32 = i.toFloat() * blurAmt
-      var box = node.screenBox.atXY(x = 0'f32, y = 0'f32)
+      var box = node.screenBox
       # var box = node.screenBox.atXY(x = shadow.x, y = shadow.y)
       if shadow.x >= 0'f32:
         box.w += shadow.x
@@ -157,10 +163,8 @@ proc renderInnerShadows(ctx: Context, node: Node) =
         radius = node.cornerRadius - blur,
       )
   else:
-    let shadow = node.shadow[InnerShadow]
-    var rect = node.screenBox.atXY(0'f32, 0'f32)
-    ctx.fillRoundedRectWithShadow(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+    ctx.fillRoundedRectWithShadowSdf(
+      rect = node.screenBox,
       radii = node.cornerRadius,
       shadowX = shadow.x,
       shadowY = shadow.y,
@@ -172,37 +176,36 @@ proc renderInnerShadows(ctx: Context, node: Node) =
 
 proc renderBoxes(ctx: Context, node: Node) =
   ## drawing boxes for rectangles
+
   if node.fill.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       discard
       ctx.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+        rect = node.screenBox,
         color = node.fill,
         radii = node.cornerRadius,
-        weight = node.stroke.weight,
       )
     else:
-      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.fill)
+      ctx.drawRect(node.screenBox, node.fill)
 
   if node.highlight.a > 0'f32:
     if node.cornerRadius != [0'f32, 0'f32, 0'f32, 0'f32]:
       ctx.drawRoundedRect(
-        rect = node.screenBox.atXY(0'f32, 0'f32),
+        rect = node.screenBox,
         color = node.highlight,
         radii = node.cornerRadius,
-        weight = node.stroke.weight,
       )
     else:
-      ctx.drawRect(node.screenBox.atXY(0'f32, 0'f32), node.highlight)
+      ctx.drawRect(node.screenBox, node.highlight)
 
   if node.image.id.int != 0:
     let size = vec2(node.screenBox.w, node.screenBox.h)
     if ctx.cacheImage(node.image.name, node.image.id.Hash):
-      ctx.drawImage(node.image.id.Hash, pos = vec2(0, 0), color = node.image.color, size = size)
+      ctx.drawImage(node.image.id.Hash, pos = node.screenBox.xy, color = node.image.color, size = size)
 
   if node.stroke.color.a > 0 and node.stroke.weight > 0:
     ctx.drawRoundedRect(
-      rect = node.screenBox.atXY(0'f32, 0'f32),
+      rect = node.screenBox,
       color = node.stroke.color,
       radii = node.cornerRadius,
       weight = node.stroke.weight,
@@ -231,16 +234,19 @@ proc render(
 
   # setup the opengl context to match the current node size and position
 
-  ctx.saveTransform()
-  ctx.translate(node.screenBox.xy)
+  # ctx.saveTransform()
+  # ctx.translate(node.screenBox.xy)
 
   # handle node rotation
   ifrender node.rotation != 0:
+    ctx.saveTransform()
     ctx.translate(node.screenBox.wh / 2)
     ctx.rotate(node.rotation / 180 * PI)
     ctx.translate(-node.screenBox.wh / 2)
+  finally:
+    ctx.restoreTransform()
 
-  ifrender node.kind == nkRectangle and node.shadow[DropShadow].blur > 0.0:
+  ifrender node.kind == nkRectangle:
     ctx.renderDropShadows(node)
 
   # handle clipping children content based on this node
@@ -253,21 +259,27 @@ proc render(
 
   ifrender true:
     if node.kind == nkText:
+      ctx.saveTransform()
+      ctx.translate(node.screenBox.xy)
       ctx.renderText(node)
+      ctx.restoreTransform()
     elif node.kind == nkDrawable:
       ctx.renderDrawable(node)
     elif node.kind == nkRectangle:
       ctx.renderBoxes(node)
 
-  ifrender node.kind == nkRectangle and node.shadow[InnerShadow].blur > 0.0:
-    ctx.beginMask()
-    ctx.drawMasks(node)
-    ctx.endMask()
-    ctx.renderInnerShadows(node)
-    ctx.popMask()
+  ifrender node.kind == nkRectangle:
+    if NfClipContent notin node.flags:
+      ctx.beginMask()
+      ctx.drawMasks(node)
+      ctx.endMask()
+      ctx.renderInnerShadows(node)
+      ctx.popMask()
+    else:
+      ctx.renderInnerShadows(node)
 
   # restores the opengl context back to the parent node's (see above)
-  ctx.restoreTransform()
+  # ctx.restoreTransform()
 
   for childIdx in childIndex(nodes, nodeIdx):
     ctx.render(nodes, childIdx, nodeIdx)

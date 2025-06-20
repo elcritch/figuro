@@ -20,7 +20,7 @@ type
 proc initialize*(self: Main) {.slot.} =
   for kd in FadeKinds:
     self.toggles[kd] = true
-    self.fades[kd] = Fader(minMax: 0.01..22.0,
+    self.fades[kd] = Fader(minMax: 0.1..34.0,
                           inTimeMs: 1400, outTimeMs: 1400)
   self.fades[FkTopLeft] = Fader(minMax: 2.0..8.0,
                           inTimeMs: 1400, outTimeMs: 1400)
@@ -50,9 +50,9 @@ proc draw*(self: Main) {.slot.} =
             self.toggles[this.state] = not self.toggles[this.state]
 
     Button[int] as "btn":
-      box 40'ux, 30'ux, 30'pp, 30'pp
-      fill css"#2B9F2B"
-      border 5'ui, css"red"
+      box 40'ux, 40'ux, 30'pp, 30'pp
+      fill css"#2B9F2B" * 1.0
+      border 5'ui, css"darkgreen" * 1.0
       corners topLeft = self.fades[FkTopLeft].amount.UiScalar,
               topRight = self.fades[FkTopRight].amount.UiScalar,
               bottomLeft = self.fades[FkBottomLeft].amount.UiScalar,
@@ -66,14 +66,14 @@ proc draw*(self: Main) {.slot.} =
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar, y: self.fades[FkY].amount.UiScalar,
-          color: Color(r: 0.0, g: 0.0, b: 0.0, a: 0.99))
+          color: Color(r: 1.0, g: 0.0, b: 0.0, a: 0.4))
       when true:
         this.shadow[InnerShadow] = Shadow(
           blur: self.fades[FkBlur].amount.UiScalar,
           spread: self.fades[FkSpread].amount.UiScalar,
           x: self.fades[FkX].amount.UiScalar,
           y: self.fades[FkY].amount.UiScalar,
-          color: Color(r: 1.0, g: 1.0, b: 1.0, a: 0.6))
+          color: Color(r: 0.0, g: 0.0, b: 1.0, a: 0.4))
 
       Text.new "btnText":
         size 100'pp, 100'pp
