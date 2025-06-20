@@ -169,11 +169,14 @@ proc fillRoundedRectWithShadowSdf*[R](
       let sideDelta = cornerCbs[corner].sideDelta.float32
       let sideSize = cornerCbs[corner].sideSize.float32
 
-      if cornerCbs[corner].sideDelta > 0:
-        # inner patch left, right, and then center
-        if not innerShadow:
-          ctx.drawRect(rect(paddingOffset, paddingOffset + inner, inner, sideDelta), shadowColor)
-          ctx.drawRect(rect(paddingOffset + inner, paddingOffset, sideDelta, cbs.maxRadius.float32), shadowColor)
+      if innerShadow:
+        if sides[corner] in [dTop, dBottom]:
+          ctx.drawRect(rect(0, 2*paddingOffset.float32, paddingOffset.float32, w - 2*paddingOffset.float32), shadowColor)
+        else:
+          ctx.drawRect(rect(0, 2*paddingOffset.float32, paddingOffset.float32, h - 2*paddingOffset.float32), shadowColor)
+      if not innerShadow and cornerCbs[corner].sideDelta > 0:
+        ctx.drawRect(rect(paddingOffset, paddingOffset + inner, inner, sideDelta), shadowColor)
+        ctx.drawRect(rect(paddingOffset + inner, paddingOffset, sideDelta, cbs.maxRadius.float32), shadowColor)
 
       let borderDim = if sides[corner] in [dTop, dBottom]: w else: h
       let prevSideAdj = (maxRadius.float32 - cornerCbs[prevCorner[corner]].inner.float32)
@@ -187,12 +190,12 @@ proc fillRoundedRectWithShadowSdf*[R](
     if innerShadow:
       discard
       # left and right side boxes
-      ctx.drawRect(rect(rect.x - paddingOffset.float32, rect.y + paddingOffset.float32, paddingOffset, h - 2*paddingOffset.float32), shadowColor)
-      ctx.drawRect(rect(rect.x + w, rect.y + paddingOffset.float32, paddingOffset, h - 2*paddingOffset.float32), shadowColor)
+      # ctx.drawRect(rect(rect.x - paddingOffset.float32, rect.y + paddingOffset.float32, paddingOffset, h - 2*paddingOffset.float32), shadowColor)
+      # ctx.drawRect(rect(rect.x + w, rect.y + paddingOffset.float32, paddingOffset, h - 2*paddingOffset.float32), shadowColor)
 
-      # # top and bottom side boxes
-      ctx.drawRect(rect(rect.x + paddingOffset.float32, rect.y - paddingOffset.float32, w - 2*paddingOffset.float32, paddingOffset), shadowColor)
-      ctx.drawRect(rect(rect.x + paddingOffset.float32, rect.y + h, w - 2*paddingOffset.float32, paddingOffset), shadowColor)
+      # # # top and bottom side boxes
+      # ctx.drawRect(rect(rect.x + paddingOffset.float32, rect.y - paddingOffset.float32, w - 2*paddingOffset.float32, paddingOffset), shadowColor)
+      # ctx.drawRect(rect(rect.x + paddingOffset.float32, rect.y + h, w - 2*paddingOffset.float32, paddingOffset), shadowColor)
     else:
       ctx.drawRect(rect(rect.x + maxRadius.float32, rect.y, w - 2*maxRadius.float32, h), shadowColor)
       ctx.drawRect(rect(rect.x, rect.y + maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
