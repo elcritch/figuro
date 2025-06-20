@@ -192,9 +192,9 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       if not innerShadow and corner == dcTopLeft:
         ctx.translate(vec2(paddingOffset.float32, paddingOffset.float32))
-        ctx.drawRect(rect(maxRadius.float32, 0, w - 2*maxRadius.float32 + 1, h), shadowColor)
+        ctx.drawRect(rect(maxRadius.float32, 0, w - 2*maxRadius.float32, h), shadowColor)
         ctx.drawRect(rect(0, 0 + maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
-        ctx.drawRect(rect(w - maxRadius.float32 + 1, 0 + maxRadius.float32, maxRadius.float32 - 1, h - 2*maxRadius.float32), shadowColor)
+        ctx.drawRect(rect(w - maxRadius.float32, 0 + maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
 
       ctx.restoreTransform()
     # if not innerShadow:
