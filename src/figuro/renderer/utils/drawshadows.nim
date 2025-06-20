@@ -88,8 +88,6 @@ proc fillRoundedRectWithShadowSdf*[R](
                   factor = shadowBlur,
                   spread = spread,
                   mode = mode)
-      # if innerShadow:
-      #   shadowImg.writeFile("examples/shadow-" & $corner & "-radius" & $cornerCbs.radius & ".png")
       ctx.putImage(cornerHashes[corner], shadowImg)
 
     for side in Directions:
@@ -101,7 +99,6 @@ proc fillRoundedRectWithShadowSdf*[R](
       let wh = vec2(1, 12)
 
       let spread = shadowSpread
-      # let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
       let center = if innerShadow: vec2(cbs.paddingOffset.float32-1, 2) else: vec2(cbs.paddingOffset.float32, 2)
       let mode = sdfModeDropShadow
 
@@ -117,9 +114,6 @@ proc fillRoundedRectWithShadowSdf*[R](
                   mode = mode)
       if innerShadow:
         shadowImg.flipHorizontal()
-      if innerShadow:
-        echo "SHADOW side: ", side, " paddingOffset: ", cbs.paddingOffset, " sideSize: ", cbs.sideSize
-        shadowImg.writeFile("examples/shadow-side-" & $side & "-paddingOffset" & $cbs.paddingOffset & "-sideSize" & $cbs.sideSize & ".png")
       ctx.putImage(sideHashes[side], shadowImg)
 
     let
