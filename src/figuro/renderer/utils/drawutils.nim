@@ -32,50 +32,43 @@ proc getCircleBoxSizes*(
     width = float32.high(),
     height = float32.high(),
     innerShadow = false,
-): tuple[maxRadius, sideSize, totalSize, padding, inner: int] =
+): tuple[maxRadius, sideSize, totalSize, padding, paddingOffset, inner, weightSize: int] =
   result.maxRadius = 0
   for r in radii:
     result.maxRadius = max(result.maxRadius, r.round().int)
-  let ww = int(1.5*weight.round())
+  let ww = int(weight.round())
   let bw = width.round().int
   let bh = height.round().int
-  let blur = blur.round().int
+  let blur = round(1.5*blur).int
   let spread = spread.round().int
-  let padding = max(spread + blur, result.maxRadius)
+  # let padding = max(spread + blur, result.maxRadius)
+  let padding = spread + blur
 
   result.padding = padding
+  result.paddingOffset = result.padding
   if innerShadow:
     result.sideSize = min(result.maxRadius + padding, min(bw, bh)).max(ww)
   else:
     result.sideSize = min(result.maxRadius, min(bw, bh)).max(ww)
   result.totalSize = 3*result.sidesize + 3*padding
   result.inner = 3*result.sideSize
+  result.weightSize = ww
 
 proc roundedBoxCornerSizes*(
+    cbs: tuple[maxRadius, sideSize, totalSize, padding, paddingOffset, inner, weightSize: int],
     radii: array[DirectionCorners, float32],
-    blur: float32,
-    spread: float32,
-    weight: float32 = 0.0,
-    width = float32.high(),
-    height = float32.high(),
-    innerShadow = false,
-): array[DirectionCorners, tuple[dim, side, padding, sideSize, inner, totalSize: int]] =
-  let ww = int(1.5*weight.round())
-  let bw = width.round().int
-  let bh = height.round().int
-  var maxRadius = 0
-  for r in radii:
-    maxRadius = max(maxRadius, r.round().int)
-
-  let padding = int(round(spread + 1.5 * blur))
-  let sideSize =
-    if innerShadow:
-      min(maxRadius + padding, min(bw, bh)).max(ww)
-    else:
-      min(maxRadius, min(bw, bh)).max(ww)
-  let totalSize = 3*sideSize + 3*padding
-  let inner = 3*sideSize
+    innerShadow: bool,
+): array[DirectionCorners, tuple[radius, sideSize, inner, sideDelta, center: int]] =
+  let ww = cbs.weightSize
 
   for corner in DirectionCorners:
-    let dim = max(int(round(radii[corner])), ww) + 1
-    result[corner] = (dim, sideSize, padding, sideSize, inner, totalSize)
+    let dim =
+      if innerShadow: max(cbs.maxRadius, cbs.paddingOffset)
+      else: max(int(round(radii[corner])), ww)
+    let sideSize = cbs.paddingOffset + dim
+    let center = sideSize
+    result[corner] = (radius: int(round(radii[corner])),
+                      sideSize: sideSize,
+                      inner: dim,
+                      sideDelta: cbs.sideSize - dim,
+                      center: center)

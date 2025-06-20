@@ -16,6 +16,9 @@ export drawextras
 logScope:
   scope = "opengl"
 
+proc round*(v: Vec2): Vec2 =
+  vec2(round(v.x), round(v.y))
+
 const quadLimit = 10_921
 
 type Context* = ref object

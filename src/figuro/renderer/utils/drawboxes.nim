@@ -22,6 +22,15 @@ proc drawOuterBox*[R](ctx: R, rect: Rect, padding: float32, color: Color) =
     ctx.drawRect(rectBottom, color)
     ctx.drawRect(rectRight, color)
 
+proc toHex*(h: Hash): string =
+  const HexChars = "0123456789ABCDEF"
+  result = newString(sizeof(Hash) * 2)
+  var h = h
+  for i in countdown(result.high, 0):
+    result[i] = HexChars[h and 0xF]
+    h = h shr 4
+
+
 proc drawRoundedRect*[R](
     ctx: R,
     rect: Rect,
@@ -45,106 +54,119 @@ proc drawRoundedRect*[R](
     bw = cbs.sideSize.float32
     bh = cbs.sideSize.float32
 
-  let hash = hash((6217, int(cbs.sideSize), int(cbs.maxRadius), int(weight), doStroke, outerShadowFill))
+  # let hash = hash((6217, int(cbs.sideSize), int(cbs.maxRadius), int(weight), doStroke, outerShadowFill))
+  let hash = hash((6217, doStroke, outerShadowFill, cbs.padding, cbs.weightSize))
+  let cornerCbs = cbs.roundedBoxCornerSizes(radii, innerShadow = false)
 
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
     for corner in DirectionCorners:
       cornerHashes[corner] = hash((hash, 41, int(radii[corner])))
 
-    var missingAnyCorner = false
-    for corner in DirectionCorners:
-      if cornerHashes[corner] notin ctx.entries:
-        # echo "missing corner: ", corner, " hash: ", cornerHashes[corner], " radius: ", radii[corner], " sideSize: ", cbs.sideSize, " maxRadius: ", cbs.maxRadius, " weight: ", weight, " doStroke: ", doStroke, " outerShadowFill: ", outerShadowFill
-        missingAnyCorner = true
-        break
+    let fill = rgba(255, 255, 255, 255)
+    let clear = rgba(0, 0, 0, 0)
 
-    if missingAnyCorner:
-      let fill = rgba(255, 255, 255, 255)
-      let clear = rgba(0, 0, 0, 0)
-      var center = vec2(bw, bh)
-      let wh = vec2(2*bw+1, 2*bh+1)
-      let corners = radii.cornersToSdfRadii()
-      var circle = newImage(int(2*bw), int(2*bh))
+    for corner in DirectionCorners:
+      if cornerHashes[corner] in ctx.entries:
+        continue
+
+      let cornerCbs = cornerCbs[corner]
+      let corners = vec4(cornerCbs.radius.float32)
+      var image = newImage(cornerCbs.sideSize, cornerCbs.sideSize)
+      let wh = vec2(2*cornerCbs.sideSize.float32, 2*cornerCbs.sideSize.float32)
 
       if doStroke:
-        drawSdfShape(circle,
-              center = center,
+        drawSdfShape(image,
+              center = vec2(cornerCbs.center.float32),
               wh = wh,
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
-              factor = weight + 0.5,
+              factor = cbs.weightSize.float32,
               spread = 0.0,
               mode = sdfModeAnnular)
       else:
-        drawSdfShape(circle,
-              center = center,
+        drawSdfShape(image,
+              center = vec2(cornerCbs.center.float32, cornerCbs.center.float32),
               wh = wh,
               params = RoundedBoxParams(r: corners),
               pos = fill.to(ColorRGBA),
               neg = clear.to(ColorRGBA),
               mode = sdfModeClipAA)
 
-      let patches = sliceToNinePatch(circle)
-      # Store each piece in the atlas
-      let cornerImages: array[DirectionCorners, Image] = [
-        dcTopLeft: patches.topLeft,
-        dcTopRight: patches.topRight, 
-        dcBottomLeft: patches.bottomLeft,
-        dcBottomRight: patches.bottomRight,
-      ]
+      if color.a != 1.0 and false:
+        var msg = "corner"
+        msg &= (if doStroke: "-stroke" else: "-noStroke") 
+        msg &= "-weight" & $weight 
+        msg &= "-radius" & $cornerCbs.radius 
+        msg &= "-sideSize" & $cornerCbs.sideSize 
+        msg &= "-wh" & $wh.x 
+        msg &= "-padding" & $cbs.padding 
+        msg &= "-center" & $cornerCbs.center 
+        msg &= "-doStroke" & (if doStroke: "true" else: "false") 
+        msg &= "-outerShadowFill" & (if outerShadowFill: "true" else: "false")
+        msg &= "-corner-" & $corner 
+        msg &= "-hash" & toHex(cornerHashes[corner])
+        echo "generating corner: ", msg
+        image.writeFile("examples/" & msg & ".png")
 
-      for corner in DirectionCorners:
-        let cornerHash = cornerHashes[corner]
-        if cornerHash notin ctx.entries:
-          let image = cornerImages[corner]
-          case corner:
-          of dcTopLeft:
-            discard
-          of dcTopRight:
-            image.flipHorizontal()
-          of dcBottomRight:
-            image.flipHorizontal()
-            image.flipVertical()
-          of dcBottomLeft:
-            image.flipVertical()
-          ctx.putImage(toKey(cornerHash), image)
+      ctx.putImage(toKey(cornerHashes[corner]), image)
 
     let
       xy = rect.xy
       zero = vec2(0, 0)
       cornerSize = vec2(bw, bh)
-      topLeft = xy + vec2(0, 0)
-      topRight = xy + vec2(w - bw, 0)
-      bottomLeft = xy + vec2(0, h - bh)
-      bottomRight = xy + vec2(w - bw, h - bh)
 
-    ctx.saveTransform()
-    ctx.translate(topLeft)
-    ctx.drawImage(cornerHashes[dcTopLeft], zero, color)
-    ctx.restoreTransform()
+      cpos = [
+        dcTopLeft: xy + vec2(0, 0),
+        dcTopRight: xy + vec2(w - bw, 0),
+        dcBottomLeft: xy + vec2(0, h - bh),
+        dcBottomRight: xy + vec2(w - bw, h - bh)
+      ]
 
-    ctx.saveTransform()
-    ctx.translate(topRight + cornerSize / 2)
-    ctx.rotate(-Pi/2)
-    ctx.translate(-cornerSize / 2)
-    ctx.drawImage(cornerHashes[dcTopRight], zero, color)
-    ctx.restoreTransform()
+      coffset = [
+        dcTopLeft: vec2(0, 0),
+        dcTopRight: vec2(cornerCbs[dcTopRight].sideDelta.float32, 0),
+        dcBottomLeft: vec2(0, cornerCbs[dcBottomLeft].sideDelta.float32),
+        dcBottomRight: vec2(cornerCbs[dcBottomRight].sideDelta.float32, cornerCbs[dcBottomRight].sideDelta.float32)
+      ]
 
-    ctx.saveTransform()
-    ctx.translate(bottomLeft + cornerSize / 2)
-    ctx.rotate(Pi/2)
-    ctx.translate(-cornerSize / 2)
-    ctx.drawImage(cornerHashes[dcBottomLeft], zero, color)
-    ctx.restoreTransform()
+      ccenter = [
+        dcTopLeft: vec2(0.0, 0.0),
+        dcTopRight: vec2(cornerCbs[dcTopRight].sideSize.float32, cornerCbs[dcTopRight].sideSize.float32),
+        dcBottomLeft: vec2(cornerCbs[dcBottomLeft].sideSize.float32, cornerCbs[dcBottomLeft].sideSize.float32),
+        dcBottomRight: vec2(cornerCbs[dcBottomRight].sideSize.float32, cornerCbs[dcBottomRight].sideSize.float32)
+      ]
 
-    ctx.saveTransform()
-    ctx.translate(bottomRight + cornerSize / 2)
-    ctx.rotate(Pi)
-    ctx.translate(-cornerSize / 2)
-    ctx.drawImage(cornerHashes[dcBottomRight], zero, color)
-    ctx.restoreTransform()
+      darkGrey = rgba(50, 50, 50, 255).to(Color)
+
+      angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2, dcBottomLeft: Pi/2, dcBottomRight: Pi]
+
+    # if color.a != 1.0:
+    #   echo "drawing corners: ", "BL: " & toHex(cornerHashes[dcBottomLeft]) & " color: " & $color & " hasImage: " & $ctx.hasImage(cornerHashes[dcBottomLeft]) & " cornerSize: " & $blCornerSize & " blPos: " & $(bottomLeft + blCornerSize / 2) & " delta: " & $cornerCbs[dcBottomLeft].sideDelta & " doStroke: " & $doStroke
+
+    for corner in DirectionCorners:
+      ctx.saveTransform()
+      ctx.translate(cpos[corner] + coffset[corner] + ccenter[corner] / 2)
+      ctx.rotate(angles[corner])
+      ctx.translate(-ccenter[corner] / 2)
+      ctx.drawImage(cornerHashes[corner], zero, color)
+
+      if cornerCbs[corner].sideDelta > 0:
+        let inner = cornerCbs[corner].inner.float32
+        let sideDelta = cornerCbs[corner].sideDelta.float32
+        let sideSize = cornerCbs[corner].sideSize.float32
+        # inner patch left, right, and then center
+        if doStroke:
+          ctx.drawRect(rect(0, inner, cbs.weightSize.float32, sideDelta), color)
+          ctx.drawRect(rect(inner, 0, sideDelta, cbs.weightSize.float32), color)
+        else:
+          ctx.drawRect(rect(0, inner, inner, sideDelta), color)
+          ctx.drawRect(rect(inner, 0, sideDelta, sideSize), color)
+          # we could do two boxes, but this matches our shadow needs
+          ctx.drawRect(rect(inner, inner, sideDelta, sideDelta), color)
+
+      ctx.restoreTransform()
 
   block drawEdgeBoxes:
     let
