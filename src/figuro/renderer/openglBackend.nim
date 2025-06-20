@@ -27,7 +27,7 @@ export baserenderer
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
-  let atlasSize = 1792 shl (app.uiScale.round().toInt() + 1)
+  let atlasSize = 2048 shl (app.uiScale.round().toInt() + 1)
   let window = newWindexWindow(frame)
   let renderer = newOpenGLRenderer(window, frame, atlasSize)
 
