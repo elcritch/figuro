@@ -95,7 +95,7 @@ proc fillRoundedRectWithShadowSdf*[R](
         continue
 
       let corners = vec4(0)
-      var shadowImg = newImage(cbs.paddingOffset, 4)
+      var shadowImg = newImage(cbs.paddingOffset, 3)
       let wh = vec2(1, 12)
 
       let spread = shadowSpread
