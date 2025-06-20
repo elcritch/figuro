@@ -167,13 +167,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       if cornerCbs[corner].sideDelta > 0:
         # inner patch left, right, and then center
-        if innerShadow:
-          discard
-          # ctx.drawRect(rect(0, inner, cbs.weightSize.float32, sideDelta), color)
-          # ctx.drawRect(rect(inner, 0, sideDelta, cbs.weightSize.float32), color)
-          # ctx.drawRect(rect(paddingOffset, paddingOffset + inner, inner, sideDelta), shadowColor)
-          # ctx.drawRect(rect(paddingOffset + inner, paddingOffset, sideDelta, cbs.maxRadius.float32), shadowColor)
-        else:
+        if not innerShadow:
           ctx.drawRect(rect(paddingOffset, paddingOffset + inner, inner, sideDelta), shadowColor)
           ctx.drawRect(rect(paddingOffset + inner, paddingOffset, sideDelta, cbs.maxRadius.float32), shadowColor)
 
