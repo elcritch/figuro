@@ -56,7 +56,7 @@ proc fillRoundedRectWithShadowSdf*[R](
 
   var sideHashes: array[Directions, Hash]
   for side in Directions:
-    sideHashes[side] = hash((shadowKey, 971767, int(cbs.padding)))
+    sideHashes[side] = hash((shadowKey, 971767, int(cbs.padding), int(cbs.sideSize)))
 
   block drawCorners:
     var cornerHashes: array[DirectionCorners, Hash]
@@ -88,8 +88,8 @@ proc fillRoundedRectWithShadowSdf*[R](
                   factor = shadowBlur,
                   spread = spread,
                   mode = mode)
-      if innerShadow:
-        shadowImg.writeFile("examples/shadow-" & $corner & "-radius" & $cornerCbs.radius & ".png")
+      # if innerShadow:
+      #   shadowImg.writeFile("examples/shadow-" & $corner & "-radius" & $cornerCbs.radius & ".png")
       ctx.putImage(cornerHashes[corner], shadowImg)
 
     for side in Directions:
@@ -100,7 +100,7 @@ proc fillRoundedRectWithShadowSdf*[R](
       var shadowImg = newImage(cbs.paddingOffset, 4)
       let wh = vec2(1, 12)
 
-      let spread = if innerShadow: 0.0 else: shadowSpread
+      let spread = shadowSpread
       let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
 
       drawSdfShape(shadowImg,
@@ -112,6 +112,9 @@ proc fillRoundedRectWithShadowSdf*[R](
                   factor = shadowBlur,
                   spread = spread,
                   mode = mode)
+      if innerShadow:
+        echo "SHADOW side: ", side, " paddingOffset: ", cbs.paddingOffset, " sideSize: ", cbs.sideSize
+        shadowImg.writeFile("examples/shadow-side-" & $side & "-paddingOffset" & $cbs.paddingOffset & "-sideSize" & $cbs.sideSize & ".png")
       ctx.putImage(sideHashes[side], shadowImg)
 
     let
