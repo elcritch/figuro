@@ -57,11 +57,14 @@ proc getCircleBoxSizes*(
 proc roundedBoxCornerSizes*(
     cbs: tuple[maxRadius, sideSize, totalSize, padding, paddingOffset, inner, weightSize: int],
     radii: array[DirectionCorners, float32],
+    innerShadow: bool,
 ): array[DirectionCorners, tuple[radius, sideSize, inner, sideDelta, center: int]] =
   let ww = cbs.weightSize
 
   for corner in DirectionCorners:
-    let dim = max(int(round(radii[corner])), ww)
+    let dim =
+      if innerShadow: max(cbs.maxRadius, cbs.paddingOffset)
+      else: max(int(round(radii[corner])), ww)
     let sideSize = cbs.paddingOffset + dim
     let center = sideSize
     result[corner] = (radius: int(round(radii[corner])),

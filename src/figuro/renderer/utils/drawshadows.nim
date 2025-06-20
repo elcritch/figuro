@@ -52,7 +52,7 @@ proc fillRoundedRectWithShadowSdf*[R](
   if cbs.paddingOffset == 0:
     return
 
-  let cornerCbs = cbs.roundedBoxCornerSizes(radii)
+  let cornerCbs = cbs.roundedBoxCornerSizes(radii, innerShadow)
 
   var sideHashes: array[Directions, Hash]
   for side in Directions:
