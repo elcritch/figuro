@@ -29,7 +29,9 @@ proc fillRoundedRectWithShadowSdf*[R](
   ## The shadow is drawn with padding around the main rectangle
   if rect.w <= 0 or rect.h <= 0:
     return
-    
+
+  let rect = rect + rect(shadowX, shadowY, 0, 0)
+
   # First, draw the shadow
   # Generate shadow key for caching
   let 
