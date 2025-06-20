@@ -102,9 +102,11 @@ proc fillRoundedRectWithShadowSdf*[R](
 
       let spread = shadowSpread
       let mode = if innerShadow: sdfModeInsetShadow else: sdfModeDropShadow
+      let center = if innerShadow: vec2(2*cbs.paddingOffset.float32, 2) else: vec2(cbs.paddingOffset.float32, 2)
+      # let mode = sdfModeDropShadow
 
       drawSdfShape(shadowImg,
-                  center = vec2(cbs.paddingOffset.float32, 2),
+                  center = center,
                   wh = wh,
                   params = RoundedBoxParams(r: corners),
                   pos = whiteColor,
