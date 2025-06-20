@@ -187,16 +187,7 @@ proc fillRoundedRectWithShadowSdf*[R](
         ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32), shadowColor, borderSize)
       ctx.restoreTransform()
 
-    if innerShadow:
-      discard
-      # left and right side boxes
-      # ctx.drawRect(rect(rect.x - paddingOffset.float32, rect.y + paddingOffset.float32, paddingOffset, h - 2*paddingOffset.float32), shadowColor)
-      # ctx.drawRect(rect(rect.x + w, rect.y + paddingOffset.float32, paddingOffset, h - 2*paddingOffset.float32), shadowColor)
-
-      # # # top and bottom side boxes
-      # ctx.drawRect(rect(rect.x + paddingOffset.float32, rect.y - paddingOffset.float32, w - 2*paddingOffset.float32, paddingOffset), shadowColor)
-      # ctx.drawRect(rect(rect.x + paddingOffset.float32, rect.y + h, w - 2*paddingOffset.float32, paddingOffset), shadowColor)
-    else:
+    if not innerShadow:
       ctx.drawRect(rect(rect.x + maxRadius.float32, rect.y, w - 2*maxRadius.float32, h), shadowColor)
       ctx.drawRect(rect(rect.x, rect.y + maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
       ctx.drawRect(rect(rect.x + w - maxRadius.float32, rect.y + maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
