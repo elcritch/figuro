@@ -152,7 +152,11 @@ proc fillRoundedRectWithShadowSdf*[R](
       darkGrey = rgba(50, 50, 50, 255).to(Color)
       black = rgba(0, 0, 0, 255).to(Color)
 
-      angles = [dcTopLeft: 0.0, dcTopRight: -Pi/2 - epsilon(float32), dcBottomLeft: Pi/2 + epsilon(float32), dcBottomRight: -Pi]
+      angles =
+        if innerShadow:
+          [dcTopLeft: 0.0, dcTopRight: -Pi/2 - epsilon(float32), dcBottomLeft: Pi/2 + epsilon(float32), dcBottomRight: -Pi]
+        else:
+          [dcTopLeft: 0.0, dcTopRight: -Pi/2 - epsilon(float32), dcBottomLeft: Pi/2 + epsilon(float32), dcBottomRight: -Pi]
 
     let sides = [dcTopLeft: dLeft, dcTopRight: dTop, dcBottomLeft: dBottom, dcBottomRight: dRight]
     let prevCorner = [dcTopLeft: dcBottomLeft, dcTopRight: dcTopLeft, dcBottomLeft: dcBottomRight, dcBottomRight: dcTopRight]
@@ -189,8 +193,6 @@ proc fillRoundedRectWithShadowSdf*[R](
       if not innerShadow and corner == dcTopLeft:
         ctx.translate(vec2(paddingOffset.float32, paddingOffset.float32))
         ctx.drawRect(rect(maxRadius.float32 - 1, 0, w - 2*maxRadius.float32 + 2, h), shadowColor)
-        # ctx.drawRect(rect(0, maxRadius.float32, w, h - 2*maxRadius.float32), shadowColor)
-        # ctx.drawRect(rect(w - maxRadius.float32, maxRadius.float32, maxRadius.float32, h - 2*maxRadius.float32), shadowColor)
 
       ctx.restoreTransform()
     # if not innerShadow:
