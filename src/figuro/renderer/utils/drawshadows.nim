@@ -174,7 +174,7 @@ proc fillRoundedRectWithShadowSdf*[R](
           ctx.drawRect(rect(0, 2*paddingOffset.float32, paddingOffset.float32, w - 2*paddingOffset.float32), shadowColor)
         else:
           ctx.drawRect(rect(0, 2*paddingOffset.float32, paddingOffset.float32, h - 2*paddingOffset.float32), shadowColor)
-      if not innerShadow and cornerCbs[corner].sideDelta > 0:
+      elif cornerCbs[corner].sideDelta > 0:
         ctx.drawRect(rect(paddingOffset, paddingOffset + inner, inner, sideDelta), shadowColor)
         ctx.drawRect(rect(paddingOffset + inner, paddingOffset, sideDelta, cbs.maxRadius.float32), shadowColor)
 
