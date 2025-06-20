@@ -181,9 +181,6 @@ proc fillRoundedRectWithShadowSdf*[R](
       let prevSideAdj = (maxRadius.float32 - cornerCbs[prevCorner[corner]].inner.float32)
       let borderSize = vec2(paddingOffset, borderDim - 2*maxRadius.float32 + sideAdj + prevSideAdj)
       if innerShadow:
-        echo "SHADOW side: ", sides[corner], " paddingOffset: ", paddingOffset, " sideSize: ", cornerCbs[corner].sideSize, " borderSize: ", borderSize
-        # ctx.drawRect(rect(vec2(0, cornerCbs[corner].sideSize.float32), borderSize), shadowColor)
-        # ctx.drawRect(rect(vec2(paddingOffset, paddingOffset), borderSize), shadowColor)
         ctx.drawImageAdj(sideHashes[sides[corner]], vec2(paddingOffset, 2*paddingOffset), shadowColor, borderSize)
       else:
         ctx.drawImageAdj(sideHashes[sides[corner]], vec2(0, cornerCbs[corner].sideSize.float32), shadowColor, borderSize)
