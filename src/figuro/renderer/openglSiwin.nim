@@ -3,17 +3,18 @@ import std/strformat
 import pkg/pixie
 import pkg/opengl
 import pkg/siwin
+import pkg/sigils/weakrefs
+import pkg/chronicles
 
-import opengl/glutils
-import opengl/glcommons
-import opengl/renderer
+import ./utils/glutils
 
 import ../common/nodes/uinodes
 import ../common/rchannels
 import ../common/wincfgs
+import ../common/shared
+import ../common/keys
 
-import pkg/sigils/weakrefs
-import pkg/chronicles
+import ./utils/baserenderer
 
 export AppFrame
 
@@ -27,17 +28,17 @@ var
 when defined(glDebugMessageCallback):
   import strformat, strutils
 
-proc convertStyle*(fs: FrameStyle): WindowStyle
+# proc convertStyle*(fs: FrameStyle): WindowStyle
 
 type
-  RendererSiwin* = ref object of Renderer
+  RendererSiwin* = ref object of RendererWindow
     window: Window
 
 proc setupWindow*(
     frame: WeakRef[AppFrame],
     window: Window,
 ) =
-  let style: WindowStyle = frame[].windowStyle.convertStyle()
+  # let style: WindowStyle = frame[].windowStyle.convertStyle()
   assert not frame.isNil
   if frame[].windowInfo.fullscreen:
     window.fullscreen = frame[].windowInfo.fullscreen
@@ -51,11 +52,11 @@ proc setupWindow*(
       "Failed to open window. GL version:" & &"{openglVersion[0]}.{$openglVersion[1]}"
     )
 
-  window.makeContextCurrent()
+  # window.makeContextCurrent()
 
   let winCfg = frame.loadLastWindow()
 
-  window.`style=`(style)
+  # window.`style=`(style)
   window.`pos=`(winCfg.pos)
 
 proc newSiwinRenderer*(
@@ -63,51 +64,42 @@ proc newSiwinRenderer*(
     forcePixelScale: float32,
     atlasSize: int,
 ): RendererSiwin =
-  let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
+  let window = newSiwinGlobals().newOpenglWindow()
+
   result = RendererSiwin(window: window, frame: frame)
   startOpenGL(openglVersion)
 
   setupWindow(frame, window)
 
-  configureRenderer(result, frame, forcePixelScale, atlasSize)
+  configureBaseWindow(result)
 
-proc convertStyle*(fs: FrameStyle): WindowStyle =
-  case fs
-  of FrameStyle.DecoratedResizable:
-    WindowStyle.DecoratedResizable
-  of FrameStyle.DecoratedFixedSized:
-    WindowStyle.Decorated
-  of FrameStyle.Undecorated:
-    WindowStyle.Undecorated
-  of FrameStyle.Transparent:
-    WindowStyle.Transparent
+method setWindowSize*(w: RendererSiwin, size: IVec2) =
+  w.window.`size=`(size)
 
-proc toUi*(wbtn: windex.ButtonView): set[UiMouse] =
-  when defined(nimscript):
-    for b in set[Button](wbtn):
-      result.incl UiButton(b.int)
-  else:
-    copyMem(addr result, unsafeAddr wbtn, sizeof(ButtonView))
 
 method swapBuffers*(r: RendererSiwin) =
-  r.window.swapBuffers()
+  # r.window.swapBuffers()
+  discard
 
 method pollEvents*(r: RendererSiwin) =
-  windex.pollEvents()
+  # windex.pollEvents()
+  discard
 
 method getScaleInfo*(r: RendererSiwin): ScaleInfo =
-  let scale = r.window.contentScale()
-  result.x = scale
-  result.y = scale
+  # let scale = r.window.contentScale()
+  # result.x = scale
+  # result.y = scale
+  result.x = 1.0
+  result.y = 1.0
 
-var lastMouse = Mouse()
+var lastMouse: keys.Mouse
 
 proc copyInputs*(w: Window): AppInputs =
   result = AppInputs(mouse: lastMouse)
-  result.buttonRelease = toUi w.buttonReleased()
-  result.buttonPress = toUi w.buttonPressed()
-  result.buttonDown = toUi w.buttonDown()
-  result.buttonToggle = toUi w.buttonToggle()
+  # result.buttonRelease = toUi w.buttonReleased()
+  # result.buttonPress = toUi w.buttonPressed()
+  # result.buttonDown = toUi w.buttonDown()
+  # result.buttonToggle = toUi w.buttonToggle()
 
 method copyInputs*(r: RendererSiwin): AppInputs =
   copyInputs(r.window)
@@ -115,13 +107,16 @@ method copyInputs*(r: RendererSiwin): AppInputs =
 method setClipboard*(r: RendererSiwin, cb: ClipboardContents) =
   match cb:
     ClipboardStr(str):
-      windex.setClipboardString(str)
+      # windex.setClipboardString(str)
+      discard
     ClipboardEmpty:
       discard
 
 method getClipboard*(r: RendererSiwin): ClipboardContents =
-  let str = windex.getClipboardString()
-  return ClipboardStr(str)
+  # let str = windex.getClipboardString()
+  # return ClipboardStr(str)
+  # return ClipboardEmpty
+  discard
 
 method setTitle*(r: RendererSiwin, name: string) =
   r.window.title = name
@@ -133,7 +128,8 @@ method getWindowInfo*(r: RendererSiwin): WindowInfo =
     app.requestedFrame.inc
 
     result.minimized = r.window.minimized()
-    result.pixelRatio = r.window.contentScale()
+    # result.pixelRatio = r.window.contentScale()
+    result.pixelRatio = 1.0
 
     var cwidth, cheight: cint
     let size = r.window.size()
@@ -148,103 +144,6 @@ method configureWindowEvents*(renderer: RendererSiwin) =
   let uxInputList = renderer.uxInputList
   let frame = renderer.frame
 
-  window.runeInputEnabled = true
+  # window.runeInputEnabled = true
 
-  window.onCloseRequest = proc() =
-    notice "onCloseRequest"
-    if frame[].saveWindowState:
-      let wc = WindowConfig(pos: window.pos, size: window.size)
-      writeWindowConfig(wc, winCfgFile)
-    app.running = false
-
-  window.onMove = proc() =
-    discard
-    # debug "window moved: ", pos= window.pos
-
-  window.onResize = proc() =
-    # updateWindowSize(renderer.frame, window)
-    let windowState = renderer.getWindowInfo()
-    var uxInput = window.copyInputs()
-    uxInput.window = some windowState
-    uxInputList.push(uxInput)
-    pollAndRender(renderer, poll = false)
-
-  window.onFocusChange = proc() =
-    var uxInput = window.copyInputs()
-    uxInput.window = some renderer.getWindowInfo()
-    uxInputList.push(uxInput)
-
-  window.onMouseMove = proc() =
-    var uxInput = AppInputs()
-    let pos = vec2(window.mousePos())
-    uxInput.mouse.pos = pos.descaled()
-    let prevPos = vec2(window.mousePrevPos())
-    uxInput.mouse.prev = prevPos.descaled()
-    uxInput.mouse.consumed = false
-    lastMouse = uxInput.mouse
-    lastMouse.consumed = true
-    uxInputList.push(uxInput)
-
-  window.onScroll = proc() =
-    var uxInput = AppInputs(mouse: lastMouse)
-    uxInput.mouse.consumed = false
-    uxInput.mouse.wheelDelta = window.scrollDelta().descaled()
-    uxInputList.push(uxInput)
-
-  window.onButtonPress = proc(button: windex.Button) =
-    let uxInput = window.copyInputs()
-    when defined(debugEvents):
-      stdout.styledWriteLine(
-        {styleDim},
-        fgWhite,
-        "buttonPress ",
-        {styleBright},
-        fgGreen,
-        $uxInput.buttonPress,
-        fgWhite,
-        "buttonRelease ",
-        fgGreen,
-        $uxInput.buttonRelease,
-        fgWhite,
-        "buttonDown ",
-        {styleBright},
-        fgGreen,
-        $uxInput.buttonDown,
-      ) # fgBlue, " time: " & $(time - lastButtonRelease) )
-    uxInputList.push(uxInput)
-
-  window.onButtonRelease = proc(button: Button) =
-    let uxInput = window.copyInputs()
-    when defined(debugEvents):
-      stdout.styledWriteLine(
-        {styleDim},
-        fgWhite,
-        "release ",
-        fgGreen,
-        $button,
-        fgWhite,
-        "buttonRelease ",
-        fgGreen,
-        $uxInput.buttonRelease,
-        fgWhite,
-        "buttonDown ",
-        {styleBright},
-        fgGreen,
-        $uxInput.buttonDown,
-        fgWhite,
-        "buttonPress ",
-        {styleBright},
-        fgGreen,
-        $uxInput.buttonPress,
-      )
-    uxInputList.push(uxInput)
-
-  window.onRune = proc(rune: Rune) =
-    var uxInput = AppInputs(mouse: lastMouse)
-    uxInput.keyboard.rune = some rune
-    when defined(debugEvents):
-      stdout.styledWriteLine(
-        {styleDim}, fgWhite, "keyboardInput: ", {styleDim}, fgGreen, $rune
-      )
-    uxInputList.push(uxInput)
 

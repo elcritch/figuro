@@ -79,6 +79,9 @@ proc convertStyle*(fs: FrameStyle): WindowStyle =
   of FrameStyle.Transparent:
     WindowStyle.Transparent
 
+method setWindowSize*(w: WindexWindow, size: IVec2) =
+  w.window.`size=`(size)
+
 proc toMouse(wbtn: windex.Button, value: var UiMouse): bool
 proc toKey(wbtn: windex.Button, value: var UiKey): bool
 
