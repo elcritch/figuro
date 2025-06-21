@@ -55,6 +55,7 @@ proc setupWindow*(
   let winCfg = frame.loadLastWindow()
 
   window.`style=`(style)
+  echo "Setup Last Window Position: ", winCfg.pos
   window.`pos=`(winCfg.pos)
 
 proc newWindexWindow*(

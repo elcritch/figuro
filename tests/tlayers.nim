@@ -27,7 +27,9 @@ proc setLabel(current: Figuro, left=false) =
 
 proc draw*(self: Main) {.slot.} =
   withRootWidget(self):
-    size 100'pp, 100'pp
+    onInit:
+      self.size 1024'ux, 1024'ux
+
     Rectangle.new "container":
       fill css"#D0D0D0"
       box 3'pp, 10'pp, 30'pp, 80'pp
