@@ -73,7 +73,7 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
 
     computeScreenBox(nil, frame.root)
     # frame.windowInfo.box = frame.root.screenBox
-    echo "core:: WINDOW INFO: ", frame.windowInfo.box
+    echo "runtimeNative:: WINDOW INFO: ", frame.windowInfo.box
     var ru = RenderUpdate(n= frame.root.copyInto(), winInfo= frame.windowInfo)
     frame.rendInputList.push(unsafeIsolate ensureMove ru)
 
