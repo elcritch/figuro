@@ -218,9 +218,9 @@ proc computeEvents*(frame: AppFrame) =
 
   var captured: CapturedEvents = computeNodeEvents(frame.root)
 
-  if uxInputs.window.isSome():
-    frame.windowInfo = uxInputs.window.get()
-    uxInputs.window = WindowInfo.none
+  if uxInputs.windowInfo.isSome():
+    frame.windowInfo = uxInputs.windowInfo.get()
+    uxInputs.windowInfo = WindowInfo.none
     # debug "events: window size: ", frame= frame.window.box, scaled= frame.window.box.wh.scaled()
 
   # set mouse event flags in targets

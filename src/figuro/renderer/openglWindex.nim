@@ -32,40 +32,36 @@ type
   WindexWindow* = ref object of RendererWindow
     window: Window
 
-proc setupWindow*(
-    frame: WeakRef[AppFrame],
-    window: Window,
-) =
-  let style: WindowStyle = frame[].windowStyle.convertStyle()
-  assert not frame.isNil
-  if frame[].windowInfo.fullscreen:
-    window.fullscreen = frame[].windowInfo.fullscreen
-  else:
-    window.size = ivec2(frame[].windowInfo.box.wh.scaled())
+method setWindowSize*(w: WindexWindow, size: IVec2) =
+  w.window.`size=`(size)
 
-  window.visible = true
-
-  if window.isNil:
-    quit(
-      "Failed to open window. GL version:" & &"{openglVersion[0]}.{$openglVersion[1]}"
-    )
-
-  window.makeContextCurrent()
-
-  let winCfg = frame.loadLastWindow()
-
-  window.`style=`(style)
-  echo "Setup Last Window Position: ", winCfg.pos
-  window.`pos=`(winCfg.pos)
+method setWindowPos*(w: WindexWindow, pos: IVec2) =
+  w.window.`pos=`(pos)
 
 proc newWindexWindow*(
     frame: WeakRef[AppFrame],
 ): WindexWindow =
-  let window = newWindow("Figuro", ivec2(1280, 800), visible = false)
+  let size = ivec2(frame[].windowInfo.box.wh.scaled())
+  let window = newWindow("Figuro", size, visible = false)
   result = WindexWindow(window: window, frame: frame)
   startOpenGL(openglVersion)
 
-  setupWindow(frame, window)
+  let style: WindowStyle = frame[].windowStyle.convertStyle()
+  assert not frame.isNil
+  if frame[].windowInfo.fullscreen:
+    window.fullscreen = frame[].windowInfo.fullscreen
+
+  if window.isNil:
+    let glVersion = &"{openglVersion[0]}.{$openglVersion[1]}"
+    quit("Failed to open window. GL version: " & glVersion)
+
+  window.makeContextCurrent()
+
+  let winCfg = frame.loadLastWindow()
+  window.`style=`(style)
+  window.`pos=`(winCfg.pos)
+
+  window.visible = true
 
   configureBaseWindow(result)
 
@@ -79,9 +75,6 @@ proc convertStyle*(fs: FrameStyle): WindowStyle =
     WindowStyle.Undecorated
   of FrameStyle.Transparent:
     WindowStyle.Transparent
-
-method setWindowSize*(w: WindexWindow, size: IVec2) =
-  w.window.`size=`(size)
 
 proc toMouse(wbtn: windex.Button, value: var UiMouse): bool
 proc toKey(wbtn: windex.Button, value: var UiKey): bool
@@ -181,13 +174,13 @@ method configureWindowEvents*(w: WindexWindow, r: Renderer) =
     # updateWindowSize(renderer.frame, window)
     let windowState = w.getWindowInfo()
     var uxInput = window.copyInputs()
-    uxInput.window = some windowState
+    uxInput.windowInfo = some windowState
     uxInputList.push(uxInput)
     r.pollAndRender(poll = false)
 
   window.onFocusChange = proc() =
     var uxInput = window.copyInputs()
-    uxInput.window = some w.getWindowInfo()
+    uxInput.windowInfo = some w.getWindowInfo()
     uxInputList.push(uxInput)
 
   window.onMouseMove = proc() =

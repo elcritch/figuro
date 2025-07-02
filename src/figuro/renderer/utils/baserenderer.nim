@@ -43,6 +43,7 @@ method closeWindow*(w: RendererWindow) {.base.} = discard
 method getScaleInfo*(w: RendererWindow): ScaleInfo {.base.} = discard
 method getWindowInfo*(w: RendererWindow): WindowInfo {.base.} = discard
 method setWindowSize*(w: RendererWindow, size: IVec2) {.base.} = discard
+method setWindowPos*(w: RendererWindow, pos: IVec2) {.base.} = discard
 method configureWindowEvents*(w: RendererWindow, r: Renderer) {.base.} = discard
 method setClipboard*(w: RendererWindow, cb: ClipboardContents) {.base.} = discard
 method getClipboard*(w: RendererWindow): ClipboardContents {.base.} = discard

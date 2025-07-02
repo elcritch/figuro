@@ -83,7 +83,7 @@ proc draw*(self: Main) {.slot.} =
         text({font: "testing"})
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(400'ui, 200'ui))
+var frame = newAppFrame(main, size=(40'ui, 400'ui))
 startFiguro(frame)
 
 echo "DONE"

@@ -373,11 +373,10 @@ template withRootWidget*(self, blk: untyped) =
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
 
-  let wh = self.frame[].windowInfo.box.wh
-  this.cxSize = [wh.w.ux(), wh.h.ux()]
+  # let wh = self.frame[].windowInfo.box.wh
+  # this.cxSize = [wh.w.ux(), wh.h.ux()]
   this.name = "root".toAtom()
 
   Rectangle.new "main":
-    this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`

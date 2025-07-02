@@ -42,7 +42,7 @@ type AppInputs* = object
   keyRelease*: set[UiKey]
   keyToggle*: set[UiKey]
 
-  window*: Option[WindowInfo]
+  windowInfo*: Option[WindowInfo]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):
