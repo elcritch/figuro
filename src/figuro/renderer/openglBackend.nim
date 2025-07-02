@@ -39,6 +39,8 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
     let scale = renderer.window.getScaleInfo()
     app.uiScale = min(scale.x, scale.y)
 
+  renderer.window.setWindowSize(frame)
+
   if frame[].windowInfo.autoSavePosition:
     let winCfg = frame.loadLastWindow()
     echo "LOADED WIN_CFG: ", winCfg.size
