@@ -295,13 +295,18 @@ proc renderRoot*(ctx: Context, nodes: var Renders) {.forbids: [AppMainThreadEff]
     # echo "img: ", img
     ctx.putImage(img[0], img[1])
 
+  # clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+  if 0.ZLevel in nodes.layers and nodes.layers[0.ZLevel].nodes.len() > 0:
+    clearColorBuffer(nodes.layers[0.ZLevel].nodes[0].fill)
+  else:
+    clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
+
   for zlvl, list in nodes.layers.pairs():
     for rootIdx in list.rootIds:
       ctx.render(list.nodes, rootIdx, -1.NodeIdx)
 
 proc renderFrame*(renderer: OpenGLRenderer) =
   let ctx: Context = renderer.ctx
-  clearColorBuffer(color(1.0, 1.0, 1.0, 1.0))
   ctx.beginFrame(renderer.window.info.box.wh.scaled())
   ctx.saveTransform()
   ctx.scale(ctx.pixelScale)
