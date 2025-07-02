@@ -28,7 +28,7 @@ export baserenderer
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   let atlasSize = 2048 shl (app.uiScale.round().toInt() + 1)
-  let window = newWindexWindow(frame)
+  let window = newRendererWindow(frame)
   let renderer = newOpenGLRenderer(window, frame, atlasSize)
 
   frame[].windowInfo.focused = true
@@ -38,13 +38,17 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
     app.uiScale = min(scale.x, scale.y)
 
   let winCfg = frame.loadLastWindow()
+  echo "LOADED WIN_CFG: ", winCfg.size
   if winCfg.size.x != 0 and winCfg.size.y != 0:
     let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
     frame[].windowInfo.box.w = sz.x.UiScalar
     frame[].windowInfo.box.h = sz.y.UiScalar
+    renderer.window.setWindowSize(frame)
 
   window.configureWindowEvents(renderer)
+
   renderer.window.frame[].windowInfo.running = true
   app.requestedFrame.inc
 
+  renderer.window.setVisible(true)
   return renderer

@@ -35,33 +35,32 @@ type
 method setWindowSize*(w: WindexWindow, size: IVec2) =
   w.window.`size=`(size)
 
+method setWindowSize*(w: WindexWindow, frame: WeakRef[AppFrame]) =
+  let size = ivec2(frame[].windowInfo.box.wh.scaled())
+  w.window.`size=`(size)
+
 method setWindowPos*(w: WindexWindow, pos: IVec2) =
   w.window.`pos=`(pos)
 
-proc newWindexWindow*(
+method setVisible*(w: WindexWindow, visible: bool) =
+  w.window.visible = visible
+
+proc newRendererWindow*(
     frame: WeakRef[AppFrame],
-): WindexWindow =
-  let size = ivec2(frame[].windowInfo.box.wh.scaled())
-  let window = newWindow("Figuro", size, visible = false)
+): RendererWindow =
+  echo "UI SCALE: ", app.uiScale
+  let window = newWindow("Figuro", ivec2(200, 200), visible = false)
   result = WindexWindow(window: window, frame: frame)
   startOpenGL(openglVersion)
 
-  let style: WindowStyle = frame[].windowStyle.convertStyle()
   assert not frame.isNil
-  if frame[].windowInfo.fullscreen:
-    window.fullscreen = frame[].windowInfo.fullscreen
 
   if window.isNil:
     let glVersion = &"{openglVersion[0]}.{$openglVersion[1]}"
     quit("Failed to open window. GL version: " & glVersion)
 
   window.makeContextCurrent()
-
-  let winCfg = frame.loadLastWindow()
-  window.`style=`(style)
-  window.`pos=`(winCfg.pos)
-
-  window.visible = true
+  window.`style=`(frame[].windowStyle.convertStyle())
 
   configureBaseWindow(result)
 
