@@ -27,9 +27,12 @@ export baserenderer
 
 proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
-  let atlasSize = 2048 shl (app.uiScale.round().toInt() + 1)
+  if frame[].atlasSize == -1:
+    frame[].atlasSize = 2048 shl (app.uiScale.round().toInt() + 1)
+
+  info "Using Atlas Size", atlasSize= frame[].atlasSize
   let window = newRendererWindow(frame)
-  let renderer = newOpenGLRenderer(window, frame, atlasSize)
+  let renderer = newOpenGLRenderer(window, frame, frame[].atlasSize)
 
   # window defaults
   frame[].windowInfo.focused = true

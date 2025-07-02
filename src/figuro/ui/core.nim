@@ -204,7 +204,7 @@ template connectDefaults*[T](node: T) =
     when compiles(SignalTypes.tick(T)):
       connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
-proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResizable, saveWindowState = true): AppFrame =
+proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResizable, saveWindowState = true, atlasSize = -1): AppFrame =
   mixin draw
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
@@ -219,6 +219,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   frame.windowInfo.box.h = size[1].UiScalar
   frame.windowStyle = style
   frame.saveWindowState = saveWindowState
+  frame.atlasSize = atlasSize
   refresh(root)
   return frame
 

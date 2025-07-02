@@ -81,5 +81,5 @@ proc draw*(self: Main) {.slot.} =
         this.setLabel()
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(800'ui, 400'ui))
+var frame = newAppFrame(main, size=(800'ui, 400'ui), atlasSize= 1024)
 startFiguro(frame)
