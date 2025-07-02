@@ -29,7 +29,7 @@ proc draw*(self: Main) {.slot.} =
   fill self, css"blue"
   withRootWidget(self):
     size 100'pp, 100'pp
-    this.fill color(0, 0, 0, 0)
+    fill color(0, 0, 0, 0)
 
     Rectangle.new "container":
       fill css"#D0D0D0"
