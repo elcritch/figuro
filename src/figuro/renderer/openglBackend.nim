@@ -31,19 +31,22 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
   let window = newRendererWindow(frame)
   let renderer = newOpenGLRenderer(window, frame, atlasSize)
 
+  # window defaults
   frame[].windowInfo.focused = true
+  frame[].windowInfo.autoSavePosition = true
 
   if app.autoUiScale:
     let scale = renderer.window.getScaleInfo()
     app.uiScale = min(scale.x, scale.y)
 
-  let winCfg = frame.loadLastWindow()
-  echo "LOADED WIN_CFG: ", winCfg.size
-  if winCfg.size.x != 0 and winCfg.size.y != 0:
-    let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
-    frame[].windowInfo.box.w = sz.x.UiScalar
-    frame[].windowInfo.box.h = sz.y.UiScalar
-    renderer.window.setWindowSize(frame)
+  if frame[].windowInfo.autoSavePosition:
+    let winCfg = frame.loadLastWindow()
+    echo "LOADED WIN_CFG: ", winCfg.size
+    if winCfg.size.x != 0 and winCfg.size.y != 0:
+      let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
+      frame[].windowInfo.box.w = sz.x.UiScalar
+      frame[].windowInfo.box.h = sz.y.UiScalar
+      renderer.window.setWindowSize(frame)
 
   window.configureWindowEvents(renderer)
 

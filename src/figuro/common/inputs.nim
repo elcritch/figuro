@@ -13,6 +13,7 @@ type
   WindowInfo* = object
     box*: Box ## Screen size in logical coordinates.
     running*, focused*, minimized*, fullscreen*: bool
+    autoSavePosition*: bool
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
 
 variantp ClipboardContents:
