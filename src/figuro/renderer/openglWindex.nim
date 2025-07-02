@@ -44,7 +44,6 @@ method setVisible*(w: WindexWindow, visible: bool) =
 proc newRendererWindow*(
     frame: WeakRef[AppFrame],
 ): RendererWindow =
-  echo "UI SCALE: ", app.uiScale
   let window = newWindow("Figuro", ivec2(200, 200), visible = false)
   result = WindexWindow(window: window, frame: frame)
   startOpenGL(openglVersion)

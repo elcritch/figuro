@@ -43,7 +43,7 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
 
   if frame[].windowInfo.autoSavePosition:
     let winCfg = frame.loadLastWindow()
-    echo "LOADED WIN_CFG: ", winCfg.size
+    info "Loaded window config", winCfg= winCfg
     if winCfg.size.x != 0 and winCfg.size.y != 0:
       let sz = vec2(x= winCfg.size.x.float32, y= winCfg.size.y.float32).descaled()
       frame[].windowInfo.box.w = sz.x.UiScalar
