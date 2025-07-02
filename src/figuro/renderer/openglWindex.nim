@@ -35,10 +35,6 @@ type
 method setWindowSize*(w: WindexWindow, size: IVec2) =
   w.window.`size=`(size)
 
-method setWindowSize*(w: WindexWindow, frame: WeakRef[AppFrame]) =
-  let size = ivec2(frame[].windowInfo.box.wh.scaled())
-  w.window.`size=`(size)
-
 method setWindowPos*(w: WindexWindow, pos: IVec2) =
   w.window.`pos=`(pos)
 

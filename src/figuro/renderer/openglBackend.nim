@@ -49,6 +49,10 @@ proc createRenderer*[F](frame: WeakRef[F]): Renderer =
       frame[].windowInfo.box.w = sz.x.UiScalar
       frame[].windowInfo.box.h = sz.y.UiScalar
       renderer.window.setWindowSize(frame)
+      let pos = vec2(x= winCfg.pos.x.float32, y= winCfg.pos.y.float32).descaled()
+      frame[].windowInfo.box.x = pos.x.UiScalar
+      frame[].windowInfo.box.y = pos.y.UiScalar
+      renderer.window.setWindowPos(frame)
 
   window.configureWindowEvents(renderer)
 
