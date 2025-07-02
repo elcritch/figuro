@@ -13,6 +13,7 @@ type
   WindowInfo* = object
     box*: Box ## Screen size in logical coordinates.
     running*, focused*, minimized*, fullscreen*: bool
+    autoSavePosition*: bool
     pixelRatio*: float32 ## Multiplier to convert from screen coords to pixels
 
 variantp ClipboardContents:
@@ -42,7 +43,7 @@ type AppInputs* = object
   keyRelease*: set[UiKey]
   keyToggle*: set[UiKey]
 
-  window*: Option[WindowInfo]
+  windowInfo*: Option[WindowInfo]
 
 proc click*(inputs: AppInputs): bool =
   when defined(clickOnDown):

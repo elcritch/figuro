@@ -72,6 +72,7 @@ proc runFrameImpl(frame: AppFrame) {.slot, forbids: [RenderThreadEff].} =
       emit node.doDraw()
 
     computeScreenBox(nil, frame.root)
+    # frame.windowInfo.box = frame.root.screenBox
     var ru = RenderUpdate(n= frame.root.copyInto(), winInfo= frame.windowInfo)
     frame.rendInputList.push(unsafeIsolate ensureMove ru)
 
