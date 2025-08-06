@@ -108,7 +108,7 @@ proc draw*(self: Main) {.slot.} =
       box this, 10'ux, 10'ux, 600'ux, 120'ux
 
       # set the fill color
-      fill this, css"00001F"
+      fill this, css"#00001F"
 
 var main = Main.new()
 let frame = newAppFrame(main, size=(400'ui, 140'ui))
