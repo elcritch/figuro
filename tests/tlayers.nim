@@ -26,8 +26,11 @@ proc setLabel(current: Figuro, left=false) =
     text(this, {font: "zlevel " & $this.zlevel})
 
 proc draw*(self: Main) {.slot.} =
+  fill self, css"blue"
   withRootWidget(self):
     size 100'pp, 100'pp
+    fill color(0, 0, 0, 0)
+
     Rectangle.new "container":
       fill css"#D0D0D0"
       box 3'pp, 10'pp, 30'pp, 80'pp
@@ -78,5 +81,5 @@ proc draw*(self: Main) {.slot.} =
         this.setLabel()
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(800'ui, 400'ui))
+var frame = newAppFrame(main, size=(800'ui, 400'ui), atlasSize= 1024)
 startFiguro(frame)

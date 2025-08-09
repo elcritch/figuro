@@ -42,6 +42,9 @@ method setTitle*(w: RendererWindow, name: string) {.base.} = discard
 method closeWindow*(w: RendererWindow) {.base.} = discard
 method getScaleInfo*(w: RendererWindow): ScaleInfo {.base.} = discard
 method getWindowInfo*(w: RendererWindow): WindowInfo {.base.} = discard
+method setWindowSize*(w: RendererWindow, size: IVec2) {.base.} = discard
+method setWindowPos*(w: RendererWindow, pos: IVec2) {.base.} = discard
+method setVisible*(w: RendererWindow, visible: bool) {.base.} = discard
 method configureWindowEvents*(w: RendererWindow, r: Renderer) {.base.} = discard
 method setClipboard*(w: RendererWindow, cb: ClipboardContents) {.base.} = discard
 method getClipboard*(w: RendererWindow): ClipboardContents {.base.} = discard
@@ -109,3 +112,11 @@ method runRendererLoop*(renderer: Renderer) {.base.} =
   debug "Renderer loop exited"
   renderer.window.closeWindow()
   debug "Renderer window closed"
+
+proc setWindowSize*(w: RendererWindow, frame: WeakRef[AppFrame]) =
+  let size = ivec2(frame[].windowInfo.box.wh.scaled())
+  w.setWindowSize(size)
+
+proc setWindowPos*(w: RendererWindow, frame: WeakRef[AppFrame]) =
+  let pos = ivec2(x= frame[].windowInfo.box.xy.scaled())
+  w.setWindowPos(pos)

@@ -204,7 +204,7 @@ template connectDefaults*[T](node: T) =
     when compiles(SignalTypes.tick(T)):
       connect(node, doTick, node, T.tick(), acceptVoidSlot = true)
 
-proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResizable, saveWindowState = true): AppFrame =
+proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResizable, saveWindowState = true, atlasSize = -1): AppFrame =
   mixin draw
   if root == nil:
     raise newException(NilAccessDefect, "must set root")
@@ -219,6 +219,7 @@ proc newAppFrame*[T](root: T, size: (UiScalar, UiScalar), style = DecoratedResiz
   frame.windowInfo.box.h = size[1].UiScalar
   frame.windowStyle = style
   frame.saveWindowState = saveWindowState
+  frame.atlasSize = atlasSize
   refresh(root)
   return frame
 
@@ -372,10 +373,11 @@ template withRootWidget*(self, blk: untyped) =
   let this {.inject, used.} = self
   let widgetContents {.inject, used.} = move self.contents
   self.contents.setLen(0)
-  this.cxSize = [100'pp, 100'pp]
+
+  # let wh = self.frame[].windowInfo.box.wh
+  # this.cxSize = [100'pp, 100'pp]
   this.name = "root".toAtom()
 
   Rectangle.new "main":
-    # this.cxSize = [100'pp, 100'pp]
     bindSigilEvents(this):
       `blk`

@@ -49,6 +49,7 @@ type
     theme*: Theme
     configFile*: string
     saveWindowState*: bool
+    atlasSize*: int
     clipboards*: RChan[ClipboardContents]
 
   Figuro* = ref object of Agent

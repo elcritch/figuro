@@ -122,5 +122,5 @@ proc draw*(self: Main) {.slot.} =
           printLayout(self, cmTerminal)
 
 var main = Main.new()
-var frame = newAppFrame(main, size=(720'ui, 640'ui))
+var frame = newAppFrame(main, size=(720'ui, 640'ui), atlasSize= 2048)
 startFiguro(frame)
