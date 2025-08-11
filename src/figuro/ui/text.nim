@@ -2,6 +2,15 @@ import apis
 import chronicles
 import ../common/system
 
+proc setInnerText*(
+    node: Figuro,
+    spans: openArray[(UiFont, string)],
+    hAlign: FontHorizontal = FontHorizontal.Left,
+    vAlign: FontVertical = FontVertical.Top,
+    wrap: bool = true,
+    redraw: bool = true,
+)
+
 proc hasInnerTextChanged*(
     node: Figuro,
     spans: openArray[(UiFont, string)],
@@ -14,14 +23,29 @@ proc hasInnerTextChanged*(
       nodeBox = node.box.wh, spans = spans.hash, hAlign = hAlign, vAlign = vAlign
   result = thash != node.textLayout.contentHash
 
+proc layoutTextResize*(node: Figuro, changed: Figuro) {.slot.} =
+  ## Recompute text layout when the node's size changes.
+  ## `changed` is ignored as the slot is connected to `node` itself.
+  discard changed
+  if node.textSpans.len > 0:
+    setInnerText(node, node.textSpans, node.textHAlign, node.textVAlign, node.textWrap, false)
+
 proc setInnerText*(
     node: Figuro,
     spans: openArray[(UiFont, string)],
     hAlign = FontHorizontal.Left,
     vAlign = FontVertical.Top,
     wrap = true,
+    redraw = true,
 ) =
   ## Set the text on an item.
+  let first = node.textSpans.len == 0
+  node.textSpans = @spans
+  node.textHAlign = hAlign
+  node.textVAlign = vAlign
+  node.textWrap = wrap
+  if first:
+    connect(node, doLayoutResize, node, layoutTextResize)
   if hasInnerTextChanged(node, spans, hAlign, vAlign):
     trace "setInnertText", name = node.name, uid= node.uid, box= node.box
     node.textLayout = system.getTypeset(node.box, spans, hAlign, vAlign, minContent = node.cxSize[drow] == csNone(), wrap = wrap)
@@ -37,7 +61,8 @@ proc setInnerText*(
     node.cxMin = [min(ux(minSize.w), node.cxSize[dcol]), csFixed(minSize.h)]
     node.cxMax = [csFixed(maxSize.w), csFixed(maxSize.h)]
 
-    refresh(node.parent[])
+    if redraw:
+      refresh(node.parent[])
 
 proc textChanged*(node: Text, txt: string): bool {.thisWrapper.} =
   if node.children.len() == 1:
