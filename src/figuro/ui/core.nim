@@ -87,6 +87,11 @@ proc resetToDefault*(node: Figuro, kind: NodeKind) =
   node.userAttrs = {}
   node.flags = {}
   node.fieldSet = {}
+  node.textLayout = GlyphArrangement()
+  node.textSpans.setLen(0)
+  node.textHAlign = FontHorizontal.Left
+  node.textVAlign = FontVertical.Top
+  node.textWrap = true
 
 var nodeDepth = 0
 proc nd*(): string =

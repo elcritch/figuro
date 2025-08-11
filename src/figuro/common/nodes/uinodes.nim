@@ -105,6 +105,10 @@ type
     cornerRadius*: array[DirectionCorners, UiScalar]
     image*: ImageStyle
     textLayout*: GlyphArrangement
+    textSpans*: seq[(UiFont, string)]
+    textHAlign*: FontHorizontal
+    textVAlign*: FontVertical
+    textWrap*: bool
     points*: seq[Position]
 
   FiguroContent* = object
